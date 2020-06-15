@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouperClient.util;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -40,6 +42,56 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class ExpirableCache<K,V> implements Serializable {
 
+  /**
+   * if there is a database clearable cache with this name, clear it
+   * @param name
+   * @return true if there was such a cache
+   */
+  public static boolean clearCache(String name) {
+    
+    WeakReference<ExpirableCache<?,?>> weakReference = databaseClearableCaches.get(name);
+    
+    ExpirableCache<?,?> expirableCache = weakReference == null ? null : weakReference.get();
+    
+    if (expirableCache == null) {
+      // assume no race condition here :)
+      databaseClearableCaches.remove(name);
+      return false;
+    }
+    expirableCache.clear();
+    return true;
+  }
+  
+  /**
+   * if the cache should be able to clear across JVMs through the database
+   */
+  private static Map<String, WeakReference<ExpirableCache<?,?>>> databaseClearableCaches 
+    = Collections.synchronizedMap(new HashMap<String, WeakReference<ExpirableCache<?,?>>>());
+
+  /**
+   * if database clearable across jvms
+   */
+  private boolean databaseClearable = false;
+  
+  /**
+   * database clearable name
+   */
+  private String databaseClearableName = null;
+  
+  /**
+   * register a cache for database clearable.  Note you cant register one that is already there
+   * @param name
+   */
+  public void registerDatabaseClearableCache(String name) {
+    
+    if (databaseClearableCaches.containsKey(name)) {
+      throw new RuntimeException("Cache name already in use: '" + name + "'");
+    }
+    this.databaseClearable = true;
+    this.databaseClearableName = name;
+    databaseClearableCaches.put(name, new WeakReference<ExpirableCache<?,?>>(this));
+  }
+  
   /** max time to live in millis */
   static long MAX_TIME_TO_LIVE_MILLIS = 1000 * 60 * 60 * 24; //1 day
 
@@ -168,12 +220,31 @@ public class ExpirableCache<K,V> implements Serializable {
   }
 
   /**
+   * 
+   */
+  public void notifyDatabaseOfChanges() {
+    if (this.databaseClearable) {
+      Class<?> grouperCacheDatabaseClass = null;
+      try {
+        grouperCacheDatabaseClass = GrouperClientUtils.forName("edu.internet2.middleware.grouper.cache.GrouperCacheDatabase");
+      } catch (Exception e) {
+        // maybe we are running in client without Grouper there...  so ignore this
+        return;
+      }
+      String realCacheName = "expirableCache__" + this.databaseClearableName;
+      GrouperClientUtils.callMethod(grouperCacheDatabaseClass, null, "notifyDatabaseOfCacheUpdate", String.class, realCacheName);
+    }
+  }
+  
+  /**
    * put a value into the cache, accept the default time to live for this cache
    * @param key
    * @param value
    */
   public synchronized void put(K key, V value) {
+
     this.putHelper(key, value, this.defaultTimeToLiveInMillis);
+  
   }
   
   /**
@@ -184,7 +255,7 @@ public class ExpirableCache<K,V> implements Serializable {
    * If -1 then use the default
    */
   public synchronized void put(K key, V value, int timeToLiveInMinutes) {
-    
+        
     //see if the default
     if (timeToLiveInMinutes == -1) {
       this.put(key,value);

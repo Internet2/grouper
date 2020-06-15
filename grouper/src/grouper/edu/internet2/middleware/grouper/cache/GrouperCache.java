@@ -19,14 +19,19 @@
  */
 package edu.internet2.middleware.grouper.cache;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
@@ -66,6 +71,29 @@ public class GrouperCache<K,V> {
   /** cache that this wraps */
   private Cache cache = null;
   
+  /**
+   * if database clearable across jvms
+   */
+  private boolean databaseClearable = false;
+  
+  /**
+   * register a cache for database clearable.  Note you cant register one that is already there
+   * @param name
+   */
+  public void registerDatabaseClearableCache() {
+    this.databaseClearable = true;
+  }
+
+  /**
+   * 
+   */
+  public void notifyDatabaseOfChanges() {
+    if (this.databaseClearable) {
+      String realCacheName = "ehcache__" + this.cache.getName();
+      GrouperCacheDatabase.notifyDatabaseOfCacheUpdate(realCacheName);
+    }
+  }
+
 
   /**
    * 

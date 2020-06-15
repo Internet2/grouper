@@ -170,18 +170,18 @@ public class GrouperRecentMembershipsTest extends GrouperTest {
     assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
     AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
-    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsMicros = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+    AttributeDefName grouperRecentMembershipsGroupUuidFrom = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
     AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
     AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "2");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group2dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsMicros.getName(), "2");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupUuidFrom.getName(), "test:group2dayRecentMemberships");
     attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "false");
     
     attributeAssignResult = group4daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsDays.getName(), "4");
-    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupName.getName(), "test:group4dayRecentMemberships");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsMicros.getName(), "4");
+    attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupUuidFrom.getName(), "test:group4dayRecentMemberships");
     attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeEligible.getName(), "false");
     
     runJobs(true, true);
@@ -336,8 +336,8 @@ public class GrouperRecentMembershipsTest extends GrouperTest {
     assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
 
     AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
-    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
     AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
     AttributeAssignResult attributeAssignResult = group2daySource.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker);
@@ -482,8 +482,8 @@ public class GrouperRecentMembershipsTest extends GrouperTest {
     assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
   
     AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
-    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
     AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
     for (int i=1;i<=12;i++) {
@@ -647,8 +647,8 @@ public class GrouperRecentMembershipsTest extends GrouperTest {
     assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
   
     AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
-    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
     AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
     for (int i=1;i<=12;i++) {
@@ -784,8 +784,8 @@ public class GrouperRecentMembershipsTest extends GrouperTest {
     assertEquals(incrementalSyncCount, GrouperRecentMembershipsChangeLogConsumer.test_incrementalSyncCount);
   
     AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, true);
-    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, true);
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
     AttributeDefName grouperRecentMembershipsIncludeEligible = AttributeDefNameFinder.findByName(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
     
     for (int i=1;i<=12;i++) {

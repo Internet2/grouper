@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -246,98 +247,103 @@ public class GcTableSyncTableMetadata {
     
     final ArrayList<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas = new ArrayList<GcTableSyncColumnMetadata>();
     gcTableSyncTableMetadata.setColumnMetadata(gcTableSyncColumnMetadatas);
-    // go to database from and look up metadata
-    new GcDbAccess().connectionName(theConnectionName).sql(sql).callbackResultSet(new GcResultSetCallback() {
-
-      @Override
-      public Object callback(ResultSet resultSet) throws Exception {
-        
-        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-        for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
-          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
-          gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
+    
+    try {
+      // go to database from and look up metadata
+      new GcDbAccess().connectionName(theConnectionName).sql(sql).callbackResultSet(new GcResultSetCallback() {
+  
+        @Override
+        public Object callback(ResultSet resultSet) throws Exception {
           
-          String columnName = resultSetMetaData.getColumnName(i+1);
-          int dataType = resultSetMetaData.getColumnType(i+1);
-          String typeName = resultSetMetaData.getColumnTypeName(i+1);
-
-          gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(i);
-          
-          gcTableSyncColumnMetadata.setColumnName(columnName);
-          
-          switch (dataType) {
-            case Types.BIGINT: 
-            case Types.DECIMAL:
-            case Types.DOUBLE:
-            case Types.FLOAT:
-            case Types.INTEGER:
-            case Types.NUMERIC:
-            case Types.REAL:
-            case Types.SMALLINT:
-            case Types.TINYINT:
-              
-              gcTableSyncColumnMetadata.setColumnType(ColumnType.NUMERIC);
-              {
-                int precision = resultSetMetaData.getPrecision(i+1);
-                gcTableSyncColumnMetadata.setPrecision(precision);
-              }
-
-              {
-                int scale = resultSetMetaData.getScale(i+1);
-                gcTableSyncColumnMetadata.setScale(scale);
-              }
-              break;
-              
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-
-              gcTableSyncColumnMetadata.setColumnType(ColumnType.STRING);
-              {
-                int columnDisplaySize = resultSetMetaData.getColumnDisplaySize(i+1);
-                gcTableSyncColumnMetadata.setColumnDisplaySize(columnDisplaySize);
-              }
-              break;
-
-            case Types.DATE:
-            case Types.TIMESTAMP:
-              
-              gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
-              break; 
-              
-            default:
-              throw new RuntimeException("Type not supported: " + dataType + ", " + typeName);
-              
-
+          ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+  
+          for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
+            GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
+            gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
+            
+            String columnName = resultSetMetaData.getColumnName(i+1);
+            int dataType = resultSetMetaData.getColumnType(i+1);
+            String typeName = resultSetMetaData.getColumnTypeName(i+1);
+  
+            gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(i);
+            
+            gcTableSyncColumnMetadata.setColumnName(columnName);
+            
+            switch (dataType) {
+              case Types.BIGINT: 
+              case Types.DECIMAL:
+              case Types.DOUBLE:
+              case Types.FLOAT:
+              case Types.INTEGER:
+              case Types.NUMERIC:
+              case Types.REAL:
+              case Types.SMALLINT:
+              case Types.TINYINT:
+                
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.NUMERIC);
+                {
+                  int precision = resultSetMetaData.getPrecision(i+1);
+                  gcTableSyncColumnMetadata.setPrecision(precision);
+                }
+  
+                {
+                  int scale = resultSetMetaData.getScale(i+1);
+                  gcTableSyncColumnMetadata.setScale(scale);
+                }
+                break;
+                
+              case Types.CHAR:
+              case Types.VARCHAR:
+              case Types.LONGVARCHAR:
+  
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.STRING);
+                {
+                  int columnDisplaySize = resultSetMetaData.getColumnDisplaySize(i+1);
+                  gcTableSyncColumnMetadata.setColumnDisplaySize(columnDisplaySize);
+                }
+                break;
+  
+              case Types.DATE:
+              case Types.TIMESTAMP:
+                
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
+                break; 
+                
+              default:
+                throw new RuntimeException("Type not supported: " + dataType + ", " + typeName);
+                
+  
+            }
           }
+          
+          Collections.sort(gcTableSyncColumnMetadatas, new Comparator<GcTableSyncColumnMetadata>() {
+  
+            @Override
+            public int compare(GcTableSyncColumnMetadata o1, GcTableSyncColumnMetadata o2) {
+              
+              if (o1 == o2) {
+                return 0;
+              }
+              if (o1 == null) {
+                return -1;
+              }
+              if (o2 == null) {
+                return 1;
+              }
+              return o1.getColumnName().compareTo(o2.getColumnName());
+            }
+          });
+          
+          return null;
         }
         
-        Collections.sort(gcTableSyncColumnMetadatas, new Comparator<GcTableSyncColumnMetadata>() {
-
-          @Override
-          public int compare(GcTableSyncColumnMetadata o1, GcTableSyncColumnMetadata o2) {
-            
-            if (o1 == o2) {
-              return 0;
-            }
-            if (o1 == null) {
-              return -1;
-            }
-            if (o2 == null) {
-              return 1;
-            }
-            return o1.getColumnName().compareTo(o2.getColumnName());
-          }
-        });
-        
-        return null;
-      }
-      
-    });
+      });
+    } catch (Exception e) {
+      LOG.error("Error finding metadata for '" + tableName + "' in database: '" + theConnectionName + "'");
+    }
 
     if (gcTableSyncColumnMetadatas.size() == 0) {
-      throw new RuntimeException("Cant find table metadata for '" + tableName + "' in grouper.client.properties database: '" + theConnectionName + "'");
+      throw new RuntimeException("Cant find table metadata for '" + tableName + "' in database: '" + theConnectionName + "'");
     }
       
     return gcTableSyncTableMetadata;
@@ -423,6 +429,11 @@ public class GcTableSyncTableMetadata {
   private List<GcTableSyncColumnMetadata> columns;
 
   /**
+   * 
+   */
+  private static Log LOG = GrouperClientUtils.retrieveLog(GcTableSyncTableMetadata.class);
+
+  /**
    * if group this is the group column
    */
   private GcTableSyncColumnMetadata groupColumn;
@@ -436,7 +447,7 @@ public class GcTableSyncTableMetadata {
    * column in FROM table which has incrementing timestamp or integer
    */
   private GcTableSyncColumnMetadata incrementalAllCoumnsColumn;
-  
+
   /**
    * column in FROM table which has incrementing timestamp or integer
    * @return metadata

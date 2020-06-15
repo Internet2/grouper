@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
@@ -861,6 +862,8 @@ public class GrouperDdlEngine {
    * @return true if up to date, false if needs to run a script
    */
   public boolean runDdl() {
+    
+    GrouperCacheDatabase.stopThread();
     
     this.thisDdlDatabaseLockingUuid = null;
     this.done = false;

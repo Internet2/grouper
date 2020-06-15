@@ -1372,7 +1372,7 @@ public class GrouperDdl2_5 {
             "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
             "CREATOR_SUBJECT_ID: subject id of the subject who created this role, e.g. 12345", 
             "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
-            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemented", 
             "CREATOR_ID: member id of the subject who created this role, foreign key to grouper_members", 
             "CREATE_TIME: number of millis since 1970 since this role was created", 
             "MODIFIER_ID: member id of the subject who last modified this role, foreign key to grouper_members", 

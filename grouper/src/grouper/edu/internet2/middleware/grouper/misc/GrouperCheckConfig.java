@@ -605,7 +605,7 @@ public class GrouperCheckConfig {
             if (recentMembershipsMarkerDef == null) {
               recentMembershipsMarkerDef = recentMembershipsStem.addChildAttributeDef(GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER_DEF, AttributeDefType.attr);
               recentMembershipsMarkerDef.setAssignToGroup(true);
-              recentMembershipsMarkerDef.setMultiAssignable(true);
+              recentMembershipsMarkerDef.setMultiAssignable(false);
               recentMembershipsMarkerDef.store();
               assignAutoCreate = true;
             }
@@ -635,12 +635,31 @@ public class GrouperCheckConfig {
             grouperRecentMembershipsValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(recentMembershipsMarker.getName());
 
             //add some names
-            AttributeDefName daysAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS, 
-                "Number of days that the recent memberships lasts", wasInCheckConfig);
-            AttributeDefName groupNameAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME, 
-                "Fully qualified group name of the recent memberships group", wasInCheckConfig);
+            AttributeDefName groupUuidAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, 
+                "", wasInCheckConfig);
             AttributeDefName includeEligibleAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT,
                 "true or false if the eligible population should be included in the recent memberships group to reduce provisioning flicker", wasInCheckConfig);
+
+            //lets add some rule attributes
+            String grouperRecentMembershipsIntValueDefName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_INT_VALUE_DEF;
+            AttributeDef grouperRecentMembershipsIntValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+                grouperRecentMembershipsIntValueDefName, false, new QueryOptions().secondLevelCache(false));
+            if (grouperRecentMembershipsIntValueDef == null) {
+              grouperRecentMembershipsIntValueDef = recentMembershipsStem.addChildAttributeDef(GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_INT_VALUE_DEF, AttributeDefType.attr);
+              grouperRecentMembershipsIntValueDef.setAssignToGroupAssn(true);
+              grouperRecentMembershipsIntValueDef.setValueType(AttributeDefValueType.integer);
+              grouperRecentMembershipsIntValueDef.store();
+            }
+
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            grouperRecentMembershipsIntValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(recentMembershipsMarker.getName());
+
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(grouperRecentMembershipsIntValueDef);
+
+            AttributeDefName microsAttributeDefName = checkAttribute(recentMembershipsStem, grouperRecentMembershipsIntValueDef, GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, 
+                "Number of micros that the recent memberships last", wasInCheckConfig);
+
             
             String groupName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
             Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
@@ -680,8 +699,8 @@ public class GrouperCheckConfig {
               
               AttributeAssignResult attributeAssignResult = recentMembershipsMarkerDef.getAttributeDelegate().assignAttribute(autoCreateMarker);
               attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(ifName.getName(), recentMembershipsMarker.getName());
-              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(thenNames.getName(), daysAttributeDefName.getName() 
-                  + ", " + groupNameAttributeDefName.getName() + ", " + includeEligibleAttributeDefName.getName());
+              attributeAssignResult.getAttributeAssign().getAttributeValueDelegate().assignValue(thenNames.getName(), microsAttributeDefName.getName() 
+                  + ", " + groupUuidAttributeDefName.getName() + ", " + includeEligibleAttributeDefName.getName());
             }
             
           }

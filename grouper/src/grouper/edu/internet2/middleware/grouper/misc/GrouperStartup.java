@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -386,6 +387,7 @@ public class GrouperStartup {
           SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
           
         }
+        GrouperCacheDatabase.startThreadIfNotStarted();
         GrouperCacheUtils.clearAllCaches();
 
         return true;

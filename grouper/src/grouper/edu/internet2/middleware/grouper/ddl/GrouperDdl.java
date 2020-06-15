@@ -2529,6 +2529,26 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
       GrouperDdl2_5_30.addSubjectResolutionColumns(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperNowTable(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperNowComments(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperCacheOverallTable(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperCacheOverallComments(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperCacheInstanceTable(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperCacheInstanceComments(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperCacheInstanceIndexes(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperRecentMembershipsTable(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperRecentMembershipsIndexes(database, ddlVersionBean);
+      GrouperDdl2_5_30.addGrouperRecentMembershipsComments(database, ddlVersionBean);
+      
+      // if we are building from scratch, then views will be set from the normal ordered add view place
+      if (!GrouperDdl2_5_30.buildingFromScratch(ddlVersionBean)) {
+        GrouperDdl2_5_30.addPitMembershipsLwV(ddlVersionBean);
+        GrouperDdl2_5_30.addPitMshipsGroupLwV(ddlVersionBean);
+        GrouperDdl2_5_30.addPitMshipsStemLwV(ddlVersionBean);
+        GrouperDdl2_5_30.addPitMshipsAttrDefLwV(ddlVersionBean);
+        GrouperDdl2_5_30.createViewRecentMembershipsV(ddlVersionBean);
+        GrouperDdl2_5_30.createViewRecentMemLoadV(ddlVersionBean);
+      }      
     }
   },
   V34 {
@@ -3269,6 +3289,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v", false);
 
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_recent_mships_load_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_recent_mships_conf_v", false);
+
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_efmship_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v", false);
@@ -3330,7 +3353,11 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_memberships_all_v", false);
-    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_memberships_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_mship_attr_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_mship_group_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_mship_stem_lw_v", false);
+        
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v", false);
@@ -6042,7 +6069,14 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
     GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
     GrouperDdl2_5.addConfigurationComments(ddlVersionBean, database);
+    GrouperDdl2_5.addDdlWorkerComments(ddlVersionBean, database);
     
+    GrouperDdl2_5_30.addGrouperCacheOverallComments(database, ddlVersionBean);
+    GrouperDdl2_5_30.addGrouperCacheInstanceComments(database, ddlVersionBean);
+    GrouperDdl2_5_30.addGrouperNowComments(database, ddlVersionBean);
+    GrouperDdl2_5_30.addGrouperRecentMembershipsComments(database, ddlVersionBean);
+
+
     String groupIdCol = "id";
     
     String stemIdCol = "id";
@@ -10925,7 +10959,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gaa.enabled='T' and gmav.member_id = gm.id "
         + "and gf.name in ('admins', 'members', 'readers', 'updaters') ");
 
-      
+      GrouperDdl2_5_30.addPitMembershipsLwV(ddlVersionBean);
+      GrouperDdl2_5_30.addPitMshipsGroupLwV(ddlVersionBean);
+      GrouperDdl2_5_30.addPitMshipsStemLwV(ddlVersionBean);
+      GrouperDdl2_5_30.addPitMshipsAttrDefLwV(ddlVersionBean);
+
+      GrouperDdl2_5_30.createViewRecentMembershipsV(ddlVersionBean);
+      GrouperDdl2_5_30.createViewRecentMemLoadV(ddlVersionBean);
+
     }
     
     if (GrouperDdlUtils.isHsql()) {

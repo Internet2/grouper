@@ -2550,6 +2550,31 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * see if table is there
+   * @param expectTrue throw exception if expecting true and not there or vice versa
+   * @param tableName 
+   * @param columnName 
+   * @return true if everything ok, false if not
+   */
+  public static boolean assertTableThere(boolean expectTrue, String tableName) {
+    try {
+      //first, see if column are there
+      HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from " + tableName);
+      if (expectTrue) {
+        return true;
+      }
+      return false;
+    } catch (RuntimeException e) {
+      if (expectTrue) {
+        return false;
+      }
+      return true;
+    }
+  
+  }
+
+  /**
    * see if tables are there (at least the grouper groups one)
    * @param tableName 
    * @return true if everything ok, false if not

@@ -26,15 +26,22 @@ public class GrouperRecentMemberships {
   public static final String GROUPER_RECENT_MEMBERSHIPS_MARKER = "grouperRecentMembershipsMarker";
 
   public static final String GROUPER_RECENT_MEMBERSHIPS_VALUE_DEF = "grouperRecentMembershipsValueDef";
+
+  public static final String GROUPER_RECENT_MEMBERSHIPS_INT_VALUE_DEF = "grouperRecentMembershipsIntValueDef";
+
+  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS = "grouperRecentMembershipsMicros";
   
-  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS = "grouperRecentMembershipsDays";
-  
-  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME = "grouperRecentMembershipsGroupName";
+  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM = "grouperRecentMembershipsGroupUuidFrom";
 
   public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT = "grouperRecentMembershipsIncludeCurrent";
 
   public static final String GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME = "grouperRecentMembershipsLoader";
-  
+
+// old attributes
+//  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS = "grouperRecentMembershipsDays";
+//  
+//  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME = "grouperRecentMembershipsGroupName";
+
   private static String groupQuery = null;
   
   private static String query = null;
@@ -91,8 +98,8 @@ public class GrouperRecentMemberships {
           + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
           + "grouper_aval_asn_asn_group_v gaaagv_recentMemberships, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
           + "where gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_groupName.attribute_assign_id1 and gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_includeEligible.attribute_assign_id1 "
-          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
-          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
+//          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
+//          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
           + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
           + "and gpmship.MEMBER_ID = gpm.ID and gpm.subject_source != 'g:gsa' and gpgs.FIELD_ID = gpf.ID "
           + "and gpf.name = 'members' " + databasePart + " "
@@ -108,8 +115,8 @@ public class GrouperRecentMemberships {
           + "gaaagv_recentMemberships.value_string recent_memberships_days, gaaagv_groupName.value_string group_name, gaaagv_includeEligible.value_string include_eligible "
           + "from grouper_aval_asn_asn_group_v gaaagv_recentMemberships, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
           + "where gaaagv_recentMemberships.group_id = gaaagv_groupName.group_id and gaaagv_recentMemberships.group_id = gaaagv_includeEligible.group_id "
-          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
-          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
+//          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
+//          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
           + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
           + regexPart;
 

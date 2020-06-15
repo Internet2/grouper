@@ -627,8 +627,14 @@ public class GrouperDdlCompare {
       StringBuilder viewWarnings = new StringBuilder();
       StringBuilder viewNotes = new StringBuilder();
       
-      GcTableSyncTableMetadata viewMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromDatabase("grouper", grouperDdlCompareView.getName());
+      GcTableSyncTableMetadata viewMetadata = null;
       
+      try {
+        viewMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromDatabase("grouper", grouperDdlCompareView.getName());
+      } catch (Exception e) {
+        LOG.error("error getting metadata on view: " + grouperDdlCompareView.getName());
+      }
+
       if (viewMetadata == null) {
         grouperDdlCompareView.setMissing(true);
         viewErrors.append("Missing view.  ");

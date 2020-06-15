@@ -69,7 +69,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5ddlUtils"));
+    //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
+    //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
+    
+    
     
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_4"));
 
@@ -945,6 +949,19 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_sync");
         
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "subject_resolution_deleted"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_time"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_overall"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_instance"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_memberships_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_group_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_stem_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_attr_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_load_v"));
+
   }
 
   /**
@@ -1066,12 +1083,34 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "subject_resolution_deleted"));
 
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_time"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_cache_overall"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_cache_instance"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_conf"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_memberships_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_group_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_stem_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_attr_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_conf_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_load_v"));
+
     GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
     //first make sure the DB ddl is up to date
     new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
 
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "subject_resolution_deleted"));
     
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_time"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_overall"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_instance"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_memberships_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_group_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_stem_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_attr_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_load_v"));
+
     scriptToGetTo2_5.delete();
     
   }
@@ -1096,6 +1135,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "subject_resolution_deleted"));
   
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_time"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_cache_overall"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_cache_instance"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_conf"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_memberships_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_group_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_stem_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_mship_attr_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_conf_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_recent_mships_load_v"));
+
     new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true).assignDeepCheck(false)
       .assignCompareFromDbVersion(true)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
       .assignDropBeforeCreate(false).assignWriteAndRunScript(true)
@@ -1105,6 +1155,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "subject_resolution_deleted"));
     
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_time"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_overall"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_cache_instance"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_memberships_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_group_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_stem_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_mship_attr_lw_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_load_v"));
+
     scriptToGetTo2_5.delete();
     
   }

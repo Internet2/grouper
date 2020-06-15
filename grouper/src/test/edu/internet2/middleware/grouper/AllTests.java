@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cache.AllGrouperCacheTests;
 import edu.internet2.middleware.grouper.cfg.AllConfigTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.AllChangeLogTests;
@@ -225,6 +226,7 @@ public class AllTests extends GrouperTest {
     
     suite.addTest(AllFilterTests.suite());
     suite.addTest(AllGroupTests.suite());
+    suite.addTest(AllGrouperCacheTests.suite());
     suite.addTest(AllGrouperUiTests.suite());
     suite.addTest(AllHibernateTests.suite());
     suite.addTest(AllHooksTests.suite());
