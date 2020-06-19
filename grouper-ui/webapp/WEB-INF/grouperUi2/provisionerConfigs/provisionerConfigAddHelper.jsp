@@ -3,8 +3,8 @@
   <c:set  value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration}" var="guiProvisionerConfiguration"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigId">${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
-    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
+    <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="provisionerConfigId">${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap; width: 5%;">&nbsp;</td>
     <td>
       <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}"
          name="provisionerConfigId" id="provisionerConfigId" />
@@ -16,8 +16,8 @@
   </tr>
   	
   	<tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigTypeId">${textContainer.text['provisionerTypeLabel']}</label></strong></td>
-    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
+    <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="provisionerConfigTypeId">${textContainer.text['provisionerTypeLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap; width: 5%;">&nbsp;</td>
     <td>
       <select name="provisionerConfigType" id="provisionerConfigTypeId" style="width: 30em"
       onchange="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration', {formIds: 'provisionerConfigDetails'}); return false;"

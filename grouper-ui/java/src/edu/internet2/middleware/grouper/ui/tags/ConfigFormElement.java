@@ -8,6 +8,7 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -392,6 +393,12 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {
       
+      String[] selectedValuesArray = value != null ? value.split(","): new String[] {};
+      
+      boolean isValueProvided = StringUtils.isNotBlank(value);
+      
+      List<String> selectedValues =  Arrays.asList(selectedValuesArray);
+      
       for (MultiKey multiKey: checkboxAttributes) {
         
         String value = (String) multiKey.getKey(0);
@@ -400,11 +407,17 @@ public class ConfigFormElement extends SimpleTagSupport {
         
         field.append("<input type='checkbox' style='"+ displayClass + "' id='"+value+"_id' name='config_"+configId+"' ");
         if (value != null) {
-          field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
+          field.append(" value = '"+value+"'");
         }
-        if (checked) {
+        
+        if (isValueProvided) {
+          if (selectedValues.contains(value)) {
+            field.append(" checked ");
+          }
+        } else if (checked) {
           field.append(" checked ");
         }
+        
         field.append("></input>");
         field.append("&nbsp; &nbsp; <label for '"+value+"_id'>");
         field.append(label);

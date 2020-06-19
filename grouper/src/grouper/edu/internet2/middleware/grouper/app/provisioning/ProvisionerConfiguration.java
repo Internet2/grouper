@@ -15,8 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -126,12 +129,73 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
       }
     }
     
-    //Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(result);
+    Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(result);
     
-    //result.putAll(extraAttributes);
+    result.putAll(extraAttributes);
     
     this.attributeCache = result;
     return result;
+  }
+  
+  private Map<String, GrouperConfigurationModuleAttribute> retrieveExtraAttributes(Map<String, GrouperConfigurationModuleAttribute> attributesFromBaseConfig) {
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    
+    if (configFileName == null) {
+      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
+    }
+    
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
+    
+    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+    
+    Pattern pattern = Pattern.compile(this.getConfigIdRegex());
+    
+    for (String propertyName: configPropertiesCascadeBase.properties().stringPropertyNames()) {
+      
+      Matcher matcher = pattern.matcher(propertyName);
+     
+      if (!matcher.matches()) {
+        continue;
+      }
+      
+      String configId = this.getConfigId();
+      if (StringUtils.isBlank(configId)) {
+        throw new RuntimeException("Why is configId blank??? " + this.getClass().getName());
+      }
+      
+      String configIdFromProperty = matcher.group(2);
+      
+      if (!StringUtils.equals(configId, configIdFromProperty)) {
+        continue;
+      }
+      
+      String suffix = matcher.group(3);
+      
+      if (attributesFromBaseConfig.containsKey(suffix)) {
+        GrouperConfigurationModuleAttribute attribute = attributesFromBaseConfig.get(suffix);
+        if (DbConfigEngine.isPasswordHelper(attribute.getConfigItemMetadata(), configPropertiesCascadeBase.propertyValueString(propertyName))) {
+          attribute.setValue(DbConfigEngine.ESCAPED_PASSWORD);
+        } else {
+          attribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+        }
+        
+      } else {
+        
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
+        configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+        
+        GrouperConfigurationModuleAttribute grouperExternalSystemAttribute = 
+            buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
+        
+        result.put(suffix, grouperExternalSystemAttribute);
+      }
+      
+    }
+    
+    return result;
+     
   }
   
   /**
@@ -173,6 +237,8 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   public boolean isEnabled() {
    //TODO: add implementation
     return true;
-    
   }
+  
+  
+  
 }

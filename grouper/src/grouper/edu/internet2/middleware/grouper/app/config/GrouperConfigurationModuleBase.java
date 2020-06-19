@@ -96,7 +96,7 @@ public abstract class GrouperConfigurationModuleBase {
       
       // required
       if (StringUtils.isBlank(value)) {
-        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired()) {
+        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired() && grouperConfigModuleAttribute.isShow()) {
 
           validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
               GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
@@ -241,7 +241,7 @@ public abstract class GrouperConfigurationModuleBase {
       Class<CheckboxValueDriver> klass = GrouperUtil.forName(checkboxValueFromClassString);
       CheckboxValueDriver driver = GrouperUtil.newInstance(klass);
       List<MultiKey> checkboxAttributes = driver.retrieveCheckboxAttributes();
-      grouperConfigModuleAttribute.setCheckboxAttributes(checkboxAttributes); 
+      grouperConfigModuleAttribute.setCheckboxAttributes(checkboxAttributes);
     }
     
     if (grouperConfigModuleAttribute.isPassword()) {
@@ -327,9 +327,9 @@ public abstract class GrouperConfigurationModuleBase {
         
         StringBuilder localMessage = new StringBuilder();
         
-        DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(), 
-            grouperConfigModuleAttribute.getFullPropertyName(), 
-            grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
+        DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(),
+            grouperConfigModuleAttribute.getFullPropertyName(),
+            grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false",
             grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
             grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
             new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false);

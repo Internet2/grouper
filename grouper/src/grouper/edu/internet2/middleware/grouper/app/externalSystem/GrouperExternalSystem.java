@@ -134,7 +134,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   }
   
   
-  public Map<String, GrouperConfigurationModuleAttribute> retrieveExtraAttributes(Map<String, GrouperConfigurationModuleAttribute> attributesFromBaseConfig) {
+  private Map<String, GrouperConfigurationModuleAttribute> retrieveExtraAttributes(Map<String, GrouperConfigurationModuleAttribute> attributesFromBaseConfig) {
     
     ConfigFileName configFileName = this.getConfigFileName();
     
