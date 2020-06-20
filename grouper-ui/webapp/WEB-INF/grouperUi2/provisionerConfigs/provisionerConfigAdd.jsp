@@ -25,6 +25,8 @@
 	   <div id="messages"></div>
          
          <form class="form-inline form-small form-filter" id="provisionerConfigDetails">
+         	<input type="hidden" name="previousProvisionerConfigId" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}" />
+         	<input type="hidden" name="previousProvisionerConfigType" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}" />
             <table class="table table-condensed table-striped">
               <tbody>
                 <%@ include file="provisionerConfigAddHelper.jsp" %>

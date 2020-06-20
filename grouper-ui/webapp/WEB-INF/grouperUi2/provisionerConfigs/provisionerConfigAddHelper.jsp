@@ -53,7 +53,9 @@
   				
   				<grouper:configFormElement 
   					formElementType="${attribute.formElement}" 
-  					configId="${attribute.configSuffix}" label="${attribute.label}"
+  					configId="${attribute.configSuffix}" 
+  					label="${attribute.label}"
+  					readOnly="${attribute.readOnly}"
   					helperText="${attribute.description}"
   					helperTextDefaultValue="${attribute.defaultValue}"
   					required="${attribute.required}"

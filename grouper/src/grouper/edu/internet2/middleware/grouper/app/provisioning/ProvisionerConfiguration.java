@@ -122,7 +122,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
         
         String propertyName = prefix + "." + configId + "." + suffix;
 
-        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
+        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata, configPropertiesCascadeBase);
 
         result.put(suffix, grouperConfigModuleAttribute);
       
@@ -186,10 +186,10 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
         configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
         configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
         
-        GrouperConfigurationModuleAttribute grouperExternalSystemAttribute = 
+        GrouperConfigurationModuleAttribute configModuleAttribute =
             buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
         
-        result.put(suffix, grouperExternalSystemAttribute);
+        result.put(suffix, configModuleAttribute);
       }
       
     }

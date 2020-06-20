@@ -111,7 +111,17 @@ public class UiV2ProvisionerConfiguration {
         }
         
         provisionerConfiguration.setConfigId(provisionerConfigId);
-        populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+        
+        String previousProvisionerConfigId = request.getParameter("previousProvisionerConfigId");
+        String previousProvisionerConfigType = request.getParameter("previousProvisionerConfigType");
+        if (StringUtils.isBlank(previousProvisionerConfigId) 
+            || !StringUtils.equals(provisionerConfigType, previousProvisionerConfigType)) {
+          // first time loading the screen or
+          // provisioner config type changed
+          // let's get values from config files/database
+        } else {
+          populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+        }
         
         GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
         provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
