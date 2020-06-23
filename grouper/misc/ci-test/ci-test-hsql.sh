@@ -21,6 +21,7 @@ LOGTAG=$(date +%Y%m%d_%H%M%S)-$$
 TESTLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.log
 SUMMARYLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.summary.log
 BUILDLOG=$GROUPER_LOGDIR/grouper-ci-mvn-$LOGTAG.log
+CURRENT_BRANCH=GROUPER_2_5_BRANCH
 
 # Whether to still run the tests even if there are no git updates
 # can enable these during debugging
@@ -39,8 +40,9 @@ fi
 
 cd $GROUPER_HOME
 if [ "$SKIP_PULL" = "" ]; then
-  echo "Pulling from master" >>$TESTLOG 2>&1
-  git checkout master >>$TESTLOG 2>&1
+  echo "Pulling from active branch ($CURRENT_BRANCH)" >>$TESTLOG 2>&1
+
+  git checkout $CURRENT_BRANCH  >>$TESTLOG 2>&1
 
   PULL_OUTFILE=$(mktemp --tmpdir=$GROUPER_LOGDIR)
   git pull > $PULL_OUTFILE
@@ -70,7 +72,7 @@ fi
 #  echo "No committer emails found for latest pull -- skipping tests" >>$TESTLOG
 #  exit 1
 #fi
-COMMITTER_EMAILS=unused
+COMMITTER_EMAILS=$(cat /var/grouper-ci/bin/MAILTO.dat)
 
 # Check for '[skip tests]' in the commit text
 # Note: grep -q returns 0 if found and 1 if not, so flag is the opposite of expected
@@ -89,6 +91,7 @@ $MVN -f grouper-parent clean package install  >>$BUILDLOG 2>&1
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
   echo "Maven build failed (exit $exit_code)" >>$TESTLOG
+  echo "Maven build failed (exit $exit_code)" | mailx -s "CI test results *Maven build failed*" -a $BUILDLOG $COMMITTER_EMAILS 2>&1
   exit 1
 fi
 
@@ -172,7 +175,7 @@ $JAVA -classpath "$CP" \
 
 exit_code=$?
 
-echo $(date) "CI test started (exit code $exit_code)" >>$TESTLOG
+echo $(date) "CI test finished (exit code $exit_code)" >>$TESTLOG
 
 
 GROUPER_ATTACH=
@@ -184,7 +187,6 @@ jobs >>$TESTLOG
 kill %1 >>$TESTLOG 2>&1
 
 #DEBUG
-COMMITTER_EMAILS=chad_redman@unc.edu
 
 tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >$SUMMARYLOG 2>>$TESTLOG
 summary_code=$?
@@ -195,7 +197,10 @@ if [ $summary_code -ne 0 -o -z $SUMMARYLOG ]; then
   exit $exit_code
 fi
 
-echo "CI completed tests" | mailx -s "CI test results (summary)" -a $SUMMARYLOG $COMMITTER_EMAILS 2>&1
+echo "CI completed tests. Details can be found on $(hostname) in file $TESTLOG" | mailx -s "CI test results (summary)" -a $SUMMARYLOG $COMMITTER_EMAILS 2>&1
+
+# The unit tests leave extra grouperImportRecordReport* files around that will slowly accumulate
+rm -f /var/grouper-ci/git/grouper/grouperImportRecordReport_*.txt
 
 # Exit with the result from the test run
 exit $exit_code
