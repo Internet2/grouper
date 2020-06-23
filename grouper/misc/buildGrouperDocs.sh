@@ -17,17 +17,18 @@ MVN=/opt/maven/bin/mvn
 JAVA_HOME=/opt/java8; export JAVA_HOME
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
+CURRENT_BRANCH=GROUPER_2_5_BRANCH
 
 echo $(date) "Starting build"
 
 cd $GP
 git status
-git checkout master
+git checkout $CURRENT_BRANCH
 git pull
 
-echo $(date) "Checked out master branch (exit $?)"
+echo $(date) "Checked out branch '$CURRENT_BRANCH' (exit $?)"
 
-# Build master branch site in /tmp
+# Build branch site in /tmp
 
 cd $GP/grouper-parent
 rm -rf $SITE
