@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
+import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
@@ -586,7 +587,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   private void updateMemberAttributes(Subject subj) {
     
     //if not started, then maybe not initted...
-    if (GrouperStartup.isFinishedStartupSuccessfully() && !"g:gsa".equals(subj.getSourceId())) {
+    if (GrouperStartup.isFinishedStartupSuccessfully() && !"g:gsa".equals(subj.getSourceId()) && !UsduJob.isInUsduThread()) {
       // update member attributes
       Member member = MemberFinder.internal_findBySubject(subj, null, false);
   

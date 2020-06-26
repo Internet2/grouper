@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +78,15 @@ public class UsduJob extends OtherJobBase {
   
   private static Map<String, UsduSource> usduConfiguredSources = new HashMap<String, UsduSource>();
   
+  private static InheritableThreadLocal<Boolean> runningUsduThreadLocal = new InheritableThreadLocal<Boolean>();
+
+  /**
+   * @return if in the thread running usdu
+   */
+  public static boolean isInUsduThread() {
+    return GrouperUtil.booleanValue(runningUsduThreadLocal.get(), false);
+  }
+
   static {
     list2priv.put(Field.FIELD_NAME_ADMINS, AccessPrivilege.ADMIN);
     list2priv.put(Field.FIELD_NAME_OPTINS, AccessPrivilege.OPTIN);
@@ -142,33 +152,57 @@ public class UsduJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    if (!UsduSettings.usduEnabled()) {
-      LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
-      return null;
+    try {
+      runningUsduThreadLocal.set(true);
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      if (!UsduSettings.usduEnabled()) {
+        LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
+        return null;
+      }
+      
+      AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
+      if (resolvableMembersAttr != null) {
+        // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
+        throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
+      }
+          
+      int totalProvisioningObjectsUpdated = 0;
+      int batchSize = 20000;
+      
+      LOG.info("Going to mark members as deleted.");
+      Set<Member> unresolvableMembers = new LinkedHashSet<Member>();
+      List<String> memberIdsToCheck = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck());
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsToCheck.size(), batchSize);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
+        Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
+        
+        Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
+  
+        for (Member member : currentMembers) {
+          
+          if (!USDU.isMemberResolvable(grouperSession, member, memberIdToSubjectMap)) {
+            unresolvableMembers.add(member);
+          }
+        }
+        
+        totalProvisioningObjectsUpdated += syncProvisioningData(currentBatch, memberIdToSubjectMap);
+      }
+  
+      long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers);
+      otherJobInput.getHib3GrouperLoaderLog().store();
+      
+      long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
+      otherJobInput.getHib3GrouperLoaderLog().store();
+          
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects.");
+      
+      LOG.info("UsduJob finished successfully.");
+    } finally {
+      runningUsduThreadLocal.remove();
     }
-    
-    AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
-    if (resolvableMembersAttr != null) {
-      // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
-      throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
-    }
-    
-    Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
-    
-    LOG.info("Going to mark members as deleted.");
-    long deletedMembers = deleteUnresolvableMembers(grouperSession, memberIdToSubjectMap);
-    otherJobInput.getHib3GrouperLoaderLog().store();
-    
-    long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
-    otherJobInput.getHib3GrouperLoaderLog().store();
-    
-    int totalProvisioningObjectsUpdated = syncProvisioningData(memberIdToSubjectMap);
-    
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects.");
-    
-    LOG.info("UsduJob finished successfully.");
     
     return null;
   }
@@ -208,7 +242,7 @@ public class UsduJob extends OtherJobBase {
    * @param memberIdToSubjectMap
    * @return count of changes
    */
-  private int syncProvisioningData(Map<String, Subject> memberIdToSubjectMap) {
+  private int syncProvisioningData(List<String> memberIds, Map<String, Subject> memberIdToSubjectMap) {
 
     int totalObjectsStored = 0;
     
@@ -274,9 +308,9 @@ public class UsduJob extends OtherJobBase {
         gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
 
         
-        List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
-        for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
-          String memberId = gcGrouperSyncMember.getMemberId();
+        Map<String, GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIds);
+        for (String memberId : gcGrouperSyncMembers.keySet()) {
+          GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSyncMembers.get(memberId);
           Subject subject = memberIdToSubjectMap.get(memberId);
           if (subject == null) {
             // maybe it didn't get resolved, don't mess with the existing cached data.
@@ -392,13 +426,11 @@ public class UsduJob extends OtherJobBase {
   /**
    * delete unresolvable members
    * @param grouperSession
-   * @param memberIdToSubjectMap map will be filled with resolved subjects
+   * @param unresolvableMembres
    * @return number of members marked as deleted
    */
-  private long deleteUnresolvableMembers(GrouperSession grouperSession, Map<String, Subject> memberIdToSubjectMap) {
-    
-    Set<Member> unresolvableMembers = USDU.getUnresolvableMembers(grouperSession, null, memberIdToSubjectMap);
-    
+  private long deleteUnresolvableMembers(GrouperSession grouperSession, Set<Member> unresolvableMembers) {
+        
     // map to store source id to set of members to be deleted
     Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();
     

@@ -351,5 +351,11 @@ public interface MemberDAO extends GrouperDAO {
    * @return unresolvable members
    */
   public Set<Member> getUnresolvableMembers(QueryOptions queryOptions, Boolean deleted);
+  
+  /**
+   * returns all member ids of non-internal sources.  plus member ids for groups that are deleted but have attributes/memberships.
+   * @return set of member ids
+   */
+  public Set<String> findAllMemberIdsForUnresolvableCheck();
 } 
 

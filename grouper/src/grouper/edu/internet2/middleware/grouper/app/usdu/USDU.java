@@ -608,6 +608,7 @@ public class USDU {
       Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true);
       if (memberIdToSubjectMap != null) {
         memberIdToSubjectMap.put(member.getId(), subject);
+        member.updateMemberAttributes(subject, true);
       }
       return true;
     } catch (SubjectNotFoundException e) {

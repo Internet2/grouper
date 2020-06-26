@@ -895,6 +895,27 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     return byHqlStatic.listSet(Member.class);  
   }
 
+  @Override
+  public Set<String> findAllMemberIdsForUnresolvableCheck() throws GrouperDAOException {
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
+    StringBuilder query = new StringBuilder("select distinct theMember.uuid from Member as theMember where ");
+   
+    query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa') or " );
+    query.append(" (theMember.subjectSourceIdDb = 'g:gsa' and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
+
+    //memberships or attributes
+    query.append(" and (exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +
+        " or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid"
+        + " and theAttributeAssign.attributeDefNameId != :theAttributeDefNameId )) ");
+    
+    // dont worry about the unresolvable attributes
+    byHqlStatic.setString("theAttributeDefNameId", UsduAttributeNames.retrieveAttributeDefNameBase().getId());
+        
+    byHqlStatic.createQuery(query.toString());
+    return byHqlStatic.listSet(String.class);  
+  }
+
   /**
    * @see MemberDAO#findByIds(Collection, QueryOptions)
    */
