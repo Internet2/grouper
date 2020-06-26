@@ -267,7 +267,7 @@ public class LdaptiveSessionImpl implements LdapSession {
             if ( !ldapPoolConfig.isValidateOnCheckIn() &&
                  !ldapPoolConfig.isValidateOnCheckOut() &&
                  !ldapPoolConfig.isValidatePeriodically() ) {
-              ldapPoolConfig.setValidateOnCheckOut(true);
+              ldapPoolConfig.setValidatePeriodically(true);
             }
           }
 
