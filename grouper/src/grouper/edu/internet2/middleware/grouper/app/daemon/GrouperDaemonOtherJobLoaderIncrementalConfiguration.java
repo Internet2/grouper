@@ -27,11 +27,11 @@ public class GrouperDaemonOtherJobLoaderIncrementalConfiguration extends Grouper
     return "^(otherJob)\\.([^.]+)\\.(.*)$";
   }
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return GrouperLoaderIncrementalJob.class.getName();
   }
   
@@ -48,9 +48,9 @@ public class GrouperDaemonOtherJobLoaderIncrementalConfiguration extends Grouper
   @Override
   public boolean matchesQuartzJobName(String jobName) {
     if (jobName != null && jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX)) {
-      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisDaemon(),
+      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisConfig(),
           GrouperLoaderConfig.retrieveConfig().propertyValueString(this.getConfigItemPrefix() 
-              + this.getPropertySuffixThatIdentifiesThisDaemon()))) {
+              + this.getPropertySuffixThatIdentifiesThisConfig()))) {
         return true;
       }
     }

@@ -3,7 +3,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;

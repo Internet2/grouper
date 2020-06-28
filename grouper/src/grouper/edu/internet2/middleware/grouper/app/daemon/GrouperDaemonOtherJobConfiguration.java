@@ -37,12 +37,12 @@ public class GrouperDaemonOtherJobConfiguration extends GrouperDaemonConfigurati
   }
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
 
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return "a.b.c.SomethingThatExtendsOtherJobBase";
   }
 

@@ -84,12 +84,12 @@ public class GrouperDaemonChangeLogEsbConfiguration extends GrouperDaemonConfigu
   
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
 
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return EsbConsumer.class.getName();
   }
 
@@ -106,9 +106,9 @@ public class GrouperDaemonChangeLogEsbConfiguration extends GrouperDaemonConfigu
   @Override
   public boolean matchesQuartzJobName(String jobName) {
     if (jobName != null && jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
-      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisDaemon(),
+      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisConfig(),
           GrouperLoaderConfig.retrieveConfig().propertyValueString(this.getConfigItemPrefix() 
-              + this.getPropertySuffixThatIdentifiesThisDaemon()))) {
+              + this.getPropertySuffixThatIdentifiesThisConfig()))) {
         return true;
       }
     }

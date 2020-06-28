@@ -77,12 +77,12 @@ public class GrouperDaemonMessagingListenerToChangeLogConfiguration extends Grou
   
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
 
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return MessagingListenerToChangeLogConsumer.class.getName();
   }
 
@@ -99,9 +99,9 @@ public class GrouperDaemonMessagingListenerToChangeLogConfiguration extends Grou
   @Override
   public boolean matchesQuartzJobName(String jobName) {
     if (jobName != null && jobName.startsWith(GrouperLoaderType.GROUPER_MESSAGING_LISTENER_PREFIX)) {
-      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisDaemon(),
+      if (StringUtils.equals(this.getPropertyValueThatIdentifiesThisConfig(),
           GrouperLoaderConfig.retrieveConfig().propertyValueString(this.getConfigItemPrefix() 
-              + this.getPropertySuffixThatIdentifiesThisDaemon()))) {
+              + this.getPropertySuffixThatIdentifiesThisConfig()))) {
         return true;
       }
     }

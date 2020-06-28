@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.app.externalSystem;
+package edu.internet2.middleware.grouper.app.config;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -6,23 +6,19 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 
-/**
- * grouper external subsection. One to many relationship between external system and subsection 
- */
-public class GrouperExternalSystemSubSection {
-
+public class GrouperConfigurationModuleSubSection {
+  
   /**
    * label to display for the subsection
    */
   private String label;
   
   /**
-   * grouper external system this subsection is child of 
+   * provisioner configuration this subsection is child of 
    */
-  private GrouperExternalSystem grouperExternalSystem;
+  private GrouperConfigurationModuleBase configuration;
   
   public String getLabel() {
     return label;
@@ -32,12 +28,14 @@ public class GrouperExternalSystemSubSection {
     this.label = label;
   }
   
-  public GrouperExternalSystem getGrouperExternalSystem() {
-    return grouperExternalSystem;
-  }
   
-  public void setGrouperExternalSystem(GrouperExternalSystem grouperExternalSystem) {
-    this.grouperExternalSystem = grouperExternalSystem;
+  public GrouperConfigurationModuleBase getConfiguration() {
+    return configuration;
+  }
+
+  
+  public void setConfiguration(GrouperConfigurationModuleBase configuration) {
+    this.configuration = configuration;
   }
 
   /**
@@ -45,7 +43,8 @@ public class GrouperExternalSystemSubSection {
    * @return
    */
   public String getTitle() {
-    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label +".title");
+    String configPrefix = getConfiguration().getConfigurationTypePrefix();
+    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title");
     if (StringUtils.isBlank(title)) {
       return label;
     }
@@ -57,7 +56,8 @@ public class GrouperExternalSystemSubSection {
    * @return
    */
   public String getDescription() {
-    String title = GrouperTextContainer.textOrNull("externalSystem." + this.grouperExternalSystem.getClass().getSimpleName() + ".subSection." + this.label + ".description");
+    String configPrefix = getConfiguration().getConfigurationTypePrefix();
+    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label + ".description");
     if (StringUtils.isBlank(title)) {
       return label;
     }
@@ -70,7 +70,7 @@ public class GrouperExternalSystemSubSection {
    */
   public Map<String, GrouperConfigurationModuleAttribute> getAttributes() {
     Map<String, GrouperConfigurationModuleAttribute> results = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperExternalSystem.retrieveAttributes().values()) {
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.configuration.retrieveAttributes().values()) {
       if (StringUtils.equals(this.getLabel(), grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection())) {
         results.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute);
       }
@@ -85,5 +85,5 @@ public class GrouperExternalSystemSubSection {
   public Collection<GrouperConfigurationModuleAttribute> getAttributesValues() {
     return this.getAttributes().values();
   }
-  
+
 }

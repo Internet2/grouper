@@ -24,5 +24,10 @@ public class SftpGrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(grouperSftp\\.site)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "configId";
+  }
 
 }

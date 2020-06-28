@@ -90,12 +90,12 @@ public class GrouperDaemonMessagingListenerConfiguration extends GrouperDaemonCo
   }
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
 
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return MessagingListenerBase.class.getName();
   }
 

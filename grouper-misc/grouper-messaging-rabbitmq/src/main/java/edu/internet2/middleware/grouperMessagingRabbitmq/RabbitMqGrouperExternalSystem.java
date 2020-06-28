@@ -24,5 +24,10 @@ public class RabbitMqGrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(grouper\\.rabbitMqConnector)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
 
 }

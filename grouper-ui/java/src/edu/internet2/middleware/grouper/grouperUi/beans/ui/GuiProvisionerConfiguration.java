@@ -7,6 +7,9 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguratio
 
 public class GuiProvisionerConfiguration {
   
+  /**
+   * provisioner configuration this instance is wrapping
+   */
   private ProvisionerConfiguration provisionerConfiguration;
   
   private GuiProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
@@ -17,10 +20,20 @@ public class GuiProvisionerConfiguration {
     return this.provisionerConfiguration;
   }
 
+  /**
+   * convert from provisioner configuration to gui provisioner configuration
+   * @param provisionerConfiguration
+   * @return
+   */
   public static GuiProvisionerConfiguration convertFromProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
     return new GuiProvisionerConfiguration(provisionerConfiguration);
   }
   
+  /**
+   * convert from list of provisioner configurations to gui provisioner configurations
+   * @param provisionerConfigurations
+   * @return
+   */
   public static List<GuiProvisionerConfiguration> convertFromProvisionerConfiguration(List<ProvisionerConfiguration> provisionerConfigurations) {
     
     List<GuiProvisionerConfiguration> guiProvisionerConfigurations = new ArrayList<GuiProvisionerConfiguration>();

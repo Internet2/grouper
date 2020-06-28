@@ -28,7 +28,6 @@
 			            <tr>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderConfigId']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderType']}</th>
-			              <th>${textContainer.text['provisionerConfigsTableHeaderEnabled']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderActions']}</th>
 			            </tr>
 			            </thead>
@@ -45,15 +44,6 @@
 			                    ${guiProvisionerConfiguration.provisionerConfiguration.title}
 			                   </td>
 			                   
-			                   <td style="white-space: nowrap;">
-			                     <c:if test="${guiProvisionerConfiguration.provisionerConfiguration.enabled == true}">
-			                      ${textContainer.text['provisionerConfigsTableEnabledTrueValue']}
-			                     </c:if>
-			                     <c:if test="${guiProvisionerConfiguration.provisionerConfiguration.enabled == false }">
-			                      ${textContainer.text['provisionerConfigsTableEnabledFalseValue']}
-			                     </c:if>
-			                   </td>
-			                  
 			                   <td>
 			                     <div class="btn-group">
 			                           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
@@ -62,17 +52,8 @@
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurationDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewDetailsActionOption'] }</a></li>
+			                             <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurationDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewDetailsActionOption'] }</a></li> --%>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
-			                             
-			                             <c:if test="${guiProvisionerConfiguration.provisionerConfiguration.enabled == true}">
-					                      <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.disableProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableDisableActionOption'] }</a></li>
-					                     </c:if>
-					                     
-					                     <c:if test="${guiProvisionerConfiguration.provisionerConfiguration.enabled == false}">
-					                      <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.enableProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableEnableActionOption'] }</a></li>
-					                     </c:if>
-			                             
 			                             <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>

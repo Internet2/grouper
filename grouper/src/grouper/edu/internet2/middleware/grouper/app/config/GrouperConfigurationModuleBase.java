@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +21,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -37,18 +40,139 @@ public abstract class GrouperConfigurationModuleBase {
   private String configId;
   
   /**
+   * is the config enabled or not
+   * @return
+   */
+  public boolean isEnabled() {
+    return true;
+  }
+  
+  /**
+   * property suffix that will be used to identify the config eg class
+   * @return
+   */
+  public String getPropertySuffixThatIdentifiesThisConfig() {
+    return null;
+  }
+  
+  /**
+   * property value that identifies the config. Suffix is required for this property to be useful. eg: edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync
+   * @return
+   */
+  public String getPropertyValueThatIdentifiesThisConfig() {
+    return null;
+  }
+  
+  /**
+   * config id that identified this config. either suffix and value or getConfigIdThatIdentifiesThisConfig is required, not both. eg: personLdap
+   * @return
+   */
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return null;
+  }
+  
+  /**
+   * extra configs that dont match the regex or prefix
+   */
+  protected Set<String> extraConfigKeys = new LinkedHashSet<String>();
+
+  public Set<String> retrieveExtraConfigKeys() {
+    return extraConfigKeys;
+  }
+  
+  
+  /**
+   * list of systems that can be configured
+   * @return
+   */
+  public static List<GrouperConfigurationModuleBase> retrieveAllConfigurationTypesHelper(Set<String> classNames) {
+    
+    List<GrouperConfigurationModuleBase> result = new ArrayList<GrouperConfigurationModuleBase>();
+    
+    for (String className: classNames) {
+
+      try {
+        Class<GrouperConfigurationModuleBase> configClass = (Class<GrouperConfigurationModuleBase>) GrouperUtil.forName(className);
+        GrouperConfigurationModuleBase config = GrouperUtil.newInstance(configClass);
+        result.add(config);
+      } catch (Exception e) {
+        //TODO ignore for now. for external systems we might not have all the classes on the classpath
+      }
+    }
+    
+    return result;
+  }
+  
+  
+  /**
+   * get all configurations configured for this type
+   * @return
+   */
+  protected List<GrouperConfigurationModuleBase> listAllConfigurationsOfThisType() {
+    
+    List<GrouperConfigurationModuleBase> result = new ArrayList<GrouperConfigurationModuleBase>();
+    
+    for (String configId : this.retrieveConfigurationConfigIds()) {
+      
+      @SuppressWarnings("unchecked")
+      Class<GrouperConfigurationModuleBase> theClass = (Class<GrouperConfigurationModuleBase>)this.getClass();
+      GrouperConfigurationModuleBase config = GrouperUtil.newInstance(theClass);
+      config.setConfigId(configId);
+      result.add(config);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * list of configured external systems
+   * @return
+   */
+  public static List<GrouperConfigurationModuleBase> retrieveAllConfigurations(Set<String> classNames) {
+    
+    List<GrouperConfigurationModuleBase> result = new ArrayList<GrouperConfigurationModuleBase>();
+    
+    for (String className: classNames) {
+      try {        
+        Class<GrouperConfigurationModuleBase> configClass = (Class<GrouperConfigurationModuleBase>) GrouperUtil.forName(className);
+        GrouperConfigurationModuleBase config = GrouperUtil.newInstance(configClass);
+        result.addAll(config.listAllConfigurationsOfThisType());
+      } catch(Exception e) {
+        //TODO ignore for now. for external systems we might not have all the classes on the classpath
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
    * call retrieveAttributes() to get this
    */
   protected Map<String, GrouperConfigurationModuleAttribute> attributeCache = null;
   
+  /**
+   * config id
+   * @return
+   */
   public String getConfigId() {
     return configId;
   }
   
+  /**
+   * config id
+   * @param configId
+   */
   public void setConfigId(String configId) {
     this.configId = configId;
   }
 
+  /**
+   * validations to run before saving values into db
+   * @param isInsert
+   * @param fromUi
+   * @param errorsToDisplay
+   * @param validationErrorsToDisplay
+   */
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     if (isInsert) {
@@ -56,6 +180,14 @@ public abstract class GrouperConfigurationModuleBase {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
       }
     }
+    
+    if (isMultiple()) {
+      Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+      if (!configIdPattern.matcher(this.getConfigId()).matches()) {
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
+      }
+    }
+    
     
     // first check if checked the el checkbox then make sure there's a script there
     {
@@ -161,16 +293,275 @@ public abstract class GrouperConfigurationModuleBase {
     }
   }
   
-  public abstract Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes();
+  /**
+   * retrieve attributes based on the instance
+   * @return
+   */
+  public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {
+    
+    if (this.attributeCache != null) {
+      return this.attributeCache;
+    }
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    
+    if (configFileName == null) {
+      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
+    }
+    
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
+    
+    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+
+    Pattern pattern = Pattern.compile(this.getConfigIdRegex());
+
+    List<ConfigSectionMetadata> configSectionMetadataList = configFileName.configFileMetadata().getConfigSectionMetadataList();
+    
+    // get the attributes based on the configIdThatIdentifiesThisConfig
+    String configIdThatIdentifiesThisConfig = null;
+    
+    if (this.isMultiple() && StringUtils.isBlank(this.getConfigId())) {
+      throw new RuntimeException("Cant have isMultiple and a blank configId! " + this.getClass().getName());
+    }
+    if (!this.isMultiple() && !StringUtils.isBlank(this.getConfigId())) {
+      throw new RuntimeException("Cant have not isMultiple and configId! " + this.getClass().getName());
+    }
+
+    if (this.getPropertySuffixThatIdentifiesThisConfig() != null) {
+      
+      if (StringUtils.isBlank(this.getPropertyValueThatIdentifiesThisConfig())) {
+        throw new RuntimeException("getPropertyValueThatIdentifiesThisConfig is required for " + this.getClass().getName());
+      }
+      
+      if (StringUtils.isNotBlank(this.getConfigIdThatIdentifiesThisConfig())) {
+        throw new RuntimeException("can't specify ConfigIdThatIdentifiesThisConfig and PropertySuffixThatIdentifiesThisConfig for class "+this.getClass().getName());
+      }
+ 
+      if (!this.isMultiple()) {
+        throw new RuntimeException("Cant have getPropertySuffixThatIdentifiesThisConfig and not be multiple! " + this.getClass().getName());
+      }
+      
+      outer: for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
+        for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
+          
+          Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
+          if (!matcher.matches()) {
+            continue;
+          }
+          
+          String configId = matcher.group(2);
+          String suffix = matcher.group(3);
+
+          if (StringUtils.equals(suffix, this.getPropertySuffixThatIdentifiesThisConfig())) {
+            
+            if (StringUtils.equals(configItemMetadata.getValue(), this.getPropertyValueThatIdentifiesThisConfig())
+                || StringUtils.equals(configItemMetadata.getSampleValue(), this.getPropertyValueThatIdentifiesThisConfig())) {
+              configIdThatIdentifiesThisConfig = configId;
+              break outer;
+            }
+            
+          }
+        }
+      }
+      
+      if (StringUtils.isBlank(configIdThatIdentifiesThisConfig)) {
+        throw new RuntimeException("can't find property in config file that identifies this daemon for " + this.getClass().getName());
+      }
+      
+    } else if (this.getConfigIdThatIdentifiesThisConfig() != null ) {
+      configIdThatIdentifiesThisConfig = this.getConfigIdThatIdentifiesThisConfig();
+    }
+    
+      for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
+        for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
+
+          String propertyName = configItemMetadata.getKeyOrSampleKey();
+          String suffix = propertyName;
+          if (!this.retrieveExtraConfigKeys().contains(propertyName)) {
+            
+            Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
+            if (!matcher.matches()) {
+              continue;
+            }
+            
+            String prefix = matcher.group(1);
+            suffix = null;
+                    
+            if(this.isMultiple()) { // multiple means config id will not be blank on an edit
+
+              if (StringUtils.isBlank(configIdThatIdentifiesThisConfig)) {
+                throw new RuntimeException("Why is configIdThatIdentifiesThisConfig blank??? " + this.getClass().getName());
+              }
+
+              String currentConfigId = matcher.group(2);
+
+              if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisConfig)) {
+                continue;
+              }
+              
+              suffix = matcher.group(3);
+              propertyName = prefix + "." + this.getConfigId() + "." + suffix;
+              
+            } else {
+              
+              if (!StringUtils.isBlank(this.getConfigId())) {
+                throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
+              }
+              suffix = matcher.group(2);
+              propertyName = configItemMetadata.getKeyOrSampleKey();
+              
+            }
+
+          }
+          
+          GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata, configPropertiesCascadeBase);
+          result.put(suffix, grouperConfigModuleAttribute);
+       
+        }
+      }
+      
+      Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(result);
+      result.putAll(extraAttributes);
+      
+      this.attributeCache = result;
+
+
+    return result;
+    
+  }
   
+  /**
+   * config file name to check for properties and metadata
+   * @return
+   */
   public abstract ConfigFileName getConfigFileName();
   
+  /**
+   * prefix for the properties eg: provisioner.
+   * @return
+   */
   public abstract String getConfigItemPrefix();
   
+  /**
+   * config id regeg eg: ^(provisioner)\\.([^.]+)\\.(.*)$
+   * @return
+   */
   public abstract String getConfigIdRegex();
   
+  /**
+   * retrieve suffix based on the property name
+   * @param pattern
+   * @param propertyName
+   * @return
+   */
+  public String retrieveSuffix(Pattern pattern, String propertyName) {
+    Matcher matcher = pattern.matcher(propertyName);
+    
+    if (!matcher.matches()) {
+      return null;
+    }
+    
+    String configId = this.getConfigId();
+    if (StringUtils.isBlank(configId)) {
+      throw new RuntimeException("Why is configId blank??? " + this.getClass().getName());
+    }
+    
+    String configIdFromProperty = matcher.group(2);
+    
+    if (!StringUtils.equals(configId, configIdFromProperty)) {
+      return null;
+    }
+    
+    String suffix = matcher.group(3);
+    return suffix;
+  }
   
-  public GrouperConfigurationModuleAttribute buildConfigurationModuleAttribute(
+  
+  /**
+   * get subsections for the UI
+   * @return
+   */
+  public List<GrouperConfigurationModuleSubSection> getSubSections() {
+    
+    List<GrouperConfigurationModuleSubSection> results = new ArrayList<GrouperConfigurationModuleSubSection>();
+    
+    Set<String> sectionLabelsUsed = new HashSet<String>();
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
+      
+      String sectionLabel = grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection();
+      if (StringUtils.isBlank(sectionLabel)) {
+        sectionLabel = "NULL";
+      }
+      if (sectionLabelsUsed.contains(sectionLabel)) {
+        continue;
+      }
+      sectionLabelsUsed.add(sectionLabel);
+      
+      
+      GrouperConfigurationModuleSubSection configurationSubSection = new GrouperConfigurationModuleSubSection();
+      configurationSubSection.setConfiguration(this);
+      configurationSubSection.setLabel(grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection());
+      results.add(configurationSubSection);
+    }
+    
+    return results;
+  }
+  
+  private Map<String, GrouperConfigurationModuleAttribute> retrieveExtraAttributes(Map<String, GrouperConfigurationModuleAttribute> attributesFromBaseConfig) {
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    
+    if (configFileName == null) {
+      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
+    }
+    
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
+    
+    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+    
+    Pattern pattern = null;
+    try {
+      pattern = Pattern.compile(this.getConfigIdRegex());
+    } catch (Exception e) {
+      // daemon might throw an error so ignore it.
+    }
+        
+    for (String propertyName: configPropertiesCascadeBase.properties().stringPropertyNames()) {
+      
+      String suffix = retrieveSuffix(pattern, propertyName);
+      
+      if (StringUtils.isBlank(suffix)) {
+        continue;
+      }
+      
+      if (attributesFromBaseConfig.containsKey(suffix)) {
+        GrouperConfigurationModuleAttribute attribute = attributesFromBaseConfig.get(suffix);
+        if (DbConfigEngine.isPasswordHelper(attribute.getConfigItemMetadata(), configPropertiesCascadeBase.propertyValueString(propertyName))) {
+          attribute.setValue(DbConfigEngine.ESCAPED_PASSWORD);
+        } else {
+          attribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
+        }
+        
+      } else {
+        
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
+        configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
+        
+        GrouperConfigurationModuleAttribute configModuleAttribute =
+            buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
+        
+        result.put(suffix, configModuleAttribute);
+      }
+      
+    }
+    
+    return result;
+     
+  }
+  
+  private GrouperConfigurationModuleAttribute buildConfigurationModuleAttribute(
       String propertyName, String suffix, boolean useConfigItemMetadataValue,
       ConfigItemMetadata configItemMetadata, ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
     
@@ -533,6 +924,7 @@ public abstract class GrouperConfigurationModuleBase {
     
     for (Object propertyNameObject : properties.keySet()) {
       String propertyName = (String)propertyNameObject;
+      String value = (String) properties.get(propertyNameObject);
       
       Matcher matcher = pattern.matcher(propertyName);
       
@@ -541,9 +933,41 @@ public abstract class GrouperConfigurationModuleBase {
       }
 
       String configId = matcher.group(2);
-      result.add(configId);
+      String suffix = matcher.group(3);
+      
+      if (StringUtils.isNotBlank(this.getConfigIdThatIdentifiesThisConfig()) && StringUtils.equals(configId, this.getConfigIdThatIdentifiesThisConfig())) {
+        result.add(configId);
+      }
+      
+      if (StringUtils.isNotBlank(this.getPropertySuffixThatIdentifiesThisConfig()) && 
+          StringUtils.isNotBlank(this.getPropertyValueThatIdentifiesThisConfig()) &&
+          StringUtils.equals(suffix, this.getPropertySuffixThatIdentifiesThisConfig()) 
+          && StringUtils.equals(value, this.getPropertyValueThatIdentifiesThisConfig())) {
+        result.add(configId);
+      }
+      
+      if (StringUtils.isBlank(this.getPropertySuffixThatIdentifiesThisConfig()) && 
+          StringUtils.isBlank(this.getPropertyValueThatIdentifiesThisConfig())) {
+        result.add(configId);
+      }
+      
     }
     return result;
+  }
+
+
+  /**
+   * for each type of configuration this is the prefix for eg in subsections. only ui concern in external text config.
+   * @return
+   */
+  protected abstract String getConfigurationTypePrefix();
+  
+  /**
+   * can there be multiple instances of this config. for eg: LdapProvisionerConfig is true but for GrouperDaemonChangeLogRulesConfiguration is false
+   * @return
+   */
+  public boolean isMultiple() {
+    return true;
   }
   
 }

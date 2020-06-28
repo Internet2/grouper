@@ -25,12 +25,11 @@
 				<table class="table table-condensed table-striped">
                   <tbody>
                	    <tr>
-					  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="externalSystemConfigId">${textContainer.text['grouperExternalSystemConfigIdLabel']}</label></strong></td>
+					  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperExternalSystemConfigIdLabel']}</label></strong></td>
 					  <td>
 					    ${grouper:escapeHtml(grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.configId)}
 					  </td>
 					</tr>
-             		
              		<c:forEach items="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.subSections}" var="section">
              		  <tbody>
              		  

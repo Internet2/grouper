@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlMembershipProvisioner;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
@@ -27,16 +28,18 @@ public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
   public String getConfigIdRegex() {
     return "^(provisioner)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getPropertySuffixThatIdentifiesThisConfig() {
+    return "class";
+  }
+
+  @Override
+  public String getPropertyValueThatIdentifiesThisConfig() {
+    return SqlMembershipProvisioner.class.getName();
+  }
 
 
-  //@Override
-  //public String getPropertySuffixThatIdentifiesThisDaemon() {
-  //  return "class";
-  //}
-  //@Override
-  //public String getPropertyValueThatIdentifiesThisDaemon() {
-  //  return GrouperLoaderIncrementalJob.class.getName();
-  //}
   private void assignCacheConfig() {
 
     {
@@ -167,7 +170,5 @@ public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
     assignCacheConfig();
     super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
   }
-  
-  
 
 }

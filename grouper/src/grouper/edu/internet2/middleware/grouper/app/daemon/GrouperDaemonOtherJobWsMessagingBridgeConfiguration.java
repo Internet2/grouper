@@ -42,13 +42,13 @@ public class GrouperDaemonOtherJobWsMessagingBridgeConfiguration extends Grouper
   
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
   
   
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return MessageConsumerDaemon.class.getName();
   }
 

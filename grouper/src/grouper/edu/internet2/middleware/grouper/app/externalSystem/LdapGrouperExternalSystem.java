@@ -46,6 +46,9 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
     return GrouperUtil.toList("Invalid config");
   }
 
-  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "personLdap";
+  }
   
 }

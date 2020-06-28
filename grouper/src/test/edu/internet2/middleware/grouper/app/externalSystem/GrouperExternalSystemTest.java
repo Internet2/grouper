@@ -229,9 +229,9 @@ public class GrouperExternalSystemTest extends GrouperTest {
     grouperExternalSystemAzure.setConfigId("azureConnector2");
     suffixToAttribute = grouperExternalSystemAzure.retrieveAttributes();
 
-    assertNull(suffixToAttribute.get("resource").getValue());
-    assertNull(suffixToAttribute.get("loginEndpoint").getValue());
-    assertNull(suffixToAttribute.get("graphEndpoint").getValue());
+    assertEquals(suffixToAttribute.get("resource").getValue(), suffixToAttribute.get("resource").getConfigItemMetadata().getSampleValue());
+    assertEquals(suffixToAttribute.get("loginEndpoint").getValue(), suffixToAttribute.get("loginEndpoint").getConfigItemMetadata().getSampleValue());
+    assertEquals(suffixToAttribute.get("graphEndpoint").getValue(), suffixToAttribute.get("graphEndpoint").getConfigItemMetadata().getSampleValue());
     
     assertFalse(grouperExternalSystemAzure.retrieveConfigurationConfigIds().contains("azureConnector2"));
 

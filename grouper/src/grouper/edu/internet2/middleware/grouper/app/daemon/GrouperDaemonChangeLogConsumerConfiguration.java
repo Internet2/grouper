@@ -51,12 +51,12 @@ public class GrouperDaemonChangeLogConsumerConfiguration extends GrouperDaemonCo
   }
   
   @Override
-  public String getPropertySuffixThatIdentifiesThisDaemon() {
+  public String getPropertySuffixThatIdentifiesThisConfig() {
     return "class";
   }
 
   @Override
-  public String getPropertyValueThatIdentifiesThisDaemon() {
+  public String getPropertyValueThatIdentifiesThisConfig() {
     return PrintChangeLogConsumer.class.getName();
   }
 

@@ -25,5 +25,10 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(grouper\\.azureConnector)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myAzure";
+  }
 
 }

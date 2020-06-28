@@ -25,4 +25,9 @@ public class RemedyGrouperExternalSystem extends GrouperExternalSystem {
     return "^(grouper\\.remedyConnector)\\.([^.]+)\\.(.*)$";
   }
   
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
+  
 }

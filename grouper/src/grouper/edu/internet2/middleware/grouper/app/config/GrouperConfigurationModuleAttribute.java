@@ -99,7 +99,10 @@ public class GrouperConfigurationModuleAttribute {
     this.type = type;
   }
 
-  
+  /**
+   * is this attribute required
+   * @return
+   */
   public boolean isRequired() {
     
     if (configItemMetadata.isRequired()) {
@@ -224,7 +227,6 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getDescription() {
-    //TODO rename daemonConfig to something more generic or get it from the implementation class
     String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
@@ -233,7 +235,6 @@ public class GrouperConfigurationModuleAttribute {
   }
 
 
-  
   public boolean isExpressionLanguage() {
     return expressionLanguage;
   }

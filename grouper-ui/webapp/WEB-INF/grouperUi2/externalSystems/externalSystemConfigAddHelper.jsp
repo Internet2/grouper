@@ -7,7 +7,7 @@
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGrouperExternalSystem.grouperExternalSystem.configId)}"
-         name="externalSystemConfigId" id="externalSystemConfigId" />
+         name="externalSystemConfigId" id="configId" />
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
       <br />

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
@@ -26,6 +27,16 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
   @Override
   public String getConfigIdRegex() {
     return "^(provisioner)\\.([^.]+)\\.(.*)$";
+  }
+  
+  @Override
+  public String getPropertySuffixThatIdentifiesThisConfig() {
+    return "class";
+  }
+
+  @Override
+  public String getPropertyValueThatIdentifiesThisConfig() {
+    return LdapSync.class.getName();
   }
 
   private void assignCacheConfig() {
