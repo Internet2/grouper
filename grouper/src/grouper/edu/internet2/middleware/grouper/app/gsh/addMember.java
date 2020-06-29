@@ -142,7 +142,7 @@ public class addMember {
   public static boolean invoke(GrouperSession grouperSession, String group, String subjId, Field field) {
     Group           g     = GroupFinder.findByName(grouperSession, group, true);
     Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
-    g.addMember(subj, field);
+    g.addMember(subj, field, false);
     return true;
   }
 

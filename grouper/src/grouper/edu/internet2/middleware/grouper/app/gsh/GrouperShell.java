@@ -355,6 +355,8 @@ private static boolean handleSpecialCase(String[] args) {
     boolean exitOnNonInteractiveError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
     String error = "Error while running command (" + command +  ")";
     if (exitOnNonInteractiveError) {
+      // note this doesnt always get logged
+      LOG.error("Error in command '" + command + "'", t);
       throw new RuntimeException(error, t);
     }
       
