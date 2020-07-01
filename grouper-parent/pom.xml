@@ -165,7 +165,7 @@
         <!-- hsqldb verion must match the version in tomee -->
         <hsqldb.version>2.3.5</hsqldb.version>
         <postgresql.version>42.1.4</postgresql.version>
-        <mysql.connector.java.version>5.1.45</mysql.connector.java.version>
+        <mysql.connector.java.version>8.0.16</mysql.connector.java.version>
         <ldaptive.version>1.1.2</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
         <aws.java.sdk.core>1.11.529</aws.java.sdk.core>
