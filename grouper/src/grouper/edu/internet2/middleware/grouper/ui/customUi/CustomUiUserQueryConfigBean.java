@@ -23,14 +23,24 @@ public class CustomUiUserQueryConfigBean {
   public static void main(String[] args) {
     //printRequiredAndOptionalFields();
     
-    //customUiUserQueryConfigBean = new edu.internet2.middleware.grouper.ui.customUi.CustomUiUserQueryConfigBean();
-    //customUiUserQueryConfigBean.setUserQueryType("grouper");
-    //customUiUserQueryConfigBean.setVariableToAssign("cu_o365twoStepRequiredToEnroll");
-    //customUiUserQueryConfigBean.setVariableType("boolean");
-    //customUiUserQueryConfigBean.setGroupName("penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod_policy");
-    //customUiUserQueryConfigBean.setFieldNames("members");
-    //
-    //System.out.println(GrouperUtil.jsonConvertTo(customUiUserQueryConfigBean, false));
+//    CustomUiUserQueryConfigBean customUiUserQueryConfigBean = new CustomUiUserQueryConfigBean();
+//    customUiUserQueryConfigBean.setUserQueryType("grouper");
+//    customUiUserQueryConfigBean.setVariableToAssign("cu_ngssBannerProdCanLogin");
+//    customUiUserQueryConfigBean.setVariableType("boolean");
+//    customUiUserQueryConfigBean.setGroupName("penn:isc:ait:apps:ngss:environments:prod:banner:population:ngssBannerProdCanLogin");
+//    customUiUserQueryConfigBean.setFieldNames("members");
+//    
+//    System.out.println(GrouperUtil.jsonConvertTo(customUiUserQueryConfigBean, false));
+    
+    CustomUiUserQueryConfigBean customUiUserQueryConfigBean = new edu.internet2.middleware.grouper.ui.customUi.CustomUiUserQueryConfigBean();
+    customUiUserQueryConfigBean.setVariableToAssign("cu_o365twoStepRequiredToEnroll");
+    customUiUserQueryConfigBean.setFieldNames("members");
+    customUiUserQueryConfigBean.setUserQueryType("grouper");
+    customUiUserQueryConfigBean.setVariableType("boolean");
+    customUiUserQueryConfigBean.setGroupName("penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod_policy");
+    customUiUserQueryConfigBean.setLabel("${textContainer.text['penn_o365twoStep_cu_o365twoStepRequiredToEnroll']}");
+
+    System.out.println(GrouperUtil.jsonConvertTo(customUiUserQueryConfigBean, false));
   }
 
   /**
@@ -157,6 +167,9 @@ public class CustomUiUserQueryConfigBean {
   /** constant for field name for: variableToAssignOnError */
   public static final String FIELD_VARIABLE_TO_ASSIGN_ON_ERROR = "variableToAssignOnError";
 
+  /** constant for field name for: variableToAssignOnAccountValid */
+  public static final String FIELD_VARIABLE_TO_ASSIGN_ON_ACCOUNT_VALID = "variableToAssignOnAccountValid";
+  
   /** constant for field name for: variableType */
   public static final String FIELD_VARIABLE_TYPE = "variableType";
 
