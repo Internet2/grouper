@@ -297,6 +297,15 @@
     
     <attribute>
       <description>
+        list of multikeys for checkboxes
+        </description>
+      <name>checkboxAttributes</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
         ajax callback (on a dropdown)
         </description>
       <name>ajaxCallback</name>

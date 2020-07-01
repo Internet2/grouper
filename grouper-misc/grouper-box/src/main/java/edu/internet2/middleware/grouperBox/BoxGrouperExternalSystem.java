@@ -24,5 +24,10 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(grouperClient\\.boxConnector)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
 
 }

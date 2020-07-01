@@ -7,7 +7,7 @@
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGrouperExternalSystem.grouperExternalSystem.configId)}"
-         name="externalSystemConfigId" id="externalSystemConfigId" />
+         name="externalSystemConfigId" id="configId" />
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
       <br />
@@ -53,7 +53,9 @@
   				
   				<grouper:configFormElement 
   					formElementType="${attribute.formElement}" 
-  					configId="${attribute.configSuffix}" label="${attribute.label}"
+  					configId="${attribute.configSuffix}" 
+  					label="${attribute.label}"
+  					readOnly="${attribute.readOnly}"
   					helperText="${attribute.description}"
   					helperTextDefaultValue="${attribute.defaultValue}"
   					required="${attribute.required}"
@@ -62,6 +64,7 @@
   					hasExpressionLanguage="${attribute.expressionLanguage}"
   					ajaxCallback="ajax('../app/UiV2ExternalSystem.addExternalSystem?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}', {formIds: 'externalSystemConfigDetails'}); return false;"
   					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
+  					checkboxAttributes="${attribute.checkboxAttributes}"
   				/>
   				
   			</c:forEach>

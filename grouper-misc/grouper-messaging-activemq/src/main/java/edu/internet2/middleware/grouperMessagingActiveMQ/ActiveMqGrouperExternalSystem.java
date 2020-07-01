@@ -25,4 +25,10 @@ public class ActiveMqGrouperExternalSystem extends GrouperExternalSystem {
     return "^(grouper\\.activeMqConnector)\\.([^.]+)\\.(.*)$";
   }
 
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
+  
+
 }

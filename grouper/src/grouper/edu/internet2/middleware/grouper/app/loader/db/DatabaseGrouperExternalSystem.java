@@ -64,6 +64,11 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
 
     return new ArrayList<String>();
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "warehouse";
+  }
 
   
 }

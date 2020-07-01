@@ -39,12 +39,12 @@ public class GrouperDaemonChangeLogRulesConfiguration extends GrouperDaemonConfi
   }
 //  
 //  @Override
-//  public String getPropertySuffixThatIdentifiesThisDaemon() {
+//  public String getPropertySuffixThatIdentifiesThisConfig() {
 //    return "class";
 //  }
 //
 //  @Override
-//  public String getPropertyValueThatIdentifiesThisDaemon() {
+//  public String getPropertyValueThatIdentifiesThisConfig() {
 //    return GroupSyncConsumer.class.getName();
 //  }
 

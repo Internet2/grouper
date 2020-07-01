@@ -109,6 +109,7 @@
 			  					value="${attribute.valueOrExpressionEvaluation}"
 			  					hasExpressionLanguage="${attribute.expressionLanguage}"
 			  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
+			  					checkboxAttributes="${attribute.checkboxAttributes}"
 			  					ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
 			  				/>
 			  				  				

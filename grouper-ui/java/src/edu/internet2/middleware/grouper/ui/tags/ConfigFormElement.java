@@ -8,6 +8,7 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -63,6 +64,12 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   private List<MultiKey> valuesAndLabels;
   
+  
+  /**
+   * only applicable to checkboxes
+   */
+  private List<MultiKey> checkboxAttributes;
+  
   /**
    * ajaxCallback for onchange etc
    */
@@ -92,6 +99,22 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   public void setValuesAndLabels(List<MultiKey> valuesAndLabels) {
     this.valuesAndLabels = valuesAndLabels;
+  }
+
+  /**
+   * only applicable to checkboxes
+   * @return
+   */
+  public List<MultiKey> getCheckboxAttributes() {
+    return checkboxAttributes;
+  }
+
+  /**
+   * only applicable to checkboxes
+   * @param checkboxAttributes
+   */
+  public void setCheckboxAttributes(List<MultiKey> checkboxAttributes) {
+    this.checkboxAttributes = checkboxAttributes;
   }
 
   /**
@@ -366,6 +389,42 @@ public class ConfigFormElement extends SimpleTagSupport {
       }
       
       field.append("</select>");
+    }
+    
+    if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {
+      
+      String[] selectedValuesArray = value != null ? value.split(","): new String[] {};
+      
+      boolean isValueProvided = StringUtils.isNotBlank(value);
+      
+      List<String> selectedValues =  Arrays.asList(selectedValuesArray);
+      
+      for (MultiKey multiKey: checkboxAttributes) {
+        
+        String value = (String) multiKey.getKey(0);
+        String label = (String) multiKey.getKey(1);
+        boolean checked = (boolean) multiKey.getKey(2);
+        
+        field.append("<input type='checkbox' style='"+ displayClass + "' id='"+value+"_id' name='config_"+configId+"' ");
+        if (value != null) {
+          field.append(" value = '"+value+"'");
+        }
+        
+        if (isValueProvided) {
+          if (selectedValues.contains(value)) {
+            field.append(" checked ");
+          }
+        } else if (checked) {
+          field.append(" checked ");
+        }
+        
+        field.append("></input>");
+        field.append("&nbsp; &nbsp; <label for '"+value+"_id'>");
+        field.append(label);
+        field.append("</label>");
+        field.append("<br>");
+      }
+      
     }
     
     if (!readOnly && required) {

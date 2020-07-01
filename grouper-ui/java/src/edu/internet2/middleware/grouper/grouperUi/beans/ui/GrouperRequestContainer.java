@@ -661,6 +661,24 @@ public class GrouperRequestContainer {
     
     return this.externalSystemContainer;
   }
+  
+  /**
+   * container for provisioner configuration
+   */
+  private ProvisionerConfigurationContainer provisionerConfigurationContainer;
+  
+  /**
+   * container for provisioner configuration
+   * @return the container
+   */
+  public ProvisionerConfigurationContainer getProvisionerConfigurationContainer() {
+    
+    if (this.provisionerConfigurationContainer == null) {
+      this.provisionerConfigurationContainer = new ProvisionerConfigurationContainer();
+    }
+    
+    return this.provisionerConfigurationContainer;
+  }
 
   /**
    * container for deprovisioning screen

@@ -25,5 +25,10 @@ public class Office365GrouperExternalSystem extends GrouperExternalSystem {
   public String getConfigIdRegex() {
     return "^(grouper\\.o365Connector)\\.([^.]+)\\.(.*)$";
   }
+  
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myO365";
+  }
 
 }

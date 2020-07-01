@@ -26,4 +26,9 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     return "^(grouper\\.googleConnector)\\.([^.]+)\\.(.*)$";
   }
 
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myGoogle";
+  }
+
 }

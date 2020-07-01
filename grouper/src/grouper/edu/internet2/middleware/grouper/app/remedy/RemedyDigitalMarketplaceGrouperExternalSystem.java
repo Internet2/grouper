@@ -25,4 +25,9 @@ public class RemedyDigitalMarketplaceGrouperExternalSystem extends GrouperExtern
     return "^(grouper\\.remedyDigitalMarketplaceConnector)\\.([^.]+)\\.(.*)$";
   }
   
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
+  
 }

@@ -25,11 +25,6 @@ public class GrouperConfigurationModuleAttribute {
   private  ConfigItemMetadataType type;
   
   /**
-   * is this attribute required or not
-   */
-  private boolean required;
-  
-  /**
    * is this attribute read only or not
    */
   private boolean readOnly;
@@ -78,6 +73,11 @@ public class GrouperConfigurationModuleAttribute {
    * first one is the value and the second one is the label  
    */
   private List<MultiKey> dropdownValuesAndLabels;
+  
+  /**
+   * first one is value, second one label and third one is if the checkbox should be checked
+   */
+  private List<MultiKey> checkboxAttributes;
 
   
   
@@ -99,17 +99,37 @@ public class GrouperConfigurationModuleAttribute {
     this.type = type;
   }
 
-  
+  /**
+   * is this attribute required
+   * @return
+   */
   public boolean isRequired() {
-    return required;
+    
+    if (configItemMetadata.isRequired()) {
+      return true;
+    }
+    
+    String requiredEl = configItemMetadata.getRequiredEl();
+    
+    if (StringUtils.isBlank(requiredEl)) {
+      return false;
+    }
+    
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+
+    variableMap.put("grouperUtil", new GrouperUtilElSafe());
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
+      
+      variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
+      
+    }
+
+    String requiredString = GrouperUtil.substituteExpressionLanguage(requiredEl, variableMap, true, true, true);
+    
+    return GrouperUtil.booleanValue(requiredString, false);
   }
 
-  
-  public void setRequired(boolean required) {
-    this.required = required;
-  }
-
-  
   public boolean isReadOnly() {
     return readOnly;
   }
@@ -207,7 +227,6 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getDescription() {
-    //TODO rename daemonConfig to something more generic or get it from the implementation class
     String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
@@ -216,7 +235,6 @@ public class GrouperConfigurationModuleAttribute {
   }
 
 
-  
   public boolean isExpressionLanguage() {
     return expressionLanguage;
   }
@@ -263,6 +281,16 @@ public class GrouperConfigurationModuleAttribute {
     this.dropdownValuesAndLabels = dropdownValuesAndLabels;
   }
   
+  
+  public List<MultiKey> getCheckboxAttributes() {
+    return checkboxAttributes;
+  }
+
+  
+  public void setCheckboxAttributes(List<MultiKey> checkboxAttributes) {
+    this.checkboxAttributes = checkboxAttributes;
+  }
+
   /**
    * get the value or the expression language evaluation
    * @return the value
@@ -328,7 +356,12 @@ public class GrouperConfigurationModuleAttribute {
     
     ConfigItemMetadataType valueType =  GrouperUtil.defaultIfNull(this.getConfigItemMetadata().getValueType(), ConfigItemMetadataType.STRING);
     
-    return valueType.convertValue(this.getValueOrExpressionEvaluation(), false);
+    String value = this.getValueOrExpressionEvaluation();
+    if (StringUtils.isBlank(value)) {
+      value = this.getDefaultValue();
+    }
+    
+    return valueType.convertValue(value, false);
     
   }
   
@@ -357,6 +390,7 @@ public class GrouperConfigurationModuleAttribute {
     for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
       
       variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
+      
       
     }
 

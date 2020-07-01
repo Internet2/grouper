@@ -1,31 +1,25 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
-public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase {
+public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
   /**
    * return list of error messages
@@ -34,15 +28,6 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    */
   public List<String> test() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
-  }
-  
-  /**
-   * 
-   * @param suffix
-   * @return
-   */
-  public Boolean showAttributeOverride(String suffix) {
-    return null;
   }
   
   /**
@@ -60,33 +45,13 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
       validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
     }
     
-    Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
-    if (!configIdPattern.matcher(this.getConfigId()).matches()) {
-      validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
-    }
+  }
+  
+  @Override
+  protected String getConfigurationTypePrefix() {
+    return "externalSystem";
+  }
 
-  }
-  
-  /**
-   * get all external systems configured for this type
-   * @return
-   */
-  public List<GrouperExternalSystem> listAllExternalSystemsOfThisType() {
-    
-    List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
-    
-    for (String configId : this.retrieveConfigurationConfigIds()) {
-      
-      @SuppressWarnings("unchecked")
-      Class<GrouperExternalSystem> theClass = (Class<GrouperExternalSystem>)this.getClass();
-      GrouperExternalSystem grouperExternalSystem = GrouperUtil.newInstance(theClass);
-      grouperExternalSystem.setConfigId(configId);
-      result.add(grouperExternalSystem);
-    }
-    
-    return result;
-  }
-  
   /**
    * 
    * @return
@@ -95,167 +60,11 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     throw new UnsupportedOperationException();
   }
 
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperExternalSystem.class);
-
-  /**
-   * get subsections for the UI
-   * @return
-   */
-  public List<GrouperExternalSystemSubSection> getSubSections() {
-    
-    List<GrouperExternalSystemSubSection> results = new ArrayList<GrouperExternalSystemSubSection>();
-    
-    Set<String> sectionLabelsUsed = new HashSet<String>();
-    
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-      
-      String sectionLabel = grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection();
-      if (StringUtils.isBlank(sectionLabel)) {
-        sectionLabel = "NULL";
-      }
-      if (sectionLabelsUsed.contains(sectionLabel)) {
-        continue;
-      }
-      sectionLabelsUsed.add(sectionLabel);
-      
-      GrouperExternalSystemSubSection grouperExternalSystemSection = new GrouperExternalSystemSubSection();
-      grouperExternalSystemSection.setGrouperExternalSystem(this);
-      grouperExternalSystemSection.setLabel(grouperConfigModuleAttribute.getConfigItemMetadata().getSubSection());
-      
-      results.add(grouperExternalSystemSection);
-    }
-    
-    return results;
-  }
-  
-  
-  public Map<String, GrouperConfigurationModuleAttribute> retrieveExtraAttributes(Map<String, GrouperConfigurationModuleAttribute> attributesFromBaseConfig) {
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    
-    if (configFileName == null) {
-      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
-    }
-    
-    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
-    
-    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
-    
-    Pattern pattern = Pattern.compile(this.getConfigIdRegex());
-    
-    for (String propertyName: configPropertiesCascadeBase.properties().stringPropertyNames()) {
-      
-      Matcher matcher = pattern.matcher(propertyName);
-     
-      if (!matcher.matches()) {
-        continue;
-      }
-      
-      String configId = this.getConfigId();
-      if (StringUtils.isBlank(configId)) {
-        throw new RuntimeException("Why is configId blank??? " + this.getClass().getName());
-      }
-      
-      String configIdFromProperty = matcher.group(2);
-      
-      if (!StringUtils.equals(configId, configIdFromProperty)) {
-        continue;
-      }
-      
-      String suffix = matcher.group(3);
-      
-      if (attributesFromBaseConfig.containsKey(suffix)) {
-        GrouperConfigurationModuleAttribute attribute = attributesFromBaseConfig.get(suffix);
-        if (DbConfigEngine.isPasswordHelper(attribute.getConfigItemMetadata(), configPropertiesCascadeBase.propertyValueString(propertyName))) {
-          attribute.setValue(DbConfigEngine.ESCAPED_PASSWORD);
-        } else {
-          attribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
-        }
-        
-      } else {
-        GrouperConfigurationModuleAttribute grouperExternalSystemAttribute = new GrouperConfigurationModuleAttribute();
-
-        grouperExternalSystemAttribute.setFullPropertyName(propertyName);
-        grouperExternalSystemAttribute.setGrouperConfigModule(this);
-        
-        result.put(suffix, grouperExternalSystemAttribute);
-        
-        grouperExternalSystemAttribute.setConfigSuffix(suffix);
-        
-        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
-        configItemMetadata.setFormElement(ConfigItemFormElement.TEXT);
-        configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
-        grouperExternalSystemAttribute.setConfigItemMetadata(configItemMetadata);
-        grouperExternalSystemAttribute.setType(configItemMetadata.getValueType());
-        grouperExternalSystemAttribute.setFormElement(ConfigItemFormElement.TEXT);
-        grouperExternalSystemAttribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
-      }
-      
-    }
-    
-    return result;
-     
-  }
-  
-  /**
-   * 
-   * @return get the attributes from config by suffix
-   */
-  public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {
-    
-    if (this.attributeCache != null) {
-      return this.attributeCache;
-    }
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    
-    if (configFileName == null) {
-      throw new RuntimeException("configFileName cant be null for " + this.getClass().getName());
-    }
-    
-    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
-    
-    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
-
-    Pattern pattern = Pattern.compile(this.getConfigIdRegex());
-    
-    for (ConfigSectionMetadata configSectionMetadata : configFileName.configFileMetadata().getConfigSectionMetadataList()) {
-      for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
-        
-        Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
-        if (!matcher.matches()) {
-          continue;
-        }
-        
-        String prefix = matcher.group(1);
-        String configId = this.getConfigId();
-        if (StringUtils.isBlank(configId)) {
-          throw new RuntimeException("Why is configId blank??? " + this.getClass().getName());
-        }
-        String suffix = matcher.group(3);
-        
-        String propertyName = prefix + "." + configId + "." + suffix;
-
-        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
-
-        result.put(suffix, grouperConfigModuleAttribute);
-      
-      }
-    }
-    
-    Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(result);
-    
-    result.putAll(extraAttributes);
-    
-    this.attributeCache = result;
-    return result;
-  }
-  
   /**
    * is the config enabled or not
    * @return
    */
+  @Override
   public boolean isEnabled() {
    try {
      GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
@@ -324,42 +133,40 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    * @return
    */
   public static List<GrouperExternalSystem> retrieveAllModuleConfigurationTypes() {
-    
-    List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
-    
-    for (String className: externalTypeClassNames) {
-      
-      try {
-        Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
-        GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
-        result.add(externalSystem);
-      } catch (Exception e) {
-        //TODO ignore for now. 
-      }
-      
-    }
-    
-    return result;
+    return (List<GrouperExternalSystem>) (Object) retrieveAllConfigurationTypesHelper(externalTypeClassNames);
   }
-
+  
   /**
    * list of configured external systems
    * @return
    */
   public static List<GrouperExternalSystem> retrieveAllGrouperExternalSystems() {
+   return (List<GrouperExternalSystem>) (Object) retrieveAllConfigurations(externalTypeClassNames);
+  }
+
+  @Override
+  public List<MultiKey> retrieveKeysAndLabels() {
     
-    List<GrouperExternalSystem> result = new ArrayList<GrouperExternalSystem>();
+    List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
     
-    for (String className: externalTypeClassNames) {    
-      try {
-        Class<GrouperExternalSystem> externalSystemClass = (Class<GrouperExternalSystem>) GrouperUtil.forName(className);
-        GrouperExternalSystem externalSystem = GrouperUtil.newInstance(externalSystemClass);
-        result.addAll(externalSystem.listAllExternalSystemsOfThisType());
-      } catch (Exception e) {
-        // TODO: ignore for now
-      }
+    List<GrouperExternalSystem> externalSystems = (List<GrouperExternalSystem>) (Object) this.listAllConfigurationsOfThisType();
+    
+    for (GrouperExternalSystem externalSystem: externalSystems) {
+      
+      String configId = externalSystem.getConfigId();
+      keysAndLabels.add(new MultiKey(configId, configId));
     }
     
-    return result;
+    Collections.sort(keysAndLabels, new Comparator<MultiKey>() {
+
+      @Override
+      public int compare(MultiKey o1, MultiKey o2) {
+        return ((String)o1.getKey(0)).compareTo((String)o2.getKey(0));
+      }
+    });
+    
+    return keysAndLabels;
   }
+  
+  
 }
