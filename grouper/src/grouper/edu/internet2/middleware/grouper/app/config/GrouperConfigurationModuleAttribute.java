@@ -356,7 +356,12 @@ public class GrouperConfigurationModuleAttribute {
     
     ConfigItemMetadataType valueType =  GrouperUtil.defaultIfNull(this.getConfigItemMetadata().getValueType(), ConfigItemMetadataType.STRING);
     
-    return valueType.convertValue(this.getValueOrExpressionEvaluation(), false);
+    String value = this.getValueOrExpressionEvaluation();
+    if (StringUtils.isBlank(value)) {
+      value = this.getDefaultValue();
+    }
+    
+    return valueType.convertValue(value, false);
     
   }
   
@@ -385,6 +390,7 @@ public class GrouperConfigurationModuleAttribute {
     for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
       
       variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
+      
       
     }
 

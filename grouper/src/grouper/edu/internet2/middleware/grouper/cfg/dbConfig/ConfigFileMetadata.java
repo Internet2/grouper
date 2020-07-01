@@ -162,6 +162,12 @@ public class ConfigFileMetadata {
             localConfigValid = false;
             LOG.error("Config file metadata line invalid, " + configFileName + ", line before this line: " + (i+1) + "  '" + originalConfigFileLine + "'.", e);
           }
+          
+          if (configItemMetadata.isRequired() && StringUtils.isNotBlank(configItemMetadata.getDefaultValue())) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "required = true and defaultValue ("+configItemMetadata.getDefaultValue() + ") is not blank. Only one property can be set.");
+          }
+          
           rawMetadataJson = null;
           
           if (configLineIsComment) {

@@ -199,11 +199,10 @@ public class ConfigFileMetadataTest extends GrouperTest {
     assertEquals("main stem for grouper built in objects Note: there are more locations to change than just this", 
         currentConfigItem.getComment());
     
-    assertEquals("{valueType: \"stem\", required: true, defaultValue: \"true\"}", currentConfigItem.getRawMetadataJson());
+    assertEquals("{valueType: \"stem\", required: true}", currentConfigItem.getRawMetadataJson());
 
     assertEquals(ConfigItemMetadataType.STEM, currentConfigItem.getValueType());
     assertTrue(currentConfigItem.isRequired());
-    assertEquals("true", currentConfigItem.getDefaultValue());
 
     //  #######################################
     //  ## inititalization and configuration settings
