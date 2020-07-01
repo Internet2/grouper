@@ -77,6 +77,16 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtilElSafe {
 
   /**
+   * 
+   * @param collection
+   * @param object
+   * @return true if the collection contains this object
+   */
+  public static boolean collectionContains(Collection<Object> collection, Object object) {
+    return collection != null && object != null && collection.contains(object);
+  }
+  
+  /**
    * null safe to upper method
    * @param input
    * @return upper

@@ -133,7 +133,7 @@ public class GrouperCsvReportJob extends OtherJobBase {
       if (deleteFile) {
         GrouperUtil.deleteFile(file);
       }
-    } catch (Exception re) {
+    } catch (RuntimeException re) {
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
       throw re;
     } finally {

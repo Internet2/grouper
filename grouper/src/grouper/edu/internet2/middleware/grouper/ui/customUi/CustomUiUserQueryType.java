@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.ui.customUi;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,12 +46,44 @@ public enum CustomUiUserQueryType {
     public void validate(CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
 
       CustomUiUtil.validateGroup(customUiUserQueryConfigBean.getGroupId(), customUiUserQueryConfigBean.getGroupName(), group);
+
+      boolean hasGroup = group != null;
+      boolean hasAzureGroupId = !StringUtils.isBlank(customUiUserQueryConfigBean.getAzureGroupId());
+      boolean hasUserScript = !StringUtils.isBlank(customUiUserQueryConfigBean.getScript());
       
-      if (group == null && StringUtils.isBlank(customUiUserQueryConfigBean.getAzureGroupId())) {
+      int queryCount = 0;
+      if (hasGroup) {
+        queryCount++;
+        if (!StringUtils.isBlank(customUiUserQueryConfigBean.getVariableType())) {
+          throw new RuntimeException("If you arent doing a user query then you cant set variableType");
+        }
+
+      }
+      if (hasAzureGroupId) {
+        queryCount++;
+        if (!StringUtils.isBlank(customUiUserQueryConfigBean.getVariableType())) {
+          throw new RuntimeException("If you arent doing a user query then you cant set variableType");
+        }
+      }
+      if (hasUserScript) {
+        queryCount++;
+      }
+      
+      // could be a user query with 
+      if (queryCount == 0 ) {
         throw new RuntimeException("You need to pass a groupId, groupName, or azureGroupId!");
       }
-      if (group != null && !StringUtils.isBlank(customUiUserQueryConfigBean.getAzureGroupId())) {
-        throw new RuntimeException("You cant pass a groupId|groupName and an azureGroupId, pass one or the other!");
+      
+      if (queryCount != 1) {
+        throw new RuntimeException("Can only have 1 query type: " + (hasGroup ? "group, " : "") + (hasAzureGroupId ? "azureGroupId, " : "") + (hasUserScript ? "user, " : ""));
+      }
+      
+      if (hasUserScript && StringUtils.isBlank(customUiUserQueryConfigBean.getScript())) {
+        throw new RuntimeException("If you are querying an azure user, you need to pass a 'script'");
+      }
+      
+      if (!hasUserScript && !StringUtils.isBlank(customUiUserQueryConfigBean.getScript())) {
+        throw new RuntimeException("If you are not querying an azure user, you cannot pass a 'script'");
       }
     }
 
@@ -69,9 +102,22 @@ public enum CustomUiUserQueryType {
         return result;
       }
       
-      boolean result = customUiAzure.hasAzureMembershipByAzureGroupId(customUiUserQueryConfigBean.getConfigId(), customUiUserQueryConfigBean.getAzureGroupId(), subject);
+      if (!StringUtils.isBlank(customUiUserQueryConfigBean.getAzureGroupId())) {
+        boolean result = customUiAzure.hasAzureMembershipByAzureGroupId(customUiUserQueryConfigBean.getConfigId(), customUiUserQueryConfigBean.getAzureGroupId(), subject);
+        
+        return result;
+      }
       
-      return result;
+      // user
+      Map<String, Object> azureUser = customUiAzure.retrieveAzureUserOrFromCache(customUiUserQueryConfigBean.getConfigId(), subject);
+      
+      // dont substitute the sql, for security reasons
+      String result = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getScript(), group, stem, attributeDef, subject, azureUser);
+      
+      CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
+      
+      Object resultObject = customUiVariableType.convertTo(result);
+      return resultObject;
     }
 
     @Override
@@ -79,9 +125,15 @@ public enum CustomUiUserQueryType {
         Group group, Subject subject, Stem stem, AttributeDef attributeDef, Map<String, Object> argumentMap) {
       
       if (group == null) {
+      
+        if (!StringUtils.isBlank(customUiUserQueryConfigBean.getAzureGroupId())) {
         
-        return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionAzureGroupId']}", 
-            group, null, null, subject, argumentMap, true);
+          return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionAzureGroupId']}", 
+              group, null, null, subject, argumentMap, true);
+        }
+        
+        return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionAzureExpression']}", 
+            null, null, null, subject, argumentMap, true);
         
       } 
       return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionAzureGroup']}", 
@@ -454,6 +506,58 @@ public enum CustomUiUserQueryType {
       return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryTypeLabel_" + this.name().toLowerCase() + "']}", 
           null, null, null, null, argumentMap);
     }
+  }, 
+  /**
+   * check provisioning in box
+   */
+  box {
+  
+    @Override
+    public Set<String> requiredFieldNames() {
+      return boxRequiredFieldNames;
+    }
+  
+    @Override
+    public Set<String> optionalFieldNames() {
+      return boxOptionaldFieldNames;
+    }
+  
+    @Override
+    public void validate(CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+  
+    }
+  
+    @Override
+    public Object evaluate(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean,
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+      
+      boolean[] accountValid = new boolean[]{false};
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+
+      Class<?> clazz = GrouperUtil.forName("edu.internet2.middleware.grouperBox.CustomUiBox");
+      variableMap = (Map<String, Object>)GrouperUtil.callMethod(clazz, "customUiBoxUserAnalysis", 
+          new Object[]{String.class, String.class}, 
+          new Object[]{subject.getSourceId(), subject.getId()});
+      
+      //todo 
+      return null;
+
+    }
+  
+    @Override
+    public String description(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean, 
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef, Map<String, Object> argumentMap) {
+      
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionBox']}", 
+          group, null, null, subject, argumentMap, true);
+    }
+  
+    @Override
+    public String label(Map<String, Object> argumentMap) {
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryTypeLabel_" + this.name().toLowerCase() + "']}", 
+          null, null, null, null, argumentMap);
+    }
+  
   };
 
   /**
@@ -475,9 +579,32 @@ public enum CustomUiUserQueryType {
       CustomUiUserQueryConfigBean.FIELD_AZURE_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_ENABLED, 
       CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
+      CustomUiUserQueryConfigBean.FIELD_SCRIPT, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_ID, 
       CustomUiUserQueryConfigBean.FIELD_GROUP_NAME,
-      CustomUiUserQueryConfigBean.FIELD_ORDER
+      CustomUiUserQueryConfigBean.FIELD_ORDER,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TYPE
+      );
+    
+  /**
+   * box required
+   */
+  private static Set<String> boxRequiredFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_CONFIG_ID,
+      CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ERROR
+      );
+
+  /**
+   * box optional
+   */
+  private static Set<String> boxOptionaldFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_ENABLED, 
+      CustomUiUserQueryConfigBean.FIELD_ORDER,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ACCOUNT_VALID
       );
     
   /**
