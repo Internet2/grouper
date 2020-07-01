@@ -35,12 +35,6 @@ log_always "Compiling grouperClient"
    mvn -Dlicense.skip=true -Dmaven.test.skip=true install
 )
 
-log_always "Compiling subject"
-(
-   cd "$PSPNG_DIR"/../../subject 
-   mvn -Dlicense.skip=true -Dmaven.test.skip=true install
-)
-
 log_always "Compiling API"
 (
    cd "$PSPNG_DIR"/../../grouper 

@@ -50,8 +50,8 @@ services:
      retries: 10
 
   ldap:
-    image: openldap-dinkel
-    build: openldap-dinkel
+    image: openldap-dinkel-grouper
+    build: ./openldap-dinkel-grouper
 
     volumes:
        - ldap-data:/var/lib/ldap
