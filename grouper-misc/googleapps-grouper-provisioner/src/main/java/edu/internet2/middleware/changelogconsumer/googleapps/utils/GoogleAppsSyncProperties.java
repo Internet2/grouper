@@ -263,6 +263,10 @@ public class GoogleAppsSyncProperties {
         defaultGroupSettings.setWhoCanPostMessage(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanPostMessage", "ALL_IN_DOMAIN_CAN_POST"));
         LOG.debug("Google Apps Consumer - Setting whoCanPostMessage to {}", defaultGroupSettings.getWhoCanPostMessage());
+        
+        defaultGroupSettings.setWhoCanModerateMembers(
+            GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanModerateMembers", "OWNERS_AND_MANAGERS"));
+        LOG.debug("Google Apps Consumer - Setting whoCanModerateMembers to {}", defaultGroupSettings.getWhoCanModerateMembers());
 
         defaultGroupSettings.setAllowWebPosting(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allowWebPosting", "true"));

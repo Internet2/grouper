@@ -362,6 +362,7 @@ public class GoogleGrouperConnector {
                         .setWhoCanAdd(defaultGroupSettings.getWhoCanAdd())
                         .setAllowExternalMembers(defaultGroupSettings.getAllowExternalMembers())
                         .setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage())
+                        .setWhoCanModerateMembers(defaultGroupSettings.getWhoCanModerateMembers())
                         .setAllowWebPosting(defaultGroupSettings.getAllowWebPosting())
                         .setPrimaryLanguage(defaultGroupSettings.getPrimaryLanguage())
                         .setMaxMessageBytes(defaultGroupSettings.getMaxMessageBytes())
