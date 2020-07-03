@@ -582,15 +582,15 @@ public class GcGrouperSyncLogDao {
   public GcGrouperSyncLog logRetrieveMostRecent(String jobId) {
     
     String query = "select * from grouper_sync_log gsl " + 
-        "where gsl.grouper_sync_id = ? " + 
-        "and gsl.sync_timestamp = (select max(gsl2.sync_timestamp) from grouper_sync_log gsl2 where gsl.grouper_sync_id = gsl2.grouper_sync_id )";
+        "where gsl.grouper_sync_owner_id = ? " + 
+        "and gsl.sync_timestamp = (select max(gsl2.sync_timestamp) from grouper_sync_log gsl2 where gsl.grouper_sync_owner_id = gsl2.grouper_sync_owner_id )";
     
 //    String query = "select * from grouper_sync_log gsl inner join "
 //        + " (select id, max(sync_timestamp) from grouper_sync_log where grouper_sync_owner_id = ? group by id) gsl2"
 //        + " on gsl.id = gsl2.id";
     
     List<GcGrouperSyncLog> gcGrouperSyncLogList = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql(query).addBindVar(this.getGcGrouperSync().getId()).selectList(GcGrouperSyncLog.class);
+        .sql(query).addBindVar(jobId).selectList(GcGrouperSyncLog.class);
     
     if (gcGrouperSyncLogList != null && gcGrouperSyncLogList.size() > 0) {
       return gcGrouperSyncLogList.get(0);
