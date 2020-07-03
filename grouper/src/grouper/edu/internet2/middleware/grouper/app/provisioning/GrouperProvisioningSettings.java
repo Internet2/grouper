@@ -6,14 +6,14 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperProvisioningSettings {
   
-  private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioning\\.target\\.(\\w+)\\.key$");
-  
+  private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioner\\.(\\w+)\\.class$");
   
   /** attribute def name cache */
   private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache = new ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>>(5);
@@ -22,14 +22,11 @@ public class GrouperProvisioningSettings {
     
     Map<String, GrouperProvisioningTarget> result = new HashMap<String, GrouperProvisioningTarget>();
 
-    Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(grouperProvisioningTargetKey);
+    Map<String, String> propertiesMap = GrouperLoaderConfig.retrieveConfig().propertiesMap(grouperProvisioningTargetKey);
     
     for (Entry<String, String> entry: propertiesMap.entrySet()) {
           
       String property = entry.getKey();
-      
-      // key is the configured key, the value of .key
-      String key = entry.getValue();
       
       Matcher matcher = grouperProvisioningTargetKey.matcher(property);
       
@@ -37,11 +34,11 @@ public class GrouperProvisioningSettings {
         // name is the part of the property key
         String name = matcher.group(1);
         
-        String groupAllowedToAssign = GrouperConfig.retrieveConfig().propertyValueString("provisioning.target."+name+".groupAllowedToAssign", null);
-        boolean allowAssignmentsOnlyOnOneStem = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".allowAssignmentsOnlyOnOneStem", false);
-        boolean readOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("provisioning.target."+name+".readOnly", false);
+        String groupAllowedToAssign = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner."+name+".groupAllowedToAssign", null);
+        boolean allowAssignmentsOnlyOnOneStem = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner."+name+".allowAssignmentsOnlyOnOneStem", false);
+        boolean readOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner."+name+".readOnly", false);
         
-        GrouperProvisioningTarget target = new GrouperProvisioningTarget(key, name);
+        GrouperProvisioningTarget target = new GrouperProvisioningTarget(name, name);
         target.setGroupAllowedToAssign(groupAllowedToAssign);
         target.setAllowAssignmentsOnlyOnOneStem(allowAssignmentsOnlyOnOneStem);
         target.setReadOnly(readOnly);

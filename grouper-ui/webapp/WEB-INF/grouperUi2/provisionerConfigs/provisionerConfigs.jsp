@@ -28,6 +28,11 @@
 			            <tr>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderConfigId']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderType']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderFullSyncLastRunTimestamp']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderIncrementalSyncLastRunTimestamp']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderGroupCount']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderUserCount']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderRecordsCount']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderActions']}</th>
 			            </tr>
 			            </thead>
@@ -37,11 +42,33 @@
 			              
 			                <tr>
 			                   <td style="white-space: nowrap;">
-			                    ${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}
+			                   
+			                   <a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">
+                    			${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}</a>
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
 			                    ${guiProvisionerConfiguration.provisionerConfiguration.title}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.lastFullSyncTimestamp}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.lastIncrementalSyncTimestamp}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.groupCount}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.userCount}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.recordsCount}
 			                   </td>
 			                   
 			                   <td>
@@ -54,6 +81,7 @@
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 			                             <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurationDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewDetailsActionOption'] }</a></li> --%>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.runFullSync&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableRunFullSyncActionOption'] }</a></li>
 			                             <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>

@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 
 public class GuiProvisionerConfiguration {
   
@@ -12,12 +17,41 @@ public class GuiProvisionerConfiguration {
    */
   private ProvisionerConfiguration provisionerConfiguration;
   
-  private GuiProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
-    this.provisionerConfiguration = provisionerConfiguration;
-  }
+  private String lastFullSyncTimestamp;
+  private String lastIncrementalSyncTimestamp;
+  private int groupCount;
+  private int userCount;
+  private int recordsCount;
+  
+  private GuiProvisionerConfiguration() {}
   
   public ProvisionerConfiguration getProvisionerConfiguration() {
     return this.provisionerConfiguration;
+  }
+  
+  
+  public String getLastFullSyncTimestamp() {
+    return lastFullSyncTimestamp;
+  }
+
+  
+  public String getLastIncrementalSyncTimestamp() {
+    return lastIncrementalSyncTimestamp;
+  }
+
+  
+  public int getGroupCount() {
+    return groupCount;
+  }
+
+  
+  public int getUserCount() {
+    return userCount;
+  }
+
+  
+  public int getRecordsCount() {
+    return recordsCount;
   }
 
   /**
@@ -26,7 +60,35 @@ public class GuiProvisionerConfiguration {
    * @return
    */
   public static GuiProvisionerConfiguration convertFromProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
-    return new GuiProvisionerConfiguration(provisionerConfiguration);
+    
+    GuiProvisionerConfiguration guiProvisionerConfig = new GuiProvisionerConfiguration();
+    guiProvisionerConfig.provisionerConfiguration = provisionerConfiguration;
+    
+    //String configId = provisionerConfiguration.getConfigId();
+//    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+//    
+//    if (grouperSync != null) {
+//      if (grouperSync.getLastFullSyncRun() != null) {
+//        guiProvisionerConfig.lastFullSyncTimestamp = GrouperUtil.dateStringValue(grouperSync.getLastFullSyncRun());
+//      }
+//      
+//      if (grouperSync.getIncrementalTimestamp() != null) {
+//        guiProvisionerConfig.lastIncrementalSyncTimestamp = GrouperUtil.dateStringValue(grouperSync.getIncrementalTimestamp());
+//      }
+//      
+//      guiProvisionerConfig.groupCount = grouperSync.getGroupCount();
+//      guiProvisionerConfig.userCount = grouperSync.getUserCount();
+//      guiProvisionerConfig.recordsCount = grouperSync.getRecordsCount();
+//      
+//      List<GcGrouperSyncJob> grouperSyncJobs = grouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+//      for (GcGrouperSyncJob grouperSyncJob: grouperSyncJobs) {
+//        GcGrouperSyncLog grouperSyncLog = grouperSync.getGcGrouperSyncLogDao().logRetrieveMostRecent(grouperSyncJob.getId());
+//      }
+//      
+//      
+//    }
+
+    return guiProvisionerConfig;
   }
   
   /**
