@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -155,11 +156,11 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3RoleSetDAO.reset(hibernateSession);
             Hib3AttributeAssignValueDAO.reset(hibernateSession);
             Hib3AttributeAssignActionSetDAO.reset(hibernateSession);
+            Hib3AttributeDefScopeDAO.reset(hibernateSession);
             Hib3AttributeAssignDAO.reset(hibernateSession);
             Hib3AttributeAssignActionDAO.reset(hibernateSession);
             Hib3AttributeDefNameSetDAO.reset(hibernateSession);
             Hib3AttributeDefNameDAO.reset(hibernateSession);
-            Hib3AttributeDefScopeDAO.reset(hibernateSession);
 
             Hib3AuditEntryDAO.reset(hibernateSession);
             Hib3AuditTypeDAO.reset(hibernateSession);
@@ -209,6 +210,8 @@ class Hib3RegistryDAO implements RegistryDAO {
 
             Hib3ExternalSubjectAttributeDAO.reset(hibernateSession);
             Hib3ExternalSubjectDAO.reset(hibernateSession);
+            
+            new GcDbAccess().sql("delete from grouper_recent_mships_conf").executeSql();
             
             new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
             

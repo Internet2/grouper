@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -737,6 +738,31 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
         }
         
         return hasAttrLdap;
+      }
+    });
+  }
+  
+  /**
+   * test if a recent memberships loader is assigned to this group
+   * @return true if an attribute GrouperLoader SQL is assigned.
+   * return false if not
+   */
+  public boolean isHasRecentMembershipsGrouperLoader() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        boolean hasRecentMemberships = false;
+    
+        //first, get the attribute def name
+        AttributeDefName recentMemberships = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+        
+        //check if the attribute def name is assigned to this group
+        if (recentMemberships != null) {
+          hasRecentMemberships = GuiGroup.this.group.getAttributeDelegate().hasAttribute(recentMemberships);
+        }
+        
+        return hasRecentMemberships;
       }
     });
   }

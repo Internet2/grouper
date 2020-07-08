@@ -45,11 +45,12 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderTypeId">${textContainer.text['grouperLoaderSourceType']}</label></strong></td>
                           <td>
                             <span style="white-space: nowrap">
-                              <select name="grouperLoaderTypeName" id="grouperLoaderTypeId" style="width: 10em"
+                              <select name="grouperLoaderTypeName" id="grouperLoaderTypeId" style="width: 15em"
                                 onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                 <option value="" ></option>
                                 <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
                                 <option value="LDAP" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderLdap']}</option>
+                                <option value="RECENT_MEMBERSHIPS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderRecentMemberships']}</option>
                               </select>
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -59,6 +60,61 @@
                           </td>
                         </tr>
                       </c:if>
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS'}">
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowRecentMemberships}">
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlTypeId">${textContainer.text['grouperLoaderRecentFromGroup']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <table border="0" style="border:none;padding:0em; margin: 0em">
+                                  <tr style="border:none;padding:0em; margin: 0em" >
+                                  <td style="border:none;padding:0em; margin: 0em;border-top: none !important;"><grouper:combobox2 idBase="recentMembershipsFromGroupCombo" style="width: 30em" 
+                                  value="${grouperRequestContainer.grouperLoaderContainer.editLoaderRecentGroupUuidFrom}"
+                                  filterOperation="../app/UiV2GrouperLoader.recentMembershipsGroupFromFilter"/></td>
+                                  <td style="border:none;padding:0em; margin: 0em">
+                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                  data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                                  </td></tr></table>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text['grouperLoaderRecentFromGroupDescription']}</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderRecentDaysId">${textContainer.text['grouperLoaderRecentDays']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <input type="text" style="width: 5em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderRecentDays)}"
+                                   name="grouperLoaderRecentDaysName" id="grouperLoaderRecentDaysId" />
+                                <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                  data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                              </span>
+                              <br />
+                              <span class="description">
+                              ${textContainer.text["grouperLoaderRecentDaysDescription"]}</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderRecentIncludeCurrentId">${textContainer.text['grouperLoaderRecentIncludeCurrent']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="grouperLoaderRecentIncludeCurrentName" id="grouperLoaderRecentIncludeCurrentId" style="width: 40em">
+                                  <option value="" ></option>
+                                  <option value="true" ${grouperRequestContainer.grouperLoaderContainer.editLoaderRecentIncludeCurrent ? 'selected="selected"' : '' } 
+                                    >${textContainer.textEscapeXml['grouperLoaderRecentIncludeCurrentTrue']}</option>
+                                  <option value="false" ${grouperRequestContainer.grouperLoaderContainer.editLoaderRecentIncludeCurrent ? '' : 'selected="selected"' }
+                                    >${textContainer.textEscapeXml['grouperLoaderRecentIncludeCurrentFalse']}</option>
+                                </select>
+                                <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                  data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text["grouperLoaderRecentIncludeCurrentDescription"]}</span>
+                            </td>
+                          </tr>
+                        </c:if>
+                      </c:if>
+                      
                       <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL'}">
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowSqlLoaderType}">
                           <tr>

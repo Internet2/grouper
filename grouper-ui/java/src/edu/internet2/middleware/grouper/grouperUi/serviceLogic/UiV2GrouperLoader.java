@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformatio
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -78,6 +79,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -826,7 +828,7 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      final GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       
       boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
@@ -875,7 +877,70 @@ public class UiV2GrouperLoader {
           hasError = true;
         }
 
-        if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
+        if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+          if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentGroupUuidFrom())) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentGroupFromUuidRequired")));
+            hasError = true;
+          }
+          if (!hasError) {
+            hasError = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+                final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+                Group group = GroupFinder.findByUuid(grouperSession, grouperLoaderContainer.getEditLoaderRecentGroupUuidFrom(), false);
+                if (group == null) {
+
+                  guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                      TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentGroupFromUuidNotFound")));
+                  return true;
+                }
+                if (group != null) {
+                  if (!group.canHavePrivilege(loggedInSubject, "readers", false)) {
+                    group = null;
+
+                    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                        TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentGroupFromUuidNotAllowed")));
+                    return true;
+                  }
+                }
+                return false;
+              }
+            });
+
+          }
+
+          if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentDays())) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentRecentDaysRequired")));
+            hasError = true;
+          }
+          if (!hasError) {
+            try {
+              double days = GrouperUtil.doubleValue(grouperLoaderContainer.getEditLoaderRecentDays());
+              if (days <= 0) {
+                throw new RuntimeException();
+              }
+            } catch (Exception e) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentRecentDaysInvalid")));
+              hasError = true;
+            }
+          }
+
+          if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent())) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRecentIncludeCurrentRequired")));
+            hasError = true;
+          } else {
+            // if this throws an error then they werent using a drop down?
+            GrouperUtil.booleanValue(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent());
+          }
+
+        } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
           if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlType())) {
   
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
@@ -1063,8 +1128,8 @@ public class UiV2GrouperLoader {
 
         if (grouperLoaderContainer.isEditLoaderIsLoader()) {
           
-          //if sql is picked, and used to be LDAP, then remove LDAP
-          if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperLdapLoader()) {
+          //if not ldap is picked, and used to be LDAP, then remove LDAP
+          if (!StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperLdapLoader()) {
                         
             AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
                 .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
@@ -1074,8 +1139,8 @@ public class UiV2GrouperLoader {
 
           }
 
-          //if ldap is picked, and used to be SQL, then remove LDAP
-          if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperSqlLoader()) {
+          //if not sql is picked, and used to be SQL, then remove LDAP
+          if (!StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperSqlLoader()) {
             //first, get the attribute def name
             AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
                 .findByNameSecure(nameOfLoaderAttributeDefName, false);
@@ -1087,7 +1152,71 @@ public class UiV2GrouperLoader {
                   TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
             }
           }
+
+          //if not recent memberships is picked, and used to be SQL, then remove LDAP
+          if (!StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperRecentMembershipsLoader()) {
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+                //first, get the attribute def name
+                AttributeDefName grouperRecentMemberships = GrouperDAOFactory.getFactory().getAttributeDefName()
+                    .findByNameSecure(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, false);
+                
+                if (grouperRecentMemberships != null) {
+                  group.getAttributeDelegate().removeAttribute(grouperRecentMemberships);
+
+                  guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                      TextContainer.retrieveFromRequest().getText().get("grouperLoaderRecentMembershipsEditRemoved")));
+                }
+                return null;
+              }
+            });
+          }
+
+          if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+                //first, get the attribute def name
+                AttributeDefName grouperRecentMembershipsMarker = GrouperDAOFactory.getFactory().getAttributeDefName()
+                    .findByNameSecure(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, false);
+                
+                if (grouperRecentMembershipsMarker == null) {
+                  throw new RuntimeException("Cant find recent memberships attribute!");
+                }
+                AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, grouperRecentMembershipsMarker, false, false);
+
+                if (attributeAssign == null) {
+                  attributeAssign = group.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker).getAttributeAssign();
+                }
+
+                attributeAssign.getAttributeValueDelegate().assignValue(
+                    GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                        + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, grouperLoaderContainer.getEditLoaderRecentGroupUuidFrom());
+                attributeAssign.getAttributeValueDelegate().assignValue(
+                    GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                        + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, 
+                    GrouperUtil.booleanValue(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent()) ? "T" : "F");
+                
+                String recentDaysString = grouperLoaderContainer.getEditLoaderRecentDays();
+                double recentDays = GrouperUtil.doubleValue(recentDaysString);
+                long micros = Math.round(recentDays * 24 * 60 * 60 * 1000 * 1000);
+                attributeAssign.getAttributeValueDelegate().assignValue(
+                    GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                        + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, Long.toString(micros));
+                
+                return null;
+              }
+            });
+
+          }
           
+
           if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
             AttributeDefName grouperLoaderAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
                 .findByNameSecure(nameOfLoaderAttributeDefName, false);
@@ -1166,7 +1295,16 @@ public class UiV2GrouperLoader {
       
       if (!hasError) {
         
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=" + group.getId() + "')"));
+        if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
+          
+          
+        } else {
+
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=" + group.getId() + "')"));
+
+        }
 
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSaveSuccess")));
@@ -1258,9 +1396,17 @@ public class UiV2GrouperLoader {
 
       if (grouperLoaderContainer.isEditLoaderIsLoader()) {
 
-        grouperLoaderContainer.setEditLoaderType(grouperLoaderContainer.isGrouperSqlLoader() ? "SQL" : (grouperLoaderContainer.isGrouperLdapLoader() ? "LDAP" : null));
+        grouperLoaderContainer.setEditLoaderType(grouperLoaderContainer.isGrouperSqlLoader() ? "SQL" 
+            : (grouperLoaderContainer.isGrouperLdapLoader() ? "LDAP" 
+                : (grouperLoaderContainer.isGrouperRecentMembershipsLoader() ? "RECENT_MEMBERSHIPS" : null)));
 
-        if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
+        if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+
+          grouperLoaderContainer.setEditLoaderRecentGroupUuidFrom(grouperLoaderContainer.getRecentGroupUuidFrom());
+          grouperLoaderContainer.setEditLoaderRecentDays(grouperLoaderContainer.getRecentDays());
+          grouperLoaderContainer.setEditLoaderRecentIncludeCurrent(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent());
+          
+        } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
           grouperLoaderContainer.setEditLoaderSqlDatabaseName(grouperLoaderContainer.getSqlDatabaseName());
           grouperLoaderContainer.setEditLoaderPriority(grouperLoaderContainer.getSqlPriority());
           grouperLoaderContainer.setEditLoaderSqlQuery(grouperLoaderContainer.getSqlQuery());
@@ -1334,12 +1480,18 @@ public class UiV2GrouperLoader {
     
   }
 
+  public void recentMembershipsGroupFromFilter(HttpServletRequest request, HttpServletResponse response) {
+    
+    new UiV2Group().groupReadFilter(request, response);
+    
+  }
+  
   /**
    * @param request
    * @param grouperLoaderContainer
    */
   private void editGrouperLoaderHelper(HttpServletRequest request,
-      GrouperLoaderContainer grouperLoaderContainer) {
+      final GrouperLoaderContainer grouperLoaderContainer) {
     {
       Boolean isLoaderFromFormBoolean = GrouperUtil.booleanObjectValue(request.getParameter("grouperLoaderHasLoaderName"));
 
@@ -1365,6 +1517,70 @@ public class UiV2GrouperLoader {
       if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderType())) {
         error = true;
       }
+      if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+        grouperLoaderContainer.setEditLoaderShowRecentMemberships(true);
+
+        {
+          final String fromGroupId = request.getParameter("recentMembershipsFromGroupComboName");
+          
+          if (!error && !StringUtils.isBlank(fromGroupId)) {
+            
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+                final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+                Group group = GroupFinder.findByUuid(grouperSession, fromGroupId, false);
+                if (group == null) {
+                  group = GroupFinder.findByName(grouperSession, fromGroupId, false);
+                }
+                if (group != null) {
+                  if (!group.canHavePrivilege(loggedInSubject, "readers", false)) {
+                    group = null;
+                  }
+                }
+                if (group != null) {
+                  
+                  grouperLoaderContainer.setEditLoaderRecentGroupUuidFrom(group.getId());
+
+                }
+                return null;
+              }
+            });
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentGroupUuidFrom())) {
+            error = true;
+          }
+        }
+        
+        {
+          final String grouperLoaderRecentDaysString = request.getParameter("grouperLoaderRecentDaysName");
+          if (!error && !StringUtils.isBlank(grouperLoaderRecentDaysString)) {
+            grouperLoaderContainer.setEditLoaderRecentDays(grouperLoaderRecentDaysString);
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentDays())) {
+            error = true;
+          }
+          
+        }
+
+        {
+          final String grouperLoaderRecentIncludeCurrentNameString = request.getParameter("grouperLoaderRecentIncludeCurrentName");
+          if (!error && !StringUtils.isBlank(grouperLoaderRecentIncludeCurrentNameString)) {
+            grouperLoaderContainer.setEditLoaderRecentIncludeCurrent(grouperLoaderRecentIncludeCurrentNameString);
+          }
+
+          if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent())) {
+            error = true;
+          }
+
+        }
+        
+      }
+      
       if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
         grouperLoaderContainer.setEditLoaderShowSqlLoaderType(true);
         

@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
@@ -20,10 +22,6 @@ public class ProvisioningMessage {
    */
   public static void main(String[] args) {
     
-    ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-    provisioningMessage.setFullSync(true);
-    provisioningMessage.setFullSyncType("optionalFullSyncType");
-
 //    provisioningMessage.setGroupIdsForSync(new String[] {"abc123", "def456"});
 //   provisioningMessage.setMemberIdsForSync(new String[] {"abc123", "def456"});
     
@@ -31,17 +29,27 @@ public class ProvisioningMessage {
 //        new ProvisioningMembershipMessage("abc123", "jkl789"),
 //        new ProvisioningMembershipMessage("def456", "qwe543")
 //    });
+
+    ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+    provisioningMessage.setFullSync(true);
+    provisioningMessage.setBlocking(false);
+
     
     String message = provisioningMessage.toJson();
-    System.out.println(message);
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    GrouperMessagingEngine.send(
-        new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-          .assignQueueType(GrouperMessageQueueType.queue)
-          .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
-          .assignAutocreateObjects(true)
-          .addMessageBody(message));
-    GrouperSession.stopQuietly(grouperSession);
+
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperMessagingEngine.send(
+            new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+              .assignQueueType(GrouperMessageQueueType.queue)
+              .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
+              .assignAutocreateObjects(true)
+              .addMessageBody(message));
+        return null;
+      }
+    });
     
   }
   

@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -26,6 +28,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -53,6 +56,74 @@ import net.redhogs.cronparser.CronExpressionDescriptor;
  */
 public class GrouperLoaderContainer {
 
+  public static void main(String[] args) {
+  }
+  
+  /**
+   * recent memberships from group id
+   */
+  private String editLoaderRecentGroupUuidFrom;
+  
+  
+  
+  /**
+   * recent memberships from group id
+   * @return from group id
+   */
+  public String getEditLoaderRecentGroupUuidFrom() {
+    return this.editLoaderRecentGroupUuidFrom;
+  }
+
+  /**
+   * recent memberships from group id
+   * @param editLoaderRecentFromGroupId1
+   */
+  public void setEditLoaderRecentGroupUuidFrom(String editLoaderRecentGroupUuidFrom) {
+    this.editLoaderRecentGroupUuidFrom = editLoaderRecentGroupUuidFrom;
+  }
+
+  /**
+   * this is a number, could have two decimal places
+   */
+  private String editLoaderRecentDays;
+
+  /**
+   * this is a number, could have two decimal places
+   * @return edit loader recent days
+   */
+  public String getEditLoaderRecentDays() {
+    return this.editLoaderRecentDays;
+  }
+
+  /**
+   * this is a number, could have two decimal places
+   * @param editLoaderRecentDays1
+   */
+  public void setEditLoaderRecentDays(String editLoaderRecentDays1) {
+    this.editLoaderRecentDays = editLoaderRecentDays1;
+  }
+
+  /**
+   * if should include current members
+   */
+  private String editLoaderRecentIncludeCurrent = "true";
+
+  /**
+   * if should include current members
+   * @return if should include current members
+   */
+  public String getEditLoaderRecentIncludeCurrent() {
+    return this.editLoaderRecentIncludeCurrent;
+  }
+
+  /**
+   * if should include current members
+   * @param editLoaderRecentIncludeCurrent1
+   */
+  public void setEditLoaderRecentIncludeCurrent(String editLoaderRecentIncludeCurrent1) {
+    this.editLoaderRecentIncludeCurrent = editLoaderRecentIncludeCurrent1;
+  }
+
   /**
    * logger 
    */
@@ -71,7 +142,7 @@ public class GrouperLoaderContainer {
   public int getNumberOfRows() {
     return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxSize", 400);
   }
-  
+
   /**
    * 
    * @return true if this job has subjobs
@@ -719,7 +790,142 @@ public class GrouperLoaderContainer {
     return 5;
     
   }
+
+  /**
+   * recent memeberships from group as a gui group object
+   * @return gui group
+   */
+  public GuiGroup getRecentFromGuiGroup() {
+    final String uuidFrom = this.getRecentGroupUuidFrom();
+    if (StringUtils.isBlank(uuidFrom)) {
+      return null;
+    }
+    Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group theGroup = GroupFinder.findByUuid(grouperSession, uuidFrom, true);
+        
+        return theGroup;
+      }
+    });
+    return new GuiGroup(group);
+  }
   
+  /**
+   * 
+   * @return sql query
+   */
+  public String getRecentGroupUuidFrom() {
+    
+    final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    
+    String groupUuid = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+        AttributeDefName recentMarker = AttributeDefNameFinder.findByName(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+        Set<AttributeAssign> attributeAssigns = jobGroup.getAttributeDelegate().retrieveAssignments(recentMarker);
+        if (GrouperUtil.length(attributeAssigns) == 0) {
+          return null;
+        }
+        if (GrouperUtil.length(attributeAssigns) > 1) {
+          throw new RuntimeException("Not expecting multiple recent membership attribute assignments! " + jobGroup.getName());
+        }
+        AttributeAssign attributeAssign = attributeAssigns.iterator().next();
+        String value = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM);
+        
+        return value;
+      }
+    });
+    
+    return groupUuid;
+
+  }
+
+  /**
+   * 
+   * @return sql query
+   */
+  public String getRecentDays() {
+    
+    final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    
+    String days = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+        AttributeDefName recentMarker = AttributeDefNameFinder.findByName(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+        Set<AttributeAssign> attributeAssigns = jobGroup.getAttributeDelegate().retrieveAssignments(recentMarker);
+        if (GrouperUtil.length(attributeAssigns) == 0) {
+          return null;
+        }
+        if (GrouperUtil.length(attributeAssigns) > 1) {
+          throw new RuntimeException("Not expecting multiple recent membership attribute assignments! " + jobGroup.getName());
+        }
+        AttributeAssign attributeAssign = attributeAssigns.iterator().next();
+        Long micros = attributeAssign.getAttributeValueDelegate().retrieveValueInteger(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS);
+        
+        if (micros == null) {
+          return null;
+        }
+        
+        double daysDouble = micros / (1000.0D * 1000 * 60 * 60 * 24D);
+        
+        NumberFormat numberFormatter = NumberFormat.getNumberInstance();
+        numberFormatter.setMaximumFractionDigits(4);
+
+        return numberFormatter.format(daysDouble);
+      }
+    });
+    
+    return days;
+
+  }
+
+  /**
+   * 
+   * @return "T", "F" or null
+   */
+  public String getRecentIncludeCurrent() {
+    
+    final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    
+    String includeCurrent = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+        AttributeDefName recentMarker = AttributeDefNameFinder.findByName(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+        Set<AttributeAssign> attributeAssigns = jobGroup.getAttributeDelegate().retrieveAssignments(recentMarker);
+        if (GrouperUtil.length(attributeAssigns) == 0) {
+          return null;
+        }
+        if (GrouperUtil.length(attributeAssigns) > 1) {
+          throw new RuntimeException("Not expecting multiple recent membership attribute assignments! " + jobGroup.getName());
+        }
+        AttributeAssign attributeAssign = attributeAssigns.iterator().next();
+        String value = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" 
+                + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT);
+        
+        return value;
+      }
+    });
+    
+    return includeCurrent;
+
+  }
+
   /**
    * 
    * @return sql query
@@ -962,6 +1168,14 @@ public class GrouperLoaderContainer {
    */
   public boolean isGrouperSqlLoader() {
     return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasAttrDefNameGrouperLoader();
+  }
+  
+  /**
+   * 
+   * @return is SQL loader
+   */
+  public boolean isGrouperRecentMembershipsLoader() {
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasRecentMembershipsGrouperLoader();
   }
   
   /**
@@ -1663,7 +1877,7 @@ public class GrouperLoaderContainer {
 
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
 
-    if (guiGroup.isHasAttrDefNameGrouperLoader() || guiGroup.isHasAttrDefNameGrouperLoaderLdap()) {
+    if (guiGroup.isHasAttrDefNameGrouperLoader() || guiGroup.isHasAttrDefNameGrouperLoaderLdap() || guiGroup.isHasRecentMembershipsGrouperLoader()) {
       return true;
     }
     
@@ -2220,6 +2434,27 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderShowSqlDatabaseName(boolean editLoaderShowSqlDatabaseName1) {
     this.editLoaderShowSqlDatabaseName = editLoaderShowSqlDatabaseName1;
+  }
+
+  /**
+   * if the loader show recent memberships should be seen
+   */
+  private boolean editLoaderShowRecentMemberships;
+
+  /**
+   * if the loader show recent memberships should be seen
+   * @return the editLoaderShowSqlLoaderType
+   */
+  public boolean isEditLoaderShowRecentMemberships() {
+    return this.editLoaderShowRecentMemberships;
+  }
+
+  /**
+   * if the loader show recent memberships should be seen
+   * @param editLoaderShowSqlLoaderType1 the editLoaderShowSqlLoaderType to set
+   */
+  public void setEditLoaderShowRecentMemberships(boolean editLoaderShowRecentMemberships1) {
+    this.editLoaderShowRecentMemberships = editLoaderShowRecentMemberships1;
   }
 
   /**
