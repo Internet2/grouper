@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import net.sf.ehcache.Cache;
@@ -117,6 +118,8 @@ public class GrouperCacheDatabase {
     }
   }
 
+  // we need to keep incrementing
+  private static long lastNanos = -1;
   
   /**
    * @param cacheName name of cache to clear
@@ -127,10 +130,18 @@ public class GrouperCacheDatabase {
       try {
         // do a try/catch since another JVM could be updating the same cache at the same time
         long nowNanos = System.currentTimeMillis();
+        
         // convert to nanos
         nowNanos *= 1000000;
         // add some random
         nowNanos += Math.random()*1000000;
+        
+        // we dont want to try the same number
+        if (nowNanos <= lastNanos) {
+          nowNanos = lastNanos+1;
+        }
+        lastNanos = nowNanos;
+
         notifyDatabaseOfCacheUpdateHelper(cacheName, nowNanos);
         notifyDatabaseOverallOfCacheUpdateHelper(nowNanos);
         // we good
@@ -236,7 +247,7 @@ public class GrouperCacheDatabase {
       grouperCacheDatabaseClear.clear();
       return true;
     }
-    
+
     throw new RuntimeException("Invalid cache name: '" + cacheNameWithPrefix + "'");
   }
 

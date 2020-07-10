@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ddl.GrouperDdl2_5;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -278,6 +279,9 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
+        
+        GrouperConfigHibernate.registerDatabaseCache();
+        
         {
           int delaySeconds = GrouperHibernateConfig.retrieveConfig().propertyValueInt("grouper.start.delay.seconds", 0);
           if (delaySeconds > 0) {
