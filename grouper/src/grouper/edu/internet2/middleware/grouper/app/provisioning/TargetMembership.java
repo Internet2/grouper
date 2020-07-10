@@ -1,6 +1,14 @@
-package edu.internet2.middleware.grouper.provisioning;
+package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Map;
+
+import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.TargetEntity;
+import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
+
+import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.TargetEntity;
+import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
 
 /**
  * tuple of group and entity in target system

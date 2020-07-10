@@ -1,6 +1,10 @@
-package edu.internet2.middleware.grouper.provisioning;
+package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Map;
+
+import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
+
+import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
 
 /**
  * entity is a member of a group which is typically a user/account or person

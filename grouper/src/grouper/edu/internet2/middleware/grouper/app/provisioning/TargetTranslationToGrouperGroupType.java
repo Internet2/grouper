@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.provisioning;
+package edu.internet2.middleware.grouper.app.provisioning;
 
 
 public enum TargetTranslationToGrouperGroupType {

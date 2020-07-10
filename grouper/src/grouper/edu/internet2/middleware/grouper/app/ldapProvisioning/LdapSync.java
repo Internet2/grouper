@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -532,6 +533,23 @@ public class LdapSync extends GrouperProvisioner {
    */
   public static void main(String[] args) {
     new LdapSync().sync(args[0], LdapSyncSubtype.valueOfIgnoreCase(args[1], true));
+  }
+
+  /**
+   * dont call this directly, call retrieveTargetDao()
+   */
+  private LdapProvisioningTargetDao ldapProvisioningTargetDao = null;
+  
+  /**
+   * will construct and cache a dao for this provisioner
+   */
+  @Override
+  public GrouperProvisionerTargetDaoBase retrieveTargetDao() {
+    if (this.ldapProvisioningTargetDao == null) {
+      this.ldapProvisioningTargetDao = new LdapProvisioningTargetDao();
+      this.ldapProvisioningTargetDao.setLdapSync(this);
+    }
+    return this.ldapProvisioningTargetDao;
   }
 
 }
