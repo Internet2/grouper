@@ -4,11 +4,10 @@
  */
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
-import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -19,7 +18,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  * an instance of this class focuses on the configuration for table sync
  * create an instance, set the key, and call configure
  */
-public class LdapSyncConfiguration {
+public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase {
 
   /**
    * subtype which also implies which type (full | incremental)

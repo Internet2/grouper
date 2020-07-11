@@ -10,6 +10,7 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -550,6 +551,16 @@ public class LdapSync extends GrouperProvisioner {
       this.ldapProvisioningTargetDao.setLdapSync(this);
     }
     return this.ldapProvisioningTargetDao;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisionerTargetDaoBase> retrieveTargetDaoClass() {
+    return LdapProvisioningTargetDao.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningConfigurationBase> retrieveProvisioningConfigurationClass() {
+    return LdapSyncConfiguration.class;
   }
 
 }

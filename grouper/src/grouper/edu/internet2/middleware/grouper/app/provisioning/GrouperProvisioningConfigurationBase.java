@@ -1,13 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Map;
-
-public abstract class GrouperProvisionerTargetDaoBase {
-
-  
-  public Map<String, TargetGroup> retrieveAllGroups() {
-    throw new UnsupportedOperationException();
-  }
+/**
+ * 
+ * @author mchyzer
+ *
+ */
+public abstract class GrouperProvisioningConfigurationBase {
 
   /**
    * reference back up to the provisioner
@@ -29,7 +27,13 @@ public abstract class GrouperProvisionerTargetDaoBase {
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
     this.grouperProvisioner = grouperProvisioner1;
   }
-  
-  
+
+  /**
+   * configure the provisioner, call super if subclassing
+   */
+  public void configureProvisioner() {
+    
+  }
+
   
 }
