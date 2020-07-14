@@ -25,7 +25,14 @@
                 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
-                    <p>${textContainer.text['grouperLoaderIsGrouperLoader'] }</p>
+                    <c:choose>
+                      <c:when test="${grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}">
+                        <p>${textContainer.text['grouperLoaderIsGrouperLoaderRecent'] }</p>
+                      </c:when>
+                      <c:otherwise>
+                        <p>${textContainer.text['grouperLoaderIsGrouperLoader'] }</p>
+                      </c:otherwise>
+                    </c:choose>
                   </c:when>
                   <c:otherwise>
 <%-- style="margin-top: -1em;" --%>
@@ -206,6 +213,46 @@
                           
                           </td>
                         </tr>
+                      </tbody>
+                    </table>
+                  </c:when>
+                  <c:when test="${grouperRequestContainer.groupContainer.guiGroup.hasRecentMembershipsGrouperLoader}">
+                    <table class="table table-condensed table-striped">
+                      <tbody>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderRecentFromGroup']}</strong></td>
+                          <td style="vertical-align: top;">
+                          
+                            ${grouperRequestContainer.grouperLoaderContainer.recentFromGuiGroup.shortLinkWithIcon}
+                            <br /><span class="description">${textContainer.text['grouperLoaderRecentFromGroupDescription']}</span>
+                          
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderRecentDays']}</strong></td>
+                          <td style="vertical-align: top;">
+                          
+                            ${grouperRequestContainer.grouperLoaderContainer.recentDays}
+                            <br /><span class="description">${textContainer.text['grouperLoaderRecentDaysDescription']}</span>
+                          
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderRecentIncludeCurrent']}</strong></td>
+                          <td style="vertical-align: top;">
+                            <c:choose>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'T'}">
+                                ${textContainer.text['grouperLoaderRecentIncludeCurrentTrue']}
+                              </c:when>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'F'}">
+                                ${textContainer.text['grouperLoaderRecentIncludeCurrentFalse']}
+                              </c:when>
+                            </c:choose>
+                            <br /><span class="description">${textContainer.text['grouperLoaderRecentIncludeCurrentDescription']}</span>
+                          
+                          </td>
+                        </tr>
+                        
                       </tbody>
                     </table>
                   </c:when>

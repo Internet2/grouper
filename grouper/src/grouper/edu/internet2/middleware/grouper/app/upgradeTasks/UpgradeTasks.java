@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -86,6 +87,14 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         resolvableMembersAttr.delete();
       }
     }
+  },
+  V3{
+
+    @Override
+    public void updateVersionFromPrevious() {
+      GrouperRecentMemberships.upgradeFromV2_5_29_to_V2_5_30();
+    }
+    
   };
   
   private static int currentVersion = -1;

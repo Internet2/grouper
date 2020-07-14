@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
 
+  private static final String GROUPER_RECENT_MEMBERSHIPS_GROUP_IDS = "grouperRecentMembershipsGroupIds";
+
   public static int test_fullSyncCount = 0;
   
   public static int test_incrementalSyncCount = 0;
@@ -51,29 +54,32 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
   }
 
   /**
-   * group ids which have recent memberships
+   * group ids which have recent memberships, cleared with database clear
    */
-  private static ExpirableCache<Boolean, List<String>> recentMembershipsGroupIds = new ExpirableCache<Boolean, List<String>>(1);
+  private static ExpirableCache<Boolean, List<String>> grouperRecentMembershipsGroupIds = null;
+  
+  private static ExpirableCache<Boolean, List<String>> grouperRecentMembershipsGroupIds() {
+    if (grouperRecentMembershipsGroupIds == null) {
+      grouperRecentMembershipsGroupIds = new ExpirableCache<Boolean, List<String>>(10);
+      grouperRecentMembershipsGroupIds.registerDatabaseClearableCache(GROUPER_RECENT_MEMBERSHIPS_GROUP_IDS);
+    }
+    return grouperRecentMembershipsGroupIds;
+  }
 
   public List<String> recentMembershipsGroupIds() {
-    // TODO check the 10 second cache clear table in future and change to five minute cache
-    List<String> result = recentMembershipsGroupIds.get(Boolean.TRUE);
+    List<String> result = grouperRecentMembershipsGroupIds().get(Boolean.TRUE);
     if (result == null) {
       synchronized (GrouperRecentMembershipsChangeLogConsumer.class) {
-        result = recentMembershipsGroupIds.get(Boolean.TRUE);
+        result = grouperRecentMembershipsGroupIds().get(Boolean.TRUE);
         if (result == null) {
           
           result = new ArrayList<String>();
-          // gaaagv_recentMemberships.group_id owner_group_id, gaaagv_recentMemberships.group_name owner_group_name, "
-          // + "gaaagv_recentMemberships.value_string recent_memberships_days, gaaagv_groupName.value_string group_name "
-          String groupQuery = GrouperRecentMemberships.groupQuery();
-          
-          List<Object[]> rows = new GcDbAccess().sql(groupQuery).selectList(Object[].class);
+          List<Object[]> rows = new GcDbAccess().sql("select group_uuid_from from grouper_recent_mships_conf_v").selectList(Object[].class);
           for (Object[] row : GrouperUtil.nonNull(rows)) {
             result.add((String)row[0]);
           }
           
-          recentMembershipsGroupIds.put(Boolean.TRUE, result);
+          grouperRecentMembershipsGroupIds().put(Boolean.TRUE, result);
           
         }
       }
@@ -86,100 +92,125 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
       List<EsbEventContainer> esbEventContainers,
       GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
 
-    Set<String> groupIds = new HashSet<String>(recentMembershipsGroupIds());
-    
-    
-    ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "dispatchEventList");
+    Long startNanos = System.nanoTime();
 
+    int eventsSkipped = 0;
 
-    Set<MultiKey> subjectSourceIdAndSubjectIds = new LinkedHashSet<MultiKey>();
-    Map<MultiKey, Long> subjectSourceIdAndSubjectIdToCreatedOn = new HashMap<MultiKey, Long>();
-
-    boolean needsFullSync = false;
-    boolean attributeChange = false;
-    
-    String recentMembershipsStem = GrouperRecentMemberships.recentMembershipsStemName();
-    
-    int maxUntilFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer.recentMemberships.maxUntilFullSync", 100);
-    
-    String groupName = GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
-
-    Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
-        groupName, true, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
-
-    Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ? and status = 'SUCCESS'")
-      //'SQL_GROUP_LIST__etc:attribute:recentMemberships:grouperRecentMembershipsLoader__b3708fc0a5c347ff8dad78f2b0f7d50e'
-      .addBindVar("SQL_GROUP_LIST__" + groupName + "__" + group.getId()).select(Timestamp.class);
-    
-    OUTER: for (EsbEventContainer esbEventContainer : esbEventContainers) {
+    try {
       
-      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+      Set<String> groupIds = new HashSet<String>(recentMembershipsGroupIds());
 
-      // skip any events that happened before the last full sync
-      if (lastSuccess != null && esbEvent.getCreatedOnMicros() / 1000 < lastSuccess.getTime()) {
-        continue;
+      debugMap.put("groupIdCount", GrouperUtil.length(groupIds));
+      
+      ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
+
+      Set<MultiKey> subjectSourceIdAndSubjectIds = new LinkedHashSet<MultiKey>();
+      Map<MultiKey, Long> subjectSourceIdAndSubjectIdToCreatedOn = new HashMap<MultiKey, Long>();
+
+      boolean needsFullSync = false;
+      boolean attributeChange = false;
+      
+      String recentMembershipsStem = GrouperRecentMemberships.recentMembershipsStemName();
+      
+      int maxUntilFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer.recentMemberships.maxUntilFullSync", 100);
+      
+      String groupName = GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
+
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+          groupName, true, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.group));
+
+      Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ? and status = 'SUCCESS'")
+        //'SQL_GROUP_LIST__etc:attribute:recentMemberships:grouperRecentMembershipsLoader__b3708fc0a5c347ff8dad78f2b0f7d50e'
+        .addBindVar("SQL_GROUP_LIST__" + groupName + "__" + group.getId()).select(Timestamp.class);
+
+      debugMap.put("messages", GrouperUtil.length(esbEventContainers));
+
+      OUTER: for (EsbEventContainer esbEventContainer : esbEventContainers) {
+        
+        EsbEventType esbEventType = esbEventContainer.getEsbEventType();
+        EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+
+        // skip any events that happened before the last full sync
+        if (lastSuccess != null && esbEvent.getCreatedOnMicros() / 1000 < lastSuccess.getTime()) {
+          eventsSkipped++;
+          continue;
+        }
+        
+        switch(esbEventType) {
+          case MEMBERSHIP_ADD:
+          case MEMBERSHIP_DELETE:
+          case MEMBER_UPDATE:
+            if (groupIds.contains(esbEvent.getGroupId()) && !StringUtils.equals("g:gsa", esbEvent.getSourceId())) {
+              
+              MultiKey sourceIdSubjectId = new MultiKey(esbEvent.getSourceId(), esbEvent.getSubjectId());
+              subjectSourceIdAndSubjectIds.add(sourceIdSubjectId);
+              subjectSourceIdAndSubjectIdToCreatedOn.put(sourceIdSubjectId, esbEvent.getCreatedOnMicros()/1000);
+            }
+            break;
+          case ATTRIBUTE_ASSIGN_DELETE:
+          case ATTRIBUTE_ASSIGN_ADD:
+          case ATTRIBUTE_ASSIGN_VALUE_ADD:
+          case ATTRIBUTE_ASSIGN_VALUE_DELETE:
+            if (esbEvent.getAttributeDefNameName() != null && esbEvent.getAttributeDefNameName().startsWith(recentMembershipsStem)) {
+              needsFullSync = true;
+              attributeChange = true;
+              // clear cache here and on other databases
+              ExpirableCache.clearCache("GROUPER_RECENT_MEMBERSHIPS_GROUP_IDS");
+              break OUTER;
+            }
+            break;
+        }
       }
       
-      switch(esbEventType) {
-        case MEMBERSHIP_ADD:
-        case MEMBERSHIP_DELETE:
-        case MEMBER_UPDATE:
-          if (groupIds.contains(esbEvent.getGroupId()) && !StringUtils.equals("g:gsa", esbEvent.getSourceId())) {
-            
-            MultiKey sourceIdSubjectId = new MultiKey(esbEvent.getSourceId(), esbEvent.getSubjectId());
-            subjectSourceIdAndSubjectIds.add(sourceIdSubjectId);
-            subjectSourceIdAndSubjectIdToCreatedOn.put(sourceIdSubjectId, esbEvent.getCreatedOnMicros()/1000);
-          }
-          break;
-        case ATTRIBUTE_ASSIGN_DELETE:
-        case ATTRIBUTE_ASSIGN_ADD:
-        case ATTRIBUTE_ASSIGN_VALUE_ADD:
-        case ATTRIBUTE_ASSIGN_VALUE_DELETE:
-          if (esbEvent.getAttributeDefNameName() != null && esbEvent.getAttributeDefNameName().startsWith(recentMembershipsStem)) {
-            needsFullSync = true;
-            attributeChange = true;
-            // clear cache
-            recentMembershipsGroupIds.clear();
-            break OUTER;
-          }
-          break;
+      if (subjectSourceIdAndSubjectIds.size() > maxUntilFullSync) {
+        debugMap.put("needsFullSyncDueToVolume", true);
+        needsFullSync = true;
       }
-    }
-    
-    if (subjectSourceIdAndSubjectIds.size() > maxUntilFullSync) {
-      needsFullSync = true;
+
+      debugMap.put("needsFullSync", needsFullSync);
+
+      if (!needsFullSync) {
+        debugMap.put("affectedSubjects", GrouperUtil.length(subjectSourceIdAndSubjectIds));
+      }
+      
+      if (needsFullSync) {
+        test_fullSyncCount++;
+        scheduleRecentMembershipsLoaderNow(attributeChange, group);
+      } else if (GrouperUtil.length(subjectSourceIdAndSubjectIds) > 0) {
+         
+        GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+        
+        // send sourceIds and subjectIds to incremental loader
+        for (MultiKey subjectSourceIdAndSubjectId : subjectSourceIdAndSubjectIds) {
+          test_incrementalSyncCount++;
+          String sourceId = (String)subjectSourceIdAndSubjectId.getKey(0);
+          String subjectId = (String)subjectSourceIdAndSubjectId.getKey(1);
+          Long createdOn = subjectSourceIdAndSubjectIdToCreatedOn.get(subjectSourceIdAndSubjectId);
+          Row row = new Row(1, createdOn, groupName, subjectId, null, null, sourceId, "subject_id", subjectId);
+          
+          Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
+          
+          GrouperLoaderIncrementalJob.processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, 
+              row, null, group, GrouperLoaderType.SQL_GROUP_LIST.name(), 
+              this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog(), groupsRequiringLoaderMetadataUpdates, 
+              null, null, GrouperRecentMemberships.groupQuery,
+              GrouperRecentMemberships.query, "grouper", false, false);
+          
+        }
+      }
+      
+      provisioningSyncConsumerResult.setLastProcessedSequenceNumber(esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber());
+      return provisioningSyncConsumerResult;
+
+    } finally {
+      debugMap.put("eventsSkipped", GrouperUtil.length(eventsSkipped));
+
+      debugMap.put("tookMillis", ((System.nanoTime() - startNanos)/1000000L));
+      this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog().appendJobMessage(GrouperUtil.mapToString(debugMap));
     }
 
-    if (needsFullSync) {
-      test_fullSyncCount++;
-      // schedule one in 5 minutes after caches clear in case running on another loader
-      scheduleRecentMembershipsLoaderNow(attributeChange, group);
-    } else if (GrouperUtil.length(subjectSourceIdAndSubjectIds) > 0) {
-       
-      GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-      
-      // send sourceIds and subjectIds to incremental loader
-      for (MultiKey subjectSourceIdAndSubjectId : subjectSourceIdAndSubjectIds) {
-        test_incrementalSyncCount++;
-        String sourceId = (String)subjectSourceIdAndSubjectId.getKey(0);
-        String subjectId = (String)subjectSourceIdAndSubjectId.getKey(1);
-        Long createdOn = subjectSourceIdAndSubjectIdToCreatedOn.get(subjectSourceIdAndSubjectId);
-        Row row = new Row(1, createdOn, groupName, subjectId, null, null, sourceId, "subject_id", subjectId);
-        
-        Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
-        
-        GrouperLoaderIncrementalJob.processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, 
-            row, null, group, GrouperLoaderType.SQL_GROUP_LIST.name(), 
-            this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog(), groupsRequiringLoaderMetadataUpdates, 
-            null, null, GrouperRecentMemberships.groupQuery(),
-            GrouperRecentMemberships.query(), "grouper", false, false);
-        
-      }
-    }
-    
-    provisioningSyncConsumerResult.setLastProcessedSequenceNumber(esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber());
-    return provisioningSyncConsumerResult;
   }
 
   /**
@@ -188,13 +219,13 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
    */
   private static void scheduleRecentMembershipsLoaderNow(boolean waitForCache, Group group) {
   
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), "OTHER_JOB_recentMembershipsConfFull");
+    
     String jobName =  GrouperLoaderType.SQL_GROUP_LIST.name() + "__" + group.getName() + "__" + group.getUuid();
      
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), jobName);
     
-    if (waitForCache) {
-      GrouperUtil.sleep(60*1000);
-    }
   }
 
   

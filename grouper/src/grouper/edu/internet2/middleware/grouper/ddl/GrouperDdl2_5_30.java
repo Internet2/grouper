@@ -302,21 +302,29 @@ public class GrouperDdl2_5_30 {
         GrouperUtil.toSet("group_name: group name of the loaded group from recent memberships", 
             "subject_source_id: subject source of subject in recent membership", 
             "subject_id: subject id of subject in recent membership"),
+        
         "select grmc.group_name_to as group_name, "
         + "gpmglv.subject_source as subject_source_id, "
         + "gpmglv.subject_id as subject_id "
         + "from grouper_recent_mships_conf grmc,  "
         + "grouper_pit_mship_group_lw_v gpmglv, "
         + "grouper_time gt, "
-        + "grouper_members gm " 
-        + "where gm.id = gpmglv.member_id " 
+        + "grouper_members gm "
+        + "where gm.id = gpmglv.member_id "
         + "and gm.subject_resolution_deleted = 'F' "
         + "and gt.time_label = 'now' "
         + "and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) "
         + "and gpmglv.subject_source != 'g:gsa' "
         + "and gpmglv.field_name = 'members' "
-        + "and ((grmc.include_eligible = 'T' and gpmglv.the_active = 'T') "
-        + "  or (gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros))");
+        + "and (gpmglv.the_end_time is null "
+        + "or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) "
+        + "and ( grmc.include_eligible = 'T' "
+        + "or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 "
+        + "WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id "
+        + "and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id "
+        + "and gs2.owner_id = grmc.group_uuid_to and mship2.enabled = 'T' ))"
+        
+        );
   }
 
   static void createViewRecentMembershipsV(DdlVersionBean ddlVersionBean) {

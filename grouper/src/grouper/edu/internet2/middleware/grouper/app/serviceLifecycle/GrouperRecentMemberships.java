@@ -1,18 +1,150 @@
 package edu.internet2.middleware.grouper.app.serviceLifecycle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperRecentMemberships {
 
+  public static void upgradeFromV2_5_29_to_V2_5_30() {
+    AttributeDefName grouperRecentMembershipsMarker = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+    
+    AttributeDefName grouperRecentMembershipsDays = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":grouperRecentMembershipsDays", false);
+
+    AttributeDefName grouperRecentMembershipsGroupName = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":grouperRecentMembershipsGroupName", false);
+
+    AttributeDefName grouperRecentMembershipsGroupUuidFrom = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_UUID_FROM, true);
+
+    AttributeDefName grouperRecentMembershipsMicros = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_MICROS, true);
+
+    AttributeDefName grouperRecentMembershipsIncludeCurrent = AttributeDefNameFinder.findByName(
+        GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
+
+    if (grouperRecentMembershipsDays != null || grouperRecentMembershipsGroupName != null) {
+      
+      if (grouperRecentMembershipsDays != null && grouperRecentMembershipsGroupName != null) {
+      
+        List<MultiKey> oldConfigs = new ArrayList<MultiKey>();
+        
+        for (AttributeAssign attributeAssign : GrouperUtil.nonNull(new AttributeAssignFinder()
+            .assignAttributeAssignType(AttributeAssignType.group)
+            .addAttributeDefNameId(grouperRecentMembershipsMarker.getId()).findAttributeAssignFinderResults().getIdToAttributeAssignMap().values())) {
+          
+          String groupUuidFrom = attributeAssign.getOwnerGroupId();
+          
+          if (StringUtils.isBlank(groupUuidFrom)) {
+            continue;
+          }
+          
+          String groupNameTo = attributeAssign.getAttributeValueDelegate().retrieveValueString(grouperRecentMembershipsGroupName.getName());
+
+          if (StringUtils.isBlank(groupNameTo)) {
+            continue;
+          }
+
+          Group groupTo = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupNameTo, false);
+          
+          if (groupTo == null) {
+            continue;
+          }
+          
+          String daysString = attributeAssign.getAttributeValueDelegate().retrieveValueString(grouperRecentMembershipsDays.getName());
+          
+          if (StringUtils.isBlank(daysString)) {
+            continue;
+          }
+          int days = -1;
+          try {
+            days = GrouperUtil.intValue(daysString);
+          } catch (Exception e) {
+            continue;
+          }
+
+          if (days < 0) {
+            continue;
+          }
+
+          long micros = days * 24L * 60 * 60 * 1000000L;
+          
+          String includeCurrentString = attributeAssign.getAttributeValueDelegate().retrieveValueString(grouperRecentMembershipsIncludeCurrent.getName());
+
+          boolean includeCurrent = false;
+
+          try {
+            includeCurrent = GrouperUtil.booleanValue(includeCurrentString);
+          } catch (Exception e) {
+            continue;
+          }
+
+          MultiKey multiKey = new MultiKey(groupTo, groupUuidFrom, micros, includeCurrent ? "T" : "F");
+          
+          oldConfigs.add(multiKey);
+          LOG.error("Note: migrating v2.5.29 recent membership groupTo: " + groupTo.getName() + ", groupUuidFrom: " 
+              + groupUuidFrom + ", days: " + days + ", includeCurrent: " + includeCurrent);
+          
+          attributeAssign.delete();
+        }
+        
+        // remove all first since it might conflict with what is being assigned
+        
+        for (MultiKey multiKey : oldConfigs) {
+          
+          Group groupTo = null;
+          String groupUuidFrom = null;
+          long micros = -1;
+          String includeCurrent = null;
+          
+          try {
+            groupTo = (Group)multiKey.getKey(0);
+            groupUuidFrom = (String)multiKey.getKey(1);
+            micros = (Long)multiKey.getKey(2);
+            includeCurrent = (String)multiKey.getKey(3);
+
+            AttributeAssign attributeAssign = groupTo.getAttributeDelegate().assignAttribute(grouperRecentMembershipsMarker).getAttributeAssign();
+
+            attributeAssign.getAttributeValueDelegate().assignValueInteger(grouperRecentMembershipsMicros.getName(), micros);
+            attributeAssign.getAttributeValueDelegate().assignValue(grouperRecentMembershipsGroupUuidFrom.getName(), groupUuidFrom);
+            attributeAssign.getAttributeValueDelegate().assignValue(grouperRecentMembershipsIncludeCurrent.getName(), includeCurrent);
+          } catch (Exception e) {
+            LOG.error("Error migrating membership groupTo: " + groupTo.getName() + ", groupUuidFrom: " 
+              + groupUuidFrom + ", micros: " + micros + ", includeCurrent: " + includeCurrent, e);
+          }
+        }
+          
+      }
+      if (grouperRecentMembershipsDays != null) {
+        grouperRecentMembershipsDays.delete();
+      }
+      if (grouperRecentMembershipsGroupName != null) {
+        grouperRecentMembershipsGroupName.delete();
+      }
+
+    }
+
+  }
+  
   /**
    * 
    * @return the stem name
@@ -42,89 +174,9 @@ public class GrouperRecentMemberships {
 //  
 //  public static final String GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME = "grouperRecentMembershipsGroupName";
 
-  private static String groupQuery = null;
+  static String groupQuery = "select group_uuid_to group_id, group_name_to group_name from grouper_recent_mships_conf_v";
   
-  private static String query = null;
-  
-  public static String query() {
-    setupQueries();
-    return query;
-  }
-  
-  public static String groupQuery() {
-    setupQueries();
-    return groupQuery;
-  }
-  
-  private static void setupQueries() {
-    if (query == null) {
-
-      // check the point in time against the recent memberships days, check that recent memberships is an integer and check that group name has a colon
-      String databasePart = null;
-      String regexPart = null;
-      String minEndTimePart = null;
-      
-      // mship:    <---->
-      // groupset:    <---->
-      // if we are including active people (eligible), then allow both group set and membership with no end time
-      databasePart = " and ((gaaagv_includeEligible.value_string = 'true' and gpmship.end_time is null and gpgs.end_time is null) "
-          + "or ((gpmship.end_time > $$MIN_END_TIME$$ "
-          + "and gpgs.start_time < gpmship.end_time AND (gpgs.end_time is null or gpgs.end_time > gpmship.end_time)) " + 
-          " OR (gpgs.end_time > $$MIN_END_TIME$$"
-          + " AND gpmship.start_time < gpgs.end_time and (gpmship.end_time is null or gpmship.end_time > gpgs.end_time))))"; 
-      
-      if (GrouperDdlUtils.isHsql()) {
-        regexPart = " and REGEXP_MATCHES (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') "
-            + "and REGEXP_MATCHES (gaaagv_includeEligible.value_string, '^(true|false)$') ";
-        minEndTimePart = "(1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_recentMemberships.value_string as int))))";
-      } else if (GrouperDdlUtils.isOracle()) {
-        regexPart = " and REGEXP_LIKE (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') "
-            + "and REGEXP_LIKE (gaaagv_includeEligible.value_string, '^(true|false)$') ";
-        minEndTimePart = "(1000000 * (((cast(current_timestamp at time zone 'UTC' as date) - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_recentMemberships.value_string AS number ))))";
-      } else if (GrouperDdlUtils.isMysql()) {  
-        regexPart = " and gaaagv_recentMemberships.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' "
-            + "and gaaagv_includeEligible.value_string REGEXP '^(true|false)$' ";
-        minEndTimePart = "(1000000 * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_recentMemberships.value_string,UNSIGNED INTEGER))))";
-      } else if (GrouperDdlUtils.isPostgres()) {
-        regexPart = " and gaaagv_recentMemberships.value_string ~ '^[0-9]+$' and gaaagv_groupName.value_string ~ '^.+:.+$' "
-            + "and gaaagv_includeEligible.value_string ~ '^(true|false)$' ";
-        minEndTimePart = "cast((1000000 * (extract(EPOCH from clock_timestamp()) - (60*60*24*(cast(gaaagv_recentMemberships.value_string as bigint))))) as bigint)";
-      } else {
-        LOG.error("Cant find database type");
-        return;
-      }
-      databasePart = StringUtils.replace(databasePart, "$$MIN_END_TIME$$", minEndTimePart) + regexPart;
-      query = "select distinct gaaagv_groupName.value_string group_name, gpm.subject_id, gpm.subject_source subject_source_id "
-          + "from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf, "
-          + "grouper_aval_asn_asn_group_v gaaagv_recentMemberships, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
-          + "where gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_groupName.attribute_assign_id1 and gaaagv_recentMemberships.attribute_assign_id1 = gaaagv_includeEligible.attribute_assign_id1 "
-//          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
-//          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
-          + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
-          + "and gpmship.MEMBER_ID = gpm.ID and gpm.subject_source != 'g:gsa' and gpgs.FIELD_ID = gpf.ID "
-          + "and gpf.name = 'members' " + databasePart + " "
-          + "and gaaagv_groupName.group_id = gpg.source_id "
-          + "and gpg.id = gpgs.owner_id "
-          + "and gpmship.owner_id = gpgs.member_id "
-          + "AND gpmship.field_id = gpgs.member_field_id " 
-          + "and (gaaagv_includeEligible.value_string = 'true' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id "
-          + "AND mship2.field_id = gs2.member_field_id and mship2.member_id = gpm.source_id and gs2.field_id = gpf.source_id "
-          + "and gs2.owner_id = gaaagv_recentMemberships.group_id and mship2.enabled = 'T' ) ) ";
-
-      groupQuery = "select gaaagv_recentMemberships.group_id owner_group_id, gaaagv_recentMemberships.group_name owner_group_name, "
-          + "gaaagv_recentMemberships.value_string recent_memberships_days, gaaagv_groupName.value_string group_name, gaaagv_includeEligible.value_string include_eligible "
-          + "from grouper_aval_asn_asn_group_v gaaagv_recentMemberships, grouper_aval_asn_asn_group_v gaaagv_groupName, grouper_aval_asn_asn_group_v gaaagv_includeEligible "
-          + "where gaaagv_recentMemberships.group_id = gaaagv_groupName.group_id and gaaagv_recentMemberships.group_id = gaaagv_includeEligible.group_id "
-//          + "and gaaagv_recentMemberships.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_DAYS + "' "
-//          + "and gaaagv_groupName.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_GROUP_NAME + "' "
-          + "and gaaagv_includeEligible.attribute_def_name_name2 = '" + recentMembershipsStemName() + ":" + GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT + "' "
-          + regexPart;
-
-
-    }
-  }
-  
-  
+  static String query = "select group_name, subject_id, subject_source_id from grouper_recent_mships_load_v";
   
   public static void setupRecentMembershipsLoaderJob(Group group) {
     
@@ -134,10 +186,6 @@ public class GrouperRecentMemberships {
     boolean hasChange = false;
     if (recentMembershipsEnabled) {
       
-      // cant find database???
-      if (query() == null) {
-        return;
-      }
       if (!group.hasType(grouperLoaderType)) {
         group.addType(grouperLoaderType);
       }
@@ -157,12 +205,12 @@ public class GrouperRecentMemberships {
         group.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 41 3 * * ?");
         hasChange = true;
       }
-      if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_QUERY), query())) {
-        group.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, query());
+      if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_QUERY), query)) {
+        group.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, query);
         hasChange = true;
       }
-      if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY), groupQuery())) {
-        group.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY, groupQuery());
+      if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY), groupQuery)) {
+        group.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY, groupQuery);
         hasChange = true;
       }
       

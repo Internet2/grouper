@@ -28,7 +28,9 @@ import org.quartz.JobExecutionException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -175,71 +177,76 @@ public abstract class OtherJobBase implements Job {
    * @param jobName e.g. OTHER_JOB_attestationDaemon
    * @param hib3GrouperLoaderLog if null create a new one
    */
-  final public void execute(String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  final public void execute(final String jobName, final Hib3GrouperLoaderLog hib3GrouperLoaderLogInput) {
     
-    long startTime = System.currentTimeMillis();
-    GrouperSession grouperSession = null;
-    boolean assignedContext = false;
-    try {
-      grouperSession = GrouperSession.startRootSession();
-      if (GrouperContext.retrieveDefaultContext() == null) {
-        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
-        assignedContext = true;
-      }
-      boolean madeChange = false;
-      if (hib3GrouperLoaderLog == null) {
-        hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-        madeChange = true;
-      }
-      if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobName())) {
-        hib3GrouperLoaderLog.setJobName(jobName);
-        madeChange = true;
-      }
-      if (StringUtils.isBlank(hib3GrouperLoaderLog.getHost())) {
-        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-        madeChange = true;
-      }
-      if (null == hib3GrouperLoaderLog.getStartedTime()) {
-        hib3GrouperLoaderLog.setStartedTime(new Timestamp(startTime));
-        madeChange = true;
-      }
-      if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobType())) {
-        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-        madeChange = true;
-      }
-      if (StringUtils.isBlank(hib3GrouperLoaderLog.getStatus())) {
-        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-        madeChange = true;
-      }
-      if (madeChange) {
-        hib3GrouperLoaderLog.store();
-      }
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
-      OtherJobInput otherJobInput = new OtherJobInput();
-      
-      otherJobInput.setJobName(jobName);
-      otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-      otherJobInput.setGrouperSession(grouperSession);
-      
-      this.run(otherJobInput);
-      
-      hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-      storeLogInDb(hib3GrouperLoaderLog, true, startTime);
-      
-    } catch (RuntimeException e) {
-      LOG.error("Error occurred while running job: " + jobName, e);
-      hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-      hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
-      
-      storeLogInDb(hib3GrouperLoaderLog, false, startTime);
-      throw e;
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-      if (assignedContext) {
-        GrouperContext.deleteDefaultContext();
-      }
-    }
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        long startTime = System.currentTimeMillis();
+        boolean assignedContext = false;
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = hib3GrouperLoaderLogInput;
+        try {
+          if (GrouperContext.retrieveDefaultContext() == null) {
+            GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+            assignedContext = true;
+          }
+          boolean madeChange = false;
+          if (hib3GrouperLoaderLog == null) {
+            hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+            madeChange = true;
+          }
+          if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobName())) {
+            hib3GrouperLoaderLog.setJobName(jobName);
+            madeChange = true;
+          }
+          if (StringUtils.isBlank(hib3GrouperLoaderLog.getHost())) {
+            hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+            madeChange = true;
+          }
+          if (null == hib3GrouperLoaderLog.getStartedTime()) {
+            hib3GrouperLoaderLog.setStartedTime(new Timestamp(startTime));
+            madeChange = true;
+          }
+          if (StringUtils.isBlank(hib3GrouperLoaderLog.getJobType())) {
+            hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+            madeChange = true;
+          }
+          if (StringUtils.isBlank(hib3GrouperLoaderLog.getStatus())) {
+            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+            madeChange = true;
+          }
+          if (madeChange) {
+            hib3GrouperLoaderLog.store();
+          }
+          
+          OtherJobInput otherJobInput = new OtherJobInput();
+          
+          otherJobInput.setJobName(jobName);
+          otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+          otherJobInput.setGrouperSession(grouperSession);
+          
+          OtherJobBase.this.run(otherJobInput);
+          
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          storeLogInDb(hib3GrouperLoaderLog, true, startTime);
+          
+        } catch (RuntimeException e) {
+          LOG.error("Error occurred while running job: " + jobName, e);
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
+          
+          storeLogInDb(hib3GrouperLoaderLog, false, startTime);
+          throw e;
+        } finally {
+          if (assignedContext) {
+            GrouperContext.deleteDefaultContext();
+          }
+        }
 
+        return null;
+      }
+    });
     
   }
 
