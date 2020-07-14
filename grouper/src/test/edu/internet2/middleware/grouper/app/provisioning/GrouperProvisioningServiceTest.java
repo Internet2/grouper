@@ -35,10 +35,10 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
     GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapKey", "ldap");
-    GrouperProvisioningSettings.getTargets().put("ldap", target1);
+    GrouperProvisioningSettings.getTargets(false).put("ldap", target1);
     
     GrouperProvisioningTarget target2 = new GrouperProvisioningTarget("boxKey", "box");
-    GrouperProvisioningSettings.getTargets().put("box", target2);
+    GrouperProvisioningSettings.getTargets(false).put("box", target2);
     
   }
   
@@ -140,7 +140,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapReadOnlyKey", "ldapReadOnly");
     target1.setReadOnly(true);
-    GrouperProvisioningSettings.getTargets().put("ldapReadOnly", target1);
+    GrouperProvisioningSettings.getTargets(false).put("ldapReadOnly", target1);
     
     saveProvisioningAttributeMetadata(stem0, true, "ldapReadOnly");
     
@@ -169,7 +169,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapEditableKey", "ldapEditable");
     target1.setReadOnly(false);
-    GrouperProvisioningSettings.getTargets().put("ldapEditable", target1);
+    GrouperProvisioningSettings.getTargets(false).put("ldapEditable", target1);
     
     saveProvisioningAttributeMetadata(stem0, true, "ldapEditable");
     
@@ -201,7 +201,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapTargetKey", "ldapTarget");
     target1.setGroupAllowedToAssign(group0.getName());
-    GrouperProvisioningSettings.getTargets().put("ldapTarget", target1);
+    GrouperProvisioningSettings.getTargets(false).put("ldapTarget", target1);
     
     saveProvisioningAttributeMetadata(stem0, true, "ldapTarget");
     

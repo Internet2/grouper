@@ -8,8 +8,11 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBas
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public abstract class ProvisionerConfiguration extends GrouperConfigurationModuleBase {
   
@@ -41,6 +44,36 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     return "provisionerConfiguration";
   }
   
+  
+  
+  @Override
+  public void deleteConfig(boolean fromUi) {
+    super.deleteConfig(fromUi);
+    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, this.getConfigId());
+    
+    {
+      List<GcGrouperSyncGroup> grouperSyncGroups = grouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
+      grouperSync.getGcGrouperSyncGroupDao().groupDelete(grouperSyncGroups, true, true);
+    }
+    
+    {
+      List<GcGrouperSyncMember> grouperSyncMembers = grouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
+      grouperSync.getGcGrouperSyncMemberDao().memberDelete(grouperSyncMembers, true, true);
+    }
+    
+    {
+      List<GcGrouperSyncMembership> grouperSyncMemberships = grouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveAll();
+      grouperSync.getGcGrouperSyncMembershipDao().membershipDelete(grouperSyncMemberships, true);
+    }
+    
+    {
+      List<GcGrouperSyncJob> grouperSyncJobs = grouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+      grouperSync.getGcGrouperSyncJobDao().jobDelete(grouperSyncJobs, true);
+    }
+    
+    grouperSync.getGcGrouperSyncDao().delete();
+  }
+
   /**
    * get sync details for a provisioner config
    * @return

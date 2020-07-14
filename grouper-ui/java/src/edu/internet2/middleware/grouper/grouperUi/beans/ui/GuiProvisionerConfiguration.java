@@ -4,11 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 
 public class GuiProvisionerConfiguration {
   
@@ -63,31 +58,6 @@ public class GuiProvisionerConfiguration {
     
     GuiProvisionerConfiguration guiProvisionerConfig = new GuiProvisionerConfiguration();
     guiProvisionerConfig.provisionerConfiguration = provisionerConfiguration;
-    
-    //String configId = provisionerConfiguration.getConfigId();
-//    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
-//    
-//    if (grouperSync != null) {
-//      if (grouperSync.getLastFullSyncRun() != null) {
-//        guiProvisionerConfig.lastFullSyncTimestamp = GrouperUtil.dateStringValue(grouperSync.getLastFullSyncRun());
-//      }
-//      
-//      if (grouperSync.getIncrementalTimestamp() != null) {
-//        guiProvisionerConfig.lastIncrementalSyncTimestamp = GrouperUtil.dateStringValue(grouperSync.getIncrementalTimestamp());
-//      }
-//      
-//      guiProvisionerConfig.groupCount = grouperSync.getGroupCount();
-//      guiProvisionerConfig.userCount = grouperSync.getUserCount();
-//      guiProvisionerConfig.recordsCount = grouperSync.getRecordsCount();
-//      
-//      List<GcGrouperSyncJob> grouperSyncJobs = grouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
-//      for (GcGrouperSyncJob grouperSyncJob: grouperSyncJobs) {
-//        GcGrouperSyncLog grouperSyncLog = grouperSync.getGcGrouperSyncLogDao().logRetrieveMostRecent(grouperSyncJob.getId());
-//      }
-//      
-//      
-//    }
-
     return guiProvisionerConfig;
   }
   

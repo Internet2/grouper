@@ -15,9 +15,22 @@ public class GrouperProvisioningSettings {
   
   private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioner\\.(\\w+)\\.class$");
   
-  /** attribute def name cache */
-  private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache = new ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>>(5);
+  private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> __targetsCacheInternal;
 
+  private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache() {
+    if (__targetsCacheInternal == null) {
+      __targetsCacheInternal = new ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>>(5);
+      __targetsCacheInternal.registerDatabaseClearableCache("grouperProvisioningTargetsCache");
+    }
+    
+    return __targetsCacheInternal;
+  }
+  
+  public static void clearTargetsCache() {
+    targetsCache().notifyDatabaseOfChanges();
+    targetsCache().clear();
+  }
+  
   private static Map<String, GrouperProvisioningTarget> populateTargets() {
     
     Map<String, GrouperProvisioningTarget> result = new HashMap<String, GrouperProvisioningTarget>();
@@ -70,11 +83,11 @@ public class GrouperProvisioningSettings {
    * all the provisioning targets
    * @return targets
    */
-  public static Map<String, GrouperProvisioningTarget> getTargets() {
-    Map<String, GrouperProvisioningTarget> result = targetsCache.get(Boolean.TRUE);
-    if (result == null) {
+  public static Map<String, GrouperProvisioningTarget> getTargets(boolean useCache) {
+    Map<String, GrouperProvisioningTarget> result = targetsCache().get(Boolean.TRUE);
+    if (result == null  || !useCache) {
       result = populateTargets();
-      targetsCache.put(Boolean.TRUE, result);
+      targetsCache().put(Boolean.TRUE, result);
     }
     return result;
   }

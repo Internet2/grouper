@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
@@ -176,6 +178,12 @@ public class UiV2ProvisionerConfiguration {
         
         provisionerConfiguration.setConfigId(provisionerConfigId);
         
+        if (provisionerConfiguration.retrieveConfigurationConfigIds().contains(provisionerConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#provisionerConfigId", TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdUsed")));
+          return;
+        }
+        
         String previousProvisionerConfigId = request.getParameter("previousProvisionerConfigId");
         String previousProvisionerConfigType = request.getParameter("previousProvisionerConfigType");
         if (StringUtils.isBlank(previousProvisionerConfigId) 
@@ -265,6 +273,8 @@ public class UiV2ProvisionerConfiguration {
         return;
 
       }
+      
+      GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
@@ -407,6 +417,8 @@ public class UiV2ProvisionerConfiguration {
 
       }
       
+      GrouperProvisioningSettings.clearTargetsCache();
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -463,11 +475,20 @@ public class UiV2ProvisionerConfiguration {
       
       provisionerConfiguration.deleteConfig(true);
       
+      Thread thread = new Thread(new Runnable() {
+        public void run() {
+          GrouperSession.startRootSession();
+          GrouperProvisioningService.deleteInvalidConfigs();
+        }
+      });
+      thread.start();
+      
+      GrouperProvisioningSettings.clearTargetsCache();
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisionerConfigDeleteSuccess")));
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -577,33 +598,25 @@ public class UiV2ProvisionerConfiguration {
       provisioningMessage.setBlocking(BooleanUtils.toBoolean(synchronous));
       String message = provisioningMessage.toJson();  
       
-      boolean success = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
        @Override
        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-         try {
+        
           GrouperMessagingEngine.send(
                new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
                 .assignQueueType(GrouperMessageQueueType.queue)
                 .assignQueueOrTopicName("grouperProvisioningControl_"+provisionerConfigId)
                 .assignAutocreateObjects(true)
                 .addMessageBody(message));
-           return true;
-         } catch(Exception e) {
-           throw new RuntimeException("Error initiating full sync", e);
-         }
+          return null;
        }
       });
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
-      if (success) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-            TextContainer.retrieveFromRequest().getText().get("provisionerConfigRunFullSyncSuccess")));
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("provisionerConfigRunFullSyncError")));
-      }
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("provisionerConfigRunFullSyncSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

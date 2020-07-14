@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +11,7 @@ import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -68,6 +71,24 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
   @Override
   public String getConfigIdThatIdentifiesThisConfig() {
     return "warehouse";
+  }
+  
+  @Override
+  public List<MultiKey> retrieveKeysAndLabels() {
+    
+    List<MultiKey> keysAndLabels = super.retrieveKeysAndLabels();
+    
+    keysAndLabels.add(new MultiKey("grouper", "grouper"));
+    
+    Collections.sort(keysAndLabels, new Comparator<MultiKey>() {
+
+      @Override
+      public int compare(MultiKey o1, MultiKey o2) {
+        return ((String)o1.getKey(0)).compareTo((String)o2.getKey(0));
+      }
+    });
+    
+    return keysAndLabels;
   }
 
   

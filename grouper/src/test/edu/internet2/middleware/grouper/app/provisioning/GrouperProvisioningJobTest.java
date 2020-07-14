@@ -28,7 +28,7 @@ public class GrouperProvisioningJobTest extends GrouperTest {
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
     
     GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapKey", "ldap");
-    GrouperProvisioningSettings.getTargets().put("ldap", target1);
+    GrouperProvisioningSettings.getTargets(false).put("ldap", target1);
     
   }
   
