@@ -4,26 +4,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public abstract class GrouperProvisioner {
 
-  private String configId;
-  
-  public String getConfigId() {
-    return configId;
-  }
-
-  
   private GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = null;
   
+  
+  public Map<String, Object> getDebugMap() {
+    return debugMap;
+  }
+
   /**
    * return the class of the DAO for this provisioner
    */
@@ -65,10 +65,30 @@ public abstract class GrouperProvisioner {
   }
   
   
-  public void setConfigId(String configId) {
-    this.configId = configId;
+  private GrouperProvisioningLogic grouperProvisioningLogic = null;
+  
+  /**
+   * return the class of the provisioning logic
+   */
+  protected Class<GrouperProvisioningLogic> grouperProvisioningLogicClass() {
+    return GrouperProvisioningLogic.class;
   }
-
+  
+  /**
+   * return the instance of the provisioning logic
+   * @return the logic
+   */
+  public GrouperProvisioningLogic retrieveGrouperProvisioningLogic() {
+    if (this.grouperProvisioningLogic == null) {
+      Class<GrouperProvisioningLogic> grouperProvisioningLogicClass = this.grouperProvisioningLogicClass();
+      this.grouperProvisioningLogic = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningLogic.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLogic;
+    
+  }
+  
+  
   /**
    * factory method to get a provisioner by config id
    * @param configId
@@ -135,6 +155,7 @@ public abstract class GrouperProvisioner {
    * 
    */
   private GrouperProvisioningType grouperProvisioningType;
+  private String configId;
   
   
   public GrouperProvisioningType getGrouperProvisioningType() {
@@ -212,6 +233,13 @@ public abstract class GrouperProvisioner {
       debugMap.put("configId", this.getConfigId());
       debugMap.put("provisioningType", grouperProvisioningType1);
     
+      switch (grouperProvisioningType1) {
+        case fullProvisionFull:
+          this.retrieveGrouperProvisioningLogic().fullProvisionFull();
+          break;
+        default:
+          throw new RuntimeException("Not expecting grouperProvisioningType: " + grouperProvisioningType1);
+      }
       
       return this.grouperProvisioningOutput;
     } finally {
@@ -289,6 +317,14 @@ public abstract class GrouperProvisioner {
    */
   public void setGcGrouperSyncLog(GcGrouperSyncLog gcGrouperSyncLog1) {
     this.gcGrouperSyncLog = gcGrouperSyncLog1;
+  }
+
+  public String getConfigId() {
+    return configId;
+  }
+
+  public void setConfigId(String configId) {
+    this.configId = configId;
   }
 
 }

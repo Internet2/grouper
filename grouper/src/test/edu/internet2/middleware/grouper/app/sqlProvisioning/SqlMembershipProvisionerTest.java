@@ -5,9 +5,16 @@ import java.sql.Types;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -16,6 +23,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import junit.textui.TestRunner;
 
@@ -32,6 +40,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupMembershipProvisioningFull"));
+
   }
   
   /**
@@ -60,8 +69,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       
       ensureTableSyncTables();
   
-      HibernateSession.byHqlStatic().createQuery("delete from testgrouper_prov_group").executeUpdate();
-      HibernateSession.byHqlStatic().createQuery("delete from testgrouper_prov_mship1").executeUpdate();
+      new GcDbAccess().sql("delete from testgrouper_prov_group");
+      new GcDbAccess().sql("delete from testgrouper_prov_mship1");
       
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -99,27 +108,50 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupMembershipProvisioningFull() {
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserColumn", "subject_id");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserValueFormat", "${targetEntity.id}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupColumn", "group_name");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupValueFormat", "${targetGroup.name}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncMemberToId3AttributeValueFormat", "${targetEntity.id}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncGroupToId3AttributeValueFormat", "${targetGroup.name}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationNumberOfAttributes", "2");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_0", "group_name");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_0", "${targetGroup.name}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_1", "subject_id");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_1", "${targetEntity.id}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserColumn", "subject_id");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserValueFormat", "${targetEntity.id}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupColumn", "group_name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupValueFormat", "${targetGroup.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncMemberToId3AttributeValueFormat", "${targetEntity.id}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncGroupToId3AttributeValueFormat", "${targetGroup.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationNumberOfAttributes", "2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_0", "group_name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_0", "${targetGroup.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_1", "subject_id");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_1", "${targetEntity.id}");
+    
+    // # if provisioning in ui should be enabled
+    //# {valueType: "boolean", required: true}
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+
+        
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(true);
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-
+  
   }
 
   /**
