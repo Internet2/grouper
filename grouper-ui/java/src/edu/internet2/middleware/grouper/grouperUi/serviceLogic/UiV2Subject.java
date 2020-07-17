@@ -757,7 +757,7 @@ public class UiV2Subject {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
-          if (group.hasUpdate(loggedInSubject)) {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false)) {
             return group;
           }
           return null;
