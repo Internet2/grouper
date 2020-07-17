@@ -29,19 +29,23 @@ import org.hibernate.type.BigDecimalType;
 import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 
 /**
  * database configuration
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVersioned, Comparable<GrouperConfigHibernate> {
+public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVersioned, Comparable<GrouperConfigHibernate>, GrouperCacheDatabaseClear {
 
   /** db uuid for this row */
   public static final String COLUMN_ID = "id";
@@ -480,21 +484,27 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   }
 
   /**
+   * 
+   */
+  private static boolean databaseCacheRegistered = false;
+  
+  public static void registerDatabaseCache() {
+
+    if (!databaseCacheRegistered) {
+      
+      GrouperCacheDatabase.customRegisterDatabaseClearable(ConfigDatabaseLogic.DATABASE_CACHE_KEY, new GrouperConfigHibernate());
+      
+      databaseCacheRegistered = true;
+    }
+    
+  }
+  
+  /**
    * update last updated if something changed
    */
   public static void updateLastUpdated() {
-
-    long now = System.currentTimeMillis();
-    
-    // simple update statement, dont worry about other people editing, dont worry about hibernate
-    int rows = HibernateSession.bySqlStatic().executeSql(
-        "update grouper_config set config_value = ?, last_updated = ?  where config_file_name = ? and config_key = ? and config_file_hierarchy = ?",
-        GrouperUtil.toListObject(Long.toString(now), new BigDecimal(now), "grouper.properties", "grouper.config.millisSinceLastDbConfigChanged", "INSTITUTION"), 
-        HibUtils.listType(StringType.INSTANCE, BigDecimalType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
-    
-    if (rows != 1) {
-      Log.error("Tried to update grouper.config.millisSinceLastDbConfigChanged but rows updated was " + rows);
-    }
+    GrouperCacheDatabase.customNotifyDatabaseOfChanges(ConfigDatabaseLogic.DATABASE_CACHE_KEY);
+    clearConfigsInMemory();
   }
   
   /**
@@ -619,6 +629,22 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.valueOfIgnoreCase(this.configFileName, false);
+  }
+
+  /**
+   * clear the cache when the database tells us to
+   */
+  @Override
+  public void clear() {
+    clearConfigsInMemory();
+  }
+
+  /**
+   * clear the cache when the database tells us to
+   */
+  public static void clearConfigsInMemory() {
+    ConfigDatabaseLogic.clearCache(false);
+    ConfigPropertiesCascadeBase.clearCacheThisOnly();
   }
 
 }

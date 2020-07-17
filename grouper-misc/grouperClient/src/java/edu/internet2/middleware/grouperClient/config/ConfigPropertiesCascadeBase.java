@@ -125,12 +125,19 @@ public abstract class ConfigPropertiesCascadeBase {
    * 
    */
   public static void clearCache() {
+    clearCacheThisOnly();
+    ConfigDatabaseLogic.clearCache();
+  }
+
+  /**
+   * 
+   */
+  public static void clearCacheThisOnly() {
     if (configFileCache != null) {
       configFileCache.clear();
     }
-    ConfigDatabaseLogic.clearCache();
   }
-  
+
   /**
    * if there are things that are calculated, clear them out (e.g. if an override is set)
    */
