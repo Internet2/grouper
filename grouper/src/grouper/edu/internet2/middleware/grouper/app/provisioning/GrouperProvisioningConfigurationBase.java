@@ -389,7 +389,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.deleteInTargetIfDeletedInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteInTargetIfDeletedInGrouper", false), true);
 
     {
-      String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("groupSearchAttributeValueFormat", false);
+      String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
       if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {
         this.grouperProvisioningMembershipFieldType = GrouperProvisioningMembershipFieldType.members;
       } else if (StringUtils.equals("admin", grouperProvisioningMembershipFieldTypeString)) {
