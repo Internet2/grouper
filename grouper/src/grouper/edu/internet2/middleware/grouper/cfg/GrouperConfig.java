@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /** 
@@ -121,120 +122,119 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
     
     if (this.attributeDefIdsToIgnoreChangeLogAndAuditSet == null) {
       
-      synchronized (this) {
+      // dont synchronize, just sleep a bit to reduce deadlock
+      GrouperClientUtils.sleep(Math.round(Math.random() * 100d));
 
-        if (this.attributeDefIdsToIgnoreChangeLogAndAuditSet == null) {
-          
-          Set<String> result = (Set<String>)GrouperSession.callbackGrouperSession(
-              GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      if (this.attributeDefIdsToIgnoreChangeLogAndAuditSet == null) {
+      
+        Set<String> result = (Set<String>)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
 
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              Set<String> result = new HashSet<String>();
-              
-              if (GrouperStartup.isFinishedStartupSuccessfully()) {
-                String namesOfAttributeDefsCommaSeparated = GrouperConfig.this.propertyValueString("grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit");
-                  
-                Set<String> tempResult = attributeDefIdsToIgnoreChangeLogAndAuditSetCache.get(namesOfAttributeDefsCommaSeparated);
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            Set<String> result = new HashSet<String>();
+            
+            if (GrouperStartup.isFinishedStartupSuccessfully()) {
+              String namesOfAttributeDefsCommaSeparated = GrouperConfig.this.propertyValueString("grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit");
                 
-                if (tempResult == null) {
-                  
-                  Set<String> namesOfAttributeDefs = new HashSet<String>();
-                  
-                  // GRP-1695: hard code built in ignore attribute defs and names
-                  // $$grouper.attribute.rootStem$$:userData:grouperUserDataValueDef
-                  namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF);
-                  
-                  // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceCountsDef
-                  namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF);
-      
-                  // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceDetailsDef
-                  namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF);
-      
-                  // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataCollectorDetailsDef
-                  namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF);
-                  
-                  // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
-                  namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
-                  
-                  // deprovisioning
-                  namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
-                  
-                  // attestation
-                  namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDef().getName());
-                  namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName());
-                  
-                  // reports
-                  namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefValueDef().getName());
-                  
-                  // subject resolution
-                  namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefValueDef().getName());
-                  
-                  // workflow config 
-                  namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefValueDef().getName());
-                  
-                  // workflow instance
-                  namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefValueDef().getName());
-                  
-                  // external subject invite
-                  namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
-                  namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
-                  
-                  if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
-                    namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));
-                  }
-                  
-                  if (GrouperUtil.length(namesOfAttributeDefs) > 0) {
-                    for (String nameOfAttributeDef : namesOfAttributeDefs) {
-                      try {
-                        //if not there log it.  e.g. for UI you might ignore attributes, but wont be there if testing the API
-                        AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, false);
-                        
-                        if (attributeDef == null) {
-                          LOG().info("Attribute def not found: " + nameOfAttributeDef + " in attribute churn reduction.  Thats ok.");
-                          continue;
-                        }
-                        
-                        result.add(attributeDef.getId());
-                        
-                        if (result.size() > 150) {
-                          throw new RuntimeException("Cant have a size of more than 150 for attributeDefs excluded from audits and PIT");
-                        }
-                        
-                      } catch (RuntimeException re) {
-                        GrouperUtil.injectInException(re, "name of attributeDef configured "
-                            + "in grouper properties file: grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit, "
-                            + "that attribute cannot be found.  ");
-                        throw re;
-                      }
-                    }
-                  }
-                  
-                  //you dont want callers modifying this
-                  result = Collections.unmodifiableSet(result);
-      
-                  //put back in cache
-                  attributeDefIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefsCommaSeparated, result);
-                } else {
-                  result = GrouperUtil.nonNull(tempResult);
+              Set<String> tempResult = attributeDefIdsToIgnoreChangeLogAndAuditSetCache.get(namesOfAttributeDefsCommaSeparated);
+              
+              if (tempResult == null) {
+                
+                Set<String> namesOfAttributeDefs = new HashSet<String>();
+                
+                // GRP-1695: hard code built in ignore attribute defs and names
+                // $$grouper.attribute.rootStem$$:userData:grouperUserDataValueDef
+                namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF);
+                
+                // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceCountsDef
+                namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF);
+    
+                // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceDetailsDef
+                namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF);
+    
+                // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataCollectorDetailsDef
+                namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF);
+                
+                // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
+                namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
+                
+                // deprovisioning
+                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
+                
+                // attestation
+                namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDef().getName());
+                namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName());
+                
+                // reports
+                namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefValueDef().getName());
+                
+                // subject resolution
+                namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefValueDef().getName());
+                
+                // workflow config 
+                namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefValueDef().getName());
+                
+                // workflow instance
+                namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefValueDef().getName());
+                
+                // external subject invite
+                namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
+                
+                if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
+                  namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));
                 }
                 
-                return result;  
+                if (GrouperUtil.length(namesOfAttributeDefs) > 0) {
+                  for (String nameOfAttributeDef : namesOfAttributeDefs) {
+                    try {
+                      //if not there log it.  e.g. for UI you might ignore attributes, but wont be there if testing the API
+                      AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, false);
+                      
+                      if (attributeDef == null) {
+                        LOG().info("Attribute def not found: " + nameOfAttributeDef + " in attribute churn reduction.  Thats ok.");
+                        continue;
+                      }
+                      
+                      result.add(attributeDef.getId());
+                      
+                      if (result.size() > 150) {
+                        throw new RuntimeException("Cant have a size of more than 150 for attributeDefs excluded from audits and PIT");
+                      }
+                      
+                    } catch (RuntimeException re) {
+                      GrouperUtil.injectInException(re, "name of attributeDef configured "
+                          + "in grouper properties file: grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit, "
+                          + "that attribute cannot be found.  ");
+                      throw re;
+                    }
+                  }
+                }
+                
+                //you dont want callers modifying this
+                result = Collections.unmodifiableSet(result);
+    
+                //put back in cache
+                attributeDefIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefsCommaSeparated, result);
+              } else {
+                result = GrouperUtil.nonNull(tempResult);
               }
               
-              return null;
+              return result;  
             }
-          });
-          
-          if (result != null) {
-            this.attributeDefIdsToIgnoreChangeLogAndAuditSet = result;
+            
+            return null;
           }
-          
+        });
+        
+        if (result != null) {
+          this.attributeDefIdsToIgnoreChangeLogAndAuditSet = result;
         }
 
       }
