@@ -268,6 +268,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @return true if this is wheel and if using wheel viewonly
    */
   private boolean isAndUseWheelViewonly(Subject subject) {
+    if (subject != null && "g:isa".equals(subject.getSourceId()) && "GrouperSystem".equals(subject.getId())) {
+      return true;
+    }
     if (this.getGrouperSession().isConsiderIfWheelMember()) {
       if (this.useViewonlyWheel) {
         if (isWheelViewonlyMember(subject)) {
@@ -284,6 +287,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @return true if this is wheel and if using wheel readonly
    */
   private boolean isAndUseWheelReadonly(Subject subject) {
+    if (subject != null && "g:isa".equals(subject.getSourceId()) && "GrouperSystem".equals(subject.getId())) {
+      return true;
+    }
     if (this.getGrouperSession().isConsiderIfWheelMember()) {
       if (this.useReadonlyWheel) {
         if (isWheelReadonlyMember(subject)) {
@@ -300,6 +306,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @return true if this is wheel and if using wheel
    */
   private boolean isAndUseWheel(Subject subject) {
+    if (subject != null && "g:isa".equals(subject.getSourceId()) && "GrouperSystem".equals(subject.getId())) {
+      return true;
+    }
     if (this.getGrouperSession().isConsiderIfWheelMember()) {
       if (this.useWheel) {
         if (isWheelMember(subject)) {
@@ -404,6 +413,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @since   1.2.1
    */
   private boolean isWheelMember(final Subject subj) {
+    if (subj != null && "g:isa".equals(subj.getSourceId()) && "GrouperSystem".equals(subj.getId())) {
+      return true;
+    }
     Boolean rv = getFromIsWheelMemberCache(subj);
     if (rv == null) {
 
@@ -427,6 +439,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @return  if wheel member
    */
   private boolean isWheelViewonlyMember(final Subject subj) {
+    if (subj != null && "g:isa".equals(subj.getSourceId()) && "GrouperSystem".equals(subj.getId())) {
+      return true;
+    }
     Boolean rv = getFromIsWheelViewonlyMemberCache(subj);
     if (rv == null) {
 
@@ -451,6 +466,9 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    * @return  if wheel member
    */
   private boolean isWheelReadonlyMember(final Subject subj) {
+    if (subj != null && "g:isa".equals(subj.getSourceId()) && "GrouperSystem".equals(subj.getId())) {
+      return true;
+    }
     Boolean rv = getFromIsWheelReadonlyMemberCache(subj);
     if (rv == null) {
 
