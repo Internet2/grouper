@@ -154,6 +154,8 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   public void createOrUpdate(final Field field) {
     HibernateSession.byObjectStatic().saveOrUpdate(field);
     FieldFinder.clearCache();
+    FieldFinder.fieldGrouperCache().notifyDatabaseOfChanges();
+
   }
 
   /**
@@ -203,6 +205,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
         .setString("theContextId", field.getContextId())
         .setString("theUuid", field.getUuid())
         .executeUpdate();
+    FieldFinder.clearCache();
+    FieldFinder.fieldGrouperCache().notifyDatabaseOfChanges();
+
   }
 
   /**
@@ -210,6 +215,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public void update(Field field) throws GrouperDAOException {
     HibernateSession.byObjectStatic().update(field);  
+    FieldFinder.clearCache();
+    FieldFinder.fieldGrouperCache().notifyDatabaseOfChanges();
+
   }
   
   /**
@@ -217,6 +225,8 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public void delete(Field field) {
     HibernateSession.byObjectStatic().delete(field);  
+    FieldFinder.clearCache();
+    FieldFinder.fieldGrouperCache().notifyDatabaseOfChanges();
   }
 
   /**
@@ -224,6 +234,8 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public void delete(Set<Field> fields) {
     HibernateSession.byObjectStatic().delete(fields);  
+    FieldFinder.clearCache();
+    FieldFinder.fieldGrouperCache().notifyDatabaseOfChanges();
   }
   
   /**

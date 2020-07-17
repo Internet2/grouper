@@ -68,7 +68,7 @@ public class FieldFinder {
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
 
   /** default field cache seconds */
-  static int defaultFieldCacheSeconds = 1*60;
+  static int defaultFieldCacheSeconds = 1*600;
   
   /** last time refreshed, for testing */
   static long lastTimeRefreshed = -1;
@@ -95,11 +95,12 @@ public class FieldFinder {
    * </pre>
    * @return cache
    */
-  private static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
+  public static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
     if (fieldGrouperCache == null) {
       fieldGrouperCache = new GrouperCache<Boolean, Map<String,Field>>(
           cacheName, 10000, false, 
           defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
+      fieldGrouperCache.registerDatabaseClearableCache();
     }
     return fieldGrouperCache;
   }
