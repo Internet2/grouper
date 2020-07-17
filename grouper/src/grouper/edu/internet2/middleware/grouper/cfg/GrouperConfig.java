@@ -360,9 +360,9 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
       // set some things for db configuration
       boolean readonly = grouperConfig.propertyValueBoolean("grouper.api.readonly", true);
       ConfigDatabaseLogic.assignReadonly(readonly);
-      int secondsBetweenUpdateChecksToDb = grouperConfig.propertyValueInt("grouper.config.secondsBetweenUpdateChecksToDb", 60);
+      int secondsBetweenUpdateChecksToDb = grouperConfig.propertyValueInt("grouper.config.secondsBetweenUpdateChecksToDb", 600);
       ConfigDatabaseLogic.assignSecondsBetweenUpdateChecksToDb(secondsBetweenUpdateChecksToDb);
-      int secondsBetweenFullRefresh = grouperConfig.propertyValueInt("grouper.config.secondsBetweenFullRefresh", 60);
+      int secondsBetweenFullRefresh = grouperConfig.propertyValueInt("grouper.config.secondsBetweenFullRefresh", 600);
       ConfigDatabaseLogic.assignSecondsBetweenFullRefresh(secondsBetweenFullRefresh);
     }
     return grouperConfig;

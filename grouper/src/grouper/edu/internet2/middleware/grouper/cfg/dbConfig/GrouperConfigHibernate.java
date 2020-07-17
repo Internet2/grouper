@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 
 /**
@@ -643,6 +644,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public static void clearConfigsInMemory() {
     ConfigDatabaseLogic.clearCache(false);
+    ConfigPropertiesCascadeBase.clearCacheThisOnly();
   }
 
 }

@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import net.sf.ehcache.Cache;
@@ -335,7 +334,7 @@ public class GrouperCacheDatabase {
                 
               }
               
-              int checkIncrementalAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkIncrementalAfterSeconds", 10);
+              int checkIncrementalAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkIncrementalAfterSeconds", 5);
               int checkFullAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkFullAfterSeconds", 3600);
               
               

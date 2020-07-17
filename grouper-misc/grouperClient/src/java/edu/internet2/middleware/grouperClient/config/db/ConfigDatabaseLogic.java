@@ -110,9 +110,9 @@ public class ConfigDatabaseLogic {
    * Note that the last edited is stored in a config property for deletes.  -1 means dont check for incrementals.
    * Note if *.config.secondsBetweenUpdateChecks is greater than this number
    * for this config, then it wont update until that amount has passed.
-   * grouper.config.secondsBetweenUpdateChecksToDb = 60
+   * grouper.config.secondsBetweenUpdateChecksToDb = 600
    */
-  private static int secondsBetweenUpdateChecksToDb = 60;
+  private static int secondsBetweenUpdateChecksToDb = 600;
   
   /**
    * seconds between checking to see if the config files are updated in the database.  If anything edited, then refresh all. 
