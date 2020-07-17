@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleApi;
@@ -70,7 +72,7 @@ public enum ServiceActionType {
       String type = serviceAction.getArgMap().get("type");
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
-      
+
       final Stem stem = StringUtils.isBlank(stemName) ? null : StemFinder.findByName(session, stemName, false);
       final Group group = StringUtils.isBlank(groupName) ? null : GroupFinder.findByName(session, groupName, false);
 
@@ -78,12 +80,21 @@ public enum ServiceActionType {
         return;
       }
       
-      GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-      attributeValue.setDirectAssignment(true);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
+          attributeValue.setDirectAssignment(true);
+          
+          attributeValue.setObjectTypeName(type);
+          
+          GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, GrouperUtil.defaultIfNull(stem, group));
+          return null;
+        }
+      });
       
-      attributeValue.setObjectTypeName(type);
-      
-      GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, GrouperUtil.defaultIfNull(stem, group));
     }
     
   },
@@ -101,7 +112,7 @@ public enum ServiceActionType {
       String groupName = serviceAction.getArgMap().get("groupName");
       String parentStemName = serviceAction.getArgMap().get("parentStemName");
       String privilegeName = serviceAction.getArgMap().get("internalPrivilegeName");
-      String templateItemType = serviceAction.getArgMap().get("templateItemType");
+      final String templateItemType = serviceAction.getArgMap().get("templateItemType");
       
       final GrouperSession session = GrouperSession.staticGrouperSession();
       
@@ -125,15 +136,22 @@ public enum ServiceActionType {
       final Set<Privilege> privs = new HashSet<Privilege>();
       privs.add(priv);
       
-      if (templateItemType.equals("Folders")) {
-        RuleApi.inheritFolderPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
-      } else if (templateItemType.equals("Groups")) {
-        RuleApi.inheritGroupPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
-      } else if (templateItemType.equals("Attributes")) {
-        RuleApi.inheritAttributeDefPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
-      }
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          if (templateItemType.equals("Folders")) {
+            RuleApi.inheritFolderPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+          } else if (templateItemType.equals("Groups")) {
+            RuleApi.inheritGroupPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+          } else if (templateItemType.equals("Attributes")) {
+            RuleApi.inheritAttributeDefPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+          }
+          RuleApi.runRulesForOwner(stem);
+          return null;
+        }
+      });
       
-      RuleApi.runRulesForOwner(stem);
     }
     
   },
