@@ -679,6 +679,13 @@ public class UiV2Configure {
 
       String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
 
+      // GRP-2836: Configuration file upload fails on browsers that include full file path
+      if (fileName.contains("/")) {
+        fileName = GrouperUtil.prefixOrSuffix(fileName, "/", false);
+      }
+      if (fileName.contains("\\")) {
+        fileName = GrouperUtil.prefixOrSuffix(fileName, "\\", false);
+      }
       ConfigFileName configFileName = null;
       
       try {
