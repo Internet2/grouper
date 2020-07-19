@@ -83,6 +83,7 @@ public class GcElUtilsSafe {
         File theFile = new File(fileName);
         try {
           String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
+          fileContents = trim(fileContents);
           return fileContents;
         } catch (RuntimeException re) {
           GrouperClientUtils.injectInException(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
