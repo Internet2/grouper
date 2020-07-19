@@ -11188,9 +11188,9 @@ public class GrouperInstaller {
     reportOnConflictingJars(libWsDir.getAbsolutePath());
     reportOnConflictingJars(libScimDir.getAbsolutePath());
     
-    // copy apache-tomee-webprofile-7.0.7 to tomee
+    // copy apache-tomee-webprofile-x.y.z to tomee
     // why can't uncompressed directory has the same name??? :((
-    File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-7.0.7");
+    File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-" + TOMEE_VERSION);
     try {      
       GrouperInstallerUtils.copyDirectory(tomeeUntarredDir, containerTomeeDir, null, true);
     } catch (Exception e) {
@@ -13584,6 +13584,8 @@ public class GrouperInstaller {
     return tomcatFile;
   }
   
+  public static final String TOMEE_VERSION = "7.0.8";
+  
   /**
    * 
    * @return the file of the directory of tomee
@@ -13597,9 +13599,9 @@ public class GrouperInstaller {
       urlToDownload += "/";
     }
 
-    urlToDownload += "downloads/tools/apache-tomee-7.0.7-webprofile.tar.gz";
+    urlToDownload += "downloads/tools/apache-tomee-" + TOMEE_VERSION + "-webprofile.tar.gz";
     
-    File tomeeFile = new File(this.grouperTarballDirectoryString + "apache-tomee-7.0.7-webprofile.tar.gz");
+    File tomeeFile = new File(this.grouperTarballDirectoryString + "apache-tomee-" + TOMEE_VERSION + "-webprofile.tar.gz");
     
     downloadFile(urlToDownload, tomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
 
