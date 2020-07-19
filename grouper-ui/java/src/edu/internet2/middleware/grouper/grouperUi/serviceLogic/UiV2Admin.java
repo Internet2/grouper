@@ -576,6 +576,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
       GrouperDaemonConfiguration grouperDaemonConfiguration = (GrouperDaemonConfiguration) GrouperUtil.newInstance(klass);
       
+      if (!grouperDaemonConfiguration.isMultiple()) {
+        throw new RuntimeException("Configs can be added when multiple is set to true");
+      }
+      
       if (grouperDaemonConfiguration.isMultiple() && StringUtils.isNotBlank(daemonConfigId)) {
         grouperDaemonConfiguration.setConfigId(daemonConfigId);
       }

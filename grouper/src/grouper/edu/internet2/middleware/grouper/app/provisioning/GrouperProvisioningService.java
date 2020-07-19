@@ -716,7 +716,7 @@ public class GrouperProvisioningService {
    * delete all the attribute assigns where the config doesn't exist
    */
   public static void deleteInvalidConfigs() {
-    Set<String> assignedTargets = GrouperProvisioningService.getDistinctProvisionerConfigIds();
+    Set<String> assignedTargets = getDistinctProvisionerConfigIds();
     Map<String, GrouperProvisioningTarget> validTargets = GrouperProvisioningSettings.getTargets(false);
     
     Set<String> targetsToRemove = new HashSet<String>(assignedTargets);

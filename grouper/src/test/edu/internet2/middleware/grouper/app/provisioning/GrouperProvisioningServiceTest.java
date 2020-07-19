@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -34,11 +35,35 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
-    GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapKey", "ldap");
-    GrouperProvisioningSettings.getTargets(false).put("ldap", target1);
     
-    GrouperProvisioningTarget target2 = new GrouperProvisioningTarget("boxKey", "box");
-    GrouperProvisioningSettings.getTargets(false).put("box", target2);
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.class", "LdapProvisioner");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.box.class", "BoxProvisioner");
+    
+  }
+  
+  public void testDeleteInvalidConfigs() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    
+    saveProvisioningAttributeMetadata(stem0, true, "ldap-1");
+    
+    GrouperProvisioningAttributeValue attributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem0, "ldap-1");
+    
+    assertNotNull(attributeValue);
+    
+    //When
+    // we expect ldap-1 to be deleted because only ldap and box are valid ones as per the setUp method above
+    GrouperProvisioningService.deleteInvalidConfigs();
+    
+    //Then
+    attributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem0, "ldap-1");
+    
+    assertNull(attributeValue);
+    
     
   }
   

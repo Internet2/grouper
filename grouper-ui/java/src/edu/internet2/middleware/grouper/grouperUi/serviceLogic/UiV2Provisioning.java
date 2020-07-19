@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.ProvisioningContainer
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -259,6 +260,10 @@ public class UiV2Provisioning {
     
     try {
   
+      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+        throw new RuntimeException("Cannot access this page.");
+      }
+      
       grouperSession = GrouperSession.start(loggedInSubject);
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);

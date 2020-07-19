@@ -125,7 +125,7 @@ public abstract class GrouperConfigurationModuleBase {
   }
   
   /**
-   * list of configured external systems
+   * list of configured systems
    * @return
    */
   public static List<GrouperConfigurationModuleBase> retrieveAllConfigurations(Set<String> classNames) {
@@ -178,6 +178,10 @@ public abstract class GrouperConfigurationModuleBase {
     if (isInsert) {
       if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
+      }
+      
+      if (!isMultiple()) {
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationNotMultiple"));
       }
     }
     
