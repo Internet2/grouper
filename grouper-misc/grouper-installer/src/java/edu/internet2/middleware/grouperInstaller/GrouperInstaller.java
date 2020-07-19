@@ -9635,7 +9635,7 @@ public class GrouperInstaller {
       
       System.out.println("Make sure you are running the installer as the user that runs docker ");
       
-      System.out.print("If you have docker installed, enter 't' otherwise enter 'f' ");
+      System.out.print("If you have docker installed, enter 't' otherwise enter 'f': ");
       boolean isDockerInstalled = readFromStdInBoolean(null, "Placeholder");
       
       if (isDockerInstalled) {
@@ -9661,7 +9661,7 @@ public class GrouperInstaller {
       boolean correctDockerLocationDetected = readFromStdInBoolean(true, "Placeholder");
       
       if (correctDockerLocationDetected == false) {
-        System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker ");
+        System.out.print("Please enter the full absolute path to docker. eg: /usr/local/bin/docker : ");
         dockerLocation = readFromStdIn("Placeholder");
         
         while (true) {
@@ -10042,9 +10042,9 @@ public class GrouperInstaller {
       System.out.print("Database setup");
 
       System.out.println("\n##################################\n");
-      System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
+      System.out.println("Example mysql URL: jdbc:mysql://1.2.3.4:3306/grouper?useSSL=false");
       System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
-      System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
+      System.out.println("Example postgres URL: jdbc:postgresql://1.2.3.4:5432/database");
       System.out.print("\nEnter the database URL: ");
       String newDbUrl = readFromStdIn("grouperInstaller.autorun.dbUrl");
       if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
@@ -10141,7 +10141,7 @@ public class GrouperInstaller {
     buildInitCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
     buildInitCommand.append("--name gsh ");
     buildInitCommand.append("i2incommon/grouper:"+dockerImageVersion );
-    buildInitCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh -registry -check -runscript -noprompt" );
+    buildInitCommand.append(" gsh -registry -check -runscript -noprompt" );
     
     contentToWrite.append(buildInitCommand.toString());
     contentToWrite.append("\n\n");
@@ -10425,7 +10425,7 @@ public class GrouperInstaller {
       uiPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
       uiPasswordDockerCommand.append("--name gsh ");
       uiPasswordDockerCommand.append("i2incommon/grouper:"+dockerImageVersion );
-      uiPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
+      uiPasswordDockerCommand.append(" gsh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordUi.gsh");
       contentToWrite.append(uiPasswordDockerCommand.toString());
       contentToWrite.append("\n\n");
       contentToWrite.append("\n\n");
@@ -10706,7 +10706,7 @@ public class GrouperInstaller {
       wsPasswordDockerCommand.append("slashRoot,dst=/opt/grouper/slashRoot ");
       wsPasswordDockerCommand.append("--name gsh ");
       wsPasswordDockerCommand.append("i2incommon/grouper:"+dockerImageVersion );
-      wsPasswordDockerCommand.append(" /opt/grouper/grouperWebapp/WEB-INF/bin/gsh.sh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
+      wsPasswordDockerCommand.append(" gsh /opt/grouper/grouperWebapp/WEB-INF/bin/createGrouperSystemPasswordWs.gsh");
       contentToWrite.append(wsPasswordDockerCommand.toString());
       contentToWrite.append("\n\n");
       contentToWrite.append("\n\n");
