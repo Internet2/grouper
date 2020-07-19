@@ -9536,7 +9536,7 @@ public class GrouperInstaller {
           System.out.println("Going to reuse existing log4j.properties file. ");
           break;
         } else {
-          System.out.print("Delete log4j.properties and press any key to continue ");
+          System.out.print("Delete log4j.properties and press <return> to continue ");
           readFromStdIn("nothing");
           log4jPropertiesFile = new File(path+File.separator+"conf"+File.separator+"log4j.properties");
           continue;
@@ -9560,7 +9560,7 @@ public class GrouperInstaller {
     } catch (Exception e) {
       System.out.println("Could not write content to "+log4jPropertiesFile.getAbsolutePath());
       System.out.println("Go to https://spaces.at.internet2.edu/display/Grouper/Install+the+Grouper+v2.5+container+with+maturity+level+0+using+installer to copy the log4j.properties section manually. ");
-      System.out.print("Press any key to continue ");
+      System.out.print("press <return> to continue ");
       readFromStdIn("Placeholder");
     }
     
@@ -9701,7 +9701,7 @@ public class GrouperInstaller {
         if (isDockerRunning) {
           break;
         } else {
-          System.out.print("Start docker and press any key to continue ");
+          System.out.print("Start docker and press <return> to continue ");
           readFromStdIn("Placeholder");
           continue;
         }
@@ -9777,7 +9777,7 @@ public class GrouperInstaller {
     if (conflictingNames.size() > 0) {
       System.out.println("We found that containers with names "+String.join(", ", conflictingNames) + " already exist. Please delete them before proceeding. ");
       System.out.println("Command to delete a docker container is 'docker rm <container name>'. Use -f flag to force remove. ");
-      System.out.print("Press any key once you have deleted the conflicting containers. ");
+      System.out.print("press <return> once you have deleted the conflicting containers. ");
       readFromStdIn("Placeholder");
     }
     if (conflictingNamesRanSuccessfully && conflictingNames.size() == 0) {
@@ -9822,7 +9822,7 @@ public class GrouperInstaller {
     
     if(pulledDockerImage == false) {
       System.out.println("Could not pull grouper docker image. Pull it manually by running: docker pull i2incommon/grouper:"+dockerImageVersion);
-      System.out.print("Press any key when done ");
+      System.out.print("press <return> when done ");
       readFromStdIn("Placeholder");
     }
     
@@ -9865,7 +9865,7 @@ public class GrouperInstaller {
           System.out.println("Going to reuse existing morphString.properties file. ");
           break;
         } else {
-          System.out.print("Delete morphString.properties and press any key to continue ");
+          System.out.print("Delete morphString.properties and press <return> to continue ");
           readFromStdIn("nothing");
           morphStringPropertiesFile = new File(path+File.separator+"conf"+File.separator+"morphString.properties");
           continue;
@@ -9955,7 +9955,7 @@ public class GrouperInstaller {
           System.out.println("Going to reuse existing grouper.hibernate.properties file. ");
           break;
         } else {
-          System.out.print("Delete grouper.hibernate.properties and press any key to continue ");
+          System.out.print("Delete grouper.hibernate.properties and press <return> to continue ");
           readFromStdIn("nothing");
           grouperHibernatePropertiesFile = new File(classesDir+File.separator+"grouper.hibernate.properties");
           continue;
@@ -9990,7 +9990,7 @@ public class GrouperInstaller {
           System.out.println("Going to reuse existing grouper.client.properties file. ");
           break;
         } else {
-          System.out.print("Delete grouper.client.properties and press any key to continue ");
+          System.out.print("Delete grouper.client.properties and press <return> to continue ");
           readFromStdIn("nothing");
           grouperClientPropertiesFile = new File(classesDir+File.separator+"grouper.client.properties");
           continue;
@@ -10025,7 +10025,7 @@ public class GrouperInstaller {
           System.out.println("Going to reuse existing subject.properties file. ");
           break;
         } else {
-          System.out.print("Delete subject.properties and press any key to continue ");
+          System.out.print("Delete subject.properties and press <return> to continue ");
           readFromStdIn("nothing");
           grouperSubjectPropertiesFile = new File(classesDir+File.separator+"subject.properties");
           continue;
@@ -10067,7 +10067,7 @@ public class GrouperInstaller {
           File oracleLibPath = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
               File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"lib");
           if (!oracleTermsAgreed) {
-            System.out.print("Place the oracle jdbc jar in " + oracleLibPath.getAbsolutePath() + " and press any key to continue ");
+            System.out.print("Place the oracle jdbc jar in " + oracleLibPath.getAbsolutePath() + " and press <return> to continue ");
             readFromStdIn("Placeholder");
           } else {
             System.out.print("Do you want the installer to install the oracle jar (t|f)? [t] ");
@@ -10176,7 +10176,7 @@ public class GrouperInstaller {
       if (dbInitialized == false) {
         System.out.println("Could not initialize db. Run the following command manually in another terminal window/tab.");
         System.out.println(buildInitCommand.toString());
-        System.out.print("Press any key to continue once the command has been run: ");
+        System.out.print("Press <return> to continue once the command has been run: ");
         readFromStdIn("Placeholder");
       } else {
         removeDockerGshContainer = true;
@@ -10235,11 +10235,11 @@ public class GrouperInstaller {
                     && logs.contains("SQL statements executed successfully")
                     && !logs.contains("Exception") && !logs.contains("exception")) {
                   System.out.println("From the logs: Script was executed successfully");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 } else {
                   System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 }
                 
@@ -10262,7 +10262,7 @@ public class GrouperInstaller {
                 
               } else {
                 System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
-                System.out.print("Press any key to continue. ");
+                System.out.print("Press <return> to continue. ");
                 readFromStdIn("Placeholder");
               }
               
@@ -10270,7 +10270,7 @@ public class GrouperInstaller {
             } 
             
           } else {
-            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press <return> to continue. ");
             readFromStdIn("Placeholder");
             break;
           }
@@ -10319,7 +10319,7 @@ public class GrouperInstaller {
         System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
       }
       
-      System.out.print("Press any key to continue ");
+      System.out.print("Press <return> to continue ");
       readFromStdIn("Placeholder");
     }
     
@@ -10384,7 +10384,7 @@ public class GrouperInstaller {
             System.out.println("Going to reuse existing createGrouperSystemPasswordUi.gsh file. ");
             break;
           } else {
-            System.out.print("Delete createGrouperSystemPasswordUi.sh and press any key to continue ");
+            System.out.print("Delete createGrouperSystemPasswordUi.sh and press <return> to continue ");
             readFromStdIn("nothing");
             grouperUiSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
                 File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordUi.gsh");
@@ -10455,7 +10455,7 @@ public class GrouperInstaller {
       if (uiPasswordCreated == false) {
         System.out.println("Could not create password for grouper UI. Run the following command manually. ");
         System.out.println(uiPasswordDockerCommand.toString());
-        System.out.print("Press any key to continue ");
+        System.out.print("Press <return> to continue ");
         readFromStdIn("Placeholder");
       } else {
         
@@ -10514,11 +10514,11 @@ public class GrouperInstaller {
                 if (logs.contains("===> null\n" + 
                     "groovy:000> :exit") && !logs.contains("Exception") && !logs.contains("exception")) {
                   System.out.println("Password was created successfully.");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 } else {
                   System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 }
                 
@@ -10541,7 +10541,7 @@ public class GrouperInstaller {
                 
               } else {
                 System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
-                System.out.print("Press any key to continue. ");
+                System.out.print("Press <return> to continue. ");
                 readFromStdIn("Placeholder");
               }
               
@@ -10549,7 +10549,7 @@ public class GrouperInstaller {
             } 
             
           } else {
-            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press <return> to continue. ");
             readFromStdIn("Placeholder");
             break;
           }
@@ -10585,7 +10585,7 @@ public class GrouperInstaller {
           System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
         }
         
-        System.out.print("Press any key to continue ");
+        System.out.print("Press <return> to continue ");
         readFromStdIn("Placeholder");
       }
         
@@ -10665,7 +10665,7 @@ public class GrouperInstaller {
             System.out.println("Going to reuse existing createGrouperSystemPasswordWs.gsh file. ");
             break;
           } else {
-            System.out.print("Delete createGrouperSystemPasswordWs.gsh and press any key to continue ");
+            System.out.print("Delete createGrouperSystemPasswordWs.gsh and press <return> to continue ");
             readFromStdIn("nothing");
             grouperWsSystemPasswordSh = new File(path+File.separator+"slashRoot"+File.separator+"opt"+
                 File.separator+"grouper"+File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"bin"+File.separator+"createGrouperSystemPasswordWs.gsh");
@@ -10738,7 +10738,7 @@ public class GrouperInstaller {
       if (wsPasswordCreated == false) {
         System.out.println("Could not create password for WS. Run the following command manually.");
         System.out.println(wsPasswordDockerCommand.toString());
-        System.out.print("Press any key to continue");
+        System.out.print("Press <return> to continue");
         readFromStdIn("Placeholder");
       } else {
 
@@ -10797,11 +10797,11 @@ public class GrouperInstaller {
                 if (logs.contains("===> null\n" + 
                     "groovy:000> :exit") && !logs.contains("Exception") && !logs.contains("exception")) {
                   System.out.println("Password was created successfully.");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 } else {
                   System.out.println("Could not find success in docker logs. Look in the logs at the location above and make sure there are no exceptions. ");
-                  System.out.print("Press any key to continue. ");
+                  System.out.print("Press <return> to continue. ");
                   readFromStdIn("Placeholder");
                 }
                 
@@ -10824,7 +10824,7 @@ public class GrouperInstaller {
                 
               } else {
                 System.out.println("Could not retrieve logs for 'gsh' container. Please run 'docker logs gsh' manually and make sure there are no exceptions before proceeding. ");
-                System.out.print("Press any key to continue. ");
+                System.out.print("Press <return> to continue. ");
                 readFromStdIn("Placeholder");
               }
               
@@ -10832,7 +10832,7 @@ public class GrouperInstaller {
             } 
             
           } else {
-            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press any key to continue. ");
+            System.out.println("Could not detect the status of the docker command. Please run '" +dockerPsCommand+ "' manually in another terminal window and once the status shows Exited, press <return> to continue. ");
             readFromStdIn("Placeholder");
             break;
           }
@@ -10868,7 +10868,7 @@ public class GrouperInstaller {
           System.out.println("Could not remove docker gsh container. Please run 'docker rm -f gsh' in another terminal window before proceeding. ");
         }
         
-        System.out.print("Press any key to continue ");
+        System.out.print("Press <return> to continue ");
         readFromStdIn("Placeholder");
       }
       
@@ -10932,7 +10932,7 @@ public class GrouperInstaller {
     }
     
     
-    System.out.print("Press any key to start the UI container: ");
+    System.out.print("Press <return> to start the UI container: ");
     readFromStdIn("Placeholder");
     boolean dockerGrouperContainerStarted = false;
     try {
@@ -10962,7 +10962,7 @@ public class GrouperInstaller {
     System.out.println("Logs are at: "+new File(path+File.separator+"logs").getAbsolutePath());
     System.out.println("Command history and documentation are in "+ readmeFile.getAbsolutePath());
     System.out.println("Grouper UI is running at : http://localhost:"+portNumberInt+"/grouper/");
-    System.out.print("Press any key to exit ");
+    System.out.print("Press <return> to exit ");
     readFromStdIn("Placeholder");
   }
     
