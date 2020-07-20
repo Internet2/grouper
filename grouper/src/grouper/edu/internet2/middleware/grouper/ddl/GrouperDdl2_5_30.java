@@ -254,7 +254,7 @@ public class GrouperDdl2_5_30 {
     Table grouperCacheInstanceTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperCacheInstanceTable, "cache_name", 
-        Types.VARCHAR, "400", true, true);
+        Types.VARCHAR, "250", true, true);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperCacheInstanceTable, "nanos_since_1970", 
         Types.BIGINT, "20", false, true);
