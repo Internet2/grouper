@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -48,6 +49,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -60,6 +63,7 @@ public class GrouperProvisioningService {
    * @return the groups
    */
   public static Set<Group> findAllGroupsForTarget(final String target) {
+    @SuppressWarnings("unchecked")
     Set<Group> groups = (Set<Group>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
       @Override
@@ -208,6 +212,7 @@ public class GrouperProvisioningService {
       return result;
     }
     
+    @SuppressWarnings("unchecked")
     Set<Group> groups = (Set<Group>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
       @Override
@@ -381,7 +386,7 @@ public class GrouperProvisioningService {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets();
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets(true);
         
         for (String targetName: targetNames.keySet()) {
           GrouperProvisioningAttributeValue value = getProvisioningAttributeValue(grouperObject, targetName);
@@ -430,6 +435,28 @@ public class GrouperProvisioningService {
     }
     return null;
     
+  }
+  
+  public static Set<String> getDistinctProvisionerConfigIds() {
+    
+    Set<String> result = new HashSet<String>();
+    String query = "select distinct value_string from grouper_aval_asn_asn_group_v where attribute_def_name_name2 = ?";
+    
+    List<String> configIds = new GcDbAccess().sql(query)
+      .addBindVar(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName())
+      .selectList(String.class);
+    
+    result.addAll(configIds);
+    
+    query = "select distinct value_string from grouper_aval_asn_asn_stem_v where attribute_def_name_name2 = ?";
+    
+    configIds = new GcDbAccess().sql(query)
+      .addBindVar(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName())
+      .selectList(String.class);
+    
+    result.addAll(configIds);
+    
+    return result;
   }
   
   /**
@@ -532,7 +559,7 @@ public class GrouperProvisioningService {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets();
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets(true);
         
         for (String targetName: targetNames.keySet()) {
           copyConfigFromParent(grouperObject, targetName);
@@ -683,6 +710,225 @@ public class GrouperProvisioningService {
     }
     
     return isEditable && isTargetEditableBySubject(target, subject);
+  }
+  
+  /**
+   * delete all the attribute assigns where the config doesn't exist
+   */
+  public static void deleteInvalidConfigs() {
+    Set<String> assignedTargets = getDistinctProvisionerConfigIds();
+    Map<String, GrouperProvisioningTarget> validTargets = GrouperProvisioningSettings.getTargets(false);
+    
+    Set<String> targetsToRemove = new HashSet<String>(assignedTargets);
+    targetsToRemove.removeAll(validTargets.keySet());
+    
+    for (String targetToRemove: targetsToRemove) {
+      
+      Map<String, AttributeAssign> idToAttributeAssignMap = new AttributeAssignFinder().assignAttributeCheckReadOnAttributeDef(false)
+      .assignIdOfAttributeDefNameOnAssignment0(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId())
+      .assignAttributeValuesOnAssignment0(GrouperUtil.toSet(targetToRemove))
+      .addAttributeDefNameId(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getId())
+      .findAttributeAssignFinderResults().getIdToAttributeAssignMap();
+      
+      for (AttributeAssign attributeAssign: idToAttributeAssignMap.values()) {
+        attributeAssign.delete();
+      }
+            
+    }
+  }
+  
+  /**
+   * get number of groups in a provisioning target that are in a given stem
+   * @param stemId
+   * @param targetName
+   * @return
+   */
+  public static long retrieveNumberOfGroupsInTargetInStem(String stemId, String targetName) {
+    
+    String query = "select count(gsg.id) from grouper_sync_group gsg, grouper_sync gs, grouper_groups gg, grouper_stem_set gss " + 
+        "where gss.then_has_stem_id = ? " + 
+        "and gsg.provisionable = 'T' " + 
+        "and gsg.group_id = gg.id " + 
+        "and gs.provisioner_name = ? " + 
+        "and gs.id = gsg.grouper_sync_id " + 
+        "and gg.parent_stem = gss.if_has_stem_id";
+    
+    long groupCount = new GcDbAccess().sql(query)
+      .addBindVar(stemId)
+      .addBindVar(targetName)
+      .select(Long.class);
+    
+    return groupCount;
+  }
+  
+  /**
+   * get number of groups in a provisioning target that also contain the given member
+   * @param stemId
+   * @param targetName
+   * @return
+   */
+  public static long retrieveNumberOfGroupsInTargetInMember(String memberId, String targetName) {
+    
+    String query = "select count(distinct(gm.owner_group_id)) from grouper_sync gs, grouper_memberships gm, grouper_sync_member gsm " + 
+        "where gsm.member_id = ? " + 
+        "and gsm.provisionable = 'T' " + 
+        "and gm.member_id = gsm.member_id " +
+        "and gs.provisioner_name = ? " + 
+        "and gs.id = gsm.grouper_sync_id ";
+    
+    long groupCount = new GcDbAccess().sql(query)
+      .addBindVar(memberId)
+      .addBindVar(targetName)
+      .select(Long.class);
+    
+    return groupCount;
+  }
+  
+  /**
+   * get number of users in a provisioning target that are in a given stem
+   * @param stemId
+   * @param targetName
+   * @return
+   */
+  public static long retrieveNumberOfUsersInTargetInStem(String stemId, String targetName) {
+    
+    String query = "select count(distinct(gsmember.id)) from grouper_sync_group gsg, grouper_sync gs, grouper_groups gg, grouper_stem_set gss, " + 
+        "grouper_sync_membership gsm, grouper_sync_member gsmember " + 
+        "where gss.then_has_stem_id = ? " + 
+        "and gsg.provisionable = 'T' " + 
+        "and gsmember.provisionable = 'T' " + 
+        "and gsg.group_id = gg.id " + 
+        "and gs.provisioner_name = ? " + 
+        "and gs.id = gsg.grouper_sync_id " + 
+        "and gg.parent_stem = gss.if_has_stem_id " + 
+        "and gsm.grouper_sync_group_id = gsg.id " + 
+        "and gsm.grouper_sync_member_id = gsmember.id";
+    
+    long usersCount = new GcDbAccess().sql(query)
+      .addBindVar(stemId)
+      .addBindVar(targetName)
+      .select(Long.class);
+    
+    return usersCount;
+  }
+  
+  /**
+   * get number of users in a provisioning target that are in a given group
+   * @param stemId
+   * @param targetName
+   * @return
+   */
+  public static long retrieveNumberOfUsersInTargetInGroup(String groupId, String targetName) {
+    
+    String query = "select count(distinct(gsmember.id)) from grouper_sync_group gsg, grouper_sync gs, grouper_group_set gg, " + 
+        "grouper_sync_membership gsm, grouper_sync_member gsmember " + 
+        "where gg.owner_group_id = ? " + 
+        "and gsg.provisionable = 'T' " + 
+        "and gsmember.provisionable = 'T' " + 
+        "and gsg.group_id = gg.id " + 
+        "and gs.provisioner_name = ? " + 
+        "and gs.id = gsg.grouper_sync_id " + 
+        "and gsm.grouper_sync_group_id = gsg.id " + 
+        "and gsm.grouper_sync_member_id = gsmember.id";
+    
+    long usersCount = new GcDbAccess().sql(query)
+      .addBindVar(groupId)
+      .addBindVar(targetName)
+      .select(Long.class);
+    
+    return usersCount;
+  }
+  
+  /**
+   * get number of memberships in a provisioning target that are in a given stem
+   * @param stemId
+   * @param targetName
+   * @return
+   */
+  public static long retrieveNumberOfMembershipsInTargetInStem(String stemId, String targetName) {
+    
+    String query = "select count(gsm.id) from grouper_sync_group gsg, grouper_sync gs, grouper_groups gg, grouper_stem_set gss, " + 
+        "grouper_sync_membership gsm " + 
+        "where gss.then_has_stem_id = ? " + 
+        "and gsg.group_id = gg.id " + 
+        "and gsg.provisionable = 'T' " + 
+        "and gs.provisioner_name = ? " + 
+        "and gs.id = gsg.grouper_sync_id " + 
+        "and gg.parent_stem = gss.if_has_stem_id " + 
+        "and gsm.grouper_sync_group_id = gsg.id";
+    
+    long membershipsCount = new GcDbAccess().sql(query)
+      .addBindVar(stemId)
+      .addBindVar(targetName)
+      .select(Long.class);
+    
+    return membershipsCount;
+  }
+  
+  /**
+   * get gc grouper sync members for a given member id
+   * @param memberId
+   * @return
+   */
+  public static List<GcGrouperSyncMember> retrieveGcGrouperSyncMembers(String memberId) {
+    
+    String grouperSyncMemberQuery = "select * from grouper_sync_member gsm " + 
+        "where gsm.provisionable = 'T' " +
+        "and gsm.member_id = ?";
+    
+    String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
+    
+    List<GcGrouperSyncMember> grouperSyncMembers = new GcDbAccess().sql(grouperSyncMemberQuery)
+        .addBindVar(memberId)
+        .selectList(GcGrouperSyncMember.class);
+    
+    for (GcGrouperSyncMember grouperSyncMember : GrouperUtil.nonNull(grouperSyncMembers)) {
+      String grouperSyncId = grouperSyncMember.getGrouperSyncId();
+      
+      GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
+      .addBindVar(grouperSyncId)
+      .select(GcGrouperSync.class);
+      
+      grouperSyncMember.setGrouperSync(gcGrouperSync);
+    }
+    
+    return grouperSyncMembers;
+    
+  }
+  
+  /**
+   * get gc grouper sync memberships for a given member id and group id
+   * @param memberId
+   * @param groupId
+   * @return
+   */
+  public static List<GcGrouperSyncMembership> retrieveGcGrouperSyncMemberships(String memberId, String groupId) {
+    
+    String grouperSyncMembershipQuery = "select * from grouper_sync_membership gsm, grouper_sync_group gsg, grouper_sync_member gsmem " + 
+        "where gsm.grouper_sync_group_id =  gsg.id " + 
+        " and gsm.grouper_sync_member_id = gsmem.id "
+        + " and gsmem.member_id = ? " +
+        " and gsg.group_id = ? ";
+    
+    String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
+    
+    List<GcGrouperSyncMembership> grouperSyncMemberships = new GcDbAccess().sql(grouperSyncMembershipQuery)
+        .addBindVar(memberId)
+        .addBindVar(groupId)
+        .selectList(GcGrouperSyncMembership.class);
+    
+    for (GcGrouperSyncMembership grouperSyncMembership : GrouperUtil.nonNull(grouperSyncMemberships)) {
+      String grouperSyncId = grouperSyncMembership.getGrouperSyncId();
+      
+      GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
+      .addBindVar(grouperSyncId)
+      .select(GcGrouperSync.class);
+      
+      grouperSyncMembership.setGrouperSync(gcGrouperSync);
+    }
+    
+    return grouperSyncMemberships;
+    
   }
   
   private static boolean isTargetEditableForStem(GrouperProvisioningTarget target, Stem stem) {

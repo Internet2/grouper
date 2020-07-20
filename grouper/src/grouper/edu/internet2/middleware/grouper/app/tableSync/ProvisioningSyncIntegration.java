@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,8 +61,8 @@ public class ProvisioningSyncIntegration {
     
     ProvisioningSyncResult provisioningSyncGroupResult = new ProvisioningSyncResult();
     
-    if (!GrouperProvisioningSettings.getTargets().containsKey(target)) {
-      throw new RuntimeException("Target '" + target + "' is not configured in grouper.properties: provisioning.target." + target + ".key");
+    if (!GrouperProvisioningSettings.getTargets(true).containsKey(target)) {
+      throw new RuntimeException("Target '" + target + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
     
     // groups with provisioning attributes

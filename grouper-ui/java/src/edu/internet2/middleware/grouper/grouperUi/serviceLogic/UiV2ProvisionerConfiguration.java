@@ -9,12 +9,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -22,8 +27,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ProvisionerConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2ProvisionerConfiguration {
@@ -65,6 +75,62 @@ public class UiV2ProvisionerConfiguration {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+  
+  /**
+   * view details of one provisioner configuration
+   * @param request
+   * @param response
+   */
+  public void viewProvisionerConfigDetails(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      String provisionerConfigType = request.getParameter("provisionerConfigType");
+            
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(provisionerConfigType)) {
+        throw new RuntimeException("provisionerConfigType cannot be blank");
+      }
+      
+      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
+      }
+      
+      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
+      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+      
+      provisionerConfiguration.setConfigId(provisionerConfigId);
+      
+      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigDetails.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
@@ -111,6 +177,12 @@ public class UiV2ProvisionerConfiguration {
         }
         
         provisionerConfiguration.setConfigId(provisionerConfigId);
+        
+        if (provisionerConfiguration.retrieveConfigurationConfigIds().contains(provisionerConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#provisionerConfigId", TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdUsed")));
+          return;
+        }
         
         String previousProvisionerConfigId = request.getParameter("previousProvisionerConfigId");
         String previousProvisionerConfigType = request.getParameter("previousProvisionerConfigType");
@@ -201,6 +273,8 @@ public class UiV2ProvisionerConfiguration {
         return;
 
       }
+      
+      GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
@@ -343,6 +417,8 @@ public class UiV2ProvisionerConfiguration {
 
       }
       
+      GrouperProvisioningSettings.clearTargetsCache();
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -399,17 +475,153 @@ public class UiV2ProvisionerConfiguration {
       
       provisionerConfiguration.deleteConfig(true);
       
+      Thread thread = new Thread(new Runnable() {
+        public void run() {
+          GrouperSession.startRootSession();
+          GrouperProvisioningService.deleteInvalidConfigs();
+        }
+      });
+      thread.start();
+      
+      GrouperProvisioningSettings.clearTargetsCache();
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisionerConfigDeleteSuccess")));
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
   
+  
+  /**
+   * show form to run full sync job
+   * @param request
+   * @param response
+   */
+  public void runFullSync(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      String provisionerConfigType = request.getParameter("provisionerConfigType");
+            
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(provisionerConfigType)) {
+        throw new RuntimeException("provisionerConfigType cannot be blank");
+      }
+      
+      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
+      }
+      
+      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
+      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+      
+      provisionerConfiguration.setConfigId(provisionerConfigId);
+      
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigRunFullSync.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * run full sync job
+   * @param request
+   * @param response
+   */
+  public void runFullSyncSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      String provisionerConfigType = request.getParameter("provisionerConfigType");
+      String synchronous = request.getParameter("provisionerConfigSynchoronous");
+            
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(provisionerConfigType)) {
+        throw new RuntimeException("provisionerConfigType cannot be blank");
+      }
+      
+      if (StringUtils.isBlank(synchronous)) {
+        throw new RuntimeException("provisionerConfigSynchoronous cannot be blank");
+      }
+      
+      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
+      }
+      
+      ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+      provisioningMessage.setFullSync(true);
+      provisioningMessage.setBlocking(BooleanUtils.toBoolean(synchronous));
+      String message = provisioningMessage.toJson();  
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+       @Override
+       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+          GrouperMessagingEngine.send(
+               new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+                .assignQueueType(GrouperMessageQueueType.queue)
+                .assignQueueOrTopicName("grouperProvisioningControl_"+provisionerConfigId)
+                .assignAutocreateObjects(true)
+                .addMessageBody(message));
+          return null;
+       }
+      });
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("provisionerConfigRunFullSyncSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
   
   private void populateProvisionerConfigurationFromUi(final HttpServletRequest request, ProvisionerConfiguration provisionerConfiguration) {
     

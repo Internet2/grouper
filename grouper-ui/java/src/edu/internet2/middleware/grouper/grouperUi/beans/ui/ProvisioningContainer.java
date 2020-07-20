@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.subject.Subject;
 
 public class ProvisioningContainer {
@@ -42,6 +44,30 @@ public class ProvisioningContainer {
    */
   private List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
 
+  /**
+   * number of groups in a folder for a provisioner target 
+   */
+  private long groupsCount;
+  
+  /**
+   * number of users in a folder for a provisioner target
+   */
+  private long usersCount;
+  
+  /**
+   * number of memberships in a folder for a provisioner target
+   */
+  private long membershipsCount;
+  
+  /**
+   * grouper sync members to show on subject provisioning screen
+   */
+  private List<GcGrouperSyncMember> gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+  
+  /**
+   * grouper sync memberships to show on membership provisioning screen
+   */
+  private List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
   
   /**
    * @return target name user is currently working on
@@ -221,7 +247,7 @@ public class ProvisioningContainer {
    * @return all targets
    */
   public Set<GrouperProvisioningTarget> getTargets() {
-    return new HashSet<GrouperProvisioningTarget>(GrouperProvisioningSettings.getTargets().values());
+    return new HashSet<GrouperProvisioningTarget>(GrouperProvisioningSettings.getTargets(true).values());
   }
   
   /**
@@ -242,7 +268,7 @@ public class ProvisioningContainer {
       grouperObject = guiStem.getGrouperObject();
     }
     
-    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets();
+    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     Set<GrouperProvisioningTarget> editableTargets = new HashSet<GrouperProvisioningTarget>();
@@ -256,4 +282,87 @@ public class ProvisioningContainer {
     return editableTargets;
   }
 
+  /**
+   * number of groups in a folder for a provisioner target 
+   * @return
+   */
+  public long getGroupsCount() {
+    return groupsCount;
+  }
+
+  /**
+   * number of groups in a folder for a provisioner target 
+   * @param groupsCount
+   */
+  public void setGroupsCount(long groupsCount) {
+    this.groupsCount = groupsCount;
+  }
+
+  /**
+   * number of users in a folder for a provisioner target 
+   * @return
+   */
+  public long getUsersCount() {
+    return usersCount;
+  }
+
+  /**
+   * number of users in a folder for a provisioner target 
+   * @param usersCount
+   */
+  public void setUsersCount(long usersCount) {
+    this.usersCount = usersCount;
+  }
+
+  /**
+   * number of memberships in a folder for a provisioner target 
+   * @return
+   */
+  public long getMembershipsCount() {
+    return membershipsCount;
+  }
+
+  /**
+   * number of memberships in a folder for a provisioner target 
+   * @param membershipsCount
+   */
+  public void setMembershipsCount(long membershipsCount) {
+    this.membershipsCount = membershipsCount;
+  }
+
+  /**
+   * grouper sync members to show on subject provisioning screen
+   * @return
+   */
+  public List<GcGrouperSyncMember> getGcGrouperSyncMembers() {
+    return gcGrouperSyncMembers;
+  }
+
+  /**
+   * grouper sync members to show on subject provisioning screen
+   * @param gcGrouperSyncMembers
+   */
+  public void setGcGrouperSyncMembers(List<GcGrouperSyncMember> gcGrouperSyncMembers) {
+    this.gcGrouperSyncMembers = gcGrouperSyncMembers;
+  }
+
+  /**
+   * grouper sync memberships to show on membership provisioning screen
+   * @return
+   */
+  public List<GcGrouperSyncMembership> getGcGrouperSyncMemberships() {
+    return gcGrouperSyncMemberships;
+  }
+
+  /**
+   * grouper sync memberships to show on membership provisioning screen
+   * @param gcGrouperSyncMemberships
+   */
+  public void setGcGrouperSyncMemberships(List<GcGrouperSyncMembership> gcGrouperSyncMemberships) {
+    this.gcGrouperSyncMemberships = gcGrouperSyncMemberships;
+  }
+  
+  
+
+  
 }

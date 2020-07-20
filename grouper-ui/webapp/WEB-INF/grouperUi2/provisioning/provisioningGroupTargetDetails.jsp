@@ -25,7 +25,7 @@
       </div>
     </div>
     <c:set var="ObjectType" value="Group" />
-    <%@ include file="provisioningSettingsView.jsp"%>
+    <%@ include file="provisioningGroupTargetDetailsHelper.jsp"%>
     
   </div>
 </div>
