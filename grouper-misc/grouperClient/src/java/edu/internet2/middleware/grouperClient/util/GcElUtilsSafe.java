@@ -70,6 +70,21 @@ public class GcElUtilsSafe {
    */
   public static String processEnvVarOrFile(String envVarOrFileBase) {
 
+    return processEnvVarOrFileHelper(envVarOrFileBase, true);
+  }
+  
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  public static String processEnvVarOrFileNoTrim(String envVarOrFileBase) {
+    return processEnvVarOrFileHelper(envVarOrFileBase, false);
+  }
+  
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  private static String processEnvVarOrFileHelper(String envVarOrFileBase, boolean trim) {
+
     if (isBlank(envVarOrFileBase)) {
       throw new RuntimeException("env var is required");
     }
@@ -83,7 +98,9 @@ public class GcElUtilsSafe {
         File theFile = new File(fileName);
         try {
           String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
-          fileContents = trim(fileContents);
+          if (trim) {
+            fileContents = trim(fileContents);
+          }
           return fileContents;
         } catch (RuntimeException re) {
           GrouperClientUtils.injectInException(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
