@@ -39,6 +39,11 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -189,8 +194,16 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
           && loaderType != GrouperLoaderType.LDAP_SIMPLE
           && loaderType != GrouperLoaderType.SQL_SIMPLE
           && loaderType != GrouperLoaderType.SQL_GROUP_LIST) {
-        GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
-        this.isMultiple = grouperDaemonConfig.isMultiple();
+        try {
+          GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+          this.isMultiple = grouperDaemonConfig.isMultiple();
+        } catch (Exception e) {
+          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+          AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+          adminContainer.setDaemonJobName(jobName);
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, TextContainer.retrieveFromRequest().getText().get("daemonJobConfigNotFound")));
+          LOG.error("Error: cant find daemon config from job name '" + jobName + "'", e);
+        }
       } else {
         this.isLoader = true;
       }

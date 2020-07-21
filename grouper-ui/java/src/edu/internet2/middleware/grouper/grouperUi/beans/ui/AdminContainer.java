@@ -32,6 +32,16 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AdminContainer {
 
+  private String daemonJobName;
+  
+  public String getDaemonJobName() {
+    return daemonJobName;
+  }
+  
+  public void setDaemonJobName(String daemonJobName) {
+    this.daemonJobName = daemonJobName;
+  }
+
   private int scheduleChanges;
   
   public int getScheduleChanges() {
