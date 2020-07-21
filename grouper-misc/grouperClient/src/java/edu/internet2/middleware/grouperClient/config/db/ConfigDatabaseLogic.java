@@ -689,8 +689,13 @@ public class ConfigDatabaseLogic {
         
         // decrypt if encrypted
         if (booleanValue(configEncrypted, false)) {
-          // TODO dont decrypt this in memory?
-          configValue = Morph.decrypt(configValue);
+          try {
+            // TODO dont decrypt this in memory?
+            configValue = Morph.decrypt(configValue);
+          } catch (RuntimeException re) {
+            GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
+            throw re;
+          }
         }
         
         configPropertiesForFile.put(configKey, configValue);
