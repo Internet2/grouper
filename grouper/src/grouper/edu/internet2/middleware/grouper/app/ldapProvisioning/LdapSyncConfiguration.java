@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -96,6 +98,14 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private String groupCreationLdifTemplate_attr_9;
   private String groupCreationLdifTemplate_val_9;
   private Integer groupCreationLdifTemplate_maxLength_9;
+  
+  private List<String> userCreationLdifTemplate_attrs = new ArrayList<String>();
+  private List<String> userCreationLdifTemplate_vals = new ArrayList<String>();
+  private List<Integer> userCreationLdifTemplate_maxLengths = new ArrayList<Integer>();
+  
+  private List<String> groupCreationLdifTemplate_attrs = new ArrayList<String>();
+  private List<String> groupCreationLdifTemplate_vals = new ArrayList<String>();
+  private List<Integer> groupCreationLdifTemplate_maxLengths = new ArrayList<Integer>();
   
   @Override
   public void configureSpecificSettings() {
@@ -207,6 +217,28 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.groupCreationLdifTemplate_attr_9 = this.retrieveConfigString("groupCreationLdifTemplate_attr_9", false);
     this.groupCreationLdifTemplate_val_9 = this.retrieveConfigString("groupCreationLdifTemplate_val_9", false);
     this.groupCreationLdifTemplate_maxLength_9 = this.retrieveConfigInt("groupCreationLdifTemplate_maxLength_9", false);
+    
+    for (int i = 0; i < userCreationNumberOfAttributes; i++) {
+      String attr = this.retrieveConfigString("userCreationLdifTemplate_attr_" + i, true);
+      userCreationLdifTemplate_attrs.add(attr);
+      
+      String val = this.retrieveConfigString("userCreationLdifTemplate_val_" + i, true);
+      userCreationLdifTemplate_vals.add(val);
+      
+      Integer maxLength = this.retrieveConfigInt("userCreationLdifTemplate_maxLength_" + i, false);
+      userCreationLdifTemplate_maxLengths.add(maxLength);
+    }
+    
+    for (int i = 0; i < groupCreationNumberOfAttributes; i++) {
+      String attr = this.retrieveConfigString("groupCreationLdifTemplate_attr_" + i, true);
+      groupCreationLdifTemplate_attrs.add(attr);
+      
+      String val = this.retrieveConfigString("groupCreationLdifTemplate_val_" + i, true);
+      groupCreationLdifTemplate_vals.add(val);
+      
+      Integer maxLength = this.retrieveConfigInt("groupCreationLdifTemplate_maxLength_" + i, false);
+      groupCreationLdifTemplate_maxLengths.add(maxLength);
+    }
   }
 
   
@@ -997,5 +1029,82 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   public void setGroupCreationLdifTemplate_maxLength_9(
       Integer groupCreationLdifTemplate_maxLength_9) {
     this.groupCreationLdifTemplate_maxLength_9 = groupCreationLdifTemplate_maxLength_9;
+  }
+
+
+  
+  public List<String> getUserCreationLdifTemplate_attrs() {
+    return userCreationLdifTemplate_attrs;
+  }
+
+
+  
+  public void setUserCreationLdifTemplate_attrs(
+      List<String> userCreationLdifTemplate_attrs) {
+    this.userCreationLdifTemplate_attrs = userCreationLdifTemplate_attrs;
+  }
+
+
+  
+  public List<String> getUserCreationLdifTemplate_vals() {
+    return userCreationLdifTemplate_vals;
+  }
+
+
+  
+  public void setUserCreationLdifTemplate_vals(List<String> userCreationLdifTemplate_vals) {
+    this.userCreationLdifTemplate_vals = userCreationLdifTemplate_vals;
+  }
+
+
+  
+  public List<Integer> getUserCreationLdifTemplate_maxLengths() {
+    return userCreationLdifTemplate_maxLengths;
+  }
+
+
+  
+  public void setUserCreationLdifTemplate_maxLengths(
+      List<Integer> userCreationLdifTemplate_maxLengths) {
+    this.userCreationLdifTemplate_maxLengths = userCreationLdifTemplate_maxLengths;
+  }
+
+
+  
+  public List<String> getGroupCreationLdifTemplate_attrs() {
+    return groupCreationLdifTemplate_attrs;
+  }
+
+
+  
+  public void setGroupCreationLdifTemplate_attrs(
+      List<String> groupCreationLdifTemplate_attrs) {
+    this.groupCreationLdifTemplate_attrs = groupCreationLdifTemplate_attrs;
+  }
+
+
+  
+  public List<String> getGroupCreationLdifTemplate_vals() {
+    return groupCreationLdifTemplate_vals;
+  }
+
+
+  
+  public void setGroupCreationLdifTemplate_vals(
+      List<String> groupCreationLdifTemplate_vals) {
+    this.groupCreationLdifTemplate_vals = groupCreationLdifTemplate_vals;
+  }
+
+
+  
+  public List<Integer> getGroupCreationLdifTemplate_maxLengths() {
+    return groupCreationLdifTemplate_maxLengths;
+  }
+
+
+  
+  public void setGroupCreationLdifTemplate_maxLengths(
+      List<Integer> groupCreationLdifTemplate_maxLengths) {
+    this.groupCreationLdifTemplate_maxLengths = groupCreationLdifTemplate_maxLengths;
   }
 }
