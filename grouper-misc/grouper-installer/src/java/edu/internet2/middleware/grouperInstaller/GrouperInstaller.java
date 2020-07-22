@@ -14236,23 +14236,23 @@ public class GrouperInstaller {
 //      }
 //    }
     
-    // edit server.xml in tomee/conf dir
-    File serverXmlFile = new File(tommeDir.getAbsolutePath()
-        + File.separator + "conf" + File.separator + "server.xml");
-    
-    Map<String, String> expectedAttribute = new HashMap<String, String>();
-
-    expectedAttribute.put("port", "8009");
-    expectedAttribute.put("protocol", "AJP/1.3");
-
-    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "tomcatAuthentication", "false", 
-         "Set tomcatAuthentication to false");
-    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "URIEncoding", "UTF-8", 
-        "Set URIEncoding to UTF-8");
-    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "scheme", "https", 
-        "Set scheme to https");
-    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "secure", "true", 
-        "Set secure to true");
+//    // edit server.xml in tomee/conf dir
+//    File serverXmlFile = new File(tommeDir.getAbsolutePath()
+//        + File.separator + "conf" + File.separator + "server.xml");
+//    
+//    Map<String, String> expectedAttribute = new HashMap<String, String>();
+//
+//    expectedAttribute.put("port", "8009");
+//    expectedAttribute.put("protocol", "AJP/1.3");
+//
+//    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "tomcatAuthentication", "false", 
+//         "Set tomcatAuthentication to false");
+//    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "URIEncoding", "UTF-8", 
+//        "Set URIEncoding to UTF-8");
+//    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "scheme", "https", 
+//        "Set scheme to https");
+//    editXmlFileAttribute(serverXmlFile, "Connector", expectedAttribute, "secure", "true", 
+//        "Set secure to true");
     
   }
   
