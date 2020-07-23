@@ -437,7 +437,7 @@ public class GrouperProvisioningService {
     
   }
   
-  public static Set<String> getDistinctProvisionerConfigIds() {
+  private static Set<String> getDistinctProvisionerConfigIds() {
     
     Set<String> result = new HashSet<String>();
     String query = "select distinct value_string from grouper_aval_asn_asn_group_v where attribute_def_name_name2 = ?";
@@ -821,14 +821,14 @@ public class GrouperProvisioningService {
   public static long retrieveNumberOfUsersInTargetInGroup(String groupId, String targetName) {
     
     String query = "select count(distinct(gsmember.id)) from grouper_sync_group gsg, grouper_sync gs, grouper_group_set gg, " + 
-        "grouper_sync_membership gsm, grouper_sync_member gsmember " + 
-        "where gg.owner_group_id = ? " + 
-        "and gsg.provisionable = 'T' " + 
-        "and gsmember.provisionable = 'T' " + 
-        "and gsg.group_id = gg.id " + 
-        "and gs.provisioner_name = ? " + 
-        "and gs.id = gsg.grouper_sync_id " + 
-        "and gsm.grouper_sync_group_id = gsg.id " + 
+        "grouper_sync_membership gsm, grouper_sync_member gsmember " +
+        "where gg.owner_group_id = ? " +
+        "and gsg.provisionable = 'T' " +
+        "and gsmember.provisionable = 'T' " +
+        "and gsg.group_id = gg.owner_group_id " +
+        "and gs.provisioner_name = ? " +
+        "and gs.id = gsg.grouper_sync_id " +
+        "and gsm.grouper_sync_group_id = gsg.id " +
         "and gsm.grouper_sync_member_id = gsmember.id";
     
     long usersCount = new GcDbAccess().sql(query)
@@ -885,6 +885,8 @@ public class GrouperProvisioningService {
     for (GcGrouperSyncMember grouperSyncMember : GrouperUtil.nonNull(grouperSyncMembers)) {
       String grouperSyncId = grouperSyncMember.getGrouperSyncId();
       
+      //GcGrouperSync gcGrouperSync = grouperSyncMember.getGrouperSync();
+      
       GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
       .addBindVar(grouperSyncId)
       .select(GcGrouperSync.class);
@@ -904,7 +906,7 @@ public class GrouperProvisioningService {
    */
   public static List<GcGrouperSyncMembership> retrieveGcGrouperSyncMemberships(String memberId, String groupId) {
     
-    String grouperSyncMembershipQuery = "select * from grouper_sync_membership gsm, grouper_sync_group gsg, grouper_sync_member gsmem " + 
+    String grouperSyncMembershipQuery = "select gsm.* from grouper_sync_membership gsm, grouper_sync_group gsg, grouper_sync_member gsmem " + 
         "where gsm.grouper_sync_group_id =  gsg.id " + 
         " and gsm.grouper_sync_member_id = gsmem.id "
         + " and gsmem.member_id = ? " +

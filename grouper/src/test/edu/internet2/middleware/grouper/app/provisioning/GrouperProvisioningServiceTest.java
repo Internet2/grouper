@@ -6,13 +6,16 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -22,7 +25,14 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 
 public class GrouperProvisioningServiceTest extends GrouperTest {
@@ -39,6 +49,361 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.class", "LdapProvisioner");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.box.class", "BoxProvisioner");
     
+  }
+  
+  public void testRetrieveNumberOfGroupsInTargetInStem() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob");
+    gcGrouperSync.setUserCount(10);
+    gcGrouperSync.setGroupCount(20);
+    gcGrouperSync.setRecordsCount(30);
+    gcGrouperSync.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.setLastFullSyncRun(new Timestamp(System.currentTimeMillis() - 100000));
+    gcGrouperSync.setLastIncrementalSyncRun(new Timestamp(System.currentTimeMillis() - 700000));
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
+    gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
+    gcGrouperSyncJob.setLastSyncIndex(135L);
+    gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncJob.setSyncType("testSyncType");
+    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+    
+    //When
+    long groupsInTargetInStem = GrouperProvisioningService.retrieveNumberOfGroupsInTargetInStem(stem0.getId(), "myJob");
+
+    //Then
+    assertEquals(1, groupsInTargetInStem);
+    
+  }
+  
+  
+  //Chris, please review this extra carefully :)
+  public void testRetrieveNumberOfGroupsInTargetInMember() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    // now add two -> one as a disabled membership
+    Membership ms = new Membership();
+    ms.setCreatorUuid(grouperSession.getMemberUuid());
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(two.toMember().getUuid());
+    ms.setOwnerGroupId(one.getUuid());
+    ms.setMember(two.toMember());
+    ms.setEnabled(true);
+    ms.setEnabledTime(new Timestamp(System.currentTimeMillis() - 2000));
+    GrouperDAOFactory.getFactory().getMembership().save(ms);
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+    gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership.setMembershipId("memId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+    
+    //When
+    long groupsInTargetInMember = GrouperProvisioningService.retrieveNumberOfGroupsInTargetInMember(two.toMember().getUuid(), "myJob-3");
+    
+    //Then
+    assertEquals(1, groupsInTargetInMember);
+  }
+  
+  //Chris, please review this extra carefully :)
+  public void testRetrieveNumberOfUsersInTargetInGroup() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    // now add two -> one as a disabled membership
+    Membership ms = new Membership();
+    ms.setCreatorUuid(grouperSession.getMemberUuid());
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(two.toMember().getUuid());
+    ms.setOwnerGroupId(one.getUuid());
+    ms.setMember(two.toMember());
+    ms.setEnabled(true);
+    ms.setEnabledTime(new Timestamp(System.currentTimeMillis() - 2000));
+    GrouperDAOFactory.getFactory().getMembership().save(ms);
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+    gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership.setMembershipId("memId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+  
+    //When
+    long usersInTargetInGroup = GrouperProvisioningService.retrieveNumberOfUsersInTargetInGroup(group0.getId(), "myJob-3");
+    
+    //Then
+    assertEquals(1, usersInTargetInGroup);
+  }
+  
+  public void testRetrieveNumberOfMembershipsInTargetInStem() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    // now add two -> one as a disabled membership
+    Membership ms = new Membership();
+    ms.setCreatorUuid(grouperSession.getMemberUuid());
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(two.toMember().getUuid());
+    ms.setOwnerGroupId(one.getUuid());
+    ms.setMember(two.toMember());
+    ms.setEnabled(true);
+    ms.setEnabledTime(new Timestamp(System.currentTimeMillis() - 2000));
+    GrouperDAOFactory.getFactory().getMembership().save(ms);
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+    gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership.setMembershipId("memId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+    
+    //When
+    long membershipsInTargetInStem = GrouperProvisioningService.retrieveNumberOfMembershipsInTargetInStem(stem0.getId(), "myJob-3");
+    
+    //Then
+    assertEquals(1, membershipsInTargetInStem);
+  }
+  
+  public void testRetrieveNumberOfUsersInTargetInStem() {
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    // now add two -> one as a disabled membership
+    Membership ms = new Membership();
+    ms.setCreatorUuid(grouperSession.getMemberUuid());
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(two.toMember().getUuid());
+    ms.setOwnerGroupId(one.getUuid());
+    ms.setMember(two.toMember());
+    ms.setEnabled(true);
+    ms.setEnabledTime(new Timestamp(System.currentTimeMillis() - 2000));
+    GrouperDAOFactory.getFactory().getMembership().save(ms);
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+    gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership.setMembershipId("memId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+    
+    //When
+    long usersInTargetInStem = GrouperProvisioningService.retrieveNumberOfUsersInTargetInStem(stem0.getId(), "myJob-3");
+    
+    //Then
+    assertEquals(1, usersInTargetInStem);
+    
+  }
+  
+  //Chris, please review this extra carefully :)
+  public void testRetrieveGcGrouperSyncMembers() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group two = top.addChildGroup("two", "two");
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+    
+    //When
+    List<GcGrouperSyncMember> grouperSyncMembers = GrouperProvisioningService.retrieveGcGrouperSyncMembers(two.toMember().getUuid());
+    
+    //Then
+    assertEquals(1, grouperSyncMembers.size());
+    assertEquals(gcGrouperSyncMember.getId(), grouperSyncMembers.get(0).getId());
+    assertEquals(gcGrouperSync.getId(), grouperSyncMembers.get(0).getGrouperSync().getId());
+    
+  }
+  
+  //Chris, please review this extra carefully :)
+  public void testRetrieveGcGrouperSyncMemberships() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
+    Stem top = root.addChildStem("top", "top");
+    Group two = top.addChildGroup("two", "two");
+    
+    // foreign key
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob-3");
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId(group0.getId());
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncGroup.setProvisionable(true);
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMember.setProvisionable(true);
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSyncMember.setMemberId(two.toMember().getUuid());
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
+    gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+    gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
+    gcGrouperSyncMembership.setMembershipId("memId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+    
+    //When
+    List<GcGrouperSyncMembership> grouperSyncMemberships = GrouperProvisioningService.retrieveGcGrouperSyncMemberships(two.toMember().getUuid(), group0.getId());
+    
+    //Then
+    assertEquals(1, grouperSyncMemberships.size());
+    assertEquals(gcGrouperSyncMembership.getId(), grouperSyncMemberships.get(0).getId());
+    assertEquals(gcGrouperSync.getId(), grouperSyncMemberships.get(0).getGrouperSync().getId());
   }
   
   public void testDeleteInvalidConfigs() {
