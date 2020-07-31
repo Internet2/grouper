@@ -37,6 +37,7 @@ subjectApi.source.testLdapSource.param.subjectIdentifierAttribute0.value = uid
 Provisioned attribute name: description   (multivalued can have anything in there, e.g. subjectId)
 Provisioned attribute value format: ${subject.id}
 Group search attribute name: gidNumber
+Group search attribute value format: ${group.idIndex} ??
 Group search attributes blank (grouper should know its: description, gidNumber, dn, cn).  Also maybe consult the ldif template
 Group search base DN: ou=groups,dc=example,dc=edu
 Group dn type: flat

@@ -18,37 +18,13 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 
 
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
-
-  /**
-   * reference back to provisioner, must be set whenn created
-   */
-  private LdapSync ldapSync;
-
-
-  /**
-   * reference back to provisioner, must be set whenn created
-   * @return
-   */
-  public LdapSync getLdapSync() {
-    return ldapSync;
-  }
-
-
-  /**
-   * reference back to provisioner, must be set whenn created
-   * @param ldapSync
-   */
-  public void setLdapSync(LdapSync ldapSync) {
-    this.ldapSync = ldapSync;
-  }
-
   
   @Override
   public Map<String, TargetGroup> retrieveAllGroups() {
     
     Map<String, TargetGroup> results = new HashMap<String, TargetGroup>();
     
-    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) ldapSync.retrieveProvisioningConfiguration();
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     String groupSearchAllFilter = ldapSyncConfiguration.getGroupsSearchAllFilter();
     

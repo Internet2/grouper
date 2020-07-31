@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -84,11 +83,11 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   public String retrieveConfigString(String configSuffix, boolean required) {
     
-    String value = GrouperClientConfig.retrieveConfig().propertyValueString("provisioner." + this.getConfigId() + "." + configSuffix);
+    String value = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + this.getConfigId() + "." + configSuffix);
     if (!StringUtils.isBlank(value)) {
       return value;
     }
-    value = GrouperClientConfig.retrieveConfig().propertyValueString("provisionerDefault." + configSuffix);
+    value = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisionerDefault." + configSuffix);
     if (!StringUtils.isBlank(value)) {
       return value;
     }
@@ -141,7 +140,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     this.grouperProvisioner.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
   
-    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + this.getConfigId() + ".debugConfig")) {
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + this.getConfigId() + ".debugConfig", false)) {
       
       debugMap = this.grouperProvisioner.getDebugMap();
     } else {

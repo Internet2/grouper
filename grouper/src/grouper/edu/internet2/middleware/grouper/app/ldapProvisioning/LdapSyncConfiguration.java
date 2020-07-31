@@ -138,7 +138,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
-    this.groupsSearchAllFilter = this.retrieveConfigString("groupsSearchAllFilter", false);
+    this.groupsSearchAllFilter = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupsSearchAllFilter", false), "(&(objectclass=group)(gidNumber=*))");
     this.groupObjectClass = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupObjectClass", false), ",");
 
     {
@@ -152,7 +152,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
       }
     }
     
-    this.userCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("userCreationNumberOfAttributes", false), 1);
+    this.userCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("userCreationNumberOfAttributes", false), 0);
     
     this.userCreationLdifTemplate_attr_0 = this.retrieveConfigString("userCreationLdifTemplate_attr_0", false);
     this.userCreationLdifTemplate_val_0 = this.retrieveConfigString("userCreationLdifTemplate_val_0", false);
@@ -185,7 +185,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.userCreationLdifTemplate_val_9 = this.retrieveConfigString("userCreationLdifTemplate_val_9", false);
     this.userCreationLdifTemplate_maxLength_9 = this.retrieveConfigInt("userCreationLdifTemplate_maxLength_9", false);
 
-    this.groupCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("groupCreationNumberOfAttributes ", false), 1);
+    this.groupCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("groupCreationNumberOfAttributes ", false), 0);
   
     this.groupCreationLdifTemplate_attr_0 = this.retrieveConfigString("groupCreationLdifTemplate_attr_0", false);
     this.groupCreationLdifTemplate_val_0 = this.retrieveConfigString("groupCreationLdifTemplate_val_0", false);

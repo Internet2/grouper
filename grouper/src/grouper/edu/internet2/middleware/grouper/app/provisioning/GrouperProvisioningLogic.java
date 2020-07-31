@@ -1,7 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableData;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -17,37 +18,40 @@ public class GrouperProvisioningLogic {
   public void fullProvisionFull() {
 
     final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+    
+    @SuppressWarnings("unchecked")
+    final Map<String, TargetGroup>[] TARGET_RESULT = new HashMap[1];
 
-    //lets get all from one side and the other and time it and do it in a thread so its faster
-//    Thread selectFromThread = new Thread(new Runnable() {
-//      
-//      @Override
-//      public void run() {
-//        
-//        try {
-//          result[0] = runQueryForAllDataFromPrimaryKeys(debugMap, gcTableSync.getDataBeanFrom(), primaryKeys, true);
-//        } catch (RuntimeException re) {
-//          if (RUNTIME_EXCEPTION[0] != null) {
-//            LOG.error("Error retrieve by primary key", re);
-//          }
-//          RUNTIME_EXCEPTION[0] = re;
-//        }
-//        
-//      }
-//    });
-//    
-//    selectFromThread.start();
-//    
-//    result[1] = runQueryForAllDataFromPrimaryKeys(debugMap, gcTableSync.getDataBeanTo(), primaryKeys, false);
-//    
-//    GrouperClientUtils.join(selectFromThread);
-//    if (RUNTIME_EXCEPTION[0] != null) {
-//      throw RUNTIME_EXCEPTION[0];
-//    }
-//
+    Thread targetQueryThread = new Thread(new Runnable() {
+      
+      @Override
+      public void run() {
+        
+        try {
+          TARGET_RESULT[0] = grouperProvisioner.retrieveTargetDao().retrieveAllGroups();
+        } catch (RuntimeException re) {
+          RUNTIME_EXCEPTION[0] = re;
+        }
+        
+      }
+    });
+    
+    targetQueryThread.start();
+    
+    Map<String, TargetGroup> groups = grouperProvisioner.retrieveGrouperDao().retrieveAllGroups();    
+    Map<String, TargetEntity> entities = grouperProvisioner.retrieveGrouperDao().retrieveAllMembers();
+    Map<String, TargetMembership> memberships = grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships();
+    
+    GrouperClientUtils.join(targetQueryThread);
+    if (RUNTIME_EXCEPTION[0] != null) {
+      throw RUNTIME_EXCEPTION[0];
+    }
+    
+    Map<String, TargetGroup> targetResult = TARGET_RESULT[0];
+
 
     // make sure the sync objects are correct
-    new ProvisioningSyncIntegration().assignTarget(this.getGrouperProvisioner().getConfigId()).fullSync();
+//    new ProvisioningSyncIntegration().assignTarget(this.getGrouperProvisioner().getConfigId()).fullSync();
 
 //    // step 1
 //    debugMap.put("state", "retrieveData");

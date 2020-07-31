@@ -4,14 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -19,6 +17,7 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = null;
   
+  private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
   
   public Map<String, Object> getDebugMap() {
     return debugMap;
@@ -41,6 +40,24 @@ public abstract class GrouperProvisioner {
     }
     return this.grouperProvisionerTargetDaoBase;
     
+  }
+  
+  /**
+   * returns the Grouper Data access Object
+   * @return the DAO
+   */
+  public GrouperProvisionerGrouperDao retrieveGrouperDao() {
+    if (this.grouperProvisionerGrouperDao == null) {
+      Class<? extends GrouperProvisionerGrouperDao> grouperProvisionerGrouperDaoClass = this.retrieveGrouperDaoClass();
+      this.grouperProvisionerGrouperDao = GrouperUtil.newInstance(grouperProvisionerGrouperDaoClass);
+      this.grouperProvisionerGrouperDao.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisionerGrouperDao;
+    
+  }
+  
+  public Class<? extends GrouperProvisionerGrouperDao> retrieveGrouperDaoClass() {
+    return GrouperProvisionerGrouperDao.class;
   }
   
   private GrouperProvisioningConfigurationBase grouperProvisioningConfigurationBase = null;
