@@ -167,8 +167,11 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             hib3GrouperLoaderLog.addInsertCount(1);
           } else {
             if (GrouperZoomLocalCommands.deleteInTargetIfDeletedInGrouper(configId)) {
-              GrouperZoomCommands.deleteGroup(configId, groupExtension);
-              hib3GrouperLoaderLog.addDeleteCount(1);
+              Map<String, Object> groupMap = GrouperZoomCommands.retrieveGroups(configId).get(groupExtension);
+              if (groupMap != null) {
+                GrouperZoomCommands.deleteGroup(configId, (String)groupMap.get("id"));
+                hib3GrouperLoaderLog.addDeleteCount(1);
+              }
             } else {
               // remove all members
               List<Map<String, Object>> memberships = GrouperZoomCommands.retrieveGroupMemberships(configId, (String)groupInZoom.get("id"));
