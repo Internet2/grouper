@@ -622,7 +622,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
       String summary = (String)result.get("summary");
       
-      summary += ", sservicePlans: " + licenseDetails.get("servicePlansString");
+      summary += ", servicePlans: " + licenseDetails.get("servicePlansString");
       
       result.put("summary", summary.toString());
 
