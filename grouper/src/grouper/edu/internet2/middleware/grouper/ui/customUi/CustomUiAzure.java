@@ -268,22 +268,16 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
    * 
    * @param configId 
    * @param subject
-   * @return map of attributes, userFound(boolean), accountEnabled(boolean),assignedPlans(Set), assignedPlansString(String comma space separated),mail(String),onPremisesImmutableId(String),
-   *     onPremisesLastSyncDateTime(String),onPremisesSamAccountName(String),"
-   *     proxyAddresses(Set),proxyAddressesString(String comma space separated),showInAddressList(boolean),userPrincipalName(String),userType(String),provisionedPlans(Set),
-   *     provisionedPlansString(String comma space separated), summary(String)
+   * @return map of servicePlans(Set), servicePlansString(String comma space separated)
    */
-  public Map<String, Object> retrieveAzureUser(String configId, Subject subject) {
+  public Map<String, Object> retrieveAzureUserLicenseDetails(String configId, Subject subject) {
 
     long startedNanos = System.nanoTime();
 
     Map<String, Object> result = new LinkedHashMap<String, Object>();
     
     result.put("userFound", false);
-    result.put("accountEnabled", false);
-    result.put("showInAddressList", false);
-    result.put("assignedPlans", null);      
-    result.put("provisionedPlans", null);
+    result.put("servicePlans", null);
 
     
     try {
@@ -316,8 +310,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       // https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
       //graphVersion = "beta";
       String url = graphEndpoint + "/" + graphVersion + "/users/" + GrouperUtil.escapeUrlEncode(subjectId) 
-          + "?$select=accountEnabled,assignedPlans,mail,onPremisesImmutableId,onPremisesLastSyncDateTime,onPremisesSamAccountName,"
-          + "proxyAddresses,showInAddressList,userPrincipalName,userType,provisionedPlans";
+          + "/licenseDetails";
       
       this.debugMapPut("azureMemUrl", url);
       
@@ -346,7 +339,152 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       }
       
       if (code != 200) {
-        throw new RuntimeException("Cant get group from '" + url + "' " + json);
+        throw new RuntimeException("Cant get user license details from '" + url + "' " + json);
+      }
+      
+      JSONObject jsonObject = JSONObject.fromObject(json);
+      
+      //  {
+      //    "@odata.context":"https://graph.microsoft.com/beta/$metadata#users('sabinic%40upenn.edu')/licenseDetails",
+      //    "value":[
+      //       {
+      //          "id":"nZRNbBy5RUyarmbXZEMRDXPntpjUJA1MqWhueHofggQ",
+      //          "skuId":"98b6e773-24d4-4c0d-a968-6e787a1f8204",
+      //          "skuPartNumber":"ENTERPRISEPACKPLUS_STUDENT",
+      //          "servicePlans":[
+      //             {
+      //                "servicePlanId":"efb87545-963c-4e0d-99df-69c6916d9eb0",
+      //                "servicePlanName":"EXCHANGE_S_ENTERPRISE",
+      //                "provisioningStatus":"Disabled",
+      //                "appliesTo":"Company"
+      //             },
+      //             {
+      //                "servicePlanId":"8c098270-9dd4-4350-9b30-ba4703f3b36b",
+      //                "servicePlanName":"ADALLOM_S_O365",
+      //                "provisioningStatus":"PendingInput",
+      //                "appliesTo":"Company"
+      //             },
+      //             {
+      //                "servicePlanId":"43de0ff5-c92c-492b-9116-175376d08c38",
+      //                "servicePlanName":"OFFICESUBSCRIPTION",
+      //                "provisioningStatus":"Success",
+      //                "appliesTo":"Company"
+      //             }
+      //          ]
+      //       }
+      //    ]
+      // } 
+      Set<String> servicePlansSet = new TreeSet<String>();
+      result.put("servicePlans", servicePlansSet);
+      JSONArray valueArray = jsonObject.containsKey("value") ? jsonObject.getJSONArray("value") : new JSONArray();
+      for (int i=0;i<valueArray.size();i++) {
+        jsonObject = valueArray.getJSONObject(i);
+      
+        JSONArray servicePlansJsonArray = (jsonObject != null && jsonObject.containsKey("servicePlans")) ? jsonObject.getJSONArray("servicePlans") : new JSONArray();
+        
+        for (int j=0;j<servicePlansJsonArray.size();j++) {
+          JSONObject servicePlan = servicePlansJsonArray.getJSONObject(j);
+          if ("Success".equals(servicePlan.getString("provisioningStatus"))) {
+            servicePlansSet.add(servicePlan.getString("servicePlanName"));
+          }
+        }
+    
+        result.put("servicePlansString", GrouperUtil.join(servicePlansSet.iterator(), ", "));
+      }
+
+      return result;
+    } catch (RuntimeException re) {
+      
+      this.debugMapPut("azureLicenseDetailsError", GrouperUtil.getFullStackTrace(re));
+      throw re;
+
+    } finally {
+      this.debugMapPut("azureLicenseDetailsTookMillis", (System.nanoTime()-startedNanos)/1000000);
+    }
+    
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @param subject
+   * @return map of attributes, userFound(boolean), accountEnabled(boolean),assignedPlans(Set), assignedPlansString(String comma space separated),mail(String),onPremisesImmutableId(String),
+   *     onPremisesLastSyncDateTime(String),onPremisesSamAccountName(String),"
+   *     proxyAddresses(Set),proxyAddressesString(String comma space separated),showInAddressList(boolean),userPrincipalName(String),userType(String),provisionedPlans(Set),
+   *     provisionedPlansString(String comma space separated), summary(String)
+   */
+  public Map<String, Object> retrieveAzureUser(String configId, Subject subject) {
+
+    long startedNanos = System.nanoTime();
+
+    Map<String, Object> result = new LinkedHashMap<String, Object>();
+    
+    result.put("userFound", false);
+    result.put("accountEnabled", false);
+    result.put("showInAddressList", false);
+
+    
+    try {
+      if (subject == null) {
+        throw new RuntimeException("subject is null");
+      }
+  
+      String bearerToken = retrieveBearerTokenForAzureConfigId(configId);
+      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
+  
+      String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
+      String subjectIdValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".subjectIdValueFormat");
+  
+      String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".requireSubjectAttribute");
+      
+      if (!StringUtils.isBlank(requireSubjectAttribute)) {
+        if (StringUtils.isBlank(subject.getAttributeValue(requireSubjectAttribute))) {
+          this.debugMapPut("subjectAttribute_" + requireSubjectAttribute, "blank");
+          return result;
+        }
+      }
+      
+      String subjectId  = CustomUiUtil.substituteExpressionLanguage(subjectIdValueFormat, null, null, null, subject, null);
+      
+      if (StringUtils.isBlank(subjectId)) {
+        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + SubjectUtils.subjectToString(subject));
+      }
+      
+      // //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
+      // https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
+      //graphVersion = "beta";
+      String url = graphEndpoint + "/" + graphVersion + "/users/" + GrouperUtil.escapeUrlEncode(subjectId) 
+          + "?$select=accountEnabled,mail,onPremisesImmutableId,onPremisesLastSyncDateTime,onPremisesSamAccountName,"
+          + "proxyAddresses,showInAddressList,userPrincipalName,userType";
+      
+      this.debugMapPut("azureMemUrl", url);
+      
+      GetMethod getMethod = new GetMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      getMethod.addRequestHeader("Content-Type", "application/json");
+      getMethod.addRequestHeader("Authorization", "Bearer " + bearerToken);
+      
+      int code = -1;
+      String json = null;
+  
+      try {
+        code = httpClient.executeMethod(getMethod);
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
+        json = getMethod.getResponseBodyAsString();
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
+
+      result.put("userFound", code == 200);
+
+      if (code == 404) {
+        return result;
+      }
+      
+      if (code != 200) {
+        throw new RuntimeException("Cant get user from '" + url + "' " + json);
       }
       
       JSONObject jsonObject = JSONObject.fromObject(json);
@@ -367,20 +505,20 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       //       RMSOnline,TeamspaceAPI,YammerEnterprise,MicrosoftCommunicationsOnline,exchange,ProjectWorkManagement,SharePoint,exchange,Homeroom
       //       Deskless,AADPremiumService,SharePoint,Adallom,EduAnalytics,exchange,MicrosoftCommunicationsOnline,MicrosoftOffice,Sway
       //    ],
-      {
-        Set<String> assignedPlansSet = new TreeSet<String>();
-        result.put("assignedPlans", assignedPlansSet);
-        JSONArray assignedPlansJsonArray = jsonObject.containsKey("assignedPlans") ? jsonObject.getJSONArray("assignedPlans") : new JSONArray();
-        
-        for (int i=0;i<assignedPlansJsonArray.size();i++) {
-          JSONObject assignedPlan = assignedPlansJsonArray.getJSONObject(i);
-          if ("Enabled".equals(assignedPlan.getString("capabilityStatus"))) {
-            assignedPlansSet.add(assignedPlan.getString("service"));
-          }
-        }
-
-        result.put("assignedPlansString", GrouperUtil.join(assignedPlansSet.iterator(), ", "));
-      }
+//      {
+//        Set<String> assignedPlansSet = new TreeSet<String>();
+//        result.put("assignedPlans", assignedPlansSet);
+//        JSONArray assignedPlansJsonArray = jsonObject.containsKey("assignedPlans") ? jsonObject.getJSONArray("assignedPlans") : new JSONArray();
+//        
+//        for (int i=0;i<assignedPlansJsonArray.size();i++) {
+//          JSONObject assignedPlan = assignedPlansJsonArray.getJSONObject(i);
+//          if ("Enabled".equals(assignedPlan.getString("capabilityStatus"))) {
+//            assignedPlansSet.add(assignedPlan.getString("service"));
+//          }
+//        }
+//
+//        result.put("assignedPlansString", GrouperUtil.join(assignedPlansSet.iterator(), ", "));
+//      }
 
       //    "mail":"mchyzer@isc.upenn.edu",
       result.put("mail", jsonObject.getString("mail"));
@@ -434,20 +572,20 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       //       }
       //    ]
       //    SharePoint, MicrosoftOffice, EXCHANGE, SharePoint, MicrosoftCommunicationsOnline
-      {
-        Set<String> provisionedPlansSet = new TreeSet<String>();
-        result.put("provisionedPlans", provisionedPlansSet);
-        JSONArray provisionedPlansJsonArray = jsonObject.containsKey("provisionedPlans") ? jsonObject.getJSONArray("provisionedPlans") : new JSONArray();
-        
-        for (int i=0;i<provisionedPlansJsonArray.size();i++) {
-          JSONObject provisionedPlan = provisionedPlansJsonArray.getJSONObject(i);
-          if ("Enabled".equals(provisionedPlan.getString("capabilityStatus")) && "Success".equals(provisionedPlan.getString("provisioningStatus"))) {
-            provisionedPlansSet.add(provisionedPlan.getString("service"));
-          }
-        }
-
-        result.put("provisionedPlansString", GrouperUtil.join(provisionedPlansSet.iterator(), ", "));
-      }
+//      {
+//        Set<String> provisionedPlansSet = new TreeSet<String>();
+//        result.put("provisionedPlans", provisionedPlansSet);
+//        JSONArray provisionedPlansJsonArray = jsonObject.containsKey("provisionedPlans") ? jsonObject.getJSONArray("provisionedPlans") : new JSONArray();
+//        
+//        for (int i=0;i<provisionedPlansJsonArray.size();i++) {
+//          JSONObject provisionedPlan = provisionedPlansJsonArray.getJSONObject(i);
+//          if ("Enabled".equals(provisionedPlan.getString("capabilityStatus")) && "Success".equals(provisionedPlan.getString("provisioningStatus"))) {
+//            provisionedPlansSet.add(provisionedPlan.getString("service"));
+//          }
+//        }
+//
+//        result.put("provisionedPlansString", GrouperUtil.join(provisionedPlansSet.iterator(), ", "));
+//      }
       
       {
         StringBuilder summary = new StringBuilder();
@@ -458,16 +596,14 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
 //        *     provisionedPlansString(String comma space separated), summary(String)
         
         summary.append("accountEnabled: ").append(result.get("accountEnabled"))
-          .append(", assignedPlans(").append(result.get("assignedPlansString")).append("), mail: ").append(result.get("mail"))
+          .append(", mail: ").append(result.get("mail"))
           .append(", onPremisesImmutableId: ").append(result.get("onPremisesImmutableId")).append(", onPremisesLastSyncDateTime: ")
           .append(result.get("onPremisesLastSyncDateTime")).append(", onPremisesSamAccountName: ").append(result.get("onPremisesSamAccountName"))
           .append(", proxyAddresses: (").append(result.get("proxyAddressesString")).append("), showInAddressList: ").append(result.get("showInAddressList"))
-          .append(", userPrincipalName: ").append(result.get("userPrincipalName")).append(", userType: ").append(result.get("userType"))
-          .append(", provisionedPlans: ").append(result.get("provisionedPlansString"));
+          .append(", userPrincipalName: ").append(result.get("userPrincipalName")).append(", userType: ").append(result.get("userType"));
         result.put("summary", summary.toString());
       }
 
-      return result;
     } catch (RuntimeException re) {
       
       this.debugMapPut("azureUserError", GrouperUtil.getFullStackTrace(re));
@@ -477,6 +613,22 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       this.debugMapPut("azureUserTookMillis", (System.nanoTime()-startedNanos)/1000000);
     }
     
+    Map<String, Object> licenseDetails = retrieveAzureUserLicenseDetails(configId, subject);
+    
+    if (licenseDetails != null) {
+
+      result.put("servicePlans", licenseDetails.get("servicePlans"));
+      result.put("servicePlansString", licenseDetails.get("servicePlansString"));
+      
+      String summary = (String)result.get("summary");
+      
+      summary += ", sservicePlans: " + licenseDetails.get("servicePlansString");
+      
+      result.put("summary", summary.toString());
+
+    }
+    
+    return result;
   }
   
   /**
@@ -560,7 +712,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
     GrouperStartup.startup();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
-
+    // 10287464
     Subject subject1 = SubjectFinder.findById("10021368", true);
     
     
