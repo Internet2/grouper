@@ -298,9 +298,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.autoDdl2_5orAbove = null;
     //dont print annoying messages to user
     GrouperDdlUtils.internal_printDdlUpdateMessage = false;
-    ConfigDatabaseLogic.test_assume_ddl30(true);
-    
-
 
   }
 
@@ -326,7 +323,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
     GrouperDdlUtils.autoDdl2_5orAbove = null;
-    ConfigDatabaseLogic.test_assume_ddl30(false);
   }
 
   /**
@@ -1184,7 +1180,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
       .assignMaxVersions(null).assignPromptUser(true).runDdl();
   
-    ConfigDatabaseLogic.test_assume_ddl30(true);
     //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_30_hsql.sql
     // get to 2.5
     File scriptToGetTo2_5_30 = retrieveScriptFile("GrouperDdl_2_5_30_" + GrouperDdlUtils.databaseType() + ".sql");
@@ -1202,9 +1197,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .assignDropOnly(false)
       .assignInstallDefaultGrouperData(false).assignPromptUser(false).runDdl();
   
-    
-    ConfigDatabaseLogic.test_assume_ddl30(false);
-    
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_clob"));
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_bytes"));
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_config"));
