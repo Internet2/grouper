@@ -3,12 +3,9 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
-import junit.textui.TestRunner;
-
 import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -17,6 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import junit.textui.TestRunner;
 
 
 /**
@@ -80,32 +78,32 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property3.in.base.and.database");
-    grouperConfigHibernate.setConfigValue("value3.in.database");
-    grouperConfigHibernate.saveOrUpdate();
+    grouperConfigHibernate.setValueToSave("value3.in.database");
+    grouperConfigHibernate.saveOrUpdate(true);
     
     grouperConfigHibernate = new GrouperConfigHibernate();
     grouperConfigHibernate.setConfigEncrypted(false);
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property4.in.base.and.override.and.database");
-    grouperConfigHibernate.setConfigValue("value4.in.database");
-    grouperConfigHibernate.saveOrUpdate();
+    grouperConfigHibernate.setValueToSave("value4.in.database");
+    grouperConfigHibernate.saveOrUpdate(true);
 
     grouperConfigHibernate = new GrouperConfigHibernate();
     grouperConfigHibernate.setConfigEncrypted(false);
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property5.in.override.and.database");
-    grouperConfigHibernate.setConfigValue("value5.in.database");
-    grouperConfigHibernate.saveOrUpdate();
+    grouperConfigHibernate.setValueToSave("value5.in.database");
+    grouperConfigHibernate.saveOrUpdate(true);
 
     grouperConfigHibernate = new GrouperConfigHibernate();
     grouperConfigHibernate.setConfigEncrypted(false);
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property7.in.database");
-    grouperConfigHibernate.setConfigValue("value7.in.database");
-    grouperConfigHibernate.saveOrUpdate();
+    grouperConfigHibernate.setValueToSave("value7.in.database");
+    grouperConfigHibernate.saveOrUpdate(true);
 
     EhcacheController.ehcacheController().flushCache();
     ConfigPropertiesCascadeBase.clearCache();
@@ -180,7 +178,7 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property3.in.base.and.database");
-    grouperConfigHibernate.setConfigValue("value3.in.database");
+    grouperConfigHibernate.setValueToSave("value3.in.database");
     GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(grouperConfigHibernate);
     
     grouperConfigHibernate = new GrouperConfigHibernate();
@@ -188,7 +186,7 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property4.in.base.and.override.and.database");
-    grouperConfigHibernate.setConfigValue("value4.in.database");
+    grouperConfigHibernate.setValueToSave("value4.in.database");
     GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(grouperConfigHibernate);
 
     grouperConfigHibernate = new GrouperConfigHibernate();
@@ -196,7 +194,7 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property5.in.override.and.database");
-    grouperConfigHibernate.setConfigValue("value5.in.database");
+    grouperConfigHibernate.setValueToSave("value5.in.database");
     GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(grouperConfigHibernate);
 
     grouperConfigHibernate = new GrouperConfigHibernate();
@@ -204,7 +202,7 @@ public class GrouperDbConfigTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb(GrouperDbConfigTestConfig.retrieveConfig().getMainConfigFileName());
     grouperConfigHibernate.setConfigKey("property7.in.database");
-    grouperConfigHibernate.setConfigValue("value7.in.database");
+    grouperConfigHibernate.setValueToSave("value7.in.database");
     GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(grouperConfigHibernate);
 
     // doesnt know about it yet

@@ -242,6 +242,7 @@ public abstract class Hib3DAO {
       addClass(configuration, Hib3PITAttributeDefNameSetDAO.class);
       addClass(configuration, Hib3PITPermissionAllViewDAO.class);
       addClass(configuration, Hib3PITAttributeAssignValueViewDAO.class);
+      addClass(configuration, Hib3PITConfigDAO.class);
       addClass(configuration, Hib3ServiceRoleViewDAO.class);
       addClass(configuration, Hib3StemSetDAO.class);
       addClass(configuration, Hib3TableIndexDAO.class);

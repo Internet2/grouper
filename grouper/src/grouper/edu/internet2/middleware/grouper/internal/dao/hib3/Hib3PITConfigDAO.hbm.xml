@@ -39,11 +39,11 @@
 
 <!-- $Id$ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.cfg.dbConfig" default-lazy="false">
+<hibernate-mapping package="edu.internet2.middleware.grouper.pit" default-lazy="false">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="GrouperConfigHibernate" table="grouper_config" optimistic-lock="version">
+  <class name="PITGrouperConfigHibernate" table="grouper_pit_config" optimistic-lock="version">
 
     <cache usage="read-write"/>
 
@@ -55,6 +55,8 @@
 
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+    
+    <property name="contextId" column="context_id"/>
 
     <property name="configComment" column="config_comment"/>    
     <property name="configEncryptedDb" column="config_encrypted"/>    
@@ -67,6 +69,11 @@
     <property name="lastUpdatedDb" column="last_updated"/>  
     <property name="configValueClobDb" column="config_value_clob"/>    
     <property name="configValueBytes" column="config_value_bytes"/>    
+    
+    <property name="activeDb" column="active" />
+    <property name="startTimeDb" column="start_time" />
+    <property name="endTimeDb" column="end_time" />
+    <property name="sourceId" column="source_id" />
     
   </class>
 </hibernate-mapping>

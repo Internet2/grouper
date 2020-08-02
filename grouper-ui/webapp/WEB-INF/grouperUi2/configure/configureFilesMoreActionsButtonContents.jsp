@@ -13,9 +13,23 @@
                             <li><a href="#" 
                             onclick="return guiV2link('operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
                             >${textContainer.text['configurationFilesMenuIndex'] }</a></li>
-                            <li><a href="#" 
+                            <li>
+                            <a href="#" 
                             onclick="return guiV2link('operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
-                            >${textContainer.text['configurationFilesMenuAddConfig'] }</a></li>
+                            >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
+                            </li>
+                            
+                            <c:choose>
+	                            <c:when test="${not empty grouperRequestContainer.configurationContainer.configFileName}">
+	                            	<li><a href="../app/UiV2Configure.configurationFileExport?configFile=${grouperRequestContainer.configurationContainer.configFileName}">${textContainer.text['configurationFilesMenuExport'] }</a></li>
+	                            </c:when>
+	                            <c:otherwise>
+		                            <li><a href="#"
+		                            onclick="return guiV2link('operation=UiV2Configure.configurationFileExport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+		                            >${textContainer.text['configurationFilesMenuExport'] }</a>
+		                            </li>
+	                            </c:otherwise>
+                            </c:choose>
                             <li><a href="#" 
                             onclick="return guiV2link('operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
                             >${textContainer.text['configurationFilesMenuImport'] }</a></li>

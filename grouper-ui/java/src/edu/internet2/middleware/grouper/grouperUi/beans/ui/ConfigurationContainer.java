@@ -332,6 +332,11 @@ public class ConfigurationContainer {
    * config file name selected if any
    */
   private ConfigFileName configFileName;
+  
+  /**
+   * filter to apply
+   */
+  private String filter;
 
   /**
    * config file name selected if any
@@ -355,6 +360,20 @@ public class ConfigurationContainer {
    */
   public ConfigFileName[] getAllConfigFileNames() {
     return ConfigFileName.values();
+  }
+
+  /**
+   * filter to apply
+   */
+  public void setFilter(String filter) {
+    this.filter = filter;
+  }
+
+  /**
+   * filter to apply
+   */
+  public String getFilter() {
+    return filter;
   }
   
 }

@@ -158,6 +158,12 @@ public class PITUtils {
         System.out.println("Done deleting " + tempRecords + " members from point in time that ended before: " + time.toString());
       }
       
+      tempRecords = GrouperDAOFactory.getFactory().getPITConfig().deleteInactiveRecords(time);
+      records += tempRecords;
+      if (printOutput) {
+        System.out.println("Done deleting " + tempRecords + " configs from point in time that ended before: " + time.toString());
+      }
+      
       if (printOutput) {
         System.out.println("Done deleting total " + records + " records from point in time that ended before: " + time.toString());
       }

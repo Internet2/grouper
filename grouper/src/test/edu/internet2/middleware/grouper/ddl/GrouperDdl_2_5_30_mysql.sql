@@ -1139,37 +1139,6 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
-CREATE TABLE grouper_pit_config 
-(
-    id VARCHAR(40) NOT NULL,
-    source_id VARCHAR(40) NOT NULL,
-    config_file_name VARCHAR(100) NOT NULL,
-    config_key VARCHAR(400) NOT NULL,
-    config_value text NULL,
-    config_comment text NULL,
-    config_file_hierarchy VARCHAR(50) NOT NULL,
-    config_encrypted VARCHAR(1) NOT NULL,
-    config_sequence BIGINT NOT NULL,
-    config_version_index BIGINT,
-    last_updated BIGINT NOT NULL,
-    config_value_clob MEDIUMTEXT,
-    config_value_bytes BIGINT,
-    active VARCHAR(1) NOT NULL,
-    start_time BIGINT NOT NULL,
-    end_time BIGINT,
-    context_id VARCHAR(40) NULL,
-    hibernate_version_number BIGINT NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
-
-CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
-
-CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
-
-CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
-
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR(40) NOT NULL,
@@ -1495,8 +1464,6 @@ CREATE TABLE grouper_config
     config_version_index BIGINT,
     last_updated BIGINT NOT NULL,
     hibernate_version_number BIGINT NOT NULL,
-    config_value_clob MEDIUMTEXT,
-    config_value_bytes BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -2312,3 +2279,37 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('d7557776d57d45b78d679d25175cbae4', 'Grouper', 33, '2020/03/30 18:24:24', 
+'2020/03/30 18:24:24: upgrade Grouper from V0 to V33, ');
+commit;
+
+CREATE TABLE subject
+(
+    subjectId VARCHAR(255) NOT NULL,
+    subjectTypeId VARCHAR(32) NOT NULL,
+    name VARCHAR(255) NULL,
+    PRIMARY KEY (subjectId)
+);
+
+CREATE TABLE subjectattribute
+(
+    subjectId VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    value VARCHAR(255) NOT NULL,
+    searchValue VARCHAR(255) NULL,
+    PRIMARY KEY (subjectId, name, value)
+);
+
+CREATE INDEX searchattribute_value_idx ON subjectattribute (value);
+
+CREATE UNIQUE INDEX searchattribute_id_name_idx ON subjectattribute (subjectId, name);
+
+CREATE INDEX searchattribute_name_idx ON subjectattribute (name);
+
+ALTER TABLE subjectattribute
+    ADD CONSTRAINT fk_subjectattr_subjectid FOREIGN KEY (subjectId) REFERENCES subject (subjectId);
+
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('8ddbfeb7cfd24a7d86178825747e9fa9', 'Subject', 1, '2020/03/30 18:24:27', 
+'2020/03/30 18:24:27: upgrade Subject from V0 to V1, ');
+commit;

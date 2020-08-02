@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import junit.textui.TestRunner;
 
 
@@ -69,7 +70,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5_33To2_5_34ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -297,6 +298,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.autoDdl2_5orAbove = null;
     //dont print annoying messages to user
     GrouperDdlUtils.internal_printDdlUpdateMessage = false;
+    ConfigDatabaseLogic.test_assume_ddl30(true);
     
 
 
@@ -324,6 +326,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
     GrouperDdlUtils.autoDdl2_5orAbove = null;
+    ConfigDatabaseLogic.test_assume_ddl30(false);
   }
 
   /**
@@ -1167,6 +1170,46 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_load_v"));
 
     scriptToGetTo2_5.delete();
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_5_33To2_5_34ddlUtils() {
+    
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    ConfigDatabaseLogic.test_assume_ddl30(true);
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_30_hsql.sql
+    // get to 2.5
+    File scriptToGetTo2_5_30 = retrieveScriptFile("GrouperDdl_2_5_30_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_5_30, true, true);
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_pit_config"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_config", "config_value_clob"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_config", "config_value_bytes"));
+  
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true).assignDeepCheck(false)
+      .assignCompareFromDbVersion(true)//.assignRecreateViewsAndForeignKeys(theRecreateViewsAndForeignKeys)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(true)
+      .assignUseDdlUtils(true)
+      .assignDropOnly(false)
+      .assignInstallDefaultGrouperData(false).assignPromptUser(false).runDdl();
+  
+    
+    ConfigDatabaseLogic.test_assume_ddl30(false);
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_clob"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_bytes"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_config"));
+
+    scriptToGetTo2_5_30.delete();
     
   }
 }

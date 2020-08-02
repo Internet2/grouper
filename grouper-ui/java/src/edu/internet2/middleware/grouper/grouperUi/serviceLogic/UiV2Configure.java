@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +52,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -197,7 +200,7 @@ public class UiV2Configure {
     boolean success = configurationFileAddEditHelper(request, response);
         
     if (success) {
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/configure/configure.jsp"));
@@ -362,6 +365,64 @@ public class UiV2Configure {
   }
   
   /**
+   * export config
+   * @param request
+   * @param response
+   */
+  public void configurationFileExport(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+      
+      final String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+      
+      if (StringUtils.isBlank(configFileString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
+            TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
+        return;
+      }
+      
+      
+      StringBuilder contents = new StringBuilder();
+      
+      Map<String, String> properties = ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName());
+      
+      for (String property: properties.keySet()) {
+        contents.append(property + " = " + properties.get(property));
+        contents.append("\n");
+      }
+      
+      response.setContentType("application/octet-stream");
+      response.setHeader ("Content-Disposition", "inline;filename=\"" + configFileName.getConfigFileName() + "\"");
+      
+      try {
+        PrintWriter out = response.getWriter();
+        out.write(contents.toString());
+        out.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occured while writing response");
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * delete config
    * @param request
    * @param response
@@ -399,7 +460,7 @@ public class UiV2Configure {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             result));
       }
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
     
@@ -458,7 +519,7 @@ public class UiV2Configure {
 
       if (!StringUtils.isBlank(configFileString)) {
       
-        buildConfigFileAndMetadata();
+        buildConfigFileAndMetadata(null);
 
       }
 
@@ -516,6 +577,54 @@ public class UiV2Configure {
     }
   }
 
+  /**
+   * filter values
+   * @param request
+   * @param response
+   */
+  public void configureFilterSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+      
+      String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+      
+      // if not sent, thats a problem
+      if (StringUtils.isBlank(configFileString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
+            TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
+        return;
+      }
+      
+      String filter = request.getParameter("filter");
+      
+      buildConfigFileAndMetadata(filter);
+      
+      configurationContainer.setFilter(filter);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
   
   /**
    * configure
@@ -552,7 +661,7 @@ public class UiV2Configure {
           return;
         }
         
-        buildConfigFileAndMetadata();
+        buildConfigFileAndMetadata(null);
         
       }
       
@@ -605,7 +714,7 @@ public class UiV2Configure {
       }
       configurationContainer.setCurrentConfigPropertyName(propertyNameString);
 
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null);
       
       GuiConfigFile guiConfigFile = configurationContainer.getGuiConfigFile();
       
@@ -723,7 +832,7 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
 
-    buildConfigFileAndMetadata();
+    buildConfigFileAndMetadata(null);
 
     guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
 
@@ -872,11 +981,38 @@ public class UiV2Configure {
     }
     return result;
   } 
-
+  
+  
+  
+  private static boolean includeProperty(String filter, GuiConfigProperty guiConfigProperty) {
+    
+    if (StringUtils.isBlank(filter)) {
+      return true;
+    }
+    
+    ConfigItemMetadata configItemMetadata = guiConfigProperty.getConfigItemMetadata();
+    
+    boolean found = false;
+    
+    if (configItemMetadata.getKeyOrSampleKey().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    if (!found && guiConfigProperty.getPropertyValue() != null && guiConfigProperty.getPropertyValue().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    if (!found && configItemMetadata.getComment() != null && configItemMetadata.getComment().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    return found;
+  }
+  
   /**
    * 
    */
-  private static void buildConfigFileAndMetadata() {
+  private static void buildConfigFileAndMetadata(String filter) {
     
     // get the latest and greatest
     ConfigPropertiesCascadeBase.clearCache();
@@ -923,6 +1059,11 @@ public class UiV2Configure {
         keyNameToGuiProperty.put(configItemMetadata.getKeyOrSampleKey(), guiConfigProperty);
         guiConfigProperty.setGuiConfigSection(guiConfigSection);
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
+        
+        if (!includeProperty(filter, guiConfigProperty) ) {
+          continue;
+        }
+        
         guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         
         // see if the current database item has an encrypted value
@@ -945,7 +1086,7 @@ public class UiV2Configure {
     
     Set<String> propertyNames = configPropertiesCascadeBase.propertyNames();
     
-    for (String propertyName : propertyNames) {
+    lbl: for (String propertyName : propertyNames) {
       if (keyNameToGuiProperty.containsKey(propertyName)) {
         continue;
       }
@@ -962,6 +1103,7 @@ public class UiV2Configure {
         }
         
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
+        
       }
       
       // lets find a section
@@ -973,8 +1115,13 @@ public class UiV2Configure {
             Matcher matcher = pattern.matcher(propertyName);
             if (matcher.matches()) {
               GuiConfigSection guiConfigSection = sectionMetadataToSection.get(configSectionMetadata);
-              guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
               guiConfigProperty.setGuiConfigSection(guiConfigSection);
+              
+              if (!includeProperty(filter, guiConfigProperty) ) {
+                continue lbl;
+              }
+              
+              guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
               foundSection = true;
               break OUTER;
             }
@@ -999,8 +1146,11 @@ public class UiV2Configure {
         }
         
         GuiConfigSection guiConfigSection = guiConfigFile.getGuiConfigSections().get(guiConfigFile.getGuiConfigSections().size()-1);
-        guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         guiConfigProperty.setGuiConfigSection(guiConfigSection);
+        if (!includeProperty(filter, guiConfigProperty) ) {
+          continue lbl;
+        }
+        guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         
       }
     }

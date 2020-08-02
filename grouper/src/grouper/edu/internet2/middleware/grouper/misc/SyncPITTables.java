@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
@@ -75,6 +76,7 @@ import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
@@ -205,7 +207,7 @@ public class SyncPITTables {
     this.sendPermissionNotifications = sendNotifications;
     return this;
   }
-
+  
   /**
    * Sync all point in time tables
    * @return the number of updates made
@@ -240,6 +242,7 @@ public class SyncPITTables {
       count += processMissingActivePITGroupSetsSecondPass();
       count += processMissingActivePITAttributeAssigns();
       count += processMissingActivePITAttributeAssignValues();
+      count += processMissingActivePITConfigs();
       
       count += processMissingInactivePITAttributeAssignValues();
       count += processMissingInactivePITAttributeAssigns();
@@ -255,6 +258,8 @@ public class SyncPITTables {
       count += processMissingInactivePITStems();
       count += processMissingInactivePITMembers();
       count += processMissingInactivePITFields();
+      count += processMissingInactivePITConfigs();
+      
     } finally {
       GrouperSession.stopQuietly(session);
     }
@@ -1104,6 +1109,39 @@ public class SyncPITTables {
   }
   
   /**
+   * Add missing point in time grouper configs.
+   * @return the number of missing point in time configs
+   */
+  public long processMissingActivePITConfigs() {
+    showStatus("\n\nSearching for missing active point in time configs");
+    
+    long totalProcessed = 0;
+
+    Set<GrouperConfigHibernate> configs = GrouperDAOFactory.getFactory().getPITConfig().findMissingActivePITConfigs();
+    showStatus("Found " + configs.size() + " missing active point in time configs");
+
+    for (GrouperConfigHibernate config : configs) {
+      
+      logDetail("Found missing point in time config with id: " + config.getId());
+            
+      if (saveUpdates) {
+        PITGrouperConfigHibernate pitConfig = GrouperDAOFactory.getFactory().getPITConfig().findBySourceIdActive(config.getId(), false);
+        if (pitConfig == null) {
+          GrouperConfigHibernate.createNewPITGrouperConfigHibernate(null, config);
+        }
+      }
+      
+      totalProcessed++;
+    }
+    
+    if (configs.size() > 0 && saveUpdates) {
+      showStatus("Done making " + totalProcessed + " updates");
+    }
+    
+    return totalProcessed;
+  }
+  
+  /**
    * Add missing point in time stems.
    * @return the number of missing point in time stems
    */
@@ -1684,6 +1722,40 @@ public class SyncPITTables {
   }
   
   /**
+   * End point in time configs that are currently active but should be inactive.
+   * @return the number of point in time configs to end
+   */
+  public long processMissingInactivePITConfigs() {
+    showStatus("\n\nSearching for point in time configs that should be inactive");
+ 
+    long totalProcessed = 0;
+
+    Set<PITGrouperConfigHibernate> pitConfigs = GrouperDAOFactory.getFactory().getPITConfig().findMissingInactivePITConfigs();
+    showStatus("Found " + pitConfigs.size() + " active point in time configs that should be inactive");
+
+    for (PITGrouperConfigHibernate pitConfig : pitConfigs) {
+      
+      logDetail("Found active point in time config that should be inactive with id: " + pitConfig.getId());
+      
+      if (saveUpdates) {
+        pitConfig.setEndTimeDb(System.currentTimeMillis() * 1000);
+        pitConfig.setActiveDb("F");
+        pitConfig.setContextId(null);
+        
+        pitConfig.saveOrUpdate();     
+      }
+      
+      totalProcessed++;
+    }
+    
+    if (pitConfigs.size() > 0 && saveUpdates) {
+      showStatus("Done making " + totalProcessed + " updates");
+    }
+    
+    return totalProcessed;
+  }
+  
+  /**
    * End point in time stems that are currently active but should be inactive.
    * @return the number of point in time stems to end
    */
@@ -1822,6 +1894,7 @@ public class SyncPITTables {
       
       count+= processDuplicates(GrouperDAOFactory.getFactory().getPITField());
       count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMember());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITConfig());
       count+= processDuplicates(GrouperDAOFactory.getFactory().getPITStem());
       count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroup());
       count+= processDuplicates(GrouperDAOFactory.getFactory().getPITRoleSet());

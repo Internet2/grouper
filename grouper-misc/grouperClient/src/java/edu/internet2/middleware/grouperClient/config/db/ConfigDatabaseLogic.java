@@ -13,22 +13,24 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.UUID;
 
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
@@ -146,6 +148,8 @@ public class ConfigDatabaseLogic {
    * grouper.config.secondsBetweenFullRefresh
    */
   private static int secondsBetweenFullRefresh = 3600;
+
+  private static boolean test_assume_ddl30;
 
   /**
    * 
@@ -669,16 +673,39 @@ public class ConfigDatabaseLogic {
       theConnection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
-      preparedStatement = theConnection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
+      String query = "select config_file_name, config_key, config_value, config_value_clob, config_encrypted from grouper_config where config_file_hierarchy = ?";
+      
+      if (test_assume_ddl30) {
+        query = "select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?";
+      }
+      
+      preparedStatement = theConnection.prepareStatement(query);
       preparedStatement.setString(1, "INSTITUTION");
   
       resultSet = preparedStatement.executeQuery();
                         
+      ResultSetMetaData metaData = resultSet.getMetaData();
+      
+      int colType = test_assume_ddl30 ? Types.VARCHAR:  metaData.getColumnType(4);
+      boolean isClob = colType == Types.CLOB;
+      
       while (resultSet.next()) {
         String configFileName = resultSet.getString("config_file_name");
         String configKey = resultSet.getString("config_key");
         String configValue = resultSet.getString("config_value");
+        String configValueClob = null;
+        if (isClob) {
+          Clob clob = resultSet.getClob("config_value_clob");
+          configValueClob = clob != null ? clob.getSubString(1, (int) clob.length()): null;
+        } else {
+          if (!test_assume_ddl30) {
+            configValueClob = resultSet.getString("config_value_clob");
+          }
+        }
+        
         String configEncrypted = resultSet.getString("config_encrypted");
+        
+        String value = StringUtils.isNotBlank(configValue) ? configValue: configValueClob;
         
         Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
         
@@ -691,14 +718,14 @@ public class ConfigDatabaseLogic {
         if (booleanValue(configEncrypted, false)) {
           try {
             // TODO dont decrypt this in memory?
-            configValue = Morph.decrypt(configValue);
+            value = Morph.decrypt(value);
           } catch (RuntimeException re) {
             GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
             throw re;
           }
         }
         
-        configPropertiesForFile.put(configKey, configValue);
+        configPropertiesForFile.put(configKey, value);
       }
       debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
       for (String configFileName : databaseConfigCacheTemp.keySet()) {
@@ -1265,6 +1292,10 @@ public class ConfigDatabaseLogic {
    */
   public static String defaultString(String str) {
     return str == null ? "" : str;
+  }
+
+  public static void test_assume_ddl30(boolean b) {
+    test_assume_ddl30 = b;
   }
 
 }

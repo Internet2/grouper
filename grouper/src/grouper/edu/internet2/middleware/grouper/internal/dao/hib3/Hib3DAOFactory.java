@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITConfigDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
@@ -486,6 +487,15 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public PITPermissionAllViewDAO getPITPermissionAllView() {
     return new Hib3PITPermissionAllViewDAO();
+  }
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITConfig()
+   */
+  @Override
+  public PITConfigDAO getPITConfig() {
+    return new Hib3PITConfigDAO();
   }
 
   /**

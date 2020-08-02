@@ -1229,37 +1229,6 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
-CREATE TABLE grouper_pit_config
-(
-    id VARCHAR2(40) NOT NULL,
-    source_id VARCHAR2(40) NOT NULL,
-    config_file_name VARCHAR2(100) NOT NULL,
-    config_key VARCHAR2(400) NOT NULL,
-    config_value VARCHAR2(4000),
-    config_comment VARCHAR2(4000),
-    config_file_hierarchy VARCHAR2(50) NOT NULL,
-    config_encrypted VARCHAR2(1) NOT NULL,
-    config_sequence NUMBER(38) NOT NULL,
-    config_version_index NUMBER(38),
-    last_updated NUMBER(38) NOT NULL,
-    config_value_clob CLOB,
-    config_value_bytes INTEGER,
-    active VARCHAR2(1) NOT NULL,
-    start_time NUMBER(38) NOT NULL,
-    end_time NUMBER(38),
-    context_id VARCHAR2(40),
-    hibernate_version_number NUMBER(38) NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
-
-CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
-
-CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
-
-CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
-
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR2(40) NOT NULL,
@@ -1591,8 +1560,6 @@ CREATE TABLE grouper_config
     config_version_index NUMBER(38),
     last_updated NUMBER(38) NOT NULL,
     hibernate_version_number NUMBER(38) NOT NULL,
-    config_value_clob CLOB,
-    config_value_bytes INTEGER,
     PRIMARY KEY (id)
 );
 
@@ -6554,45 +6521,58 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
-COMMENT ON COLUMN GROUPER_CONFIG.config_value_clob IS 'config value for large data';
 
-COMMENT ON COLUMN GROUPER_CONFIG.config_value_bytes IS 'size of config value in bytes';
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('a7a8c13114944be6ba56db8190859734', 'Grouper', 33, '2020/03/31 12:16:08', 
+'2020/03/31 12:16:08: upgrade Grouper from V0 to V33, ');
+commit;
 
-COMMENT ON TABLE grouper_pit_config IS 'keeps track of grouper config.  Records are never deleted from this table';
+CREATE TABLE subject
+(
+    subjectId VARCHAR2(255) NOT NULL,
+    subjectTypeId VARCHAR2(32) NOT NULL,
+    name VARCHAR2(255),
+    PRIMARY KEY (subjectId)
+);
 
-COMMENT ON COLUMN grouper_pit_config.id IS 'uuid of record is unique for all records in table and primary key';
+CREATE TABLE subjectattribute
+(
+    subjectId VARCHAR2(255) NOT NULL,
+    name VARCHAR2(255) NOT NULL,
+    value VARCHAR2(255) NOT NULL,
+    searchValue VARCHAR2(255),
+    PRIMARY KEY (subjectId, name, value)
+);
 
-COMMENT ON COLUMN grouper_pit_config.source_id IS 'source_id: id of the grouper_config table';
+CREATE INDEX searchattribute_value_idx ON subjectattribute (value);
 
-COMMENT ON COLUMN grouper_pit_config.config_file_name IS 'Config file name of the config this record relates to, e.g. grouper.config.properties';
+CREATE UNIQUE INDEX searchattribute_id_name_idx ON subjectattribute (subjectId, name);
 
-COMMENT ON COLUMN grouper_pit_config.config_key IS 'key of the config, not including elConfig';
+CREATE INDEX searchattribute_name_idx ON subjectattribute (name);
 
-COMMENT ON COLUMN grouper_pit_config.config_value IS 'Value of the config';
+ALTER TABLE subjectattribute
+    ADD CONSTRAINT fk_subjectattr_subjectid FOREIGN KEY (subjectId) REFERENCES subject (subjectId);
 
-COMMENT ON COLUMN grouper_pit_config.config_comment IS 'documentation of the config value';
+COMMENT ON TABLE subject IS 'sample subject table for grouper unit tests';
 
-COMMENT ON COLUMN grouper_pit_config.config_file_hierarchy IS 'config file hierarchy, e.g. base, institution, or env';
+COMMENT ON COLUMN subject.subjectId IS 'subject id of row';
 
-COMMENT ON COLUMN grouper_pit_config.config_encrypted IS 'if the value is encrypted';
+COMMENT ON COLUMN subject.subjectTypeId IS 'subject type e.g. person';
 
-COMMENT ON COLUMN grouper_pit_config.config_sequence IS 'if there is more data than fits in the column this is the 0 indexed order';
+COMMENT ON COLUMN subject.name IS 'name of this subject';
 
-COMMENT ON COLUMN grouper_pit_config.config_version_index IS 'for built in configs, this is the index that will identify if the database configs should be replaced from the java code';
+COMMENT ON TABLE subjectattribute IS 'attribute data for each subject';
 
-COMMENT ON COLUMN grouper_pit_config.last_updated IS 'when this record was inserted or last updated';
+COMMENT ON COLUMN subjectattribute.subjectId IS 'subject id of row';
 
-COMMENT ON COLUMN grouper_pit_config.config_value_clob IS 'config value for large data';
+COMMENT ON COLUMN subjectattribute.name IS 'name of attribute';
 
-COMMENT ON COLUMN grouper_pit_config.config_value_bytes IS 'size of config value in bytes';
+COMMENT ON COLUMN subjectattribute.value IS 'value of attribute';
 
-COMMENT ON COLUMN grouper_pit_config.active IS 'T or F if this is an active record based on start and end dates';
+COMMENT ON COLUMN subjectattribute.searchValue IS 'search value (e.g. all lower)';
 
-COMMENT ON COLUMN grouper_pit_config.start_time IS 'millis from 1970 when this record was inserted';
 
-COMMENT ON COLUMN grouper_pit_config.end_time IS 'millis from 1970 when this record was deleted';
 
-COMMENT ON COLUMN grouper_pit_config.context_id IS 'Context id links together audit entry with the row';
-
-COMMENT ON COLUMN grouper_pit_config.hibernate_version_number IS 'hibernate uses this to version rows';
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values ('8ad0bbdc5dd64354b9af131eb0c1c550', 'Subject', 1, '2020/03/31 12:16:09', 
+'2020/03/31 12:16:09: upgrade Subject from V0 to V1, ');
+commit;
 
