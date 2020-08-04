@@ -539,7 +539,7 @@ public abstract class Provisioner
         }
       }
 
-      if (!StringUtils.isBlank(groupNameForCache)) {
+      if (!StringUtils.isBlank(groupNameForCache) && provisionableFromCache == null) {
         // this means group is provisionable, but still do shouldWorkItemBeProcessed()
         groupNameProvisionable.put(groupNameForCache, true);
       }
