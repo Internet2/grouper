@@ -16,8 +16,46 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
-import edu.internet2.middleware.grouper.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.MDC;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -36,21 +74,6 @@ import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.MDC;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -444,7 +467,6 @@ public abstract class Provisioner
   protected abstract Map<Subject, TSUserClass> 
   fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException;
 
-
   /**
    * This method returns the work items that are supposed to be provisioned
    * by calling shouldGroupBeProvisioned on each group mentioned
@@ -462,31 +484,71 @@ public abstract class Provisioner
    */
   public List<ProvisioningWorkItem> 
   filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
+
+    Map<String, Boolean> groupNameProvisionable = new HashMap<String, Boolean>();
+    
     List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
     
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
 
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
+    
     for ( ProvisioningWorkItem workItem : workItems ) {
+      
+      String groupNameForCache = null;
+      Boolean provisionableFromCache = null;
+      if (pspngCacheGroupProvisionable) {
+        groupNameForCache = workItem.getGroupName();
+        if (!StringUtils.isBlank(workItem.getAttributeName())) {
+          // clear this if attributes are being changed
+          groupNameProvisionable.clear();
+        } else {
+        
+          if (!StringUtils.isBlank(groupNameForCache)) {
+            
+            provisionableFromCache = groupNameProvisionable.get(groupNameForCache);
+            if (provisionableFromCache != null) {
+              if (!provisionableFromCache) {
+                workItem.markAsSkipped("Ignoring work item due to cached decision");
+              }
+              // if group is provisionable still do logic below
+            }
+            continue;
+          }
+        }
+      }
+      
       GrouperGroupInfo group = workItem.getGroupInfo(this);
 
       // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
-      if ( group != null ) {
+      if ( group != null && provisionableFromCache == null ) {
         if ( !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
           workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
+          if (!StringUtils.isBlank(groupNameForCache)) {
+            groupNameProvisionable.put(groupNameForCache, false);
+          }
           continue;
         }
 
         if ( group.hasGroupBeenDeleted() && !selectedGroups.get().contains(group) ) {
           workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
+          if (!StringUtils.isBlank(groupNameForCache)) {
+            groupNameProvisionable.put(groupNameForCache, false);
+          }
           continue;
         }
       }
 
+      if (!StringUtils.isBlank(groupNameForCache)) {
+        // this means group is provisionable, but still do shouldWorkItemBeProcessed()
+        groupNameProvisionable.put(groupNameForCache, true);
+      }
       if ( shouldWorkItemBeProcessed(workItem) ) {
         result.add(workItem);
       } else {
+        // dont change group provisionable cache, indeterminate
         // Not going to process this item, so mark it as a success and don't add it to result
-          workItem.markAsSkipped("Ignoring work item");
+        workItem.markAsSkipped("Ignoring work item");
       }
     }
     

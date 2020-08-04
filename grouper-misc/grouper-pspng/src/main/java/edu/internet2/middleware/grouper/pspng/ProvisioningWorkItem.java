@@ -180,7 +180,7 @@ public class ProvisioningWorkItem {
   }
   
   
-  private String getGroupName() {
+  public String getGroupName() {
     if ( groupName != null )
       return groupName;
     else if ( getChangelogEntry() == null )
