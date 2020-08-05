@@ -497,6 +497,8 @@ public abstract class Provisioner
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
 
     boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
+
+    Set<String> attributesUsedInProvisioning = new HashSet<String>(GrouperUtil.nonNull(getConfig().getAttributesUsedInGroupSelectionExpression()));
     
     for ( ProvisioningWorkItem workItem : workItems ) {
       
@@ -504,23 +506,36 @@ public abstract class Provisioner
       Boolean provisionableFromCache = null;
       if (pspngCacheGroupProvisionable) {
         groupNameForCache = workItem.getGroupName();
-        if (!StringUtils.isBlank(workItem.getAttributeName())) {
+        
+        final String attributeName = workItem.getAttributeName();
+
+        // if this change log entry is an attribute item and the attribute is a provision attribute
+        if (!StringUtils.isBlank(attributeName) && attributesUsedInProvisioning.contains(attributeName)) {
+          
           // clear this if attributes are being changed
           this.groupNameToMillisAndProvisionable.clear();
         } else {
-        
+
+          // if this change log has a group associated
           if (!StringUtils.isBlank(groupNameForCache)) {
-            
+
+            // cache entry
             MultiKey millisProvisionable = this.groupNameToMillisAndProvisionable.get(groupNameForCache);
             ChangeLogEntry changeLogEntry = workItem.getChangelogEntry();
+            
+            // when this change log entry happened
             Long millisFromChangeLogEntry = changeLogEntry == null ? null : (changeLogEntry.getCreatedOnDb() / 1000);
+            
             if (millisProvisionable != null && millisFromChangeLogEntry != null) {
+              
+              // when the cached isProvisionable calculation happened
               long millisProvisionableCacheDecision = (Long)millisProvisionable.getKey(0);
               
               // if we have a more recent cached provisionable decision
               if (millisFromChangeLogEntry < millisProvisionableCacheDecision) {
                 provisionableFromCache = (Boolean)millisProvisionable.getKey(1);
-                 
+
+                // if this is irrelevant, then skip
                 if (!provisionableFromCache) {
                   workItem.markAsSkipped("Ignoring work item due to cached decision");
                   continue;
@@ -536,9 +551,12 @@ public abstract class Provisioner
       final long millisWhenProvisionableDecisionMade = System.currentTimeMillis();
 
       // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
+      // if we have a cached answer then dont do this
       if ( group != null && provisionableFromCache == null ) {
         if ( !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
           workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
+          
+          // cache that this is irrelevant
           if (!StringUtils.isBlank(groupNameForCache)) {
             this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
@@ -547,6 +565,7 @@ public abstract class Provisioner
 
         if ( group.hasGroupBeenDeleted() && !selectedGroups.get().contains(group) ) {
           workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
+          // cache that this is irrelevant
           if (!StringUtils.isBlank(groupNameForCache)) {
             this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
@@ -558,6 +577,8 @@ public abstract class Provisioner
         // this means group is provisionable, but still do shouldWorkItemBeProcessed()
         this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, true));
       }
+      
+      // check to see if the subject is applicable etc
       if ( shouldWorkItemBeProcessed(workItem) ) {
         result.add(workItem);
       } else {
@@ -1881,9 +1902,7 @@ public abstract class Provisioner
           provisionable = false;
         }
         String objectName = group.getName();
-        if (provisionable == null && attributeToGroupNameAssigned.get(provisionToName).contains(objectName)) {
-          provisionable = true;
-        }
+        // first look for not provisionable
         if (provisionable == null && attributeToGroupNameAssigned.get(doNotProvisionToName).contains(objectName)) {
           provisionable = false;
         }
@@ -1891,12 +1910,25 @@ public abstract class Provisioner
         if (provisionable == null) {
           for (int i=0;i<1000;i++) {
             objectName = GrouperUtil.parentStemNameFromName(objectName, false);
-            if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(objectName)) {
-              provisionable = true;
-              break;
-            }
             if (provisionable == null && attributeToStemNameAssigned.get(doNotProvisionToName).contains(objectName)) {
               provisionable = false;
+              break;
+            }
+            if (":".equals(objectName)) {
+              break;
+            }
+          }
+        }
+        // now look for provisionable
+        if (provisionable == null && attributeToGroupNameAssigned.get(provisionToName).contains(objectName)) {
+          provisionable = true;
+        }
+        //lets walk up the folder structure and look for an assignment
+        if (provisionable == null) {
+          for (int i=0;i<1000;i++) {
+            objectName = GrouperUtil.parentStemNameFromName(objectName, false);
+            if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(objectName)) {
+              provisionable = true;
               break;
             }
             if (":".equals(objectName)) {
