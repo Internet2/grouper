@@ -18,16 +18,15 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -120,7 +119,16 @@ public class GrouperZoomLocalCommands {
    * @return the group name
    */
   public static String groupNameToDeleteUsers(String configId) {
-    return GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".groupNameToDeleteUsers");
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDeleteUsers");
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static String groupNameToDeactivateUsers(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDeactivateUsers");
   }
   
   /**
@@ -508,32 +516,44 @@ public class GrouperZoomLocalCommands {
    * @param stemId
    * @return the map of group extension to set of multikey with sourceId and subjectId
    */
-  public static Map<String, Set<MultiKey>> groupsSourceIdsSubjectIdsToProvision(String configId, String stemId) {
+  public static Map<String, Set<MultiKey>> groupsSourceIdsSubjectIdsToProvision(final String configId, final String stemId) {
     
-    String sql = "select gg.extension, subject_source, subject_id from grouper_memberships_lw_v gmlv, grouper_groups gg "
-       + " where gmlv.list_name = 'members' and gmlv.group_id = gg.id and gg.parent_stem = ?";
+    return (Map<String, Set<MultiKey>>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-    List<Object[]> rows = new GcDbAccess().sql(sql).addBindVar(stemId).selectList(Object[].class);
-    
-    Set<String> sources = configSourcesForSubjects(configId);
-    
-    Map<String, Set<MultiKey>> result = new HashMap<String, Set<MultiKey>>();
-    
-    for (Object[] row : GrouperUtil.nonNull(rows)) {
-      String extension = (String)row[0];
-      String subjectSource = (String)row[1];
-      String subjectId = (String)row[2];
-      if (!sources.contains(subjectSource)) {
-        continue;
+        Map<String, Set<MultiKey>> result = new HashMap<String, Set<MultiKey>>();
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        
+        if (stem == null) {
+          return result;
+        }
+        
+        Set<Group> groups = stem.getChildGroups(Scope.ONE);
+        
+        Set<String> sources = configSourcesForSubjects(configId);
+ 
+        for (Group group : GrouperUtil.nonNull(groups)) {
+          String extension = group.getExtension();
+          for (Member member : GrouperUtil.nonNull(group.getMembers())) {
+            String subjectSource = member.getSubjectSourceId();
+            String subjectId = member.getSubjectId();
+            if (!sources.contains(subjectSource)) {
+              continue;
+            }
+            Set<MultiKey> listForGroup = result.get(extension);
+            if (listForGroup == null) {
+              listForGroup = new HashSet<MultiKey>();
+              result.put(extension, listForGroup);
+            }
+            listForGroup.add(new MultiKey(subjectSource, subjectId));
+          }
+        }
+        return result;
       }
-      Set<MultiKey> listForGroup = result.get(extension);
-      if (listForGroup == null) {
-        listForGroup = new HashSet<MultiKey>();
-        result.put(extension, listForGroup);
-      }
-      listForGroup.add(new MultiKey(subjectSource, subjectId));
-    }
-    return result;
+    });
+    
   }
   
   /**
@@ -542,26 +562,34 @@ public class GrouperZoomLocalCommands {
    * @param groupName
    * @return the map of group extension to set of multikey with sourceId and subjectId
    */
-  public static Set<MultiKey> groupSourceIdsSubjectIds(String configId, String groupName) {
+  public static Set<MultiKey> groupSourceIdsSubjectIds(final String configId, final String groupName) {
 
-    String sql = "select subject_source, subject_id from grouper_memberships_lw_v gmlv "
-       + " where gmlv.list_name = 'members' and gmlv.group_name = ?";
+    return (Set<MultiKey>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-    List<Object[]> rows = new GcDbAccess().sql(sql).addBindVar(groupName).selectList(Object[].class);
-    
-    Set<String> sources = configSourcesForSubjects(configId);
-    
-    Set<MultiKey> result = new HashSet<MultiKey>();
-    
-    for (Object[] row : GrouperUtil.nonNull(rows)) {
-      String subjectSource = (String)row[0];
-      String subjectId = (String)row[1];
-      if (!sources.contains(subjectSource)) {
-        continue;
+        Set<String> sources = configSourcesForSubjects(configId);
+
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+
+        Set<MultiKey> result = new HashSet<MultiKey>();
+
+        if (group == null) {
+          return result;
+        }
+        
+        for (Member member : GrouperUtil.nonNull(group.getMembers())) {
+          String subjectSource = member.getSubjectSourceId();
+          String subjectId = member.getSubjectId();
+          if (!sources.contains(subjectSource)) {
+            continue;
+          }
+          result.add(new MultiKey(subjectSource, subjectId));
+        }
+        return result;
       }
-      result.add(new MultiKey(subjectSource, subjectId));
-    }
-    return result;
+    });
+
   }
   
   /**
@@ -572,30 +600,40 @@ public class GrouperZoomLocalCommands {
    * @param subjectIdParam 
    * @return true if membership exists
    */
-  public static boolean groupSourceIdSubjectIdToProvision(String configId, 
-      String groupExtensionParam, String sourceIdParam, String subjectIdParam) {
+  public static boolean groupSourceIdSubjectIdToProvision(final String configId, 
+      final String groupExtensionParam, final String sourceIdParam, final String subjectIdParam) {
 
-    Set<String> sources = configSourcesForSubjects(configId);
+    final Set<String> sources = configSourcesForSubjects(configId);
     
     if (!sources.contains(sourceIdParam)) {
       return false;
     }
 
-    Stem folderToProvision = folderToProvision(configId);
+    final Stem folderToProvision = folderToProvision(configId);
     
     if (StringUtils.isBlank(groupExtensionParam) || groupExtensionParam.contains(":")) {
       throw new RuntimeException("Invalid group extension '" + groupExtensionParam + "'");
     }
     
-    String sql = "select gg.extension, subject_source, subject_id from grouper_memberships_lw_v gmlv, grouper_groups gg "
-       + " where gmlv.list_name = 'members' and gmlv.group_id = gg.id "
-       + " and gmlv.group_name = ? and gmlv.subject_source = ? and gmlv.subject_id = ?";
-
-    List<Object[]> rows = new GcDbAccess().sql(sql)
-        .addBindVar(folderToProvision.getName() + ":" + groupExtensionParam)
-        .addBindVar(sourceIdParam).addBindVar(subjectIdParam).selectList(Object[].class);
-
-    return GrouperUtil.length(rows) > 0;
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
+        if (subject == null) {
+          return false;
+        }
+        
+        Group group = GroupFinder.findByName(grouperSession, folderToProvision.getName() + ":" + groupExtensionParam, false);
+        if (group == null) {
+          return false;
+        }
+        
+        return group.hasMember(subject);
+        
+      }
+    });
+    
   }
   
   /**
@@ -605,8 +643,8 @@ public class GrouperZoomLocalCommands {
    * @param subjectIdParam 
    * @return true if membership exists
    */
-  public static boolean groupSourceIdSubjectIdToDelete(String configId, 
-      String sourceIdParam, String subjectIdParam) {
+  public static boolean groupSourceIdSubjectIdToDelete(final String configId, 
+      final String sourceIdParam, final String subjectIdParam) {
 
     Set<String> sources = configSourcesForSubjects(configId);
     
@@ -614,21 +652,73 @@ public class GrouperZoomLocalCommands {
       return false;
     }
 
-    String groupName = groupNameToDeleteUsers(configId);
+    final String groupName = groupNameToDeleteUsers(configId);
     
     if (StringUtils.isBlank(groupName) || !groupName.contains(":")) {
       throw new RuntimeException("Invalid group name '" + groupName + "'");
     }
     
-    String sql = "select gg.extension, subject_source, subject_id from grouper_memberships_lw_v gmlv, grouper_groups gg "
-       + " where gmlv.list_name = 'members' and gmlv.group_id = gg.id "
-       + " and gmlv.group_name = ? and gmlv.subject_source = ? and gmlv.subject_id = ?";
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
+        if (subject == null) {
+          return false;
+        }
+        
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return false;
+        }
+        
+        return group.hasMember(subject);
+        
+      }
+    });
+  }
+  
+  
+  /**
+   * see if subject should be deleted
+   * @param configId
+   * @param sourceIdParam 
+   * @param subjectIdParam 
+   * @return true if membership exists
+   */
+  public static boolean groupSourceIdSubjectIdToDeactivate(final String configId, 
+      final String sourceIdParam, final String subjectIdParam) {
 
-    List<Object[]> rows = new GcDbAccess().sql(sql)
-        .addBindVar(groupName)
-        .addBindVar(sourceIdParam).addBindVar(subjectIdParam).selectList(Object[].class);
+    Set<String> sources = configSourcesForSubjects(configId);
+    
+    if (!sources.contains(sourceIdParam)) {
+      return false;
+    }
 
-    return GrouperUtil.length(rows) > 0;
+    final String groupName = groupNameToDeactivateUsers(configId);
+    
+    if (StringUtils.isBlank(groupName) || !groupName.contains(":")) {
+      throw new RuntimeException("Invalid group name '" + groupName + "'");
+    }
+    
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
+        if (subject == null) {
+          return false;
+        }
+        
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return false;
+        }
+        
+        return group.hasMember(subject);
+        
+      }
+    });
   }
   
   /**

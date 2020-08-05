@@ -86,6 +86,7 @@ public class ZoomEsbPublisher extends EsbListenerBase {
 
       String folderName = GrouperZoomLocalCommands.folderNameToProvision(configId);
       String groupNameToDeleteUsers = GrouperZoomLocalCommands.groupNameToDeleteUsers(configId);
+      String groupNameToDeactivateUsers = GrouperZoomLocalCommands.groupNameToDeactivateUsers(configId);
       
       //not sure why there would be no events in there
       for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
@@ -163,6 +164,40 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             }
 
             GrouperZoomCommands.deleteUser(configId, email);
+            hib3GrouperLoaderLog.addDeleteCount(1);
+            
+          } else if (!StringUtils.isBlank(groupNameToDeactivateUsers) && StringUtils.equals(groupNameToDeactivateUsers, esbEvent.getGroupName())) {
+
+            // is group in folder
+            boolean hasMembership = GrouperZoomLocalCommands.groupSourceIdSubjectIdToDeactivate(configId, 
+                esbEvent.getSourceId(), esbEvent.getSubjectId());
+            debugMap.put("hasMembershipToDeactivate", hasMembership);
+            
+            if (!hasMembership) {
+              continue;
+            }
+            
+            String email = esbEvent.subjectAttribute(GrouperZoomLocalCommands.subjectAttributeForZoomEmail(configId));
+            debugMap.put("email", email);
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            
+            Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+            debugMap.put("userExists", user != null);
+            
+            if (user == null) {
+              continue;
+            }
+
+            final boolean userActive = StringUtils.equals("active", (String)user.get("status"));
+            debugMap.put("userActive", userActive);
+            
+            if (!userActive) {
+              continue;
+            }
+
+            GrouperZoomCommands.userChangeStatus(configId, email, false);
             hib3GrouperLoaderLog.addDeleteCount(1);
             
           }

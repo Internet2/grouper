@@ -47,8 +47,8 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param args
    */
   public static void main(String[] args) {
-    if (GrouperUtil.length(args) != 7) {
-      throw new RuntimeException("Pass in the configId, true/false (groupSync?), groupSyncFolderName, true/false (roleSync?), roleSyncFolderName, true/false (userTypeSync?) to full load");
+    if (GrouperUtil.length(args) != 9) {
+      throw new RuntimeException("Pass in the configId, true/false (groupSync?), groupSyncFolderName, true/false (roleSync?), roleSyncFolderName, true/false (userTypeSync?), userTypeFolderName, true/false (userStatusSync?), userStatusFolderName to full load");
     }
     GrouperStartup.startup();
     String configId = args[0];
@@ -58,8 +58,10 @@ public class GrouperZoomLoader extends OtherJobBase {
     String roleSyncFolder = args[4];
     boolean userTypeSync = GrouperUtil.booleanValue(args[5], false);
     String userTypeSyncFolder = args[6];
+    boolean userStatusSync = GrouperUtil.booleanValue(args[7], false);
+    String userStatusSyncFolder = args[8];
     
-    fullLoad(configId, groupSync, groupSyncFolder, roleSync, roleSyncFolder, userTypeSync, userTypeSyncFolder);
+    fullLoad(configId, groupSync, groupSyncFolder, roleSync, roleSyncFolder, userTypeSync, userTypeSyncFolder, userStatusSync, userStatusSyncFolder);
 
   }
 
@@ -85,12 +87,15 @@ public class GrouperZoomLoader extends OtherJobBase {
     String groupLoadFolderName = loadGroups ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadGroupsFolderName") : null;
 
     boolean loadRoles = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".zoomLoadRoles", false);
-    String roleLoadFolderName = loadGroups ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadRolesFolderName") : null;
+    String roleLoadFolderName = loadRoles ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadRolesFolderName") : null;
 
     boolean loadUserTypes = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".zoomLoadUserTypes", false);
-    String userTypeLoadFolderName = loadGroups ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadUserTypesFolderName") : null;
+    String userTypeLoadFolderName = loadUserTypes ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadUserTypesFolderName") : null;
+
+    boolean loadUserStatuses = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".zoomLoadUserStatuses", false);
+    String userStatusLoadFolderName = loadUserStatuses ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadUserStatusesFolderName") : null;
     
-    Map<String, Object> resultMap = fullLoad(configId, loadGroups, groupLoadFolderName, loadRoles, roleLoadFolderName, loadUserTypes, userTypeLoadFolderName);
+    Map<String, Object> resultMap = fullLoad(configId, loadGroups, groupLoadFolderName, loadRoles, roleLoadFolderName, loadUserTypes, userTypeLoadFolderName, loadUserStatuses, userStatusLoadFolderName);
     
     int groupAddCount = resultMap.containsKey("groupAddCount") ? (Integer)resultMap.get("groupAddCount") : 0;
     int groupCount = resultMap.containsKey("groupCount") ? (Integer)resultMap.get("groupCount") : 0;
@@ -173,10 +178,13 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param roleLoad 
    * @param groupSyncFolder 
    * @param groupLoad 
+   * @param userStatusSyncFolder 
+   * @param userStatusLoad 
    * @return map with groupCount, groupAddCount, membershipAddCount, membershipDeleteCount, membershipTotalCount
    */
   public static Map<String, Object> fullLoad(final String configId, final boolean groupLoad, final String groupSyncFolder, 
-        final boolean roleLoad, final String roleSyncFolder, final boolean userTypeLoad, final String userTypeSyncFolder) {
+        final boolean roleLoad, final String roleSyncFolder, final boolean userTypeLoad, final String userTypeSyncFolder, 
+        final boolean userStatusLoad, final String userStatusSyncFolder) {
     long startedNanos = System.nanoTime();
     final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -205,6 +213,9 @@ public class GrouperZoomLoader extends OtherJobBase {
 
           Map<String, List<Map<String, Object>>> userTypeToMemberships = null;
           Map<String, String> userTypeZoomNameToGrouperExtension = null;
+
+          Map<String, List<Map<String, Object>>> userStatusToMemberships = null;
+          Map<String, String> userStatusZoomNameToGrouperExtension = null;
 
 
           Map<String, Map<String, Object>> emailToZoomUser = new HashMap<String, Map<String, Object>>();
@@ -283,53 +294,94 @@ public class GrouperZoomLoader extends OtherJobBase {
             }
           }
 
-          if (userTypeLoad) {
+          if (userTypeLoad || userStatusLoad) {
             
-            if (StringUtils.isBlank(userTypeSyncFolder)) {
+            if (userTypeLoad && StringUtils.isBlank(userTypeSyncFolder)) {
               throw new RuntimeException("User type load folder cannot be null!");
             }
-            userTypeZoomNameToGrouperExtension = new HashMap<String, String>();
+            if (userStatusLoad && StringUtils.isBlank(userStatusSyncFolder)) {
+              throw new RuntimeException("User status load folder cannot be null!");
+            }
+            if (userTypeLoad) {
+              userTypeZoomNameToGrouperExtension = new HashMap<String, String>();
+              userTypeToMemberships = new HashMap<String, List<Map<String, Object>>>();
+            }
+            if (userStatusLoad) {
+              userStatusZoomNameToGrouperExtension = new HashMap<String, String>();
+              userStatusToMemberships = new HashMap<String, List<Map<String, Object>>>();
+            }
             
             // userTypes that exist in zoom
             Map<String, Map<String, Object>> usersInZoom = GrouperZoomCommands.retrieveUsers(configId);
-            userTypeToMemberships = new HashMap<String, List<Map<String, Object>>>();
             
             for (Map<String, Object> user : usersInZoom.values()) {
 
-              Integer typeInteger = (Integer)user.get("type");
-              
-              if (typeInteger == null) {
-                continue;
+              if (userTypeLoad) {
+                Integer typeInteger = (Integer)user.get("type");
+                
+                if (typeInteger != null) {
+                  String typeString = Integer.toString(typeInteger);
+
+                  List<Map<String, Object>> usersForUserType = userTypeToMemberships.get(typeString);
+                  
+                  if (usersForUserType == null) {
+                    
+                    usersForUserType = new ArrayList<Map<String, Object>>();
+                    userTypeToMemberships.put(typeString, usersForUserType);
+                    
+                  }
+                  usersForUserType.add(user);
+                }
               }
               
-              String typeString = Integer.toString(typeInteger);
+              if (userStatusLoad) {
+                String status = (String)user.get("status");
+                
+                if (status != null) {
 
-              List<Map<String, Object>> usersForUserType = userTypeToMemberships.get(typeString);
-              
-              if (usersForUserType == null) {
-                
-                usersForUserType = new ArrayList<Map<String, Object>>();
-                userTypeToMemberships.put(typeString, usersForUserType);
-                
+                  List<Map<String, Object>> usersForStatus = userStatusToMemberships.get(status);
+                  
+                  if (usersForStatus == null) {
+                    
+                    usersForStatus = new ArrayList<Map<String, Object>>();
+                    userStatusToMemberships.put(status, usersForStatus);
+                    
+                  }
+                  usersForStatus.add(user);
+                }
               }
 
               String email = (String)user.get("email");
               if (!StringUtils.isBlank(email)) {
                 emailToZoomUser.put(email, user);
               }
-
-              usersForUserType.add(user);
               
             }
-            Set<String> userTypes = new HashSet<String>(userTypeToMemberships.keySet());
-            userTypes.add("1");
-            userTypes.add("2");
-            userTypes.add("3");
-            
-            for (String userType : userTypes) {
-              final String grouperExtension = "zoomUserType_" + userType;
-              userTypeZoomNameToGrouperExtension.put(userType, grouperExtension);
+            if (userTypeLoad) {
+              Set<String> userTypes = new HashSet<String>(userTypeToMemberships.keySet());
+              userTypes.add("1");
+              userTypes.add("2");
+              userTypes.add("3");
+              
+              for (String userType : userTypes) {
+                final String grouperExtension = "zoomUserType_" + userType;
+                userTypeZoomNameToGrouperExtension.put(userType, grouperExtension);
+              }
+              
             }
+            if (userStatusLoad) {
+              Set<String> statuses = new HashSet<String>(userStatusToMemberships.keySet());
+              statuses.add("pending");
+              statuses.add("active");
+              statuses.add("inactive");
+
+              for (String status : statuses) {
+                final String grouperExtension = "zoomUserStatus_" + status;
+                userStatusZoomNameToGrouperExtension.put(status, grouperExtension);
+              }
+
+            }
+
           }
 
           Map<String, MultiKey> emailToSubject = GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailToZoomUser.keySet());
@@ -347,10 +399,16 @@ public class GrouperZoomLoader extends OtherJobBase {
                 roleZoomNameToGrouperExtension, roleZoomNameToMemberships);            
           }
 
-          if (userTypeLoad) {
+          if (userTypeLoad ) {
             
             loadGroupsAndMembershipsToGrouper(configId, userTypeSyncFolder, debugMap,
                 userTypeZoomNameToGrouperExtension, userTypeToMemberships);            
+          }
+
+          if (userStatusLoad ) {
+            
+            loadGroupsAndMembershipsToGrouper(configId, userStatusSyncFolder, debugMap,
+                userStatusZoomNameToGrouperExtension, userStatusToMemberships);            
           }
 
           
