@@ -72,6 +72,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -468,6 +470,11 @@ public abstract class Provisioner
   fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException;
 
   /**
+   * cache for ten minutes decisions about if provisionable
+   */
+  private ExpirableCache<String, MultiKey> groupNameToMillisAndProvisionable = new ExpirableCache<String, MultiKey>(10);
+
+  /**
    * This method returns the work items that are supposed to be provisioned
    * by calling shouldGroupBeProvisioned on each group mentioned
    * by a workItem. If a workItem's group is within the scope of this provisioner
@@ -485,8 +492,6 @@ public abstract class Provisioner
   public List<ProvisioningWorkItem> 
   filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
 
-    Map<String, Boolean> groupNameProvisionable = new HashMap<String, Boolean>();
-    
     List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
     
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
@@ -501,31 +506,41 @@ public abstract class Provisioner
         groupNameForCache = workItem.getGroupName();
         if (!StringUtils.isBlank(workItem.getAttributeName())) {
           // clear this if attributes are being changed
-          groupNameProvisionable.clear();
+          this.groupNameToMillisAndProvisionable.clear();
         } else {
         
           if (!StringUtils.isBlank(groupNameForCache)) {
             
-            provisionableFromCache = groupNameProvisionable.get(groupNameForCache);
-            if (provisionableFromCache != null) {
-              if (!provisionableFromCache) {
-                workItem.markAsSkipped("Ignoring work item due to cached decision");
-                continue;
+            MultiKey millisProvisionable = this.groupNameToMillisAndProvisionable.get(groupNameForCache);
+            ChangeLogEntry changeLogEntry = workItem.getChangelogEntry();
+            Long millisFromChangeLogEntry = changeLogEntry == null ? null : (changeLogEntry.getCreatedOnDb() / 1000);
+            if (millisProvisionable != null && millisFromChangeLogEntry != null) {
+              long millisProvisionableCacheDecision = (Long)millisProvisionable.getKey(0);
+              
+              // if we have a more recent cached provisionable decision
+              if (millisFromChangeLogEntry < millisProvisionableCacheDecision) {
+                provisionableFromCache = (Boolean)millisProvisionable.getKey(1);
+                 
+                if (!provisionableFromCache) {
+                  workItem.markAsSkipped("Ignoring work item due to cached decision");
+                  continue;
+                }
+                // if group is provisionable still do logic below
               }
-              // if group is provisionable still do logic below
             }
           }
         }
       }
       
       GrouperGroupInfo group = workItem.getGroupInfo(this);
+      final long millisWhenProvisionableDecisionMade = System.currentTimeMillis();
 
       // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
       if ( group != null && provisionableFromCache == null ) {
         if ( !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
           workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
           if (!StringUtils.isBlank(groupNameForCache)) {
-            groupNameProvisionable.put(groupNameForCache, false);
+            this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
           continue;
         }
@@ -533,7 +548,7 @@ public abstract class Provisioner
         if ( group.hasGroupBeenDeleted() && !selectedGroups.get().contains(group) ) {
           workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
           if (!StringUtils.isBlank(groupNameForCache)) {
-            groupNameProvisionable.put(groupNameForCache, false);
+            this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
           continue;
         }
@@ -541,7 +556,7 @@ public abstract class Provisioner
 
       if (!StringUtils.isBlank(groupNameForCache) && provisionableFromCache == null) {
         // this means group is provisionable, but still do shouldWorkItemBeProcessed()
-        groupNameProvisionable.put(groupNameForCache, true);
+        this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, true));
       }
       if ( shouldWorkItemBeProcessed(workItem) ) {
         result.add(workItem);
@@ -1795,6 +1810,10 @@ public abstract class Provisioner
     Set<GrouperGroupInfo> result = new HashSet<>();
 
     Set<Group> interestingGroups = new HashSet<Group>();
+    
+    Map<String, Set<String>> attributeToGroupNameAssigned = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> attributeToStemNameAssigned = new HashMap<String, Set<String>>();
+    
     for ( String attribute : getConfig().getAttributesUsedInGroupSelectionExpression() ) {
       Set<Stem> foldersReferencingAttribute;
       Set<Group> groupsReferencingAttribute;
@@ -1812,6 +1831,27 @@ public abstract class Provisioner
         groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).findGroups();
       }
 
+      {
+        Set<String> groupNames = attributeToGroupNameAssigned.get(attribute);
+        if (groupNames == null) {
+          groupNames = new HashSet<String>();
+          attributeToGroupNameAssigned.put(attribute, groupNames);
+        }
+        for (Group group : GrouperUtil.nonNull(groupsReferencingAttribute)) {
+          groupNames.add(group.getName());
+        }
+      }
+      {
+        Set<String> stemNames = attributeToStemNameAssigned.get(attribute);
+        if (stemNames == null) {
+          stemNames = new HashSet<String>();
+          attributeToStemNameAssigned.put(attribute, stemNames);
+        }
+        for (Stem stem : GrouperUtil.nonNull(foldersReferencingAttribute)) {
+          stemNames.add(stem.getName());
+        }
+      }
+      
       LOG.debug("{}: There are {} folders that match {} attribute", new Object[]{getDisplayName(), foldersReferencingAttribute.size(), attribute});
       LOG.debug("{}: There are {} groups that match {} attribute", new Object[]{getDisplayName(), groupsReferencingAttribute.size(), attribute});
 
@@ -1826,10 +1866,52 @@ public abstract class Provisioner
       }
     }
 
+    boolean pspngNonScriptProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngNonScriptProvisionable", true);
+    
+    String provisionToName = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
+    String doNotProvisionToName = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.rootStemForBuiltinObjects", "etc") + ":pspng:do_not_provision_to";
+
     for ( Group group : interestingGroups ) {
       GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
-      if ( shouldGroupBeProvisioned(grouperGroupInfo) )
-        result.add(grouperGroupInfo);
+      if (pspngNonScriptProvisionable && StringUtils.equals(config.getGroupSelectionExpression(), config.groupSelectionExpression_defaultValue())) {
+        Boolean provisionable = null;
+        if (grouperGroupInfo.hasGroupBeenDeleted() ) {
+          provisionable = false;
+        }
+        String objectName = group.getName();
+        if (provisionable == null && attributeToGroupNameAssigned.get(provisionToName).contains(objectName)) {
+          provisionable = true;
+        }
+        if (provisionable == null && attributeToGroupNameAssigned.get(doNotProvisionToName).contains(objectName)) {
+          provisionable = false;
+        }
+        //lets walk up the folder structure and look for an assignment
+        if (provisionable == null) {
+          for (int i=0;i<1000;i++) {
+            objectName = GrouperUtil.parentStemNameFromName(objectName, false);
+            if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(objectName)) {
+              provisionable = true;
+              break;
+            }
+            if (provisionable == null && attributeToStemNameAssigned.get(doNotProvisionToName).contains(objectName)) {
+              provisionable = false;
+              break;
+            }
+            if (":".equals(objectName)) {
+              break;
+            }
+          }
+        }
+        if (provisionable != null && provisionable) {
+          result.add(grouperGroupInfo);
+        }
+      } else {
+        if ( shouldGroupBeProvisioned(grouperGroupInfo) ) {
+          result.add(grouperGroupInfo);
+        }
+      }
     }
     LOG.info("{}: There are {} groups selected for provisioning (found in {})",
         getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
