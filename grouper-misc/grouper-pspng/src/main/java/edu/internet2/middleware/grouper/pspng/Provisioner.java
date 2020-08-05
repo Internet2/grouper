@@ -510,10 +510,10 @@ public abstract class Provisioner
             if (provisionableFromCache != null) {
               if (!provisionableFromCache) {
                 workItem.markAsSkipped("Ignoring work item due to cached decision");
+                continue;
               }
               // if group is provisionable still do logic below
             }
-            continue;
           }
         }
       }
