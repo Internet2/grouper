@@ -78,6 +78,7 @@ public class GrouperZoomFullSync extends OtherJobBase {
           debugMap.put("groupCount", GrouperUtil.length(groupsToProvision));
           debugMap.put("groupAddCount", 0);
           debugMap.put("userDeleteCount", 0);
+          debugMap.put("userDeactivateCount", 0);
           debugMap.put("membershipAddCount", 0);
           debugMap.put("membershipDeleteCount", 0);
           debugMap.put("membershipTotalCount", 0);
@@ -175,6 +176,29 @@ public class GrouperZoomFullSync extends OtherJobBase {
             }
             debugMap.put("userDeleteCount", userDeleteCount);
           }
+          
+          debugMap.put("userDeactivateCount", 0);
+          String groupNameToDeactivateUsers = GrouperZoomLocalCommands.groupNameToDeactivateUsers(configId);
+          if (!StringUtils.isBlank(groupNameToDeactivateUsers)) {
+            int userDeactivateCount = 0;
+
+            Set<String> emails = GrouperZoomLocalCommands.groupEmailsFromGroup(configId, groupNameToDeactivateUsers);
+            
+            for (String email : GrouperUtil.nonNull(emails)) {
+
+              Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+              
+              if (user == null || StringUtils.equals("inactive", (String)user.get("status")) || StringUtils.equals("pending", (String)user.get("status"))) {
+                continue;
+              }
+
+              GrouperZoomCommands.userChangeStatus(configId, email, false);
+              userDeactivateCount++;
+              
+            }
+            debugMap.put("userDeactivateCount", userDeactivateCount);
+          }
+          
         } catch (RuntimeException e) {
           debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
           throw e;

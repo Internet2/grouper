@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -48,8 +49,8 @@ public class GrouperZoomCommands {
 //    System.out.println(retrieveBearerTokenFromCacheOrFresh("pennZoomProd"));
     
     final String configId = "pennZoomProd";
-//    List<Map<String, Object>> groups = retrieveGroups(configId);
-//    for (Map<String, Object> group: groups) {
+//    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
+//    for (Map<String, Object> group: groups.values()) {
 //      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
 //      
 //      List<Map<String, Object>> members = retrieveGroupMemberships(configId, (String)group.get("id"));
@@ -59,11 +60,17 @@ public class GrouperZoomCommands {
 //      }
 //    }
 
-//    Map<String, Map<String, Object>> groups = retrieveRoles(configId);
-//    for (Map<String, Object> group: groups.values()) {
+//    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
+//    for (Map<String, Object> group: roles.values()) {
 //      System.out.println("Role: " + group.get("id") + ", name: " + group.get("name") + ", description: " + group.get("description") + ", " + group.get("total_members"));
 //    }
 
+    
+//    addRoleMembership(configId, "1", "odJa54jyRpK4MC6gfpgInA");
+//      removeRoleMembership(configId, "1", "5R-cXZBgQPKkWU2grrJUiw");
+  
+    GrouperZoomCommands.userChangeStatus(configId, "mchyzer@upenn.edu", false);
+    
 //    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
 //    for (Map<String, Object> role: roles.values()) {
 //      System.out.println("Role: " + role.get("id") + ", name: " + role.get("name") + ", description: " + role.get("description") + ", " + role.get("total_members"));
@@ -75,7 +82,7 @@ public class GrouperZoomCommands {
 //      }
 //    }
 
-//    Map<String, Object> group = createGroup(configId, "test");
+//    Map<String, Object> group = createGroup(configId, "pennGeneral");
 //    System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
 
 //    deleteGroup(configId, "j1FjzLFpS2Cd2KWzGehyNQ");
@@ -87,20 +94,19 @@ public class GrouperZoomCommands {
 //  * @return map with id(string), first_name(string), last_name(string), email(string), type(int), role_name(string), 
 //  * personal_meeting_url(string), timezone(string), verified(int e.g. 1), group_ids (array[string]), account_id(string), status(string e.g. active)
 
-//     deleteUser(configId, "mchyzer@upenn.edu");
+//    deleteUser(configId, "mchyzer@upenn.edu");
     
-    
-    Map<String, Object> createUser = createUser(configId, "mchyzer@upenn.edu", "Chris", "Hyzer", 2);
-    
-    System.out.println("Member: " + createUser.get("id") + ", " + createUser.get("email") + ", " + createUser.get("first_name")
-      + ", " + createUser.get("last_name") + ", " + createUser.get("type"));
+//    Map<String, Object> createUser = createUser(configId, "mchyzer@upenn.edu", "Chris", "Hyzer", 2);
 //    
-//    
-//    Map<String, Object> user = retrieveUser(configId, "mchyzer@upenn.edu");
-//    System.out.println("Member: " + user.get("id") + ", " + user.get("email") + ", " + user.get("first_name")
-//      + ", " + user.get("last_name") + ", " + user.get("type") + ", " + user.get("role_name") + ", " + user.get("personal_meeting_url")
-//      + ", " + user.get("timezone") + ", " + user.get("verified") + ", " + GrouperUtil.toStringForLog(user.get("group_ids"))
-//      + ", " + user.get("account_id") + ", " + user.get("status"));
+//    System.out.println("Member: " + createUser.get("id") + ", " + createUser.get("email") + ", " + createUser.get("first_name")
+//      + ", " + createUser.get("last_name") + ", " + createUser.get("type"));
+    
+    
+    Map<String, Object> user = retrieveUser(configId, "mchyzer@upenn.edu");
+    System.out.println("Member: " + user.get("id") + ", " + user.get("email") + ", " + user.get("first_name")
+      + ", " + user.get("last_name") + ", " + user.get("type") + ", " + user.get("role_name") + ", " + user.get("personal_meeting_url")
+      + ", " + user.get("timezone") + ", " + user.get("verified") + ", " + GrouperUtil.toStringForLog(user.get("group_ids"))
+      + ", " + user.get("account_id") + ", status: " + user.get("status"));
     
     
   }
@@ -1521,6 +1527,230 @@ public class GrouperZoomCommands {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
+    
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param roleId 
+   * @param memberId 
+   */
+  public static void addRoleMembership(String configId, String roleId, String memberId) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "addRoleMembership");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "roles";
+      if (roleId.contains("/")) {
+        throw new RuntimeException("Invalid role: " + roleId);
+      }
+      url += "/" + roleId + "/members";
+      debugMap.put("url", url);
+  
+      PostMethod postMethod = new PostMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      postMethod.addRequestHeader("Content-Type", "application/json");
+      postMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      
+      //  {
+      //    "members": [
+      //      {
+      //        "id": "36565387"
+      //      }
+      //    ]
+      //  }  
+      
+      JSONObject jsonObject = new JSONObject();
+      JSONArray jsonArray = new JSONArray();
+      JSONObject member = new JSONObject();
+      member.put("id", memberId);
+      jsonArray.add(member);
+      jsonObject.put("members", jsonArray);
+      String jsonRequest = jsonObject.toString();
+      
+      postMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      
+      int code = -1;
+      String json = null;
+  
+      try {
+        code = httpClient.executeMethod(postMethod);
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
+  
+      debugMap.put("httpCode", code);
+      
+      if (code != 201) {
+        throw new RuntimeException("Cant add member '" + url + "', '" + memberId + "' " + json);
+      }
+        
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param groupId 
+   * @param memberId 
+   */
+  public static void removeRoleMembership(String configId, String roleId, String memberId) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "removeRoleMembership");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "roles";
+      if (roleId.contains("/")) {
+        throw new RuntimeException("Invalid role: " + roleId);
+      }
+      url += "/" + roleId + "/members";
+      if (StringUtils.isBlank(memberId)) {
+        throw new RuntimeException("memberId is required!");
+      }
+      if (memberId.contains("/")) {
+        throw new RuntimeException("Invalid memberId: " + memberId);
+      }
+      url += "/" + memberId;
+      debugMap.put("url", url);
+  
+      DeleteMethod deleteMethod = new DeleteMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      deleteMethod.addRequestHeader("Content-Type", "application/json");
+      deleteMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      
+      int code = -1;
+      String json = null;
+  
+      try {
+        code = httpClient.executeMethod(deleteMethod);
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
+  
+      debugMap.put("httpCode", code);
+      
+      // 400 if not in group, 204 if removed
+      if (code != 204 && code != 400) {
+        throw new RuntimeException("Cant remove member '" + url + "', '" + memberId + "' " + json);
+      }
+        
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+  }
+
+  /**
+   * @param configId
+   * @param email
+   * @param activate true to activate, false to deactivate
+   */
+  public static void userChangeStatus(String configId, String email, boolean activate) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "userChangeStatus");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "users";
+      if (email.contains("/")) {
+        throw new RuntimeException("Invalid email: " + email);
+      }
+      url += "/" + email + "/status";
+      debugMap.put("url", url);
+  
+      PutMethod putMethod = new PutMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      putMethod.addRequestHeader("Content-Type", "application/json");
+      putMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      
+      //  {
+      //    "action": "activate"
+      //  }  
+      
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("action", activate ? "activate" : "deactivate");
+      String jsonRequest = jsonObject.toString();
+      
+      putMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      
+      int code = -1;
+      if (!activate && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUserDeactivatesInsteadOfDeactivating", false)) {
+        
+        debugMap.put("logUserDeactivateInsteadOfDeactivating", true);
+
+      } else {
+
+        try {
+          code = httpClient.executeMethod(putMethod);
+          // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+          
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+    
+        debugMap.put("httpCode", code);
+        
+        if (code != 204) {
+          throw new RuntimeException("Cant update user status '" + url + "', '" + activate + "' " + code);
+        }
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
     
   }
   
