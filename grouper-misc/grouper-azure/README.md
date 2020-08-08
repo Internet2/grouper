@@ -75,7 +75,7 @@ See documentation at [http://graph.microsoft.io/en-us/docs].
     #changeLog.consumer.o365.descriptionJexl =
     #changeLog.consumer.o365.subjectJexl =
     #changeLog.consumer.o365.groupType = [Security* | Unified]
-    #changeLog.consumer.o365.visibility = [Public* | Private | Hiddenmembership]
+    #changeLog.consumer.o365.visibility = [Public* | Private | HiddenMembership]
     #changeLog.consumer.o365.proxyType = [http | socks]
     #changeLog.consumer.o365.proxyHost =
     #changeLog.consumer.o365.proxyPort =
@@ -171,7 +171,7 @@ or an Office 365 group (`groupType = Unified`). If not set, the default will be 
 are not currently available, as they cannot be set through the Microsoft web service API.
 
 For a Unified group provisioner only, the `visibility` property sets the Office 365 visibility. Possible values are Public (default),
-Private, or Hiddenmembership. See [Microsoft's documentation on the option](https://docs.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#group-visibility-options)
+Private, or HiddenMembership. See [Microsoft's documentation on the option](https://docs.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#group-visibility-options)
 for more information.
 
 ### proxyType, proxyHost, proxyPort

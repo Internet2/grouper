@@ -80,6 +80,13 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         if (visibilityString != null) {
             if (groupType == AzureGroupType.Unified) {
                 try {
+                    // discrepancy in graph api -- documented as Hiddenmembership but object returns HiddenMembership.
+                    // The enum is fixed, but the older loader property was using Hiddenmembership. Map the old value
+                    // so existing configs don't break
+                    if ("Hiddenmembership".equals(visibilityString)) {
+                        visibilityString = "HiddenMembership";
+                        logger.warn("For " + CONFIG_PREFIX + name + ".visibility, legacy valueHiddenmembership was remapped to HiddenMembership");
+                    }
                     visibility = Visibility.valueOf(visibilityString);
                 } catch (IllegalArgumentException e) {
                     visibility = Visibility.Public;
