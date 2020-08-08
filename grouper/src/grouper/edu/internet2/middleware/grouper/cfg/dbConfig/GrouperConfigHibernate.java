@@ -561,12 +561,13 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * @param auditEntryId
    * @param config
    */
-  public static void createNewPITGrouperConfigHibernate(String auditEntryId, GrouperConfigHibernate config) {
+  public static void createNewPITGrouperConfigHibernate(String auditEntryId, String newActiveStatus,
+      GrouperConfigHibernate config, String previousConfigValue, String previousConfigValueClob) {
     PITGrouperConfigHibernate pit = new PITGrouperConfigHibernate();
     pit.setId(GrouperUuid.getUuid());
     pit.setSourceId(config.getId());
     pit.setContextId(auditEntryId);
-    pit.setActiveDb("T");
+    pit.setActiveDb(newActiveStatus);
     pit.setStartTimeDb(System.currentTimeMillis() * 1000);
     pit.setConfigComment(config.getConfigComment());
     pit.setConfigEncryptedDb(config.getConfigEncryptedDb());
@@ -574,9 +575,15 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     pit.setConfigFileNameDb(config.getConfigFileNameDb());
     pit.setConfigKey(config.getConfigKey());
     pit.setConfigSequence(config.getConfigSequence());
-    pit.setValueToSave(config.retrieveValue());
+    
+    if ("T".equals(newActiveStatus)) {      
+      pit.setValueToSave(config.retrieveValue());
+    }
+    
     pit.setLastUpdatedDb(config.getLastUpdatedDb());
     pit.setConfigVersionIndex(config.getConfigVersionIndex());
+    pit.setPreviousConfigValueDb(previousConfigValue);
+    pit.setPreviousConfigValueClobDb(previousConfigValueClob);
     
     pit.saveOrUpdate();
   }
@@ -609,7 +616,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
               auditEntry.saveOrUpdate(true);
               
               if (addNew) {
-                createNewPITGrouperConfigHibernate(auditEntry.getId(), GrouperConfigHibernate.this);
+                createNewPITGrouperConfigHibernate(auditEntry.getId(), "T", GrouperConfigHibernate.this, null, null);
               } else {
                 PITGrouperConfigHibernate pit = GrouperDAOFactory.getFactory().getPITConfig().findBySourceIdActive(GrouperConfigHibernate.this.id, false);
                 if (pit != null) {
@@ -617,7 +624,8 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
                   pit.setEndTimeDb(System.currentTimeMillis() * 1000);
                   pit.saveOrUpdate();
                 }
-                createNewPITGrouperConfigHibernate(auditEntry.getId(), GrouperConfigHibernate.this);
+                createNewPITGrouperConfigHibernate(auditEntry.getId(), "T",
+                    GrouperConfigHibernate.this, pit.getConfigValueDb(), pit.getConfigValueClobDb());
                 
               }
             return null;
@@ -772,8 +780,10 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
             
             pit.setEndTimeDb(System.currentTimeMillis() * 1000);
             pit.setActiveDb("F");
-            pit.setContextId(auditEntry.getId());
             pit.saveOrUpdate();
+            
+            createNewPITGrouperConfigHibernate(auditEntry.getId(), "F",
+                GrouperConfigHibernate.this, pit.getConfigValueDb(), pit.getConfigValueClobDb());
             
             return null;
           }

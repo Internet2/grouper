@@ -20,6 +20,8 @@ CREATE TABLE grouper_pit_config
     last_updated BIGINT NOT NULL,
     config_value_clob CLOB,
     config_value_bytes BIGINT,
+    prev_config_value VARCHAR(4000),
+    prev_config_value_clob CLOB,
     active VARCHAR(1) NOT NULL,
     start_time BIGINT NOT NULL,
     end_time BIGINT,

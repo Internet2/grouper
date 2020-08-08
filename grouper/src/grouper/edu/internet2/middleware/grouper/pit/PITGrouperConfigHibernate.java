@@ -193,16 +193,46 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
     return this.configValue;
   }
   
-  public String retrieveValue() {
+  
+  private String previousConfigValue;
+  
+  public String getPreviousConfigValueDb() {
+    return this.previousConfigValue;
+  }
+  
+  public void setPreviousConfigValueDb(String previousConfigValue) {
+    this.previousConfigValue = previousConfigValue;
+  }
+  
+  /**
+   * get previous value for the config. Try config value first and if null return config value clob
+   * @return
+   */
+  public String getPreviousValue() {
+    if (StringUtils.isNotBlank(previousConfigValue)) {
+      return previousConfigValue;
+    }
+    
+    return previousConfigValueClob;
+  }
+  
+  /**
+   * get current value for the config. Try config value first and if null return config value clob
+   * @return
+   */
+  public String getValue() {
     
     if (StringUtils.isNotBlank(configValue)) {
       return configValue;
     }
     
     return configValueClob;
-    
   }
   
+  /**
+   * set current value to save in db. Based on the length we either save in config value or config value clob 
+   * @param value
+   */
   public void setValueToSave(String value) {
     int lengthAscii = GrouperUtil.lengthAscii(value);
     if (GrouperUtil.lengthAscii(value) <= 3000) {
@@ -259,6 +289,25 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
     this.configValueClob = configValueClob1;
   }
   
+  /** previous version of config value clob */
+  private String previousConfigValueClob;
+  
+  /**
+   * @return previous version of config value clob
+   */
+  public String getPreviousConfigValueClobDb() {
+    return previousConfigValueClob;
+  }
+
+  /**
+   * previous version of config value clob
+   * @param previousConfigValueClob
+   */
+  public void setPreviousConfigValueClobDb(String previousConfigValueClob) {
+    this.previousConfigValueClob = previousConfigValueClob;
+  }
+
+
   /**
    * size of config value in bytes
    */
@@ -500,8 +549,7 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
   public void setConfigFileHierarchy(String configFileHierarchy) {
     this.configFileHierarchy = configFileHierarchy;
   }
-
-
+  
   /**
    * fields which are included in clone method
    */

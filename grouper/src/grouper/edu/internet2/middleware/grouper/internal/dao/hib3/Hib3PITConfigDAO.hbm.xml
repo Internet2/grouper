@@ -65,9 +65,11 @@
     <property name="configKey" column="config_key"/>    
     <property name="configSequence" column="config_sequence"/>    
     <property name="configValueDb" column="config_value"/>    
+    <property name="previousConfigValueDb" column="prev_config_value"/>
     <property name="configVersionIndex" column="config_version_index"/>    
     <property name="lastUpdatedDb" column="last_updated"/>  
     <property name="configValueClobDb" column="config_value_clob"/>    
+    <property name="previousConfigValueClobDb" column="prev_config_value_clob"/>    
     <property name="configValueBytes" column="config_value_bytes"/>    
     
     <property name="activeDb" column="active" />

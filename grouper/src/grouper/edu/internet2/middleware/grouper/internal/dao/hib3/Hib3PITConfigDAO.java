@@ -20,15 +20,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITConfigDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
@@ -287,7 +295,88 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
       return pitConfigs;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITConfigDAO#findPITConfigs(QueryOptions, String)
+   */
+  @Override
+  public List<PITGrouperConfigHibernate> findPITConfigs(QueryOptions queryOptions, String filter) {
+    
+    StringBuilder sql = new StringBuilder("select pit from PITGrouperConfigHibernate as pit ");
+    
+    if (StringUtils.isNotBlank(filter)) {
+      sql.append(" where lower(pit.configKey) like lower('%"+filter+"%') ");
+      sql.append(" or lower(pit.configValueDb) like lower('%"+filter+"%') "); 
+      sql.append(" or lower(pit.configValueClobDb) like lower('%"+filter+"%') "); 
+      sql.append(" or lower(pit.previousConfigValueDb) like lower('%"+filter+"%') "); 
+      sql.append(" or lower(pit.previousConfigValueClobDb) like lower('%"+filter+"%') "); 
+    }
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    
+    if (queryOptions.getQueryPaging() == null) {
+      int defaultHib3AuditEntryPageSize = GrouperConfig.retrieveConfig().propertyValueInt("defaultHib3AuditEntryPageSize", 50);
+      queryOptions.paging(QueryPaging.page(defaultHib3AuditEntryPageSize, 1, false));
+    }
+    
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sort(QuerySort.desc("startTimeDb"));
+    }
+    
+    ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic().options(queryOptions)
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindPITConfigs");
+    
+    List<PITGrouperConfigHibernate> pitConfigs = byHqlStatic.createQuery(sql.toString()).list(PITGrouperConfigHibernate.class);
+     
+    return pitConfigs;
+  }
   
-
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITConfigDAO#revertConfigs(Set, StringBuilder, List, Map)
+   */
+  @Override
+  public void revertConfigs(Set<String> pitIds, StringBuilder message, 
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    Set<PITGrouperConfigHibernate> oldPitConfigs = findByIds(pitIds);
+    
+    int count = 1;
+    Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
+    
+    for (PITGrouperConfigHibernate oldPitConfig: oldPitConfigs) {
+      
+      if (StringUtils.isBlank(oldPitConfig.getPreviousValue())) {
+        DbConfigEngine.configurationFileItemDeleteHelper(oldPitConfig.getConfigFileName(),
+            oldPitConfig.getConfigKey(), true, 
+            count == oldPitConfigs.size() );
+      } else {
+        boolean el = oldPitConfig.getConfigKey().endsWith(".elConfig");
+        StringBuilder localMessage = new StringBuilder();
+        
+        DbConfigEngine.configurationFileAddEditHelper2(oldPitConfig.getConfigFileName(),
+            oldPitConfig.getConfigKey(), 
+            el ? "true": "false", oldPitConfig.getPreviousValue(), oldPitConfig.isConfigEncrypted(), message, 
+                new Boolean[] {false},
+                new Boolean[] {false}, true, "Edited from config history screen", errorsToDisplay, validationErrorsToDisplay, count == oldPitConfigs.size());
+        
+        if (localMessage.length() > 0) {
+          if(message.length() > 0) {
+            
+            if (!endOfStringNewlinePattern.matcher(message).matches()) {
+              message.append("<br />\n");
+            }
+            message.append(localMessage);
+          }
+        }
+        
+      }
+      count++;
+      
+    }
+    
+  }
+  
 }
 

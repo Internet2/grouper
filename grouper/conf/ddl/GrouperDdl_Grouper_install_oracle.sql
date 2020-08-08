@@ -1244,6 +1244,8 @@ CREATE TABLE grouper_pit_config
     last_updated NUMBER(38) NOT NULL,
     config_value_clob CLOB,
     config_value_bytes INTEGER,
+    prev_config_value VARCHAR2(4000),
+    prev_config_value_clob CLOB,
     active VARCHAR2(1) NOT NULL,
     start_time NUMBER(38) NOT NULL,
     end_time NUMBER(38),
@@ -6585,6 +6587,10 @@ COMMENT ON COLUMN grouper_pit_config.last_updated IS 'when this record was inser
 COMMENT ON COLUMN grouper_pit_config.config_value_clob IS 'config value for large data';
 
 COMMENT ON COLUMN grouper_pit_config.config_value_bytes IS 'size of config value in bytes';
+
+COMMENT ON COLUMN grouper_pit_config.prev_config_value IS 'previous config value';
+
+COMMENT ON COLUMN grouper_pit_config.prev_config_value_clob IS 'previous config value clob';
 
 COMMENT ON COLUMN grouper_pit_config.active IS 'T or F if this is an active record based on start and end dates';
 

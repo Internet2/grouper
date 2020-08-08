@@ -6,7 +6,11 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -69,7 +73,7 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     
     assertEquals(grouperConfigHibernate.getId(), pitGrouperConfigHibernate.getSourceId());
     assertEquals(grouperConfigHibernate.getConfigComment(), pitGrouperConfigHibernate.getConfigComment());
-    assertEquals(grouperConfigHibernate.retrieveValue(), pitGrouperConfigHibernate.retrieveValue());
+    assertEquals(grouperConfigHibernate.retrieveValue(), pitGrouperConfigHibernate.getValue());
     assertEquals(grouperConfigHibernate.getConfigKey(), pitGrouperConfigHibernate.getConfigKey());
     assertEquals(grouperConfigHibernate.getConfigEncryptedDb(), pitGrouperConfigHibernate.getConfigEncryptedDb());
     assertEquals(grouperConfigHibernate.getConfigFileNameDb(), pitGrouperConfigHibernate.getConfigFileNameDb());
@@ -97,7 +101,7 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     grouperConfigHibernate.setConfigEncrypted(false);
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
-    grouperConfigHibernate.setConfigKey("some.key");
+    grouperConfigHibernate.setConfigKey("some.key.1");
     
     String randomValue = RandomStringUtils.randomAscii(3001);
     
@@ -109,7 +113,7 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     assertEquals(randomValue, grouperConfigHibernate2.retrieveValue());
     assertEquals(randomValue, grouperConfigHibernate2.getConfigValueClobDb());
     assertEquals(3001L, grouperConfigHibernate2.getConfigValueBytes().longValue());
-    assertEquals(randomValue, GrouperConfig.retrieveConfig().propertyValueString("some.key"));
+    assertEquals(randomValue, GrouperConfig.retrieveConfig().propertyValueString("some.key.1"));
     
   }
 
@@ -192,7 +196,8 @@ public class GrouperConfigHibernateTest extends GrouperTest {
 
     assertEquals(0, GrouperUtil.length(grouperConfigHibernates));
 
-    grouperConfigHibernate.setValueToSave("theValue2");
+    String longValue = RandomStringUtils.randomAlphanumeric(3500);
+    grouperConfigHibernate.setValueToSave(longValue);
     grouperConfigHibernate.saveOrUpdate(false);
     
     grouperConfigHibernate2 = GrouperDAOFactory.getFactory().getConfig().findById(grouperConfigHibernate.getId(), true);
@@ -217,15 +222,158 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     
     Set<PITGrouperConfigHibernate> pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
     
-    assertEquals(2, GrouperUtil.length(pitGrouperConfigHibernates));
+    assertEquals(3, GrouperUtil.length(pitGrouperConfigHibernates));
     
     List<PITGrouperConfigHibernate> pits = new ArrayList<PITGrouperConfigHibernate>(pitGrouperConfigHibernates);
     
     assertEquals(id, pits.get(0).getSourceId());
     assertEquals(id, pits.get(1).getSourceId());
+    assertEquals(id, pits.get(2).getSourceId());
     
     assertEquals("F", pits.get(0).getActiveDb());
     assertEquals("F", pits.get(1).getActiveDb());
+    assertEquals("F", pits.get(1).getActiveDb());
+    
+    Collections.sort(pits, new Comparator<PITGrouperConfigHibernate>() {
+
+      @Override
+      public int compare(PITGrouperConfigHibernate o1, PITGrouperConfigHibernate o2) {
+        return o1.getStartTimeDb() < o2.getStartTimeDb() ? -1 : 1;
+      }
+    });
+    
+    assertEquals("theValue", pits.get(0).getValue());
+    assertNull(pits.get(0).getPreviousConfigValueDb());
+    assertNull(pits.get(0).getPreviousConfigValueClobDb());
+    
+    assertEquals(longValue, pits.get(1).getValue());
+    assertEquals("theValue", pits.get(1).getPreviousConfigValueDb());
+    assertNull(pits.get(1).getPreviousConfigValueClobDb());
+    
+    assertNull(pits.get(2).getValue());
+    assertEquals(longValue, pits.get(2).getPreviousConfigValueClobDb());
+    assertNull(pits.get(2).getPreviousConfigValueDb());
+    
+  }
+  
+  public void testRevertConfigs_GoToDeletedValue() {
+    
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, "some.key");
+
+    for (GrouperConfigHibernate grouperConfigHibernate : grouperConfigHibernates) {
+      grouperConfigHibernate.delete();
+    }
+        
+    GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+    grouperConfigHibernate.setConfigComment("comment");
+    grouperConfigHibernate.setConfigEncrypted(false);
+    grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
+    grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
+    grouperConfigHibernate.setConfigKey("some.key");
+    grouperConfigHibernate.setValueToSave("theValue");
+    grouperConfigHibernate.saveOrUpdate(true);
+    
+    Set<PITGrouperConfigHibernate> pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
+    
+    assertEquals(1, GrouperUtil.length(pitGrouperConfigHibernates));
+    
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    // when
+    GrouperDAOFactory.getFactory().getPITConfig().revertConfigs(GrouperUtil.toSet(pitGrouperConfigHibernates.iterator().next().getId()), message, 
+        errorsToDisplay, validationErrorsToDisplay);
+    
+    // then
+    pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
+    assertEquals(2, GrouperUtil.length(pitGrouperConfigHibernates));
+    
+    List<PITGrouperConfigHibernate> pits = new ArrayList<PITGrouperConfigHibernate>(pitGrouperConfigHibernates);
+    
+    Collections.sort(pits, new Comparator<PITGrouperConfigHibernate>() {
+
+      @Override
+      public int compare(PITGrouperConfigHibernate o1, PITGrouperConfigHibernate o2) {
+        return o1.getStartTimeDb() < o2.getStartTimeDb() ? -1 : 1;
+      }
+    });
+    
+    assertEquals("theValue", pits.get(0).getValue());
+    assertNull(pits.get(0).getPreviousConfigValueDb());
+    assertNull(pits.get(0).getPreviousConfigValueClobDb());
+    
+    assertNull(pits.get(1).getValue());
+    assertEquals("theValue", pits.get(1).getPreviousConfigValueDb());
+    assertNull(pits.get(1).getPreviousConfigValueClobDb());
+    
+  }
+  
+  public void testRevertConfigs_GoToEditedValue() {
+    
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, "some.key");
+
+    for (GrouperConfigHibernate grouperConfigHibernate : grouperConfigHibernates) {
+      grouperConfigHibernate.delete();
+    }
+        
+    GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+    grouperConfigHibernate.setConfigComment("comment");
+    grouperConfigHibernate.setConfigEncrypted(false);
+    grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
+    grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
+    grouperConfigHibernate.setConfigKey("some.key");
+    grouperConfigHibernate.setValueToSave("theValue");
+    grouperConfigHibernate.saveOrUpdate(true);
+    
+    String longValue = RandomStringUtils.randomAlphanumeric(3500);
+    grouperConfigHibernate.setValueToSave(longValue);
+    grouperConfigHibernate.saveOrUpdate(false);
+    
+    Set<PITGrouperConfigHibernate> pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
+    
+    assertEquals(2, GrouperUtil.length(pitGrouperConfigHibernates));
+    
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    PITGrouperConfigHibernate oneWithOldValue = null;
+    for (PITGrouperConfigHibernate pitConfig: pitGrouperConfigHibernates) {
+      if (pitConfig.getValue().equals("theValue")) {
+        oneWithOldValue = pitConfig;
+      }
+    }
+    
+    // when
+    GrouperDAOFactory.getFactory().getPITConfig().revertConfigs(GrouperUtil.toSet(oneWithOldValue.getId()), message, 
+        errorsToDisplay, validationErrorsToDisplay);
+    
+    // then
+    pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
+    assertEquals(3, GrouperUtil.length(pitGrouperConfigHibernates));
+    
+    List<PITGrouperConfigHibernate> pits = new ArrayList<PITGrouperConfigHibernate>(pitGrouperConfigHibernates);
+    
+    Collections.sort(pits, new Comparator<PITGrouperConfigHibernate>() {
+
+      @Override
+      public int compare(PITGrouperConfigHibernate o1, PITGrouperConfigHibernate o2) {
+        return o1.getStartTimeDb() < o2.getStartTimeDb() ? -1 : 1;
+      }
+    });
+    
+    assertEquals("theValue", pits.get(0).getValue());
+    assertNull(pits.get(0).getPreviousConfigValueDb());
+    assertNull(pits.get(0).getPreviousConfigValueClobDb());
+    
+    assertEquals(longValue, pits.get(1).getValue());
+    assertEquals("theValue", pits.get(1).getPreviousConfigValueDb());
+    assertNull(pits.get(1).getPreviousConfigValueClobDb());
+    
+    assertNull(pits.get(2).getValue());
+    assertEquals(longValue, pits.get(2).getPreviousConfigValueClobDb());
+    assertNull(pits.get(2).getPreviousConfigValueDb());
     
   }
 

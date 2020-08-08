@@ -33,6 +33,11 @@
                             <li><a href="#" 
                             onclick="return guiV2link('operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
                             >${textContainer.text['configurationFilesMenuImport'] }</a></li>
+                            <li>
+                            <a href="#"
+                            onclick="return guiV2link('operation=UiV2Configure.history'); return false;" 
+                            >${textContainer.text['configurationFilesMenuHistory'] }</a>
+                            </li>
 
                       </ul>
                     </div>

@@ -66,19 +66,41 @@
             
               <c:if test="${grouperRequestContainer.configurationContainer.configFileName != null}">
               	
-              	<form id="configureFilterForm" style="height: 20px;">
-					<div class="span4">
-                      <input type="text" placeholder="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" 
-                         name="filter" id="table-filter" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
-                    </div>
-					<div class="span3">
-						<input type="submit" class="btn" aria-controls="propertiesResultTableId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['configurationFilterApplyButton'] }"
-                        onclick="ajax('../app/UiV2Configure.configureFilterSubmit?configFile=${grouperRequestContainer.configurationContainer.configFileName}', {formIds: 'configureFilterForm'}); return false;"> 
-                      <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['configurationFilterResetButton'] }</a>
+              	<form id="configureFilterForm" class="form-inline form-small form-filter">
+              	
+              		<div class="row-fluid">
+	                    <div class="span1">
+	                      <span><label for="config-source-filter" style="white-space: nowrap;">${textContainer.text['configSourceFilterFor'] }</label></span>
+	                    </div>
+	                    <div class="span4">
+	                      <select id="config-source-filter" name="configSource" class="span12">
+	                        <option value="" >${textContainer.text['configSourceAll']}</option>
+	                        <option ${grouperRequestContainer.configurationContainer.configSource == 'nonBase' ? 'selected="selected"' : '' } value="nonBase">${textContainer.text['configSourceNonBase']}</option>
+	                        <option ${grouperRequestContainer.configurationContainer.configSource == 'db' ? 'selected="selected"' : '' } value="db">${textContainer.text['configSourceDbConfigOnly']}</option>
+	                      </select>
+	                    </div>
+	                  </div>
+              		
+              		
+              		<div class="row-fluid" style="margin-top: 5px;">
+						<div class="span1"></div>              			              		             		
+						<div class="span4">
+	                      <input type="text" placeholder="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" 
+	                         name="filter" id="table-filter" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
+	                    </div>
+						<div class="span4">
+							<input type="submit" class="btn" aria-controls="propertiesResultTableId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['configurationFilterApplyButton'] }"
+	                        onclick="ajax('../app/UiV2Configure.configureFilterSubmit?configFile=${grouperRequestContainer.configurationContainer.configFileName}', {formIds: 'configureFilterForm'}); return false;"> 
+	                      <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#config-source-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['configurationFilterResetButton'] }</a>
+	                    </div>
                     </div>
               	</form>
               	
-                <h3>${grouperRequestContainer.configurationContainer.configFileName.configFileName}</h3>
+              	<div class="row-fluid">
+	              	<div class="span12">
+	                	<h3>${grouperRequestContainer.configurationContainer.configFileName.configFileName}</h3>
+	                </div>
+                </div>
 
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable" id="propertiesResultTableId">
                       <c:set var="i" value="0" />
@@ -146,7 +168,11 @@
 		                          </td>
 		                          <td style="vertical-align: top">
 		                            <%-- keep whitespace out of the equation to make copy/paste on screen easier --%>
-		                            <b>${grouper:escapeHtml(guiConfigProperty.propertyValue)}</b><c:if test="${guiConfigProperty.scriptlet}"><br />
+		                            <b>
+		                            <grouper:abbreviateTextarea text="${grouper:escapeHtml(guiConfigProperty.propertyValue)}" 
+							 		  showCharCount="50" cols="20" rows="3"/></b>
+		                            
+		                            <c:if test="${guiConfigProperty.scriptlet}"><br />
 		                              <span style="font-size: 90%">${textContainer.text['configurationElScriptletLabel']} ${grouper:escapeHtml(guiConfigProperty.scriptletForUi) }</span>
 		                            </c:if><c:if test="${! grouper:isBlank(guiConfigProperty.unprocessedValueIfDifferent)}"><br />
 		                              <span style="font-size: 90%">${textContainer.text['configurationUnprocessedValueIfDifferentLabel']} ${grouper:escapeHtml(guiConfigProperty.unprocessedValueIfDifferent) }</span>

@@ -1127,7 +1127,7 @@ public class SyncPITTables {
       if (saveUpdates) {
         PITGrouperConfigHibernate pitConfig = GrouperDAOFactory.getFactory().getPITConfig().findBySourceIdActive(config.getId(), false);
         if (pitConfig == null) {
-          GrouperConfigHibernate.createNewPITGrouperConfigHibernate(null, config);
+          GrouperConfigHibernate.createNewPITGrouperConfigHibernate(null, "T", config, null, null);
         }
       }
       

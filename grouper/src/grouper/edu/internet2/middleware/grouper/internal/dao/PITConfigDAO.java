@@ -21,12 +21,12 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
-import edu.internet2.middleware.grouper.pit.PITMember;
 
 /**
  * 
@@ -112,4 +112,22 @@ public interface PITConfigDAO extends GrouperDAO {
    * @return active point in time configs that should be inactive
    */
   public Set<PITGrouperConfigHibernate> findMissingInactivePITConfigs();
+
+  /**
+   * find pit configs based on filter (optional)
+   * @param queryOptions
+   * @param filter
+   * @return
+   */
+  public List<PITGrouperConfigHibernate> findPITConfigs(QueryOptions queryOptions, String filter);
+  
+  /**
+   * revert list of configs to previous values
+   * @param pitIds
+   * @param message
+   * @param errorsToDisplay
+   * @param validationErrorsToDisplay
+   */
+  public void revertConfigs(Set<String> pitIds, StringBuilder message, 
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay);
 }
