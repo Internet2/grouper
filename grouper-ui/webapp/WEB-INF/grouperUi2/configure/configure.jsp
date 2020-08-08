@@ -169,7 +169,7 @@
 		                          <td style="vertical-align: top">
 		                            <%-- keep whitespace out of the equation to make copy/paste on screen easier --%>
 		                            <b>
-		                            <grouper:abbreviateTextarea text="${grouper:escapeHtml(guiConfigProperty.propertyValue)}" 
+		                            <grouper:abbreviateTextarea text="${guiConfigProperty.propertyValue}" 
 							 		  showCharCount="50" cols="20" rows="3"/></b>
 		                            
 		                            <c:if test="${guiConfigProperty.scriptlet}"><br />
