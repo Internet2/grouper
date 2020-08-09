@@ -558,6 +558,61 @@ public enum CustomUiUserQueryType {
           null, null, null, null, argumentMap);
     }
   
+  }, 
+  
+  /**
+   * check provisioning in box
+   */
+  zoom {
+  
+    @Override
+    public Set<String> requiredFieldNames() {
+      return zoomRequiredFieldNames;
+    }
+  
+    @Override
+    public Set<String> optionalFieldNames() {
+      return zoomOptionaldFieldNames;
+    }
+  
+    @Override
+    public void validate(CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+  
+    }
+  
+    @Override
+    public Object evaluate(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean,
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+      
+      Class<?> clazz = GrouperUtil.forName("edu.internet2.middleware.grouper.app.zoom.CustomUiZoom");
+      Map<String, Object> variableMap = (Map<String, Object>)GrouperUtil.callMethod(clazz, "customUiZoomUserAnalysis", 
+          new Class[]{String.class, String.class, String.class}, 
+          new Object[]{customUiUserQueryConfigBean.getConfigId() ,subject.getSourceId(), subject.getId()});
+      
+      // dont substitute the sql, for security reasons
+      String result = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getScript(), group, stem, attributeDef, subject, variableMap);
+      
+      CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
+      
+      Object resultObject = customUiVariableType.convertTo(result);
+      return resultObject;
+
+    }
+  
+    @Override
+    public String description(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean, 
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef, Map<String, Object> argumentMap) {
+      
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionZoomExpression']}", 
+          null, null, null, subject, argumentMap, true);
+    }
+  
+    @Override
+    public String label(Map<String, Object> argumentMap) {
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryTypeLabel_" + this.name().toLowerCase() + "']}", 
+          null, null, null, null, argumentMap);
+    }
+  
   };
 
   /**
@@ -738,6 +793,29 @@ public enum CustomUiUserQueryType {
         string, exceptionOnNull);
   
   }
+
+  /**
+   * box optional
+   */
+  private static Set<String> zoomOptionaldFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_ENABLED, 
+      CustomUiUserQueryConfigBean.FIELD_ORDER,
+      CustomUiUserQueryConfigBean.FIELD_SCRIPT, 
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TYPE
+
+      );
+
+  /**
+   * box required
+   */
+  private static Set<String> zoomRequiredFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_CONFIG_ID,
+      CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ERROR
+    );
 
   /**
    * 
