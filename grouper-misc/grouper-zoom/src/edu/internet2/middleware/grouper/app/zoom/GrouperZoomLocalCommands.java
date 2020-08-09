@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.app.zoom;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,7 +98,6 @@ public class GrouperZoomLocalCommands {
     
   }
 
-
   /**
    * 
    */
@@ -110,7 +110,16 @@ public class GrouperZoomLocalCommands {
    * @return the folder name
    */
   public static String folderNameToProvision(String configId) {
-    return GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".folderToProvision");
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".folderToProvision");
+  }
+  
+  /**
+   * folder in grouper that corresponds to roles in zoom
+   * @param configId 
+   * @return the folder name
+   */
+  public static String roleFolderNameToProvision(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".roleFolderToProvision");
   }
   
   /**
@@ -120,6 +129,24 @@ public class GrouperZoomLocalCommands {
    */
   public static String groupNameToDeleteUsers(String configId) {
     return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDeleteUsers");
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static boolean removeGrouperMembershipFromDeletedGroupAfterDeleteZoomUser(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDeletedGroupAfterDeleteZoomUser", false);
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static boolean removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser ", false);
   }
   
   /**
@@ -202,15 +229,75 @@ public class GrouperZoomLocalCommands {
   /**
    * 
    * @param configId
+   * @return the stem that has groups
+   */
+  public static Stem roleFolderToProvision(String configId) {
+    
+    final String folderNameToProvision = roleFolderNameToProvision(configId);
+    
+    Stem result = (Stem)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Stem parent = StemFinder.findByName(grouperSession, folderNameToProvision, true);
+        return parent;
+      }
+    });
+    
+    return result;
+  }
+  
+  /**
+   * if provision remove only
+   * @param configId
+   * @return the stem that has groups
+   */
+  public static boolean groupProvisionRemoveOnly(String configId) {
+    
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".groupProvisionRemoveOnly", false);
+  }
+  
+  /**
+   * if role provision remove only
+   * @param configId
+   * @return if remove only
+   */
+  public static boolean roleProvisionRemoveOnly(String configId) {
+    
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".roleProvisionRemoveOnly", false);
+  }
+  
+  /**
+   * 
+   * @param configId
    * @return the group extensions to provision
    */
   public static Set<String> groupExtensionsToProvision(final String configId) {
+    Stem parent = folderToProvision(configId);
+
+    return groupExtensionsToProvisionHelper(configId, parent);
+  }
+  
+  /**
+   * 
+   * @param configId
+   * @return the role extensions to provision
+   */
+  public static Set<String> roleExtensionsToProvision(final String configId) {
+    Stem parent = roleFolderToProvision(configId);
+
+    return groupExtensionsToProvisionHelper(configId, parent);
+  }
+  
+  /**
+   * 
+   * @param configId
+   * @return the group extensions to provision
+   */
+  public static Set<String> groupExtensionsToProvisionHelper(final String configId, final Stem parent) {
     
     Set<String> result = (Set<String>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-        Stem parent = folderToProvision(configId);
 
         Set<Group> groups = new GroupFinder().assignParentStemId(parent.getId()).assignStemScope(Scope.ONE).findGroups();
         
@@ -234,7 +321,19 @@ public class GrouperZoomLocalCommands {
   public static Map<String, Set<String>> groupsEmailsToProvision(String configId) {
 
     String folderNameToProvision = folderNameToProvision(configId);
-    return groupsEmailsFromFolder(configId, folderNameToProvision);
+    return groupsEmailsFromFolderHelper(configId, folderNameToProvision);
+  }
+
+  /**
+   * get all memberships to provision by email for roles
+   * @param configId
+   * @return the map of role extension to set of emails
+   */
+  public static Map<String, Set<String>> rolesEmailsToProvision(String configId) {
+
+    String folderNameToProvision = roleFolderNameToProvision(configId);
+    return groupsEmailsFromFolderHelper(configId, folderNameToProvision);
+    
   }
 
   /**
@@ -243,7 +342,7 @@ public class GrouperZoomLocalCommands {
    * @param folderName
    * @return the map of group extension to set of emails
    */
-  public static Map<String, Set<String>> groupsEmailsFromFolder(String configId, String folderName) {
+  public static Map<String, Set<String>> groupsEmailsFromFolderHelper(String configId, String folderName) {
     
     Map<String, Set<String>> result = new HashMap<String, Set<String>>();
     
@@ -355,6 +454,28 @@ public class GrouperZoomLocalCommands {
   /**
    * input sourceId to subjectIds, return sourceId/subjectId multikey to email
    * @param configId
+   * @param sourceId
+   * @param subjectId
+   * @return email
+   */
+  public static String convertSourceIdSubjectIdToEmail(final String configId,
+      String sourceId, String subjectId) {
+    
+    Map<String, Set<String>> sourceIdToSubjectId = new HashMap<String, Set<String>>();
+    sourceIdToSubjectId.put(sourceId, GrouperUtil.toSet(subjectId));
+    
+    Map<MultiKey, String> sourceIdSubjectIdToEmail = convertSourceIdSubjectIdToEmail(configId, sourceIdToSubjectId);
+
+    if (GrouperUtil.length(sourceIdSubjectIdToEmail) == 0) {
+      return null;
+    }
+    
+    return sourceIdSubjectIdToEmail.get(new MultiKey(sourceId, subjectId));
+  }
+  
+  /**
+   * input sourceId to subjectIds, return sourceId/subjectId multikey to email
+   * @param configId
    * @param sourceIdToSubjectIdsInput
    * @return map of sourceId/subjectId to email
    */
@@ -447,6 +568,26 @@ public class GrouperZoomLocalCommands {
   /**
    * input sourceId to subjectIds, return sourceId/subjectId multikey to email
    * @param configId
+   * @param emailInput
+   * @return map of email to sourceId/subjectId 
+   */
+  public static MultiKey convertEmailToSourceIdSubjectId(final String configId,
+      final String emailInput) {
+
+    Map<String, MultiKey> emailToSourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, GrouperUtil.toSet(emailInput));
+    
+    if (GrouperUtil.length(emailToSourceIdSubjectId) > 0) {
+      MultiKey sourceIdSubjectId = emailToSourceIdSubjectId.values().iterator().next();
+      return sourceIdSubjectId;
+    }
+    
+    return null;
+
+  }
+
+  /**
+   * input sourceId to subjectIds, return sourceId/subjectId multikey to email
+   * @param configId
    * @param emailsInput
    * @return map of email to sourceId/subjectId 
    */
@@ -505,6 +646,82 @@ public class GrouperZoomLocalCommands {
         }
       });
       result.putAll(emailToSourceIdSubjectIdFromSubjectApi);
+    }
+    // lets look up by database
+    if (emailsNotInCache.size() > 0) {
+      
+      String emailLookupQuery = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".emailLookupQuery");
+      
+      if (!StringUtils.isBlank(emailLookupQuery)) {
+      
+        Map<String, MultiKey> emailToSourceIdSubjectId = new HashMap<String, MultiKey>();
+
+        String emailLookupDbConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".emailLookupDbConfigId");
+        
+        emailLookupDbConfigId = GrouperUtil.defaultIfBlank(emailLookupDbConfigId, "grouper");
+        
+        Set<String> lowerEmailsNotInCacheSet = new HashSet<String>();
+        for (String emailNotInCache : emailsNotInCache) {
+          lowerEmailsNotInCacheSet.add(emailNotInCache.toLowerCase());
+        }
+        
+        List<String> lowerEmailsNotInCacheList = new ArrayList<String>(lowerEmailsNotInCacheSet);
+        
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(lowerEmailsNotInCacheList, 600);
+        
+        Map<String, MultiKey> lowerEmailToSourceIdSubjectId = new HashMap<String, MultiKey>();
+        
+        for (int i=0;i<numberOfBatches;i++) {
+          
+          List<String> emailBatch = GrouperUtil.batchList(lowerEmailsNotInCacheList, 600, i);
+          
+          //  $$lowerEmailAddresses$$ will be the bind variables to lookup email addresses.  the first col is the email, the second col is the subject id, 
+          //  # the third col is the source_id
+          // select LOWER_EMAIL_ADDRESS, CHAR_PENN_ID, 'pennperson' as subject_source_id from person_source_email_lookup_v where lower_email_address in ($$lowerEmailAddresses$$)
+          String thisQuery = GrouperUtil.replace(emailLookupQuery, "$$lowerEmailAddresses$$", GrouperClientUtils.appendQuestions(emailBatch.size()));
+
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(emailLookupDbConfigId).sql(thisQuery);
+          
+          for (String email : emailBatch) {
+            gcDbAccess.addBindVar(email.toLowerCase());
+          }
+          
+          List<Object[]> emailSubjectIdSourceIds = gcDbAccess.selectList(Object[].class);
+          
+          for (Object[] emailSubjectIdSourceId : GrouperUtil.nonNull(emailSubjectIdSourceIds)) {
+            
+            String lowerEmail = (String)emailSubjectIdSourceId[0];
+            String subjectId = (String)emailSubjectIdSourceId[1];
+            String sourceId = (String)emailSubjectIdSourceId[2];
+            
+            MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
+            lowerEmailToSourceIdSubjectId.put(lowerEmail, sourceIdSubjectId);
+
+          }
+        }
+        
+        final HashSet<String> emailsNotInCacheCopy = new HashSet<String>(emailsNotInCache);
+        for (String email : emailsNotInCacheCopy) { 
+          
+          String lowerEmail = email.toLowerCase();
+          
+          MultiKey sourceIdSubjectId = lowerEmailToSourceIdSubjectId.get(lowerEmail);
+          if (sourceIdSubjectId != null) {
+            
+            emailToSourceIdSubjectId.put(email, sourceIdSubjectId);
+            
+            emailsNotInCache.remove(email);
+            
+            thisEmailToSubjectCache.put(email, sourceIdSubjectId);
+            thisSubjectToEmailCache.put(sourceIdSubjectId, email);
+            
+          }
+
+        }
+        
+        result.putAll(emailToSourceIdSubjectId);
+      }
+      
     }
     
     return result;
@@ -591,7 +808,7 @@ public class GrouperZoomLocalCommands {
     });
 
   }
-  
+
   /**
    * get all memberships to provision, filter out ones not in correct source
    * @param configId
@@ -603,14 +820,46 @@ public class GrouperZoomLocalCommands {
   public static boolean groupSourceIdSubjectIdToProvision(final String configId, 
       final String groupExtensionParam, final String sourceIdParam, final String subjectIdParam) {
 
+    final Stem folderToProvision = folderToProvision(configId);
+    return groupSourceIdSubjectIdToProvisionHelper(configId, 
+        folderToProvision, groupExtensionParam, sourceIdParam, subjectIdParam);
+  }
+
+  /**
+   * get all memberships to provision, filter out ones not in correct source
+   * @param configId
+   * @param groupExtensionParam
+   * @param sourceIdParam 
+   * @param subjectIdParam 
+   * @return true if membership exists
+   */
+  public static boolean roleSourceIdSubjectIdToProvision(final String configId, 
+      final String groupExtensionParam, final String sourceIdParam, final String subjectIdParam) {
+
+    final Stem folderToProvision = roleFolderToProvision(configId);
+    return groupSourceIdSubjectIdToProvisionHelper(configId, 
+        folderToProvision, groupExtensionParam, sourceIdParam, subjectIdParam);
+  }
+
+  /**
+   * get all memberships to provision, filter out ones not in correct source
+   * @param configId
+   * @param folderToProvision
+   * @param groupExtensionParam
+   * @param sourceIdParam 
+   * @param subjectIdParam 
+   * @return true if membership exists
+   */
+  public static boolean groupSourceIdSubjectIdToProvisionHelper(final String configId, 
+      final Stem folderToProvision,
+      final String groupExtensionParam, final String sourceIdParam, final String subjectIdParam) {
+
     final Set<String> sources = configSourcesForSubjects(configId);
     
     if (!sources.contains(sourceIdParam)) {
       return false;
     }
 
-    final Stem folderToProvision = folderToProvision(configId);
-    
     if (StringUtils.isBlank(groupExtensionParam) || groupExtensionParam.contains(":")) {
       throw new RuntimeException("Invalid group extension '" + groupExtensionParam + "'");
     }
@@ -769,11 +1018,7 @@ public class GrouperZoomLocalCommands {
   public static boolean addMembership(String configId, String groupSyncFolder,
       String grouperGroupExtension, String emailToAddToGrouper, String zoomUserId) {
     
-    MultiKey sourceIdSubjectId = emailToSubjectCache(configId).get(emailToAddToGrouper);
-    if (sourceIdSubjectId == null) {
-      Map<String, MultiKey> emailToSourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, GrouperUtil.toSet(emailToAddToGrouper));
-      sourceIdSubjectId = GrouperUtil.nonNull(emailToSourceIdSubjectId).get(emailToAddToGrouper);
-    }
+    MultiKey sourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, emailToAddToGrouper);
 
     if (sourceIdSubjectId == null) {
       Set<String> configIgnoreUserIds = configIgnoreUserIds(configId);
@@ -798,11 +1043,7 @@ public class GrouperZoomLocalCommands {
   public static boolean removeMembership(String configId, String groupSyncFolder,
       String grouperGroupExtension, String emailToAddToGrouper, String zoomUserId) {
     
-    MultiKey sourceIdSubjectId = emailToSubjectCache(configId).get(emailToAddToGrouper);
-    if (sourceIdSubjectId == null) {
-      Map<String, MultiKey> emailToSourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, GrouperUtil.toSet(emailToAddToGrouper));
-      sourceIdSubjectId = GrouperUtil.nonNull(emailToSourceIdSubjectId).get(emailToAddToGrouper);
-    }
+    MultiKey sourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, emailToAddToGrouper);
 
     if (sourceIdSubjectId == null) {
       return false;
@@ -810,6 +1051,41 @@ public class GrouperZoomLocalCommands {
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupSyncFolder + ":" + grouperGroupExtension, true);
     Subject subject = SubjectFinder.findByIdAndSource((String)sourceIdSubjectId.getKey(1), (String)sourceIdSubjectId.getKey(0), true);
     return group.deleteMember(subject, false);
+  }
+
+
+  /**
+   * @param configId 
+   * @param groupName
+   * @param email
+   */
+  public static void removeMembership(final String configId, final String groupName, final String email) {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        // convert the email to subject
+        Map<String, MultiKey> emailToSourceIdSubjectId = convertEmailToSourceIdSubjectId(configId, GrouperUtil.toSet(email));
+        
+        if (GrouperUtil.length(emailToSourceIdSubjectId) > 0) {
+          MultiKey sourceIdSubjectId = emailToSourceIdSubjectId.values().iterator().next();
+          
+          // find the subject and group
+          String sourceId = (String)sourceIdSubjectId.getKey(0);
+          String subjectId = (String)sourceIdSubjectId.getKey(1);
+          Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+          if (subject != null) {
+            Group group = GroupFinder.findByName(grouperSession, groupName, false);
+            if (group != null) {
+              // delete in failsafe manner
+              group.deleteMember(subject, false);
+            }
+          }
+        }
+        
+        return null;
+      }
+    });
   }
 
 }
