@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.messaging;
 
+import java.util.Map;
 
 /**
  * method chaining receive message config
@@ -191,6 +192,23 @@ public class GrouperMessageReceiveParam {
     this.grouperMessageQueueParam.assignQueueType(grouperMessageQueueType);
     return this;
   }
+
+  /**
+   * assign extra queue arguments
+   * @param queueArguments
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignQueueArguments(Map<String, Object> queueArguments) {
+    if (queueArguments == null) {
+      return this;
+    }
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueArguments(queueArguments);
+    return this;
+  }
+
 
   /**
    * @return the grouperMessageQueueParam
