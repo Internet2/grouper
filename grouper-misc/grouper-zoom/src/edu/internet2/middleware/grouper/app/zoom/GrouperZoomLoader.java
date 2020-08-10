@@ -16,7 +16,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -26,6 +29,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
@@ -202,13 +206,13 @@ public class GrouperZoomLoader extends OtherJobBase {
     debugMap.put("method", "fullLoad");
     try {
 
-      debugMap.put("groupCount", 0);
-      debugMap.put("groupAddCount", 0);
-      debugMap.put("groupDeleteCount", 0);
-      debugMap.put("membershipAddCount", 0);
-      debugMap.put("membershipDeleteCount", 0);
+      debugMap.put("groupTotalCount", 0);
+      debugMap.put("groupTotalAddCount", 0);
+      debugMap.put("groupTotalDeleteCount", 0);
+      debugMap.put("membershipTotalAddCount", 0);
+      debugMap.put("membershipTotalDeleteCount", 0);
       debugMap.put("membershipTotalCount", 0);
-      debugMap.put("subjectNotFound", 0);
+      debugMap.put("totalSubjectNotFound", 0);
       
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -253,9 +257,6 @@ public class GrouperZoomLoader extends OtherJobBase {
             
             for (String zoomName : groupsInZoom.keySet()) {
               
-              //massage
-              String grouperExtension = groupZoomNameToGrouperExtension.get(zoomName);
-
               Map<String, Object> groupInZoom = groupsInZoom.get(zoomName);
               
               String groupIdInZoom = (String)groupInZoom.get("id");
@@ -289,9 +290,6 @@ public class GrouperZoomLoader extends OtherJobBase {
             
             for (String zoomName : rolesInZoom.keySet()) {
               
-              //massage
-              String grouperExtension = roleZoomNameToGrouperExtension.get(zoomName);
-
               Map<String, Object> roleInZoom = rolesInZoom.get(zoomName);
               
               String roleIdInZoom = (String)roleInZoom.get("id");
@@ -447,37 +445,37 @@ public class GrouperZoomLoader extends OtherJobBase {
 
           }
 
-          Map<String, MultiKey> emailToSubject = GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailToZoomUser.keySet());
+          GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailToZoomUser.keySet());
           
 
           if (groupLoad) {
             
             loadGroupsAndMembershipsToGrouper(configId, groupSyncFolder, debugMap,
-                groupZoomNameToGrouperExtension, groupZoomNameToMemberships);            
+                groupZoomNameToGrouperExtension, groupZoomNameToMemberships, "groups");            
           }
           
           if (roleLoad) {
             
             loadGroupsAndMembershipsToGrouper(configId, roleSyncFolder, debugMap,
-                roleZoomNameToGrouperExtension, roleZoomNameToMemberships);            
+                roleZoomNameToGrouperExtension, roleZoomNameToMemberships, "roles");            
           }
           
           if (subAccountLoad) {
             
             loadGroupsAndMembershipsToGrouper(configId, subAccountSyncFolder, debugMap,
-                subAccountZoomNameToGrouperExtension, subAccountZoomNameToMemberships);            
+                subAccountZoomNameToGrouperExtension, subAccountZoomNameToMemberships, "subaccounts");            
           }
 
           if (userTypeLoad ) {
             
             loadGroupsAndMembershipsToGrouper(configId, userTypeSyncFolder, debugMap,
-                userTypeZoomNameToGrouperExtension, userTypeToMemberships);            
+                userTypeZoomNameToGrouperExtension, userTypeToMemberships, "userTypes");            
           }
 
           if (userStatusLoad ) {
             
             loadGroupsAndMembershipsToGrouper(configId, userStatusSyncFolder, debugMap,
-                userStatusZoomNameToGrouperExtension, userStatusToMemberships);            
+                userStatusZoomNameToGrouperExtension, userStatusToMemberships, "userStatuses");            
           }
 
           
@@ -504,11 +502,12 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param debugMap
    * @param groupZoomNameToGrouperExtension
    * @param groupZoomNameToMemberships
+   * @param debugPrefix 
    */
   public static void loadGroupsAndMembershipsToGrouper(final String configId,
       final String groupSyncFolder, final Map<String, Object> debugMap,
       Map<String, String> groupZoomNameToGrouperExtension,
-      Map<String, List<Map<String, Object>>> groupZoomNameToMemberships) {
+      Map<String, List<Map<String, Object>>> groupZoomNameToMemberships, String debugPrefix) {
     Set<String> groupExtensionsInGrouper = GrouperUtil.nonNull(GrouperZoomLocalCommands.groupExtensionsInFolder(groupSyncFolder));
     
     //groupsInZoom
@@ -516,35 +515,57 @@ public class GrouperZoomLoader extends OtherJobBase {
     //groupGrouperExtensionToZoomName
     //groupZoomNameToMemberships
 
-    debugIncrement(debugMap, "groupCount", groupZoomNameToGrouperExtension.size());
+    debugIncrement(debugMap, "groupTotalCount", groupZoomNameToGrouperExtension.size());
 
     Set<String> groupsInGrouperToDelete = new HashSet<String>(groupExtensionsInGrouper);
     groupsInGrouperToDelete.removeAll(groupZoomNameToGrouperExtension.values());
     
-    debugIncrement(debugMap, "groupDeleteCount", groupsInGrouperToDelete.size());
-    
+    debugIncrement(debugMap, "groupTotalDeleteCount", groupsInGrouperToDelete.size());
+    debugMap.put(debugPrefix+"DeleteCount", groupsInGrouperToDelete.size());
     GrouperZoomLocalCommands.deleteGroupExtensionsInFolder(groupSyncFolder, groupsInGrouperToDelete);
     
     Set<String> groupsInGrouperToAdd = new HashSet<String>(groupZoomNameToGrouperExtension.values());
     groupsInGrouperToAdd.removeAll(groupExtensionsInGrouper);
 
-    debugIncrement(debugMap, "groupAddCount", groupsInGrouperToAdd.size());
+    debugMap.put(debugPrefix+"AddCount",  groupsInGrouperToAdd.size());
+    debugIncrement(debugMap, "groupTotalAddCount", groupsInGrouperToAdd.size());
 
-     GrouperZoomLocalCommands.createGroupExtensionsInFolder(groupSyncFolder, groupsInGrouperToAdd);
-
-    Map<String, Set<String>> grouperEntensionToEmails = GrouperZoomLocalCommands.groupsEmailsFromFolderHelper(configId, groupSyncFolder);
+    GrouperZoomLocalCommands.createGroupExtensionsInFolder(groupSyncFolder, groupsInGrouperToAdd);
     
+    Map<String, Set<MultiKey>> groupsSourceIdsSubjectIdsInGrouper = GrouperZoomLocalCommands.groupsSourceIdsSubjectIdsToProvisionByFolderName(configId, groupSyncFolder);
+
     for (String zoomGroupName : groupZoomNameToGrouperExtension.keySet()) {
       
       String grouperGroupExtension = groupZoomNameToGrouperExtension.get(zoomGroupName);
       
       List<Map<String, Object>> usersInZoomGroup = groupZoomNameToMemberships.get(zoomGroupName);
       
-      debugIncrement(debugMap, "membershipTotalCount", GrouperUtil.length(usersInZoomGroup));
+      List<String> emailsInZoomGroup = new ArrayList<String>();
+      for (Map<String, Object> userInZoomGroup : GrouperUtil.nonNull(usersInZoomGroup)) {
+        String email = (String)userInZoomGroup.get("email");
+        if (email != null) {
+          emailsInZoomGroup.add(email);
+        }
+      }
+
+      Map<String, MultiKey> emailToSourceIdSubjectIdInZoom = GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailsInZoomGroup);
       
-      Set<String> emailsInGrouper = grouperEntensionToEmails.get(grouperGroupExtension);
+      // see which emails are not found when resolving, log these optionally
+      for (String email : GrouperUtil.nonNull(emailsInZoomGroup)) {
+        if (!emailToSourceIdSubjectIdInZoom.containsKey(email)) {
+          debugIncrement(debugMap, "totalSubjectNotFound", 1);
+          debugMap.put(debugPrefix + "SubjectNotFound", 1);
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUnresolvables", false)) {
+            debugMap.put(email + "_notFound", true);
+          }
+        }
+      }
       
-      loadMembershipsToGrouper(debugMap, configId, groupSyncFolder, grouperGroupExtension, usersInZoomGroup, emailsInGrouper);
+      debugIncrement(debugMap, "membershipTotalCount", GrouperUtil.length(emailToSourceIdSubjectIdInZoom));
+      debugIncrement(debugMap, debugPrefix + "MembershipCount", GrouperUtil.length(emailToSourceIdSubjectIdInZoom));
+      
+      loadMembershipsToGrouper(debugMap, configId, groupSyncFolder, grouperGroupExtension, emailToSourceIdSubjectIdInZoom.values(), 
+          groupsSourceIdsSubjectIdsInGrouper.get(grouperGroupExtension), debugPrefix);
       
     }
   }
@@ -556,66 +577,71 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param configId
    * @param groupSyncFolder
    * @param grouperGroupExtension
-   * @param usersInZoomGroup
-   * @param emailsInGrouper
+   * @param sourceIdSubjectIdInZoomCollection 
+   * @param sourceIdsSubjectIdsInGrouper 
+   * @param debugPrefix 
    */
   protected static void loadMembershipsToGrouper(Map<String, Object> debugMap, String configId,
       String groupSyncFolder, String grouperGroupExtension,
-      List<Map<String, Object>> usersInZoomGroup, Set<String> emailsInGrouper) {
+      Collection<MultiKey> sourceIdSubjectIdInZoomCollection, Set<MultiKey> sourceIdsSubjectIdsInGrouper,
+      String debugPrefix) {
 
-    emailsInGrouper = GrouperUtil.nonNull(emailsInGrouper);
+    sourceIdsSubjectIdsInGrouper = GrouperUtil.nonNull(sourceIdsSubjectIdsInGrouper);
+    Set<MultiKey> sourceIdSubjectIdInZoomSet = new HashSet<MultiKey>(GrouperUtil.nonNull(sourceIdSubjectIdInZoomCollection));
     
-    Set<String> emailsInZoomGroup = new HashSet<String>();
-    Map<String, String> emailToUserIdInZoom = new HashMap<String, String>();
+    Set<MultiKey> sourceIdSubjectIdsToAddToGrouper = new HashSet<MultiKey>(sourceIdSubjectIdInZoomSet);
+    sourceIdSubjectIdsToAddToGrouper.removeAll(sourceIdsSubjectIdsInGrouper);
     
-    for (Map<String, Object> user : GrouperUtil.nonNull(usersInZoomGroup)) {
+    Group group = null;
+    
+    if (GrouperUtil.length(sourceIdSubjectIdsToAddToGrouper) > 0) {
       
-      String email = (String)user.get("email");
-      String id = (String)user.get("id");
-      
-      if (!StringUtils.isBlank(email)) {
-        emailToUserIdInZoom.put(email, id);
-        emailsInZoomGroup.add(email);
+      if (group == null) {
+        group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupSyncFolder + ":" + grouperGroupExtension, true);
       }
       
-    }
-    
-    Set<String> emailsToAddToGrouper = new HashSet<String>(emailsInZoomGroup);
-    emailsToAddToGrouper.removeAll(emailsInGrouper);
-    
-    for (String emailToAddToGrouper : emailsToAddToGrouper) {
-      String zoomUserId = emailToUserIdInZoom.get(emailToAddToGrouper);
-      try {
-        boolean added = GrouperZoomLocalCommands.addMembership(configId, groupSyncFolder, grouperGroupExtension, emailToAddToGrouper, zoomUserId);
-        if (added) {
-          debugIncrement(debugMap, "membershipAddCount", 1);
-        }
-      } catch (SubjectNotFoundException subjectNotFoundException) {
-        debugIncrement(debugMap, "subjectNotFound", 1);
-        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUnresolvables", false)) {
-          debugMap.put(emailToAddToGrouper, "notFound");
+      for (MultiKey sourceIdSubjectId : sourceIdSubjectIdsToAddToGrouper) {
+        try {
+          Subject subject = SubjectFinder.findByIdAndSource((String)sourceIdSubjectId.getKey(1), (String)sourceIdSubjectId.getKey(0), true);
+          if (group.addMember(subject, false)) {
+            debugMap.put(debugPrefix + "MembershipAdds", 1);
+            debugIncrement(debugMap, "membershipTotalAddCount", 1);
+          }
+        } catch (SubjectNotFoundException subjectNotFoundException) {
+          debugIncrement(debugMap, "totalSubjectNotFound", 1);
+          debugMap.put(debugPrefix + "SubjectNotFound", 1);
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUnresolvables", false)) {
+            debugMap.put(sourceIdSubjectId.getKey(0) + "_" + sourceIdSubjectId.getKey(1) + "_notFound", true);
+          }
         }
       }
     }
- 
-    Set<String> emailsToRemoveFromGrouper = new HashSet<String>(emailsInGrouper);
-    emailsToRemoveFromGrouper.removeAll(emailsInZoomGroup);
-    
-    for (String emailToRemoveFromGrouper : emailsToRemoveFromGrouper) {
-      String zoomUserId = emailToUserIdInZoom.get(emailToRemoveFromGrouper);
-      try {
-        boolean deleted = GrouperZoomLocalCommands.removeMembership(configId, groupSyncFolder, grouperGroupExtension, emailToRemoveFromGrouper, zoomUserId);
-        if (deleted) {
-          debugIncrement(debugMap, "membershipDeleteCount", 1);
-        }
-      } catch (SubjectNotFoundException subjectNotFoundException) {
-        debugIncrement(debugMap, "subjectNotFound", 1);
-        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUnresolvables", false)) {
-          debugMap.put(emailToRemoveFromGrouper, "notFound");
+
+    Set<MultiKey> sourceIdSubjectIdsToRemoveFromGrouper = new HashSet<MultiKey>(sourceIdsSubjectIdsInGrouper);
+    sourceIdSubjectIdsToRemoveFromGrouper.removeAll(sourceIdSubjectIdInZoomSet);
+
+    if (GrouperUtil.length(sourceIdSubjectIdsToRemoveFromGrouper) > 0) {
+      
+      if (group == null) {
+        group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupSyncFolder + ":" + grouperGroupExtension, true);
+      }
+      
+      for (MultiKey sourceIdSubjectId : sourceIdSubjectIdsToRemoveFromGrouper) {
+        try {
+          Subject subject = SubjectFinder.findByIdAndSource((String)sourceIdSubjectId.getKey(1), (String)sourceIdSubjectId.getKey(0), true);
+          if (group.deleteMember(subject, false)) {
+            debugMap.put(debugPrefix + "MembershipDeletes", 1);
+            debugIncrement(debugMap, "membershipTotalDeleteCount", 1);
+          }
+        } catch (SubjectNotFoundException subjectNotFoundException) {
+          debugIncrement(debugMap, "totalSubjectNotFound", 1);
+          debugMap.put(debugPrefix + "SubjectNotFound", 1);
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUnresolvables", false)) {
+            debugMap.put(sourceIdSubjectId.getKey(0) + "_" + sourceIdSubjectId.getKey(1), "notFound");
+          }
         }
       }
     }
- 
     
   }
   
@@ -627,6 +653,9 @@ public class GrouperZoomLoader extends OtherJobBase {
    */
   private static void debugIncrement(Map<String, Object> debugMap, String label, int i) {
     Integer value = (Integer)debugMap.get(label);
+    if (value == null) {
+      value = 0;
+    }
     debugMap.put(label, value + i);
   }
 

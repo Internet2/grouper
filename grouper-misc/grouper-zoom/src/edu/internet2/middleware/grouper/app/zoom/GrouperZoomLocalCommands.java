@@ -730,6 +730,22 @@ public class GrouperZoomLocalCommands {
   /**
    * get all memberships to provision, filter out ones not in correct source
    * @param configId
+   * @param stemName
+   * @return the map of group extension to set of multikey with sourceId and subjectId
+   */
+  public static Map<String, Set<MultiKey>> groupsSourceIdsSubjectIdsToProvisionByFolderName(final String configId, final String stemName) {
+    Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+    
+    if (stem == null) {
+      return new HashMap<String, Set<MultiKey>>();
+    }
+    
+    return groupsSourceIdsSubjectIdsToProvision(configId, stem.getId());
+  }
+  
+  /**
+   * get all memberships to provision, filter out ones not in correct source
+   * @param configId
    * @param stemId
    * @return the map of group extension to set of multikey with sourceId and subjectId
    */
