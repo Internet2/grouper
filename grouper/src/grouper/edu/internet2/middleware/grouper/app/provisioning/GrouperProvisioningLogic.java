@@ -38,17 +38,35 @@ public class GrouperProvisioningLogic {
     
     targetQueryThread.start();
     
-    Map<String, TargetGroup> groups = grouperProvisioner.retrieveGrouperDao().retrieveAllGroups();    
-    Map<String, TargetEntity> entities = grouperProvisioner.retrieveGrouperDao().retrieveAllMembers();
-    Map<String, TargetMembership> memberships = grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships();
+    Map<String, TargetGroup> grouperTargetGroups = grouperProvisioner.retrieveGrouperDao().retrieveAllGroups();
+    Map<String, TargetEntity> grouperTargetEntities = grouperProvisioner.retrieveGrouperDao().retrieveAllMembers();
+    Map<String, TargetMembership> grouperTargetMemberships = grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships();
     
     GrouperClientUtils.join(targetQueryThread);
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
     }
     
-    Map<String, TargetGroup> targetResult = TARGET_RESULT[0];
-
+    Map<String, TargetGroup> actualTargetResult = TARGET_RESULT[0];
+    Map<String, TargetGroup> translatedTargetResult = this.grouperProvisioner.retrieveTranslator().translateToTarget(grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
+    
+    // TODO issues with dn comparison with case/spacing differences
+    
+    for (String key : actualTargetResult.keySet()) {
+      TargetGroup actualTargetGroup = actualTargetResult.get(key);
+      if (!translatedTargetResult.containsKey(key)) {
+        this.grouperProvisioner.retrieveTargetDao().deleteGroup(actualTargetGroup);
+      }
+    }
+    
+    for (String key : translatedTargetResult.keySet()) {
+      TargetGroup targetGroup = translatedTargetResult.get(key);
+      if (!actualTargetResult.containsKey(key)) {
+        this.grouperProvisioner.retrieveTargetDao().createGroup(targetGroup);
+      } else {
+        this.grouperProvisioner.retrieveTargetDao().updateGroupIfNeeded(targetGroup, actualTargetResult.get(key));
+      }
+    }
 
     // make sure the sync objects are correct
 //    new ProvisioningSyncIntegration().assignTarget(this.getGrouperProvisioner().getConfigId()).fullSync();

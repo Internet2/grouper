@@ -185,7 +185,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.userCreationLdifTemplate_val_9 = this.retrieveConfigString("userCreationLdifTemplate_val_9", false);
     this.userCreationLdifTemplate_maxLength_9 = this.retrieveConfigInt("userCreationLdifTemplate_maxLength_9", false);
 
-    this.groupCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("groupCreationNumberOfAttributes ", false), 0);
+    this.groupCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("groupCreationNumberOfAttributes", false), 0);
   
     this.groupCreationLdifTemplate_attr_0 = this.retrieveConfigString("groupCreationLdifTemplate_attr_0", false);
     this.groupCreationLdifTemplate_val_0 = this.retrieveConfigString("groupCreationLdifTemplate_val_0", false);

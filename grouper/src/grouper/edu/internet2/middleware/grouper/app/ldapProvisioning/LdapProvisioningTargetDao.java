@@ -1,11 +1,14 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
@@ -13,6 +16,9 @@ import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
+import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
@@ -77,5 +83,90 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return results;
   }
   
+  public boolean createGroup(TargetGroup targetGroup) {
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    LdapEntry ldapEntry = new LdapEntry(targetGroup.getId());
+    for (String attributeName : targetGroup.getAttributes().keySet()) {
+      TargetAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
+      Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
+      if (values.size() > 0) {
+        LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
+        ldapAttribute.addValues(values);
+        ldapEntry.addAttribute(ldapAttribute);
+      }
+    }
+    
+    return new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
+  }
   
+  public void deleteGroup(TargetGroup targetGroup) {
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getId());
+   
+  }
+
+  public boolean updateGroupIfNeeded(TargetGroup grouperTranslatedTargetGroup, TargetGroup actualTargetGroup) {
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
+    
+    Map<String, TargetAttribute> grouperTranslatedTargetAttributes = grouperTranslatedTargetGroup.getAttributes();
+    Map<String, TargetAttribute> actualTargetAttributes = actualTargetGroup.getAttributes();
+    
+    Set<String> allAttributes = new HashSet<String>(grouperTranslatedTargetAttributes.keySet());
+    allAttributes.addAll(actualTargetAttributes.keySet());
+    
+    for (String attributeName : allAttributes) {
+      Set<Object> grouperValues = new HashSet<Object>();
+      Set<Object> targetValues = new HashSet<Object>();
+      
+      if (grouperTranslatedTargetAttributes.containsKey(attributeName) && grouperTranslatedTargetAttributes.get(attributeName).getValue() != null) {
+        grouperValues = new HashSet<Object>((Collection<Object>)grouperTranslatedTargetAttributes.get(attributeName).getValue());
+      }
+      
+      if (actualTargetAttributes.containsKey(attributeName) && actualTargetAttributes.get(attributeName).getValue() != null) {
+        targetValues = new HashSet<Object>((Collection<Object>)actualTargetAttributes.get(attributeName).getValue());
+      }
+      
+      if (grouperValues.size() == 0 && targetValues.size() > 0) {
+        // delete attribute here
+        LdapModificationItem item = new LdapModificationItem(LdapModificationType.REPLACE_ATTRIBUTE, new LdapAttribute(attributeName));
+        ldapModificationItems.add(item);
+      } else {
+        Set<Object> valuesToAdd = new HashSet<Object>(grouperValues);
+        valuesToAdd.removeAll(targetValues);
+        
+        if (valuesToAdd.size() > 0) {
+          LdapAttribute ldapAttribute = new LdapAttribute(attributeName);
+          ldapAttribute.addValues(valuesToAdd);
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, ldapAttribute);
+          ldapModificationItems.add(item);
+        }
+        
+        Set<Object> valuesToRemove = new HashSet<Object>(targetValues);
+        valuesToRemove.removeAll(grouperValues);
+        
+        if (valuesToRemove.size() > 0) {
+          LdapAttribute ldapAttribute = new LdapAttribute(attributeName);
+          ldapAttribute.addValues(valuesToRemove);
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, ldapAttribute);
+          ldapModificationItems.add(item);
+        }
+      }
+    }
+    
+    if (ldapModificationItems.size() > 0) {
+      LdapModificationResult result = new LdapSyncDaoForLdap().modify(ldapConfigId, actualTargetGroup.getId(), ldapModificationItems);
+      
+      // TODO what to do about partial errors
+      return true;
+    }
+    
+    return false;
+  }
 }

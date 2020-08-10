@@ -56,7 +56,7 @@ public abstract class GrouperProvisioner {
     
   }
   
-  public Class<? extends GrouperProvisionerGrouperDao> retrieveGrouperDaoClass() {
+  protected Class<? extends GrouperProvisionerGrouperDao> retrieveGrouperDaoClass() {
     return GrouperProvisionerGrouperDao.class;
   }
   
@@ -105,6 +105,28 @@ public abstract class GrouperProvisioner {
     
   }
   
+  private GrouperProvisioningTranslatorBase grouperProvisioningTranslatorBase = null;
+
+  /**
+   * returns the instance of the translator
+   * @return the translator
+   */
+  public GrouperProvisioningTranslatorBase retrieveTranslator() {
+    if (this.grouperProvisioningTranslatorBase == null) {
+      Class<? extends GrouperProvisioningTranslatorBase> grouperProvisioningTranslatorBaseClass = this.retrieveTranslatorClass();
+      this.grouperProvisioningTranslatorBase = GrouperUtil.newInstance(grouperProvisioningTranslatorBaseClass);
+      this.grouperProvisioningTranslatorBase.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningTranslatorBase;
+    
+  }
+  
+  /**
+   * @return the class of the translator for this provisioner (optional)
+   */
+  protected Class<? extends GrouperProvisioningTranslatorBase> retrieveTranslatorClass() {
+    return GrouperProvisioningTranslatorBase.class;
+  }
   
   /**
    * factory method to get a provisioner by config id
