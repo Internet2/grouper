@@ -10061,6 +10061,7 @@ public class GrouperServiceLogic {
    * @param queueOrTopicName - queue or topic to send to (required)
    * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
    * @param routingKey - valid for only rabbitmq. ignored otherwise.
+   * @param queueArguments
    * @param autocreateObjects - create queue/topic if not there already.
    * @param messages - payload to be sent (required)
    * @param actAsSubjectLookup
@@ -10070,7 +10071,7 @@ public class GrouperServiceLogic {
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
       final String messageSystemName, String routingKey,
-      Boolean autocreateObjects,
+      Map<String, Object> queueArguments, Boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
 
@@ -10101,6 +10102,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueType", queueType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueArguments", queueArguments);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -10133,6 +10135,7 @@ public class GrouperServiceLogic {
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
           .assignRoutingKey(routingKey)
+          .assignQueueArguments(queueArguments)
           .assignGrouperMessages(grouperMessages);
       
       //TODO move to dedicated argument in 2.5
@@ -10178,7 +10181,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults receiveMessage(final GrouperVersion clientVersion,
       final String queueOrTopicName, final String messageSystemName,
-      String routingKey, Boolean autocreateObjects,
+      String routingKey, Map<String, Object> queueArguments, Boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
@@ -10210,6 +10213,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueArguments", queueArguments);
 
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -10227,7 +10231,8 @@ public class GrouperServiceLogic {
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
           .assignAutocreateObjects(autocreateObjects)
-          .assignQueueName(queueOrTopicName);
+          .assignQueueName(queueOrTopicName)
+          .assignQueueArguments(queueArguments);
       
       if (blockMillis != null) {
         grouperMessageReceiveParam.assignLongPollMillis(blockMillis);

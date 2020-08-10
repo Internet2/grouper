@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+import java.util.Map;
+
 
 /**
  * request bean in body of rest request
@@ -51,7 +53,10 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   
   /** routing key for rabbitmq **/
   private String routingKey;
-  
+
+  /** extra queue arguments if needed **/
+  private Map<String, Object> queueArguments;
+
   /** create queue/topic if doesn't exist already. **/
   private String autocreateObjects;
 
@@ -78,6 +83,22 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    */
   public String getRoutingKey() {
     return this.routingKey;
+  }
+
+  /**
+   * optional queue argument map for rabbitmq
+   * @return queueArguments
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
+
+  /**
+   * optional queue argument map for rabbitmq
+   * @param queueArguments map of key:value of queue arguments
+   */
+  public void setQueueArguments(Map<String, Object> queueArguments) {
+    this.queueArguments = queueArguments;
   }
 
   /**

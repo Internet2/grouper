@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+import java.util.Map;
+
 /**
  * request bean in body of rest request
  */
@@ -190,4 +192,20 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
     this.params = params1;
   }
 
+  /** optional queue arguments, mainly for rabbitmq **/
+  private Map<String, Object> queueArguments;
+
+  /**
+   * @return queueArguments
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
+
+  /**
+   * @param queueArguments1
+   */
+  public void setQueueArguments(Map<String, Object> queueArguments1) {
+    this.queueArguments = queueArguments1;
+  }
 }

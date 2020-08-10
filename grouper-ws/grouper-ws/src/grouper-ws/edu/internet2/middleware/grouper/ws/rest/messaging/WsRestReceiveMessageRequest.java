@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+import java.util.Map;
+
 
 /**
  * request bean in body of rest request
@@ -47,7 +49,10 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   
   /** routing key - valid for rabbitmq only; **/
   private String routingKey;
-  
+
+  /** optional queue arguments, mainly for rabbitmq **/
+  private Map<String, Object> queueArguments;
+
   /** the millis to block waiting for messages, max of 20000 (optional) **/
   private String blockMillis;
   
@@ -83,6 +88,20 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setRoutingKey(String routingKey1) {
     this.routingKey = routingKey1;
+  }
+
+  /**
+   * @return queueArguments
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
+
+  /**
+   * @param queueArguments1
+   */
+  public void setQueueArguments(Map<String, Object> queueArguments1) {
+    this.queueArguments = queueArguments1;
   }
 
   /**
