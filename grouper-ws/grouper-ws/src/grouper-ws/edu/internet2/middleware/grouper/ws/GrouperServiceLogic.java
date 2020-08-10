@@ -10070,7 +10070,7 @@ public class GrouperServiceLogic {
    */
   public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
       final GrouperMessageQueueType queueType, final String queueOrTopicName,
-      final String messageSystemName, String routingKey,
+      final String messageSystemName, String routingKey, String exchangeType,
       Map<String, Object> queueArguments, Boolean autocreateObjects,
       final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
       final WsParam[] params) {
@@ -10093,6 +10093,18 @@ public class GrouperServiceLogic {
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
 
+      // legacy support for setting exchangeType via params (prior to GRP-2928)
+      String overallExchangeType = exchangeType;
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+      if (paramMap.containsKey("exchangeType")) {
+        if (StringUtils.isBlank(overallExchangeType)) {
+          overallExchangeType = paramMap.get("exchangeType");
+        } else {
+          GrouperWsLog.addToLogIfNotBlank(debugMap, "exchangeTypeWarning",
+              "exchangeType was set both directly and via params; using direct value '" + overallExchangeType + "'");
+        }
+      }
+
       GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "autocreateObjects", autocreateObjects);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
@@ -10102,6 +10114,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueType", queueType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exchangeType", overallExchangeType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueArguments", queueArguments);
 
       //start session based on logged in user or the actAs passed in
@@ -10117,10 +10130,6 @@ public class GrouperServiceLogic {
         throw new WsInvalidQueryException("You need to pass in at least one message.");
       }
 
-      //convert the options to a map for easy access, and validate them
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
-
       Collection<GrouperMessage> grouperMessages = new ArrayList<GrouperMessage>();
 
       for (WsMessage wsMessage : messages) {
@@ -10135,14 +10144,9 @@ public class GrouperServiceLogic {
           .assignQueueOrTopicName(queueOrTopicName)
           .assignQueueType(queueType)
           .assignRoutingKey(routingKey)
+          .assignExchangeType(overallExchangeType)
           .assignQueueArguments(queueArguments)
           .assignGrouperMessages(grouperMessages);
-      
-      //TODO move to dedicated argument in 2.5
-      if (paramMap.containsKey("exchangeType")) {
-        String exchangeType = paramMap.get("exchangeType");
-        grouperMessageSendParam.assignExchangeType(exchangeType);
-      }
 
       GrouperMessagingEngine.send(grouperMessageSendParam);
 
@@ -10180,8 +10184,8 @@ public class GrouperServiceLogic {
    * @return the results
    */
   public static WsMessageResults receiveMessage(final GrouperVersion clientVersion,
-      final String queueOrTopicName, final String messageSystemName,
-      String routingKey, Map<String, Object> queueArguments, Boolean autocreateObjects,
+      final GrouperMessageQueueType queueType, final String queueOrTopicName, final String messageSystemName,
+      String routingKey, final String exchangeType, Map<String, Object> queueArguments, Boolean autocreateObjects,
       final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
@@ -10197,6 +10201,31 @@ public class GrouperServiceLogic {
       GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
           wsReceiveMessageResults.getResponseMetadata().warnings());
 
+      //convert the options to a map for easy access, and validate them
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+
+      // legacy support for setting queueType via params (prior to GRP-2928)
+      GrouperMessageQueueType overallQueueType = queueType;
+      if (paramMap.containsKey("queueType")) {
+        if (overallQueueType == null) {
+          overallQueueType = GrouperMessageQueueType.valueOfIgnoreCase(paramMap.get("queueType"), true);
+        } else {
+          GrouperWsLog.addToLogIfNotBlank(debugMap, "queueTypeWarning",
+            "queueType was set both directly and via params; using direct value '" + overallQueueType.name() + "'");
+        }
+      }
+
+      // legacy support for setting exchangeType via params (prior to GRP-2928)
+      String overallExchangeType = exchangeType;
+      if (paramMap.containsKey("exchangeType")) {
+        if (StringUtils.isBlank(overallExchangeType)) {
+          overallExchangeType = paramMap.get("exchangeType");
+        } else {
+          GrouperWsLog.addToLogIfNotBlank(debugMap, "exchangeTypeWarning",
+            "exchangeType was set both directly and via params; using direct value '" + overallExchangeType + "'");
+        }
+      }
+
       theSummary = "clientVersion: " + clientVersion + ", queueOrTopicName: "
           + queueOrTopicName + ", messageSystemName: " + messageSystemName
           + "\nblockMillis: " + blockMillis + ", maxMessagesToReceiveAtOnce: "
@@ -10211,8 +10240,10 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "maxMessagesToReceiveAtOnce", maxMessagesToReceiveAtOnce);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "messageSystemName", messageSystemName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "queueType", overallQueueType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueOrTopicName", queueOrTopicName);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "routingKey", routingKey);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exchangeType", overallExchangeType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "queueArguments", queueArguments);
 
       //start session based on logged in user or the actAs passed in
@@ -10225,13 +10256,13 @@ public class GrouperServiceLogic {
             "You need to pass in queueOrTopicName from which the messages need to be received.");
       }
 
-      //convert the options to a map for easy access, and validate them
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
-      
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
           .assignAutocreateObjects(autocreateObjects)
           .assignQueueName(queueOrTopicName)
+          .assignQueueType(overallQueueType)
+          .assignRoutingKey(routingKey)
+          .assignExchangeType(overallExchangeType)
           .assignQueueArguments(queueArguments);
       
       if (blockMillis != null) {
@@ -10241,21 +10272,6 @@ public class GrouperServiceLogic {
         grouperMessageReceiveParam.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
       }
       
-      grouperMessageReceiveParam.assignRoutingKey(routingKey);
-      
-      //TODO move to dedicated argument in 2.5
-      if (paramMap.containsKey("exchangeType")) {
-        String exchangeType = paramMap.get("exchangeType");
-        grouperMessageReceiveParam.assignExchangeType(exchangeType);
-      }
-      
-      //TODO move to dedicated argument in 2.5
-      if (paramMap.containsKey("queueType")) {
-        String queueType = paramMap.get("queueType");
-        GrouperMessageQueueType messageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(queueType, true);
-        grouperMessageReceiveParam.assignQueueType(messageQueueType);
-      }
-
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
           .receive(grouperMessageReceiveParam);
 

@@ -41,6 +41,9 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /** routing key for rabbitmq **/
   private String routingKey;
 
+  /** if the messaging system can use exchange type (e.g. rabbitmq), set it here **/
+  private String exchangeType;
+
   /** extra queue arguments if needed **/
   private Map<String, Object> queueArguments;
 
@@ -106,6 +109,22 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    */
   public void setQueueOrTopicName(String queueOrTopicName1) {
     this.queueOrTopicName = queueOrTopicName1;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @return
+   */
+  public String getExchangeType() {
+    return exchangeType;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
   }
 
   /**

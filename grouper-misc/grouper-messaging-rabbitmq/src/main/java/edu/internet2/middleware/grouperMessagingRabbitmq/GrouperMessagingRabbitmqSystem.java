@@ -314,6 +314,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
             error = "queue "+queueOrTopicName+" doesn't exist. Either create the queue or set the autoCreateObjects to true.";
           }
         }
+    } else {
+      error = "queue type not defined. Must be either queue or topic.";
     }
     return error;
   }

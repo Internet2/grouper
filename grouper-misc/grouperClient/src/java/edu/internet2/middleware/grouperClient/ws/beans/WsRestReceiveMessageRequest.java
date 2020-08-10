@@ -25,7 +25,10 @@ import java.util.Map;
  * request bean in body of rest request
  */
 public class WsRestReceiveMessageRequest implements WsRequestBean {
-  
+
+  /** queue type **/
+  private String queueType;
+
   /** queue or topic name **/
   private String queueOrTopicName;
   
@@ -40,7 +43,10 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
 
   /** create queue/topic if doesn't exist already. **/
   private String autocreateObjects;
-  
+
+  /** if the messaging system can use exchange type (e.g. rabbitmq), set it here **/
+  private String exchangeType;
+
   /**
    * create queue/topic if doesn't exist already.
    * @return the autocreateObjects
@@ -91,6 +97,38 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setQueueOrTopicName(String queueOrTopicName1) {
     this.queueOrTopicName = queueOrTopicName1;
+  }
+
+  /**
+   * queue type
+   * @return queueType
+   */
+  public String getQueueType() {
+    return this.queueType;
+  }
+
+  /**
+   * queue type
+   * @param queueType1
+   */
+  public void setQueueType(String queueType1) {
+    this.queueType = queueType1;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @return
+   */
+  public String getExchangeType() {
+    return exchangeType;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
   }
 
   /**

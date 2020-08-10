@@ -40,7 +40,10 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }
-  
+
+  /** queue type **/
+  private String queueType;
+
   /** queue or topic name **/
   private String queueOrTopicName;
   
@@ -49,6 +52,9 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   
   /** routing key - valid for rabbitmq only; **/
   private String routingKey;
+
+  /** if the messaging system can use exchange type (e.g. rabbitmq), set it here **/
+  private String exchangeType;
 
   /** optional queue arguments, mainly for rabbitmq **/
   private Map<String, Object> queueArguments;
@@ -219,4 +225,35 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
     this.params = params1;
   }
 
+  /**
+   * queue type
+   * @return queueType
+   */
+  public String getQueueType() {
+    return this.queueType;
+  }
+
+  /**
+   * queue type
+   * @param queueType1
+   */
+  public void setQueueType(String queueType1) {
+    this.queueType = queueType1;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @return
+   */
+  public String getExchangeType() {
+    return exchangeType;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
+  }
 }
