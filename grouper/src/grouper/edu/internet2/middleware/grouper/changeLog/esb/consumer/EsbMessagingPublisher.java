@@ -28,6 +28,9 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * Publishes Grouper events to messaging
@@ -77,9 +80,26 @@ public class EsbMessagingPublisher extends EsbListenerBase {
         
     String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
         + consumerName + ".publisher.exchangeType");
-    
+
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
-    
+
+    Map<String, Object> extraArgs = null;
+    for (int i=0;i<100;i++) {
+      String key = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+              + consumerName + ".publisher.queueArgs." + i + ".key");
+      if (key == null || "".equals(key)) {
+        break;
+      }
+
+      String value = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+              + consumerName + ".publisher.queueArgs." + i + ".value");
+
+      if (extraArgs == null) {
+        extraArgs = new HashMap<>();
+      }
+      extraArgs.put(key, value);
+    }
+
     GrouperMessagingEngine.send(new GrouperMessageSendParam()
         .assignGrouperMessageSystemName(messagingSystemName)
         .assignQueueType(grouperMessageQueueType)
@@ -87,7 +107,8 @@ public class EsbMessagingPublisher extends EsbListenerBase {
         .addMessageBody(eventJsonString)
         .assignQueueOrTopicName(queueOrTopicName)
         .assignRoutingKey(routingKey)
-        .assignExchangeType(exchangeType));
+        .assignExchangeType(exchangeType)
+        .assignQueueArguments(extraArgs));
     return true;
     
   }
