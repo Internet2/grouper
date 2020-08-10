@@ -16,7 +16,9 @@
 
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 
@@ -60,7 +62,23 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
    
     String exchangeType = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
         + changeLogProcessorMetadata.getConsumerName() + ".exchangeType", "");
-    
+
+    Map<String, Object> queueArguments = null;
+    for (int i=0;i<100;i++) {
+      String key = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+              + changeLogProcessorMetadata.getConsumerName() + ".queueArgs." + i + ".key");
+      if (key == null || "".equals(key)) {
+        break;
+      }
+
+      String value = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+              + changeLogProcessorMetadata.getConsumerName() + ".queueArgs." + i + ".value");
+      if (queueArguments == null) {
+        queueArguments = new HashMap<>();
+      }
+      queueArguments.put(key, value);
+    }
+
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
     
     for (ChangeLogEntry changeLogEntry : GrouperUtil.nonNull(changeLogEntryList)) {
@@ -73,7 +91,8 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
             .assignQueueOrTopicName(queueOrTopicName)
             .addMessageBody(json)
             .assignRoutingKey(routingKey)
-            .assignExchangeType(exchangeType));
+            .assignExchangeType(exchangeType)
+            .assignQueueArguments(queueArguments));
         lastProcessed = changeLogEntry.getSequenceNumber();
       } catch (Exception e) {
         LOG.error("Error processing event: " + changeLogEntry.getId(), e);
