@@ -85,6 +85,7 @@ public class ZoomEsbPublisher extends EsbListenerBase {
       debugMap.put("configId", configId);
 
       String folderName = GrouperZoomLocalCommands.folderNameToProvision(configId);
+      String roleFolderName = GrouperZoomLocalCommands.roleFolderNameToProvision(configId);
       String groupNameToDeleteUsers = GrouperZoomLocalCommands.groupNameToDeleteUsers(configId);
       String groupNameToDeactivateUsers = GrouperZoomLocalCommands.groupNameToDeactivateUsers(configId);
       
@@ -106,6 +107,7 @@ public class ZoomEsbPublisher extends EsbListenerBase {
 
           String groupExtension = GrouperUtil.extensionFromName(esbEvent.getGroupName());
           if (!StringUtils.isBlank(folderName) && StringUtils.equals(folderName + ":" + groupExtension, esbEvent.getGroupName())) {
+            debugMap.put("isGroup", true);
             // is group in folder
             boolean hasMembership = GrouperZoomLocalCommands.groupSourceIdSubjectIdToProvision(configId, 
                 groupExtension, esbEvent.getSourceId(), esbEvent.getSubjectId());
@@ -133,12 +135,54 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             }
 
             if (hasMembership) {
-              GrouperZoomCommands.addGroupMembership(configId, (String)group.get("id"), (String)user.get("id"));
-              hib3GrouperLoaderLog.addInsertCount(1);
+              if (!GrouperZoomLocalCommands.groupProvisionRemoveOnly(configId)) {
+                GrouperZoomCommands.addGroupMembership(configId, (String)group.get("id"), (String)user.get("id"));
+                hib3GrouperLoaderLog.addInsertCount(1);
+              }
             } else {
               GrouperZoomCommands.removeGroupMembership(configId, (String)group.get("id"), (String)user.get("id"));
               hib3GrouperLoaderLog.addDeleteCount(1);
             }
+          } else if (!StringUtils.isBlank(roleFolderName) && StringUtils.equals(roleFolderName + ":" + groupExtension, esbEvent.getGroupName())) {
+
+            debugMap.put("isRole", true);
+
+            // is role in folder
+            boolean hasMembership = GrouperZoomLocalCommands.roleSourceIdSubjectIdToProvision(configId, 
+                groupExtension, esbEvent.getSourceId(), esbEvent.getSubjectId());
+            debugMap.put("hasMembership", hasMembership);
+            
+            String email = esbEvent.subjectAttribute(GrouperZoomLocalCommands.subjectAttributeForZoomEmail(configId));
+            debugMap.put("email", email);
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            
+            Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+            debugMap.put("userExists", user != null);
+            
+            if (user == null) {
+              continue;
+            }
+            Map<String, Object> role = GrouperZoomCommands.retrieveRoles(configId).get(groupExtension);
+
+            debugMap.put("roleExists", role != null);
+
+            if (role == null ) {
+              // i dont think this would happen
+              continue;
+            }
+
+            if (hasMembership) {
+              if (!GrouperZoomLocalCommands.roleProvisionRemoveOnly(configId)) {
+                GrouperZoomCommands.addRoleMembership(configId, (String)role.get("id"), (String)user.get("id"));
+                hib3GrouperLoaderLog.addInsertCount(1);
+              }
+            } else {
+              GrouperZoomCommands.removeRoleMembership(configId, (String)role.get("id"), (String)user.get("id"));
+              hib3GrouperLoaderLog.addDeleteCount(1);
+            }
+
           } else if (!StringUtils.isBlank(groupNameToDeleteUsers) && StringUtils.equals(groupNameToDeleteUsers, esbEvent.getGroupName())) {
 
             // is group in folder
@@ -164,6 +208,11 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             }
 
             GrouperZoomCommands.deleteUser(configId, email);
+
+            if (GrouperZoomLocalCommands.removeGrouperMembershipFromDeletedGroupAfterDeleteZoomUser(configId)) {
+              GrouperZoomLocalCommands.removeMembership(configId, groupNameToDeleteUsers, email);
+            }
+
             hib3GrouperLoaderLog.addDeleteCount(1);
             
           } else if (!StringUtils.isBlank(groupNameToDeactivateUsers) && StringUtils.equals(groupNameToDeactivateUsers, esbEvent.getGroupName())) {
@@ -198,6 +247,11 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             }
 
             GrouperZoomCommands.userChangeStatus(configId, email, false);
+            
+            if (GrouperZoomLocalCommands.removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser(configId)) {
+              GrouperZoomLocalCommands.removeMembership(configId, groupNameToDeactivateUsers, email);
+            }
+            
             hib3GrouperLoaderLog.addDeleteCount(1);
             
           }
@@ -225,9 +279,15 @@ public class ZoomEsbPublisher extends EsbListenerBase {
           }
           
           if (groupExistsInGrouper) {
+            // if we are only removing memberships then dont create groups or delete groups
+            if (GrouperZoomLocalCommands.groupProvisionRemoveOnly(configId)) {
+              continue;
+            }
+            
             GrouperZoomCommands.createGroup(configId, groupExtension);
             hib3GrouperLoaderLog.addInsertCount(1);
           } else {
+            
             if (GrouperZoomLocalCommands.deleteInTargetIfDeletedInGrouper(configId)) {
               Map<String, Object> groupMap = GrouperZoomCommands.retrieveGroups(configId).get(groupExtension);
               if (groupMap != null) {

@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.app.zoom;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,90 +67,167 @@ public class GrouperZoomFullSync extends OtherJobBase {
         debugMap.put("method", "fullSync");
         try {
 
-          // group extensions to provision
-          Set<String> groupsToProvision = GrouperZoomLocalCommands.groupExtensionsToProvision(configId);
-
-          // group extension to list of emails
-          Map<String,Set<String>> groupsEmailsToProvision =  GrouperZoomLocalCommands.groupsEmailsToProvision(configId);
-          
-          // groups that exist in zoom
-          Map<String, Map<String, Object>> groupsProvisioned = GrouperZoomCommands.retrieveGroups(configId);
-          
-          debugMap.put("groupCount", GrouperUtil.length(groupsToProvision));
+          debugMap.put("groupCount", 0);
           debugMap.put("groupAddCount", 0);
           debugMap.put("userDeleteCount", 0);
           debugMap.put("userDeactivateCount", 0);
           debugMap.put("membershipAddCount", 0);
           debugMap.put("membershipDeleteCount", 0);
           debugMap.put("membershipTotalCount", 0);
-          if (GrouperUtil.length(groupsToProvision) == 0) {
-            return debugMap;
-          }
 
+          int groupCount = 0;
           int groupAddCount = 0;
-          
-          // add groups
-          for (String groupName : GrouperUtil.nonNull(groupsToProvision)) {
-            if (!groupsProvisioned.containsKey(groupName)) {
-              Map<String, Object> group = GrouperZoomCommands.createGroup(configId, groupName);
-              groupsProvisioned.put(groupName, group);
-              groupAddCount++;
-            }
-          }
-
-          debugMap.put("groupAddCount", groupAddCount);
-
           int membershipTotalCount = 0;
           int membershipAddCount = 0;
           int membershipDeleteCount = 0;
 
-          Map<String, String> emailToUserId = new HashMap<String, String>();
-          
-          // manage memberships
-          for (String groupName : GrouperUtil.nonNull(groupsToProvision)) {
-            Set<String> emailsToProvision = groupsEmailsToProvision.get(groupName);
-            membershipTotalCount += GrouperUtil.length(emailsToProvision);
+          if (!StringUtils.isBlank(GrouperZoomLocalCommands.folderNameToProvision(configId))) {
+            // group extensions to provision
+            Set<String> groupsToProvision = GrouperZoomLocalCommands.groupExtensionsToProvision(configId);
+  
+            // group extension to list of emails
+            Map<String,Set<String>> groupsEmailsToProvision =  GrouperZoomLocalCommands.groupsEmailsToProvision(configId);
+            
+            // groups that exist in zoom
+            Map<String, Map<String, Object>> groupsProvisioned = GrouperZoomCommands.retrieveGroups(configId);
+            
+            groupCount += GrouperUtil.length(groupsToProvision);
 
-            Map<String, Object> groupProvisioned = groupsProvisioned.get(groupName);
-            String groupId = (String)groupProvisioned.get("id");
-            
-            List<Map<String, Object>> memberships = GrouperZoomCommands.retrieveGroupMemberships(configId, groupId);
-            Set<String> emailsProvisioned = new HashSet<String>();
-            for (Map<String, Object> membership : GrouperUtil.nonNull(memberships)) {
-              String email = (String)membership.get("email");
-              String userId = (String)membership.get("id");
-              emailsProvisioned.add(email);
-              emailToUserId.put(email, userId);
-            }
-            
-            {
-              Set<String> emailsToAdd = new TreeSet<String>(GrouperUtil.nonNull(emailsToProvision));
-              emailsToAdd.removeAll(GrouperUtil.nonNull(emailsProvisioned));
+            if (GrouperUtil.length(groupsToProvision) > 0) {
+              groupAddCount = 0;
               
-              membershipAddCount+= emailsToAdd.size();
-              for (String emailToAdd : emailsToAdd) {
-                Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, emailToAdd);
-                // TODO add user?
-                if (user != null) {
-                  String userId = (String)user.get("id");
-                  GrouperZoomCommands.addGroupMembership(configId, groupId, userId);
+              // add groups
+              for (String groupName : GrouperUtil.nonNull(groupsToProvision)) {
+                if (!groupsProvisioned.containsKey(groupName)) {
+                  Map<String, Object> group = GrouperZoomCommands.createGroup(configId, groupName);
+                  groupsProvisioned.put(groupName, group);
+                  groupAddCount++;
                 }
               }
-            }
-            
-            {
-              Set<String> emailsToRemove = new TreeSet<String>(GrouperUtil.nonNull(emailsProvisioned));
-              emailsToRemove.removeAll(GrouperUtil.nonNull(emailsToProvision));
+    
+              Map<String, String> emailToUserId = new HashMap<String, String>();
               
-              membershipDeleteCount+= emailsToRemove.size();
-              for (String emailToRemove : emailsToRemove) {
-                String userId = emailToUserId.get(emailToRemove);
-                GrouperZoomCommands.removeGroupMembership(configId, groupId, userId);
+              // manage memberships
+              for (String groupName : GrouperUtil.nonNull(groupsToProvision)) {
+                Set<String> emailsToProvision = groupsEmailsToProvision.get(groupName);
+                membershipTotalCount += GrouperUtil.length(emailsToProvision);
+    
+                Map<String, Object> groupProvisioned = groupsProvisioned.get(groupName);
+                String groupId = (String)groupProvisioned.get("id");
+                
+                List<Map<String, Object>> memberships = GrouperZoomCommands.retrieveGroupMemberships(configId, groupId);
+                Set<String> emailsProvisioned = new HashSet<String>();
+                for (Map<String, Object> membership : GrouperUtil.nonNull(memberships)) {
+                  String email = (String)membership.get("email");
+                  String userId = (String)membership.get("id");
+                  emailsProvisioned.add(email);
+                  emailToUserId.put(email, userId);
+                }
+                
+                if (!GrouperZoomLocalCommands.groupProvisionRemoveOnly(configId)) {
+                  Set<String> emailsToAdd = new TreeSet<String>(GrouperUtil.nonNull(emailsToProvision));
+                  emailsToAdd.removeAll(GrouperUtil.nonNull(emailsProvisioned));
+                  
+                  membershipAddCount+= emailsToAdd.size();
+                  for (String emailToAdd : emailsToAdd) {
+                    Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, emailToAdd);
+                    // TODO add user?
+                    if (user != null) {
+                      String userId = (String)user.get("id");
+                      GrouperZoomCommands.addGroupMembership(configId, groupId, userId);
+                    }
+                  }
+                }
+                          
+                {
+                  Set<String> emailsToRemove = new TreeSet<String>(GrouperUtil.nonNull(emailsProvisioned));
+                  emailsToRemove.removeAll(GrouperUtil.nonNull(emailsToProvision));
+                  
+                  membershipDeleteCount+= emailsToRemove.size();
+                  for (String emailToRemove : emailsToRemove) {
+                    String userId = emailToUserId.get(emailToRemove);
+                    GrouperZoomCommands.removeGroupMembership(configId, groupId, userId);
+                  }
+                }
               }
-            }
-            
+            }              
           }
           
+          if (!StringUtils.isBlank(GrouperZoomLocalCommands.roleFolderNameToProvision(configId))) {
+            // group extensions to provision as roles
+            Set<String> rolesToProvision = GrouperZoomLocalCommands.roleExtensionsToProvision(configId);
+  
+            // role extension to list of emails
+            Map<String,Set<String>> rolesEmailsToProvision =  GrouperZoomLocalCommands.rolesEmailsToProvision(configId);
+            
+            // roles that exist in zoom
+            Map<String, Map<String, Object>> rolesProvisioned = GrouperZoomCommands.retrieveRoles(configId);
+            
+            groupCount += GrouperUtil.length(rolesToProvision);
+
+            if (GrouperUtil.length(rolesToProvision) > 0) {
+              groupAddCount = 0;
+              
+              // add groups
+              Iterator<String> roleNameIterator = GrouperUtil.nonNull(rolesToProvision).iterator();
+              while (roleNameIterator.hasNext()) {
+                String roleName = roleNameIterator.next();
+                if (!rolesProvisioned.containsKey(roleName)) {
+                  LOG.error("Cant find role: '" + roleName + "'");
+                  debugMap.put("roleNotFound_" + roleName, true);
+                  roleNameIterator.remove();
+                }
+              }
+              Map<String, String> emailToUserId = new HashMap<String, String>();
+              
+              // manage memberships
+              for (String roleName : GrouperUtil.nonNull(rolesToProvision)) {
+                Set<String> emailsToProvision = rolesEmailsToProvision.get(roleName);
+                membershipTotalCount += GrouperUtil.length(emailsToProvision);
+    
+                Map<String, Object> roleProvisioned = rolesProvisioned.get(roleName);
+                String roleId = (String)roleProvisioned.get("id");
+                
+                List<Map<String, Object>> memberships = GrouperZoomCommands.retrieveRoleMemberships(configId, roleId);
+                Set<String> emailsProvisioned = new HashSet<String>();
+                for (Map<String, Object> membership : GrouperUtil.nonNull(memberships)) {
+                  String email = (String)membership.get("email");
+                  String userId = (String)membership.get("id");
+                  emailsProvisioned.add(email);
+                  emailToUserId.put(email, userId);
+                }
+                
+                if (!GrouperZoomLocalCommands.roleProvisionRemoveOnly(configId)) {
+                  Set<String> emailsToAdd = new TreeSet<String>(GrouperUtil.nonNull(emailsToProvision));
+                  emailsToAdd.removeAll(GrouperUtil.nonNull(emailsProvisioned));
+                  
+                  membershipAddCount+= emailsToAdd.size();
+                  for (String emailToAdd : emailsToAdd) {
+                    Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, emailToAdd);
+                    // TODO add user?
+                    if (user != null) {
+                      String userId = (String)user.get("id");
+                      GrouperZoomCommands.addRoleMembership(configId, roleId, userId);
+                    }
+                  }
+                }
+                          
+                {
+                  Set<String> emailsToRemove = new TreeSet<String>(GrouperUtil.nonNull(emailsProvisioned));
+                  emailsToRemove.removeAll(GrouperUtil.nonNull(emailsToProvision));
+                  
+                  membershipDeleteCount+= emailsToRemove.size();
+                  for (String emailToRemove : emailsToRemove) {
+                    String userId = emailToUserId.get(emailToRemove);
+                    GrouperZoomCommands.removeRoleMembership(configId, roleId, userId);
+                  }
+                }
+              }
+            }              
+          }
+          
+          debugMap.put("groupCount", groupCount);
+          debugMap.put("groupAddCount", groupAddCount);
           debugMap.put("membershipAddCount", membershipAddCount);
           debugMap.put("membershipDeleteCount", membershipDeleteCount);
           debugMap.put("membershipTotalCount", membershipTotalCount);
@@ -171,6 +249,11 @@ public class GrouperZoomFullSync extends OtherJobBase {
               }
         
               GrouperZoomCommands.deleteUser(configId, email);
+              
+              if (GrouperZoomLocalCommands.removeGrouperMembershipFromDeletedGroupAfterDeleteZoomUser(configId)) {
+                GrouperZoomLocalCommands.removeMembership(configId, groupNameToDeleteUsers, email);
+              }
+              
               userDeleteCount++;
               
             }
@@ -193,6 +276,11 @@ public class GrouperZoomFullSync extends OtherJobBase {
               }
 
               GrouperZoomCommands.userChangeStatus(configId, email, false);
+              
+              if (GrouperZoomLocalCommands.removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser(configId)) {
+                GrouperZoomLocalCommands.removeMembership(configId, groupNameToDeactivateUsers, email);
+              }
+              
               userDeactivateCount++;
               
             }

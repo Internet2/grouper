@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+import java.util.Map;
+
 
 /**
  * request bean in body of rest request
@@ -38,7 +40,10 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }
-  
+
+  /** queue type **/
+  private String queueType;
+
   /** queue or topic name **/
   private String queueOrTopicName;
   
@@ -47,7 +52,13 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
   
   /** routing key - valid for rabbitmq only; **/
   private String routingKey;
-  
+
+  /** if the messaging system can use exchange type (e.g. rabbitmq), set it here **/
+  private String exchangeType;
+
+  /** optional queue arguments, mainly for rabbitmq **/
+  private Map<String, Object> queueArguments;
+
   /** the millis to block waiting for messages, max of 20000 (optional) **/
   private String blockMillis;
   
@@ -83,6 +94,20 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
    */
   public void setRoutingKey(String routingKey1) {
     this.routingKey = routingKey1;
+  }
+
+  /**
+   * @return queueArguments
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
+
+  /**
+   * @param queueArguments1
+   */
+  public void setQueueArguments(Map<String, Object> queueArguments1) {
+    this.queueArguments = queueArguments1;
   }
 
   /**
@@ -200,4 +225,35 @@ public class WsRestReceiveMessageRequest implements WsRequestBean {
     this.params = params1;
   }
 
+  /**
+   * queue type
+   * @return queueType
+   */
+  public String getQueueType() {
+    return this.queueType;
+  }
+
+  /**
+   * queue type
+   * @param queueType1
+   */
+  public void setQueueType(String queueType1) {
+    this.queueType = queueType1;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @return
+   */
+  public String getExchangeType() {
+    return exchangeType;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
+  }
 }

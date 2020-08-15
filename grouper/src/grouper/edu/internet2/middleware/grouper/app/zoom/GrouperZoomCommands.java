@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -49,6 +50,25 @@ public class GrouperZoomCommands {
 //    System.out.println(retrieveBearerTokenFromCacheOrFresh("pennZoomProd"));
     
     final String configId = "pennZoomProd";
+    
+//    Map<String, Map<String, Object>> accounts = retrieveAccounts(configId);
+//    
+//    for (Map<String, Object> account : GrouperUtil.nonNull(accounts).values()) {
+//      String accountId = (String)account.get("id");
+//      String accountName = (String)account.get("account_name");
+//      
+//      Map<String, Map<String, Object>> users = retrieveSubaccountUsers(configId, accountId);
+//      
+//      System.out.println(accountName + ": " + GrouperUtil.length(users));
+//      for (String email : GrouperUtil.nonNull(users).keySet()) {
+//        System.out.println("    - " + email);
+//      }
+//      
+//    }
+
+    
+//    test_printUsersPerSubaccount(configId);
+    
 //    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
 //    for (Map<String, Object> group: groups.values()) {
 //      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
@@ -69,7 +89,7 @@ public class GrouperZoomCommands {
 //    addRoleMembership(configId, "1", "odJa54jyRpK4MC6gfpgInA");
 //      removeRoleMembership(configId, "1", "5R-cXZBgQPKkWU2grrJUiw");
   
-    GrouperZoomCommands.userChangeStatus(configId, "mchyzer@upenn.edu", false);
+//    GrouperZoomCommands.userChangeStatus(configId, "mchyzer@upenn.edu", false);
     
 //    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
 //    for (Map<String, Object> role: roles.values()) {
@@ -102,13 +122,68 @@ public class GrouperZoomCommands {
 //      + ", " + createUser.get("last_name") + ", " + createUser.get("type"));
     
     
-    Map<String, Object> user = retrieveUser(configId, "mchyzer@upenn.edu");
-    System.out.println("Member: " + user.get("id") + ", " + user.get("email") + ", " + user.get("first_name")
-      + ", " + user.get("last_name") + ", " + user.get("type") + ", " + user.get("role_name") + ", " + user.get("personal_meeting_url")
-      + ", " + user.get("timezone") + ", " + user.get("verified") + ", " + GrouperUtil.toStringForLog(user.get("group_ids"))
-      + ", " + user.get("account_id") + ", status: " + user.get("status"));
+//    Map<String, Object> user = retrieveUser(configId, "mchyzer@upenn.edu");
+//    System.out.println("Member: " + user.get("id") + ", " + user.get("email") + ", " + user.get("first_name")
+//      + ", " + user.get("last_name") + ", " + user.get("type") + ", " + user.get("role_name") + ", " + user.get("personal_meeting_url")
+//      + ", " + user.get("timezone") + ", " + user.get("verified") + ", " + GrouperUtil.toStringForLog(user.get("group_ids"))
+//      + ", accountId: " + user.get("account_id") + ", status: " + user.get("status"));
+//    
+
+//      Map<String, Map<String, Object>> accounts = retrieveAccounts(configId);
+//      for (Map<String, Object> account: accounts.values()) {
+//        System.out.println(GrouperUtil.mapToString(account));
+//      }
+
+  }
+
+  /**
+   * @param configId
+   */
+  public static void test_printUsersPerSubaccount(final String configId) {
+    Map<String, Map<String, Object>> userList = retrieveUsers(configId);
     
+    Map<String, Set<String>> subaccountNameToEmails = new TreeMap<String, Set<String>>();
     
+    Map<String, Map<String, Object>> accounts = retrieveAccounts(configId);
+    
+    Map<String, String> accountIdToName = new HashMap<String, String>();
+
+    for (Map<String, Object> account : GrouperUtil.nonNull(accounts).values()) {
+      String accountId = (String)account.get("id");
+      String accountName = (String)account.get("account_name");
+      accountIdToName.put(accountId, accountName);
+    }
+    
+    for (Map<String, Object> user : GrouperUtil.nonNull(userList).values()) {
+      
+      String accountId = (String)user.get("account_id");
+      
+      String accountName = accountIdToName.get(accountId);
+      
+      if (accountName == null) {
+        accountName = accountId;
+      }
+      
+      if (accountName == null) {
+        accountName = "null";
+      }
+      
+      Set<String> emails = subaccountNameToEmails.get(accountName);
+      
+      if (emails == null) {
+        emails = new TreeSet<String>();
+        subaccountNameToEmails.put(accountName, emails);
+      }
+      
+      emails.add((String)user.get("email"));
+      
+    }
+
+    for (String accountName : subaccountNameToEmails.keySet()) {
+      
+      System.out.println(accountName + ": " + GrouperUtil.length(subaccountNameToEmails.get(accountName)));
+      
+    }
   }
 
   /** logger */
@@ -1753,6 +1828,305 @@ public class GrouperZoomCommands {
 
     
   }
+
+  /**
+   * 
+   * @param configId
+   * @return map key is id, and value with id(string), account_name(string), owner_email(string), account_type(string), seats(int), subscription_start_time(string), 
+   * subscription_end_time(string), created_at(string)
+   */
+  public static Map<String, Map<String, Object>> retrieveAccounts(String configId) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "retrieveAccounts");
+    String json = null;
+    
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+  
+      int pageSize = 300;
+      debugMap.put("pageSize", pageSize);
+      //page_size, page_number
+  
+      String url = endpoint + "accounts?page_size=" + pageSize;
+      debugMap.put("url", url);
+    
+      GetMethod getMethod = new GetMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      getMethod.addRequestHeader("Content-Type", "application/json");
+      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      
+      
+      
+      int code = -1;
+  
+      try {
+        code = httpClient.executeMethod(getMethod);
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
+        json = getMethod.getResponseBodyAsString();
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
   
   
+      debugMap.put("httpCode", code);
+      
+      if (code != 200) {
+        throw new RuntimeException("Cant get accounts from '" + url + "' " + json);
+      }
+      
+      JSONObject jsonObject = JSONObject.fromObject(json);
+      
+      //  {
+      //    "page_count": "integer",
+      //    "page_number": "integer",
+      //    "page_size": "integer",
+      //    "total_records": "integer",
+      //    "accounts": [
+      //      {
+      //        "id": "string [uuid]",
+      //        "account_name": "string",
+      //        "owner_email": "string",
+      //        "account_type": "string",
+      //        "seats": "integer",
+      //        "subscription_start_time": "string [date-time]",
+      //        "subscription_end_time": "string [date-time]",
+      //        "created_at": "string [date-time]"
+      //      }
+      //    ]
+      //  }      
+
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+      
+      JSONArray jsonArray = jsonObject.has("accounts") ? jsonObject.getJSONArray("accounts") : null;
+      if (jsonArray != null && jsonArray.size() >= 1) {
+        for (int i=0;i<jsonArray.size();i++) {
+          JSONObject jsonObjectAccount = (JSONObject)jsonArray.get(i);
+          Map<String, Object> accountMap = new HashMap<String, Object>();
+          
+          if (jsonObjectAccount.containsKey("id")) {
+            accountMap.put("id", jsonObjectAccount.getString("id"));
+          }
+          if (jsonObjectAccount.containsKey("account_name")) {
+            accountMap.put("account_name", jsonObjectAccount.getString("account_name"));
+          }
+          if (jsonObjectAccount.containsKey("owner_email")) {
+            accountMap.put("owner_email", jsonObjectAccount.getString("owner_email"));
+          }
+          if (jsonObjectAccount.containsKey("account_type")) {
+            accountMap.put("account_type", jsonObjectAccount.getString("account_type"));
+          }
+          if (jsonObjectAccount.containsKey("seats")) {
+            accountMap.put("seats", jsonObjectAccount.getString("seats"));
+          }
+          if (jsonObjectAccount.containsKey("subscription_start_time")) {
+            accountMap.put("subscription_start_time", jsonObjectAccount.getString("subscription_start_time"));
+          }
+          if (jsonObjectAccount.containsKey("subscription_end_time")) {
+            accountMap.put("subscription_end_time", jsonObjectAccount.getString("subscription_end_time"));
+          }
+          if (jsonObjectAccount.containsKey("created_at")) {
+            accountMap.put("created_at", jsonObjectAccount.getString("created_at"));
+          }
+              
+          result.put(jsonObjectAccount.getString("id"), jsonObjectAccount);
+        }
+      }
+      debugMap.put("count", result.size());
+  
+      return result;
+  
+    } catch (RuntimeException e) {
+      debugMap.put("json", json);
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param subaccountId 
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string), type(int), role_name(string), 
+   * personal_meeting_url(string), timezone(string), verified(int), group_ids (array[string]), account_id(string), status(string e.g. active)
+   * or null if not found
+   */
+  public static Map<String, Map<String, Object>> retrieveSubaccountUsers(String configId, String subaccountId) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "retrieveSubaccountUsers");
+    try {
+      debugMap.put("configId", configId);
+      
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+      
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
+  
+      for (int i=0;i<10000;i++) {
+        Map<String, Map<String, Object>> tempResult = retrieveSubaccountUsersHelper(configId, subaccountId, i+1);
+        
+        result.putAll(tempResult);
+  
+        // we are done when there are no reults or its less than the page size
+        if (tempResult.size() < pageSize) {
+          break;
+        }
+      }
+      
+      debugMap.put("count", result.size());
+  
+      return result;
+  
+    } catch (RuntimeException e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param subaccountId 
+   * @param pageNumberOneIndexed 
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string), type(int), role_name(string), 
+   * personal_meeting_url(string), timezone(string), verified(int), group_ids (array[string]), account_id(string), status(string e.g. active)
+   * or null if not found
+   */
+  private static Map<String, Map<String, Object>> retrieveSubaccountUsersHelper(String configId, String subaccountId, int pageNumberOneIndexed) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    String json = null;
+    
+    debugMap.put("method", "retrieveSubaccountUsersHelper");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+  
+      //    zoom.myConfigId.pageSizeMemberships = 300
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
+      debugMap.put("pageSize", pageSize);
+      //page_size, page_number
+      
+      String url = endpoint + "accounts/" + subaccountId + "/users?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
+      debugMap.put("url", url);
+    
+      GetMethod getMethod = new GetMethod(url);
+      HttpClient httpClient = new HttpClient();
+  
+      getMethod.addRequestHeader("Content-Type", "application/json");
+      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      
+      
+      
+      int code = -1;
+  
+      try {
+        code = httpClient.executeMethod(getMethod);
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
+        json = getMethod.getResponseBodyAsString();
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
+  
+  
+      debugMap.put("httpCode", code);
+      
+      if (code != 200) {
+        throw new RuntimeException("Cant get users from '" + url + "' " + json);
+      }
+      
+      JSONObject jsonObject = JSONObject.fromObject(json);
+      
+      //  {
+      //    "users": [
+      //      {
+      //        "id": "z8yAAAAA8bbbQ",
+      //        "first_name": "Melina",
+      //        "last_name": "Ghimire",
+      //        "email": "mel@jfggdhfhdfj.djfhdsfh",
+      //        "type": 2,
+      //        "pmi": 581111112,
+      //        "timezone": "America/Los_Angeles",
+      //        "verified": 1,
+      //        "dept": "",
+      //        "created_at": "2018-11-15T01:10:08Z",
+      //        "last_login_time": "2019-09-13T21:08:52Z",
+      //        "last_client_version": "4.4.55383.0716(android)",
+      //        "pic_url": "https://lh4.googleusercontent.com/-someurl/photo.jpg",
+      //        "im_group_ids": [
+      //          "Abdsjkfhdhfj"
+      //        ],
+      //        "status": "active"
+      //      }
+      //    ],
+      //    "page_count": 1,
+      //    "page_number": 1,
+      //    "page_size": 1,
+      //    "total_records": 1
+      //  }
+      
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+      
+      int pageNumberReturned = jsonObject.getInt("page_number");
+      int totalRecords = jsonObject.getInt("total_records");
+      debugMap.put("totalRecords", totalRecords);
+      
+      // if we are over the number of pages, then dont return any members to notify caller we are done paging
+      if (pageNumberOneIndexed != pageNumberReturned) {
+        debugMap.put("count", 0);
+  
+        return result;
+      }
+      
+      JSONArray jsonArray = jsonObject.has("users") ? jsonObject.getJSONArray("users") : null;
+      if (jsonArray != null && jsonArray.size() >= 1) {
+        for (int i=0;i<jsonArray.size();i++) {
+          JSONObject jsonObjectUser = (JSONObject)jsonArray.get(i);
+          Map<String, Object> userMap = retrieveUserFromJsonObject(jsonObjectUser);
+          String email = (String)userMap.get("email");
+          if (!StringUtils.isBlank(email)) {
+            result.put(email, userMap);
+          }
+        }
+      }
+      debugMap.put("count", result.size());
+  
+      return result;
+  
+    } catch (RuntimeException e) {
+      debugMap.put("json", json);
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+  }
+
 }
