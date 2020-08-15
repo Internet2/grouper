@@ -84,3 +84,40 @@ CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
 CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
 
 CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
+
+CREATE TABLE grouper_file
+(
+    id VARCHAR2(40) NOT NULL,
+    system_name VARCHAR2(100) NOT NULL,
+    file_name VARCHAR2(100) NOT NULL,
+    file_path VARCHAR2(400) NOT NULL,
+    hibernate_version_number NUMBER(38) NOT NULL,
+    context_id VARCHAR2(40),
+    file_contents_varchar VARCHAR2(4000),
+    file_contents_clob CLOB,
+    file_contents_bytes INTEGER,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path);
+
+
+COMMENT ON TABLE grouper_file IS 'table to store files for grouper. eg: workflow, reports';
+    
+COMMENT ON COLUMN grouper_file.id IS 'uuid of record is unique for all records in table and primary key';
+
+COMMENT ON COLUMN grouper_file.system_name IS 'System name this file belongs to eg: workflow';
+
+COMMENT ON COLUMN grouper_file.file_name IS 'Name of the file';
+
+COMMENT ON COLUMN grouper_file.file_path IS 'Unique path of the file';
+
+COMMENT ON COLUMN grouper_file.hibernate_version_number IS 'hibernate uses this to version rows';
+
+COMMENT ON COLUMN grouper_file.context_id IS 'Context id links together audit entry with the row';
+
+COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if can fit into 4000 bytes';
+
+COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
+
+COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';

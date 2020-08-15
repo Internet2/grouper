@@ -37,3 +37,19 @@ CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
 CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
 
 CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
+
+CREATE TABLE grouper_file
+(
+    id VARCHAR(40) NOT NULL,
+    system_name VARCHAR(100) NOT NULL,
+    file_name VARCHAR(100) NOT NULL,
+    file_path VARCHAR(400) NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    context_id VARCHAR(40),
+    file_contents_varchar VARCHAR(4000),
+    file_contents_clob MEDIUMTEXT,
+    file_contents_bytes BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path(255));

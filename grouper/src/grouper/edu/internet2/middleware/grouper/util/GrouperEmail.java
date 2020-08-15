@@ -47,7 +47,7 @@ public class GrouperEmail {
   /**
    * keep list emails (max 100) if testing...
    */
-  private static List<GrouperEmail> testingEmails = new ArrayList();
+  private static List<GrouperEmail> testingEmails = new ArrayList<GrouperEmail>();
   
   /**
    * 

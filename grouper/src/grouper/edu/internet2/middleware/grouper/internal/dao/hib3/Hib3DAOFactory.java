@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -561,6 +562,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public GrouperPasswordDAO getGrouperPassword() {
     return new Hib3GrouperPasswordDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGrouperFile()
+   */
+  @Override
+  public GrouperFileDAO getGrouperFile() {
+    return new Hib3GrouperFileDAO();
   }
   
 } 

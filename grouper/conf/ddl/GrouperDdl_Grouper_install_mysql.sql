@@ -1740,6 +1740,22 @@ CREATE TABLE grouper_recent_mships_conf
 
 CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
 
+CREATE TABLE grouper_file
+(
+    id VARCHAR(40) NOT NULL,
+    system_name VARCHAR(100) NOT NULL,
+    file_name VARCHAR(100) NOT NULL,
+    file_path VARCHAR(400) NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    context_id VARCHAR(40),
+    file_contents_varchar VARCHAR(4000),
+    file_contents_clob MEDIUMTEXT,
+    file_contents_bytes BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path(255));
+
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
 

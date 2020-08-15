@@ -2566,6 +2566,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_5_34.addGrouperConfigComments(database, ddlVersionBean);
       GrouperDdl2_5_34.addGrouperPitConfigTable(database, ddlVersionBean);
       GrouperDdl2_5_34.addGrouperPitConfigComments(database, ddlVersionBean);
+      
+      GrouperDdl2_5_34.addGrouperFileTable(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
     }
   },
   V35 {

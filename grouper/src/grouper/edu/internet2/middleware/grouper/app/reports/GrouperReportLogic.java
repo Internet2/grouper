@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -45,6 +46,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
@@ -90,25 +94,34 @@ public class GrouperReportLogic {
 
       fileToDelete = reportInstance.getReportFileUnencrypted();
       
-      String reportDestination = GrouperConfig.retrieveConfig().propertyValueString("reporting.storage.option");
-      if (StringUtils.isBlank(reportDestination)) {
-        throw new RuntimeException("reporting.storage.option cannot be blank. Valid values are S3 and fileSystem");
-      }
-      
-      if (!reportDestination.equals("S3") && !reportDestination.equals("fileSystem")) {
-        throw new RuntimeException("reporting.storage.option is not valid. Use S3 or fileSystem");
-      }
+      String reportDestination = GrouperConfig.retrieveConfig().propertyValueString("reporting.storage.option", "database");
         
       if (reportDestination.equals("S3")) {
         String s3Url = uploadFileToS3(reportInstance.getReportFileUnencrypted(), randomEncryptionKey);
         reportInstance.setReportInstanceFilePointer(s3Url);
-      } else {
+      } else if (reportDestination.equals("fileSystem")) {
         String reportOutputDirectory = GrouperConfig.retrieveConfig().propertyValueString("reporting.file.system.path");
         if (StringUtils.isBlank(reportOutputDirectory)) {          
           throw new RuntimeException("reporting.file.system.path cannot be blank");
         }
         String filePath = saveFileToFileSystem(reportInstance.getReportFileUnencrypted(), randomEncryptionKey, reportOutputDirectory);
         reportInstance.setReportInstanceFilePointer(filePath);
+      } else if (reportDestination.equals("database")) {
+        // database
+        String encryptedContents = getEncryptedBase64FileContents(reportInstance.getReportFileUnencrypted(), randomEncryptionKey);
+        String id = GrouperUuid.getUuid();
+        GrouperFile grouperFile = new GrouperFile();
+        grouperFile.setId(id);
+        //grouperFile.setContextId("fill me in");
+        grouperFile.setValueToSave(encryptedContents);
+        grouperFile.setFileName(reportInstance.getReportFileUnencrypted().getName());
+        grouperFile.setFilePath(reportInstance.getReportFileUnencrypted().getPath());
+        grouperFile.setSystemName("report");
+        
+        Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+        reportInstance.setReportInstanceFilePointer(id);
+      } else {
+        throw new RuntimeException("reporting.storage.option is not valid. Use database, S3 or fileSystem");
       }
       
       reportInstance.setReportInstanceFileName(reportInstance.getReportFileUnencrypted().getName());
@@ -279,8 +292,17 @@ public class GrouperReportLogic {
    */
   public static String getReportContent(GrouperReportInstance reportInstance) {
     
-    return reportInstance.isReportStoredInS3() ? 
-        getReportContentFromS3(reportInstance): getReportContentFromFileSystem(reportInstance);
+    if (reportInstance.isReportStoredInS3()) {
+      return getReportContentFromS3(reportInstance);
+    }
+    
+    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(reportInstance.getReportInstanceFilePointer(), false);
+    
+    if (grouperFile != null) {
+      return getReportContentFromDatabase(reportInstance);
+    } else {
+      return getReportContentFromFileSystem(reportInstance);
+    }
   }
   
   /**
@@ -344,6 +366,63 @@ public class GrouperReportLogic {
       throw new RuntimeException("Error in getting report content from file system", e);
     }
     
+  }
+  
+  /**
+   * @param reportInstance
+   * @return report content from database for a given report instance
+   */
+  private static String getReportContentFromDatabase(GrouperReportInstance reportInstance) {
+    
+    String encryptionKey = Morph.decrypt(reportInstance.getReportInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
+    Cipher cipher;
+    try {
+      cipher = Cipher.getInstance("AES");
+      cipher.init(Cipher.DECRYPT_MODE, encryptionKeySecret);
+      
+      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(reportInstance.getReportInstanceFilePointer(), false);
+      if (grouperFile == null) {
+        throw new RuntimeException("Could not find entry in grouper_file table for id "+reportInstance.getReportInstanceFilePointer());
+      }
+      
+      String encryptedText = grouperFile.retrieveValue();
+      
+      byte[] encryptedBytes = DatatypeConverter.parseBase64Binary(encryptedText);
+      String decrypted = new String(cipher.doFinal(encryptedBytes)); 
+      
+      return decrypted;
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error in getting report content from grouper_file table", e);
+    }
+    
+  }
+  
+  private static String getEncryptedBase64FileContents(File file, String encryptionKey) {
+    
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
+    try {
+      
+      Cipher cipher = Cipher.getInstance("AES");
+      cipher.init(Cipher.ENCRYPT_MODE, encryptionKeySecret);
+      
+      FileInputStream inputStream = new FileInputStream(file);
+      byte[] inputBytes = new byte[(int) file.length()];
+      inputStream.read(inputBytes);
+       
+      byte[] outputBytes = cipher.doFinal(inputBytes);
+      
+      String encryptedString = DatatypeConverter.printBase64Binary(outputBytes);
+       
+      inputStream.close();
+      
+      return encryptedString;
+    } catch (Exception e) {
+      throw new RuntimeException("Error in saving report to file system", e);
+    }
   }
   
   /**

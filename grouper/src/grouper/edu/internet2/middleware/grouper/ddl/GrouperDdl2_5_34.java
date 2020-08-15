@@ -7,9 +7,8 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
-import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.file.GrouperFile;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
-import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -188,6 +187,61 @@ public class GrouperDdl2_5_34 {
         "pit_config_end_idx", false, PITGrouperConfigHibernate.COLUMN_END_TIME);
   }
   
+  
+  static void addGrouperFileTable(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_5_34_addGrouperFileTable", true)) {
+      return;
+    }
+    
+    final String tableName = GrouperFile.TABLE_GROUPER_FILE;
+  
+    Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_ID,
+        Types.VARCHAR, "40", true, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_SYSTEM_NAME,
+        Types.VARCHAR, "100", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_NAME,
+        Types.VARCHAR, "100", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_PATH,
+        Types.VARCHAR, "400", false, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_HIBERNATE_VERSION_NUMBER, 
+        Types.BIGINT, null, false, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_CONTEXT_ID, 
+        Types.VARCHAR, "40", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_VARCHAR,
+        Types.VARCHAR, "4000", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_BYTES, 
+        Types.BIGINT, "12", false, false, null);
+    
+    
+    if (GrouperDdlUtils.isPostgres()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_CLOB, Types.VARCHAR, "10000000", false, false, null);
+    }
+    
+    if (GrouperDdlUtils.isMysql()) {
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_file ADD COLUMN file_contents_clob mediumtext;\n");
+    } 
+    
+    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_CLOB, Types.CLOB, "10000000", false, false, null);
+    }
+    
+  }
+  
+  
   static void addGrouperPitConfigComments(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
@@ -293,8 +347,68 @@ public class GrouperDdl2_5_34 {
         tableName,  
         PITGrouperConfigHibernate.COLUMN_CONTEXT_ID, 
         "Context id links together audit entry with the row");
+  }
+  
+  static void addGrouperFileComments(Database database, DdlVersionBean ddlVersionBean) {
     
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_5_34_addGrouperFileComments", true)) {
+      return;
+    }
+  
+    final String tableName = GrouperFile.TABLE_GROUPER_FILE;
+
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        tableName, 
+        "table to store files for grouper. eg: workflow, reports");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        GrouperFile.COLUMN_ID, 
+        "uuid of record is unique for all records in table and primary key");
     
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        GrouperFile.COLUMN_SYSTEM_NAME,
+        "System name this file belongs to eg: workflow");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_FILE_NAME, 
+          "Name of the file");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_FILE_PATH, 
+          "Unique path of the file");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate uses this to version rows");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,  
+        GrouperFile.COLUMN_CONTEXT_ID, 
+        "Context id links together audit entry with the row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_FILE_CONTENTS_VARCHAR, 
+          "contents of the file if can fit into 4000 bytes");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_FILE_CONTENTS_CLOB, 
+          "large contents of the file");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName,
+        GrouperFile.COLUMN_FILE_CONTENTS_BYTES, 
+          "size of file contents in bytes");
   }
   
 }

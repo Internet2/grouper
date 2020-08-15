@@ -45,7 +45,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import junit.textui.TestRunner;
 
 
@@ -1200,6 +1199,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_clob"));
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_config", "config_value_bytes"));
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_pit_config"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_file"));
 
     scriptToGetTo2_5_30.delete();
     
