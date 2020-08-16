@@ -17,7 +17,7 @@
                 </div>
                 <div class="row-fluid">
                   <div class="span12">
-                    <%-- <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousConfigurationMainSubtitle']}</p> --%>
+                    <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousConfigurationHistoryMainSubtitle']}</p>
                   </div>
                 </div>
 

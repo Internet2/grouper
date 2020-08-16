@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -253,6 +254,46 @@ public class GrouperConfigHibernateTest extends GrouperTest {
     assertNull(pits.get(2).getValue());
     assertEquals(longValue, pits.get(2).getPreviousConfigValueClobDb());
     assertNull(pits.get(2).getPreviousConfigValueDb());
+    
+  }
+  
+  public void testCanNotRevertIfSameConfigKeyAppearsMultipleTimes() {
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, "some.key");
+
+    for (GrouperConfigHibernate grouperConfigHibernate : grouperConfigHibernates) {
+      grouperConfigHibernate.delete();
+    }
+    
+    GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+    grouperConfigHibernate.setConfigComment("comment");
+    grouperConfigHibernate.setConfigEncrypted(false);
+    grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
+    grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
+    grouperConfigHibernate.setConfigKey("some.key");
+    grouperConfigHibernate.setValueToSave("theValue");
+    grouperConfigHibernate.saveOrUpdate(true);
+    
+    grouperConfigHibernate.setValueToSave("newValue");
+    grouperConfigHibernate.saveOrUpdate(true);
+    
+    Set<PITGrouperConfigHibernate> pitGrouperConfigHibernates = GrouperDAOFactory.getFactory().getPITConfig().findBySourceId(grouperConfigHibernate.getId(), true);
+    
+    assertEquals(2, GrouperUtil.length(pitGrouperConfigHibernates));
+    
+    Iterator<PITGrouperConfigHibernate> ir = pitGrouperConfigHibernates.iterator();
+    
+    Set<String> pitIds = GrouperUtil.toSet(ir.next().getId(), ir.next().getId());
+    
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    // when
+    GrouperDAOFactory.getFactory().getPITConfig().revertConfigs(pitIds, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    // Then
+    assertEquals(1, errorsToDisplay.size());
+    assertTrue(errorsToDisplay.get(0).contains("some.key"));
     
   }
   

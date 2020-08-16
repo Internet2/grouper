@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -341,6 +343,31 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     Set<PITGrouperConfigHibernate> oldPitConfigs = findByIds(pitIds);
+    
+    Map<String, Integer> configKeyCount = new HashMap<String, Integer>();
+    
+    for (PITGrouperConfigHibernate oldPitConfig: oldPitConfigs) {
+      if (configKeyCount.containsKey(oldPitConfig.getConfigKey())) {
+        Integer existingCount = configKeyCount.get(oldPitConfig.getConfigKey());
+        configKeyCount.put(oldPitConfig.getConfigKey(), existingCount+1);
+      } else {
+        configKeyCount.put(oldPitConfig.getConfigKey(), 1);
+      }
+    }
+    
+    String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("configurationHistoryRevertErrorDuplicateConfigKeys");
+      
+    for (String key: configKeyCount.keySet()) {
+      Integer size = configKeyCount.get(key);
+      if (size > 1) {
+        errorsToDisplay.add(errorMessage.replace("#configKey", key));
+      }
+    }
+    
+    if (errorsToDisplay.size() > 0) {
+      return;
+    }
+    
     
     int count = 1;
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");

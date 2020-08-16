@@ -63,6 +63,9 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 public class GrouperReportLogic {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperReportLogic.class);
+  
+  private static final String GROUPER_REPORT_FILE_PATH_PREFIX = "/grouperReports";
+  private static final String GROUPER_REPORT_SYSTEM_NAME = "report";
 
   /**
    * run report
@@ -112,11 +115,10 @@ public class GrouperReportLogic {
         String id = GrouperUuid.getUuid();
         GrouperFile grouperFile = new GrouperFile();
         grouperFile.setId(id);
-        //grouperFile.setContextId("fill me in");
         grouperFile.setValueToSave(encryptedContents);
         grouperFile.setFileName(reportInstance.getReportFileUnencrypted().getName());
-        grouperFile.setFilePath(reportInstance.getReportFileUnencrypted().getPath());
-        grouperFile.setSystemName("report");
+        grouperFile.setFilePath(GROUPER_REPORT_FILE_PATH_PREFIX + "/" + reportInstance.getReportFileUnencrypted().getName());
+        grouperFile.setSystemName(GROUPER_REPORT_SYSTEM_NAME);
         
         Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
         reportInstance.setReportInstanceFilePointer(id);

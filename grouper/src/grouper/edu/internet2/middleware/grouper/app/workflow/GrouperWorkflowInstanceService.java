@@ -84,6 +84,8 @@ public class GrouperWorkflowInstanceService {
   
   private static ExpirableCache<Subject, List<String>> subjectWaitingForApprovalInstances = new ExpirableCache<Subject, List<String>>(5);
   
+  private static final String GROUPER_WORKFLOW_FILE_PATH_PREFIX = "/grouperWorkflow";
+  private static final String GROUPER_WORKFLOW_SYSTEM_NAME = "workflow";
   
   /**
    * get workflow instance by attribute assign id
@@ -455,15 +457,14 @@ public class GrouperWorkflowInstanceService {
       String id = GrouperUuid.getUuid();
       GrouperFile grouperFile = new GrouperFile();
       grouperFile.setId(id);
-      //grouperFile.setContextId("fill me in");
       grouperFile.setValueToSave(encryptedContents);
       
       String fileName = workflowConfig.getWorkflowConfigId()+
           "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
       
       grouperFile.setFileName(fileName);
-      grouperFile.setFilePath(fileName);
-      grouperFile.setSystemName("workflow");
+      grouperFile.setFilePath(GROUPER_WORKFLOW_FILE_PATH_PREFIX + "/" + fileName);
+      grouperFile.setSystemName(GROUPER_WORKFLOW_SYSTEM_NAME);
       
       Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
       fileInfo.setFilePointer(id);

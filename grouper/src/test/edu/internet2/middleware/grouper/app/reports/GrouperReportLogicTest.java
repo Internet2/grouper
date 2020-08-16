@@ -93,6 +93,7 @@ public class GrouperReportLogicTest extends GrouperTest {
     assertEquals("report", grouperFile.getSystemName());
     assertNotNull(grouperFile.getFileName());
     assertNotNull(grouperFile.getFilePath());
+    assertTrue(grouperFile.getFilePath().startsWith("/grouperReports/"));
     assertNotNull(grouperFile.getFileContentsBytes());
   }
   
