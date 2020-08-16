@@ -49,6 +49,10 @@ public class FindBadMembershipsChangeLogConsumer extends EsbListenerBase {
 
       if (esbEventType == EsbEventType.MEMBERSHIP_ADD || esbEventType == EsbEventType.MEMBERSHIP_DELETE) {
         
+        if (esbEvent.getSourceId().equals("g:gsa")) {
+          continue;
+        }
+        
         String memberId = esbEvent.getMemberId();
         
         if (findAsFactorOrHasMemberOfFactorResults.get(esbEvent.getGroupId()) == null) {
