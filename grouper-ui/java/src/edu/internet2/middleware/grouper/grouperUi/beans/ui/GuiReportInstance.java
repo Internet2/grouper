@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -11,10 +10,9 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.morphString.Morph;
-
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.morphString.Morph;
 
 public class GuiReportInstance {
   
@@ -38,7 +36,18 @@ public class GuiReportInstance {
     Collections.sort(reportInstances, new Comparator<GrouperReportInstance>() {
       @Override
       public int compare(GrouperReportInstance o1, GrouperReportInstance o2) {
-        return new Long(o2.getReportInstanceMillisSince1970()).compareTo(new Long(o1.getReportInstanceMillisSince1970()));
+        
+        Long o2Millis = o2.getReportInstanceMillisSince1970();
+        if (o2Millis == null) {
+          o2Millis =  -1L;
+        }
+        
+        Long o1Millis = o1.getReportInstanceMillisSince1970();
+        if (o1Millis == null) {
+          o1Millis =  -1L;
+        }
+        
+        return o2Millis.compareTo(o1Millis);
       }
     });
     
@@ -59,9 +68,12 @@ public class GuiReportInstance {
    * @return user friendly run time
    */
   public String getRunTime() {
-    Date date = new Date(reportInstance.getReportInstanceMillisSince1970());
-    String runTimeString = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
-    return runTimeString;
+    if (reportInstance.getReportInstanceMillisSince1970() != null) {
+      Date date = new Date(reportInstance.getReportInstanceMillisSince1970());
+      String runTimeString = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
+      return runTimeString;
+    }
+    return "";
   }
 
   /**

@@ -85,7 +85,7 @@ public class GrouperReportInstanceService {
     GrouperReportInstance mostRecentReportInstance = null;
     
     for (GrouperReportInstance reportInstance: reportInstances) {
-      if (reportInstance.getReportInstanceMillisSince1970().longValue() > mostRecent) {
+      if (reportInstance.getReportInstanceMillisSince1970() != null && reportInstance.getReportInstanceMillisSince1970().longValue() > mostRecent) {
         mostRecentReportInstance = reportInstance;
         mostRecent = reportInstance.getReportInstanceMillisSince1970();
       }
