@@ -1,6 +1,6 @@
-ALTER TABLE grouper_config ADD COLUMN config_value_clob clob;
+ALTER TABLE grouper_config ADD config_value_clob clob;
 
-ALTER TABLE grouper_config ADD COLUMN config_value_bytes integer;
+ALTER TABLE grouper_config ADD config_value_bytes integer;
 	
 COMMENT ON COLUMN grouper_config.config_value_clob IS 'config value for large data';
 
