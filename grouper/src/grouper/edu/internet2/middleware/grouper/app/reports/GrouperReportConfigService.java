@@ -132,14 +132,14 @@ public class GrouperReportConfigService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigEnabled()));
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_FILE_NAME, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigFilename());
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigFilename().trim());
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_FORMAT, true);
     String reportConfigFormat = reportConfigBean.getReportConfigFormat() != null ? reportConfigBean.getReportConfigFormat().name(): null;
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigFormat);
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_NAME, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigName());
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigName().trim());
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUARTZ_CRON, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigQuartzCron());
@@ -173,8 +173,7 @@ public class GrouperReportConfigService {
    * @param owner
    * @throws SchedulerException
    */
-  public static void scheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner)
-      throws SchedulerException {
+  public static void scheduleJob(GrouperReportConfigurationBean configBean, GrouperObject owner) throws SchedulerException {
     
     String jobName = "grouper_report_"+owner.getId()+"_"+configBean.getAttributeAssignmentMarkerId();
     

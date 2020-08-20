@@ -74,7 +74,7 @@
 					                      <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.enableExternalSystem&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEnableActionOption'] }</a></li>
 					                     </c:if>
 			                             
-			                             <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['grouperExternalSystemConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ExternalSystem.deleteExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');}">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperExternalSystemConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ExternalSystem.deleteExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');}">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
 			                   </td>

@@ -10,7 +10,9 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.file.GrouperFile;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -54,6 +56,45 @@ public class GrouperReportLogicTest extends GrouperTest {
     assertNotNull(newReportInstance.getReportInstanceEncryptionKey());
     assertNotNull(newReportInstance.getReportInstanceRows());
    
+  }
+  
+  public void testSaveReportInDatabase() {
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperReporting.enable", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("reporting.storage.option", "database");
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    
+    AttributeAssign configAttributeAssign = saveReportConfigAttributeMetadata(stem0, "test config");
+    GrouperReportConfigurationBean reportConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(configAttributeAssign.getId());
+    
+    GrouperReportInstance newReportInstance = new GrouperReportInstance();
+    newReportInstance.setGrouperReportConfigurationBean(reportConfigBean);
+    newReportInstance.setReportInstanceConfigMarkerAssignmentId(reportConfigBean.getAttributeAssignmentMarkerId());
+    newReportInstance.setReportInstanceMillisSince1970(System.currentTimeMillis());
+    newReportInstance.setReportInstanceDownloadCount(0L);
+    
+    //When
+    GrouperReportLogic.runReport(reportConfigBean, newReportInstance, stem0);
+    
+    //Then
+    assertEquals(GrouperReportInstance.STATUS_SUCCESS, newReportInstance.getReportInstanceStatus());
+    assertNotNull(newReportInstance.getAttributeAssignId());
+    assertNotNull(newReportInstance.getReportDateMillis());
+    assertNotNull(newReportInstance.getReportInstanceEncryptionKey());
+    assertNotNull(newReportInstance.getReportInstanceRows());
+    
+    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile()
+        .findById(newReportInstance.getReportInstanceFilePointer(), false);
+    assertNotNull(grouperFile);
+    assertEquals("report", grouperFile.getSystemName());
+    assertNotNull(grouperFile.getFileName());
+    assertNotNull(grouperFile.getFilePath());
+    assertTrue(grouperFile.getFilePath().startsWith("/grouperReports/"));
+    assertNotNull(grouperFile.getFileContentsBytes());
   }
   
   private static AttributeAssign saveReportConfigAttributeMetadata(Stem stem, String reportConfigName) {

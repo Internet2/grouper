@@ -88,7 +88,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       Channel channel = connection.createChannel();
       
       String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
-          exchangeType, grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType());
+          exchangeType, grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType(),
+              grouperMessageSendParam.getGrouperMessageQueueParam().getQueueArguments());
       
       if (error != null) {
         throw new IllegalArgumentException(error);
@@ -218,7 +219,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       };
       
       String error = createQueueOrExchange(grouperMessageSystemParam, channel, queueOrTopicName, 
-          exchangeType, grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType());
+          exchangeType, grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueType(),
+          grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueArguments());
       
       debugMap.put("createQueueOrExchangeError", error);
 
@@ -277,7 +279,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    * @throws IOException
    */
   private String createQueueOrExchange(GrouperMessageSystemParam grouperMessageSystemParam,
-      Channel channel, String queueOrTopicName, String exchangeType, GrouperMessageQueueType queueType) throws IOException {
+      Channel channel, String queueOrTopicName, String exchangeType, GrouperMessageQueueType queueType,
+      Map<String, Object> queueArguments) throws IOException {
     
     String error = null;
     
@@ -303,7 +306,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       }
     } else if (queueType == GrouperMessageQueueType.queue) {
         if (grouperMessageSystemParam.isAutocreateObjects()) {
-          channel.queueDeclare(queueOrTopicName, true, false, false, null);
+          channel.queueDeclare(queueOrTopicName, true, false, false, queueArguments);
         } else {
           try {
             channel.queueDeclarePassive(queueOrTopicName);
@@ -311,6 +314,8 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
             error = "queue "+queueOrTopicName+" doesn't exist. Either create the queue or set the autoCreateObjects to true.";
           }
         }
+    } else {
+      error = "queue type not defined. Must be either queue or topic.";
     }
     return error;
   }

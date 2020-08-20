@@ -48,7 +48,7 @@ public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
       
       GrouperConfigurationModuleAttribute moduleAttribute = this.retrieveAttributes().get("syncMemberToId2AttributeValueFormat");
       
-      if (hasTargetUserLink.equals("true") && !StringUtils.isBlank(userPrimaryKey) ) {
+      if (hasTargetUserLink.equals("true") && StringUtils.isNotBlank(userPrimaryKey) ) {
         // TODO make sure no single quotes.  check here and other places vars are inserted in scripts
         moduleAttribute.setValue("${targetEntity.attributes['" + userPrimaryKey + "']}");
         
@@ -66,7 +66,7 @@ public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
       GrouperConfigurationModuleAttribute syncMemberToId3Attribute = this.retrieveAttributes().get("syncMemberToId3AttributeValueFormat");
       
       if (hasTargetUserLink.equals("true") ) {
-        if (!StringUtils.isBlank(membershipUserValueFormat.getValue())) {
+        if (StringUtils.isNotBlank(membershipUserValueFormat.getValue())) {
           syncMemberToId3Attribute.setValue(membershipUserValueFormat.getValue());
         } else {
           syncMemberToId3Attribute.setValue("${targetMembership.attributes['" + membershipUserColumn.getValue() + "']}");

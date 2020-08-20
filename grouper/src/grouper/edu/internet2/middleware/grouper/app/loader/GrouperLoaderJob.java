@@ -487,6 +487,7 @@ public class GrouperLoaderJob implements Job {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
       throwExceptionsInFinally = false;
+      GrouperUtil.injectInException(t, "jobName: "+jobName);
       if (t instanceof RuntimeException) {
         throw (RuntimeException)t;
       }

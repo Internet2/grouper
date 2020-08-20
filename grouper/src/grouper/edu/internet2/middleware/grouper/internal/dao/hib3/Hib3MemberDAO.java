@@ -1241,7 +1241,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (StringUtils.isBlank(sourceId) || StringUtils.isBlank(subjectId)) {
       return false;
     }
-  
+    // these are so common just assume cached
+    if (("g:isa".equals(sourceId) && "GrouperSystem".equals(subjectId))
+      || ("g:isa".equals(sourceId) && "GrouperAll".equals(subjectId))) {
+      return true;
+    }
     if (!HibUtils.secondLevelCaching(true, queryOptions)) {
       return false;
     }

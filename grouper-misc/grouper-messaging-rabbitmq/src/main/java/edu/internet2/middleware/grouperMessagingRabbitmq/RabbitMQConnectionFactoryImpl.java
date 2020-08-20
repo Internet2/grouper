@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import com.rabbitmq.client.NullTrustManager;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -79,18 +81,21 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
               factory.setPort(port);
             }
 
-            if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)
-                && StringUtils.isNotEmpty(tlsVersion)) {
-              
-              KeyStore tks = KeyStore.getInstance("JKS");
-              tks.load(new FileInputStream(pathToTrustStore), trustPassphrase.toCharArray());
-              TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-              tmf.init(tks);
+            if (StringUtils.isNotEmpty(tlsVersion)) {
+              if ("default".equals(tlsVersion)) {
+                tlsVersion = ConnectionFactory.computeDefaultTlsProcotol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
+              }
               SSLContext c = SSLContext.getInstance(tlsVersion);
-              c.init(null, tmf.getTrustManagers(), null);
-              
+              if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)) {
+                KeyStore tks = KeyStore.getInstance("JKS");
+                tks.load(new FileInputStream(pathToTrustStore), trustPassphrase.toCharArray());
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                tmf.init(tks);
+                c.init(null, tmf.getTrustManagers(), null);
+              } else {
+                c.init(null, new TrustManager[]{new NullTrustManager()}, null);
+              }
               factory.useSslProtocol(c);
-              
             }
             
             connection = factory.newConnection();

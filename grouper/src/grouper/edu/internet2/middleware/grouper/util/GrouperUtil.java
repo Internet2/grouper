@@ -1616,7 +1616,7 @@ public class GrouperUtil {
     }
 
     //where is the separator
-    int separatorIndex = startString.indexOf(separator);
+    int separatorIndex = isPrefix ? startString.indexOf(separator) : startString.lastIndexOf(separator);
 
     //if none exists, dont proceed
     if (separatorIndex == -1) {

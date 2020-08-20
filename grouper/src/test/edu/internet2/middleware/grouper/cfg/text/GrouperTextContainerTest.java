@@ -1,11 +1,9 @@
 package edu.internet2.middleware.grouper.cfg.text;
 
-import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileHierarchy;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import junit.textui.TestRunner;
 
 
@@ -29,8 +27,8 @@ public class GrouperTextContainerTest extends GrouperTest {
     grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
     grouperConfigHibernate.setConfigFileNameDb("grouper.text.en.us.properties");
     grouperConfigHibernate.setConfigKey("error.title");
-    grouperConfigHibernate.setConfigValue("Error2");
-    grouperConfigHibernate.saveOrUpdate();
+    grouperConfigHibernate.setValueToSave("Error2");
+    grouperConfigHibernate.saveOrUpdate(true);
 
     GrouperCacheUtils.clearAllCaches();
     

@@ -34,6 +34,7 @@ public class GrouperProvisioningJob extends OtherJobBase {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperProvisioningService.deleteInvalidConfigs();
         updateMetadataOnDirectStemsChildren();
         updateMetadataOnIndirectGrouperObjects();
         return null;
@@ -41,6 +42,10 @@ public class GrouperProvisioningJob extends OtherJobBase {
     });
     
     return null;
+  }
+  
+  public static void main(String[] args) {
+    runDaemonStandalone();
   }
   
   /**
@@ -72,7 +77,6 @@ public class GrouperProvisioningJob extends OtherJobBase {
     });
       
   }
-  
   
   protected static List<Stem> updateMetadataOnDirectStemsChildren() {
     

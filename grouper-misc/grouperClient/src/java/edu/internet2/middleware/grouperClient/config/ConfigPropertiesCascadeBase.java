@@ -125,12 +125,19 @@ public abstract class ConfigPropertiesCascadeBase {
    * 
    */
   public static void clearCache() {
+    clearCacheThisOnly();
+    ConfigDatabaseLogic.clearCache();
+  }
+
+  /**
+   * 
+   */
+  public static void clearCacheThisOnly() {
     if (configFileCache != null) {
       configFileCache.clear();
     }
-    ConfigDatabaseLogic.clearCache();
   }
-  
+
   /**
    * if there are things that are calculated, clear them out (e.g. if an override is set)
    */
@@ -1050,7 +1057,7 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the config from file or cache
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFileOrCache() {
-    
+
     boolean isDebugEnabled = false;
     if (LOG != null) {
       if (LOG instanceof GrouperClientLog) {
@@ -1059,70 +1066,71 @@ public abstract class ConfigPropertiesCascadeBase {
         isDebugEnabled = LOG.isDebugEnabled();
       }
     }
-    
+
     Map<String, Object> debugMap = (LOG != null && isDebugEnabled) ? new LinkedHashMap<String, Object>() : null;
-    
+
     try {
-    
-    if (configFileCache == null) {
+
+      if (configFileCache == null) {
         if (LOG != null && isDebugEnabled) {
           debugMap.put("configFileCache", null);
         }
-        
-      configFileCache = 
-        new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
-    }
-    
-    ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
-    
-    if (configObject == null) {
-      
+
+        configFileCache = 
+            new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+      }
+
+      ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
+
+      if (configObject == null) {
+
         if (LOG != null && isDebugEnabled) {
           debugMap.put("configObject", null);
         }
         if (LOG != null && isDebugEnabled) {
           debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
         }
-      
-      configObject = retrieveFromConfigFiles();
-      configFileCache.put(this.getClass(), configObject);
-      
-    } else {
-      
-      //see if that much time has passed
-      if (configObject.needToCheckIfFilesNeedReloading()) {
-        
+
+        configObject = retrieveFromConfigFiles();
+        configFileCache.put(this.getClass(), configObject);
+
+      } else {
+
+        //see if that much time has passed
+        if (configObject.needToCheckIfFilesNeedReloading()) {
+
           if (LOG != null && isDebugEnabled) {
             debugMap.put("needToCheckIfFilesNeedReloading", true);
           }
-        synchronized (configObject) {
           
+          // dont synchronize, just sleep a bit to reduce deadlock
+          GrouperClientUtils.sleep(Math.round(Math.random() * 100d));
+
           configObject = configFileCache.get(this.getClass());
-          
+
           //check again in case another thread did it
           if (configObject.needToCheckIfFilesNeedReloading()) {
-            
-              if (LOG != null && isDebugEnabled) {
-                debugMap.put("needToCheckIfFilesNeedReloading2", true);
-              }
+
+            if (LOG != null && isDebugEnabled) {
+              debugMap.put("needToCheckIfFilesNeedReloading2", true);
+            }
             if (configObject.filesNeedReloadingBasedOnContents()) {
-                if (LOG != null && isDebugEnabled) {
-                  debugMap.put("filesNeedReloadingBasedOnContents", true);
-                }
+              if (LOG != null && isDebugEnabled) {
+                debugMap.put("filesNeedReloadingBasedOnContents", true);
+              }
               configObject = retrieveFromConfigFiles();
               configFileCache.put(this.getClass(), configObject);
             }
           }
         }
       }
-    }
-//      if (LOG != null && isDebugEnabled) {
-//        Properties theProperties = configObject.properties();
-//        debugMap.put("configObjectPropertyCount", configObject == null ? null 
-//            : (theProperties == null ? "propertiesNull" : theProperties.size()));
-//      }
-    
-    return configObject;
+      //      if (LOG != null && isDebugEnabled) {
+      //        Properties theProperties = configObject.properties();
+      //        debugMap.put("configObjectPropertyCount", configObject == null ? null 
+      //            : (theProperties == null ? "propertiesNull" : theProperties.size()));
+      //      }
+
+      return configObject;
     } finally {
       if (LOG != null && isDebugEnabled && debugMap.size() > 0) {
         LOG.debug(ConfigPropertiesCascadeUtils.mapToString(debugMap));

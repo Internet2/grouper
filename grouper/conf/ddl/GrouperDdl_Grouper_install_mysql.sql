@@ -1139,6 +1139,39 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
+CREATE TABLE grouper_pit_config 
+(
+    id VARCHAR(40) NOT NULL,
+    source_id VARCHAR(40) NOT NULL,
+    config_file_name VARCHAR(100) NOT NULL,
+    config_key VARCHAR(400) NOT NULL,
+    config_value text NULL,
+    config_comment text NULL,
+    config_file_hierarchy VARCHAR(50) NOT NULL,
+    config_encrypted VARCHAR(1) NOT NULL,
+    config_sequence BIGINT NOT NULL,
+    config_version_index BIGINT,
+    last_updated BIGINT NOT NULL,
+    config_value_clob MEDIUMTEXT,
+    config_value_bytes BIGINT,
+    prev_config_value text NULL,
+    prev_config_value_clob MEDIUMTEXT,
+    active VARCHAR(1) NOT NULL,
+    start_time BIGINT NOT NULL,
+    end_time BIGINT,
+    context_id VARCHAR(40) NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
+
+CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
+
+CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
+
+CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
+
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR(40) NOT NULL,
@@ -1464,6 +1497,8 @@ CREATE TABLE grouper_config
     config_version_index BIGINT,
     last_updated BIGINT NOT NULL,
     hibernate_version_number BIGINT NOT NULL,
+    config_value_clob MEDIUMTEXT,
+    config_value_bytes BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -1685,7 +1720,7 @@ CREATE TABLE grouper_cache_overall
 
 CREATE TABLE grouper_cache_instance
 (
-    cache_name VARCHAR(400) NOT NULL,
+    cache_name VARCHAR(250) NOT NULL,
     nanos_since_1970 BIGINT NOT NULL,
     PRIMARY KEY (cache_name)
 );
@@ -1704,6 +1739,22 @@ CREATE TABLE grouper_recent_mships_conf
 );
 
 CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
+
+CREATE TABLE grouper_file
+(
+    id VARCHAR(40) NOT NULL,
+    system_name VARCHAR(100) NOT NULL,
+    file_name VARCHAR(100) NOT NULL,
+    file_path VARCHAR(400) NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    context_id VARCHAR(40),
+    file_contents_varchar VARCHAR(4000),
+    file_contents_clob MEDIUMTEXT,
+    file_contents_bytes BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path(255));
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2269,11 +2320,11 @@ CREATE VIEW grouper_service_role_v (service_role, group_name, name_of_service_de
 
 CREATE VIEW grouper_pit_memberships_lw_v (ID, MEMBERSHIP_ID, MEMBERSHIP_SOURCE_ID, GROUP_SET_ID, MEMBER_ID, FIELD_ID, MEMBERSHIP_FIELD_ID, OWNER_ID, OWNER_ATTR_DEF_ID, OWNER_GROUP_ID, OWNER_STEM_ID, GROUP_SET_ACTIVE, GROUP_SET_START_TIME, GROUP_SET_END_TIME, MEMBERSHIP_ACTIVE, MEMBERSHIP_START_TIME, MEMBERSHIP_END_TIME, DEPTH, GROUP_SET_PARENT_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE) AS select concat(gpmship.id, ':', gpgs.id) as membership_id, gpmship.id as immediate_membership_id, gpmship.source_id as membership_source_id, gpgs.id as group_set_id, gpmship.member_id, gpgs.field_id, gpmship.field_id, gpgs.owner_id, gpgs.owner_attr_def_id, gpgs.owner_group_id, gpgs.owner_stem_id, gpgs.active, gpgs.start_time, gpgs.end_time, gpmship.active, gpmship.start_time, gpmship.end_time, gpgs.depth, gpgs.parent_id as group_set_parent_id,  (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F'  end) as the_active from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and ((gpmship.start_time >= gpgs.start_time and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)) or (gpgs.start_time >= gpmship.start_time and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)));
 
-CREATE VIEW grouper_pit_mship_group_lw_v (GROUP_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, GROUP_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpg.name as group_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpg.source_id as group_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpg.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
+CREATE VIEW grouper_pit_mship_group_lw_v (GROUP_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, GROUP_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpg.name as group_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpg.source_id as group_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpg.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
 
-CREATE VIEW grouper_pit_mship_stem_lw_v (STEM_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, STEM_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gps.name as stem_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gps.source_id as stem_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_stems gps, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gps.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )   or   (      gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) );
+CREATE VIEW grouper_pit_mship_stem_lw_v (STEM_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, STEM_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gps.name as stem_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gps.source_id as stem_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_stems gps, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gps.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )   or   (      gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) );
 
-CREATE VIEW grouper_pit_mship_attr_lw_v (NAME_OF_ATTRIBUTE_DEF, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, ATTRIBUTE_DEF_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpa.name as name_of_attribute_def, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpa.source_id as attribute_def_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_attribute_def gpa, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpa.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time      and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
+CREATE VIEW grouper_pit_mship_attr_lw_v (NAME_OF_ATTRIBUTE_DEF, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, ATTRIBUTE_DEF_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpa.name as name_of_attribute_def, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpa.source_id as attribute_def_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, concat(gpmship.source_id, ':', gpgs.source_id) as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_attribute_def gpa, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpa.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time      and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
 
 CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, recent_micros, group_uuid_to, group_name_to, include_eligible) AS select distinct   gg.name group_name_from,  gaaagv_groupUuidFrom.value_string group_uuid_from,  gaaagv_recentMembershipsMicros.value_integer recent_micros,  gaaagv_groupUuidFrom.group_id group_uuid_to,  gaaagv_groupUuidFrom.group_name group_name_to,   gaaagv_includeEligible.value_string include_eligible   from   grouper_aval_asn_asn_group_v gaaagv_recentMembershipsMicros,  grouper_aval_asn_asn_group_v gaaagv_groupUuidFrom,  grouper_aval_asn_asn_group_v gaaagv_includeEligible,  grouper_groups gg  where gaaagv_recentMembershipsMicros.attribute_assign_id1 = gaaagv_groupUuidFrom.attribute_assign_id1  and gaaagv_recentMembershipsMicros.attribute_assign_id1 = gaaagv_includeEligible.attribute_assign_id1  and gaaagv_recentMembershipsMicros.attribute_def_name_name2 = 'etc:attribute:recentMemberships:grouperRecentMembershipsMicros'  and gaaagv_groupUuidFrom.attribute_def_name_name2 = 'etc:attribute:recentMemberships:grouperRecentMembershipsGroupUuidFrom'  and gaaagv_includeEligible.attribute_def_name_name2 = 'etc:attribute:recentMemberships:grouperRecentMembershipsIncludeCurrent'  and gaaagv_recentMembershipsMicros.value_integer > 0  and gaaagv_recentMembershipsMicros.value_integer is not null  and gaaagv_groupUuidFrom.value_string is not null  and gaaagv_includeEligible.value_string is not null  and (gaaagv_includeEligible.value_string = 'T' or gaaagv_includeEligible.value_string = 'F')  and gg.id = gaaagv_groupUuidFrom.value_string ;
 

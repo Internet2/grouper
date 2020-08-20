@@ -2555,12 +2555,20 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.5.34";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_5_34.addGrouperConfigColumns(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperConfigComments(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperPitConfigTable(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperPitConfigComments(database, ddlVersionBean);
+      
+      GrouperDdl2_5_34.addGrouperFileTable(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
     }
   },
   V35 {

@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -27,8 +24,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
 public class DbConfigEngine {
-
-  public static final String ESCAPED_PASSWORD = "*******";
 
   /**
    * 
@@ -121,7 +116,7 @@ public class DbConfigEngine {
       
       GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
   
-      boolean isPassword = DbConfigEngine.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
+      boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
       
       boolean isAlreadyEncrypted = false;
       if (!StringUtils.isBlank(valueString)) {
@@ -145,7 +140,9 @@ public class DbConfigEngine {
         added[0] = true;
       } else {
         
-        if (StringUtils.equals(valueString, grouperConfigHibernate.getConfigValueDb())) {
+        String value = grouperConfigHibernate.retrieveValue();
+        
+        if (StringUtils.equals(valueString, value)) {
           added[0] = null;
         } else {
           added[0] = false;
@@ -160,9 +157,9 @@ public class DbConfigEngine {
       
   //    grouperConfigHibernate.setConfigComment(comment);
       
-      grouperConfigHibernate.setConfigValue(valueString);
+      grouperConfigHibernate.setValueToSave(valueString);
       if (added[0] != null) {
-        grouperConfigHibernate.saveOrUpdate();
+        grouperConfigHibernate.saveOrUpdate(added[0]);
         if (clearCache) {
           // get the latest and greatest
           ConfigPropertiesCascadeBase.clearCache();
@@ -177,20 +174,6 @@ public class DbConfigEngine {
         message.append(GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesEdited")).append(fromUi ? "<br />" : "\n");
       }
   
-      String valueForAudit = grouperConfigHibernate.isConfigEncrypted() ? DbConfigEngine.ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
-      if (added[0] != null) {
-  
-        AuditTypeBuiltin auditTypeBuiltin = added[0] ? AuditTypeBuiltin.CONFIGURATION_ADD : AuditTypeBuiltin.CONFIGURATION_UPDATE;
-        
-        AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
-            grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
-            "key", grouperConfigHibernate.getConfigKey(), "value", 
-            valueForAudit, "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
-        
-        auditEntry.setDescription((added[0] ? "Add" : "Update") + " config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-          + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
-        auditEntry.saveOrUpdate(true);
-      }
     } finally {
       GrouperTextContainer.resetThreadLocalVariableMap();
     }
@@ -246,7 +229,7 @@ public class DbConfigEngine {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+                  + ", " + current.getConfigKey() + ", " + current.retrieveValue());
                 current.delete();
                 configurationFileItemDeleteHelper(current, configFileName, fromUi);
               }
@@ -259,7 +242,7 @@ public class DbConfigEngine {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-                  + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+                  + ", " + current.getConfigKey() + ", " + current.retrieveValue());
                 current.delete();
               }
               grouperConfigHibernateEl = current;
@@ -317,117 +300,11 @@ public class DbConfigEngine {
 
     grouperConfigHibernate.delete();
     
-    boolean isValueEncrypted = isPassword(configFileName, null, grouperConfigHibernate.getConfigKey(), 
-        grouperConfigHibernate.getConfigValueDb(), true, grouperConfigHibernate.isConfigEncrypted());
-
-    String valueForAudit = isValueEncrypted ? ESCAPED_PASSWORD : grouperConfigHibernate.getConfigValueDb();
-
-    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
-        grouperConfigHibernate.getId(), "configFile", grouperConfigHibernate.getConfigFileNameDb(), 
-        "key", grouperConfigHibernate.getConfigKey(), "previousValue", 
-        valueForAudit, 
-            "configHierarchy", grouperConfigHibernate.getConfigFileHierarchyDb());
-    auditEntry.setDescription("Delete config entry: " + grouperConfigHibernate.getConfigFileNameDb() 
-      + ", " + grouperConfigHibernate.getConfigKey() + " = " + valueForAudit);
-    auditEntry.saveOrUpdate(true);
-
     final String message = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesDeleted");
     if (!fromUi) {
       System.out.println(message);
     }
     return message;
-  }
-
-  /**
-   * see if password based on various factors
-   * @param configFileName if known or null if not
-   * @param configItemMetadata if known or null if not
-   * @param key or null if not known
-   * @param value if there is one at this point or null if not
-   * @param hasValue true if there is a value, false if not
-   * @param userSelectedPassword true if the user selected that this is a password.   null if NA
-   * @return true if password
-   */
-  public static boolean isPassword(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, String key, String value, boolean hasValue, Boolean userSelectedPassword) {
-    return isPasswordHelper(configFileName, configItemMetadata, key, value, hasValue, userSelectedPassword);
-  }
-
-  /**
-   * see if password based on various factors
-   * @param configFileName
-   * @param configItemMetadata
-   * @param key
-   * @param value
-   * @param hasValue
-   * @param userSelectedPassword
-   * @return true if password
-   */
-  private static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
-      String key, String value, boolean hasValue, Boolean userSelectedPassword) {
-  
-    if (key != null && key.endsWith(".elConfig")) {
-      // this is a script, not a password
-      return false;
-    }
-    
-    if (hasValue && !StringUtils.isBlank(value)) {
-      try {
-        Morph.decrypt(value);
-        return true;
-      } catch (Exception e) {
-        // ignore
-      }
-    }
-    
-    // if there is a value, and it is a file, then its not a password
-    if (hasValue && !StringUtils.isBlank(value)) {
-      File theFile = new File(value);
-      if (theFile.exists() && theFile.isFile()) {
-        return false;
-      }
-    }
-    
-    // if the configured metadata is not null then check that
-    if (isPasswordHelper(configItemMetadata)) {
-      return true;
-    }
-    
-    // look for a key with certain words inside
-    if (key != null) {
-      String lowerKey = key.toLowerCase();
-  
-      if (lowerKey.contains("pass") || lowerKey.contains("secret") || lowerKey.contains("private")) {
-        return true;
-      }
-    
-      //lets try to find the config item metadata by key to be sure
-      if (configItemMetadata == null) {
-        configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
-      }
-      if (isPasswordHelper(configItemMetadata)) {
-        return true;
-      }
-    }
-  
-    // if the user selected that this is a password, then i guess it is
-    if (userSelectedPassword != null && userSelectedPassword) {
-      return true;
-    }
-    
-    return false;
-  }
-
-  /**
-   * see if password based on various factors
-   * @param configItemMetadata
-   * @return true if password
-   */
-  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata) {
-    
-    if (configItemMetadata != null) {
-      return configItemMetadata.isSensitive() || configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD;
-    }
-    return false;
   }
 
   /**
@@ -454,7 +331,7 @@ public class DbConfigEngine {
         if (grouperConfigHibernate != null) {
           // why are there two???
           LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-            + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+            + ", " + current.getConfigKey() + ", " + current.retrieveValue());
           current.delete();
         }
         grouperConfigHibernate = current;
@@ -466,7 +343,7 @@ public class DbConfigEngine {
         if (grouperConfigHibernate != null) {
           // why are there two???
           LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
-            + ", " + current.getConfigKey() + ", " + current.getConfigValue());
+            + ", " + current.getConfigKey() + ", " + current.retrieveValue());
           current.delete();
         }
         grouperConfigHibernateEl = current;
@@ -519,23 +396,5 @@ public class DbConfigEngine {
     
     return true;
   }
-
-  /**
-   * if the value is a file and it exists, then this is not a password to be escaped
-   * @param configItemMetadata
-   * @param propertyValueString
-   * @return true if should be escaped
-   */
-  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata,
-      String propertyValueString) {
-    if (StringUtils.isBlank(propertyValueString)) {
-      return false;
-    }
-    if (propertyValueString.length() > 5 && new File(propertyValueString).exists()) {
-      return false;
-    }
-    return isPasswordHelper(configItemMetadata);
-  }
-  
 
 }

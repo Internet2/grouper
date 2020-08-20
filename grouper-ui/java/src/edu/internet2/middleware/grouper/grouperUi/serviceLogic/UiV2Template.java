@@ -179,7 +179,7 @@ public class UiV2Template {
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
       
       if (stem == null) {
         return;

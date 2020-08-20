@@ -36,6 +36,7 @@ public class AllMembershipTests {
     /* Already called by validator.Suite_Unit_API_ImmediateMembershipValidator */
     // suite.addTestSuite(Test_Unit_API_ImmediateMembershipValidator_validate.class);
     suite.addTestSuite(TestFindBadMemberships.class);
+    suite.addTestSuite(TestFindBadMembershipsChangeLogConsumer.class);
     suite.addTestSuite(TestMembership4.class);
     suite.addTestSuite(TestDisabledMembership.class);
     suite.addTestSuite(TestMemberOf.class);

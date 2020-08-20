@@ -1,0 +1,178 @@
+<!--
+
+    Copyright 2014 Internet2
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project name="grouperClient" default="build" basedir=".">
+
+  <!-- ant contrib allows conditionals in ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  </target>
+
+  <target name="init">
+    <tstamp />
+
+    <property file="${basedir}/misc/version.properties"/>
+
+    <property name="cvs.branch" value="HEAD" />
+    
+    <property name="main.sourceDir" value="src/java" />
+    <property name="main.sourceExtDir" value="src/ext" />
+    <property name="main.sourceExtMoreDir" value="src/extMore" />
+
+    <property name="main.confDir" value="conf" />
+
+    <property name="main.binDir" value="dist/bin" />
+
+    <property name="main.outputDir" value="dist" />
+
+    <property name="main.appName" value="grouperClient" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+
+    <path id="main.extClasspath">
+      <fileset dir="target/dependency">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+
+    <path id="main.mainClasspath">
+    </path>
+
+    <condition property="main.os" value="windows">
+      <os family="windows" />
+    </condition>
+    <condition property="main.os" value="unix">
+      <os family="unix" />
+    </condition>
+
+    <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
+    <pathconvert targetos="${main.os}" property="main.theMainClasspath" refid="main.mainClasspath" />
+    
+    <if><not><available file="${main.confDir}/grouper.client.properties" /></not>
+      <then><copy file="misc/grouper.client.example.properties" 
+        tofile="${main.confDir}/grouper.client.properties" /></then>
+    </if> 
+
+    <if><not><available file="${main.confDir}/morphString.properties" /></not>
+      <then><copy file="misc/morphString.example.properties" 
+        tofile="${main.confDir}/morphString.properties" /></then>
+    </if> 
+
+    <if><not><available file="${main.confDir}/grouper.client.usage.txt" /></not>
+      <then><copy file="${main.confDir}/grouper.client.usage.example.txt" 
+        tofile="${main.confDir}/grouper.client.usage.txt" /></then>
+    </if> 
+
+    <if><not><available file="misc/README.txt" /></not>
+      <then><copy file="misc/README.example.txt" 
+        tofile="misc/README.txt" /></then>
+    </if> 
+
+  </target>
+
+  <target name="clean" depends="init">
+    <mkdir dir="${main.binDir}" />
+    <delete dir="${main.binDir}" />
+    <mkdir dir="${main.binDir}" />
+
+  </target> 
+  
+  <target name="compile">
+    <mkdir dir="${main.outputDir}" />
+    <mkdir dir="${main.binDir}" />
+
+    <javac   target="1.5"  source="1.5" 
+      srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
+    <javac  target="1.5" source="1.5" 
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  classpath="${main.theMainClasspath}"/>
+    <javac  target="1.5" source="1.5" 
+      srcdir="${main.sourceExtMoreDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}"/>
+  </target>
+
+  <target name="jarPrepare">
+    <mkdir dir="${main.binDir}" />
+
+    <copy todir="${main.binDir}">
+      <fileset dir="${main.sourceDir}">
+        <include name="**/*.java"/>      <!-- source -->
+        <include name="**/*.txt"/>      <!-- txt -->
+        <include name="**/*.html"/>      <!-- html -->
+      </fileset>
+      <fileset dir="${main.sourceExtDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+      <fileset dir="${main.sourceExtMoreDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+      <fileset dir="${main.confDir}">
+        <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
+      </fileset>
+      <fileset dir="${basedir}">
+        <include name="README.txt"/>      <!-- sample config -->
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="jar">
+    <tstamp>
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss Z" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="misc">
+        <include name="META-INF/*" />
+      </fileset>
+      <fileset dir="${main.binDir}" />
+      <manifest>
+        <attribute name="Main-Class" value="edu.internet2.middleware.grouperClient.GrouperClient"/>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Specification-Title"     value="Grouper Client"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"    value="grouperClient"/>
+        <attribute name="Implementation-Version"  value="${version}"/>
+        <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/Grouper/Grouper+Client"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
+     </jar>
+    <property name="instName" value="grouperClient.institution-${version}" />
+    <mkdir dir="dist/institution/${instName}"/>
+    <copy todir="dist/institution/${instName}">    
+      <fileset dir="${main.confDir}">
+        <include name="grouper.client.properties"/>
+        <include name="grouper.client.base.properties"/>
+      </fileset>
+      <fileset dir="dist">
+        <include name="grouperClient.jar"/>
+      </fileset>
+      <fileset dir="misc">
+        <include name="README.txt"/>
+      </fileset>
+    </copy>
+    <tar destfile="dist/${instName}.tar.gz" compression="gzip">
+      <tarfileset dir="dist/institution" >
+        <include name="${instName}/**"/>
+      </tarfileset>
+    </tar>            
+    <echo message="Output is: dist/grouperClient.jar and dist/${instName}.tar.gz" />
+    <echo message="Note: dist/${instName}.tar.gz contains the conf/grouper.client.properties, make sure it has no sensitive credentials in it" />
+   </target>
+  
+
+</project>

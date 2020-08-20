@@ -1040,6 +1040,9 @@ public class SubjectFinder implements CheckboxValueDriver {
     return getResolver().getSources();
   }
   
+  /**
+   * see {@link CheckboxValueDriver#retrieveCheckboxAttributes()}
+   */
   @Override
   public List<MultiKey> retrieveCheckboxAttributes() {
     
@@ -1051,6 +1054,7 @@ public class SubjectFinder implements CheckboxValueDriver {
     sourceIdsToNotAutoSelect.add(InternalSourceAdapter.ID);
     sourceIdsToNotAutoSelect.add(GrouperSourceAdapter.groupSourceId());
     sourceIdsToNotAutoSelect.add(ExternalSubject.sourceId());
+    sourceIdsToNotAutoSelect.add(EntitySourceAdapter.entitySourceId());
     
     for (Source source: sources) {
       boolean autoSelect = !sourceIdsToNotAutoSelect.contains(source.getId());

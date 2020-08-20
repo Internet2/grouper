@@ -12,12 +12,41 @@ public class GuiProvisionerConfiguration {
    */
   private ProvisionerConfiguration provisionerConfiguration;
   
-  private GuiProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
-    this.provisionerConfiguration = provisionerConfiguration;
-  }
+  private String lastFullSyncTimestamp;
+  private String lastIncrementalSyncTimestamp;
+  private int groupCount;
+  private int userCount;
+  private int recordsCount;
+  
+  private GuiProvisionerConfiguration() {}
   
   public ProvisionerConfiguration getProvisionerConfiguration() {
     return this.provisionerConfiguration;
+  }
+  
+  
+  public String getLastFullSyncTimestamp() {
+    return lastFullSyncTimestamp;
+  }
+
+  
+  public String getLastIncrementalSyncTimestamp() {
+    return lastIncrementalSyncTimestamp;
+  }
+
+  
+  public int getGroupCount() {
+    return groupCount;
+  }
+
+  
+  public int getUserCount() {
+    return userCount;
+  }
+
+  
+  public int getRecordsCount() {
+    return recordsCount;
   }
 
   /**
@@ -26,7 +55,10 @@ public class GuiProvisionerConfiguration {
    * @return
    */
   public static GuiProvisionerConfiguration convertFromProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
-    return new GuiProvisionerConfiguration(provisionerConfiguration);
+    
+    GuiProvisionerConfiguration guiProvisionerConfig = new GuiProvisionerConfiguration();
+    guiProvisionerConfig.provisionerConfiguration = provisionerConfiguration;
+    return guiProvisionerConfig;
   }
   
   /**

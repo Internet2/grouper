@@ -1449,12 +1449,12 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    */
   public Map<Integer, String> getSubjectIdentifierAttributesAll() {
     
-    if (this.subjectIdentifierAttributes == null) {
+    if (this.subjectIdentifierAttributesAll == null) {
       synchronized(JDBCSourceAdapter.class) {
-        if (this.subjectIdentifierAttributes == null) {
+        if (this.subjectIdentifierAttributesAll == null) {
           LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
           
-          for (int i = 0; i < 1; i++) {
+          for (int i = 0; i < 20; i++) {
             String value = getInitParam("subjectIdentifierAttribute" + i);
             if (value != null) {
               temp.put(i, value.toLowerCase());
@@ -1468,11 +1468,11 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             }
           }
           
-          this.subjectIdentifierAttributes = temp;
+          this.subjectIdentifierAttributesAll = temp;
         }
       }
     }
     
-    return this.subjectIdentifierAttributes;
+    return this.subjectIdentifierAttributesAll;
   }
 }

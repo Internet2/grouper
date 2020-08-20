@@ -1,9 +1,12 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,8 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigSection;
+import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiPITGrouperConfigHibernate;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -43,13 +48,17 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -197,7 +206,7 @@ public class UiV2Configure {
     boolean success = configurationFileAddEditHelper(request, response);
         
     if (success) {
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null, null);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/configure/configure.jsp"));
@@ -362,6 +371,64 @@ public class UiV2Configure {
   }
   
   /**
+   * export config
+   * @param request
+   * @param response
+   */
+  public void configurationFileExport(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+      
+      final String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+      
+      if (StringUtils.isBlank(configFileString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
+            TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
+        return;
+      }
+      
+      
+      StringBuilder contents = new StringBuilder();
+      
+      Map<String, String> properties = ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName());
+      
+      for (String property: properties.keySet()) {
+        contents.append(property + " = " + properties.get(property));
+        contents.append("\n");
+      }
+      
+      response.setContentType("application/octet-stream");
+      response.setHeader ("Content-Disposition", "inline;filename=\"" + configFileName.getConfigFileName() + "\"");
+      
+      try {
+        PrintWriter out = response.getWriter();
+        out.write(contents.toString());
+        out.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occured while writing response");
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * delete config
    * @param request
    * @param response
@@ -399,7 +466,7 @@ public class UiV2Configure {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             result));
       }
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null, null);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
     
@@ -458,7 +525,7 @@ public class UiV2Configure {
 
       if (!StringUtils.isBlank(configFileString)) {
       
-        buildConfigFileAndMetadata();
+        buildConfigFileAndMetadata(null, null);
 
       }
 
@@ -516,6 +583,56 @@ public class UiV2Configure {
     }
   }
 
+  /**
+   * filter values
+   * @param request
+   * @param response
+   */
+  public void configureFilterSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+      
+      String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+      
+      // if not sent, thats a problem
+      if (StringUtils.isBlank(configFileString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#configFileSelect", 
+            TextContainer.retrieveFromRequest().getText().get("configurationFileRequired")));
+        return;
+      }
+      
+      String filter = request.getParameter("filter");
+      String configSource = request.getParameter("configSource");
+      
+      buildConfigFileAndMetadata(filter.trim(), configSource);
+      
+      configurationContainer.setFilter(filter.trim());
+      configurationContainer.setConfigSource(configSource);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
   
   /**
    * configure
@@ -552,7 +669,7 @@ public class UiV2Configure {
           return;
         }
         
-        buildConfigFileAndMetadata();
+        buildConfigFileAndMetadata(null, null);
         
       }
       
@@ -605,7 +722,7 @@ public class UiV2Configure {
       }
       configurationContainer.setCurrentConfigPropertyName(propertyNameString);
 
-      buildConfigFileAndMetadata();
+      buildConfigFileAndMetadata(null, null);
       
       GuiConfigFile guiConfigFile = configurationContainer.getGuiConfigFile();
       
@@ -632,6 +749,169 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+  
+  /**
+   * see the history of db configs
+   * @param request
+   * @param response
+   */
+  public void history(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      historyHelper(request);
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  private void historyHelper(final HttpServletRequest request) {
+    
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    
+    String filter = request.getParameter("filter");
+    if (StringUtils.isNotBlank(filter)) {
+      configurationContainer.setFilter(filter.trim());
+    } else {
+      filter = "";
+    }
+    
+    GuiPaging guiPaging = configurationContainer.getGuiPaging();
+    QueryOptions queryOptions = new QueryOptions();
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    List<PITGrouperConfigHibernate> pitConfigs = Hib3DAOFactory.getFactory().getPITConfig().findPITConfigs(queryOptions, filter.trim());
+    
+    List<GuiPITGrouperConfigHibernate> guiPitConfigs = GuiPITGrouperConfigHibernate.convertFromPITGrouperConfigsHibernate(pitConfigs);
+    
+    configurationContainer.setGuiPitConfigs(guiPitConfigs);
+    
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+        "/WEB-INF/grouperUi2/configure/history.jsp"));
+  }
+  
+  /**
+   * search the history of db configs
+   * @param request
+   * @param response
+   */
+//  public void historyFilterSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+//    
+//    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+//    
+//    GrouperSession grouperSession = null;
+//  
+//    try {
+//  
+//      grouperSession = GrouperSession.start(loggedInSubject);
+//  
+//      if (!allowedToViewConfiguration()) {
+//        return;
+//      }
+//      
+//      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+//  
+//      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+//      
+//      String filter = request.getParameter("filter");
+//      
+//      configurationContainer.setFilter(filter.trim());
+//      
+//      List<PITGrouperConfigHibernate> pitConfigs = Hib3DAOFactory.getFactory().getPITConfig().findPITConfigs(null, filter.trim());
+//      
+//      List<GuiPITGrouperConfigHibernate> guiPitConfigs = GuiPITGrouperConfigHibernate.convertFromPITGrouperConfigsHibernate(pitConfigs);
+//      
+//      configurationContainer.setGuiPitConfigs(guiPitConfigs);
+//      
+//      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+//          "/WEB-INF/grouperUi2/configure/history.jsp"));
+//      
+//    } finally {
+//      GrouperSession.stopQuietly(grouperSession);
+//    }
+//  }
+  
+  /**
+   * revert configs to old values
+   * @param request
+   * @param response
+   */
+  public void revertConfigValues(final HttpServletRequest request, final HttpServletResponse response) {
+   
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      final Set<String> pitIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String pitId = request.getParameter("configHistoryRow_" + i + "[]");
+        if (!StringUtils.isBlank(pitId)) {
+          pitIds.add(pitId);
+        }
+      }
+  
+      if (pitIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("configurationHistoryRevertNoPropertiesSelects")));
+        return;
+      }
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      Hib3DAOFactory.getFactory().getPITConfig().revertConfigs(pitIds, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
+      
+      historyHelper(request);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("configurationHistoryRevertSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
 
   /**
@@ -679,6 +959,13 @@ public class UiV2Configure {
 
       String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
 
+      // GRP-2836: Configuration file upload fails on browsers that include full file path
+      if (fileName.contains("/")) {
+        fileName = GrouperUtil.prefixOrSuffix(fileName, "/", false);
+      }
+      if (fileName.contains("\\")) {
+        fileName = GrouperUtil.prefixOrSuffix(fileName, "\\", false);
+      }
       ConfigFileName configFileName = null;
       
       try {
@@ -716,7 +1003,7 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
 
-    buildConfigFileAndMetadata();
+    buildConfigFileAndMetadata(null, null);
 
     guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
 
@@ -865,11 +1152,50 @@ public class UiV2Configure {
     }
     return result;
   } 
-
+  
+  
+  
+  private static boolean includeProperty(String filter, String configSource, GuiConfigProperty guiConfigProperty) {
+    
+    String sourceOfValue = guiConfigProperty.getValueFromWhere();
+    
+    if (StringUtils.isBlank(filter) && StringUtils.isBlank(configSource)) {
+      return true;
+    }
+    
+    if (StringUtils.isNotBlank(configSource)) {
+      if (configSource.equals("nonBase") && (sourceOfValue == null || sourceOfValue.endsWith("base.properties")) ) {
+        return false;
+      }
+      
+      if (configSource.equals("db") && (sourceOfValue == null || !sourceOfValue.equals("database")) ) {
+        return false;
+      }
+    }
+    
+    ConfigItemMetadata configItemMetadata = guiConfigProperty.getConfigItemMetadata();
+    
+    boolean found = false;
+    
+    if (configItemMetadata.getKeyOrSampleKey().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    if (!found && guiConfigProperty.getPropertyValue() != null && guiConfigProperty.getPropertyValue().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    if (!found && configItemMetadata.getComment() != null && configItemMetadata.getComment().toLowerCase().contains(filter.toLowerCase())) {
+      found = true;
+    }
+    
+    return found;
+  }
+  
   /**
    * 
    */
-  private static void buildConfigFileAndMetadata() {
+  private static void buildConfigFileAndMetadata(String filter, String configSource) {
     
     // get the latest and greatest
     ConfigPropertiesCascadeBase.clearCache();
@@ -916,6 +1242,11 @@ public class UiV2Configure {
         keyNameToGuiProperty.put(configItemMetadata.getKeyOrSampleKey(), guiConfigProperty);
         guiConfigProperty.setGuiConfigSection(guiConfigSection);
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
+        
+        if (!includeProperty(filter, configSource, guiConfigProperty) ) {
+          continue;
+        }
+        
         guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         
         // see if the current database item has an encrypted value
@@ -938,7 +1269,7 @@ public class UiV2Configure {
     
     Set<String> propertyNames = configPropertiesCascadeBase.propertyNames();
     
-    for (String propertyName : propertyNames) {
+    lbl: for (String propertyName : propertyNames) {
       if (keyNameToGuiProperty.containsKey(propertyName)) {
         continue;
       }
@@ -955,6 +1286,7 @@ public class UiV2Configure {
         }
         
         guiConfigProperty.setConfigItemMetadata(configItemMetadata);
+        
       }
       
       // lets find a section
@@ -966,8 +1298,13 @@ public class UiV2Configure {
             Matcher matcher = pattern.matcher(propertyName);
             if (matcher.matches()) {
               GuiConfigSection guiConfigSection = sectionMetadataToSection.get(configSectionMetadata);
-              guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
               guiConfigProperty.setGuiConfigSection(guiConfigSection);
+              
+              if (!includeProperty(filter, configSource, guiConfigProperty) ) {
+                continue lbl;
+              }
+              
+              guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
               foundSection = true;
               break OUTER;
             }
@@ -992,8 +1329,11 @@ public class UiV2Configure {
         }
         
         GuiConfigSection guiConfigSection = guiConfigFile.getGuiConfigSections().get(guiConfigFile.getGuiConfigSections().size()-1);
-        guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         guiConfigProperty.setGuiConfigSection(guiConfigSection);
+        if (!includeProperty(filter, configSource, guiConfigProperty) ) {
+          continue lbl;
+        }
+        guiConfigSection.getGuiConfigProperties().add(guiConfigProperty);
         
       }
     }

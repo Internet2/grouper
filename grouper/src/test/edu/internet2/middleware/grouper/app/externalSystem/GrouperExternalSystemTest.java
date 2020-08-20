@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
-import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
@@ -196,7 +196,7 @@ public class GrouperExternalSystemTest extends GrouperTest {
     assertEquals("https://test.whatever.com", suffixToAttribute.get("loginEndpoint").getValue());
     assertEquals("someDirectoryId", suffixToAttribute.get("DirectoryID").getValue());
     assertEquals("${'someDirectoryId'}", suffixToAttribute.get("DirectoryID").getExpressionLanguageScript());
-    assertEquals(DbConfigEngine.ESCAPED_PASSWORD, suffixToAttribute.get("client_secret").getValue());
+    assertEquals(GrouperConfigHibernate.ESCAPED_PASSWORD, suffixToAttribute.get("client_secret").getValue());
     
     // lets test by adding, deleting editing
     

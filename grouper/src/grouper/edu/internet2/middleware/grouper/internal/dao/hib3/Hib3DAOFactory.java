@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -68,6 +69,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITConfigDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
@@ -487,6 +489,15 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   public PITPermissionAllViewDAO getPITPermissionAllView() {
     return new Hib3PITPermissionAllViewDAO();
   }
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITConfig()
+   */
+  @Override
+  public PITConfigDAO getPITConfig() {
+    return new Hib3PITConfigDAO();
+  }
 
   /**
    * @see GrouperDAOFactory#getExternalSubject()
@@ -551,6 +562,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public GrouperPasswordDAO getGrouperPassword() {
     return new Hib3GrouperPasswordDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGrouperFile()
+   */
+  @Override
+  public GrouperFileDAO getGrouperFile() {
+    return new Hib3GrouperFileDAO();
   }
   
 } 

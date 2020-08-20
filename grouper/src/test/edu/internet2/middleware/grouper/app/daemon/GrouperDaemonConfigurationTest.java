@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -18,6 +21,55 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
   
   public GrouperDaemonConfigurationTest(String name) {
     super(name);
+  }
+  
+  public void testInsertEditDelete() {
+    
+    GrouperDaemonConfiguration configuration = new GrouperDaemonChangeLogConsumerConfiguration();
+    
+    configuration.setConfigId("testChangeLogConsumer");
+    
+    assertEquals(4, configuration.retrieveAttributes().size());
+    
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    configuration.retrieveAttributes().get("syncAttributeName").setValue("etc:attribute:attrLoader:attributeLoader");
+    
+    configuration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertEquals(0, validationErrorsToDisplay.size());
+    
+    configuration = new GrouperDaemonChangeLogConsumerConfiguration();
+    configuration.setConfigId("testChangeLogConsumer");
+    
+    configuration.retrieveAttributes().get("quartzCron").setValue("0 50 * * * ?");
+    configuration.retrieveAttributes().get("retryOnError").setValue("false");
+    configuration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    assertEquals(0, validationErrorsToDisplay.size());
+    
+    configuration = new GrouperDaemonChangeLogConsumerConfiguration();
+    configuration.setConfigId("testChangeLogConsumer");
+    
+    String value  = configuration.retrieveAttributes().get("quartzCron").getValue();
+    assertEquals("0 50 * * * ?", value);
+    
+    value  = configuration.retrieveAttributes().get("retryOnError").getValue();
+    assertEquals("false", value);
+    
+    configuration.deleteConfig(false);
+    
+    configuration = new GrouperDaemonChangeLogConsumerConfiguration();
+    configuration.setConfigId("testChangeLogConsumer");
+    
+    value  = configuration.retrieveAttributes().get("quartzCron").getValue();
+    assertEquals("", value);
+    
+    value  = configuration.retrieveAttributes().get("retryOnError").getValue();
+    assertEquals("", value);
+    
   }
 
   public void testRetrieveAttributes() {

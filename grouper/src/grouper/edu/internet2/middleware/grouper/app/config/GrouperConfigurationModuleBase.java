@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -125,7 +126,7 @@ public abstract class GrouperConfigurationModuleBase {
   }
   
   /**
-   * list of configured external systems
+   * list of configured systems
    * @return
    */
   public static List<GrouperConfigurationModuleBase> retrieveAllConfigurations(Set<String> classNames) {
@@ -178,6 +179,10 @@ public abstract class GrouperConfigurationModuleBase {
     if (isInsert) {
       if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
+      }
+      
+      if (!isMultiple()) {
+        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationNotMultiple"));
       }
     }
     
@@ -537,8 +542,8 @@ public abstract class GrouperConfigurationModuleBase {
       
       if (attributesFromBaseConfig.containsKey(suffix)) {
         GrouperConfigurationModuleAttribute attribute = attributesFromBaseConfig.get(suffix);
-        if (DbConfigEngine.isPasswordHelper(attribute.getConfigItemMetadata(), configPropertiesCascadeBase.propertyValueString(propertyName))) {
-          attribute.setValue(DbConfigEngine.ESCAPED_PASSWORD);
+        if (GrouperConfigHibernate.isPasswordHelper(attribute.getConfigItemMetadata(), configPropertiesCascadeBase.propertyValueString(propertyName))) {
+          attribute.setValue(GrouperConfigHibernate.ESCAPED_PASSWORD);
         } else {
           attribute.setValue(configPropertiesCascadeBase.propertyValueString(propertyName));
         }

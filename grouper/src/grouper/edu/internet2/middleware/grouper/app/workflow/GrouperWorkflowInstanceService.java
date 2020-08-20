@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,8 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -81,6 +84,8 @@ public class GrouperWorkflowInstanceService {
   
   private static ExpirableCache<Subject, List<String>> subjectWaitingForApprovalInstances = new ExpirableCache<Subject, List<String>>(5);
   
+  private static final String GROUPER_WORKFLOW_FILE_PATH_PREFIX = "/grouperWorkflow";
+  private static final String GROUPER_WORKFLOW_SYSTEM_NAME = "workflow";
   
   /**
    * get workflow instance by attribute assign id
@@ -436,24 +441,35 @@ public class GrouperWorkflowInstanceService {
   private static void saveWorkflowFile(String randomEncryptionKey,  String fileContents, GrouperWorkflowInstance instance,
       GrouperWorkflowInstanceFileInfo fileInfo, GrouperWorkflowConfig workflowConfig) {
     
-    String workflowFileDestinationType = GrouperConfig.retrieveConfig().propertyValueString("workflow.storage.option");
-    if (StringUtils.isBlank(workflowFileDestinationType)) {
-      throw new RuntimeException("workflow.storage.option cannot be blank. Valid values are S3 and fileSystem");
-    }
+    String workflowFileDestinationType = GrouperConfig.retrieveConfig().propertyValueString("workflow.storage.option", "database");
     
-    if (!workflowFileDestinationType.equals("S3") && !workflowFileDestinationType.equals("fileSystem")) {
-      throw new RuntimeException("workflow.storage.option is not valid. Use S3 or fileSystem");
-    }
-      
     if (workflowFileDestinationType.equals("S3")) {
       uploadFileToS3(fileContents, instance, fileInfo, randomEncryptionKey);
-    } else {
+    } else if (workflowFileDestinationType.equals("fileSystem")) {
       String workflowFileOutputDirectory = GrouperConfig.retrieveConfig().propertyValueString("workflow.file.system.path");
       if (StringUtils.isBlank(workflowFileOutputDirectory)) {          
         throw new RuntimeException("workflow.file.system.path cannot be blank");
       }
       saveFileToFileSystem(workflowFileOutputDirectory, randomEncryptionKey, 
           instance, fileContents, fileInfo, workflowConfig);
+    } else if (workflowFileDestinationType.equals("database")) {
+      String encryptedContents = getEncryptedFileContents(randomEncryptionKey, fileContents);
+      String id = GrouperUuid.getUuid();
+      GrouperFile grouperFile = new GrouperFile();
+      grouperFile.setId(id);
+      grouperFile.setValueToSave(encryptedContents);
+      
+      String fileName = workflowConfig.getWorkflowConfigId()+
+          "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+      
+      grouperFile.setFileName(fileName);
+      grouperFile.setFilePath(GROUPER_WORKFLOW_FILE_PATH_PREFIX + "/" + fileName);
+      grouperFile.setSystemName(GROUPER_WORKFLOW_SYSTEM_NAME);
+      
+      Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+      fileInfo.setFilePointer(id);
+    } else {
+      throw new RuntimeException("workflow.storage.option is not valid. Use database, S3 or fileSystem");
     }
     
   }
@@ -732,9 +748,20 @@ public class GrouperWorkflowInstanceService {
     GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
     .getFileNamesAndPointers().get(lastIndex);
     
-    String html = fileInfo.getFilePointer().startsWith("https://") ? 
-        getCurrentHtmlContentFromS3(instance): getCurrentHtmlFormFromFileSystem(instance);
-    
+    String html = "";
+        
+    if (fileInfo.getFilePointer().startsWith("https://")) {
+      html = getCurrentHtmlContentFromS3(instance);
+    } else {
+      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(fileInfo.getFilePointer(), false);
+      
+      if (grouperFile != null) {
+        html = getCurrentHtmlFormFromDatabase(instance);
+      } else {
+        html = getCurrentHtmlFormFromFileSystem(instance);
+      }
+    }
+        
     Document document = Jsoup.parse(html);
     GrouperWorkflowConfigParams configParams = instance.getGrouperWorkflowConfig().getConfigParams();
     for (GrouperWorkflowConfigParam param : configParams.getParams()) {
@@ -754,6 +781,44 @@ public class GrouperWorkflowInstanceService {
     return document.html();
   }
   
+  
+  /**
+   * @param instance
+   * @return content from database for a given workflow instance
+   */
+  private static String getCurrentHtmlFormFromDatabase(GrouperWorkflowInstance instance) {
+    
+    String encryptionKey = Morph.decrypt(instance.getWorkflowInstanceEncryptionKey());
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
+    Cipher cipher;
+    try {
+      cipher = Cipher.getInstance("AES");
+      cipher.init(Cipher.DECRYPT_MODE, encryptionKeySecret);
+      
+      int lastIndex = instance.getGrouperWorkflowInstanceFilesInfo()
+          .getFileNamesAndPointers().size() - 1;
+      
+      GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
+      .getFileNamesAndPointers().get(lastIndex);
+      
+      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(fileInfo.getFilePointer(), false);
+      if (grouperFile == null) {
+        throw new RuntimeException("Could not find entry in grouper_file table for id "+fileInfo.getFilePointer());
+      }
+      
+      String encryptedText = grouperFile.retrieveValue();
+      
+      byte[] encryptedBytes = DatatypeConverter.parseBase64Binary(encryptedText);
+      String decrypted = new String(cipher.doFinal(encryptedBytes)); 
+      
+      return decrypted;
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error in getting report content from grouper_file table", e);
+    }
+    
+  }
   
   /**
    * @param instance
@@ -830,6 +895,25 @@ public class GrouperWorkflowInstanceService {
     }
   }
   
+  private static String getEncryptedFileContents(String encryptionKey, String fileContents) {
+    
+    SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    
+    try {
+      
+      Cipher cipher = Cipher.getInstance("AES");
+      cipher.init(Cipher.ENCRYPT_MODE, encryptionKeySecret);
+
+      byte[] outputBytes = cipher.doFinal(fileContents.getBytes());
+      
+      String encryptedString = DatatypeConverter.printBase64Binary(outputBytes);
+       
+      return encryptedString;
+    } catch (Exception e) {
+      throw new RuntimeException("Error in saving report to file system", e);
+    }
+  }
+  
   private static void saveFileToFileSystem(String directory, String encryptionKey, GrouperWorkflowInstance instance, 
       String fileContents, GrouperWorkflowInstanceFileInfo fileInfo, GrouperWorkflowConfig workflowConfig) {
     
@@ -849,7 +933,6 @@ public class GrouperWorkflowInstanceService {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKeySecret);
        
       byte[] outputBytes = cipher.doFinal(fileContents.getBytes());
-      // byte[] outputBytes = fileContents.getBytes();
       
       GrouperUtil.mkdirs(new File(baseDirectory));
        

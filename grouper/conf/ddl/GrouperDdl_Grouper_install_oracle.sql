@@ -1229,6 +1229,39 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
+CREATE TABLE grouper_pit_config
+(
+    id VARCHAR2(40) NOT NULL,
+    source_id VARCHAR2(40) NOT NULL,
+    config_file_name VARCHAR2(100) NOT NULL,
+    config_key VARCHAR2(400) NOT NULL,
+    config_value VARCHAR2(4000),
+    config_comment VARCHAR2(4000),
+    config_file_hierarchy VARCHAR2(50) NOT NULL,
+    config_encrypted VARCHAR2(1) NOT NULL,
+    config_sequence NUMBER(38) NOT NULL,
+    config_version_index NUMBER(38),
+    last_updated NUMBER(38) NOT NULL,
+    config_value_clob CLOB,
+    config_value_bytes INTEGER,
+    prev_config_value VARCHAR2(4000),
+    prev_config_value_clob CLOB,
+    active VARCHAR2(1) NOT NULL,
+    start_time NUMBER(38) NOT NULL,
+    end_time NUMBER(38),
+    context_id VARCHAR2(40),
+    hibernate_version_number NUMBER(38) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
+
+CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
+
+CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
+
+CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
+
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR2(40) NOT NULL,
@@ -1560,6 +1593,8 @@ CREATE TABLE grouper_config
     config_version_index NUMBER(38),
     last_updated NUMBER(38) NOT NULL,
     hibernate_version_number NUMBER(38) NOT NULL,
+    config_value_clob CLOB,
+    config_value_bytes INTEGER,
     PRIMARY KEY (id)
 );
 
@@ -1805,7 +1840,7 @@ CREATE TABLE grouper_cache_overall
 
 CREATE TABLE grouper_cache_instance
 (
-    cache_name VARCHAR2(400) NOT NULL,
+    cache_name VARCHAR2(250) NOT NULL,
     nanos_since_1970 NUMBER(38) NOT NULL,
     PRIMARY KEY (cache_name)
 );
@@ -1824,6 +1859,22 @@ CREATE TABLE grouper_recent_mships_conf
 );
 
 CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
+
+CREATE TABLE grouper_file
+(
+    id VARCHAR2(40) NOT NULL,
+    system_name VARCHAR2(100) NOT NULL,
+    file_name VARCHAR2(100) NOT NULL,
+    file_path VARCHAR2(400) NOT NULL,
+    hibernate_version_number NUMBER(38) NOT NULL,
+    context_id VARCHAR2(40),
+    file_contents_varchar VARCHAR2(4000),
+    file_contents_clob CLOB,
+    file_contents_bytes INTEGER,
+    PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -6411,7 +6462,7 @@ COMMENT ON COLUMN grouper_pit_memberships_lw_v.THE_END_TIME IS 'THE_END_TIME: th
 
 COMMENT ON COLUMN grouper_pit_memberships_lw_v.THE_ACTIVE IS 'THE_ACTIVE: if this memberships is still active';
 
-CREATE VIEW grouper_pit_mship_group_lw_v (GROUP_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, GROUP_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpg.name as group_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpg.source_id as group_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpg.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
+CREATE VIEW grouper_pit_mship_group_lw_v (GROUP_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, GROUP_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpg.name as group_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpg.source_id as group_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_groups gpg, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpg.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
 
 COMMENT ON TABLE grouper_pit_mship_group_lw_v IS 'grouper_pit_mship_group_lw_v holds one record for each immediate, composite and effective membership or privilege in the system that currently exists or has existed in the past for members to groups or stems (for privileges).  Note this joins with dates and overlaps so it only contains rows that are applicable and calculates the real start and end time and if active.  Holds the group information for memberships or privileges';
 
@@ -6439,7 +6490,7 @@ COMMENT ON COLUMN grouper_pit_mship_group_lw_v.MEMBERSHIP_ID IS 'MEMBERSHIP_ID: 
 
 COMMENT ON COLUMN grouper_pit_mship_group_lw_v.IMM_MEMBERSHIP_ID IS 'IMM_MEMBERSHIP_ID: membership id for this immediate membership.  might not exist in grouper if from past';
 
-CREATE VIEW grouper_pit_mship_stem_lw_v (STEM_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, STEM_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gps.name as stem_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gps.source_id as stem_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_stems gps, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gps.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )   or   (      gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) );
+CREATE VIEW grouper_pit_mship_stem_lw_v (STEM_NAME, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, STEM_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gps.name as stem_name, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gps.source_id as stem_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_stems gps, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gps.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )   or   (      gpgs.start_time >= gpmship.start_time       and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) );
 
 COMMENT ON TABLE grouper_pit_mship_stem_lw_v IS 'grouper_pit_mship_stem_lw_v holds one record for each immediate, composite and effective stem privilege in the system that currently exists or has existed in the past for members to stems (for privileges).  Note this joins with dates and overlaps so it only contains rows that are applicable and calculates the real start and end time and if active';
 
@@ -6467,7 +6518,7 @@ COMMENT ON COLUMN grouper_pit_mship_stem_lw_v.MEMBERSHIP_ID IS 'MEMBERSHIP_ID: m
 
 COMMENT ON COLUMN grouper_pit_mship_stem_lw_v.IMM_MEMBERSHIP_ID IS 'IMM_MEMBERSHIP_ID: membership id for this immediate membership.  might not exist in grouper if from past';
 
-CREATE VIEW grouper_pit_mship_attr_lw_v (NAME_OF_ATTRIBUTE_DEF, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, ATTRIBUTE_DEF_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpa.name as name_of_attribute_def, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpa.source_id as attribute_def_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_attribute_def gpa, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpa.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time      and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
+CREATE VIEW grouper_pit_mship_attr_lw_v (NAME_OF_ATTRIBUTE_DEF, FIELD_NAME, SUBJECT_SOURCE, SUBJECT_ID, MEMBER_ID, FIELD_ID, ATTRIBUTE_DEF_ID, THE_START_TIME, THE_END_TIME, THE_ACTIVE, MEMBERSHIP_ID, IMM_MEMBERSHIP_ID) AS select gpa.name as name_of_attribute_def, gpf.name as field_name, gpm.subject_source, gpm.subject_id, gpm.source_id as member_id, gpf.source_id as field_id, gpa.source_id as attribute_def_id, (case when gpgs.start_time >= gpmship.start_time then gpgs.start_time else gpmship.start_time end) as the_start_time, (case when gpgs.end_time is null then gpmship.end_time when gpmship.end_time is null then gpgs.end_time when gpgs.end_time <= gpmship.end_time then gpgs.end_time else gpmship.end_time end) as the_end_time, (case when gpgs.end_time is null and gpmship.end_time is null then 'T' else 'F' end) as the_active, gpmship.source_id || ':' || gpgs.source_id as membership_id, gpmship.source_id as imm_membership_id from grouper_pit_memberships gpmship, grouper_pit_group_set gpgs, grouper_pit_members gpm, grouper_pit_attribute_def gpa, grouper_pit_fields gpf where gpmship.owner_id = gpgs.member_id and gpmship.field_id = gpgs.member_field_id and gpmship.member_id = gpm.ID and gpa.id = gpgs.owner_id and gpgs.FIELD_ID = gpf.ID and (    (       gpmship.start_time >= gpgs.start_time       and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null)    )    or    (       gpgs.start_time >= gpmship.start_time      and (gpmship.end_time >= gpgs.start_time or gpmship.end_time is null)    ) ) ;
 
 COMMENT ON TABLE grouper_pit_mship_attr_lw_v IS 'grouper_pit_mship_attr_lw_v holds one record for each immediate, composite and effective atribute def privilege in the system that currently exists or has existed in the past for members to attribute def (for privileges).  Note this joins with dates and overlaps so it only contains rows that are applicable and calculates the real start and end time and if active';
 
@@ -6520,3 +6571,69 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.group_name IS 'group_name: group 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_source_id: subject source of subject in recent membership';
 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
+
+COMMENT ON COLUMN GROUPER_CONFIG.config_value_clob IS 'config value for large data';
+
+COMMENT ON COLUMN GROUPER_CONFIG.config_value_bytes IS 'size of config value in bytes';
+
+COMMENT ON TABLE grouper_pit_config IS 'keeps track of grouper config.  Records are never deleted from this table';
+
+COMMENT ON COLUMN grouper_pit_config.id IS 'uuid of record is unique for all records in table and primary key';
+
+COMMENT ON COLUMN grouper_pit_config.source_id IS 'source_id: id of the grouper_config table';
+
+COMMENT ON COLUMN grouper_pit_config.config_file_name IS 'Config file name of the config this record relates to, e.g. grouper.config.properties';
+
+COMMENT ON COLUMN grouper_pit_config.config_key IS 'key of the config, not including elConfig';
+
+COMMENT ON COLUMN grouper_pit_config.config_value IS 'Value of the config';
+
+COMMENT ON COLUMN grouper_pit_config.config_comment IS 'documentation of the config value';
+
+COMMENT ON COLUMN grouper_pit_config.config_file_hierarchy IS 'config file hierarchy, e.g. base, institution, or env';
+
+COMMENT ON COLUMN grouper_pit_config.config_encrypted IS 'if the value is encrypted';
+
+COMMENT ON COLUMN grouper_pit_config.config_sequence IS 'if there is more data than fits in the column this is the 0 indexed order';
+
+COMMENT ON COLUMN grouper_pit_config.config_version_index IS 'for built in configs, this is the index that will identify if the database configs should be replaced from the java code';
+
+COMMENT ON COLUMN grouper_pit_config.last_updated IS 'when this record was inserted or last updated';
+
+COMMENT ON COLUMN grouper_pit_config.config_value_clob IS 'config value for large data';
+
+COMMENT ON COLUMN grouper_pit_config.config_value_bytes IS 'size of config value in bytes';
+
+COMMENT ON COLUMN grouper_pit_config.prev_config_value IS 'previous config value';
+
+COMMENT ON COLUMN grouper_pit_config.prev_config_value_clob IS 'previous config value clob';
+
+COMMENT ON COLUMN grouper_pit_config.active IS 'T or F if this is an active record based on start and end dates';
+
+COMMENT ON COLUMN grouper_pit_config.start_time IS 'millis from 1970 when this record was inserted';
+
+COMMENT ON COLUMN grouper_pit_config.end_time IS 'millis from 1970 when this record was deleted';
+
+COMMENT ON COLUMN grouper_pit_config.context_id IS 'Context id links together audit entry with the row';
+
+COMMENT ON COLUMN grouper_pit_config.hibernate_version_number IS 'hibernate uses this to version rows';
+
+COMMENT ON TABLE grouper_file IS 'table to store files for grouper. eg: workflow, reports';
+    
+COMMENT ON COLUMN grouper_file.id IS 'uuid of record is unique for all records in table and primary key';
+
+COMMENT ON COLUMN grouper_file.system_name IS 'System name this file belongs to eg: workflow';
+
+COMMENT ON COLUMN grouper_file.file_name IS 'Name of the file';
+
+COMMENT ON COLUMN grouper_file.file_path IS 'Unique path of the file';
+
+COMMENT ON COLUMN grouper_file.hibernate_version_number IS 'hibernate uses this to version rows';
+
+COMMENT ON COLUMN grouper_file.context_id IS 'Context id links together audit entry with the row';
+
+COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if can fit into 4000 bytes';
+
+COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
+
+COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';

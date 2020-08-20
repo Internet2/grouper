@@ -64,7 +64,9 @@
     <property name="configSequence" column="config_sequence"/>    
     <property name="configValueDb" column="config_value"/>    
     <property name="configVersionIndex" column="config_version_index"/>    
-    <property name="lastUpdatedDb" column="last_updated"/>    
+    <property name="lastUpdatedDb" column="last_updated"/>  
+    <property name="configValueClobDb" column="config_value_clob"/>    
+    <property name="configValueBytes" column="config_value_bytes"/>    
     
   </class>
 </hibernate-mapping>

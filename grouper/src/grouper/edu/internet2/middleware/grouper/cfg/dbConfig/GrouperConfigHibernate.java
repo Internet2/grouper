@@ -15,34 +15,44 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
-import java.math.BigDecimal;
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Set;
-
-import jline.internal.Log;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.type.BigDecimalType;
-import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
+import edu.internet2.middleware.morphString.Morph;
 
 /**
  * database configuration
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVersioned, Comparable<GrouperConfigHibernate> {
+public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVersioned, Comparable<GrouperConfigHibernate>, GrouperCacheDatabaseClear {
 
+  public static final String ESCAPED_PASSWORD = "*******";
+  
   /** db uuid for this row */
   public static final String COLUMN_ID = "id";
 
@@ -102,6 +112,12 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   /** constant for field name for: configValue */
   public static final String FIELD_CONFIG_VALUE = "configValue";
 
+  /** constant for field name for: configValueClob */
+  public static final String FIELD_CONFIG_VALUE_CLOB = "configValueClob";
+
+  /** constant for field name for: configValueBytes */
+  public static final String FIELD_CONFIG_VALUE_BYTES = "configValueBytes";
+
   /** constant for field name for: configVersionIndex */
   public static final String FIELD_CONFIG_VERSION_INDEX = "configVersionIndex";
 
@@ -119,16 +135,16 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONFIG_COMMENT, FIELD_CONFIG_ENCRYPTED, FIELD_CONFIG_FILE_HIERARCHY, FIELD_CONFIG_FILE_NAME, 
-      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VERSION_INDEX, 
-      FIELD_CONTEXT_ID, FIELD_ID, FIELD_LAST_UPDATED_DB);
+      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VALUE_CLOB, FIELD_CONFIG_VALUE_BYTES,
+      FIELD_CONFIG_VERSION_INDEX, FIELD_CONTEXT_ID, FIELD_ID, FIELD_LAST_UPDATED_DB);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONFIG_COMMENT, FIELD_CONFIG_ENCRYPTED, FIELD_CONFIG_FILE_HIERARCHY, FIELD_CONFIG_FILE_NAME, 
-      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VERSION_INDEX, 
-      FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, 
+      FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VALUE_CLOB, FIELD_CONFIG_VALUE_BYTES, 
+      FIELD_CONFIG_VERSION_INDEX, FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, 
       FIELD_LAST_UPDATED_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -141,6 +157,12 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
 
   /** value of the property */
   public static final String COLUMN_CONFIG_VALUE = "config_value";
+  
+  /** value when it's too big for config_value */
+  public static final String COLUMN_CONFIG_VALUE_CLOB = "config_value_clob";
+  
+  /** size of the config value */
+  public static final String COLUMN_CONFIG_VALUE_BYTES = "config_value_bytes";
   
   /** comment of the property */
   public static final String COLUMN_CONFIG_COMMENT = "config_comment";
@@ -242,11 +264,62 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   }
   
   /**
-   * value of the property
-   * @return the configValue
+   * retrieve value. based on the size, it will be retrieved from config_value or config_value_clob
+   * @return
    */
-  public String getConfigValue() {
-    String theConfigValueUnencrypted = this.configValue;
+  public String retrieveValue() {
+    
+    if (StringUtils.isNotBlank(configValue)) {
+      return configValue;
+    }
+    
+    return configValueClob;
+    
+  }
+  
+  /**
+   * set config value to save. based on the size, it will be saved in config_value or config_value_clob
+   * @param value
+   */
+  public void setValueToSave(String value) {
+    int lengthAscii = GrouperUtil.lengthAscii(value);
+    if (GrouperUtil.lengthAscii(value) <= 3000) {
+      this.configValue = value;
+      this.configValueClob = null;
+    } else {
+      this.configValueClob = value;
+      this.configValue = null;
+    }
+    this.configValueBytes = new Long(lengthAscii);
+  }
+  
+  /**
+   * value of the property
+   * @param configValue1 the configValue to set
+   */
+  public void setConfigValueDb(String configValue1) {
+    this.configValue = configValue1;
+  }
+  
+  /**
+   * config value clob. it's used when configValue can't hold the data
+   */
+  private String configValueClob;
+  
+  /**
+   * clob value of the property
+   * @return the configValueClob
+   */
+  public String getConfigValueClobDb() {
+    return this.configValueClob;
+  }
+  
+  /**
+   * clob value of the property
+   * @return the configValueClob
+   */
+  public String getConfigValueClob() {
+    String theConfigValueUnencrypted = this.configValueClob;
     
     if (this.isConfigEncrypted()) {
       throw new RuntimeException("Implement this");
@@ -257,12 +330,33 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   
   /**
    * value of the property
-   * @param configValue1 the configValue to set
+   * @param configValueClob1 the configValueClob to set
    */
-  public void setConfigValueDb(String configValue1) {
-    this.configValue = configValue1;
+  public void setConfigValueClobDb(String configValueClob1) {
+    this.configValueClob = configValueClob1;
+  }
+  
+  /**
+   * size of config value in bytes
+   */
+  private Long configValueBytes;
+  
+  /**
+   * size of config value in bytes
+   * @return the configValueBytes
+   */
+  public Long getConfigValueBytes() {
+    return configValueBytes;
   }
 
+  /**
+   * size of config value in bytes
+   * @param the configValueBytes
+   */
+  public void setConfigValueBytes(Long configValueBytes) {
+    this.configValueBytes = configValueBytes;
+  }
+  
   /**
    * if there is more data than fits in the column this is the 0 indexed order
    */
@@ -461,40 +555,266 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   public void setContextId(String contextId1) {
     this.contextId = contextId1;
   }
-
+  
+  /**
+   * create a new PIT grouper config entry in the database based on the grouper config
+   * @param auditEntryId
+   * @param config
+   */
+  public static void createNewPITGrouperConfigHibernate(String auditEntryId, String newActiveStatus,
+      GrouperConfigHibernate config, String previousConfigValue, String previousConfigValueClob) {
+    PITGrouperConfigHibernate pit = new PITGrouperConfigHibernate();
+    pit.setId(GrouperUuid.getUuid());
+    pit.setSourceId(config.getId());
+    pit.setContextId(auditEntryId);
+    pit.setActiveDb(newActiveStatus);
+    pit.setStartTimeDb(System.currentTimeMillis() * 1000);
+    pit.setConfigComment(config.getConfigComment());
+    pit.setConfigEncryptedDb(config.getConfigEncryptedDb());
+    pit.setConfigFileHierarchyDb(config.getConfigFileHierarchyDb());
+    pit.setConfigFileNameDb(config.getConfigFileNameDb());
+    pit.setConfigKey(config.getConfigKey());
+    pit.setConfigSequence(config.getConfigSequence());
+    
+    if ("T".equals(newActiveStatus)) {      
+      pit.setValueToSave(config.retrieveValue());
+    }
+    
+    pit.setLastUpdatedDb(config.getLastUpdatedDb());
+    pit.setConfigVersionIndex(config.getConfigVersionIndex());
+    pit.setPreviousConfigValueDb(previousConfigValue);
+    pit.setPreviousConfigValueClobDb(previousConfigValueClob);
+    
+    pit.saveOrUpdate();
+  }
+  
   /**
    * save or update this object
    */
-  public void saveOrUpdate() {
+  public void saveOrUpdate(boolean addNew) {
     
-    GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(this);
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_AUDIT, new HibernateHandler() {
+          
+          @Override
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            GrouperDAOFactory.getFactory().getConfig().saveOrUpdate(GrouperConfigHibernate.this);
+            
+            String valueForAudit = GrouperConfigHibernate.this.isConfigEncrypted() ? ESCAPED_PASSWORD : GrouperConfigHibernate.this.retrieveValue();
+        
+              AuditTypeBuiltin auditTypeBuiltin = addNew ? AuditTypeBuiltin.CONFIGURATION_ADD : AuditTypeBuiltin.CONFIGURATION_UPDATE;
+              
+              AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
+                  GrouperConfigHibernate.this.getId(), "configFile", GrouperConfigHibernate.this.getConfigFileNameDb(), 
+                  "key", GrouperConfigHibernate.this.getConfigKey(), "value", 
+                  valueForAudit, "configHierarchy", GrouperConfigHibernate.this.getConfigFileHierarchyDb());
+              
+              auditEntry.setDescription((addNew ? "Add" : "Update") + " config entry: " + GrouperConfigHibernate.this.getConfigFileNameDb() 
+                + ", " + GrouperConfigHibernate.this.getConfigKey() + " = " + valueForAudit);
+              auditEntry.saveOrUpdate(true);
+              
+              if (addNew) {
+                createNewPITGrouperConfigHibernate(auditEntry.getId(), "T", GrouperConfigHibernate.this, null, null);
+              } else {
+                PITGrouperConfigHibernate pit = GrouperDAOFactory.getFactory().getPITConfig().findBySourceIdActive(GrouperConfigHibernate.this.id, false);
+                if (pit != null) {
+                  pit.setActiveDb("F");
+                  pit.setEndTimeDb(System.currentTimeMillis() * 1000);
+                  pit.saveOrUpdate();
+                }
+                createNewPITGrouperConfigHibernate(auditEntry.getId(), "T",
+                    GrouperConfigHibernate.this, pit.getConfigValueDb(), pit.getConfigValueClobDb());
+                
+              }
+            return null;
+          }
+        });
+    
     updateLastUpdated();
+    
+  }
+  
+  /**
+   * see if password based on various factors
+   * @param configFileName if known or null if not
+   * @param configItemMetadata if known or null if not
+   * @param key or null if not known
+   * @param value if there is one at this point or null if not
+   * @param hasValue true if there is a value, false if not
+   * @param userSelectedPassword true if the user selected that this is a password.   null if NA
+   * @return true if password
+   */
+  public static boolean isPassword(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, String key, String value, boolean hasValue, Boolean userSelectedPassword) {
+    return isPasswordHelper(configFileName, configItemMetadata, key, value, hasValue, userSelectedPassword);
+  }
+  
+  /**
+   * see if password based on various factors
+   * @param configItemMetadata
+   * @return true if password
+   */
+  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata) {
+    
+    if (configItemMetadata != null) {
+      return configItemMetadata.isSensitive() || configItemMetadata.getValueType() == ConfigItemMetadataType.PASSWORD;
+    }
+    return false;
+  }
+  
+  /**
+   * if the value is a file and it exists, then this is not a password to be escaped
+   * @param configItemMetadata
+   * @param propertyValueString
+   * @return true if should be escaped
+   */
+  public static boolean isPasswordHelper(ConfigItemMetadata configItemMetadata,
+      String propertyValueString) {
+    if (StringUtils.isBlank(propertyValueString)) {
+      return false;
+    }
+    if (propertyValueString.length() > 5 && new File(propertyValueString).exists()) {
+      return false;
+    }
+    return isPasswordHelper(configItemMetadata);
+  }
+  
+  /**
+   * see if password based on various factors
+   * @param configFileName
+   * @param configItemMetadata
+   * @param key
+   * @param value
+   * @param hasValue
+   * @param userSelectedPassword
+   * @return true if password
+   */
+  private static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
+      String key, String value, boolean hasValue, Boolean userSelectedPassword) {
+  
+    if (key != null && key.endsWith(".elConfig")) {
+      // this is a script, not a password
+      return false;
+    }
+    
+    if (hasValue && !StringUtils.isBlank(value)) {
+      try {
+        Morph.decrypt(value);
+        return true;
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+    
+    // if there is a value, and it is a file, then its not a password
+    if (hasValue && !StringUtils.isBlank(value)) {
+      File theFile = new File(value);
+      if (theFile.exists() && theFile.isFile()) {
+        return false;
+      }
+    }
+    
+    // if the configured metadata is not null then check that
+    if (isPasswordHelper(configItemMetadata)) {
+      return true;
+    }
+    
+    // look for a key with certain words inside
+    if (key != null) {
+      String lowerKey = key.toLowerCase();
+  
+      if (lowerKey.contains("pass") || lowerKey.contains("secret") || lowerKey.contains("private")) {
+        return true;
+      }
+    
+      //lets try to find the config item metadata by key to be sure
+      if (configItemMetadata == null) {
+        configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
+      }
+      if (isPasswordHelper(configItemMetadata)) {
+        return true;
+      }
+    }
+  
+    // if the user selected that this is a password, then i guess it is
+    if (userSelectedPassword != null && userSelectedPassword) {
+      return true;
+    }
+    
+    return false;
   }
 
   /**
    * delete this object
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getConfig().delete(this);
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_AUDIT, new HibernateHandler() {
+          
+          @Override
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            GrouperDAOFactory.getFactory().getConfig().delete(GrouperConfigHibernate.this);
+            
+            boolean isValueEncrypted = GrouperConfigHibernate.isPassword(GrouperConfigHibernate.this.getConfigFileName(), null, GrouperConfigHibernate.this.getConfigKey(), 
+                GrouperConfigHibernate.this.retrieveValue(), true, GrouperConfigHibernate.this.isConfigEncrypted());
+
+            String valueForAudit = isValueEncrypted ? ESCAPED_PASSWORD : GrouperConfigHibernate.this.retrieveValue();
+
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CONFIGURATION_DELETE, "id", 
+                GrouperConfigHibernate.this.getId(), "configFile", GrouperConfigHibernate.this.getConfigFileNameDb(), 
+                "key", GrouperConfigHibernate.this.getConfigKey(), "previousValue", 
+                valueForAudit, 
+                    "configHierarchy", GrouperConfigHibernate.this.getConfigFileHierarchyDb());
+            auditEntry.setDescription("Delete config entry: " + GrouperConfigHibernate.this.getConfigFileNameDb() 
+              + ", " + GrouperConfigHibernate.this.getConfigKey() + " = " + valueForAudit);
+            auditEntry.saveOrUpdate(true);
+            
+            PITGrouperConfigHibernate pit = GrouperDAOFactory.getFactory().getPITConfig().findBySourceIdActive(id, false);
+            if (pit == null) {
+              return null;
+            }
+            
+            pit.setEndTimeDb(System.currentTimeMillis() * 1000);
+            pit.setActiveDb("F");
+            pit.saveOrUpdate();
+            
+            createNewPITGrouperConfigHibernate(auditEntry.getId(), "F",
+                GrouperConfigHibernate.this, pit.getConfigValueDb(), pit.getConfigValueClobDb());
+            
+            return null;
+          }
+        });
+    
     updateLastUpdated();
+    
   }
 
+  /**
+   * 
+   */
+  private static boolean databaseCacheRegistered = false;
+  
+  public static void registerDatabaseCache() {
+
+    if (!databaseCacheRegistered) {
+      
+      GrouperCacheDatabase.customRegisterDatabaseClearable(ConfigDatabaseLogic.DATABASE_CACHE_KEY, new GrouperConfigHibernate());
+      
+      databaseCacheRegistered = true;
+    }
+    
+  }
+  
   /**
    * update last updated if something changed
    */
   public static void updateLastUpdated() {
-
-    long now = System.currentTimeMillis();
-    
-    // simple update statement, dont worry about other people editing, dont worry about hibernate
-    int rows = HibernateSession.bySqlStatic().executeSql(
-        "update grouper_config set config_value = ?, last_updated = ?  where config_file_name = ? and config_key = ? and config_file_hierarchy = ?",
-        GrouperUtil.toListObject(Long.toString(now), new BigDecimal(now), "grouper.properties", "grouper.config.millisSinceLastDbConfigChanged", "INSTITUTION"), 
-        HibUtils.listType(StringType.INSTANCE, BigDecimalType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
-    
-    if (rows != 1) {
-      Log.error("Tried to update grouper.config.millisSinceLastDbConfigChanged but rows updated was " + rows);
-    }
+    GrouperCacheDatabase.customNotifyDatabaseOfChanges(ConfigDatabaseLogic.DATABASE_CACHE_KEY);
+    clearConfigsInMemory();
   }
   
   /**
@@ -513,8 +833,16 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * value of the property
    * @param configValue1 the configValue to set
    */
-  public void setConfigValue(String configValue1) {
-    this.configValue = configValue1;
+//  public void setConfigValue(String configValue1) {
+//    this.configValue = configValue1;
+//  }
+  
+  /**
+   * clob value of the property
+   * @param configValueClob1 the configValueClob to set
+   */
+  public void setConfigValueClob(String configValueClob1) {
+    this.configValueClob = configValueClob1;
   }
   
   /**
@@ -619,6 +947,22 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.valueOfIgnoreCase(this.configFileName, false);
+  }
+
+  /**
+   * clear the cache when the database tells us to
+   */
+  @Override
+  public void clear() {
+    clearConfigsInMemory();
+  }
+
+  /**
+   * clear the cache when the database tells us to
+   */
+  public static void clearConfigsInMemory() {
+    ConfigDatabaseLogic.clearCache(false);
+    ConfigPropertiesCascadeBase.clearCacheThisOnly();
   }
 
 }

@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -164,8 +165,12 @@ public class UsduJob extends OtherJobBase {
       
       AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
       if (resolvableMembersAttr != null) {
-        // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
-        throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
+        if (UpgradeTasksJob.getDBVersion() < 2) {
+          // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
+          throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
+        }
+        
+        LOG.warn("Migration for subjectResolutionResolvable and subjectResolutionDeleted was completed but the attributes are still there.  They may have been added back by an old API version after they were deleted.");
       }
           
       int totalProvisioningObjectsUpdated = 0;

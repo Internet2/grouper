@@ -13,22 +13,24 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.UUID;
 
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
@@ -44,6 +46,11 @@ import edu.internet2.middleware.morphString.Morph;
 public class ConfigDatabaseLogic {
 
   /**
+   * database cache key
+   */
+  public static String DATABASE_CACHE_KEY = "edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic.databaseConfigs";
+  
+  /**
    * cache database configs, key is e.g. grouper.properties
    */
   private static Map<String, Map<String, String>> databaseConfigCache = new HashMap<String, Map<String, String>>();
@@ -52,11 +59,6 @@ public class ConfigDatabaseLogic {
    * will cache for grouper.cache.database.configs.seconds in grouper.hibernate.properties
    */
   private static long databaseConfigCacheLastRetrieved = -1;
-  
-  /**
-   * millis since 1970 since the last update time has been checked
-   */
-  private static long updateCheckLastRetrieved = -1;
   
   /**
    * keep this for testing
@@ -83,13 +85,21 @@ public class ConfigDatabaseLogic {
    * 
    */
   public static void clearCache() {
+    clearCache(true);
+  }
+
+  /**
+   * 
+   */
+  public static void clearCache(boolean checkConfigTableExists) {
     LOG.debug("ConfigDatabaseLogic.clearCache()");
-    updateCheckLastRetrieved = -1;
     databaseConfigCacheLastRetrieved = -1;
     databaseConfigCache = null;
-    tableExists = false;
+    if (checkConfigTableExists) {
+      tableExists = false;
+    }
   }
-  
+
   /**
    * @param args
    */
@@ -102,9 +112,9 @@ public class ConfigDatabaseLogic {
    * Note that the last edited is stored in a config property for deletes.  -1 means dont check for incrementals.
    * Note if *.config.secondsBetweenUpdateChecks is greater than this number
    * for this config, then it wont update until that amount has passed.
-   * grouper.config.secondsBetweenUpdateChecksToDb = 60
+   * grouper.config.secondsBetweenUpdateChecksToDb = 600
    */
-  private static int secondsBetweenUpdateChecksToDb = 60;
+  private static int secondsBetweenUpdateChecksToDb = 600;
   
   /**
    * seconds between checking to see if the config files are updated in the database.  If anything edited, then refresh all. 
@@ -232,12 +242,6 @@ public class ConfigDatabaseLogic {
         if (!tableExistsTemp) {
           tableExists = true;
         }
-      
-        // we need the last updated value created while Grouper starts up
-        Long lastUpdated = null;
-        if (updateCheckLastRetrieved == -1) {
-          lastUpdated = retrieveOrCreateLastUpdatedRecord();
-        }
         
         boolean needsRefresh = false;
         
@@ -269,45 +273,9 @@ public class ConfigDatabaseLogic {
           // If it has not, then get the DB config for that config file from memory cache
           debugMap.put("databaseConfigCacheLastRetrieved", databaseConfigCacheLastRetrieved);
           debugMap.put("secondsBetweenUpdateChecksToDb", secondsBetweenUpdateChecksToDb);
-          int secondsSinceLastUpdateCheck = (int)(System.currentTimeMillis() - updateCheckLastRetrieved) / 1000;
-          debugMap.put("secondsSinceLastUpdateCheck", secondsSinceLastUpdateCheck);
           
-          //  If it has been longer, then query the millis since last refresh (from config table, get this value): grouper.config.millisSinceLastDbConfigChanged   If the last refresh is before that value, then do a full refresh
-          boolean needsCheckLastUpdate = secondsSinceLastUpdateCheck > secondsBetweenUpdateChecksToDb;
-          debugMap.put("needsCheckLastUpdate", needsCheckLastUpdate);
-          if (needsCheckLastUpdate) {
-            if (lastUpdated == null) {
-              synchronized (ConfigDatabaseLogic.class) {
-                
-                secondsSinceLastUpdateCheck = (int)(System.currentTimeMillis() - updateCheckLastRetrieved) / 1000;
-                //  If it has been longer, then query the millis since last refresh (from config table, get this value): grouper.config.millisSinceLastDbConfigChanged   If the last refresh is before that value, then do a full refresh
-                needsCheckLastUpdate = secondsSinceLastUpdateCheck > secondsBetweenUpdateChecksToDb;
-                
-                debugMap.put("needsCheckLastUpdate2", needsCheckLastUpdate);
-                if (needsCheckLastUpdate) {
-                  lastUpdated = retrieveOrCreateLastUpdatedRecord();
-                }
-              }
-            }
-            if (lastUpdated != null) {
-              debugMap.put("lastUpdatedInDatabase", lastUpdated);
-
-              final boolean needsIncrementalRefresh = lastUpdated > databaseConfigCacheLastRetrieved;
-              debugMap.put("needsIncrementalRefresh", needsIncrementalRefresh);
-  
-              if (needsIncrementalRefresh) {
-                needsRefresh = true;
-              }
-            } else {
-              // if null then ignore
-              debugMap.put("lastUpdateNull", true);
-            }
-  
-          }
         }
         
-        //  Note, Grouper can clear the cache when any property (besides grouper.config.millisSinceLastDbConfigChanged)  is changed
-        //  Note: grouper.config.millisSinceLastDbConfigChanged is updated by grouper (and not audited), when there is any insert/update/delete to config
         debugMap.put("needsRefresh", needsRefresh);
         if (needsRefresh) {
           synchronized (ConfigDatabaseLogic.class) {
@@ -319,8 +287,6 @@ public class ConfigDatabaseLogic {
               databaseConfigCache = theDatabaseConfigCache;
               databaseConfigRefreshCount++;
               databaseConfigCacheLastRetrieved = System.currentTimeMillis();
-              //dont check incrementals for a while
-              updateCheckLastRetrieved = databaseConfigCacheLastRetrieved;
             } else {
               debugMap.put("configUpdatedInAnotherThread", true);
             }
@@ -348,67 +314,6 @@ public class ConfigDatabaseLogic {
     }
     // not null
     return new HashMap<String, String>();
-  }
-
-  /**
-   * @return the last changed long millis since 1970 or null if cant find
-   */
-  private static Long retrieveOrCreateLastUpdatedRecord() {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("operation", "retrieveOrCreateLastUpdatedRecord");
-    debugMap.put("readonly", readonly);
-    long now = System.nanoTime();
-
-    Long lastUpdated = null;
-    
-    Exception exception = null;
-    try {
-      for (int i=0; i<10;i++) {
-        lastUpdated = retrieveConfigLastUpdatedFromDatabase();
-        debugMap.put("lastUpdated_" + i, lastUpdated);
-        
-        // should only happen during startup
-        if (lastUpdated == null) {
-  
-          // wait un to a second if other JVMs are doing something
-          sleep(new Random().nextInt(1000));
-          
-          lastUpdated = retrieveConfigLastUpdatedFromDatabase();
-          if (lastUpdated == null) {
-            if (!readonly) {
-              debugMap.put("creatingLastUpdated_" + i, lastUpdated);
-              try {
-                createLastUpdatedRecordInDatabase();
-                exception = null;
-              } catch (Exception e) {
-                exception = e;
-                debugMap.put("cantCreateLastUpdated_" + i, e.getMessage());
-                // this is probably existing from another JVM
-                LOG.warn("Probably ok, cant create last updated config record", e);
-              }
-            }
-          }
-          
-        } else {
-          break;
-        }
-      }
-      if (!readonly && exception != null) {
-        LOG.error("Cant create config last updated record!!!!", exception);
-      }
-      if (lastUpdated != null) {
-        debugMap.put("lastUpdated", lastUpdated);
-        updateCheckLastRetrieved = System.currentTimeMillis();
-      }
-      return lastUpdated;
-    } finally {
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("ms", (System.nanoTime() - now)/1000000);
-        LOG.debug(mapToString(debugMap));
-      }
-    }
   }
   
   /**
@@ -766,16 +671,45 @@ public class ConfigDatabaseLogic {
       theConnection = connection(debugMap);
       debugMap.put("gotConnection", true);
     
-      preparedStatement = theConnection.prepareStatement("select config_file_name, config_key, config_value, config_encrypted from grouper_config where config_file_hierarchy = ?");
+      // config_file_name, config_key, config_value, config_value_clob, config_encrypted
+      String query = "select * from grouper_config where config_file_hierarchy = ?";
+      
+      preparedStatement = theConnection.prepareStatement(query);
       preparedStatement.setString(1, "INSTITUTION");
   
       resultSet = preparedStatement.executeQuery();
                         
+      ResultSetMetaData metaData = resultSet.getMetaData();
+      
+      int columnCount = metaData.getColumnCount();
+      int clobColType = Types.VARCHAR;
+      boolean foundClobCol = false;
+      for (int i=1;i<=columnCount;i++) {
+        if ("config_value_clob".equals(metaData.getColumnName(i).toLowerCase())) {
+          clobColType = metaData.getColumnType(i);
+          foundClobCol = true;
+          break;
+        }
+      }
+      
+      boolean isClob = clobColType == Types.CLOB;
+      
       while (resultSet.next()) {
         String configFileName = resultSet.getString("config_file_name");
         String configKey = resultSet.getString("config_key");
         String configValue = resultSet.getString("config_value");
+        String configValueClob = null;
+        if (foundClobCol) {
+          if (isClob) {
+            Clob clob = resultSet.getClob("config_value_clob");
+            configValueClob = clob != null ? clob.getSubString(1, (int) clob.length()): null;
+          } else {
+            configValueClob = resultSet.getString("config_value_clob");
+          }
+        }        
         String configEncrypted = resultSet.getString("config_encrypted");
+        
+        String value = StringUtils.isNotBlank(configValue) ? configValue: configValueClob;
         
         Map<String, String> configPropertiesForFile = databaseConfigCacheTemp.get(configFileName);
         
@@ -786,11 +720,16 @@ public class ConfigDatabaseLogic {
         
         // decrypt if encrypted
         if (booleanValue(configEncrypted, false)) {
-          // TODO dont decrypt this in memory?
-          configValue = Morph.decrypt(configValue);
+          try {
+            // TODO dont decrypt this in memory?
+            value = Morph.decrypt(value);
+          } catch (RuntimeException re) {
+            GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
+            throw re;
+          }
         }
         
-        configPropertiesForFile.put(configKey, configValue);
+        configPropertiesForFile.put(configKey, value);
       }
       debugMap.put("configFilesFound", databaseConfigCacheTemp.size());
       for (String configFileName : databaseConfigCacheTemp.keySet()) {
@@ -1189,79 +1128,6 @@ public class ConfigDatabaseLogic {
       return ((Number)input).longValue();
     }
     throw new RuntimeException("Cannot convert to long: " + className(input));
-  }
-
-  /**
-   * get config last updated from database
-   * @return when was config last changed in database or null if not found (row needs insert)
-   */
-  private synchronized static Long retrieveConfigLastUpdatedFromDatabase() {
-    
-//    try {
-      return retrieveConfigLastUpdatedFromDatabaseHelper();
-//    } catch (Exception e) {
-//      closeQuietly(connection);
-//      connection = null;
-//    }
-//    return retrieveConfigLastUpdatedFromDatabaseHelper();
-  }
-
-  /**
-   * get config last updated from database
-   * @return when was config last changed in database or null if not found (row needs insert)
-   */
-  private synchronized static Long retrieveConfigLastUpdatedFromDatabaseHelper() {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-  
-    debugMap.put("operation", "retrieveConfigLastUpdatedFromDatabase");
-    long now = System.nanoTime();
-
-    Connection theConnection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-  
-    try {
-      
-      // select from the database
-      theConnection = connection(debugMap);
-
-      debugMap.put("gotConnection", true);
-    
-      // TODO cache the uuid, and try to get by that, if not then do columns.  might be faster
-      preparedStatement = theConnection.prepareStatement("select config_value from grouper_config where config_file_name = ? and config_key = ? and config_file_hierarchy = ? and config_sequence = ?");
-      preparedStatement.setString(1, "grouper.properties");
-      preparedStatement.setString(2, "grouper.config.millisSinceLastDbConfigChanged");
-      preparedStatement.setString(3, "INSTITUTION");
-      preparedStatement.setBigDecimal(4, new BigDecimal(0));
-  
-      resultSet = preparedStatement.executeQuery();
-                        
-      if (resultSet.next()) {
-        debugMap.put("gotResult", true);
-        String configValue = resultSet.getString("config_value");
-        debugMap.put("configValue", configValue);
-        final long longValue = longValue(configValue);
-        debugMap.put("longValue", longValue);
-        return longValue;
-      }
-      debugMap.put("gotResult", false);
-      return null;
-    } catch (Exception e) {
-      debugMap.put("exception", e.getMessage());
-  
-      throw new RuntimeException(e.getMessage(), e);
-    } finally {
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(theConnection);
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("ms", (System.nanoTime() - now)/1000000);
-
-        LOG.debug(mapToString(debugMap));
-      }
-    }
-  
   }
 
   /**

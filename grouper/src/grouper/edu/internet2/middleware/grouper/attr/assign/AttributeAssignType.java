@@ -217,7 +217,7 @@ public enum AttributeAssignType {
       auditEntry.setAuditTypeId(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE.getAuditType().getId());
 
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
-          "ownerGroupName", ((GroupMember)owner).getGroup().getUuid());
+          "ownerGroupId", ((GroupMember)owner).getGroup().getUuid());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
           "ownerGroupName", ((GroupMember)owner).getGroup().getName());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
@@ -233,7 +233,7 @@ public enum AttributeAssignType {
       auditEntry.setAuditTypeId(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_ADD.getAuditType().getId());
 
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
-          "ownerGroupName", ((GroupMember)owner).getGroup().getUuid());
+          "ownerGroupId", ((GroupMember)owner).getGroup().getUuid());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
           "ownerGroupName", ((GroupMember)owner).getGroup().getName());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
@@ -249,7 +249,7 @@ public enum AttributeAssignType {
       auditEntry.setAuditTypeId(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE.getAuditType().getId());
 
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
-          "ownerGroupName", ((GroupMember)owner).getGroup().getUuid());
+          "ownerGroupId", ((GroupMember)owner).getGroup().getUuid());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 
           "ownerGroupName", ((GroupMember)owner).getGroup().getName());
       auditEntry.assignStringValue(auditEntry.getAuditType(), 

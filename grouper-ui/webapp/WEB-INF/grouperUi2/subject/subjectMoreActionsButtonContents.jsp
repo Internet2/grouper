@@ -74,18 +74,21 @@
            
      </c:if>
 
-     <li class="divider"></li>
       <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.groupContainer.canAdmin }">
+       	<li class="divider"></li>
         <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
           >${textContainer.text['localEntityViewEditLocalEntityButton'] }</a></li>
         <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
           >${textContainer.text['localEntityViewDeleteLocalEntityButton'] }</a></li>
-          
       </c:if>
 
      <li class="divider"></li>
      <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.subjectView&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
            >${textContainer.text['visualization.title'] }</a></li>
+           
+     <li class="divider"></li>
+     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
+           >${textContainer.text['subjectViewProvisioningButton'] }</a></li>
 
    </ul>
  </div>

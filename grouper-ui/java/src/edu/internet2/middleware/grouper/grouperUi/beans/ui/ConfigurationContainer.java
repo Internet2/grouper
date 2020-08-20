@@ -1,11 +1,14 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
+import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiPITGrouperConfigHibernate;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -332,6 +335,16 @@ public class ConfigurationContainer {
    * config file name selected if any
    */
   private ConfigFileName configFileName;
+  
+  /**
+   * filter to apply
+   */
+  private String filter;
+  
+  /**
+   * filter config source 
+   */
+  private String configSource;
 
   /**
    * config file name selected if any
@@ -355,6 +368,65 @@ public class ConfigurationContainer {
    */
   public ConfigFileName[] getAllConfigFileNames() {
     return ConfigFileName.values();
+  }
+
+  /**
+   * filter to apply
+   */
+  public void setFilter(String filter) {
+    this.filter = filter;
+  }
+
+  /**
+   * filter to apply
+   */
+  public String getFilter() {
+    return filter;
+  }
+
+  /**
+   * gui pit config to show history on the ui
+   */
+  private List<GuiPITGrouperConfigHibernate> guiPitConfigs;
+
+
+  public List<GuiPITGrouperConfigHibernate> getGuiPitConfigs() {
+    return guiPitConfigs;
+  }
+  
+  public void setGuiPitConfigs(List<GuiPITGrouperConfigHibernate> guiPitConfigs) {
+    this.guiPitConfigs = guiPitConfigs;
+  }
+
+  
+  public String getConfigSource() {
+    return configSource;
+  }
+
+  public void setConfigSource(String configSource) {
+    this.configSource = configSource;
+  }
+  
+  /**
+   * keep track of the paging on the config history screen
+   */
+  private GuiPaging guiPaging = null;
+
+  
+  /**
+   * keep track of the paging on the config history screen
+   * @return the paging object, init if not there...
+   */
+  public GuiPaging getGuiPaging() {
+    if (this.guiPaging == null) {
+      this.guiPaging = new GuiPaging();
+    }
+    return this.guiPaging;
+  }
+
+  
+  public void setGuiPaging(GuiPaging guiPaging) {
+    this.guiPaging = guiPaging;
   }
   
 }
