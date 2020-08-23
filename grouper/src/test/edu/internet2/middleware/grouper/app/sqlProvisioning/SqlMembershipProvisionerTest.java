@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -70,6 +71,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       ensureTableSyncTables();
   
       new GcDbAccess().sql("delete from testgrouper_prov_group");
+      new GcDbAccess().sql("delete from testgrouper_prov_mship0");
       new GcDbAccess().sql("delete from testgrouper_prov_mship1");
       
     } catch (Exception e) {
@@ -102,11 +104,12 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     dropTableSyncTable("testgrouper_prov_mship1");
     
   }
-
+  
+  
   /**
    * just do a simple full sync of groups and memberships
    */
-  public void testSimpleGroupMembershipProvisioningFull() {
+  public void testSimpleGroupMembershipProvisioningFull_1() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
@@ -115,7 +118,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserColumn", "subject_id");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserValueFormat", "${targetEntity.id}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupColumn", "group_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupValueFormat", "${targetGroup.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupValueFormat", "${targetGroup.id}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncMemberToId3AttributeValueFormat", "${targetEntity.id}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncGroupToId3AttributeValueFormat", "${targetGroup.name}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationNumberOfAttributes", "2");
@@ -135,6 +138,12 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     // mark some folders to provision
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0);
+    testGroup.addMember(SubjectTestHelper.SUBJ1);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3);
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
@@ -210,6 +219,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
   
         createTableGroup(ddlVersionBean, database);
         
+        createTableMship0(ddlVersionBean, database);
+        
         createTableMship1(ddlVersionBean, database);
       }
       
@@ -266,9 +277,9 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "1024", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "180", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "1024", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "70", true, true);
     
   }
 

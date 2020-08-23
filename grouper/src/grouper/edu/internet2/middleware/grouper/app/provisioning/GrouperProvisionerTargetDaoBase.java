@@ -5,7 +5,7 @@ import java.util.Map;
 public abstract class GrouperProvisionerTargetDaoBase {
 
   
-  public Map<String, TargetGroup> retrieveAllGroups() {
+  public Map<String, ProvisioningGroup> retrieveAllGroups() {
     throw new UnsupportedOperationException();
   }
   
@@ -13,7 +13,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param targetGroup
    * @return true if created, false if existed and updated
    */
-  public boolean createGroup(TargetGroup targetGroup) {
+  public boolean createGroup(ProvisioningGroup targetGroup) {
     throw new UnsupportedOperationException();
   }
   
@@ -22,14 +22,14 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param actualTargetGroup
    * @return true if updated
    */
-  public boolean updateGroupIfNeeded(TargetGroup grouperTranslatedTargetGroup, TargetGroup actualTargetGroup) {
+  public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
     throw new UnsupportedOperationException();
   }
   
   /**
-   * @param targetGroup
+   * @paProvisioningGrouproup
    */
-  public void deleteGroup(TargetGroup targetGroup) {
+  public void deleteGroup(ProvisioningGroup targetGroup) {
     throw new UnsupportedOperationException();
   }
 

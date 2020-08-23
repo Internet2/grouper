@@ -1,10 +1,10 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 
 
-public class LdapTargetGroup extends TargetGroup {
+public class LdapTargetGroup extends ProvisioningGroup {
 
   private LdapEntry ldapEntry;
 

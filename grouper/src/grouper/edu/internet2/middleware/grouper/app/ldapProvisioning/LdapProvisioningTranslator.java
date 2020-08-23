@@ -9,7 +9,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.TargetEntity;
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.TargetMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -20,28 +20,33 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBase {
 
   @Override
-  public Map<String, TargetGroup> translateToTarget(Map<String, TargetGroup> targetGroups, Map<String, TargetEntity> targetEntities, Map<String, TargetMembership> targetMemberships) {
+  public void translateGrouperToTarget() {
     
     // TODO this is currently very limited and focused on the trivial use case, only flat, group provisioning, no subject/target links, etc..
     
-    Map<String, TargetGroup> resultTargetGroups = new HashMap<String, TargetGroup>();
+    Map<String, ProvisioningGroup> grouperCommonGroups = new HashMap<String, ProvisioningGroup>();
+    this.getGrouperProvisioner().getGrouperProvisioningData().setGrouperCommonGroups(grouperCommonGroups);
 
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration)this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     Map<String, Set<String>> allMembershipsByGroupId = new HashMap<String, Set<String>>();
     
-    for (String membershipId : targetMemberships.keySet()) {
-      TargetMembership targetMembership = targetMemberships.get(membershipId);
+    Map<String, TargetEntity> grouperTargetEntities = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetEntities();
+    Map<String, TargetMembership> grouperTargetMemberships = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetMemberships();
+    Map<String, ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetGroups();
+    
+    for (String membershipId : grouperTargetMemberships.keySet()) {
+      TargetMembership targetMembership = grouperTargetMemberships.get(membershipId);
       String targetEntityId = targetMembership.getTargetEntity().getId();
-      String targetGroupId = targetMembership.getTargetGroup().getId();
-      TargetEntity targetEntity = targetEntities.get(targetEntityId);
+      String targetGroupId = targetMembership.getProvisioningGroup().getId();
+      TargetEntity targetEntity = grouperTargetEntities.get(targetEntityId);
       
       if (targetEntity == null) {
         // maybe a race condition
         continue;
       }
       
-      if (targetGroups.get(targetGroupId) == null) {
+      if (grouperTargetGroups.get(targetGroupId) == null) {
         // maybe a race condition
         continue;
       }
@@ -61,12 +66,12 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
     
     String provisionedAttributeName = ldapSyncConfiguration.getProvisionedAttributeName();
 
-    for (String groupId : targetGroups.keySet()) {
-      TargetGroup resultTargetGroup = new TargetGroup();
+    for (String groupId : grouperTargetGroups.keySet()) {
+      ProvisioningGroup resultTargetGroup = new ProvisioningGroup();
       resultTargetGroup.setAttributes(new HashMap<String, TargetAttribute>());
       
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
-      elVariableMap.put("targetGroup", targetGroups.get(groupId));
+      elVariableMap.put("targetGroup", grouperTargetGroups.get(groupId));
       
       for (int i = 0; i < ldapSyncConfiguration.getGroupCreationNumberOfAttributes(); i++) {
         String attributeName = ldapSyncConfiguration.getGroupCreationLdifTemplate_attrs().get(i);
@@ -103,9 +108,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
       String cn = (String)((Collection<?>)resultTargetGroup.getAttributes().get("cn").getValue()).iterator().next();
       String dn = "cn=" + cn + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
       resultTargetGroup.setId(dn);
-      resultTargetGroups.put(dn, resultTargetGroup);
+      grouperCommonGroups.put(dn, resultTargetGroup);
     }
     
-    return resultTargetGroups;
   }
 }

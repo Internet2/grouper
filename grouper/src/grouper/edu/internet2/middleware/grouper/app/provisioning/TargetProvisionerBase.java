@@ -1,13 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
-import edu.internet2.middleware.grouper.app.provisioning.TargetProvisionerRetrieveGroupParam;
-import edu.internet2.middleware.grouper.app.provisioning.TargetProvisionerRetrieveGroupsParam;
-
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
-import edu.internet2.middleware.grouper.app.provisioning.TargetProvisionerRetrieveGroupParam;
-import edu.internet2.middleware.grouper.app.provisioning.TargetProvisionerRetrieveGroupsParam;
-import edu.internet2.middleware.grouper.app.provisioning.TargetTranslationToGrouperGroupType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 
 /**
  * 
@@ -16,15 +9,15 @@ import edu.internet2.middleware.grouper.app.provisioning.TargetTranslationToGrou
  */
 public abstract class TargetProvisionerBase {
 
-  public TargetGroup retrieveGroup(TargetProvisionerRetrieveGroupParam targetProvisionerRetrieveGroupParam) {
+  public ProvisioningGroup retrieveGroup(TargetProvisionerRetrieveGroupParam targetProvisionerRetrieveGroupParam) {
     throw new UnsupportedOperationException();
   }
 
-  public TargetGroup retrieveGroup(TargetProvisionerRetrieveGroupsParam targetProvisionerRetrieveGroupsParam) {
+  public ProvisioningGroup retrieveGroup(TargetProvisionerRetrieveGroupsParam targetProvisionerRetrieveGroupsParam) {
     throw new UnsupportedOperationException();
   }
 
-  public Object translateTargetGroupToGrouper(TargetGroup targetGroup) {
+  public Object translateTargetGroupToGrouper(ProvisioningGroup targetGroup) {
     throw new UnsupportedOperationException();
   }
 

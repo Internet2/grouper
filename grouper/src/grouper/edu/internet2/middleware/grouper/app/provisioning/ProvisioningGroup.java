@@ -7,7 +7,7 @@ import java.util.Map;
  * @author mchyzer
  *
  */
-public class TargetGroup {
+public class ProvisioningGroup {
 
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name

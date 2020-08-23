@@ -38,7 +38,7 @@ public class GrouperProvisionerGrouperDao {
   }
 
   
-  public Map<String, TargetGroup> retrieveAllGroups() {
+  public Map<String, ProvisioningGroup> retrieveAllGroups() {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
@@ -54,12 +54,12 @@ public class GrouperProvisionerGrouperDao {
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(),
         GrouperUtil.toListObject(this.grouperProvisioner.getConfigId()), HibUtils.listType(StringType.INSTANCE));
 
-    Map<String, TargetGroup> results = getTargetGroupMapFromQueryResults(queryResults);
+    Map<String, ProvisioningGroup> results = getTargetGroupMapFromQueryResults(queryResults);
     
     return results;
   }
   
-  public Map<String, TargetGroup> retrieveGroupsByIds(Collection<String> ids) {
+  public Map<String, ProvisioningGroup> retrieveGroupsByIds(Collection<String> ids) {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
@@ -67,7 +67,7 @@ public class GrouperProvisionerGrouperDao {
     
     List<String> idsList = GrouperUtil.listFromCollection(ids);
 
-    Map<String, TargetGroup> results = new HashMap<String, TargetGroup>();
+    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
     
     if (GrouperUtil.length(ids) == 0) {
       return results;
@@ -268,9 +268,9 @@ public class GrouperProvisionerGrouperDao {
     return results;
   }
   
-  private Map<String, TargetGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
+  private Map<String, ProvisioningGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
     
-    Map<String, TargetGroup> results = new HashMap<String, TargetGroup>();
+    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
 
     for (String[] queryResult : queryResults) {
       String id = queryResult[0];
@@ -279,7 +279,7 @@ public class GrouperProvisionerGrouperDao {
       String description = queryResult[3];
       String idIndex = queryResult[4];
       
-      TargetGroup targetGroup = new TargetGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
       Map<String, TargetAttribute> attributes = new HashMap<String, TargetAttribute>();
       targetGroup.setId(id);
       targetGroup.setName(name);
@@ -379,9 +379,9 @@ public class GrouperProvisionerGrouperDao {
       }
       
       {
-        TargetGroup targetGroup = new TargetGroup();
+        ProvisioningGroup targetGroup = new ProvisioningGroup();
         targetGroup.setId(groupId);
-        targetMembership.setTargetGroup(targetGroup);
+        targetMembership.setProvisioningGroup(targetGroup);
       }
       
       results.put(membershipId, targetMembership);

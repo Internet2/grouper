@@ -13,7 +13,7 @@ import org.apache.commons.collections.CollectionUtils;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
@@ -26,9 +26,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
   @Override
-  public Map<String, TargetGroup> retrieveAllGroups() {
+  public Map<String, ProvisioningGroup> retrieveAllGroups() {
     
-    Map<String, TargetGroup> results = new HashMap<String, TargetGroup>();
+    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
@@ -64,7 +64,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(attributeNames));
     
     for (LdapEntry ldapEntry : ldapEntries) {
-      TargetGroup targetGroup = new TargetGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.setId(ldapEntry.getDn());
 
       Map<String, TargetAttribute> targetAttributes = new HashMap<String, TargetAttribute>();
@@ -83,7 +83,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return results;
   }
   
-  public boolean createGroup(TargetGroup targetGroup) {
+  public boolean createGroup(ProvisioningGroup targetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
@@ -101,7 +101,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
   }
   
-  public void deleteGroup(TargetGroup targetGroup) {
+  public void deleteGroup(ProvisioningGroup targetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
@@ -109,7 +109,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
    
   }
 
-  public boolean updateGroupIfNeeded(TargetGroup grouperTranslatedTargetGroup, TargetGroup actualTargetGroup) {
+  public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     

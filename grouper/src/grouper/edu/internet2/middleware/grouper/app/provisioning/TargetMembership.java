@@ -2,14 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.TargetEntity;
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
-
-import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.TargetEntity;
-import edu.internet2.middleware.grouper.app.provisioning.TargetGroup;
-
 /**
  * tuple of group and entity in target system
  * @author mchyzer
@@ -23,14 +15,14 @@ public class TargetMembership {
   private String id;
   
   /**
-   * group of membership
-   */
-  private TargetGroup targetGroup;
+   * group of memProvisioningGroup*ProvisioningGroup ProvisioningGroup targetGroup;
   
   /**
    * entity of membership
    */
   private TargetEntity targetEntity;
+  
+  private ProvisioningGroup provisioningGroup;
 
   /**
    * more attributes in name/value pairs
@@ -53,20 +45,17 @@ public class TargetMembership {
     this.id = id1;
   }
   
-  /**
-   * group of membership
-   * @return group
-   */
-  public TargetGroup getTargetGroup() {
-    return this.targetGroup;
+  
+   
+
+  
+  public ProvisioningGroup getProvisioningGroup() {
+    return provisioningGroup;
   }
 
-  /**
-   * group of membership
-   * @param targetGroup1
-   */
-  public void setTargetGroup(TargetGroup targetGroup1) {
-    this.targetGroup = targetGroup1;
+  
+  public void setProvisioningGroup(ProvisioningGroup provisioningGroup) {
+    this.provisioningGroup = provisioningGroup;
   }
 
   /**

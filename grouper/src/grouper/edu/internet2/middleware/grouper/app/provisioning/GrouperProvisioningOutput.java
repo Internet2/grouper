@@ -91,13 +91,13 @@ public class GrouperProvisioningOutput {
   /**
    * groups that were switched to
    */
-  private Set<TargetGroup> switchedToGroups = null;
+  private Set<ProvisioningGroup> switchedToGroups = null;
   
   /**
    * groups that were switched to
    * @return groups
    */
-  public Set<TargetGroup> getSwitchedToGroups() {
+  public Set<ProvisioningGroup> getSwitchedToGroups() {
     return this.switchedToGroups;
   }
 
@@ -105,7 +105,7 @@ public class GrouperProvisioningOutput {
    * groups that were switched to
    * @param switchedToGroups1
    */
-  public void setSwitchedToGroups(Set<TargetGroup> switchedToGroups1) {
+  public void setSwitchedToGroups(Set<ProvisioningGroup> switchedToGroups1) {
     this.switchedToGroups = switchedToGroups1;
   }
 

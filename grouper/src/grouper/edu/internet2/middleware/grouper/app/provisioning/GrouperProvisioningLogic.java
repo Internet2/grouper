@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -11,24 +8,28 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  *
  */
 public class GrouperProvisioningLogic {
+  
 
   /**
    * 
    */
   public void fullProvisionFull() {
 
+    GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
+    this.grouperProvisioner.setGrouperProvisioningData(grouperProvisioningData);
+    
     final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
     
-    @SuppressWarnings("unchecked")
-    final Map<String, TargetGroup>[] TARGET_RESULT = new HashMap[1];
-
     Thread targetQueryThread = new Thread(new Runnable() {
       
       @Override
       public void run() {
         
         try {
-          TARGET_RESULT[0] = grouperProvisioner.retrieveTargetDao().retrieveAllGroups();
+          
+          GrouperProvisioningLogic.this.getGrouperProvisioner()
+            .getGrouperProvisioningLogicAlgorithm().retrieveDataFromTarget();
+          
         } catch (RuntimeException re) {
           RUNTIME_EXCEPTION[0] = re;
         }
@@ -38,35 +39,21 @@ public class GrouperProvisioningLogic {
     
     targetQueryThread.start();
     
-    Map<String, TargetGroup> grouperTargetGroups = grouperProvisioner.retrieveGrouperDao().retrieveAllGroups();
-    Map<String, TargetEntity> grouperTargetEntities = grouperProvisioner.retrieveGrouperDao().retrieveAllMembers();
-    Map<String, TargetMembership> grouperTargetMemberships = grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships();
+    grouperProvisioningData.setGrouperTargetGroups(grouperProvisioner.retrieveGrouperDao().retrieveAllGroups());
+    grouperProvisioningData.setGrouperTargetEntities(grouperProvisioner.retrieveGrouperDao().retrieveAllMembers());
+    grouperProvisioningData.setGrouperTargetMemberships(grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships());
     
     GrouperClientUtils.join(targetQueryThread);
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
     }
     
-    Map<String, TargetGroup> actualTargetResult = TARGET_RESULT[0];
-    Map<String, TargetGroup> translatedTargetResult = this.grouperProvisioner.retrieveTranslator().translateToTarget(grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
+    this.grouperProvisioner.retrieveTranslator().translateGrouperToTarget();
     
     // TODO issues with dn comparison with case/spacing differences
     
-    for (String key : actualTargetResult.keySet()) {
-      TargetGroup actualTargetGroup = actualTargetResult.get(key);
-      if (!translatedTargetResult.containsKey(key)) {
-        this.grouperProvisioner.retrieveTargetDao().deleteGroup(actualTargetGroup);
-      }
-    }
-    
-    for (String key : translatedTargetResult.keySet()) {
-      TargetGroup targetGroup = translatedTargetResult.get(key);
-      if (!actualTargetResult.containsKey(key)) {
-        this.grouperProvisioner.retrieveTargetDao().createGroup(targetGroup);
-      } else {
-        this.grouperProvisioner.retrieveTargetDao().updateGroupIfNeeded(targetGroup, actualTargetResult.get(key));
-      }
-    }
+    this.getGrouperProvisioner().getGrouperProvisioningLogicAlgorithm().syncGrouperTranslatedGroupsToTarget();
+    this.getGrouperProvisioner().getGrouperProvisioningLogicAlgorithm().syncGrouperTranslatedMembershipsToTarget();
 
     // make sure the sync objects are correct
 //    new ProvisioningSyncIntegration().assignTarget(this.getGrouperProvisioner().getConfigId()).fullSync();

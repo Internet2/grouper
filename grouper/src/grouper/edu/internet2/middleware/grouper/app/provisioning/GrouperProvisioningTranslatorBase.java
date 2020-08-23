@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Map;
-
 /**
  * @author shilen
  */
@@ -34,7 +32,7 @@ public class GrouperProvisioningTranslatorBase {
    * @param targetMemberships
    * @return translated objects from grouper to target
    */
-  public Map<String, TargetGroup> translateToTarget(Map<String, TargetGroup> targetGroups, Map<String, TargetEntity> targetEntities, Map<String, TargetMembership> targetMemberships) {
+  public void translateGrouperToTarget() {
     throw new UnsupportedOperationException();
   }
 }

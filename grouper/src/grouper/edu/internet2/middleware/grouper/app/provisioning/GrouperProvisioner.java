@@ -19,6 +19,10 @@ public abstract class GrouperProvisioner {
   
   private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
   
+  private GrouperProvisioningData grouperProvisioningData = null;
+  
+  private GrouperProvisioningLogicAlgorithmBase grouperProvisioningLogicAlgorithm = null;
+  
   public Map<String, Object> getDebugMap() {
     return debugMap;
   }
@@ -81,6 +85,16 @@ public abstract class GrouperProvisioner {
     
   }
   
+  public GrouperProvisioningLogicAlgorithmBase retrieveProivisioningLogicAlgorithm() {
+    if (this.grouperProvisioningLogicAlgorithm == null) {
+      Class<? extends GrouperProvisioningLogicAlgorithmBase> grouperProvisioningLogicAlgorithmClass = 
+          this.retrieveProvisioningLogicAlgorithmClass();
+      this.grouperProvisioningLogicAlgorithm = GrouperUtil.newInstance(grouperProvisioningLogicAlgorithmClass);
+      this.grouperProvisioningLogicAlgorithm.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLogicAlgorithm;
+  }
+  
   
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
   
@@ -89,6 +103,13 @@ public abstract class GrouperProvisioner {
    */
   protected Class<GrouperProvisioningLogic> grouperProvisioningLogicClass() {
     return GrouperProvisioningLogic.class;
+  }
+  
+  /**
+   * return the class of the provisioning logic
+   */
+  protected Class<? extends GrouperProvisioningLogicAlgorithmBase> retrieveProvisioningLogicAlgorithmClass() {
+    return GrouperProvisioningLogicAlgorithmGroupsAndMemberships.class;
   }
   
   /**
@@ -366,4 +387,25 @@ public abstract class GrouperProvisioner {
     this.configId = configId;
   }
 
+  
+  public GrouperProvisioningData getGrouperProvisioningData() {
+    return grouperProvisioningData;
+  }
+
+  
+  public void setGrouperProvisioningData(GrouperProvisioningData grouperProvisioningData) {
+    this.grouperProvisioningData = grouperProvisioningData;
+  }
+
+  
+  public GrouperProvisioningLogicAlgorithmBase getGrouperProvisioningLogicAlgorithm() {
+    return grouperProvisioningLogicAlgorithm;
+  }
+
+  
+  public void setGrouperProvisioningLogicAlgorithm(
+      GrouperProvisioningLogicAlgorithmBase grouperProvisioningLogicAlgorithm) {
+    this.grouperProvisioningLogicAlgorithm = grouperProvisioningLogicAlgorithm;
+  }
+  
 }
