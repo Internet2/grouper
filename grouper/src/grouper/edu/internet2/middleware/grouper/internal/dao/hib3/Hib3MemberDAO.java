@@ -80,6 +80,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 
 
 /**
@@ -639,6 +640,16 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         ByCriteriaStatic byCriteriaStatic = HibernateSession.byCriteriaStatic();
 
         Criterion filter = HibUtils.buildInCriterion("subjectIdDb", batchOfIds, 1000);
+
+        if (!StringUtils.isBlank(subjectSourceId)) {
+	        List<Criterion> criterionList = new ArrayList<Criterion>();
+	        
+	        criterionList.add(filter);
+	        criterionList.add(Restrictions.eq("subjectSourceIdDb", subjectSourceId));
+	  
+	        filter = HibUtils.listCrit(criterionList);
+        }
+        
         List<Member> membersFromDb = byCriteriaStatic.list(Member.class, filter);
 
         for (Member member : GrouperUtil.nonNull(membersFromDb)) {
