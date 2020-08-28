@@ -1,11 +1,13 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -13,32 +15,55 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   
   @Override
-  public Map<String, ProvisioningGroup> retrieveAllGroups() {
+  public List<ProvisioningMembership> retrieveAllMemberships() {
     
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
-    String membershipGroupColumn = sqlProvisioningConfiguration.getMembershipGroupColumn();
+    
+    String commaSeparatedAttributeNames = sqlProvisioningConfiguration.getMembershipAttributeNames();
+    
     
     
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
     
-    List<String> groupNames = gcDbAccess.sql("select distinct " + membershipGroupColumn + " from "+membershipTableName).selectList(String.class);
+    List<Object[]> membershipAttributeValues = gcDbAccess.sql("select " + commaSeparatedAttributeNames + " from "+membershipTableName).selectList(Object[].class);
     
-    Map<String, ProvisioningGroup> result = new HashMap<String, ProvisioningGroup>();
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
     
-    for (String groupName: GrouperUtil.nonNull(groupNames)) {
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
-      targetGroup.setName(groupName);
-      targetGroup.setId(groupName);
+    String[] colNames = GrouperUtil.splitTrim(commaSeparatedAttributeNames, ",");
+    
+    for (Object[] membershipAttributeValue: GrouperUtil.nonNull(membershipAttributeValues)) {
+      ProvisioningMembership targetMembership = new ProvisioningMembership();
       
-      result.put(groupName, targetGroup);
+      Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
+      
+      for (int i=0; i<colNames.length; i++) {
+        String colName = colNames[i];
+        
+        Object value = membershipAttributeValue[i];
+        ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+        provisioningAttribute.setName(colName);
+        provisioningAttribute.setValue(value);
+        
+        attributes.put(colName, provisioningAttribute);
+      }
+      
+      targetMembership.setAttributes(attributes);
+      
+      result.add(targetMembership);
     }
     
     return result;
    
+  }
+
+  @Override
+  protected void sendChangesToTarget() {
+    // TODO Auto-generated method stub
+    
   }
 
 }

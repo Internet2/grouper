@@ -1,13 +1,35 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * group in target system
  * @author mchyzer
  *
  */
-public class ProvisioningGroup {
+public class ProvisioningGroup implements ProvisioningUpdatable {
+  
+  private Map<MultiKey, Object> internal_fieldsToUpdate = null;
+  
+  private ProvisioningGroupWrapper provisioningGroupWrapper;
+  
+  /**
+   * multikey is either the string "field", "attribute", the second param is field name or attribute name
+   * third param is "insert", "update", or "delete"
+   * and the value is the old value
+   * @return
+   */
+  public Map<MultiKey, Object> getInternal_fieldsToUpdate() {
+    return internal_fieldsToUpdate;
+  }
+
+  
+  public void setInternal_fieldsToUpdate(Map<MultiKey, Object> internal_fieldsToUpdate) {
+    this.internal_fieldsToUpdate = internal_fieldsToUpdate;
+  }
 
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
@@ -32,7 +54,7 @@ public class ProvisioningGroup {
   /**
    * more attributes in name/value pairs
    */
-  private Map<String, TargetAttribute> attributes;
+  private Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
 
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
@@ -102,7 +124,7 @@ public class ProvisioningGroup {
    * more attributes in name/value pairs
    * @return attributes
    */
-  public Map<String, TargetAttribute> getAttributes() {
+  public Map<String, ProvisioningAttribute> getAttributes() {
     return this.attributes;
   }
 
@@ -110,8 +132,20 @@ public class ProvisioningGroup {
    * more attributes in name/value pairs
    * @param attributes1
    */
-  public void setAttributes(Map<String, TargetAttribute> attributes1) {
+  public void setAttributes(Map<String, ProvisioningAttribute> attributes1) {
     this.attributes = attributes1;
   }
+
+
+  
+  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
+    return provisioningGroupWrapper;
+  }
+
+
+  public void setProvisioningGroupWrapper(ProvisioningGroupWrapper provisioningGroupWrapper) {
+    this.provisioningGroupWrapper = provisioningGroupWrapper;
+  }
+  
 
 }

@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
  * @author mchyzer
  *
  */
-public class TargetAttribute {
+public class ProvisioningAttribute {
 
   /**
    * name of attribute

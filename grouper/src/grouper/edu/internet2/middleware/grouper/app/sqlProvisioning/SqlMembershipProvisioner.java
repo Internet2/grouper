@@ -22,4 +22,10 @@ public class SqlMembershipProvisioner extends GrouperProvisioner {
     return SqlProvisioningConfiguration.class;
   }
 
+  @Override
+  public void syncTargetObjectsToTarget() {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

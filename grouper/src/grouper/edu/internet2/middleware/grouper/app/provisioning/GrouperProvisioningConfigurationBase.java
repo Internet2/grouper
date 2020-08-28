@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,6 +56,16 @@ public abstract class GrouperProvisioningConfigurationBase {
     return configId;
   }
   
+  /**
+   * key is groupEntity or membership
+   */
+  private Map<String, List<String>> grouperProvisioningToCommonTranslation = new HashMap<String, List<String>>();
+  
+  
+  public Map<String, List<String>> getGrouperProvisioningToCommonTranslation() {
+    return grouperProvisioningToCommonTranslation;
+  }
+
   /**
    * get a config name for this or dependency
    * @param configName
@@ -293,6 +306,9 @@ public abstract class GrouperProvisioningConfigurationBase {
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
    */
   private GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = null;
+  
+  
+  private String membershipAttributeNames;
 
   /**
    * 
@@ -400,6 +416,22 @@ public abstract class GrouperProvisioningConfigurationBase {
       } else {
         throw new RuntimeException("Invalid GrouperProvisioningMembershipFieldType: '" + grouperProvisioningMembershipFieldTypeString + "'");
       }
+      
+    }
+    
+    for (int i=0; i<= 1000; i++) {
+      
+      String script = this.retrieveConfigString("grouperToCommonTranslation."+i+".script" , false);
+      if (StringUtils.isBlank(script)) {
+        break;
+      }
+      String forString = this.retrieveConfigString("grouperToCommonTranslation."+i+".for" , true);
+      List<String> scripts = this.grouperProvisioningToCommonTranslation.get(forString);
+      if (scripts == null) {
+        scripts = new ArrayList<String>();
+        this.grouperProvisioningToCommonTranslation.put(forString, scripts);
+      } 
+      scripts.add(script);
       
     }
   }
@@ -733,6 +765,16 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setGrouperProvisioningMembershipFieldType(
       GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType) {
     this.grouperProvisioningMembershipFieldType = grouperProvisioningMembershipFieldType;
+  }
+
+  
+  public String getMembershipAttributeNames() {
+    return membershipAttributeNames;
+  }
+
+  
+  public void setMembershipAttributeNames(String membershipAttributeNames) {
+    this.membershipAttributeNames = membershipAttributeNames;
   }
 
   

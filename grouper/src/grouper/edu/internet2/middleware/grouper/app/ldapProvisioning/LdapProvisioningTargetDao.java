@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.provisioning.TargetAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -26,9 +24,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
   @Override
-  public Map<String, ProvisioningGroup> retrieveAllGroups() {
+  public List<ProvisioningGroup> retrieveAllGroups() {
     
-    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
+    List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
@@ -67,17 +65,17 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.setId(ldapEntry.getDn());
 
-      Map<String, TargetAttribute> targetAttributes = new HashMap<String, TargetAttribute>();
+      Map<String, ProvisioningAttribute> targetAttributes = new HashMap<String, ProvisioningAttribute>();
       
       for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-        TargetAttribute targetAttribute = new TargetAttribute();
+        ProvisioningAttribute targetAttribute = new ProvisioningAttribute();
         targetAttribute.setName(ldapAttribute.getName());
         targetAttribute.setValue(ldapAttribute.getValues());
         targetAttributes.put(targetAttribute.getName(), targetAttribute);
       }
       
       targetGroup.setAttributes(targetAttributes);
-      results.put(ldapEntry.getDn(), targetGroup);
+      results.add(targetGroup);
     }
 
     return results;
@@ -89,7 +87,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     LdapEntry ldapEntry = new LdapEntry(targetGroup.getId());
     for (String attributeName : targetGroup.getAttributes().keySet()) {
-      TargetAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
+      ProvisioningAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
       Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
       if (values.size() > 0) {
         LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
@@ -115,22 +113,22 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
     
-    Map<String, TargetAttribute> grouperTranslatedTargetAttributes = grouperTranslatedTargetGroup.getAttributes();
-    Map<String, TargetAttribute> actualTargetAttributes = actualTargetGroup.getAttributes();
+    Map<String, ProvisioningAttribute> grouperTranslatedProvisioningAttributes = grouperTranslatedTargetGroup.getAttributes();
+    Map<String, ProvisioningAttribute> actualProvisioningAttributes = actualTargetGroup.getAttributes();
     
-    Set<String> allAttributes = new HashSet<String>(grouperTranslatedTargetAttributes.keySet());
-    allAttributes.addAll(actualTargetAttributes.keySet());
+    Set<String> allAttributes = new HashSet<String>(grouperTranslatedProvisioningAttributes.keySet());
+    allAttributes.addAll(actualProvisioningAttributes.keySet());
     
     for (String attributeName : allAttributes) {
       Set<Object> grouperValues = new HashSet<Object>();
       Set<Object> targetValues = new HashSet<Object>();
       
-      if (grouperTranslatedTargetAttributes.containsKey(attributeName) && grouperTranslatedTargetAttributes.get(attributeName).getValue() != null) {
-        grouperValues = new HashSet<Object>((Collection<Object>)grouperTranslatedTargetAttributes.get(attributeName).getValue());
+      if (grouperTranslatedProvisioningAttributes.containsKey(attributeName) && grouperTranslatedProvisioningAttributes.get(attributeName).getValue() != null) {
+        grouperValues = new HashSet<Object>((Collection<Object>)grouperTranslatedProvisioningAttributes.get(attributeName).getValue());
       }
       
-      if (actualTargetAttributes.containsKey(attributeName) && actualTargetAttributes.get(attributeName).getValue() != null) {
-        targetValues = new HashSet<Object>((Collection<Object>)actualTargetAttributes.get(attributeName).getValue());
+      if (actualProvisioningAttributes.containsKey(attributeName) && actualProvisioningAttributes.get(attributeName).getValue() != null) {
+        targetValues = new HashSet<Object>((Collection<Object>)actualProvisioningAttributes.get(attributeName).getValue());
       }
       
       if (grouperValues.size() == 0 && targetValues.size() > 0) {
@@ -168,5 +166,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     
     return false;
+  }
+
+  @Override
+  protected void sendChangesToTarget() {
+    // TODO Auto-generated method stub
+    
   }
 }

@@ -1,73 +1,171 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisioningData {
   
   private GrouperProvisioner grouperProvisioner = null;
   
-  private Map<String, ProvisioningGroup> grouperTargetGroups;
-  private Map<String, TargetEntity> grouperTargetEntities;
-  private Map<String, TargetMembership> grouperTargetMemberships;
+  private GrouperProvisioningLists grouperProvisioningObjects;
+
+  private GrouperProvisioningLists targetProvisioningObjects;
+  
+  private GrouperProvisioningLists grouperCommonObjects;
+  
+  private GrouperProvisioningLists targetCommonObjects;
+
+  private GrouperProvisioningLists commonObjectInserts;
+  
+  private GrouperProvisioningLists commonObjectUpdates;
+  
+  private GrouperProvisioningLists commonObjectDeletes;
+
+  private GrouperProvisioningLists targetObjectInserts;
+  
+  private GrouperProvisioningLists targetObjectUpdates;
+  
+  private GrouperProvisioningLists targetObjectDeleles;
+  
+  private Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
+
+  private Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
+
+  private Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
   
   
-  private Map<String, ProvisioningGroup> grouperCommonGroups;
   
+  public Map<MultiKey, GcGrouperSyncMembership> getGroupIdMemberIdToSyncMembership() {
+    return groupIdMemberIdToSyncMembership;
+  }
+
+
+
+  public Map<String, GcGrouperSyncGroup> getGroupUuidToSyncGroup() {
+    return groupUuidToSyncGroup;
+  }
+  
+  
+  
+  public Map<String, GcGrouperSyncMember> getMemberUuidToSyncMember() {
+    return memberUuidToSyncMember;
+  }
+
+
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
-  
-  
-  public Map<String, TargetEntity> getGrouperTargetEntities() {
-    return grouperTargetEntities;
-  }
-  
-  public void setGrouperTargetEntities(Map<String, TargetEntity> grouperTargetEntities) {
-    this.grouperTargetEntities = grouperTargetEntities;
-  }
-  
-  public Map<String, TargetMembership> getGrouperTargetMemberships() {
-    return grouperTargetMemberships;
-  }
-
-
-  
-  public Map<String, ProvisioningGroup> getGrouperTargetGroups() {
-    return grouperTargetGroups;
-  }
-
-
-  
-  public void setGrouperTargetGroups(Map<String, ProvisioningGroup> grouperTargetGroups) {
-    this.grouperTargetGroups = grouperTargetGroups;
-  }
-
-
   
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
     this.grouperProvisioner = grouperProvisioner;
   }
 
-
   
-  public void setGrouperTargetMemberships(
-      Map<String, TargetMembership> grouperTargetMemberships) {
-    this.grouperTargetMemberships = grouperTargetMemberships;
+  public GrouperProvisioningLists getGrouperProvisioningObjects() {
+    return grouperProvisioningObjects;
   }
 
-
   
-  public Map<String, ProvisioningGroup> getGrouperCommonGroups() {
-    return grouperCommonGroups;
+  public void setGrouperProvisioningObjects(
+      GrouperProvisioningLists grouperProvisioningObjects) {
+    this.grouperProvisioningObjects = grouperProvisioningObjects;
   }
 
+  
+  public GrouperProvisioningLists getGrouperCommonObjects() {
+    return grouperCommonObjects;
+  }
 
   
-  public void setGrouperCommonGroups(Map<String, ProvisioningGroup> grouperCommonGroups) {
-    this.grouperCommonGroups = grouperCommonGroups;
+  public void setGrouperCommonObjects(GrouperProvisioningLists grouperCommonObjects) {
+    this.grouperCommonObjects = grouperCommonObjects;
   }
+
   
- 
+  public GrouperProvisioningLists getTargetProvisioningObjects() {
+    return targetProvisioningObjects;
+  }
+
+  
+  public void setTargetProvisioningObjects(
+      GrouperProvisioningLists targetProvisioningObjects) {
+    this.targetProvisioningObjects = targetProvisioningObjects;
+  }
+
+  
+  public GrouperProvisioningLists getTargetCommonObjects() {
+    return targetCommonObjects;
+  }
+
+  
+  public void setTargetCommonObjects(GrouperProvisioningLists targetCommonObjects) {
+    this.targetCommonObjects = targetCommonObjects;
+  }
+
+  
+  public GrouperProvisioningLists getCommonObjectInserts() {
+    return commonObjectInserts;
+  }
+
+  
+  public void setCommonObjectInserts(GrouperProvisioningLists commonObjectInserts) {
+    this.commonObjectInserts = commonObjectInserts;
+  }
+
+  
+  public GrouperProvisioningLists getCommonObjectUpdates() {
+    return commonObjectUpdates;
+  }
+
+  
+  public void setCommonObjectUpdates(GrouperProvisioningLists commonObjectUpdates) {
+    this.commonObjectUpdates = commonObjectUpdates;
+  }
+
+  
+  public GrouperProvisioningLists getCommonObjectDeletes() {
+    return commonObjectDeletes;
+  }
+
+  
+  public void setCommonObjectDeletes(GrouperProvisioningLists commonObjectDeletes) {
+    this.commonObjectDeletes = commonObjectDeletes;
+  }
+
+  
+  public GrouperProvisioningLists getTargetObjectInserts() {
+    return targetObjectInserts;
+  }
+
+  
+  public void setTargetObjectInserts(GrouperProvisioningLists targetObjectInserts) {
+    this.targetObjectInserts = targetObjectInserts;
+  }
+
+  
+  public GrouperProvisioningLists getTargetObjectUpdates() {
+    return targetObjectUpdates;
+  }
+
+  
+  public void setTargetObjectUpdates(GrouperProvisioningLists targetObjectUpdates) {
+    this.targetObjectUpdates = targetObjectUpdates;
+  }
+
+  
+  public GrouperProvisioningLists getTargetObjectDeleles() {
+    return targetObjectDeleles;
+  }
+
+  
+  public void setTargetObjectDeleles(GrouperProvisioningLists targetObjectDeleles) {
+    this.targetObjectDeleles = targetObjectDeleles;
+  }
   
 
 }

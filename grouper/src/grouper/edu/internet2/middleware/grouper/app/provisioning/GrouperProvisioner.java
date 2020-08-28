@@ -21,7 +21,7 @@ public abstract class GrouperProvisioner {
   
   private GrouperProvisioningData grouperProvisioningData = null;
   
-  private GrouperProvisioningLogicAlgorithmBase grouperProvisioningLogicAlgorithm = null;
+  private GrouperProvisionerOperationSupported grouperProvisionerOperationSupported = new GrouperProvisionerOperationSupported();
   
   public Map<String, Object> getDebugMap() {
     return debugMap;
@@ -31,6 +31,9 @@ public abstract class GrouperProvisioner {
    * return the class of the DAO for this provisioner
    */
   protected abstract Class<? extends GrouperProvisionerTargetDaoBase> retrieveTargetDaoClass();
+  
+  
+  public abstract void syncTargetObjectsToTarget();
   
   /**
    * returns the subclass of Data Access Object for this provisioner
@@ -85,15 +88,15 @@ public abstract class GrouperProvisioner {
     
   }
   
-  public GrouperProvisioningLogicAlgorithmBase retrieveProivisioningLogicAlgorithm() {
-    if (this.grouperProvisioningLogicAlgorithm == null) {
-      Class<? extends GrouperProvisioningLogicAlgorithmBase> grouperProvisioningLogicAlgorithmClass = 
-          this.retrieveProvisioningLogicAlgorithmClass();
-      this.grouperProvisioningLogicAlgorithm = GrouperUtil.newInstance(grouperProvisioningLogicAlgorithmClass);
-      this.grouperProvisioningLogicAlgorithm.setGrouperProvisioner(this);
-    }
-    return this.grouperProvisioningLogicAlgorithm;
-  }
+//  public GrouperProvisioningLogicAlgorithmBase retrieveProivisioningLogicAlgorithm() {
+//    if (this.grouperProvisioningLogicAlgorithm == null) {
+//      Class<? extends GrouperProvisioningLogicAlgorithmBase> grouperProvisioningLogicAlgorithmClass = 
+//          this.retrieveProvisioningLogicAlgorithmClass();
+//      this.grouperProvisioningLogicAlgorithm = GrouperUtil.newInstance(grouperProvisioningLogicAlgorithmClass);
+//      this.grouperProvisioningLogicAlgorithm.setGrouperProvisioner(this);
+//    }
+//    return this.grouperProvisioningLogicAlgorithm;
+//  }
   
   
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
@@ -398,14 +401,15 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public GrouperProvisioningLogicAlgorithmBase getGrouperProvisioningLogicAlgorithm() {
-    return grouperProvisioningLogicAlgorithm;
+  public GrouperProvisionerOperationSupported getGrouperProvisionerOperationSupported() {
+    return grouperProvisionerOperationSupported;
   }
 
   
-  public void setGrouperProvisioningLogicAlgorithm(
-      GrouperProvisioningLogicAlgorithmBase grouperProvisioningLogicAlgorithm) {
-    this.grouperProvisioningLogicAlgorithm = grouperProvisioningLogicAlgorithm;
+  public void setGrouperProvisionerOperationSupported(
+      GrouperProvisionerOperationSupported grouperProvisionerOperationSupported) {
+    this.grouperProvisionerOperationSupported = grouperProvisionerOperationSupported;
   }
+  
   
 }

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,12 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisionerGrouperDao {
 
@@ -38,11 +45,13 @@ public class GrouperProvisionerGrouperDao {
   }
 
   
-  public Map<String, ProvisioningGroup> retrieveAllGroups() {
+  public List<ProvisioningGroup> retrieveAllGroups() {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
+    
+    List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
     StringBuilder sql = new StringBuilder("select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
         "from grouper_sync gs, grouper_sync_group gsg, grouper_groups gg " + 
@@ -50,11 +59,52 @@ public class GrouperProvisionerGrouperDao {
         "and gsg.grouper_sync_id = gs.id " + 
         "and gsg.provisionable = 'T' " + 
         "and gsg.group_id = gg.id");
-    
+
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(),
         GrouperUtil.toListObject(this.grouperProvisioner.getConfigId()), HibUtils.listType(StringType.INSTANCE));
 
-    Map<String, ProvisioningGroup> results = getTargetGroupMapFromQueryResults(queryResults);
+    List<ProvisioningGroup> provisioningGroupsFromGrouper = getTargetGroupMapFromQueryResults(queryResults);
+    results.addAll(provisioningGroupsFromGrouper);
+    
+    Map<String, ProvisioningGroup> grouperGroupIdToGrouperProvisioningGroup = new HashMap<String, ProvisioningGroup>();
+    
+    for (ProvisioningGroup grouperProvisioningGroup: provisioningGroupsFromGrouper) {
+      grouperGroupIdToGrouperProvisioningGroup.put(grouperProvisioningGroup.getId(), grouperProvisioningGroup);
+    }
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, this.grouperProvisioner.getConfigId());
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
+    
+    Iterator<GcGrouperSyncGroup> iterator = GrouperUtil.nonNull(gcGrouperSyncGroups).iterator();
+    
+    while (iterator.hasNext()) {
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = iterator.next();
+      this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidToSyncGroup()
+        .put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
+      
+      // if a group has been deleted in grouper_groups table but copy still exists in grouper_sync_group
+      // we are sending the copy over to the target so that target can also delete
+      if (!grouperGroupIdToGrouperProvisioningGroup.containsKey(gcGrouperSyncGroup.getId())) {
+        
+        ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+        provisioningGroup.setId(gcGrouperSyncGroup.getGroupId());
+        provisioningGroup.setName(gcGrouperSyncGroup.getGroupName());
+        provisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
+        results.add(provisioningGroup);
+        
+        ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
+        provisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+        provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroup);
+        provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+        
+      } else {
+        ProvisioningGroup grouperProvisioningGroup = grouperGroupIdToGrouperProvisioningGroup.get(gcGrouperSyncGroup.getId());
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setGcGrouperSyncGroup(gcGrouperSyncGroup);
+      }
+      
+    }
     
     return results;
   }
@@ -101,17 +151,22 @@ public class GrouperProvisionerGrouperDao {
       
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
       
-      results.putAll(getTargetGroupMapFromQueryResults(queryResults));
+      for (ProvisioningGroup provisioningGroup: getTargetGroupMapFromQueryResults(queryResults)) {
+        results.put(provisioningGroup.getId(), provisioningGroup);
+      }
+      
     }
     
     return results;
   }
   
-  public Map<String, TargetEntity> retrieveAllMembers() {
+  public List<ProvisioningEntity> retrieveAllMembers() {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
+    
+    List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
     
     StringBuilder sql = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
         "from grouper_sync gs, grouper_sync_member gsm, grouper_members gm " + 
@@ -138,16 +193,70 @@ public class GrouperProvisionerGrouperDao {
     
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
 
-    Map<String, TargetEntity> results = getTargetEntityMapFromQueryResults(queryResults);
+    List<ProvisioningEntity> grouperProvisioningEntities = getProvisioningEntityMapFromQueryResults(queryResults);
+    results.addAll(grouperProvisioningEntities);
+    
+    Map<String, ProvisioningEntity> grouperMemberIdToProvisioningEntity = new HashMap<String, ProvisioningEntity>();
+    
+    for (ProvisioningEntity grouperProvisioningEntity: grouperProvisioningEntities) {
+      grouperMemberIdToProvisioningEntity.put(grouperProvisioningEntity.getId(), grouperProvisioningEntity);
+    }
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, this.grouperProvisioner.getConfigId());
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
+    
+    for (GcGrouperSyncMember gcGrouperSyncMember: GrouperUtil.nonNull(gcGrouperSyncMembers)) {
+      
+      this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToSyncMember()
+        .put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
+      
+      // if a member has been deleted in grouper_members table but copy still exists in grouper_sync_member
+      // we are sending the copy over to the target so that target can also delete
+      if (!grouperMemberIdToProvisioningEntity.containsKey(gcGrouperSyncMember.getId())) {
+        ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+        provisioningEntity.setId(gcGrouperSyncMember.getMemberId());
+        
+        Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
+        
+        ProvisioningAttribute targetAttributeSubjectId = new ProvisioningAttribute();
+        targetAttributeSubjectId.setName("subjectId");
+        targetAttributeSubjectId.setValue(gcGrouperSyncMember.getSubjectId());
+        attributes.put("subjectId", targetAttributeSubjectId);
+        
+        ProvisioningAttribute targetAttributeSubjectIdentifier0 = new ProvisioningAttribute();
+        targetAttributeSubjectIdentifier0.setName("subjectIdentifier0");
+        targetAttributeSubjectIdentifier0.setValue(gcGrouperSyncMember.getSubjectIdentifier());
+        attributes.put("subjectIdentifier0", targetAttributeSubjectIdentifier0);
+        
+        provisioningEntity.setAttributes(attributes);
+        
+        
+        results.add(provisioningEntity);
+        
+        ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
+        provisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+        provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntity);
+        provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+      } else {
+        ProvisioningEntity grouperProvisioningEntity = grouperMemberIdToProvisioningEntity.get(gcGrouperSyncMember.getId());
+        grouperProvisioningEntity.getProvisioningEntityWrapper().setGcGrouperSyncMember(gcGrouperSyncMember);
+      }
+      
+    }
+    
+    
     
     return results;
   }
   
-  public Map<String, TargetMembership> retrieveAllMemberships() {
+  public List<ProvisioningMembership> retrieveAllMemberships() {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
+    
+    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
     
     StringBuilder sql = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
         "from grouper_sync gs, grouper_sync_group gsg, grouper_groups gg, grouper_memberships_all_v gmav, grouper_sync_member gsm, grouper_members gm " + 
@@ -201,12 +310,96 @@ public class GrouperProvisionerGrouperDao {
     
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
 
-    Map<String, TargetMembership> results = getTargetMembershipMapFromQueryResults(queryResults);
+    List<ProvisioningMembership> grouperProvisioningMemberships = getProvisioningMembershipMapFromQueryResults(queryResults);
+    results.addAll(grouperProvisioningMemberships);
+    
+    
+    // grouper_group_id, member_id to grouper provisioning membership
+    Map<MultiKey, ProvisioningMembership> grouperGroupIdMemberIdToGrouperProvisioningMembership = new HashMap<MultiKey, ProvisioningMembership>();
+    
+    for (ProvisioningMembership grouperProvisioningMembership: grouperProvisioningMemberships) {
+      grouperGroupIdMemberIdToGrouperProvisioningMembership.put(
+          new MultiKey(grouperProvisioningMembership.getProvisioningGroupId(), grouperProvisioningMembership.getProvisioningEntityId()),
+          grouperProvisioningMembership);
+    }
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, this.grouperProvisioner.getConfigId());
+    
+    List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveAll();
+    
+    Iterator<GcGrouperSyncMembership> iterator = GrouperUtil.nonNull(gcGrouperSyncMemberships).iterator();
+    
+    
+    Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToGrouperSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
+    Map<String, GcGrouperSyncMember> grouperSyncMemberIdToGrouperSyncMember = new HashMap<String, GcGrouperSyncMember>();
+    
+    for (GcGrouperSyncGroup gcGrouperSyncGroup: 
+      GrouperUtil.nonNull(this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidToSyncGroup()).values()) {
+      
+      grouperSyncGroupIdToGrouperSyncGroup.put(gcGrouperSyncGroup.getId(), gcGrouperSyncGroup);
+      
+    }
+    
+    for (GcGrouperSyncMember gcGrouperSyncMember: 
+      GrouperUtil.nonNull(this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToSyncMember()).values()) {
+      
+      grouperSyncMemberIdToGrouperSyncMember.put(gcGrouperSyncMember.getId(), gcGrouperSyncMember);
+      
+    }
+    
+    
+    
+    while (iterator.hasNext()) {
+      
+      GcGrouperSyncMembership gcGrouperSyncMembership = iterator.next();
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = grouperSyncGroupIdToGrouperSyncGroup.get(gcGrouperSyncMembership.getGrouperSyncGroupId());
+      if (gcGrouperSyncGroup == null) {
+        iterator.remove();
+        continue;
+      }
+      
+      GcGrouperSyncMember gcGrouperSyncMember = grouperSyncMemberIdToGrouperSyncMember.get(gcGrouperSyncMembership.getGrouperSyncMemberId());
+      
+      if (gcGrouperSyncMember == null) {
+        iterator.remove();
+        continue;
+      }
+      
+      this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToSyncMembership()
+        .put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), 
+            gcGrouperSyncMembership);
+      
+      
+      MultiKey groupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getMemberId());
+      
+      // if a membership has been deleted in grouper_memberships_all_v table but copy still exists in grouper_sync_member
+      // we are sending the copy over to the target so that target can also delete
+      if (!grouperGroupIdMemberIdToGrouperProvisioningMembership.containsKey(groupIdMemberId)) {
+        
+        ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+        
+        provisioningMembership.setProvisioningGroupId(gcGrouperSyncGroup.getId());
+        provisioningMembership.setProvisioningEntityId(gcGrouperSyncMember.getId());
+
+        results.add(provisioningMembership);
+        
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+        provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
+        provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
+        provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        
+      } else {
+        ProvisioningMembership grouperProvisioningMembership = grouperGroupIdMemberIdToGrouperProvisioningMembership.get(groupIdMemberId);
+        grouperProvisioningMembership.getProvisioningMembershipWrapper().setGcGrouperSyncMembership(gcGrouperSyncMembership);
+      }
+      
+    }
     
     return results;
   }
   
-  public Map<String, TargetEntity> retrieveMembersByIds(Collection<String> ids) {
+  public Map<String, ProvisioningEntity> retrieveMembersByIds(Collection<String> ids) {
     
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
@@ -214,7 +407,7 @@ public class GrouperProvisionerGrouperDao {
     
     List<String> idsList = GrouperUtil.listFromCollection(ids);
     
-    Map<String, TargetEntity> results = new HashMap<String, TargetEntity>();
+    Map<String, ProvisioningEntity> results = new HashMap<String, ProvisioningEntity>();
     
     if (GrouperUtil.length(ids) == 0) {
       return results;
@@ -262,15 +455,18 @@ public class GrouperProvisionerGrouperDao {
       
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
       
-      results.putAll(getTargetEntityMapFromQueryResults(queryResults));
+      for (ProvisioningEntity provisioningEntity: getProvisioningEntityMapFromQueryResults(queryResults)) {
+        results.put(provisioningEntity.getId(), provisioningEntity);
+      }
+      
     }
     
     return results;
   }
   
-  private Map<String, ProvisioningGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
+  private List<ProvisioningGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
     
-    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
+    List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
     for (String[] queryResult : queryResults) {
       String id = queryResult[0];
@@ -279,28 +475,32 @@ public class GrouperProvisionerGrouperDao {
       String description = queryResult[3];
       String idIndex = queryResult[4];
       
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
-      Map<String, TargetAttribute> attributes = new HashMap<String, TargetAttribute>();
-      targetGroup.setId(id);
-      targetGroup.setName(name);
-      targetGroup.setDisplayName(displayName);
-      targetGroup.setIdIndex(Long.parseLong(idIndex));
-      TargetAttribute targetAttributeDescription = new TargetAttribute();
+      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+      Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
+      grouperProvisioningGroup.setId(id);
+      grouperProvisioningGroup.setName(name);
+      grouperProvisioningGroup.setDisplayName(displayName);
+      grouperProvisioningGroup.setIdIndex(Long.parseLong(idIndex));
+      ProvisioningAttribute targetAttributeDescription = new ProvisioningAttribute();
       targetAttributeDescription.setName("description");
       targetAttributeDescription.setValue(description);
       attributes.put("description", targetAttributeDescription);
       
-      targetGroup.setAttributes(attributes);
+      grouperProvisioningGroup.setAttributes(attributes);
       
-      results.put(id, targetGroup);
+      ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
+      grouperProvisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+      provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
+      
+      results.add(grouperProvisioningGroup);
     }
     
     return results;
   }
   
-  private Map<String, TargetEntity> getTargetEntityMapFromQueryResults(List<String[]> queryResults) {
+  private List<ProvisioningEntity> getProvisioningEntityMapFromQueryResults(List<String[]> queryResults) {
     
-    Map<String, TargetEntity> results = new HashMap<String, TargetEntity>();
+    List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
     for (String[] queryResult : queryResults) {
       String id = queryResult[0];
@@ -309,37 +509,41 @@ public class GrouperProvisionerGrouperDao {
       String name = queryResult[3];
       String description = queryResult[4];
       
-      TargetEntity targetEntity = new TargetEntity();
-      Map<String, TargetAttribute> attributes = new HashMap<String, TargetAttribute>();
-      targetEntity.setId(id);
-      targetEntity.setName(name);
+      ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
+      Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
+      grouperProvisioningEntity.setId(id);
+      grouperProvisioningEntity.setName(name);
 
-      TargetAttribute targetAttributeDescription = new TargetAttribute();
+      ProvisioningAttribute targetAttributeDescription = new ProvisioningAttribute();
       targetAttributeDescription.setName("description");
       targetAttributeDescription.setValue(description);
       attributes.put("description", targetAttributeDescription);
       
-      TargetAttribute targetAttributeSubjectId = new TargetAttribute();
+      ProvisioningAttribute targetAttributeSubjectId = new ProvisioningAttribute();
       targetAttributeSubjectId.setName("subjectId");
       targetAttributeSubjectId.setValue(subjectId);
       attributes.put("subjectId", targetAttributeSubjectId);
       
-      TargetAttribute targetAttributeSubjectIdentifier0 = new TargetAttribute();
+      ProvisioningAttribute targetAttributeSubjectIdentifier0 = new ProvisioningAttribute();
       targetAttributeSubjectIdentifier0.setName("subjectIdentifier0");
       targetAttributeSubjectIdentifier0.setValue(subjectIdentifier0);
       attributes.put("subjectIdentifier0", targetAttributeSubjectIdentifier0);
       
-      targetEntity.setAttributes(attributes);
+      grouperProvisioningEntity.setAttributes(attributes);
       
-      results.put(id, targetEntity);
+      ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
+      grouperProvisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+      provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
+      
+      results.add(grouperProvisioningEntity);
     }
     
     return results;
   }
   
-  private Map<String, TargetMembership> getTargetMembershipMapFromQueryResults(List<String[]> queryResults) {
+  private List<ProvisioningMembership> getProvisioningMembershipMapFromQueryResults(List<String[]> queryResults) {
     
-    Map<String, TargetMembership> results = new HashMap<String, TargetMembership>();
+    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
 
     for (String[] queryResult : queryResults) {
       String membershipId = queryResult[0];
@@ -350,41 +554,45 @@ public class GrouperProvisionerGrouperDao {
       String name = queryResult[5];
       String description = queryResult[6];
       
-      TargetMembership targetMembership = new TargetMembership();
-      targetMembership.setId(membershipId);
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+      grouperProvisioningMembership.setId(membershipId);
       
       {
-        TargetEntity targetEntity = new TargetEntity();
-        Map<String, TargetAttribute> attributes = new HashMap<String, TargetAttribute>();
+        ProvisioningEntity targetEntity = new ProvisioningEntity();
+        Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
         targetEntity.setId(memberId);
         targetEntity.setName(name);
   
-        TargetAttribute targetAttributeDescription = new TargetAttribute();
+        ProvisioningAttribute targetAttributeDescription = new ProvisioningAttribute();
         targetAttributeDescription.setName("description");
         targetAttributeDescription.setValue(description);
         attributes.put("description", targetAttributeDescription);
         
-        TargetAttribute targetAttributeSubjectId = new TargetAttribute();
+        ProvisioningAttribute targetAttributeSubjectId = new ProvisioningAttribute();
         targetAttributeSubjectId.setName("subjectId");
         targetAttributeSubjectId.setValue(subjectId);
         attributes.put("subjectId", targetAttributeSubjectId);
         
-        TargetAttribute targetAttributeSubjectIdentifier0 = new TargetAttribute();
+        ProvisioningAttribute targetAttributeSubjectIdentifier0 = new ProvisioningAttribute();
         targetAttributeSubjectIdentifier0.setName("subjectIdentifier0");
         targetAttributeSubjectIdentifier0.setValue(subjectIdentifier0);
         attributes.put("subjectIdentifier0", targetAttributeSubjectIdentifier0);
         
         targetEntity.setAttributes(attributes);
-        targetMembership.setTargetEntity(targetEntity);
+        grouperProvisioningMembership.setProvisioningEntity(targetEntity);
       }
       
       {
         ProvisioningGroup targetGroup = new ProvisioningGroup();
         targetGroup.setId(groupId);
-        targetMembership.setProvisioningGroup(targetGroup);
+        grouperProvisioningMembership.setProvisioningGroup(targetGroup);
       }
       
-      results.put(membershipId, targetMembership);
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+      grouperProvisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
+      provisioningMembershipWrapper.setGrouperProvisioningMembership(grouperProvisioningMembership);
+      
+      results.add(grouperProvisioningMembership);
     }
     
     return results;

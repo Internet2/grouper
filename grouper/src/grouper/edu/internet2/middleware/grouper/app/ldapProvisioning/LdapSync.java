@@ -44,6 +44,12 @@ public class LdapSync extends GrouperProvisioner {
   protected Class<? extends GrouperProvisioningLogicAlgorithmBase> retrieveProvisioningLogicAlgorithmClass() {
     return GrouperProvisioningLogicAlgorithmGroupsOnly.class;
   }
+
+  @Override
+  public void syncTargetObjectsToTarget() {
+    // TODO Auto-generated method stub
+    
+  }
   
   
 }
