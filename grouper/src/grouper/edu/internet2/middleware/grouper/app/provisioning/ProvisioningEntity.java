@@ -1,16 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-
 /**
  * entity is a member of a group which is typically a user/account or person
  * @author mchyzer
  *
  */
-public class ProvisioningEntity implements ProvisioningUpdatable {
+public class ProvisioningEntity extends ProvisioningUpdatable {
 
   /**
    * id uniquely identifies this record, might be a target uuid, or subject id
@@ -32,31 +27,7 @@ public class ProvisioningEntity implements ProvisioningUpdatable {
    */
   private String email;
   
-  /**
-   * more attributes in name/value pairs
-   */
-  private Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
-
-  private Map<MultiKey, Object> internal_fieldsToUpdate = null;
-  
-  
   private ProvisioningEntityWrapper provisioningEntityWrapper;
-  
-  /**
-   * multikey is either the string "field", "attribute", the second param is field name or attribute name
-   * third param is "insert", "update", or "delete"
-   * and the value is the old value
-   * @return
-   */
-  public Map<MultiKey, Object> getInternal_fieldsToUpdate() {
-    return internal_fieldsToUpdate;
-  }
-
-  
-  public void setInternal_fieldsToUpdate(Map<MultiKey, Object> internal_fieldsToUpdate) {
-    this.internal_fieldsToUpdate = internal_fieldsToUpdate;
-  }
-  
   
   /**
    * id uniquely identifies this record, might be a uuid, or subject id
@@ -122,24 +93,6 @@ public class ProvisioningEntity implements ProvisioningUpdatable {
     this.email = email1;
   }
 
-  /**
-   * more attributes in name/value pairs
-   * @return
-   */
-  public Map<String, ProvisioningAttribute> getAttributes() {
-    return this.attributes;
-  }
-
-  /**
-   * more attributes in name/value pairs
-   * @param attributes1
-   */
-  public void setAttributes(Map<String, ProvisioningAttribute> attributes1) {
-    this.attributes = attributes1;
-  }
-
-
-  
   public ProvisioningEntityWrapper getProvisioningEntityWrapper() {
     return provisioningEntityWrapper;
   }

@@ -12,25 +12,25 @@ public class GrouperProvisioningData {
   
   private GrouperProvisioner grouperProvisioner = null;
   
-  private GrouperProvisioningLists grouperProvisioningObjects;
+  private GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
 
-  private GrouperProvisioningLists targetProvisioningObjects;
+  private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists grouperCommonObjects;
+  private GrouperProvisioningLists grouperCommonObjects = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists targetCommonObjects;
+  private GrouperProvisioningLists targetCommonObjects = new GrouperProvisioningLists();
 
-  private GrouperProvisioningLists commonObjectInserts;
+  private GrouperProvisioningLists commonObjectInserts = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists commonObjectUpdates;
+  private GrouperProvisioningLists commonObjectUpdates = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists commonObjectDeletes;
+  private GrouperProvisioningLists commonObjectDeletes = new GrouperProvisioningLists();
 
-  private GrouperProvisioningLists targetObjectInserts;
+  private GrouperProvisioningLists targetObjectInserts = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists targetObjectUpdates;
+  private GrouperProvisioningLists targetObjectUpdates = new GrouperProvisioningLists();
   
-  private GrouperProvisioningLists targetObjectDeleles;
+  private GrouperProvisioningLists targetObjectDeletes = new GrouperProvisioningLists();
   
   private Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
 
@@ -38,8 +38,34 @@ public class GrouperProvisioningData {
 
   private Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
   
+  private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
+
+  private Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
+
+  private Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
   
   
+  
+  public Map<String, ProvisioningGroupWrapper> getGroupUuidToProvisioningGroupWrapper() {
+    return groupUuidToProvisioningGroupWrapper;
+  }
+
+
+
+  
+  public Map<String, ProvisioningEntityWrapper> getMemberUuidToProvisioningEntityWrapper() {
+    return memberUuidToProvisioningEntityWrapper;
+  }
+
+
+
+  
+  public Map<MultiKey, ProvisioningMembershipWrapper> getGroupIdMemberIdToProvisioningMembershipWrapper() {
+    return groupIdMemberIdToProvisioningMembershipWrapper;
+  }
+
+
+
   public Map<MultiKey, GcGrouperSyncMembership> getGroupIdMemberIdToSyncMembership() {
     return groupIdMemberIdToSyncMembership;
   }
@@ -158,13 +184,13 @@ public class GrouperProvisioningData {
   }
 
   
-  public GrouperProvisioningLists getTargetObjectDeleles() {
-    return targetObjectDeleles;
+  public GrouperProvisioningLists getTargetObjectDeletes() {
+    return targetObjectDeletes;
   }
 
   
-  public void setTargetObjectDeleles(GrouperProvisioningLists targetObjectDeleles) {
-    this.targetObjectDeleles = targetObjectDeleles;
+  public void setTargetObjectDeletes(GrouperProvisioningLists targetObjectDeletes) {
+    this.targetObjectDeletes = targetObjectDeletes;
   }
   
 

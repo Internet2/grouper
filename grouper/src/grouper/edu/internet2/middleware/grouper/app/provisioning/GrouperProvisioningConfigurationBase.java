@@ -66,6 +66,16 @@ public abstract class GrouperProvisioningConfigurationBase {
     return grouperProvisioningToCommonTranslation;
   }
 
+  
+  public Map<String, List<String>> getTargetProvisioningToCommonTranslation() {
+    return targetProvisioningToCommonTranslation;
+  }
+
+  
+  public Map<String, List<String>> getCommonProvisioningToTargetTranslation() {
+    return commonProvisioningToTargetTranslation;
+  }
+
   /**
    * get a config name for this or dependency
    * @param configName
@@ -311,6 +321,16 @@ public abstract class GrouperProvisioningConfigurationBase {
   private String membershipAttributeNames;
 
   /**
+   * key is groupEntity or membership
+   */
+  private Map<String, List<String>> targetProvisioningToCommonTranslation = new HashMap<String, List<String>>();
+
+  /**
+   * key is groupEntity or membership
+   */
+  private Map<String, List<String>> commonProvisioningToTargetTranslation = new HashMap<String, List<String>>();
+
+  /**
    * 
    */
   public abstract void configureSpecificSettings();
@@ -332,6 +352,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.debugMap.put("hasTargetUserLink", this.hasTargetUserLink);
     }
 
+    
+    this.membershipAttributeNames = this.retrieveConfigString("membershipAttributeNames", false);
+    
     this.subjectSourcesToProvision = GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ",");
 
     for (String sourceId : this.subjectSourcesToProvision) {
@@ -434,6 +457,40 @@ public abstract class GrouperProvisioningConfigurationBase {
       scripts.add(script);
       
     }
+
+  
+    for (int i=0; i<= 1000; i++) {
+      
+      String script = this.retrieveConfigString("targetToCommonTranslation."+i+".script" , false);
+      if (StringUtils.isBlank(script)) {
+        break;
+      }
+      String forString = this.retrieveConfigString("targetToCommonTranslation."+i+".for" , true);
+      List<String> scripts = this.targetProvisioningToCommonTranslation.get(forString);
+      if (scripts == null) {
+        scripts = new ArrayList<String>();
+        this.targetProvisioningToCommonTranslation.put(forString, scripts);
+      } 
+      scripts.add(script);
+      
+    }
+
+    for (int i=0; i<= 1000; i++) {
+      
+      String script = this.retrieveConfigString("commonToTargetTranslation."+i+".script" , false);
+      if (StringUtils.isBlank(script)) {
+        break;
+      }
+      String forString = this.retrieveConfigString("commonToTargetTranslation."+i+".for" , true);
+      List<String> scripts = this.commonProvisioningToTargetTranslation.get(forString);
+      if (scripts == null) {
+        scripts = new ArrayList<String>();
+        this.commonProvisioningToTargetTranslation.put(forString, scripts);
+      } 
+      scripts.add(script);
+      
+    }
+
   }
   
   

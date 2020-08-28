@@ -8,6 +8,7 @@ import org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -24,6 +25,8 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import junit.textui.TestRunner;
@@ -40,10 +43,35 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupMembershipProvisioningFull"));
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    //RegistryReset rr = new RegistryReset();
+
+   // rr._addSubjects();
+
+    
+
+    
+    SqlMembershipProvisionerTest sqlMembershipProvisionerTest = new SqlMembershipProvisionerTest();
+    sqlMembershipProvisionerTest.ensureTableSyncTables();
+
+    new GcDbAccess().sql("delete from testgrouper_prov_group");
+    new GcDbAccess().sql("delete from testgrouper_prov_mship0");
+    new GcDbAccess().sql("delete from testgrouper_prov_mship1");
+
+    sqlMembershipProvisionerTest.grouperSession = grouperSession;
+    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
   }
   
+  public SqlMembershipProvisionerTest() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
   /**
    * 
    * @param name
@@ -89,7 +117,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
-    dropTableSyncTables();
+//    dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
@@ -167,11 +195,11 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
     
-    testGroup.addMember(SubjectTestHelper.SUBJ0);
-    testGroup.addMember(SubjectTestHelper.SUBJ1);
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
     
-    testGroup2.addMember(SubjectTestHelper.SUBJ2);
-    testGroup2.addMember(SubjectTestHelper.SUBJ3);
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);

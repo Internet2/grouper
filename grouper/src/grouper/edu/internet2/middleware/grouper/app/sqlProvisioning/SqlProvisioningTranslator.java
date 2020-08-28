@@ -4,15 +4,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTran
 
 public class SqlProvisioningTranslator extends GrouperProvisioningTranslatorBase {
 
-  @Override
-  public void translateGrouperToTarget() {
-  
-    
-    
-    super.translateGrouperToTarget();
-  }
-
-  
   
 
 }

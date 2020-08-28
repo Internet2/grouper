@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -21,55 +22,65 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class GrouperProvisioningLogic {
   
+  /**
+   * see if there are any objects that need to be fixed or removed
+   */
+  public void validateInitialProvisioningData() {
+    
+    
+  }
+  
 
   /**
    * 
    */
   public void fullProvisionFull() {
 
-    GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
-    this.grouperProvisioner.setGrouperProvisioningData(grouperProvisioningData);
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
-    final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+    debugMap.put("state", "synchronizeProvisioningAttributesToSyncObjects");
+    new ProvisioningSyncIntegration().assignTarget(this.grouperProvisioner.getConfigId()).fullSync();
     
-    Thread targetQueryThread = new Thread(new Runnable() {
-      
-      @Override
-      public void run() {
-        
-        try {
-          
-          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao().retrieveAllGroups();
-          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao().retrieveAllMemberships();
-          
-        } catch (RuntimeException re) {
-          RUNTIME_EXCEPTION[0] = re;
-        }
-        
-      }
-    });
-    
-    targetQueryThread.start();
-    
-    GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
-    grouperProvisioningData.setGrouperProvisioningObjects(grouperProvisioningObjects);
-    
-    grouperProvisioningObjects.setProvisioningGroups(grouperProvisioner.retrieveGrouperDao().retrieveAllGroups());
-    grouperProvisioningObjects.setProvisioningEntities(grouperProvisioner.retrieveGrouperDao().retrieveAllMembers());
-    grouperProvisioningObjects.setProvisioningMemberships(grouperProvisioner.retrieveGrouperDao().retrieveAllMemberships());
-    
-    GrouperClientUtils.join(targetQueryThread);
-    if (RUNTIME_EXCEPTION[0] != null) {
-      throw RUNTIME_EXCEPTION[0];
+    {
+      debugMap.put("state", "retrieveAllData");
+      long start = System.currentTimeMillis();
+      retrieveAllData();
+      debugMap.put("retrieveAllDataMillis", System.currentTimeMillis()-start);
     }
+
+    debugMap.put("state", "retrieveSubjectLink");
+    this.retrieveSubjectLink();
     
-    this.grouperProvisioner.retrieveTranslator().translateGrouperToTarget();
+    debugMap.put("state", "retrieveTargetGroupLink");
+    this.retrieveTargetGroupLink();
     
-    // TODO issues with dn comparison with case/spacing differences
+    debugMap.put("state", "retrieveTargetEntityLink");
+    this.retrieveTargetEntityLink();
+    
+    
+    debugMap.put("state", "validateInitialProvisioningData");
+    this.validateInitialProvisioningData();
+
+    debugMap.put("state", "translateGrouperToCommon");
+    this.grouperProvisioner.retrieveTranslator().translateGrouperToCommon();
+
+    debugMap.put("state", "translateTargetToCommon");
+    this.grouperProvisioner.retrieveTranslator().translateTargetToCommon();
+
+    debugMap.put("state", "compareCommonObjects");
     this.compareCommonObjects();
     
+    debugMap.put("state", "translateCommonToTarget");
+    this.grouperProvisioner.retrieveTranslator().translateCommonToTarget();
+
+    debugMap.put("state", "sendChangesToTarget");
     this.getGrouperProvisioner().retrieveTargetDao().sendChangesToTarget();
-    
+
+    debugMap.put("state", "sendChangesToTarget");
+    // TODO flesh this out, resolve subjects, linked cached data, etc, try individually again
+//    this.getGrouperProvisioner().retrieveTargetDao().resolveErrors();
+//    this.getGrouperProvisioner().retrieveTargetDao().sendErrorFixesToTarget();
+
 //    this.getGrouperProvisioner().getGrouperProvisioningLogicAlgorithm().syncGrouperTranslatedGroupsToTarget();
 //    this.getGrouperProvisioner().getGrouperProvisioningLogicAlgorithm().syncGrouperTranslatedMembershipsToTarget();
 
@@ -90,23 +101,74 @@ public class GrouperProvisioningLogic {
 //    }
     
   }
+
+  public void retrieveTargetEntityLink() {
+    // TODO If using target entity link and the ID is not in the member sync cache object, then resolve the target entity, and put the id in the member sync object
+    
+  }
+
+
+  public void retrieveTargetGroupLink() {
+    // TODO If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
+    
+  }
+
+
+  public void retrieveSubjectLink() {
+    // TODO If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    
+  }
+
+
+  /**
+   * retrieve all data from both sides, grouper and target, do this in a thread
+   */
+  protected void retrieveAllData() {
+    GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
+    this.grouperProvisioner.setGrouperProvisioningData(grouperProvisioningData);
+    
+    final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+    
+    Thread targetQueryThread = new Thread(new Runnable() {
+      
+      @Override
+      public void run() {
+        
+        try {
+          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao().retrieveAllData();
+        } catch (RuntimeException re) {
+          RUNTIME_EXCEPTION[0] = re;
+        }
+        
+      }
+    });
+    
+    targetQueryThread.start();
+    
+    this.grouperProvisioner.retrieveGrouperDao().retrieveAllData();
+
+    GrouperClientUtils.join(targetQueryThread);
+    if (RUNTIME_EXCEPTION[0] != null) {
+      throw RUNTIME_EXCEPTION[0];
+    }
+  }
   
-  private void compareCommonObjects() {
+  protected void compareCommonObjects() {
     GrouperProvisioningLists grouperCommonObjects = this.grouperProvisioner.getGrouperProvisioningData().getGrouperCommonObjects();
     GrouperProvisioningLists targetCommonObjects = this.grouperProvisioner.getGrouperProvisioningData().getTargetCommonObjects();
-    
-    GrouperProvisioningLists commonObjectsToInsert = new GrouperProvisioningLists();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonObjectInserts(commonObjectsToInsert);
-    
-    GrouperProvisioningLists commonObjectsToDelete = new GrouperProvisioningLists();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonObjectDeletes(commonObjectsToDelete);
-    
-    GrouperProvisioningLists commonObjectsToUpdate = new GrouperProvisioningLists();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonObjectUpdates(commonObjectsToUpdate);
     
     compareCommonGroups(grouperCommonObjects.getProvisioningGroups(), targetCommonObjects.getProvisioningGroups());
     compareCommonEntities(grouperCommonObjects.getProvisioningEntities(), targetCommonObjects.getProvisioningEntities());
     compareCommonMemberships(grouperCommonObjects.getProvisioningMemberships(), targetCommonObjects.getProvisioningMemberships());
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    
+    int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups());
+    if (groupInserts > 0) {
+      debugMap.put("groupInserts", groupInserts);
+    }
+    //TODO add update, deletes, for groups, entities, memberships
+  
   }
   
   protected void compareCommonMemberships(List<ProvisioningMembership> grouperCommonMemberships, List<ProvisioningMembership> targetCommonMemberships) { 
@@ -410,13 +472,13 @@ public class GrouperProvisioningLogic {
   
   
   
-  private String attributeChangeType(Object first, Object second) {
+  protected String attributeChangeType(Object first, Object second) {
     if (first == null) return "insert";
     if (second == null) return "delete";
     return "update";
   }
   
-  private boolean attributeValueEquals(Object first, Object second) {
+  protected boolean attributeValueEquals(Object first, Object second) {
     
     if (first instanceof Collection || second instanceof Collection) {
       
@@ -457,5 +519,6 @@ public class GrouperProvisioningLogic {
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
     this.grouperProvisioner = grouperProvisioner1;
   }
+
 
 }

@@ -10,27 +10,10 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  * @author mchyzer
  *
  */
-public class ProvisioningGroup implements ProvisioningUpdatable {
-  
-  private Map<MultiKey, Object> internal_fieldsToUpdate = null;
+public class ProvisioningGroup extends ProvisioningUpdatable {
   
   private ProvisioningGroupWrapper provisioningGroupWrapper;
   
-  /**
-   * multikey is either the string "field", "attribute", the second param is field name or attribute name
-   * third param is "insert", "update", or "delete"
-   * and the value is the old value
-   * @return
-   */
-  public Map<MultiKey, Object> getInternal_fieldsToUpdate() {
-    return internal_fieldsToUpdate;
-  }
-
-  
-  public void setInternal_fieldsToUpdate(Map<MultiKey, Object> internal_fieldsToUpdate) {
-    this.internal_fieldsToUpdate = internal_fieldsToUpdate;
-  }
-
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
    */
@@ -51,11 +34,6 @@ public class ProvisioningGroup implements ProvisioningUpdatable {
    */
   private String displayName;
   
-  /**
-   * more attributes in name/value pairs
-   */
-  private Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
-
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
    * @return id
@@ -120,24 +98,6 @@ public class ProvisioningGroup implements ProvisioningUpdatable {
     this.displayName = displayName1;
   }
 
-  /**
-   * more attributes in name/value pairs
-   * @return attributes
-   */
-  public Map<String, ProvisioningAttribute> getAttributes() {
-    return this.attributes;
-  }
-
-  /**
-   * more attributes in name/value pairs
-   * @param attributes1
-   */
-  public void setAttributes(Map<String, ProvisioningAttribute> attributes1) {
-    this.attributes = attributes1;
-  }
-
-
-  
   public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
     return provisioningGroupWrapper;
   }

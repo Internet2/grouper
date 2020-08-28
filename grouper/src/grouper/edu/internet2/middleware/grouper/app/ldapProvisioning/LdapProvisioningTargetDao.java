@@ -64,17 +64,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     for (LdapEntry ldapEntry : ldapEntries) {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.setId(ldapEntry.getDn());
-
-      Map<String, ProvisioningAttribute> targetAttributes = new HashMap<String, ProvisioningAttribute>();
       
       for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-        ProvisioningAttribute targetAttribute = new ProvisioningAttribute();
-        targetAttribute.setName(ldapAttribute.getName());
-        targetAttribute.setValue(ldapAttribute.getValues());
-        targetAttributes.put(targetAttribute.getName(), targetAttribute);
+        targetGroup.assignAttribute(ldapAttribute.getName(), ldapAttribute.getValues());
       }
       
-      targetGroup.setAttributes(targetAttributes);
       results.add(targetGroup);
     }
 

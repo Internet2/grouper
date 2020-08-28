@@ -1,16 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-
 /**
  * tuple of group and entity in target system
  * @author mchyzer
  *
  */
-public class ProvisioningMembership implements ProvisioningUpdatable {
+public class ProvisioningMembership extends ProvisioningUpdatable {
 
   /**
    * id of membership (optional)
@@ -31,14 +26,6 @@ public class ProvisioningMembership implements ProvisioningUpdatable {
   
   private ProvisioningGroup provisioningGroup;
 
-  /**
-   * more attributes in name/value pairs
-   */
-  private Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
-
-  
-  private Map<MultiKey, Object> internal_fieldsToUpdate = null;
-  
   private ProvisioningMembershipWrapper provisioningMembershipWrapper;
   
   
@@ -56,21 +43,6 @@ public class ProvisioningMembership implements ProvisioningUpdatable {
 
 
   /**
-   * multikey is either the string "field", "attribute", the second param is field name or attribute name
-   * third param is "insert", "update", or "delete"
-   * and the value is the old value
-   * @return
-   */
-  public Map<MultiKey, Object> getInternal_fieldsToUpdate() {
-    return internal_fieldsToUpdate;
-  }
-
-  
-  public void setInternal_fieldsToUpdate(Map<MultiKey, Object> internal_fieldsToUpdate) {
-    this.internal_fieldsToUpdate = internal_fieldsToUpdate;
-  }
-  
-  /**
    * id of membership (optional)
    * @return id
    */
@@ -85,8 +57,6 @@ public class ProvisioningMembership implements ProvisioningUpdatable {
   public void setId(String id1) {
     this.id = id1;
   }
-  
-
   
   public ProvisioningGroup getProvisioningGroup() {
     return provisioningGroup;
@@ -111,24 +81,6 @@ public class ProvisioningMembership implements ProvisioningUpdatable {
   }
 
 
-  /**
-   * more attributes in name/value pairs
-   * @return attributes
-   */
-  public Map<String, ProvisioningAttribute> getAttributes() {
-    return attributes;
-  }
-
-  /**
-   * more attributes in name/value pairs
-   * @param attributes1
-   */
-  public void setAttributes(Map<String, ProvisioningAttribute> attributes1) {
-    this.attributes = attributes1;
-  }
-
-  
-  
   public String getProvisioningGroupId() {
     return provisioningGroupId;
   }

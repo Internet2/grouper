@@ -65,6 +65,15 @@ public class ProvisioningSyncIntegration {
       throw new RuntimeException("Target '" + target + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
     
+    fullSyncGroups(removeSyncRowsAfterSecondsOutOfTarget, provisioningSyncGroupResult);
+    
+    return provisioningSyncGroupResult;
+    
+    
+  }
+
+  public void fullSyncGroups(int removeSyncRowsAfterSecondsOutOfTarget,
+      ProvisioningSyncResult provisioningSyncGroupResult) {
     // groups with provisioning attributes
     Set<Group> groupsProvisioned = GrouperProvisioningService.findAllGroupsForTarget(target);
 
@@ -239,10 +248,6 @@ public class ProvisioningSyncIntegration {
     
     int objectStoreCount = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
     provisioningSyncGroupResult.setSyncObjectStoreCount(objectStoreCount);
-    
-    return provisioningSyncGroupResult;
-    
-    
   }
   
 }

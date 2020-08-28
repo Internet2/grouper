@@ -264,7 +264,7 @@ public abstract class GrouperProvisioner {
     
     this.retrieveProvisioningConfiguration().configureProvisioner();
     
-    final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    this.debugMap = new LinkedHashMap<String, Object>();
     
     long now = System.nanoTime();
     
@@ -410,6 +410,6 @@ public abstract class GrouperProvisioner {
       GrouperProvisionerOperationSupported grouperProvisionerOperationSupported) {
     this.grouperProvisionerOperationSupported = grouperProvisionerOperationSupported;
   }
-  
+
   
 }

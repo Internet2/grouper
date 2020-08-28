@@ -7,11 +7,11 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTran
  */
 public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBase {
 
-  @Override
-  public void translateGrouperToTarget() {
-    
-    super.translateGrouperToTarget();
-    
+//  @Override
+//  public void translateGrouperToCommon() {
+//    
+//    super.translateGrouperToCommon();
+//    
     // TODO this is currently very limited and focused on the trivial use case, only flat, group provisioning, no subject/target links, etc..
     
     //Map<String, ProvisioningGroup> grouperCommonGroups = new HashMap<String, ProvisioningGroup>();
@@ -94,5 +94,5 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
 //      grouperCommonGroups.put(dn, resultTargetGroup);
 //    }
     
-  }
+//  }
 }

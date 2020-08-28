@@ -37,15 +37,15 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
     this.membershipTableName = this.retrieveConfigString("membershipTableName", true);
     
-    this.membershipUserColumn = this.retrieveConfigString("membershipUserColumn", true);
-    this.membershipUserValueFormat = this.retrieveConfigString("membershipUserValueFormat", true);
-    this.membershipGroupColumn = this.retrieveConfigString("membershipGroupColumn", true);
-    this.membershipGroupValueFormat = this.retrieveConfigString("membershipGroupValueFormat", true);
-    this.membershipCreationNumberOfAttributes = this.retrieveConfigString("membershipCreationNumberOfAttributes", true);
-    this.membershipCreationColumnTemplate_attr_0 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_0", true);
-    this.membershipCreationColumnTemplate_val_0 = this.retrieveConfigString("membershipCreationColumnTemplate_val_0", true);
-    this.membershipCreationColumnTemplate_attr_1 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_1", true);
-    this.membershipCreationColumnTemplate_val_1 = this.retrieveConfigString("membershipCreationColumnTemplate_val_1", true);
+//    this.membershipUserColumn = this.retrieveConfigString("membershipUserColumn", false);
+//    this.membershipUserValueFormat = this.retrieveConfigString("membershipUserValueFormat", true);
+//    this.membershipGroupColumn = this.retrieveConfigString("membershipGroupColumn", true);
+//    this.membershipGroupValueFormat = this.retrieveConfigString("membershipGroupValueFormat", true);
+//    this.membershipCreationNumberOfAttributes = this.retrieveConfigString("membershipCreationNumberOfAttributes", true);
+//    this.membershipCreationColumnTemplate_attr_0 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_0", true);
+//    this.membershipCreationColumnTemplate_val_0 = this.retrieveConfigString("membershipCreationColumnTemplate_val_0", true);
+//    this.membershipCreationColumnTemplate_attr_1 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_1", true);
+//    this.membershipCreationColumnTemplate_val_1 = this.retrieveConfigString("membershipCreationColumnTemplate_val_1", true);
 
     
   }
