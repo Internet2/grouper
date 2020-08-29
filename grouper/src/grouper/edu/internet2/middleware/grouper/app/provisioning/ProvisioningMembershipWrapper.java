@@ -6,6 +6,21 @@ public class ProvisioningMembershipWrapper {
   
   private ProvisioningMembership grouperProvisioningMembership;
   
+  private ProvisioningMembership grouperProvisioningMembershipToDelete;
+
+  
+  public ProvisioningMembership getGrouperProvisioningMembershipToDelete() {
+    return grouperProvisioningMembershipToDelete;
+  }
+
+
+  
+  public void setGrouperProvisioningMembershipToDelete(
+      ProvisioningMembership grouperProvisioningMembershipToDelete) {
+    this.grouperProvisioningMembershipToDelete = grouperProvisioningMembershipToDelete;
+  }
+
+
   private ProvisioningMembership targetProvisioningMembership;
   
   private ProvisioningMembership grouperCommonMembership;

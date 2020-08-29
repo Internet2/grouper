@@ -6,6 +6,18 @@ public class ProvisioningEntityWrapper {
   
   private ProvisioningEntity grouperProvisioningEntity;
   
+  private ProvisioningEntity grouperProvisioningEntityToDelete;
+  
+  public ProvisioningEntity getGrouperProvisioningEntityToDelete() {
+    return grouperProvisioningEntityToDelete;
+  }
+  
+  public void setGrouperProvisioningEntityToDelete(
+      ProvisioningEntity grouperProvisioningEntityToDelete) {
+    this.grouperProvisioningEntityToDelete = grouperProvisioningEntityToDelete;
+  }
+
+
   private ProvisioningEntity targetProvisioningEntity;
   
   private ProvisioningEntity grouperCommonEntity;

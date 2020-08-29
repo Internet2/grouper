@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.tableSync;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -601,16 +602,18 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertTrue(groups.contains(testGroup3));
     assertTrue(groups.contains(testGroup4));
     
-    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    //TODO move to new method
+    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult(); //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
     
-    Map<String, Group> groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    Map<String, Group> groupIdToGroup = new HashMap<String, Group>(); // provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(3, groupIdToGroup.size());
     assertTrue(groupIdToGroup.containsKey(testGroup1.getId()));
     assertTrue(groupIdToGroup.containsKey(testGroup3.getId()));
     assertTrue(groupIdToGroup.containsKey(testGroup4.getId()));
 
-    Map<String, Group> groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //TODO
+    Map<String, Group> groupIdToGcGrouperSyncGroup = new HashMap<String, Group>();//provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(3, groupIdToGcGrouperSyncGroup.size());
     assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup1.getId()));
@@ -662,13 +665,15 @@ public class ProvisioningToSyncTest extends GrouperTest {
     groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
     assertEquals(0, GrouperUtil.length(groups));
 
-    provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    // TODO
+    //provisioningSyncResult = null; //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
     
-    groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(0, groupIdToGroup.size());
 
-    groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //TODO 
+    //groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(0, groupIdToGcGrouperSyncGroup.size());
 
@@ -799,7 +804,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GrouperProvisioningJob.runDaemonStandalone();
       
       // create the sync stuff
-      new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+      //TODO
+      //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
             
       
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");
@@ -1707,7 +1713,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GrouperProvisioningJob.runDaemonStandalone();
     
     // create the sync stuff
-    new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    // TODO
+    //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
           
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");

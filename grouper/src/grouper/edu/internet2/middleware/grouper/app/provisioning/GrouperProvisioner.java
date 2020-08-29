@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -411,5 +412,17 @@ public abstract class GrouperProvisioner {
     this.grouperProvisionerOperationSupported = grouperProvisionerOperationSupported;
   }
 
+  private ProvisioningSyncResult provisioningSyncResult = null;
+
+  
+  public ProvisioningSyncResult getProvisioningSyncResult() {
+    return provisioningSyncResult;
+  }
+
+  
+  public void setProvisioningSyncResult(ProvisioningSyncResult provisioningSyncResult) {
+    this.provisioningSyncResult = provisioningSyncResult;
+  }
+  
   
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -37,9 +38,6 @@ public class GrouperProvisioningLogic {
   public void fullProvisionFull() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
-    
-    debugMap.put("state", "synchronizeProvisioningAttributesToSyncObjects");
-    new ProvisioningSyncIntegration().assignTarget(this.grouperProvisioner.getConfigId()).fullSync();
     
     {
       debugMap.put("state", "retrieveAllData");
@@ -119,7 +117,6 @@ public class GrouperProvisioningLogic {
     
   }
 
-
   /**
    * retrieve all data from both sides, grouper and target, do this in a thread
    */
@@ -137,6 +134,7 @@ public class GrouperProvisioningLogic {
         try {
           GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao().retrieveAllData();
         } catch (RuntimeException re) {
+          LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
           RUNTIME_EXCEPTION[0] = re;
         }
         
@@ -144,9 +142,39 @@ public class GrouperProvisioningLogic {
     });
     
     targetQueryThread.start();
-    
-    this.grouperProvisioner.retrieveGrouperDao().retrieveAllData();
 
+    final RuntimeException[] RUNTIME_EXCEPTION2 = new RuntimeException[1];
+    
+    Thread grouperSyncQueryThread = new Thread(new Runnable() {
+      
+      @Override
+      public void run() {
+        
+        try {
+          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperDao().retrieveAllSyncData();
+        } catch (RuntimeException re) {
+          LOG.error("error querying sync objects: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
+          RUNTIME_EXCEPTION2[0] = re;
+        }
+        
+      }
+    });
+
+    grouperSyncQueryThread.start();
+    
+    this.grouperProvisioner.retrieveGrouperDao().retrieveAllGrouperData();
+    this.grouperProvisioner.retrieveGrouperDao().processWrappers();
+    this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
+
+    GrouperClientUtils.join(grouperSyncQueryThread);
+    if (RUNTIME_EXCEPTION2[0] != null) {
+      throw RUNTIME_EXCEPTION2[0];
+    }
+
+    this.grouperProvisioner.retrieveGrouperDao().fixSyncObjects();
+    
+    this.grouperProvisioner.retrieveGrouperDao().calculateProvisioningDataToDelete();
+    
     GrouperClientUtils.join(targetQueryThread);
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
@@ -503,6 +531,9 @@ public class GrouperProvisioningLogic {
    * reference back up to the provisioner
    */
   private GrouperProvisioner grouperProvisioner = null;
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningLogic.class);
 
   /**
    * reference back up to the provisioner

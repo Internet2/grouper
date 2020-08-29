@@ -5,7 +5,19 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 public class ProvisioningGroupWrapper {
   
   private ProvisioningGroup grouperProvisioningGroup;
+
+  private ProvisioningGroup grouperProvisioningGroupToDelete;
+
+  public ProvisioningGroup getGrouperProvisioningGroupToDelete() {
+    return grouperProvisioningGroupToDelete;
+  }
   
+  public void setGrouperProvisioningGroupToDelete(
+      ProvisioningGroup grouperProvisioningGroupToDelete) {
+    this.grouperProvisioningGroupToDelete = grouperProvisioningGroupToDelete;
+  }
+
+
   private ProvisioningGroup targetProvisioningGroup;
   
   private ProvisioningGroup grouperCommonGroup;

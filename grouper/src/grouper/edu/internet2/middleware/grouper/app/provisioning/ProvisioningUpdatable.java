@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public abstract class ProvisioningUpdatable {
@@ -16,7 +17,7 @@ public abstract class ProvisioningUpdatable {
   /**
    * more attributes in name/value pairs
    */
-  private Map<String, ProvisioningAttribute> attributes = new HashMap<String, ProvisioningAttribute>();
+  private Map<String, ProvisioningAttribute> attributes = null;
 
   /**
    * multikey is either the string "field", "attribute", the second param is field name or attribute name
@@ -54,6 +55,73 @@ public abstract class ProvisioningUpdatable {
     
   }
 
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public Object retrieveAttributeValue(String name) {
+    
+    if (this.attributes == null) {
+      return null;
+    }
+    
+    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    
+    if (provisioningAttribute == null) {
+      return null;
+    }
+    
+    return provisioningAttribute.getValue();
+    
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public String retrieveAttributeValueString(String name) {
+    
+    return GrouperUtil.stringValue(this.retrieveAttributeValue(name));
+    
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public Integer retrieveAttributeValueInteger(String name) {
+    
+    return GrouperUtil.intObjectValue(this.retrieveAttributeValue(name), true);
+    
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public Long retrieveAttributeValueLong(String name) {
+    
+    return GrouperUtil.longObjectValue(this.retrieveAttributeValue(name), true);
+    
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public Boolean retrieveAttributeValueBoolean(String name) {
+    
+    return GrouperUtil.booleanObjectValue(this.retrieveAttributeValue(name));
+    
+  }
+
+  
+  
   /**
    * more attributes in name/value pairs
    * @return attributes
