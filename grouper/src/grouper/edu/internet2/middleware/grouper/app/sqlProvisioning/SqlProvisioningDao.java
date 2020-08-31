@@ -114,12 +114,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       sql.append(" " + columnName + " ");
       
-      //TODO Chris - is this correct?
-      String valueToInsert = null;
-      ProvisioningAttribute provisioningAttribute = targetMembership.getAttributes().get(columnName.toLowerCase());
-      if (provisioningAttribute != null) {
-        valueToInsert = provisioningAttribute.getValue().toString();
-      }
+      String valueToInsert = targetMembership.retrieveAttributeValueString(columnName.toLowerCase());
       
       gcDbAccess.addBindVar(valueToInsert);
       
