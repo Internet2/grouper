@@ -4,6 +4,33 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class ProvisioningMembershipWrapper {
   
+  /**
+   * crud operation goes from grouper to common to target since its an insert/update/or delete
+   */
+  private ProvisioningMembership commonProvisionToTargetMembership;
+  
+
+
+  /**
+   * crud operation goes from grouper to common to target since its an insert/update/or delete
+   * @return
+   */
+  public ProvisioningMembership getCommonProvisionToTargetMembership() {
+    return commonProvisionToTargetMembership;
+  }
+
+
+
+  /**
+   * crud operation goes from grouper to common to target since its an insert/update/or delete
+   * @param commonProvisionToTargetMembership
+   */
+  public void setCommonProvisionToTargetMembership(
+      ProvisioningMembership commonProvisionToTargetMembership) {
+    this.commonProvisionToTargetMembership = commonProvisionToTargetMembership;
+  }
+
+
   private ProvisioningMembership grouperProvisioningMembership;
   
   private ProvisioningMembership grouperProvisioningMembershipToDelete;

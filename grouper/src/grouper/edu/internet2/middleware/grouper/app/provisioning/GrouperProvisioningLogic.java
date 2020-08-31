@@ -54,7 +54,6 @@ public class GrouperProvisioningLogic {
     debugMap.put("state", "retrieveTargetEntityLink");
     this.retrieveTargetEntityLink();
     
-    
     debugMap.put("state", "validateInitialProvisioningData");
     this.validateInitialProvisioningData();
 
@@ -190,11 +189,60 @@ public class GrouperProvisioningLogic {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
-    int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups());
-    if (groupInserts > 0) {
-      debugMap.put("groupInserts", groupInserts);
+    {
+      int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningGroups());
+      if (groupInserts > 0) {
+        debugMap.put("groupInsertsAfterCompare", groupInserts);
+      }
     }
-    //TODO add update, deletes, for groups, entities, memberships
+    {
+      int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningGroups());
+      if (groupUpdates > 0) {
+        debugMap.put("groupUpdatesAfterCompare", groupUpdates);
+      }
+    }
+    {
+      int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningGroups());
+      if (groupDeletes > 0) {
+        debugMap.put("groupDeletesAfterCompare", groupDeletes);
+      }
+    }
+    {
+      int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningEntities());
+      if (entityInserts > 0) {
+        debugMap.put("entityInsertsAfterCompare", entityInserts);
+      }
+    }
+    {
+      int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningEntities());
+      if (entityUpdates > 0) {
+        debugMap.put("entityUpdatesAfterCompare", entityUpdates);
+      }
+    }
+    {
+      int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningEntities());
+      if (entityDeletes > 0) {
+        debugMap.put("entityDeletesAfterCompare", entityDeletes);
+      }
+    }
+    {
+      int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningMemberships());
+      if (membershipInserts > 0) {
+        debugMap.put("membershipInsertsAfterCompare", membershipInserts);
+      }
+    }
+    {
+      int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningMemberships());
+      if (membershipUpdates > 0) {
+        debugMap.put("membershipUpdatesAfterCompare", membershipUpdates);
+      }
+    }
+    {
+      int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningMemberships());
+      if (membershipDeletes > 0) {
+        debugMap.put("membershipDeletesAfterCompare", membershipDeletes);
+      }
+    }
   
   }
   

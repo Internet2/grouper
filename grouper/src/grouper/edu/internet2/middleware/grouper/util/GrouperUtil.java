@@ -94,6 +94,7 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl2.Script;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -9537,6 +9538,170 @@ public class GrouperUtil {
 
         try {
           o = e.evaluate(jc);
+        } catch (JexlException je) {
+          //exception-scrape to see if missing variable
+          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+            //clean up the message a little bit
+            // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+            String message = je.getMessage();
+            //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+            Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+            Matcher exceptionMatcher = exceptionPattern.matcher(message);
+            if (exceptionMatcher.matches()) {
+              //message = "'" + exceptionMatcher.group(1);
+              message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+            }
+            throw new ExpressionLanguageMissingVariableException(message, je);
+          }
+          throw je;
+        }
+
+//        }
+        //we dont want "null" in the result I think...
+        if (o == null && lenient) {
+          o = "";
+        }
+        
+        if (o == null) {
+          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
+              + toStringForLog(variableMap.keySet()));
+        }
+
+        if (o instanceof RuntimeException) {
+          throw (RuntimeException)o;
+        }
+
+        result.append(o);
+
+      }
+
+      result.append(stringToParse.substring(index, stringToParse.length()));
+      overallResult = result.toString();
+      return overallResult;
+
+    } catch (HookVeto hv) {
+      exception = hv;
+      throw hv;
+    } catch (Exception e) {
+      exception = e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
+      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
+    }
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguageScript(String stringToParse,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    variableMap = nonNull(variableMap);
+    if (!jexlEnginesInitialized) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+    
+    if (isBlank(stringToParse)) {
+      return stringToParse;
+    }
+    String overallResult = null;
+    Exception exception = null;
+    try {
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
+
+      int index = 0;
+
+      for (String key: variableMap.keySet()) {
+        jc.set(key, variableMap.get(key));
+      }
+
+      //allow utility methods
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
+
+      // matching ${ exp }   (non-greedy)
+      Matcher matcher = scriptPattern.matcher(stringToParse);
+
+      StringBuilder result = new StringBuilder();
+
+      //loop through and find each script
+      while(matcher.find()) {
+        result.append(stringToParse.substring(index, matcher.start()));
+
+        //here is the script inside the curlies
+        String script = matcher.group(1);
+
+        index = matcher.end();
+
+        if (script.contains("{")) {
+          //we need to match up some curlies here...
+          int scriptStart = matcher.start(1);
+          int openCurlyCount = 0;
+          for (int i=scriptStart; i<stringToParse.length();i++) {
+            char curChar = stringToParse.charAt(i);
+            if (curChar == '{') {
+              openCurlyCount++;
+            }
+            if (curChar == '}') {
+              openCurlyCount--;
+              //negative 1 since we need to get to the close of the parent one...
+              if (openCurlyCount <= -1) {
+                script = stringToParse.substring(scriptStart, i);
+                index = i+1;
+                break;
+              }
+            }
+          }
+        }
+
+        Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+
+        //this is the result of the evaluation
+        Object o = null;
+
+        try {
+          o = e.execute(jc);
         } catch (JexlException je) {
           //exception-scrape to see if missing variable
           if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {

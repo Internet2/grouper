@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public abstract class GrouperProvisionerTargetDaoBase {
 
@@ -321,7 +322,5 @@ public abstract class GrouperProvisionerTargetDaoBase {
     
     this.updateMemberships(targetMembershipUpdates);
   }
-  
-  
   
 }
