@@ -111,7 +111,7 @@ public class GrouperProvisioningTranslatorBase {
       grouperCommonMembership.getProvisioningMembershipWrapper().setGrouperCommonMembership(grouperCommonMembership);
  
       
-      for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToCommonTranslation()).get("membership")) {
+      for (String script: GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToCommonTranslation()).get("membership"))) {
        
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
  
@@ -164,7 +164,7 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningEntity grouperCommonEntity = new ProvisioningEntity();
       grouperCommonEntity.setProvisioningEntityWrapper(grouperProvisioningEntity.getProvisioningEntityWrapper());
-      grouperCommonEntity.getProvisioningEntityWrapper().setGrouperCommonEntity(grouperCommonEntity);
+      grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperCommonEntity(grouperCommonEntity);
       
       for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToCommonTranslation()).get("entity")) {
        
@@ -395,9 +395,10 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningEntity targetCommonEntity = new ProvisioningEntity();
       targetCommonEntity.setProvisioningEntityWrapper(targetProvisioningEntity.getProvisioningEntityWrapper());
-      targetCommonEntity.getProvisioningEntityWrapper().setTargetCommonEntity(targetCommonEntity);
+      targetProvisioningEntity.getProvisioningEntityWrapper().setTargetCommonEntity(targetCommonEntity);
       
-      for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getTargetProvisioningToCommonTranslation()).get("entity")) {
+      for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration()
+          .getCommonProvisioningToTargetTranslation()).get("entity")) {
        
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetProvisioningEntity", targetProvisioningEntity);
@@ -430,7 +431,8 @@ public class GrouperProvisioningTranslatorBase {
       targetCommonGroup.setProvisioningGroupWrapper(targetProvisioningGroup.getProvisioningGroupWrapper());
       targetProvisioningGroup.getProvisioningGroupWrapper().setTargetCommonGroup(targetCommonGroup);
       
-      for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getTargetProvisioningToCommonTranslation()).get("group")) {
+      for (String script: GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration()
+          .getCommonProvisioningToTargetTranslation()).get("group"))) {
        
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetProvisioningGroup", targetProvisioningGroup);
@@ -475,7 +477,8 @@ public class GrouperProvisioningTranslatorBase {
       targetCommonMembership.getProvisioningMembershipWrapper().setTargetCommonMembership(targetCommonMembership);
   
       
-      for (String script: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getTargetProvisioningToCommonTranslation()).get("membership")) {
+      for (String script: GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration()
+          .getCommonProvisioningToTargetTranslation()).get("membership"))) {
        
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
   

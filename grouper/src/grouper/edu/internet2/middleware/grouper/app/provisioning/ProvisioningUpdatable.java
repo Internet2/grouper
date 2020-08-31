@@ -52,6 +52,7 @@ public abstract class ProvisioningUpdatable {
     }
     
     provisioningAttribute.setValue(value);
+    this.attributes.put(name, provisioningAttribute);
     
   }
 

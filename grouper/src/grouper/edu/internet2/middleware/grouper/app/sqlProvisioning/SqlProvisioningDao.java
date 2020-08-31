@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -113,7 +114,14 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       sql.append(" " + columnName + " ");
       
-      gcDbAccess.addBindVar(targetMembership.getAttributes().get(columnName.toLowerCase()));
+      //TODO Chris - is this correct?
+      String valueToInsert = null;
+      ProvisioningAttribute provisioningAttribute = targetMembership.getAttributes().get(columnName.toLowerCase());
+      if (provisioningAttribute != null) {
+        valueToInsert = provisioningAttribute.getValue().toString();
+      }
+      
+      gcDbAccess.addBindVar(valueToInsert);
       
       isFirst = false;
       

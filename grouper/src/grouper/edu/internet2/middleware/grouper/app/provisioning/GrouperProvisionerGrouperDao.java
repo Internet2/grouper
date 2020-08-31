@@ -3,7 +3,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -119,15 +117,30 @@ public class GrouperProvisionerGrouperDao {
     
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
-    StringBuilder sql = new StringBuilder("select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
-        "from grouper_sync gs, grouper_sync_group gsg, grouper_groups gg " + 
-        "where gs.provisioner_name = ? " + 
-        "and gsg.grouper_sync_id = gs.id " + 
-        "and gsg.provisionable = 'T' " + 
-        "and gsg.group_id = gg.id");
+    String sql = "select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
+        "        from grouper_groups gg, grouper_aval_asn_asn_group_v gaaagv_target, " + 
+        "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
+        "         where gg.id = gaaagv_do_provision.group_id and " + 
+        "          gg.id = gaaagv_target.group_id and " + 
+        "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
+        "         and gaaagv_target.attribute_def_name_name1 = ? " + 
+        "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
+        "         and gaaagv_target.attribute_def_name_name2 = ?" + 
+        "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
+        "         and gaaagv_target.value_string = ?" + 
+        "         and gaaagv_do_provision.value_string = 'true'" + 
+        "         ";
+    
 
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(),
-        GrouperUtil.toListObject(this.grouperProvisioner.getConfigId()), HibUtils.listType(StringType.INSTANCE));
+        GrouperUtil.toListObject(
+            GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName(),
+            GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName(),
+            GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName(),
+            GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName(),
+            this.grouperProvisioner.getConfigId()), HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, 
+                StringType.INSTANCE, 
+                StringType.INSTANCE, StringType.INSTANCE));
 
     List<ProvisioningGroup> provisioningGroupsFromGrouper = getTargetGroupMapFromQueryResults(queryResults);
     results.addAll(GrouperUtil.nonNull(provisioningGroupsFromGrouper));
@@ -195,57 +208,20 @@ public class GrouperProvisionerGrouperDao {
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
     StringBuilder sql = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
-        "from grouper_sync gs, grouper_sync_member gsm, grouper_members gm " + 
-        "where gs.provisioner_name = ? " +
-        "and gsm.grouper_sync_id = gs.id " +
-        "and gsm.provisionable = 'T' " +
-        "and gsm.member_id = gm.id");
+        "from grouper_members gm, grouper_memberships_all_v gmav," +  
+     " grouper_aval_asn_asn_group_v gaaagv_target, " + 
+    "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
+    "         where gmav.member_id = gm.id and gmav.owner_group_id = gaaagv_do_provision.group_id and " + 
+    "          gmav.owner_group_id = gaaagv_target.group_id and " + 
+    "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
+    "         and gaaagv_target.attribute_def_name_name1 = ? " + 
+    "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
+    "         and gaaagv_target.attribute_def_name_name2 = ?" + 
+    "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
+    "         and gaaagv_target.value_string = ?" + 
+    "         and gaaagv_do_provision.value_string = 'true'");
     
-    List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveProvisioningConfiguration().getSubjectSourcesToProvision());
     
-    List<Object> params = new ArrayList<Object>();
-    params.add(this.grouperProvisioner.getConfigId());
-    params.addAll(subjectSources);
-    
-    List<Type> types = new ArrayList<Type>();
-    types.add(StringType.INSTANCE);
-    for (int j = 0; j < GrouperUtil.length(subjectSources); j++) {
-      types.add(StringType.INSTANCE);
-    }
-    
-    sql.append(" and gm.subject_source in (");
-    sql.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sql.append(") ");
-    
-    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
-
-    List<ProvisioningEntity> grouperProvisioningEntities = getProvisioningEntityMapFromQueryResults(queryResults);
-    results.addAll(grouperProvisioningEntities);
-    
-    return results;
-  }
-  
-  public List<ProvisioningMembership> retrieveAllMemberships() {
-    
-    if (this.grouperProvisioner == null) {
-      throw new RuntimeException("grouperProvisioner is not set");
-    }
-    
-    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
-    
-
-    StringBuilder sql = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_source, gm.subject_identifier0, "
-        + "gm.name, gm.description, gg.name, gg.display_name, gg.description, gg.id_index " +
-        "from grouper_sync gs, grouper_sync_group gsg, grouper_groups gg, grouper_memberships_all_v gmav, grouper_sync_member gsm, grouper_members gm " + 
-        "where gs.provisioner_name = ? " +
-        "and gsm.grouper_sync_id = gs.id " +
-        "and gsg.grouper_sync_id = gs.id " +
-        "and gsg.group_id = gg.id " +
-        "and gmav.owner_group_id = gg.id " +
-        "and gmav.member_id = gm.id " +
-        "and gsm.provisionable = 'T' " +
-        "and gsg.provisionable = 'T' " +
-        "and gsm.member_id = gm.id");
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveProvisioningConfiguration().getSubjectSourcesToProvision());
     
@@ -267,11 +243,107 @@ public class GrouperProvisionerGrouperDao {
     }
     
     List<Object> params = new ArrayList<Object>();
+    
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName());
+    
     params.add(this.grouperProvisioner.getConfigId());
     params.addAll(subjectSources);
     params.addAll(fieldIds);
     
     List<Type> types = new ArrayList<Type>();
+    types.add(StringType.INSTANCE);
+    
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
+    
+    for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
+      types.add(StringType.INSTANCE);
+    }
+    
+    sql.append(" and gm.subject_source in (");
+    sql.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
+    sql.append(") ");
+    
+    sql.append(" and gmav.field_id in (");
+    sql.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
+    sql.append(") ");
+
+   
+    
+    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+
+    List<ProvisioningEntity> grouperProvisioningEntities = getProvisioningEntityMapFromQueryResults(queryResults);
+    results.addAll(grouperProvisioningEntities);
+    
+    return results;
+  }
+  
+  public List<ProvisioningMembership> retrieveAllMemberships() {
+    
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+    
+
+    StringBuilder sql = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_source, gm.subject_identifier0, "
+        + "gm.name, gm.description, gg.name, gg.display_name, gg.description, gg.id_index " +
+        "from grouper_groups gg, grouper_memberships_all_v gmav, grouper_members gm, grouper_aval_asn_asn_group_v gaaagv_target, grouper_aval_asn_asn_group_v gaaagv_do_provision " + 
+        "where " +
+        " gmav.owner_group_id = gg.id " +
+        "and gmav.member_id = gm.id " +
+    
+    "         and gg.id = gaaagv_do_provision.group_id and " + 
+    "          gg.id = gaaagv_target.group_id and " + 
+    "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
+    "         and gaaagv_target.attribute_def_name_name1 = ? " + 
+    "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
+    "         and gaaagv_target.attribute_def_name_name2 = ?" + 
+    "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
+    "         and gaaagv_target.value_string = ?" + 
+    "         and gaaagv_do_provision.value_string = 'true' ");
+    
+    List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveProvisioningConfiguration().getSubjectSourcesToProvision());
+    
+    List<String> fieldIds = new ArrayList<String>();
+    GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
+    
+    if (membershipFieldType == GrouperProvisioningMembershipFieldType.members) {
+      fieldIds.add(FieldFinder.find("members", true).getId());
+    } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.admin) {
+      fieldIds.add(FieldFinder.find("admins", true).getId());
+    } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.readAdmin) {
+      fieldIds.add(FieldFinder.find("admins", true).getId());
+      fieldIds.add(FieldFinder.find("readers", true).getId());
+    } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.updateAdmin) {
+      fieldIds.add(FieldFinder.find("admins", true).getId());
+      fieldIds.add(FieldFinder.find("updaters", true).getId());
+    } else {
+      throw new RuntimeException("Unexpected field type: " + membershipFieldType.name());
+    }
+    
+    List<Object> params = new ArrayList<Object>();
+    
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName());
+    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName());
+    
+    params.add(this.grouperProvisioner.getConfigId());
+    params.addAll(subjectSources);
+    params.addAll(fieldIds);
+    
+    List<Type> types = new ArrayList<Type>();
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
+    types.add(StringType.INSTANCE);
     types.add(StringType.INSTANCE);
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
       types.add(StringType.INSTANCE);
@@ -551,8 +623,10 @@ public class GrouperProvisionerGrouperDao {
         targetEntity.assignAttribute("subjectId", subjectId);
         targetEntity.assignAttribute("subjectSourceId", subjectSourceId);
         targetEntity.assignAttribute("subjectIdentifier0", subjectIdentifier0);
-
+        
+        
         grouperProvisioningMembership.setProvisioningEntity(targetEntity);
+        grouperProvisioningMembership.setProvisioningEntityId(memberId);
       }
       {
         ProvisioningGroup targetGroup = new ProvisioningGroup();
@@ -563,6 +637,7 @@ public class GrouperProvisionerGrouperDao {
 
         targetGroup.setIdIndex(groupIdIndex);
         grouperProvisioningMembership.setProvisioningGroup(targetGroup);
+        grouperProvisioningMembership.setProvisioningGroupId(groupId);
       }
       
       results.add(grouperProvisioningMembership);
