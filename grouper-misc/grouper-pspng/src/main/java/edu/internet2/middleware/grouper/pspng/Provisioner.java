@@ -490,13 +490,13 @@ public abstract class Provisioner
    * @throws PspException
    */
   public List<ProvisioningWorkItem> 
-  filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
+  filterWorkItems2(List<ProvisioningWorkItem> workItems) throws PspException {
 
     List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
     
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
 
-    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
 
     Set<String> attributesUsedInProvisioning = new HashSet<String>(GrouperUtil.nonNull(getConfig().getAttributesUsedInGroupSelectionExpression()));
     
@@ -585,6 +585,58 @@ public abstract class Provisioner
         // dont change group provisionable cache, indeterminate
         // Not going to process this item, so mark it as a success and don't add it to result
         workItem.markAsSkipped("Ignoring work item");
+      }
+    }
+    
+    return result;
+  }
+  /**
+   * This method returns the work items that are supposed to be provisioned
+   * by calling shouldGroupBeProvisioned on each group mentioned
+   * by a workItem. If a workItem's group is within the scope of this provisioner
+   * or if the workItem is not related to a group, then it is included in the
+   * returned list of work items that should be processed further. Otherwise, it
+   * is marked as completed and not returned.
+   * 
+   * If the workItem is not to be processed, 
+   * @param workItems WorkItems read from the triggering source (Changelog or messaging).
+   * This will include both events that affect groups and those that do not. Generally, we
+   * pass on non-group changes in case a provisioner wants to process them. 
+   * @return The list of workItems that are to be provisioned
+   * @throws PspException
+   */
+  public List<ProvisioningWorkItem> 
+  filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
+    
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
+    if (pspngCacheGroupProvisionable) {
+      return filterWorkItems2(workItems);
+    }
+    List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
+    
+    LOG.debug("Filtering provisioning batch of {} items", workItems.size());
+
+    for ( ProvisioningWorkItem workItem : workItems ) {
+      GrouperGroupInfo group = workItem.getGroupInfo(this);
+
+      // Groups that haven't been deleted: Skip them if they're not supposed to be provisioned
+      if ( group != null ) {
+        if ( !group.hasGroupBeenDeleted() && !shouldGroupBeProvisioned(group)) {
+          workItem.markAsSkipped("Ignoring work item because (existing) group should not be provisioned");
+          continue;
+        }
+
+        if ( group.hasGroupBeenDeleted() && !selectedGroups.get().contains(group) ) {
+          workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
+          continue;
+        }
+      }
+
+      if ( shouldWorkItemBeProcessed(workItem) ) {
+        result.add(workItem);
+      } else {
+        // Not going to process this item, so mark it as a success and don't add it to result
+          workItem.markAsSkipped("Ignoring work item");
       }
     }
     
@@ -1824,7 +1876,7 @@ public abstract class Provisioner
    * 
    * @return A collection of groups that are to be provisioned by this provisioner
    */
-  public Set<GrouperGroupInfo> getAllGroupsForProvisioner()  {
+  public Set<GrouperGroupInfo> getAllGroupsForProvisioner2()  {
     Date start = new Date();
 
     LOG.debug("{}: Compiling a list of all groups selected for provisioning", getDisplayName());
@@ -1946,6 +1998,73 @@ public abstract class Provisioner
       }
     }
     LOG.info("{}: There are {} groups selected for provisioning (found in {})",
+        getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
+
+    return result;
+  }
+  
+  /**
+   * This method looks for groups that are marked for provisioning as determined by 
+   * the GroupSelectionExpression. 
+   * 
+   * Because it can take a very long time to look through a large group registry, this
+   * method pre-filters groups and folders before evaluating them with the GroupSelectionExpression:
+   * This method looks for Groups and Folders that reference the attributes in 
+   * attributesUsedInGroupSelectionExpression
+   * 
+   * @return A collection of groups that are to be provisioned by this provisioner
+   */
+  public Set<GrouperGroupInfo> getAllGroupsForProvisioner()  {
+    
+    
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
+    if (pspngCacheGroupProvisionable) {
+      return getAllGroupsForProvisioner2();
+    }
+
+    Date start = new Date();
+
+    LOG.debug("{}: Compiling a list of all groups selected for provisioning", getDisplayName());
+    Set<GrouperGroupInfo> result = new HashSet<>();
+
+    Set<Group> interestingGroups = new HashSet<Group>();
+    for ( String attribute : getConfig().getAttributesUsedInGroupSelectionExpression() ) {
+      Set<Stem> foldersReferencingAttribute;
+      Set<Group> groupsReferencingAttribute;
+
+      if ( getConfig().areAttributesUsedInGroupSelectionExpressionComparedToProvisionerName() ) {
+        LOG.debug("Looking for folders that match attribute {}={}", attribute, getConfigName());
+        foldersReferencingAttribute = new StemFinder().assignNameOfAttributeDefName(attribute).assignAttributeValue(getConfigName()).findStems();
+        LOG.debug("Looking for groups that match attribute {}={}", attribute, getConfigName());
+        groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).assignAttributeValue(getConfigName()).findGroups();
+      }
+      else {
+        LOG.debug("Looking for folders that have attribute {}", attribute);
+        foldersReferencingAttribute = new StemFinder().assignNameOfAttributeDefName(attribute).findStems();
+        LOG.debug("Looking for groups that have attribute {}", attribute);
+        groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).findGroups();
+      }
+
+      LOG.debug("{}: There are {} folders that match {} attribute", new Object[]{getDisplayName(), foldersReferencingAttribute.size(), attribute});
+      LOG.debug("{}: There are {} groups that match {} attribute", new Object[]{getDisplayName(), groupsReferencingAttribute.size(), attribute});
+
+      interestingGroups.addAll(groupsReferencingAttribute);
+      for ( Stem folder : foldersReferencingAttribute ) {
+        Set<Group> groupsUnderFolder;
+
+        groupsUnderFolder = new GroupFinder().assignParentStemId(folder.getId()).assignStemScope(Scope.SUB).findGroups();
+
+        LOG.debug("{}: There are {} groups underneath folder {}", new Object[]{getDisplayName(), groupsUnderFolder.size(), folder.getName()});
+        interestingGroups.addAll(groupsUnderFolder);
+      }
+    }
+
+    for ( Group group : interestingGroups ) {
+      GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
+      if ( shouldGroupBeProvisioned(grouperGroupInfo) )
+        result.add(grouperGroupInfo);
+    }
+    LOG.info("{}: There are {} groups selected for provisioning (found in %s)",
         getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
 
     return result;
