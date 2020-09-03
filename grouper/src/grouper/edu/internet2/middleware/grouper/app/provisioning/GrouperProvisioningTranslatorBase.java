@@ -111,7 +111,6 @@ public class GrouperProvisioningTranslatorBase {
 
       ProvisioningMembership grouperCommonMembership = new ProvisioningMembership();
       grouperCommonMembership.setProvisioningMembershipWrapper(grouperProvisioningMembership.getProvisioningMembershipWrapper());
-      grouperCommonMembership.getProvisioningMembershipWrapper().setGrouperCommonMembership(grouperCommonMembership);
  
       for (String script: scripts) {
        
@@ -136,6 +135,9 @@ public class GrouperProvisioningTranslatorBase {
         
       }
       
+      if (grouperCommonMembership.isRemoveFromList()) {
+        continue;
+      }
       if (grouperCommonGroup != null) {
         if (!StringUtils.equals(grouperCommonGroup.getId(), grouperCommonMembership.getProvisioningGroupId())) {
           grouperCommonMembership.setProvisioningGroupId(grouperCommonGroup.getId());
@@ -156,8 +158,8 @@ public class GrouperProvisioningTranslatorBase {
         continue;
       }
 
+      grouperCommonMembership.getProvisioningMembershipWrapper().setGrouperCommonMembership(grouperCommonMembership);
       grouperCommonMemberships.add(grouperCommonMembership); 
-      
     }
     if (commonMshipsWithNullIds > 0) {
       this.getGrouperProvisioner().getDebugMap().put("grouperCommonMshipsWithNullIds", commonMshipsWithNullIds);
@@ -180,7 +182,6 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningEntity grouperCommonEntity = new ProvisioningEntity();
       grouperCommonEntity.setProvisioningEntityWrapper(grouperProvisioningEntity.getProvisioningEntityWrapper());
-      grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperCommonEntity(grouperCommonEntity);
       
       for (String script: scripts) {
        
@@ -193,8 +194,14 @@ public class GrouperProvisioningTranslatorBase {
         GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
         
       }
+
+      if (grouperCommonEntity.isRemoveFromList()) {
+        continue;
+      }
+      
       if (!StringUtils.isBlank(grouperCommonEntity.getId())) {
-        grouperCommonEntities.add(grouperCommonEntity); 
+        grouperCommonEntities.add(grouperCommonEntity);
+        grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperCommonEntity(grouperCommonEntity);
       } else {
         commonEntitiesWithNullIds++;
       }
@@ -231,6 +238,10 @@ public class GrouperProvisioningTranslatorBase {
         
         GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
         
+      }
+
+      if (grouperCommonGroup.isRemoveFromList()) {
+        continue;
       }
 
       if (!StringUtils.isBlank(grouperCommonGroup.getId())) {
@@ -335,6 +346,10 @@ public class GrouperProvisioningTranslatorBase {
       ProvisioningGroupWrapper provisioningGroupWrapper = null;
       ProvisioningEntityWrapper provisioningEntityWrapper = null;
      
+      if (targetCommonMembership.isRemoveFromList()) {
+        continue;
+      }
+      
       if (!StringUtils.isBlank(targetCommonMembership.getProvisioningGroupId()) && !StringUtils.isBlank(targetCommonMembership.getProvisioningEntityId()) ) {
         targetCommonMemberships.add(targetCommonMembership); 
         
@@ -342,6 +357,7 @@ public class GrouperProvisioningTranslatorBase {
        
       } else {
         commonMshipsWithNullIds++;
+        continue;
       }
       
       if (provisioningMembershipWrapper == null) {
@@ -393,7 +409,6 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningEntity targetCommonEntity = new ProvisioningEntity();
       targetCommonEntity.setProvisioningEntityWrapper(targetProvisioningEntity.getProvisioningEntityWrapper());
-      targetCommonEntity.getProvisioningEntityWrapper().setTargetCommonEntity(targetCommonEntity);
       
       for (String script: scripts) {
        
@@ -406,12 +421,17 @@ public class GrouperProvisioningTranslatorBase {
         
       }
       
+      if (targetCommonEntity.isRemoveFromList()) {
+        continue;
+      }
+      
       // setup wrapper while we have the provisioning entity and common entity here
       ProvisioningEntityWrapper provisioningEntityWrapper = null;
       
       if (!StringUtils.isBlank(targetCommonEntity.getId())) {
         targetCommonEntities.add(targetCommonEntity); 
         provisioningEntityWrapper = grouperCommonEntityIdToCommonEntityWrapper.get(targetCommonEntity.getId());
+        targetCommonEntity.getProvisioningEntityWrapper().setTargetCommonEntity(targetCommonEntity);
       } else {
         commonEntitiesWithNullIds++;
       }
@@ -453,7 +473,6 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningGroup targetCommonGroup = new ProvisioningGroup();
       targetCommonGroup.setProvisioningGroupWrapper(targetProvisioningGroup.getProvisioningGroupWrapper());
-      targetProvisioningGroup.getProvisioningGroupWrapper().setTargetCommonGroup(targetCommonGroup);
       
       for (String script: scripts) {
        
@@ -465,6 +484,10 @@ public class GrouperProvisioningTranslatorBase {
         
       }
       
+      if (targetCommonGroup.isRemoveFromList()) {
+        continue;
+      }
+      
       // setup wrapper while we have the provisioning entity and common entity here
       ProvisioningGroupWrapper provisioningGroupWrapper = null;
       
@@ -472,6 +495,7 @@ public class GrouperProvisioningTranslatorBase {
         targetCommonGroups.add(targetCommonGroup);
         
         provisioningGroupWrapper = grouperCommonGroupIdToCommonGroupWrapper.get(targetCommonGroup.getId());
+        targetProvisioningGroup.getProvisioningGroupWrapper().setTargetCommonGroup(targetCommonGroup);
       } else {
         commonGroupsWithNullIds++;
       }
@@ -506,10 +530,8 @@ public class GrouperProvisioningTranslatorBase {
     for (ProvisioningEntity commonEntity: GrouperUtil.nonNull(commonEntities)) {
       
       ProvisioningEntity commonProvisionToTargetEntity = new ProvisioningEntity();
-      commonProvisionToTargetEntities.add(commonProvisionToTargetEntity);
       ProvisioningEntityWrapper provisioningEntityWrapper = commonEntity.getProvisioningEntityWrapper();
       commonProvisionToTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
-      provisioningEntityWrapper.setCommonProvisionToTargetEntity(commonProvisionToTargetEntity);
       
       for (String script: scripts) {
        
@@ -521,6 +543,13 @@ public class GrouperProvisioningTranslatorBase {
         GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
         
       }
+      
+      if (commonProvisionToTargetEntity.isRemoveFromList()) {
+        continue;
+      }
+      
+      commonProvisionToTargetEntities.add(commonProvisionToTargetEntity);
+      provisioningEntityWrapper.setCommonProvisionToTargetEntity(commonProvisionToTargetEntity);
       
     }
     return commonProvisionToTargetEntities;
@@ -538,10 +567,8 @@ public class GrouperProvisioningTranslatorBase {
     for (ProvisioningGroup commonGroup: GrouperUtil.nonNull(commonGroups)) {
       
       ProvisioningGroup commonProvisionToTargetGroup = new ProvisioningGroup();
-      commonProvisionToTargetGroups.add(commonProvisionToTargetGroup);
       ProvisioningGroupWrapper provisioningGroupWrapper = commonGroup.getProvisioningGroupWrapper();
       commonProvisionToTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
-      provisioningGroupWrapper.setCommonProvisionToTargetGroup(commonProvisionToTargetGroup);
       
       for (String script: scripts) {
        
@@ -553,7 +580,12 @@ public class GrouperProvisioningTranslatorBase {
         GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
         
       }
-      
+
+      if (commonProvisionToTargetGroup.isRemoveFromList()) {
+        continue;
+      }
+      commonProvisionToTargetGroups.add(commonProvisionToTargetGroup);
+      provisioningGroupWrapper.setCommonProvisionToTargetGroup(commonProvisionToTargetGroup);
     }
     return commonProvisionToTargetGroups;
   }
@@ -569,10 +601,8 @@ public class GrouperProvisioningTranslatorBase {
     for (ProvisioningMembership commonMembership: GrouperUtil.nonNull(commonMemberships)) {
       
       ProvisioningMembership commonProvisionToTargetMembership = new ProvisioningMembership();
-      commonProvisionToTargetMemberships.add(commonProvisionToTargetMembership);
       ProvisioningMembershipWrapper provisioningMembershipWrapper = commonMembership.getProvisioningMembershipWrapper();
       commonProvisionToTargetMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
-      provisioningMembershipWrapper.setCommonProvisionToTargetMembership(commonProvisionToTargetMembership);
 
       ProvisioningGroupWrapper provisioningGroupWrapper = commonMembership.getProvisioningGroup() == null ? null : commonMembership.getProvisioningGroup().getProvisioningGroupWrapper();
   
@@ -586,11 +616,19 @@ public class GrouperProvisioningTranslatorBase {
         elVariableMap.put("commonMembership", commonMembership);
         elVariableMap.put("provisioningGroupWrapper", provisioningGroupWrapper);
         elVariableMap.put("provisioningEntityWrapper", provisioningEntityWrapper);
+        elVariableMap.put("commonProvisionToTargetGroup", provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getCommonProvisionToTargetGroup());
+        elVariableMap.put("commonProvisionToTargetEntity", provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getCommonProvisionToTargetEntity());
         
         GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
         
       }
-      
+
+      if (commonProvisionToTargetMembership.isRemoveFromList()) {
+        continue;
+      }
+      commonProvisionToTargetMemberships.add(commonProvisionToTargetMembership);
+      provisioningMembershipWrapper.setCommonProvisionToTargetMembership(commonProvisionToTargetMembership);
+
     }
     return commonProvisionToTargetMemberships;
   }

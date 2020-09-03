@@ -26,6 +26,20 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
 
+  private boolean logAllObjectsVerbose = false;
+  
+  
+  
+  
+  public boolean isLogAllObjectsVerbose() {
+    return logAllObjectsVerbose;
+  }
+
+  
+  public void setLogAllObjectsVerbose(boolean logAllObjectsVerbose) {
+    this.logAllObjectsVerbose = logAllObjectsVerbose;
+  }
+
   /**
    * reference back up to the provisioner
    */
@@ -352,7 +366,8 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.debugMap.put("hasTargetUserLink", this.hasTargetUserLink);
     }
 
-    
+        
+    this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
     this.membershipAttributeNames = this.retrieveConfigString("membershipAttributeNames", false);
     
     this.subjectSourcesToProvision = GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ",");

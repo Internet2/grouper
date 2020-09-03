@@ -106,6 +106,5 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   public void setProvisioningGroupWrapper(ProvisioningGroupWrapper provisioningGroupWrapper) {
     this.provisioningGroupWrapper = provisioningGroupWrapper;
   }
-  
 
 }
