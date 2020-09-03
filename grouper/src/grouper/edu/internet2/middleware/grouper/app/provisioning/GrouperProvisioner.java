@@ -226,6 +226,11 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningType;
   }
 
+  
+  public void setGrouperProvisioningType(GrouperProvisioningType grouperProvisioningType) {
+    this.grouperProvisioningType = grouperProvisioningType;
+  }
+
   /**
    * log periodically
    * @param debugMap
