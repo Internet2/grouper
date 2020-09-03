@@ -548,7 +548,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       
       //#translate from group auto translated to the common format
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.script", 
-          "${commonProvisionToTargetGroup.addAttribute(\"subjectId\", commonMembership.getProvisioningEntityId());}");
+          "${commonProvisionToTargetGroup.addAttribute(\"subjectId\", commonMembership.getProvisioningEntityId());commonProvisionToTargetMemberships.setRemoveFromList(true);}");
 
       //# could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
