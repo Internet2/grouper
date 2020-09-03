@@ -1,12 +1,36 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public abstract class ProvisioningUpdatable {
+
+  /**
+   * after translation, toss this object
+   */
+  private boolean removeFromList = false;
+  
+  
+  /**
+   * after translation, toss this object
+   * @return
+   */
+  public boolean isRemoveFromList() {
+    return removeFromList;
+  }
+
+  /**
+   * after translation, toss this object
+   * @param removeFromList
+   */
+  public void setRemoveFromList(boolean removeFromList) {
+    this.removeFromList = removeFromList;
+  }
 
   /**
    * if there is a problem syncing this object to the target set the exception here
@@ -34,6 +58,35 @@ public abstract class ProvisioningUpdatable {
   }
 
   /**
+   * this is a multivalued attribute using sets
+   * @param name
+   * @param value
+   */
+  public void addAttributeValue(String name, Object value) {
+
+    if (this.attributes == null) {
+      this.attributes = new HashMap<String, ProvisioningAttribute>();
+    }
+    
+    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    
+    Set<Object> values = null;
+    
+    if (provisioningAttribute == null) {
+      provisioningAttribute = new ProvisioningAttribute();
+      this.attributes.put(name, provisioningAttribute);
+      provisioningAttribute.setName(name);
+      values = new HashSet<Object>();
+      provisioningAttribute.setValue(values);
+    } else {
+      values = (Set<Object>)provisioningAttribute.getValue();
+    }
+    
+    values.add(value);
+
+  }
+
+  /**
    * 
    * @param name
    * @param value
@@ -49,10 +102,10 @@ public abstract class ProvisioningUpdatable {
     if (provisioningAttribute == null) {
       provisioningAttribute = new ProvisioningAttribute();
       provisioningAttribute.setName(name);
+      this.attributes.put(name, provisioningAttribute);
     }
     
     provisioningAttribute.setValue(value);
-    this.attributes.put(name, provisioningAttribute);
     
   }
 
