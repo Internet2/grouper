@@ -207,5 +207,17 @@ public abstract class ProvisioningUpdatable {
   public void setException(Exception internal_exception) {
     this.exception = internal_exception;
   }
-  
+ 
+  /**
+   * 
+   * @param result
+   * @param firstField
+   * @param fieldName
+   * @param fieldValue
+   * @return
+   */
+  protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue) {
+    return false; //TODO
+  }
+
 }

@@ -107,4 +107,11 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     this.provisioningGroupWrapper = provisioningGroupWrapper;
   }
 
+  public String toString() {
+    StringBuilder result = new StringBuilder("ProvisioningGroup(");
+    boolean firstField = true;
+    if (this.id != null) {result.append(", id: ").append("id");}
+    return result.append(")").toString();
+  }
+  
 }
