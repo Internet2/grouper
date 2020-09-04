@@ -11,7 +11,74 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisioningData {
-  
+
+  /**
+   * after the translation to common, keep a lookup of common group id / entity id to the membership wrapper
+   */
+  private Map<MultiKey, ProvisioningMembershipWrapper> commonGroupIdEntityIdToMembershipWrapper = null;
+
+  /**
+   * after the translation to common, keep a lookup of common group id / entity id to the membership wrapper
+   * @return
+   */
+  public Map<MultiKey, ProvisioningMembershipWrapper> getCommonGroupIdEntityIdToMembershipWrapper() {
+    return commonGroupIdEntityIdToMembershipWrapper;
+  }
+
+
+  /**
+   * after the translation to common, keep a lookup of common group id / entity id to the membership wrapper
+   * @param commonGroupIdEntityIdToMembershipWrapper
+   */
+  public void setCommonGroupIdEntityIdToMembershipWrapper(
+      Map<MultiKey, ProvisioningMembershipWrapper> commonGroupIdEntityIdToMembershipWrapper) {
+    this.commonGroupIdEntityIdToMembershipWrapper = commonGroupIdEntityIdToMembershipWrapper;
+  }
+
+  /**
+   * after the translation to common, keep a lookup of common entity id to the entity wrapper
+   */
+  private Map<String, ProvisioningEntityWrapper> commonEntityIdToEntityWrapper = null;
+
+  /**
+   * after the translation to common, keep a lookup of common entity id to the entity wrapper
+   * @return
+   */
+  public Map<String, ProvisioningEntityWrapper> getCommonEntityIdToEntityWrapper() {
+    return commonEntityIdToEntityWrapper;
+  }
+
+  /**
+   * after the translation to common, keep a lookup of common entity id to the entity wrapper
+   * @param commonEntityIdToEntityWrapper
+   */
+  public void setCommonEntityIdToEntityWrapper(
+      Map<String, ProvisioningEntityWrapper> commonEntityIdToEntityWrapper) {
+    this.commonEntityIdToEntityWrapper = commonEntityIdToEntityWrapper;
+  }
+
+  /**
+   * after the translation to common, keep a lookup of common group id to the group wrapper
+   */
+  private Map<String, ProvisioningGroupWrapper> commonGroupIdToGroupWrapper = null;
+
+  /**
+   * after the translation to common, keep a lookup of common group id to the group wrapper
+   * @param commonGroupIdToGroupWrapper
+   */
+  public void setCommonGroupIdToGroupWrapper(
+      Map<String, ProvisioningGroupWrapper> commonGroupIdToGroupWrapper) {
+    this.commonGroupIdToGroupWrapper = commonGroupIdToGroupWrapper;
+  }
+
+  /**
+   * after the translation to common, keep a lookup of common group id to the group wrapper
+   * @return
+   */
+  public Map<String, ProvisioningGroupWrapper> getCommonGroupIdToGroupWrapper() {
+    return commonGroupIdToGroupWrapper;
+  }
+
   public GrouperProvisioningData() {
     this.grouperProvisioningObjectsToDelete.setProvisioningGroups(new ArrayList<ProvisioningGroup>());
     this.grouperProvisioningObjectsToDelete.setProvisioningEntities(new ArrayList<ProvisioningEntity>());

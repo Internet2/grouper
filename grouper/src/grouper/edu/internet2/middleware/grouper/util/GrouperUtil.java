@@ -2971,6 +2971,19 @@ public class GrouperUtil {
   }
 
   /**
+   * is array or collection
+   *
+   * @param arrayOrCollection
+   * @return true or false
+   */
+  public static boolean isArrayOrCollection(Object arrayOrCollection) {
+    if (arrayOrCollection == null) {
+      return false;
+    }
+    return (arrayOrCollection.getClass().isArray() || arrayOrCollection instanceof Collection);
+  }
+
+  /**
    * If array, get the element based on index, if Collection, get it based on
    * iterator.
    *

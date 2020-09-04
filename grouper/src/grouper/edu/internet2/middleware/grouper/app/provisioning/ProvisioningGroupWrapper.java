@@ -1,9 +1,38 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper {
   
+  public ProvisioningGroupWrapper() {
+    super();
+  }
+
+  /**
+   * get grouper common group if its there, if not, get target common group
+   * @return the common group
+   */
+  public ProvisioningGroup getCommonGroup() {
+    return GrouperUtil.defaultIfNull(this.grouperCommonGroup, this.targetCommonGroup);
+  }
+  
+  private GrouperProvisioner grouperProvisioner;
+  
+  
+  
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+
+
+  
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
   /**
    * crud operation goes from grouper to common to target since its an insert/update/or delete
    */
@@ -113,5 +142,7 @@ public class ProvisioningGroupWrapper {
     this.gcGrouperSyncGroup = gcGrouperSyncGroup;
   }
   
-
+  public String toString() {
+    return "GroupWrapper@" + Integer.toHexString(hashCode());
+  }
 }

@@ -1,15 +1,35 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public abstract class ProvisioningUpdatable {
 
+  /**
+   * 
+   * @param action insert or delete
+   * @param attributeName
+   * @param attributeValue
+   */
+  public void manageAttributeValue(String action, String attributeName, Object attributeValue) {
+    if (StringUtils.equals(action, "insert")) {
+      this.addAttributeValue(attributeName, attributeValue);
+    } else if (StringUtils.equals(action, "delete")) {
+      this.addAttributeValue(attributeName, attributeValue);
+    } else {
+      throw new RuntimeException("Invalid action: '" + action + "'");
+    }
+
+  }
+  
   /**
    * after translation, toss this object
    */
@@ -37,7 +57,7 @@ public abstract class ProvisioningUpdatable {
    */
   private Exception exception;
   
-  private Map<MultiKey, Object> internal_fieldsToUpdate = null;
+  private Set<ProvisioningObjectChange> internal_objectChanges = null;
   /**
    * more attributes in name/value pairs
    */
@@ -49,12 +69,12 @@ public abstract class ProvisioningUpdatable {
    * and the value is the old value
    * @return
    */
-  public Map<MultiKey, Object> getInternal_fieldsToUpdate() {
-    return internal_fieldsToUpdate;
+  public Set<ProvisioningObjectChange> getInternal_objectChanges() {
+    return internal_objectChanges;
   }
 
-  public void setInternal_fieldsToUpdate(Map<MultiKey, Object> internal_fieldsToUpdate) {
-    this.internal_fieldsToUpdate = internal_fieldsToUpdate;
+  public void setInternal_objectChanges(Set<ProvisioningObjectChange> internal_fieldsToUpdate) {
+    this.internal_objectChanges = internal_fieldsToUpdate;
   }
 
   /**
@@ -208,6 +228,31 @@ public abstract class ProvisioningUpdatable {
     this.exception = internal_exception;
   }
  
+  protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {
+    firstField = toStringAppendField(result, firstField, "exception", this.exception);
+    if (this.removeFromList) {
+      firstField = toStringAppendField(result, firstField, "removeFromList", this.removeFromList);
+    }
+    if (GrouperUtil.length(this.attributes) > 0) {
+      int attrCount = 0;
+      // order these
+      Set<String> keySet = new TreeSet<String>(this.attributes.keySet());
+      for (String key : keySet) {
+        
+        // dont go crazy here
+        if (attrCount++ > 100) {
+          result.append(", Only first 100 attributes displayed");
+          return firstField;
+        }
+
+        ProvisioningAttribute attrValue = this.attributes.get(key);
+        firstField = toStringAppendField(result, firstField, "attr_" + key, attrValue == null ? "null" : attrValue.getValue());
+        
+      }
+    }
+    return firstField;
+  }
+  
   /**
    * 
    * @param result
@@ -217,7 +262,22 @@ public abstract class ProvisioningUpdatable {
    * @return
    */
   protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue) {
-    return false; //TODO
+    if (fieldValue == null || GrouperUtil.length(fieldValue) == 0) {
+      return firstField;
+    }
+    if (!firstField) {
+      result.append(", ");
+    }
+    firstField = false;
+    result.append(fieldName).append(": ");
+    
+    if (fieldValue.getClass().isArray() || fieldValue instanceof Collection || fieldValue instanceof Map) {
+      result.append(GrouperUtil.toStringForLog(fieldValue, 1000));
+    } else {
+      result.append(GrouperUtil.stringValue(fieldValue));
+    }
+    
+    return firstField;
   }
 
 }

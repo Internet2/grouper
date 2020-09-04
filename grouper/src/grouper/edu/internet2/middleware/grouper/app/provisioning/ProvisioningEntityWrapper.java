@@ -1,9 +1,42 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class ProvisioningEntityWrapper {
   
+  public ProvisioningEntityWrapper() {
+    super();
+  }
+
+  /**
+   * get grouper common entity if its there, if not, get target common entity
+   * @return the common entity
+   */
+  public ProvisioningEntity getCommonEntity() {
+    return GrouperUtil.defaultIfNull(this.grouperCommonEntity, this.targetCommonEntity);
+  }
+
+  private GrouperProvisioner grouperProvisioner;
+  
+  
+  
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+
+
+  
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
+  public String toString() {
+    return "EntityWrapper@" + Integer.toHexString(hashCode());
+  }
+
   /**
    * crud operation goes from grouper to common to target since its an insert/update/or delete
    */

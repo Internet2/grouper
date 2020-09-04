@@ -94,6 +94,8 @@ public class GrouperProvisionerGrouperDao {
         grouperProvisioningGroupsToDelete.add(provisioningGroup);
         
         provisioningGroupWrapper = new ProvisioningGroupWrapper();
+        provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+
         provisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
         provisioningGroupWrapper.setGrouperProvisioningGroupToDelete(provisioningGroup);
         
@@ -443,6 +445,8 @@ public class GrouperProvisionerGrouperDao {
     // add wrappers for all groups
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(grouperProvisioningObjects.getProvisioningGroups())) {
       ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
+      provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+
       provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroup);
       provisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
       groupUuidToProvisioningGroupWrapper.put(provisioningGroup.getId(), provisioningGroupWrapper);
@@ -454,6 +458,7 @@ public class GrouperProvisionerGrouperDao {
     // add wrappers for all entities
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(grouperProvisioningObjects.getProvisioningEntities())) {
       ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
+      provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
       provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntity);
       provisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
       memberUuidToProvisioningEntityWrapper.put(provisioningEntity.getId(), provisioningEntityWrapper);
@@ -465,6 +470,7 @@ public class GrouperProvisionerGrouperDao {
     // add wrappers for memberships
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(grouperProvisioningObjects.getProvisioningMemberships())) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+      provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
       provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
       provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
       groupIdMemberIdToProvisioningMembershipWrapper.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), 
@@ -495,6 +501,8 @@ public class GrouperProvisionerGrouperDao {
         if (provisioningGroupWrapper == null) {
           missingGrouperProvisioningMembershipReferencesCount++;
           provisioningGroupWrapper = new ProvisioningGroupWrapper();
+          provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+
           
           // all the data is in the membership query
           provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningMembership.getProvisioningGroup());
@@ -525,6 +533,7 @@ public class GrouperProvisionerGrouperDao {
         if (provisioningEntityWrapper == null) {
           missingGrouperProvisioningMembershipReferencesCount++;
           provisioningEntityWrapper = new ProvisioningEntityWrapper();
+          provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
           
           // all the data is in the membership query
           provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningMembership.getProvisioningEntity());
@@ -806,6 +815,7 @@ public class GrouperProvisionerGrouperDao {
         grouperProvisioningEntitiesToDelete.add(provisioningEntity);
 
         provisioningEntityWrapper = new ProvisioningEntityWrapper();
+        provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
         provisioningEntityWrapper.setGrouperProvisioningEntityToDelete(provisioningEntity);
         provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
@@ -892,6 +902,7 @@ public class GrouperProvisionerGrouperDao {
         grouperProvisioningMembershipsToDelete.add(provisioningMembership);
         
         provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+        provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
         provisioningMembershipWrapper.setGrouperProvisioningMembershipToDelete(provisioningMembership);
         

@@ -108,9 +108,13 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   }
 
   public String toString() {
-    StringBuilder result = new StringBuilder("ProvisioningGroup(");
+    StringBuilder result = new StringBuilder("Group(");
     boolean firstField = true;
-    if (this.id != null) {result.append(", id: ").append("id");}
+    firstField = toStringAppendField(result, firstField, "id", this.id);
+    firstField = toStringAppendField(result, firstField, "idIndex", this.idIndex);
+    firstField = toStringAppendField(result, firstField, "name", this.name);
+    firstField = toStringAppendField(result, firstField, "displayName", this.displayName);
+    firstField = this.toStringProvisioningUpdatable(result, firstField);
     return result.append(")").toString();
   }
   

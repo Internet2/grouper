@@ -5,6 +5,23 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 
 public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurationBase {
 
+  private String groupAttributeTableAttributeNameIsGroupId;
+  
+  
+  public String getGroupAttributeTableAttributeNameIsGroupId() {
+    return groupAttributeTableAttributeNameIsGroupId;
+  }
+
+
+
+  
+  public void setGroupAttributeTableAttributeNameIsGroupId(
+      String groupAttributeTableAttributeNameIsGroupId) {
+    this.groupAttributeTableAttributeNameIsGroupId = groupAttributeTableAttributeNameIsGroupId;
+  }
+
+
+
   private String dbExternalSystemConfigId;
   
   private String membershipTableName;
@@ -207,6 +224,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //    this.membershipCreationColumnTemplate_attr_1 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_1", true);
 //    this.membershipCreationColumnTemplate_val_1 = this.retrieveConfigString("membershipCreationColumnTemplate_val_1", true);
 
+    
+    
+    this.groupAttributeTableAttributeNameIsGroupId = this.retrieveConfigString("groupAttributeTableAttributeNameIsGroupId", false);
     this.groupTableName = this.retrieveConfigString("groupTableName", false);
     this.groupAttributeNames = this.retrieveConfigString("groupAttributeNames", false);
     this.groupAttributeTableName = this.retrieveConfigString("groupAttributeTableName", false);

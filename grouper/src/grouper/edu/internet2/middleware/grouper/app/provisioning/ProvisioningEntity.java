@@ -103,5 +103,15 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     this.provisioningEntityWrapper = provisioningEntityWrapper;
   }
   
-  
+  public String toString() {
+    StringBuilder result = new StringBuilder("Entity(");
+    boolean firstField = true;
+    firstField = toStringAppendField(result, firstField, "id", this.id);
+    firstField = toStringAppendField(result, firstField, "email", this.email);
+    firstField = toStringAppendField(result, firstField, "name", this.name);
+    firstField = toStringAppendField(result, firstField, "loginId", this.loginId);
+    firstField = this.toStringProvisioningUpdatable(result, firstField);
+    return result.append(")").toString();
+  }
+
 }

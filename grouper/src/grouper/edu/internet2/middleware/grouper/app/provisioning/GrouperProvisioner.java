@@ -20,6 +20,17 @@ public abstract class GrouperProvisioner {
   
   private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
   
+  private GrouperProvisioningObjectLog grouperProvisioningObjectLog = null;
+  
+
+  
+  public GrouperProvisioningObjectLog getGrouperProvisioningObjectLog() {
+    if (this.grouperProvisioningObjectLog == null) {
+      this.grouperProvisioningObjectLog = new GrouperProvisioningObjectLog(this);
+    }
+    return grouperProvisioningObjectLog;
+  }
+
   private GrouperProvisioningData grouperProvisioningData = null;
   
   private GrouperProvisionerOperationSupported grouperProvisionerOperationSupported = new GrouperProvisionerOperationSupported();

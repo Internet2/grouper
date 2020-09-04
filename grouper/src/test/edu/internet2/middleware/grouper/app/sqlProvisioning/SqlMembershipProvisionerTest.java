@@ -362,13 +362,11 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, true);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", true, false);
 
   }
 
@@ -548,7 +546,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       
       //#translate from group auto translated to the common format
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.script", 
-          "${commonProvisionToTargetGroup.addAttribute(\"subjectId\", commonMembership.getProvisioningEntityId());commonProvisionToTargetMemberships.setRemoveFromList(true);}");
+          "${commonMembership.retrieveCommonProvisionToTargetGroup().manageAttributeValue(action, \"subjectId\", commonMembership.getProvisioningEntityId());"
+          + "commonProvisionToTargetMembership.setRemoveFromList(true);}");
 
       //# could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
@@ -558,8 +557,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupId", "groupName");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableIdColumn", "uuid");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
       
