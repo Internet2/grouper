@@ -593,7 +593,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   public void saveOrUpdate(boolean addNew) {
     
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, 
         AuditControl.WILL_AUDIT, new HibernateHandler() {
           
           @Override
