@@ -416,12 +416,13 @@ public class UiV2Configure {
       
       for (String property: properties.keySet()) {
         
-        if (grouperConfigHibernateMap.containsKey(property) && 
+        String value = properties.get(property);
+        if (grouperConfigHibernateMap.containsKey(property) &&
             grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
-          continue;
-        }
+          value = "*******";
+        } 
         
-        contents.append(property + " = " + properties.get(property));
+        contents.append(property + " = " + value);
         contents.append("\n");
       }
       
