@@ -404,9 +404,23 @@ public class UiV2Configure {
       
       StringBuilder contents = new StringBuilder();
       
+      Set<GrouperConfigHibernate> grouperConfigHibernateSet = Hib3DAOFactory.getFactory().getConfig().findAll(configFileName, null, null);
+      
+      Map<String, GrouperConfigHibernate> grouperConfigHibernateMap = new HashMap<String, GrouperConfigHibernate>();
+      
+      for (GrouperConfigHibernate grouperConfigHibernate : GrouperUtil.nonNull(grouperConfigHibernateSet)) {
+        grouperConfigHibernateMap.put(grouperConfigHibernate.getConfigKey(), grouperConfigHibernate);
+      }
+      
       Map<String, String> properties = ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName());
       
       for (String property: properties.keySet()) {
+        
+        if (grouperConfigHibernateMap.containsKey(property) && 
+            grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
+          continue;
+        }
+        
         contents.append(property + " = " + properties.get(property));
         contents.append("\n");
       }
