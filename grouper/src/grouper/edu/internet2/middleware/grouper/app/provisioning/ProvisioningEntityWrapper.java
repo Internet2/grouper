@@ -13,21 +13,15 @@ public class ProvisioningEntityWrapper {
    * get grouper common entity if its there, if not, get target common entity
    * @return the common entity
    */
-  public ProvisioningEntity getCommonEntity() {
-    return GrouperUtil.defaultIfNull(this.grouperCommonEntity, this.targetCommonEntity);
+  public ProvisioningEntity getTargetEntity() {
+    return GrouperUtil.defaultIfNull(this.grouperTargetEntity, this.targetProvisioningEntity);
   }
 
   private GrouperProvisioner grouperProvisioner;
   
-  
-  
-  
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
-
-
-
   
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
     this.grouperProvisioner = grouperProvisioner;
@@ -36,31 +30,6 @@ public class ProvisioningEntityWrapper {
   public String toString() {
     return "EntityWrapper@" + Integer.toHexString(hashCode());
   }
-
-  /**
-   * crud operation goes from grouper to common to target since its an insert/update/or delete
-   */
-  private ProvisioningEntity commonProvisionToTargetEntity;
-
-
-
-  /**
-   * crud operation goes from grouper to common to target since its an insert/update/or delete
-   * @return 
-   */
-  public ProvisioningEntity getCommonProvisionToTargetEntity() {
-    return commonProvisionToTargetEntity;
-  }
-
-  /**
-   * crud operation goes from grouper to common to target since its an insert/update/or delete
-   * @param commonProvisionToTargetEntity
-   */
-  public void setCommonProvisionToTargetEntity(
-      ProvisioningEntity commonProvisionToTargetEntity) {
-    this.commonProvisionToTargetEntity = commonProvisionToTargetEntity;
-  }
-
 
   private ProvisioningEntity grouperProvisioningEntity;
   
@@ -78,10 +47,8 @@ public class ProvisioningEntityWrapper {
 
   private ProvisioningEntity targetProvisioningEntity;
   
-  private ProvisioningEntity grouperCommonEntity;
+  private ProvisioningEntity grouperTargetEntity;
 
-  private ProvisioningEntity targetCommonEntity;
-  
   private Object targetNativeEntity;
   
   private GcGrouperSyncMember gcGrouperSyncMember;
@@ -107,23 +74,13 @@ public class ProvisioningEntityWrapper {
   }
 
   
-  public ProvisioningEntity getGrouperCommonEntity() {
-    return grouperCommonEntity;
+  public ProvisioningEntity getGrouperTargetEntity() {
+    return grouperTargetEntity;
   }
 
   
-  public void setGrouperCommonEntity(ProvisioningEntity grouperCommonEntity) {
-    this.grouperCommonEntity = grouperCommonEntity;
-  }
-
-  
-  public ProvisioningEntity getTargetCommonEntity() {
-    return targetCommonEntity;
-  }
-
-  
-  public void setTargetCommonEntity(ProvisioningEntity targetCommonEntity) {
-    this.targetCommonEntity = targetCommonEntity;
+  public void setGrouperTargetEntity(ProvisioningEntity grouperTargetEntity) {
+    this.grouperTargetEntity = grouperTargetEntity;
   }
 
   

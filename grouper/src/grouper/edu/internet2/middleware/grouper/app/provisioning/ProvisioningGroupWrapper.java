@@ -10,11 +10,11 @@ public class ProvisioningGroupWrapper {
   }
 
   /**
-   * get grouper common group if its there, if not, get target common group
-   * @return the common group
+   * get grouper target group if its there, if not, get target provisioning group
+   * @return the target group
    */
-  public ProvisioningGroup getCommonGroup() {
-    return GrouperUtil.defaultIfNull(this.grouperCommonGroup, this.targetCommonGroup);
+  public ProvisioningGroup getTargetGroup() {
+    return GrouperUtil.defaultIfNull(this.grouperTargetGroup, this.targetProvisioningGroup);
   }
   
   private GrouperProvisioner grouperProvisioner;
@@ -74,10 +74,8 @@ public class ProvisioningGroupWrapper {
 
   private ProvisioningGroup targetProvisioningGroup;
   
-  private ProvisioningGroup grouperCommonGroup;
+  private ProvisioningGroup grouperTargetGroup;
 
-  private ProvisioningGroup targetCommonGroup;
-  
   private Object targetNativeGroup;
   
   private GcGrouperSyncGroup gcGrouperSyncGroup;
@@ -103,23 +101,13 @@ public class ProvisioningGroupWrapper {
   }
 
   
-  public ProvisioningGroup getGrouperCommonGroup() {
-    return grouperCommonGroup;
+  public ProvisioningGroup getGrouperTargetGroup() {
+    return grouperTargetGroup;
   }
 
   
-  public void setGrouperCommonGroup(ProvisioningGroup grouperCommonGroup) {
-    this.grouperCommonGroup = grouperCommonGroup;
-  }
-
-  
-  public ProvisioningGroup getTargetCommonGroup() {
-    return targetCommonGroup;
-  }
-
-  
-  public void setTargetCommonGroup(ProvisioningGroup targetCommonGroup) {
-    this.targetCommonGroup = targetCommonGroup;
+  public void setGrouperTargetGroup(ProvisioningGroup grouperTargetGroup) {
+    this.grouperTargetGroup = grouperTargetGroup;
   }
 
   

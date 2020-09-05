@@ -13,11 +13,11 @@ public class ProvisioningMembershipWrapper {
   
   
   /**
-   * get grouper common mship if its there, if not, get target common mship
-   * @return the common mship
+   * get grouper target mship if its there, if not, get target provisioning mship
+   * @return the target mship
    */
-  public ProvisioningMembership getCommonMembership() {
-    return GrouperUtil.defaultIfNull(this.grouperCommonMembership, this.targetCommonMembership);
+  public ProvisioningMembership getTargetMembership() {
+    return GrouperUtil.defaultIfNull(this.grouperTargetMembership, this.targetProvisioningMembership);
   }
 
   
@@ -84,10 +84,8 @@ public class ProvisioningMembershipWrapper {
 
   private ProvisioningMembership targetProvisioningMembership;
   
-  private ProvisioningMembership grouperCommonMembership;
+  private ProvisioningMembership grouperTargetMembership;
 
-  private ProvisioningMembership targetCommonMembership;
-  
   private Object targetNativeMembership;
   
   private GcGrouperSyncMembership gcGrouperSyncMembership;
@@ -115,23 +113,13 @@ public class ProvisioningMembershipWrapper {
   }
 
   
-  public ProvisioningMembership getGrouperCommonMembership() {
-    return grouperCommonMembership;
+  public ProvisioningMembership getGrouperTargetMembership() {
+    return grouperTargetMembership;
   }
 
   
-  public void setGrouperCommonMembership(ProvisioningMembership grouperCommonMembership) {
-    this.grouperCommonMembership = grouperCommonMembership;
-  }
-
-  
-  public ProvisioningMembership getTargetCommonMembership() {
-    return targetCommonMembership;
-  }
-
-  
-  public void setTargetCommonMembership(ProvisioningMembership targetCommonMembership) {
-    this.targetCommonMembership = targetCommonMembership;
+  public void setGrouperTargetMembership(ProvisioningMembership grouperTargetMembership) {
+    this.grouperTargetMembership = grouperTargetMembership;
   }
 
   

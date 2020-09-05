@@ -9635,10 +9635,10 @@ public class GrouperUtil {
    * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
    * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
    * then undefined variables are null
-   * @return the string
+   * @return the object
    */
   @SuppressWarnings("unchecked")
-  public static String substituteExpressionLanguageScript(String stringToParse,
+  public static Object substituteExpressionLanguageScript(String script,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     variableMap = nonNull(variableMap);
     if (!jexlEnginesInitialized) {
@@ -9655,8 +9655,8 @@ public class GrouperUtil {
       }
     }
     
-    if (isBlank(stringToParse)) {
-      return stringToParse;
+    if (isBlank(script)) {
+      return null;
     }
     String overallResult = null;
     Exception exception = null;
@@ -9673,80 +9673,43 @@ public class GrouperUtil {
       jc.set("grouperUtil", new GrouperUtilElSafe());
       //if you add another one here, add it in the logs below
 
-      // matching ${ exp }   (non-greedy)
-      Matcher matcher = scriptPattern.matcher(stringToParse);
+      script = script.trim();
+      if (!script.startsWith("${") || !script.endsWith("}")) {
+        throw new RuntimeException("Script must be ${script}: '" + script + "'");
+      }
+      // take out ${  and  }
+      script = script.substring(2, script.length()-1);
 
-      StringBuilder result = new StringBuilder();
+      Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
 
-      //loop through and find each script
-      while(matcher.find()) {
-        result.append(stringToParse.substring(index, matcher.start()));
+      //this is the result of the evaluation
+      Object o = null;
 
-        //here is the script inside the curlies
-        String script = matcher.group(1);
-
-        index = matcher.end();
-
-        if (script.contains("{")) {
-          //we need to match up some curlies here...
-          int scriptStart = matcher.start(1);
-          int openCurlyCount = 0;
-          for (int i=scriptStart; i<stringToParse.length();i++) {
-            char curChar = stringToParse.charAt(i);
-            if (curChar == '{') {
-              openCurlyCount++;
-            }
-            if (curChar == '}') {
-              openCurlyCount--;
-              //negative 1 since we need to get to the close of the parent one...
-              if (openCurlyCount <= -1) {
-                script = stringToParse.substring(scriptStart, i);
-                index = i+1;
-                break;
-              }
-            }
+      try {
+        o = e.execute(jc);
+      } catch (JexlException je) {
+        //exception-scrape to see if missing variable
+        if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          //clean up the message a little bit
+          // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+          String message = je.getMessage();
+          //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+          Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+          Matcher exceptionMatcher = exceptionPattern.matcher(message);
+          if (exceptionMatcher.matches()) {
+            //message = "'" + exceptionMatcher.group(1);
+            message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
           }
+          throw new ExpressionLanguageMissingVariableException(message, je);
         }
-
-        Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
-
-        //this is the result of the evaluation
-        Object o = null;
-
-        try {
-          o = e.execute(jc);
-        } catch (JexlException je) {
-          //exception-scrape to see if missing variable
-          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
-            //clean up the message a little bit
-            // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
-            String message = je.getMessage();
-            //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
-            Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
-            Matcher exceptionMatcher = exceptionPattern.matcher(message);
-            if (exceptionMatcher.matches()) {
-              //message = "'" + exceptionMatcher.group(1);
-              message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
-            }
-            throw new ExpressionLanguageMissingVariableException(message, je);
-          }
-          throw je;
-        }
-
-//        }
-        
-        if (o instanceof RuntimeException) {
-          throw (RuntimeException)o;
-        }
-
-        result.append(o);
-
+        throw je;
       }
 
-      result.append(stringToParse.substring(index, stringToParse.length()));
-      overallResult = result.toString();
-      return overallResult;
+      if (o instanceof RuntimeException) {
+        throw (RuntimeException)o;
+      }
 
+      return o;
     } catch (HookVeto hv) {
       exception = hv;
       throw hv;
@@ -9755,13 +9718,13 @@ public class GrouperUtil {
       if (e instanceof ExpressionLanguageMissingVariableException) {
         throw (ExpressionLanguageMissingVariableException)e;
       }
-      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+      throw new RuntimeException("Error substituting string: '" + script + "'", e);
     } finally {
       if (LOG.isDebugEnabled()) {
         Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
         keysSet.add("grouperUtil");
         StringBuilder logMessage = new StringBuilder();
-        logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
+        logMessage.append("Subsituting EL: '").append(script).append("', and with env vars: ");
         String[] keys = keysSet.toArray(new String[]{});
         for (int i=0;i<keys.length;i++) {
           logMessage.append(keys[i]);

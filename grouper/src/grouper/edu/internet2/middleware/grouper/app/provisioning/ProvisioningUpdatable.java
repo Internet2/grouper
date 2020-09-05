@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,6 +13,28 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
+
+  /**
+   * string, number, or multikey of strings and numbers
+   */
+  private Object targetId;
+  
+
+  /**
+   * string, number, or multikey of strings and numbers
+   * @return
+   */
+  public Object getTargetId() {
+    return targetId;
+  }
+
+  /**
+   * string, number, or multikey of strings and numbers
+   * @param targetId
+   */
+  public void setTargetId(Object targetId) {
+    this.targetId = targetId;
+  }
 
   /**
    * 
@@ -64,6 +87,17 @@ public abstract class ProvisioningUpdatable {
   private Map<String, ProvisioningAttribute> attributes = null;
 
   /**
+   * 
+   * @param provisioningObjectChange
+   */
+  public void addInternal_objectChange(ProvisioningObjectChange provisioningObjectChange) {
+    if (this.internal_objectChanges == null) {
+      this.internal_objectChanges = new LinkedHashSet<ProvisioningObjectChange>();
+    }
+    this.internal_objectChanges.add(provisioningObjectChange);
+  }
+  
+  /**
    * multikey is either the string "field", "attribute", the second param is field name or attribute name
    * third param is "insert", "update", or "delete"
    * and the value is the old value
@@ -73,10 +107,22 @@ public abstract class ProvisioningUpdatable {
     return internal_objectChanges;
   }
 
-  public void setInternal_objectChanges(Set<ProvisioningObjectChange> internal_fieldsToUpdate) {
-    this.internal_objectChanges = internal_fieldsToUpdate;
+  /**
+   * add attribute value for membership, assume this happens in a translation, and link the membership with the attribute
+   * (to track when it gets saved to target or error handling)
+   * @param name
+   * @param value
+   */
+  public void addAttributeValueForMembership(String name, Object value) {
+    this.addAttributeValue(name, value);
+    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslatorBase.retrieveProvisioningMembershipWrapper();
+    if (provisioningMembershipWrapper == null) {
+      throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
+    }
+    provisioningAttribute.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
   }
-
+  
   /**
    * this is a multivalued attribute using sets
    * @param name
@@ -229,6 +275,7 @@ public abstract class ProvisioningUpdatable {
   }
  
   protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {
+    firstField = toStringAppendField(result, firstField, "targetId", this.targetId);
     firstField = toStringAppendField(result, firstField, "exception", this.exception);
     if (this.removeFromList) {
       firstField = toStringAppendField(result, firstField, "removeFromList", this.removeFromList);

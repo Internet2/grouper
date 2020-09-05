@@ -63,34 +63,27 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "validateInitialProvisioningData");
       this.validateInitialProvisioningData();
   
-      debugMap.put("state", "translateGrouperToCommon");
-      this.grouperProvisioner.retrieveTranslator().translateGrouperToCommon();
+      debugMap.put("state", "translateGrouperToTarget");
+      this.grouperProvisioner.retrieveTranslator().translateGrouperToTarget();
     } finally {
-      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("translateGrouperToCommon");
-    }
-
-    try {
-      debugMap.put("state", "translateTargetToCommon");
-      this.grouperProvisioner.retrieveTranslator().translateTargetToCommon();
-    } finally {
-      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("translateTargetToCommon");
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("translateGrouperToTarget");
     }
     
-    debugMap.put("state", "indexCommonObjects");
-    this.indexCommonObjects();
-
     try {
-      debugMap.put("state", "compareCommonObjects");
-      this.compareCommonObjects();
+      debugMap.put("state", "idTargetObjects");
+      this.grouperProvisioner.retrieveTranslator().idTargetObjects();
     } finally {
-      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("compareCommonObjects");
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("idTargetObjects");
     }
-
+    
+    debugMap.put("state", "indexTargetObjects");
+    this.indexTargetObjects();
+    
     try {
-      debugMap.put("state", "translateCommonToTarget");
-      this.grouperProvisioner.retrieveTranslator().translateCommonToTarget();
+      debugMap.put("state", "compareTargetObjects");
+      this.compareTargetObjects();
     } finally {
-      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("translateCommonToTarget");
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("compareTargetObjects");
     }
 
     try {
@@ -124,78 +117,14 @@ public class GrouperProvisioningLogic {
     
   }
 
-  public void indexCommonObjects() {
-    this.indexCommonObjectsGroups();
-    this.indexCommonObjectsEntities();
-    this.indexCommonObjectsMemberships();
-  }
 
-  public void indexCommonObjectsGroups() {
-
-    Map<String, ProvisioningGroupWrapper> commonGroupIdToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonGroupIdToGroupWrapper(commonGroupIdToProvisioningGroupWrapper);
-
-    for (ProvisioningGroup grouperCommonGroup : 
-      GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getGrouperCommonObjects().getProvisioningGroups())) {
-      
-      String id = grouperCommonGroup.getId();
-      if (StringUtils.isBlank(id)) {
-        throw new NullPointerException("Cant find id for grouperCommonGroup! " + grouperCommonGroup);
-      }
-      
-      if (commonGroupIdToProvisioningGroupWrapper.containsKey(id)) {
-        throw new NullPointerException("Why do multiple groups from grouper have the same common id???\n" 
-            + grouperCommonGroup + "\n" + commonGroupIdToProvisioningGroupWrapper.get(id));
-      }
-
-      ProvisioningGroupWrapper provisioningGroupWrapper = grouperCommonGroup.getProvisioningGroupWrapper();
-      if (provisioningGroupWrapper == null) {
-        throw new NullPointerException("Cant find groupWrapper for grouperCommonGroup! " + grouperCommonGroup);
-      }
-      commonGroupIdToProvisioningGroupWrapper.put(id, provisioningGroupWrapper);
-    }
+  public void indexTargetObjects() {
+    this.indexTargetGroups();
     
-    // make sure we arent double dipping target common ids
-    Set<String> targetCommonIds = new HashSet<String>();
-    for (ProvisioningGroup targetCommonGroup : 
-      GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getTargetCommonObjects().getProvisioningGroups())) {
-      
-      String id = targetCommonGroup.getId();
-      if (StringUtils.isBlank(id)) {
-        throw new NullPointerException("Cant find id for targetCommonGroup! " + targetCommonGroup);
-      }
-      
-      if (targetCommonIds.contains(id)) {
-        throw new NullPointerException("Why do multiple groups from target have the same common id???\n" 
-            + targetCommonGroup + "\n" + commonGroupIdToProvisioningGroupWrapper.get(id));
-      }
-      targetCommonIds.add(id);
-      
-      ProvisioningGroupWrapper targetGroupWrapper = targetCommonGroup.getProvisioningGroupWrapper();
-      if (targetGroupWrapper == null) {
-        throw new NullPointerException("Cant find groupWrapper for targetCommonGroup! " + targetCommonGroup);
-      }
-      ProvisioningGroupWrapper grouperGroupWrapper = commonGroupIdToProvisioningGroupWrapper.get(id);
-      
-      // if there is no grouperGroupWrapper
-      if (grouperGroupWrapper == null) {
-        commonGroupIdToProvisioningGroupWrapper.put(id, targetGroupWrapper);
-      } else {
-        // lets merge these to get our complete wrapper
-        grouperGroupWrapper.setTargetCommonGroup(targetCommonGroup);
-        targetCommonGroup.setProvisioningGroupWrapper(grouperGroupWrapper);
-        if (targetGroupWrapper.getTargetProvisioningGroup() != null) {
-          grouperGroupWrapper.setTargetProvisioningGroup(targetGroupWrapper.getTargetProvisioningGroup());
-          targetGroupWrapper.getTargetProvisioningGroup().setProvisioningGroupWrapper(grouperGroupWrapper);
-        }
-        grouperGroupWrapper.setTargetNativeGroup(targetGroupWrapper.getTargetNativeGroup());
-      }
-    }
+    this.indexTargetEntities();
 
+    this.indexTargetMemberships();
   }
-
 
   public void retrieveTargetEntityLink() {
     // TODO If using target entity link and the ID is not in the member sync cache object, then resolve the target entity, and put the id in the member sync object
@@ -278,66 +207,66 @@ public class GrouperProvisioningLogic {
     }
   }
   
-  protected void compareCommonObjects() {
-    GrouperProvisioningLists grouperCommonObjects = this.grouperProvisioner.getGrouperProvisioningData().getGrouperCommonObjects();
-    GrouperProvisioningLists targetCommonObjects = this.grouperProvisioner.getGrouperProvisioningData().getTargetCommonObjects();
+  protected void compareTargetObjects() {
+    GrouperProvisioningLists grouperTargetObjects = this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects();
+    GrouperProvisioningLists targetProvisioningObjects = this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects();
     
-    compareCommonGroups(grouperCommonObjects.getProvisioningGroups(), targetCommonObjects.getProvisioningGroups());
-    compareCommonEntities(grouperCommonObjects.getProvisioningEntities(), targetCommonObjects.getProvisioningEntities());
-    compareCommonMemberships(grouperCommonObjects.getProvisioningMemberships(), targetCommonObjects.getProvisioningMemberships());
+    compareTargetGroups(grouperTargetObjects.getProvisioningGroups(), targetProvisioningObjects.getProvisioningGroups());
+    compareTargetEntities(grouperTargetObjects.getProvisioningEntities(), targetProvisioningObjects.getProvisioningEntities());
+    compareTargetMemberships(grouperTargetObjects.getProvisioningMemberships(), targetProvisioningObjects.getProvisioningMemberships());
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
     {
-      int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningGroups());
+      int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups());
       if (groupInserts > 0) {
         debugMap.put("groupInsertsAfterCompare", groupInserts);
       }
     }
     {
-      int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningGroups());
+      int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups());
       if (groupUpdates > 0) {
         debugMap.put("groupUpdatesAfterCompare", groupUpdates);
       }
     }
     {
-      int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningGroups());
+      int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningGroups());
       if (groupDeletes > 0) {
         debugMap.put("groupDeletesAfterCompare", groupDeletes);
       }
     }
     {
-      int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningEntities());
+      int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningEntities());
       if (entityInserts > 0) {
         debugMap.put("entityInsertsAfterCompare", entityInserts);
       }
     }
     {
-      int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningEntities());
+      int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningEntities());
       if (entityUpdates > 0) {
         debugMap.put("entityUpdatesAfterCompare", entityUpdates);
       }
     }
     {
-      int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningEntities());
+      int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningEntities());
       if (entityDeletes > 0) {
         debugMap.put("entityDeletesAfterCompare", entityDeletes);
       }
     }
     {
-      int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectInserts().getProvisioningMemberships());
+      int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningMemberships());
       if (membershipInserts > 0) {
         debugMap.put("membershipInsertsAfterCompare", membershipInserts);
       }
     }
     {
-      int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningMemberships());
+      int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningMemberships());
       if (membershipUpdates > 0) {
         debugMap.put("membershipUpdatesAfterCompare", membershipUpdates);
       }
     }
     {
-      int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getCommonObjectDeletes().getProvisioningMemberships());
+      int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningMemberships());
       if (membershipDeletes > 0) {
         debugMap.put("membershipDeletesAfterCompare", membershipDeletes);
       }
@@ -345,177 +274,173 @@ public class GrouperProvisioningLogic {
   
   }
   
-  protected void compareCommonMemberships(List<ProvisioningMembership> grouperCommonMemberships, List<ProvisioningMembership> targetCommonMemberships) { 
+  protected void compareTargetMemberships(List<ProvisioningMembership> grouperTargetMemberships, List<ProvisioningMembership> targetProvisioningMemberships) { 
     
-    Map<MultiKey, ProvisioningMembership> grouperCommonGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
-    Map<MultiKey, ProvisioningMembership> targetCommonGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
+    Map<MultiKey, ProvisioningMembership> grouperTargetGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
+    Map<MultiKey, ProvisioningMembership> targetProvisioningGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
     
     
-    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(grouperCommonMemberships)) {
-      grouperCommonGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
+    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(grouperTargetMemberships)) {
+      grouperTargetGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
     }
     
-    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(targetCommonMemberships)) {
-      targetCommonGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
+    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(targetProvisioningMemberships)) {
+      targetProvisioningGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
     }
     
     {
       // memberships to insert
-      Set<MultiKey> groupIdEntityIdsToInsert = new HashSet<MultiKey>(grouperCommonGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToInsert.removeAll(targetCommonGroupIdEntityIdToMembership.keySet());
+      Set<MultiKey> groupIdEntityIdsToInsert = new HashSet<MultiKey>(grouperTargetGroupIdEntityIdToMembership.keySet());
+      groupIdEntityIdsToInsert.removeAll(targetProvisioningGroupIdEntityIdToMembership.keySet());
       
       List<ProvisioningMembership> provisioningMembershipsToInsert = new ArrayList<ProvisioningMembership>();
       
       for (MultiKey groupIdEntityIdToInsert: groupIdEntityIdsToInsert) {
-        provisioningMembershipsToInsert.add(grouperCommonGroupIdEntityIdToMembership.get(groupIdEntityIdToInsert));
+        provisioningMembershipsToInsert.add(grouperTargetGroupIdEntityIdToMembership.get(groupIdEntityIdToInsert));
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectInserts().setProvisioningMemberships(provisioningMembershipsToInsert);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningMemberships(provisioningMembershipsToInsert);
     
     
       // memberships to delete
-      Set<MultiKey> groupIdEntityIdsToDelete = new HashSet<MultiKey>(targetCommonGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToDelete.removeAll(grouperCommonGroupIdEntityIdToMembership.keySet());
+      Set<MultiKey> groupIdEntityIdsToDelete = new HashSet<MultiKey>(targetProvisioningGroupIdEntityIdToMembership.keySet());
+      groupIdEntityIdsToDelete.removeAll(grouperTargetGroupIdEntityIdToMembership.keySet());
       
       List<ProvisioningMembership> provisioningMembershipsToDelete = new ArrayList<ProvisioningMembership>();
       
       for (MultiKey groupIdEntityIdToDelete: groupIdEntityIdsToDelete) {
-        provisioningMembershipsToDelete.add(targetCommonGroupIdEntityIdToMembership.get(groupIdEntityIdToDelete));
+        provisioningMembershipsToDelete.add(targetProvisioningGroupIdEntityIdToMembership.get(groupIdEntityIdToDelete));
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectDeletes().setProvisioningMemberships(provisioningMembershipsToDelete);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningMemberships(provisioningMembershipsToDelete);
     
       // memberships to update
-      Set<MultiKey> groupIdEntityIdsToUpdate = new HashSet<MultiKey>(targetCommonGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToUpdate.addAll(grouperCommonGroupIdEntityIdToMembership.keySet());
+      Set<MultiKey> groupIdEntityIdsToUpdate = new HashSet<MultiKey>(targetProvisioningGroupIdEntityIdToMembership.keySet());
+      groupIdEntityIdsToUpdate.addAll(grouperTargetGroupIdEntityIdToMembership.keySet());
       groupIdEntityIdsToUpdate.removeAll(groupIdEntityIdsToInsert);
       groupIdEntityIdsToUpdate.removeAll(groupIdEntityIdsToDelete);
       
       List<ProvisioningMembership> provisioningMembershipsToUpdate = new ArrayList<ProvisioningMembership>();
       
       for (MultiKey groupIdEntityIdToUpdate: groupIdEntityIdsToUpdate) {
-        ProvisioningMembership grouperCommonMembership = grouperCommonGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
-        ProvisioningMembership targetCommonMembership = targetCommonGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
+        ProvisioningMembership grouperTargetMembership = grouperTargetGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
+        ProvisioningMembership targetProvisioningMembership = targetProvisioningGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
         
-        boolean alreadyAddedForUpdate = false;
+        compareFieldValue(provisioningMembershipsToUpdate, "id",
+            grouperTargetMembership.getId(), targetProvisioningMembership.getId(),
+            grouperTargetMembership);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningMembershipsToUpdate, "id",
-            grouperCommonMembership.getId(), targetCommonMembership.getId(),
-            alreadyAddedForUpdate, grouperCommonMembership);
-        
-        compareAttributeValues(provisioningMembershipsToUpdate, grouperCommonMembership.getAttributes(),
-            targetCommonMembership.getAttributes(), grouperCommonMembership, alreadyAddedForUpdate);
+        compareAttributeValues(provisioningMembershipsToUpdate, grouperTargetMembership.getAttributes(),
+            targetProvisioningMembership.getAttributes(), grouperTargetMembership);
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningMemberships(provisioningMembershipsToUpdate);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningMemberships(provisioningMembershipsToUpdate);
     }
     
     
   }
   
-  protected void compareCommonEntities(List<ProvisioningEntity> grouperCommonEntities, List<ProvisioningEntity> targetCommonEntities) { 
+  protected void compareTargetEntities(List<ProvisioningEntity> grouperTargetEntities, List<ProvisioningEntity> targetProvisioningEntities) { 
     
-    Map<String, ProvisioningEntity> grouperCommonEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
-    Map<String, ProvisioningEntity> targetCommonEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
+    Map<String, ProvisioningEntity> grouperTargetEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
+    Map<String, ProvisioningEntity> targetProvisioningEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
     
     
-    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(grouperCommonEntities)) {
-      grouperCommonEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
+    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(grouperTargetEntities)) {
+      grouperTargetEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
     }
     
-    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(targetCommonEntities)) {
-      targetCommonEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
+    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(targetProvisioningEntities)) {
+      targetProvisioningEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
     }
     
     {
       // entities to insert
-      Set<String> entityIdsToInsert = new HashSet<String>(grouperCommonEntityIdToEntity.keySet());
-      entityIdsToInsert.removeAll(targetCommonEntityIdToEntity.keySet());
+      Set<String> entityIdsToInsert = new HashSet<String>(grouperTargetEntityIdToEntity.keySet());
+      entityIdsToInsert.removeAll(targetProvisioningEntityIdToEntity.keySet());
       
       List<ProvisioningEntity> provisioningEntitiesToInsert = new ArrayList<ProvisioningEntity>();
       
       for (String entityIdToInsert: entityIdsToInsert) {
-        provisioningEntitiesToInsert.add(grouperCommonEntityIdToEntity.get(entityIdToInsert));
+        provisioningEntitiesToInsert.add(grouperTargetEntityIdToEntity.get(entityIdToInsert));
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
     
     
       // entities to delete
-      Set<String> entityIdsToDelete = new HashSet<String>(targetCommonEntityIdToEntity.keySet());
-      entityIdsToDelete.removeAll(grouperCommonEntityIdToEntity.keySet());
+      Set<String> entityIdsToDelete = new HashSet<String>(targetProvisioningEntityIdToEntity.keySet());
+      entityIdsToDelete.removeAll(grouperTargetEntityIdToEntity.keySet());
       
       List<ProvisioningEntity> provisioningEntitiesToDelete = new ArrayList<ProvisioningEntity>();
       
       for (String entityIdToDelete: entityIdsToDelete) {
-        provisioningEntitiesToDelete.add(targetCommonEntityIdToEntity.get(entityIdToDelete));
+        provisioningEntitiesToDelete.add(targetProvisioningEntityIdToEntity.get(entityIdToDelete));
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectDeletes().setProvisioningEntities(provisioningEntitiesToDelete);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningEntities(provisioningEntitiesToDelete);
     
       // entities to update
-      Set<String> entityIdsToUpdate = new HashSet<String>(targetCommonEntityIdToEntity.keySet());
-      entityIdsToUpdate.addAll(grouperCommonEntityIdToEntity.keySet());
+      Set<String> entityIdsToUpdate = new HashSet<String>(targetProvisioningEntityIdToEntity.keySet());
+      entityIdsToUpdate.addAll(grouperTargetEntityIdToEntity.keySet());
       entityIdsToUpdate.removeAll(entityIdsToInsert);
       entityIdsToUpdate.removeAll(entityIdsToDelete);
       
       List<ProvisioningEntity> provisioningEntitiesToUpdate = new ArrayList<ProvisioningEntity>();
       
       for (String entityIdToUpdate: entityIdsToUpdate) {
-        ProvisioningEntity grouperCommonEntity = grouperCommonEntityIdToEntity.get(entityIdToUpdate);
-        ProvisioningEntity targetCommonEntity = targetCommonEntityIdToEntity.get(entityIdToUpdate);
+        ProvisioningEntity grouperTargetEntity = grouperTargetEntityIdToEntity.get(entityIdToUpdate);
+        ProvisioningEntity targetProvisioningEntity = targetProvisioningEntityIdToEntity.get(entityIdToUpdate);
         
-        boolean alreadyAddedForUpdate = false;
+        compareFieldValue(provisioningEntitiesToUpdate, "name",
+            grouperTargetEntity.getName() , targetProvisioningEntity.getName(),
+            grouperTargetEntity);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningEntitiesToUpdate, "name",
-            grouperCommonEntity.getName() , targetCommonEntity.getName(),
-            alreadyAddedForUpdate, grouperCommonEntity);
+        compareFieldValue(provisioningEntitiesToUpdate, "email",
+            grouperTargetEntity.getEmail() , targetProvisioningEntity.getEmail(),
+            grouperTargetEntity);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningEntitiesToUpdate, "email",
-            grouperCommonEntity.getEmail() , targetCommonEntity.getEmail(),
-            alreadyAddedForUpdate, grouperCommonEntity);
-        
-        alreadyAddedForUpdate = compareFieldValue(provisioningEntitiesToUpdate, "loginId",
-            grouperCommonEntity.getLoginId() , targetCommonEntity.getLoginId(),
-            alreadyAddedForUpdate, grouperCommonEntity);
+        compareFieldValue(provisioningEntitiesToUpdate, "loginId",
+            grouperTargetEntity.getLoginId() , targetProvisioningEntity.getLoginId(),
+            grouperTargetEntity);
         
         
-        compareAttributeValues(provisioningEntitiesToUpdate, grouperCommonEntity.getAttributes(),
-            targetCommonEntity.getAttributes(), grouperCommonEntity, alreadyAddedForUpdate);
+        compareAttributeValues(provisioningEntitiesToUpdate, grouperTargetEntity.getAttributes(),
+            targetProvisioningEntity.getAttributes(), grouperTargetEntity);
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningEntities(provisioningEntitiesToUpdate);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningEntities(provisioningEntitiesToUpdate);
     }
     
     
   }
   
-  protected void compareCommonGroups(List<ProvisioningGroup> grouperCommonGroups, List<ProvisioningGroup> targetCommonGroups) {
+  protected void compareTargetGroups(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningGroup> targetProvisioningGroups) {
     
     // groups insert
-    Map<String, ProvisioningGroup> grouperCommonGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
-    Map<String, ProvisioningGroup> targetCommonGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
+    Map<String, ProvisioningGroup> grouperTargetGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
+    Map<String, ProvisioningGroup> targetProvisioningGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
     
     
-    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(grouperCommonGroups)) {
-      grouperCommonGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
+    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(grouperTargetGroups)) {
+      grouperTargetGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
     }
     
-    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(targetCommonGroups)) {
-      targetCommonGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
+    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(targetProvisioningGroups)) {
+      targetProvisioningGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
     }
     
     {
       // groups to insert
-      Set<String> groupIdsToInsert = new HashSet<String>(grouperCommonGroupIdToGroup.keySet());
-      groupIdsToInsert.removeAll(targetCommonGroupIdToGroup.keySet());
+      Set<String> groupIdsToInsert = new HashSet<String>(grouperTargetGroupIdToGroup.keySet());
+      groupIdsToInsert.removeAll(targetProvisioningGroupIdToGroup.keySet());
       
       List<ProvisioningGroup> provisioningGroupsToInsert = new ArrayList<ProvisioningGroup>();
       
       for (String groupIdToInsert: groupIdsToInsert) {
-        ProvisioningGroup groupToInsert = grouperCommonGroupIdToGroup.get(groupIdToInsert);
+        ProvisioningGroup groupToInsert = grouperTargetGroupIdToGroup.get(groupIdToInsert);
         provisioningGroupsToInsert.add(groupToInsert);
         for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(groupToInsert.getAttributes()).keySet())) {
           Object grouperValue = groupToInsert.getAttributes().get(attributeName).getValue();
@@ -523,7 +448,7 @@ public class GrouperProvisioningLogic {
           if (GrouperUtil.isArrayOrCollection(grouperValue)) {
             if (grouperValue instanceof Collection) {
               for (Object value : (Collection)grouperValue) {
-                groupToInsert.getInternal_objectChanges().add(
+                groupToInsert.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                         ProvisioningObjectChangeAction.insert, null, value)
                     );
@@ -532,7 +457,7 @@ public class GrouperProvisioningLogic {
               // array
               for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
                 Object value = Array.get(grouperValue, i);
-                groupToInsert.getInternal_objectChanges().add(
+                groupToInsert.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                         ProvisioningObjectChangeAction.insert, null, value)
                     );
@@ -540,37 +465,36 @@ public class GrouperProvisioningLogic {
             }
           } else {
             // just a scalar
-            groupToInsert.getInternal_objectChanges().add(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.insert, null, grouperValue)
-                );
+            ProvisioningObjectChange provisioningObjectChange = new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                ProvisioningObjectChangeAction.insert, null, grouperValue);
+            groupToInsert.addInternal_objectChange(provisioningObjectChange);
             
           }
         }
       }
       
       this.grouperProvisioner.getGrouperProvisioningData()
-      .getCommonObjectInserts().setProvisioningGroups(provisioningGroupsToInsert);
+      .getTargetObjectInserts().setProvisioningGroups(provisioningGroupsToInsert);
     
     
       // groups to delete
-      Set<String> groupIdsToDelete = new HashSet<String>(targetCommonGroupIdToGroup.keySet());
-      groupIdsToDelete.removeAll(grouperCommonGroupIdToGroup.keySet());
+      Set<String> groupIdsToDelete = new HashSet<String>(targetProvisioningGroupIdToGroup.keySet());
+      groupIdsToDelete.removeAll(grouperTargetGroupIdToGroup.keySet());
       
       List<ProvisioningGroup> provisioningGroupsToDelete = new ArrayList<ProvisioningGroup>();
       
       for (String groupIdToDelete: groupIdsToDelete) {
-        provisioningGroupsToDelete.add(targetCommonGroupIdToGroup.get(groupIdToDelete));
+        provisioningGroupsToDelete.add(targetProvisioningGroupIdToGroup.get(groupIdToDelete));
         
         //TODO add indiv fields and attributes
       }
       
       this.grouperProvisioner.getGrouperProvisioningData()
-      .getCommonObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
+      .getTargetObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
     
       // groups to update
-      Set<String> groupIdsToUpdate = new HashSet<String>(targetCommonGroupIdToGroup.keySet());
-      groupIdsToUpdate.addAll(grouperCommonGroupIdToGroup.keySet());
+      Set<String> groupIdsToUpdate = new HashSet<String>(targetProvisioningGroupIdToGroup.keySet());
+      groupIdsToUpdate.addAll(grouperTargetGroupIdToGroup.keySet());
       groupIdsToUpdate.removeAll(groupIdsToInsert);
       groupIdsToUpdate.removeAll(groupIdsToDelete);
       
@@ -578,29 +502,27 @@ public class GrouperProvisioningLogic {
       List<ProvisioningGroup> provisioningGroupsToUpdate = new ArrayList<ProvisioningGroup>();
       
       for (String groupIdToUpdate: groupIdsToUpdate) {
-        ProvisioningGroup grouperCommonGroup = grouperCommonGroupIdToGroup.get(groupIdToUpdate);
-        ProvisioningGroup targetCommonGroup = targetCommonGroupIdToGroup.get(groupIdToUpdate);
+        ProvisioningGroup grouperTargetGroup = grouperTargetGroupIdToGroup.get(groupIdToUpdate);
+        ProvisioningGroup targetProvisioningGroup = targetProvisioningGroupIdToGroup.get(groupIdToUpdate);
         
-        boolean alreadyAddedForUpdate = false;
+        compareFieldValue(provisioningGroupsToUpdate, "displayName",
+            grouperTargetGroup.getDisplayName(), targetProvisioningGroup.getDisplayName(),
+            grouperTargetGroup);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningGroupsToUpdate, "displayName",
-            grouperCommonGroup.getDisplayName(), targetCommonGroup.getDisplayName(),
-            alreadyAddedForUpdate, grouperCommonGroup);
+        compareFieldValue(provisioningGroupsToUpdate, "name",
+            grouperTargetGroup.getName(), targetProvisioningGroup.getName(),
+            grouperTargetGroup);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningGroupsToUpdate, "name",
-            grouperCommonGroup.getName(), targetCommonGroup.getName(),
-            alreadyAddedForUpdate, grouperCommonGroup);
+        compareFieldValue(provisioningGroupsToUpdate, "idIndex",
+            grouperTargetGroup.getIdIndex(), targetProvisioningGroup.getIdIndex(),
+            grouperTargetGroup);
         
-        alreadyAddedForUpdate = compareFieldValue(provisioningGroupsToUpdate, "idIndex",
-            grouperCommonGroup.getIdIndex(), targetCommonGroup.getIdIndex(),
-            alreadyAddedForUpdate, grouperCommonGroup);
-        
-        compareAttributeValues(provisioningGroupsToUpdate, grouperCommonGroup.getAttributes(),
-            targetCommonGroup.getAttributes(), grouperCommonGroup, alreadyAddedForUpdate);
+        compareAttributeValues(provisioningGroupsToUpdate, grouperTargetGroup.getAttributes(),
+            targetProvisioningGroup.getAttributes(), grouperTargetGroup);
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
+      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
     }
     
     
@@ -608,29 +530,22 @@ public class GrouperProvisioningLogic {
 
   protected void compareAttributeValues(
       List provisioningUpdatablesToUpdate,
-      Map<String, ProvisioningAttribute> grouperCommonAttributes,
-      Map<String, ProvisioningAttribute> targetCommonAttributes,
-      ProvisioningUpdatable grouperProvisioningUpdatable,
-      boolean alreadyAddedForUpdate) {
-    for (String attributeName: grouperCommonAttributes.keySet()) {
+      Map<String, ProvisioningAttribute> grouperTargetAttributes,
+      Map<String, ProvisioningAttribute> targetProvisioningAttributes,
+      ProvisioningUpdatable grouperProvisioningUpdatable) {
+    for (String attributeName: grouperTargetAttributes.keySet()) {
       
-      ProvisioningAttribute targetAttribute = targetCommonAttributes.get(attributeName);
-      ProvisioningAttribute grouperAttribute = grouperCommonAttributes.get(attributeName);
+      ProvisioningAttribute targetAttribute = targetProvisioningAttributes.get(attributeName);
+      ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
       Object grouperValue = grouperAttribute == null ? null : grouperAttribute.getValue();
       Object targetValue = targetAttribute == null ? null : targetAttribute.getValue();
 
       if (targetAttribute == null) {
-        if (!alreadyAddedForUpdate) {
-          
-          grouperProvisioningUpdatable.setInternal_objectChanges(new HashSet<ProvisioningObjectChange>());
-          provisioningUpdatablesToUpdate.add(grouperProvisioningUpdatable);
-          alreadyAddedForUpdate = true;
-        }
         
         if (GrouperUtil.isArrayOrCollection(grouperValue)) {
           if (grouperValue instanceof Collection) {
             for (Object value : (Collection)grouperValue) {
-              grouperProvisioningUpdatable.getInternal_objectChanges().add(
+              grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                       ProvisioningObjectChangeAction.insert, null, value)
                   );
@@ -639,7 +554,7 @@ public class GrouperProvisioningLogic {
             // array
             for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
               Object value = Array.get(grouperValue, i);
-              grouperProvisioningUpdatable.getInternal_objectChanges().add(
+              grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                       ProvisioningObjectChangeAction.insert, null, value)
                   );
@@ -647,7 +562,7 @@ public class GrouperProvisioningLogic {
           }
         } else {
           // just a scalar
-          grouperProvisioningUpdatable.getInternal_objectChanges().add(
+          grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                   ProvisioningObjectChangeAction.insert, null, grouperValue)
               );
@@ -682,13 +597,7 @@ public class GrouperProvisioningLogic {
         if (grouperCollection == null && targetCollection == null) {
           if (!attributeValueEquals(grouperValue, targetValue)) {
             
-            if (!alreadyAddedForUpdate) {
-              grouperProvisioningUpdatable.setInternal_objectChanges(new HashSet<ProvisioningObjectChange>());
-              provisioningUpdatablesToUpdate.add(grouperProvisioningUpdatable);
-              alreadyAddedForUpdate = true;
-            }
-
-            grouperProvisioningUpdatable.getInternal_objectChanges().add(
+            grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.update, targetValue, grouperValue)
                 );
@@ -714,7 +623,7 @@ public class GrouperProvisioningLogic {
           inserts.removeAll(targetCollection);
           
           for (Object insertValue : inserts) {
-            grouperProvisioningUpdatable.getInternal_objectChanges().add(
+            grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.insert, null, insertValue)
                 );
@@ -725,7 +634,7 @@ public class GrouperProvisioningLogic {
           deletes.removeAll(grouperCollection);
           
           for (Object deleteValue : deletes) {
-            grouperProvisioningUpdatable.getInternal_objectChanges().add(
+            grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.delete, deleteValue, null)
                 );
@@ -737,22 +646,16 @@ public class GrouperProvisioningLogic {
       
     }
     
-    for (String attributeName: targetCommonAttributes.keySet()) {
+    for (String attributeName: targetProvisioningAttributes.keySet()) {
       
-      ProvisioningAttribute grouperAttribute = grouperCommonAttributes.get(attributeName);
+      ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
       if (grouperAttribute == null) {
-        Object targetValue = targetCommonAttributes.get(attributeName);
-        // delete
-        if (!alreadyAddedForUpdate) {
-          grouperProvisioningUpdatable.setInternal_objectChanges(new HashSet<ProvisioningObjectChange>());
-          provisioningUpdatablesToUpdate.add(grouperProvisioningUpdatable);
-          alreadyAddedForUpdate = true;
-        }
+        Object targetValue = targetProvisioningAttributes.get(attributeName);
         
         if (GrouperUtil.isArrayOrCollection(targetValue)) {
           if (targetValue instanceof Collection) {
             for (Object value : (Collection)targetValue) {
-              grouperProvisioningUpdatable.getInternal_objectChanges().add(
+              grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                       ProvisioningObjectChangeAction.delete, value, null)
                   );
@@ -761,7 +664,7 @@ public class GrouperProvisioningLogic {
             // array
             for (int i=0;i<GrouperUtil.length(targetValue);i++) {
               Object value = Array.get(targetValue, i);
-              grouperProvisioningUpdatable.getInternal_objectChanges().add(
+              grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                       ProvisioningObjectChangeAction.delete, value, null)
                   );
@@ -769,14 +672,14 @@ public class GrouperProvisioningLogic {
           }
           
           // indicate the attribute itself is gone
-          grouperProvisioningUpdatable.getInternal_objectChanges().add(
+          grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
               ProvisioningObjectChangeAction.delete, null, null)
           );
           
         } else {
           // just a scalar
-          grouperProvisioningUpdatable.getInternal_objectChanges().add(
+          grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                   ProvisioningObjectChangeAction.delete, targetValue, null)
               );
@@ -785,25 +688,34 @@ public class GrouperProvisioningLogic {
       }
       
     }
+    if (GrouperUtil.length(grouperProvisioningUpdatable.getInternal_objectChanges()) > 0) {
+      addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
+          grouperProvisioningUpdatable);
+    }
   }
 
-  protected boolean compareFieldValue(List provisioningUpdatablesToUpdate,
+  private void addProvisioningUpdatableToUpdateIfNotThere(List provisioningUpdatablesToUpdate, 
+      ProvisioningUpdatable grouperProvisioningUpdatable) {
+    // if there is nothing in the update list or this object is not last in there, then add it
+    if (GrouperUtil.length(provisioningUpdatablesToUpdate) == 0 || 
+        provisioningUpdatablesToUpdate.get(provisioningUpdatablesToUpdate.size()-1) != grouperProvisioningUpdatable) {
+      provisioningUpdatablesToUpdate.add(grouperProvisioningUpdatable);
+    }
+    
+  }
+  
+  protected void compareFieldValue(List provisioningUpdatablesToUpdate,
       String fieldName,
       Object grouperValue, Object targetValue,
-      boolean alreadyAddedForUpdate, ProvisioningUpdatable grouperCommonUpdatable) {
+      ProvisioningUpdatable grouperTargetUpdatable) {
     if (!GrouperUtil.equals(grouperValue, targetValue)) {
-      if (!alreadyAddedForUpdate) {
-        grouperCommonUpdatable.setInternal_objectChanges(new HashSet<ProvisioningObjectChange>());
-        provisioningUpdatablesToUpdate.add(grouperCommonUpdatable);
-        alreadyAddedForUpdate = true;
-      }
-      
-      grouperCommonUpdatable.getInternal_objectChanges().add(
+      addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
+          grouperTargetUpdatable);
+      grouperTargetUpdatable.addInternal_objectChange(
           new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, fieldName, null, 
               attributeChangeType(grouperValue, targetValue), targetValue, grouperValue)
           );
     }
-    return alreadyAddedForUpdate;
   }
   
   
@@ -901,170 +813,216 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner = grouperProvisioner1;
   }
 
+  
 
-  public void indexCommonObjectsEntities() {
+  public void indexTargetEntities() {
   
-    Map<String, ProvisioningEntityWrapper> commonEntityIdToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonEntityIdToEntityWrapper(commonEntityIdToProvisioningEntityWrapper);
+    Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
+    this.grouperProvisioner.getGrouperProvisioningData().setTargetEntityIdToProvisioningEntityWrapper(targetEntityIdToProvisioningEntityWrapper);
   
-    for (ProvisioningEntity grouperCommonEntity : 
-      GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getGrouperCommonObjects().getProvisioningEntities())) {
+    int grouperTargetEntitiesWithNullTargetIds = 0;
+    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities())) {
       
-      String id = grouperCommonEntity.getId();
-      if (StringUtils.isBlank(id)) {
-        throw new NullPointerException("Cant find id for grouperCommonEntity! " + grouperCommonEntity);
+      Object targetId = grouperTargetEntity.getTargetId();
+      if (targetId == null) {
+        // this could be an insert?
+        grouperTargetEntitiesWithNullTargetIds++;
+        // TODO make sure to handle this in the compare
+        continue;
       }
       
-      if (commonEntityIdToProvisioningEntityWrapper.containsKey(id)) {
-        throw new NullPointerException("Why do multiple entities from grouper have the same common id???\n" 
-            + grouperCommonEntity + "\n" + commonEntityIdToProvisioningEntityWrapper.get(id));
+      if (targetEntityIdToProvisioningEntityWrapper.containsKey(targetId)) {
+        throw new NullPointerException("Why do multiple entities from grouper have the same target id???\n" 
+            + grouperTargetEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(targetId));
       }
   
-      ProvisioningEntityWrapper provisioningEntityWrapper = grouperCommonEntity.getProvisioningEntityWrapper();
+      ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
       if (provisioningEntityWrapper == null) {
-        throw new NullPointerException("Cant find entityWrapper for grouperCommonEntity! " + grouperCommonEntity);
+        throw new NullPointerException("Cant find entity wrapper: " + grouperTargetEntity);
       }
-      commonEntityIdToProvisioningEntityWrapper.put(id, provisioningEntityWrapper);
+      targetEntityIdToProvisioningEntityWrapper.put(targetId, provisioningEntityWrapper);
     }
     
-    // make sure we arent double dipping target common ids
-    Set<String> targetCommonIds = new HashSet<String>();
-    for (ProvisioningEntity targetCommonEntity : 
+    if (grouperTargetEntitiesWithNullTargetIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetEntitiesWithNullTargetIds", grouperTargetEntitiesWithNullTargetIds);
+    }
+
+    // make sure we arent double dipping target provisioning target ids
+    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    for (ProvisioningEntity targetProvisioningEntity : 
       GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getTargetCommonObjects().getProvisioningEntities())) {
+          .getTargetProvisioningObjects().getProvisioningEntities())) {
       
-      String id = targetCommonEntity.getId();
-      if (StringUtils.isBlank(id)) {
-        throw new NullPointerException("Cant find id for targetCommonEntity! " + targetCommonEntity);
+      Object targetId = targetProvisioningEntity.getTargetId();
+      if (targetId == null) {
+        throw new NullPointerException("Cant find id for targetProvisioningEntity! " + targetProvisioningEntity);
       }
       
-      if (targetCommonIds.contains(id)) {
-        throw new NullPointerException("Why do multiple entities from target have the same common id???\n" 
-            + targetCommonEntity + "\n" + commonEntityIdToProvisioningEntityWrapper.get(id));
+      if (targetProvisioningTargetIds.contains(targetId)) {
+        throw new NullPointerException("Why do multiple entities from target have the same target id???\n" 
+            + targetProvisioningEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(targetId));
       }
-      targetCommonIds.add(id);
-      
-      ProvisioningEntityWrapper targetEntityWrapper = targetCommonEntity.getProvisioningEntityWrapper();
-      if (targetEntityWrapper == null) {
-        throw new NullPointerException("Cant find entityWrapper for targetCommonEntity! " + targetCommonEntity);
+      targetProvisioningTargetIds.add(targetId);
+
+      ProvisioningEntityWrapper provisioningEntityWrapperReal = targetEntityIdToProvisioningEntityWrapper.get(targetId);
+      if (provisioningEntityWrapperReal == null) {
+        provisioningEntityWrapperReal = new ProvisioningEntityWrapper();
+        targetEntityIdToProvisioningEntityWrapper.put(targetId, provisioningEntityWrapperReal);
       }
-      ProvisioningEntityWrapper grouperEntityWrapper = commonEntityIdToProvisioningEntityWrapper.get(id);
-      
-      // if there is no grouperEntityWrapper
-      if (grouperEntityWrapper == null) {
-        commonEntityIdToProvisioningEntityWrapper.put(id, targetEntityWrapper);
-      } else {
-        // lets merge these to get our complete wrapper
-        grouperEntityWrapper.setTargetCommonEntity(targetCommonEntity);
-        targetCommonEntity.setProvisioningEntityWrapper(grouperEntityWrapper);
-        if (targetEntityWrapper.getTargetProvisioningEntity() != null) {
-          grouperEntityWrapper.setTargetProvisioningEntity(targetEntityWrapper.getTargetProvisioningEntity());
-          targetEntityWrapper.getTargetProvisioningEntity().setProvisioningEntityWrapper(grouperEntityWrapper);
-        }
-        grouperEntityWrapper.setTargetNativeEntity(targetEntityWrapper.getTargetNativeEntity());
+
+      ProvisioningEntityWrapper provisioningEntityWrapperTarget = targetProvisioningEntity.getProvisioningEntityWrapper();
+
+      // lets merge these to get our complete wrapper
+      targetProvisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapperReal);
+      provisioningEntityWrapperReal.setTargetProvisioningEntity(targetProvisioningEntity);
+      if (provisioningEntityWrapperTarget != null) {
+        provisioningEntityWrapperReal.setTargetNativeEntity(provisioningEntityWrapperTarget.getTargetNativeEntity());
       }
     }
   
   }
 
 
-  public void indexCommonObjectsMemberships() {
-  
-    Map<MultiKey, ProvisioningMembershipWrapper> commonGroupIdEntityIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setCommonGroupIdEntityIdToMembershipWrapper(commonGroupIdEntityIdToProvisioningMembershipWrapper);
 
-    int grouperCommonMembershipDupes = 0;
-    for (ProvisioningMembership grouperCommonMembership : 
-      GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getGrouperCommonObjects().getProvisioningMemberships())) {
+  public void indexTargetGroups() {
+  
+    Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
+    this.grouperProvisioner.getGrouperProvisioningData().setTargetGroupIdToProvisioningGroupWrapper(targetGroupIdToProvisioningGroupWrapper);
+  
+    int grouperTargetGroupsWithNullTargetIds = 0;
+    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups())) {
       
-      String groupId = grouperCommonMembership.getProvisioningGroupId();
-      if (StringUtils.isBlank(groupId)) {
-        throw new NullPointerException("Cant find groupId for grouperCommonMembership! " + grouperCommonMembership);
-      }
-      String entityId = grouperCommonMembership.getProvisioningEntityId();
-      if (StringUtils.isBlank(entityId)) {
-        throw new NullPointerException("Cant find entityId for grouperCommonMembership! " + grouperCommonMembership);
-      }
-      MultiKey groupIdEntityId = new MultiKey(groupId, entityId);
-      
-      if (commonGroupIdEntityIdToProvisioningMembershipWrapper.containsKey(groupIdEntityId)) {
-        
-//        throw new NullPointerException("Why do multiple memberships from grouper have the same common id???\n" 
-//            + grouperCommonMembership + "\n" + commonMembershipIdToProvisioningMembershipWrapper.get(groupIdEntityId));
-        
-        // i think this is ok
-        grouperCommonMembershipDupes++;
+      Object targetId = grouperTargetGroup.getTargetId();
+      if (targetId == null) {
+        // this could be an insert?
+        grouperTargetGroupsWithNullTargetIds++;
+        // TODO make sure to handle this in the compare
         continue;
-        
+      }
+      
+      if (targetGroupIdToProvisioningGroupWrapper.containsKey(targetId)) {
+        throw new NullPointerException("Why do multiple groups from grouper have the same target id???\n" 
+            + grouperTargetGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(targetId));
       }
   
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperCommonMembership.getProvisioningMembershipWrapper();
-      if (provisioningMembershipWrapper == null) {
-        throw new NullPointerException("Cant find membershipWrapper for grouperCommonMembership! " + grouperCommonMembership);
+      ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
+      if (provisioningGroupWrapper == null) {
+        throw new NullPointerException("Cant find group wrapper: " + grouperTargetGroup);
       }
-      commonGroupIdEntityIdToProvisioningMembershipWrapper.put(groupIdEntityId, provisioningMembershipWrapper);
+      targetGroupIdToProvisioningGroupWrapper.put(targetId, provisioningGroupWrapper);
     }
-
-    if (grouperCommonMembershipDupes > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("grouperCommonMembershipDupes", grouperCommonMembershipDupes);
-    }
-
-    int targetCommonMembershipDupes = 0;
-
     
-    // make sure we arent double dipping target common ids
-    Set<MultiKey> targetCommonIds = new HashSet<MultiKey>();
-    for (ProvisioningMembership targetCommonMembership : 
+    if (grouperTargetGroupsWithNullTargetIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetGroupsWithNullTargetIds", grouperTargetGroupsWithNullTargetIds);
+    }
+  
+    // make sure we arent double dipping target provisioning target ids
+    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    for (ProvisioningGroup targetProvisioningGroup : 
       GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
-          .getTargetCommonObjects().getProvisioningMemberships())) {
+          .getTargetProvisioningObjects().getProvisioningGroups())) {
       
-      String groupId = targetCommonMembership.getProvisioningGroupId();
-      if (StringUtils.isBlank(groupId)) {
-        throw new NullPointerException("Cant find groupId for targetCommonMembership! " + targetCommonMembership);
+      Object targetId = targetProvisioningGroup.getTargetId();
+      if (targetId == null) {
+        throw new NullPointerException("Cant find id for targetProvisioningGroup! " + targetProvisioningGroup);
       }
-      String entityId = targetCommonMembership.getProvisioningEntityId();
-      if (StringUtils.isBlank(entityId)) {
-        throw new NullPointerException("Cant find entityId for targetCommonMembership! " + targetCommonMembership);
-      }
-      MultiKey groupIdEntityId = new MultiKey(groupId, entityId);
       
-      if (targetCommonIds.contains(groupIdEntityId)) {
-//        throw new NullPointerException("Why do multiple memberships from target have the same common id???\n" 
-//            + targetCommonMembership + "\n" + commonMembershipIdToProvisioningMembershipWrapper.get(id));
-        
-        // this is probably ok
-        targetCommonMembershipDupes++;
+      if (targetProvisioningTargetIds.contains(targetId)) {
+        throw new NullPointerException("Why do multiple groups from target have the same target id???\n" 
+            + targetProvisioningGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(targetId));
+      }
+      targetProvisioningTargetIds.add(targetId);
+  
+      ProvisioningGroupWrapper provisioningGroupWrapperReal = targetGroupIdToProvisioningGroupWrapper.get(targetId);
+      if (provisioningGroupWrapperReal == null) {
+        provisioningGroupWrapperReal = new ProvisioningGroupWrapper();
+        targetGroupIdToProvisioningGroupWrapper.put(targetId, provisioningGroupWrapperReal);
+      }
+  
+      ProvisioningGroupWrapper provisioningGroupWrapperTarget = targetProvisioningGroup.getProvisioningGroupWrapper();
+  
+      // lets merge these to get our complete wrapper
+      targetProvisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapperReal);
+      provisioningGroupWrapperReal.setTargetProvisioningGroup(targetProvisioningGroup);
+      if (provisioningGroupWrapperTarget != null) {
+        provisioningGroupWrapperReal.setTargetNativeGroup(provisioningGroupWrapperTarget.getTargetNativeGroup());
+      }
+    }
+  
+  }
 
+
+  public void indexTargetMemberships() {
+  
+    Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
+    this.grouperProvisioner.getGrouperProvisioningData().setTargetMembershipIdToProvisioningMembershipWrapper(targetMembershipIdToProvisioningMembershipWrapper);
+  
+    int grouperTargetMembershipsWithNullTargetIds = 0;
+    for (ProvisioningMembership grouperTargetMembership : GrouperUtil.nonNull(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships())) {
+      
+      Object targetId = grouperTargetMembership.getTargetId();
+      if (targetId == null) {
+        // this could be an insert?
+        grouperTargetMembershipsWithNullTargetIds++;
+        // TODO make sure to handle this in the compare
         continue;
       }
-      targetCommonIds.add(groupIdEntityId);
       
-      ProvisioningMembershipWrapper targetMembershipWrapper = targetCommonMembership.getProvisioningMembershipWrapper();
-      if (targetMembershipWrapper == null) {
-        throw new NullPointerException("Cant find membershipWrapper for targetCommonMembership! " + targetCommonMembership);
+      if (targetMembershipIdToProvisioningMembershipWrapper.containsKey(targetId)) {
+        throw new NullPointerException("Why do multiple memberships from grouper have the same target id???\n" 
+            + grouperTargetMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(targetId));
       }
-      ProvisioningMembershipWrapper grouperMembershipWrapper = commonGroupIdEntityIdToProvisioningMembershipWrapper.get(groupIdEntityId);
+  
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership.getProvisioningMembershipWrapper();
+      if (provisioningMembershipWrapper == null) {
+        throw new NullPointerException("Cant find membership wrapper: " + grouperTargetMembership);
+      }
+      targetMembershipIdToProvisioningMembershipWrapper.put(targetId, provisioningMembershipWrapper);
+    }
+    
+    if (grouperTargetMembershipsWithNullTargetIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetMembershipsWithNullTargetIds", grouperTargetMembershipsWithNullTargetIds);
+    }
+  
+    // make sure we arent double dipping target provisioning target ids
+    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    for (ProvisioningMembership targetProvisioningMembership : 
+      GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData()
+          .getTargetProvisioningObjects().getProvisioningMemberships())) {
       
-      // if there is no grouperMembershipWrapper
-      if (grouperMembershipWrapper == null) {
-        commonGroupIdEntityIdToProvisioningMembershipWrapper.put(groupIdEntityId, targetMembershipWrapper);
-      } else {
-        // lets merge these to get our complete wrapper
-        grouperMembershipWrapper.setTargetCommonMembership(targetCommonMembership);
-        targetCommonMembership.setProvisioningMembershipWrapper(grouperMembershipWrapper);
-        if (targetMembershipWrapper.getTargetProvisioningMembership() != null) {
-          grouperMembershipWrapper.setTargetProvisioningMembership(targetMembershipWrapper.getTargetProvisioningMembership());
-          targetMembershipWrapper.getTargetProvisioningMembership().setProvisioningMembershipWrapper(grouperMembershipWrapper);
-        }
-        grouperMembershipWrapper.setTargetNativeMembership(targetMembershipWrapper.getTargetNativeMembership());
+      Object targetId = targetProvisioningMembership.getTargetId();
+      if (targetId == null) {
+        throw new NullPointerException("Cant find id for targetProvisioningMembership! " + targetProvisioningMembership);
       }
+      
+      if (targetProvisioningTargetIds.contains(targetId)) {
+        throw new NullPointerException("Why do multiple memberships from target have the same target id???\n" 
+            + targetProvisioningMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(targetId));
+      }
+      targetProvisioningTargetIds.add(targetId);
+  
+      ProvisioningMembershipWrapper provisioningMembershipWrapperReal = targetMembershipIdToProvisioningMembershipWrapper.get(targetId);
+      if (provisioningMembershipWrapperReal == null) {
+        provisioningMembershipWrapperReal = new ProvisioningMembershipWrapper();
+        targetMembershipIdToProvisioningMembershipWrapper.put(targetId, provisioningMembershipWrapperReal);
+      }
+  
+      ProvisioningMembershipWrapper provisioningMembershipWrapperTarget = targetProvisioningMembership.getProvisioningMembershipWrapper();
+  
+      // lets merge these to get our complete wrapper
+      targetProvisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapperReal);
+      provisioningMembershipWrapperReal.setTargetProvisioningMembership(targetProvisioningMembership);
+      if (provisioningMembershipWrapperTarget != null) {
+        provisioningMembershipWrapperReal.setTargetNativeMembership(provisioningMembershipWrapperTarget.getTargetNativeMembership());
+      }
+      
+      
+      
     }
-    if (targetCommonMembershipDupes > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("targetCommonMembershipDupes", targetCommonMembershipDupes);
-    }
-
+  
   }
 
 

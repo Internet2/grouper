@@ -464,8 +464,8 @@ public class GrouperProvisionerGrouperDao {
       memberUuidToProvisioningEntityWrapper.put(provisioningEntity.getId(), provisioningEntityWrapper);
     }
 
-    Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper
-      = this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToProvisioningMembershipWrapper();
+    Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper
+      = this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
     // add wrappers for memberships
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(grouperProvisioningObjects.getProvisioningMemberships())) {
@@ -473,7 +473,7 @@ public class GrouperProvisionerGrouperDao {
       provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
       provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
       provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
-      groupIdMemberIdToProvisioningMembershipWrapper.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), 
+      groupUuidMemberUuidToProvisioningMembershipWrapper.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), 
           provisioningMembershipWrapper);
     }
   }
@@ -708,12 +708,12 @@ public class GrouperProvisionerGrouperDao {
     {
       long start = System.currentTimeMillis();
       Map<MultiKey, GcGrouperSyncMembership> retrieveAllSyncMemberships = this.retrieveAllSyncMemberships();
-      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupIdMemberIdToSyncMembership(
+      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidMemberUuidToSyncMembership(
           retrieveAllSyncMemberships);
-      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupIdMemberIdtoSyncMembershipIncludeRemoved(
+      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidMemberUuidtoSyncMembershipIncludeRemoved(
           new HashMap<MultiKey, GcGrouperSyncMembership>(retrieveAllSyncMemberships));
       debugMap.put("retrieveSyncMshipsMillis", System.currentTimeMillis() - start);
-      debugMap.put("syncMshipCount", GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToSyncMembership()));
+      debugMap.put("syncMshipCount", GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership()));
     }
     
   }
@@ -744,7 +744,7 @@ public class GrouperProvisionerGrouperDao {
     
     List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveAll();
     
-    Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
+    Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
 
     
     int syncMembershipReferenceMissing = 0;
@@ -766,14 +766,14 @@ public class GrouperProvisionerGrouperDao {
         continue;
       }
   
-      groupIdMemberIdToSyncMembership.put(new MultiKey(gcGrouperSyncGroup.getGroupId(),
+      groupUuidMemberUuidToSyncMembership.put(new MultiKey(gcGrouperSyncGroup.getGroupId(),
           gcGrouperSyncMember.getMemberId()), gcGrouperSyncMembership);
     }
     if (syncMembershipReferenceMissing > 0) {
       this.getGrouperProvisioner().getDebugMap().put("syncMembershipReferenceMissing", syncMembershipReferenceMissing);
     }
 
-    return groupIdMemberIdToSyncMembership;
+    return groupUuidMemberUuidToSyncMembership;
   }
 
   public void calculateProvisioningDataToDelete() {
@@ -838,13 +838,13 @@ public class GrouperProvisionerGrouperDao {
    */
   public void calculateProvisioningMembershipsToDelete() {
   
-    Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToSyncMembership();
+    Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership();
   
     List<ProvisioningMembership> grouperProvisioningMembershipsToDelete = this.getGrouperProvisioner().getGrouperProvisioningData()
         .getGrouperProvisioningObjectsToDelete().getProvisioningMemberships();
     
-    Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper = this.getGrouperProvisioner()
-        .getGrouperProvisioningData().getGroupIdMemberIdToProvisioningMembershipWrapper();
+    Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner()
+        .getGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
     Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidToProvisioningGroupWrapper();
     Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper();
@@ -852,14 +852,14 @@ public class GrouperProvisionerGrouperDao {
     int provisioningMshipsToDelete = 0;
     
     // loop through sync groups
-    for (MultiKey groupIdMemberId : GrouperUtil.nonNull(groupIdMemberIdToSyncMembership).keySet()) {
+    for (MultiKey groupUuidMemberUuid : GrouperUtil.nonNull(groupUuidMemberUuidToSyncMembership).keySet()) {
 
-      String groupId = (String)groupIdMemberId.getKey(0);
-      String memberId = (String)groupIdMemberId.getKey(1);
+      String groupId = (String)groupUuidMemberUuid.getKey(0);
+      String memberId = (String)groupUuidMemberUuid.getKey(1);
 
-      GcGrouperSyncMembership gcGrouperSyncMembership = groupIdMemberIdToSyncMembership.get(groupIdMemberId);
+      GcGrouperSyncMembership gcGrouperSyncMembership = groupUuidMemberUuidToSyncMembership.get(groupUuidMemberUuid);
       
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = groupIdMemberIdToProvisioningMembershipWrapper.get(groupIdMemberId);
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupUuidMemberUuid);
       
       // if a group has been deleted in grouper_groups table but copy still exists in grouper_sync_group
       // we are sending the copy over to the target so that target can also delete
@@ -906,7 +906,7 @@ public class GrouperProvisionerGrouperDao {
         provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
         provisioningMembershipWrapper.setGrouperProvisioningMembershipToDelete(provisioningMembership);
         
-        groupIdMemberIdToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
+        groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupUuidMemberUuid, provisioningMembershipWrapper);
         
       }
       provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
@@ -926,8 +926,8 @@ public class GrouperProvisionerGrouperDao {
         this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper(),
         this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToSyncMember());
     ProvisioningSyncIntegration.fullSyncMemberships(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToProvisioningMembershipWrapper(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupIdMemberIdToSyncMembership());
+        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper(),
+        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership());
     int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     provisioningSyncResult.setSyncObjectStoreCount(objectStoreCount);
     

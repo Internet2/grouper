@@ -1,10 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -115,135 +110,135 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     this.provisioningEntityId = provisioningEntityId;
   }
   
-  /**
-   * if you are processing memberships, and you need to stuff those into a group
-   * call this to get that group or create a new one
-   * @return the common provision to target group
-   */
-  public ProvisioningGroup retrieveCommonProvisionToTargetGroup() {
-    try {
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
-      if (provisioningMembershipWrapper == null) {
-        throw new NullPointerException("Cant find provisioningMembershipWrapper: " + this);
-      }
-      
-      ProvisioningMembership commonMembership = GrouperUtil.defaultIfNull(
-          provisioningMembershipWrapper.getGrouperCommonMembership(), 
-          provisioningMembershipWrapper.getTargetCommonMembership());
-      if (commonMembership == null || StringUtils.isBlank(commonMembership.getProvisioningGroupId())) {
-        throw new NullPointerException("Cant find commonMembership: " + this + ", " + commonMembership);
-      }
-      
-      // from common membership there should be a common group wrapper
-      GrouperProvisioner grouperProvisioner = provisioningMembershipWrapper.getGrouperProvisioner();
-      
-      Map<String, ProvisioningGroupWrapper> commonGroupIdToGroupWrapper = grouperProvisioner
-          .getGrouperProvisioningData().getCommonGroupIdToGroupWrapper();
-      if (commonGroupIdToGroupWrapper == null) {
-        commonGroupIdToGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
-        grouperProvisioner
-        .getGrouperProvisioningData().setCommonGroupIdToGroupWrapper(commonGroupIdToGroupWrapper);
-      }
-      ProvisioningGroupWrapper provisioningGroupWrapper = commonGroupIdToGroupWrapper.get(commonMembership.getProvisioningGroupId());
-      
-      if (provisioningGroupWrapper == null) {
-        throw new NullPointerException("Cant find provisioningGroupWrapper: " + this);
-      }
-      
-      ProvisioningGroup commonProvisionToTargetGroup = provisioningGroupWrapper.getCommonProvisionToTargetGroup();
-      
-      if (commonProvisionToTargetGroup == null) {
-        // hmmm, we need one :)
-        ProvisioningGroup commonGroup = provisioningGroupWrapper.getCommonGroup();
-        if (commonGroup == null) {
-          throw new NullPointerException("Cant find commonGroup: " + this);
-        }
-        
-        //we need to translate this common group to target
-        List<ProvisioningGroup> commonToTargetGroups = grouperProvisioner.retrieveTranslator().translateCommonToTargetGroups("update", GrouperUtil.toList(commonGroup));
-        if (GrouperUtil.length(commonToTargetGroups) != 1) {
-          throw new RuntimeException("Cant translate common to target group: " + commonGroup + ", " + GrouperUtil.length(commonToTargetGroups));
-        }
-        List<ProvisioningGroup> provisioningGroups = grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningGroups();
-        if (provisioningGroups == null) {
-          provisioningGroups = new ArrayList<ProvisioningGroup>();
-          grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningGroups(provisioningGroups);
-        }
-        commonProvisionToTargetGroup = commonToTargetGroups.get(0);
-        provisioningGroupWrapper.setCommonProvisionToTargetGroup(commonProvisionToTargetGroup);
-        provisioningGroups.add(commonToTargetGroups.get(0));
-      }
-      return commonProvisionToTargetGroup;
-    } catch (RuntimeException re) {
-      LOG.error("error in: " + this, re);
-      throw re;
-    }
-  }
+//  /**
+//   * if you are processing memberships, and you need to stuff those into a group
+//   * call this to get that group or create a new one
+//   * @return the common provision to target group
+//   */
+//  public ProvisioningGroup retrieveCommonProvisionToTargetGroup() {
+//    try {
+//      ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
+//      if (provisioningMembershipWrapper == null) {
+//        throw new NullPointerException("Cant find provisioningMembershipWrapper: " + this);
+//      }
+//      
+//      ProvisioningMembership commonMembership = GrouperUtil.defaultIfNull(
+//          provisioningMembershipWrapper.getGrouperCommonMembership(), 
+//          provisioningMembershipWrapper.getTargetCommonMembership());
+//      if (commonMembership == null || StringUtils.isBlank(commonMembership.getProvisioningGroupId())) {
+//        throw new NullPointerException("Cant find commonMembership: " + this + ", " + commonMembership);
+//      }
+//      
+//      // from common membership there should be a common group wrapper
+//      GrouperProvisioner grouperProvisioner = provisioningMembershipWrapper.getGrouperProvisioner();
+//      
+//      Map<String, ProvisioningGroupWrapper> commonGroupIdToGroupWrapper = grouperProvisioner
+//          .getGrouperProvisioningData().getCommonGroupIdToGroupWrapper();
+//      if (commonGroupIdToGroupWrapper == null) {
+//        commonGroupIdToGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
+//        grouperProvisioner
+//        .getGrouperProvisioningData().setCommonGroupIdToGroupWrapper(commonGroupIdToGroupWrapper);
+//      }
+//      ProvisioningGroupWrapper provisioningGroupWrapper = commonGroupIdToGroupWrapper.get(commonMembership.getProvisioningGroupId());
+//      
+//      if (provisioningGroupWrapper == null) {
+//        throw new NullPointerException("Cant find provisioningGroupWrapper: " + this);
+//      }
+//      
+//      ProvisioningGroup commonProvisionToTargetGroup = provisioningGroupWrapper.getCommonProvisionToTargetGroup();
+//      
+//      if (commonProvisionToTargetGroup == null) {
+//        // hmmm, we need one :)
+//        ProvisioningGroup commonGroup = provisioningGroupWrapper.getCommonGroup();
+//        if (commonGroup == null) {
+//          throw new NullPointerException("Cant find commonGroup: " + this);
+//        }
+//        
+//        //we need to translate this common group to target
+//        List<ProvisioningGroup> commonToTargetGroups = grouperProvisioner.retrieveTranslator().translateCommonToTargetGroups("update", GrouperUtil.toList(commonGroup));
+//        if (GrouperUtil.length(commonToTargetGroups) != 1) {
+//          throw new RuntimeException("Cant translate common to target group: " + commonGroup + ", " + GrouperUtil.length(commonToTargetGroups));
+//        }
+//        List<ProvisioningGroup> provisioningGroups = grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningGroups();
+//        if (provisioningGroups == null) {
+//          provisioningGroups = new ArrayList<ProvisioningGroup>();
+//          grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningGroups(provisioningGroups);
+//        }
+//        commonProvisionToTargetGroup = commonToTargetGroups.get(0);
+//        provisioningGroupWrapper.setCommonProvisionToTargetGroup(commonProvisionToTargetGroup);
+//        provisioningGroups.add(commonToTargetGroups.get(0));
+//      }
+//      return commonProvisionToTargetGroup;
+//    } catch (RuntimeException re) {
+//      LOG.error("error in: " + this, re);
+//      throw re;
+//    }
+//  }
   
-  /**
-   * if you are processing memberships, and you need to stuff those into an entity
-   * call this to get that entity or create a new one
-   * @return the common provision to target entity
-   */
-  public ProvisioningEntity retrieveCommonProvisionToTargetEntity() {
-    try {
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
-      if (provisioningMembershipWrapper == null) {
-        throw new NullPointerException("Cant find provisioningMembershipWrapper: " + this);
-      }
-      
-      ProvisioningMembership commonMembership = GrouperUtil.defaultIfNull(
-          provisioningMembershipWrapper.getGrouperCommonMembership(), 
-          provisioningMembershipWrapper.getTargetCommonMembership());
-      if (commonMembership == null || StringUtils.isBlank(commonMembership.getProvisioningEntityId())) {
-        throw new NullPointerException("Cant find commonMembership: " + this + ", " + commonMembership);
-      }
-      
-      // from common membership there should be a common group wrapper
-      GrouperProvisioner grouperProvisioner = provisioningMembershipWrapper.getGrouperProvisioner();
-      
-      Map<String, ProvisioningEntityWrapper> commonEntityIdToEntityWrapper = grouperProvisioner
-          .getGrouperProvisioningData().getCommonEntityIdToEntityWrapper();
-      if (commonEntityIdToEntityWrapper == null) {
-        commonEntityIdToEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
-        grouperProvisioner.getGrouperProvisioningData().setCommonEntityIdToEntityWrapper(commonEntityIdToEntityWrapper);
-      }
-      ProvisioningEntityWrapper provisioningEntityWrapper = commonEntityIdToEntityWrapper.get(commonMembership.getProvisioningEntityId());
-      
-      if (provisioningEntityWrapper == null) {
-        throw new NullPointerException("Cant find provisioningEntityWrapper: " + this);
-      }
-      
-      ProvisioningEntity commonProvisionToTargetEntity = provisioningEntityWrapper.getCommonProvisionToTargetEntity();
-      
-      if (commonProvisionToTargetEntity == null) {
-        // hmmm, we need one :)
-        ProvisioningEntity commonEntity = provisioningEntityWrapper.getCommonEntity();
-        if (commonEntity == null) {
-          throw new NullPointerException("Cant find commonEntity: " + this);
-        }
-        
-        //we need to translate this common group to target
-        List<ProvisioningEntity> commonToTargetEntities = grouperProvisioner.retrieveTranslator().translateCommonToTargetEntities("update", GrouperUtil.toList(commonEntity));
-        if (GrouperUtil.length(commonToTargetEntities) != 1) {
-          throw new RuntimeException("Cant translate common to target entity: " + commonEntity + ", " + GrouperUtil.length(commonToTargetEntities));
-        }
-        List<ProvisioningEntity> provisioningEntitys = grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningEntities();
-        if (provisioningEntitys == null) {
-          provisioningEntitys = new ArrayList<ProvisioningEntity>();
-          grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningEntities(provisioningEntitys);
-        }
-        commonProvisionToTargetEntity = commonToTargetEntities.get(0);
-        provisioningEntityWrapper.setCommonProvisionToTargetEntity(commonProvisionToTargetEntity);
-        provisioningEntitys.add(commonToTargetEntities.get(0));
-      }
-      return commonProvisionToTargetEntity;
-    } catch (RuntimeException re) {
-      LOG.error("error in: " + this, re);
-      throw re;
-    }
-      
-  }
+//  /**
+//   * if you are processing memberships, and you need to stuff those into an entity
+//   * call this to get that entity or create a new one
+//   * @return the common provision to target entity
+//   */
+//  public ProvisioningEntity retrieveCommonProvisionToTargetEntity() {
+//    try {
+//      ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
+//      if (provisioningMembershipWrapper == null) {
+//        throw new NullPointerException("Cant find provisioningMembershipWrapper: " + this);
+//      }
+//      
+//      ProvisioningMembership commonMembership = GrouperUtil.defaultIfNull(
+//          provisioningMembershipWrapper.getGrouperCommonMembership(), 
+//          provisioningMembershipWrapper.getTargetCommonMembership());
+//      if (commonMembership == null || StringUtils.isBlank(commonMembership.getProvisioningEntityId())) {
+//        throw new NullPointerException("Cant find commonMembership: " + this + ", " + commonMembership);
+//      }
+//      
+//      // from common membership there should be a common group wrapper
+//      GrouperProvisioner grouperProvisioner = provisioningMembershipWrapper.getGrouperProvisioner();
+//      
+//      Map<String, ProvisioningEntityWrapper> commonEntityIdToEntityWrapper = grouperProvisioner
+//          .getGrouperProvisioningData().getCommonEntityIdToEntityWrapper();
+//      if (commonEntityIdToEntityWrapper == null) {
+//        commonEntityIdToEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
+//        grouperProvisioner.getGrouperProvisioningData().setCommonEntityIdToEntityWrapper(commonEntityIdToEntityWrapper);
+//      }
+//      ProvisioningEntityWrapper provisioningEntityWrapper = commonEntityIdToEntityWrapper.get(commonMembership.getProvisioningEntityId());
+//      
+//      if (provisioningEntityWrapper == null) {
+//        throw new NullPointerException("Cant find provisioningEntityWrapper: " + this);
+//      }
+//      
+//      ProvisioningEntity commonProvisionToTargetEntity = provisioningEntityWrapper.getCommonProvisionToTargetEntity();
+//      
+//      if (commonProvisionToTargetEntity == null) {
+//        // hmmm, we need one :)
+//        ProvisioningEntity commonEntity = provisioningEntityWrapper.getCommonEntity();
+//        if (commonEntity == null) {
+//          throw new NullPointerException("Cant find commonEntity: " + this);
+//        }
+//        
+//        //we need to translate this common group to target
+//        List<ProvisioningEntity> commonToTargetEntities = grouperProvisioner.retrieveTranslator().translateCommonToTargetEntities("update", GrouperUtil.toList(commonEntity));
+//        if (GrouperUtil.length(commonToTargetEntities) != 1) {
+//          throw new RuntimeException("Cant translate common to target entity: " + commonEntity + ", " + GrouperUtil.length(commonToTargetEntities));
+//        }
+//        List<ProvisioningEntity> provisioningEntitys = grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().getProvisioningEntities();
+//        if (provisioningEntitys == null) {
+//          provisioningEntitys = new ArrayList<ProvisioningEntity>();
+//          grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates().setProvisioningEntities(provisioningEntitys);
+//        }
+//        commonProvisionToTargetEntity = commonToTargetEntities.get(0);
+//        provisioningEntityWrapper.setCommonProvisionToTargetEntity(commonProvisionToTargetEntity);
+//        provisioningEntitys.add(commonToTargetEntities.get(0));
+//      }
+//      return commonProvisionToTargetEntity;
+//    } catch (RuntimeException re) {
+//      LOG.error("error in: " + this, re);
+//      throw re;
+//    }
+//      
+//  }
   
   
   public String toString() {

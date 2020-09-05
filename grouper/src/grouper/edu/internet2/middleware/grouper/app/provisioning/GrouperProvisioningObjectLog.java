@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,24 +30,17 @@ public class GrouperProvisioningObjectLog {
           appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.getGrouperProvisioningData().getGrouperProvisioningObjects());
           appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
         }
-        if (StringUtils.equals("translateGrouperToCommon", state)) {
-          appendProvisioningObjects(logMessage, "Grouper common", this.grouperProvisioner.getGrouperProvisioningData().getGrouperCommonObjects());
+        if (StringUtils.equals("translateGrouperToTarget", state)) {
+          appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
         }
-        if (StringUtils.equals("translateTargetToCommon", state)) {
-          appendProvisioningObjects(logMessage, "Target common", this.grouperProvisioner.getGrouperProvisioningData().getTargetCommonObjects());
-        }
-        if (StringUtils.equals("compareCommonObjects", state)) {
-          appendProvisioningObjects(logMessage, "Common inserts", this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectInserts());
-          appendProvisioningObjects(logMessage, "Common updates", this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectUpdates());
-          appendProvisioningObjects(logMessage, "Common deletes", this.grouperProvisioner.getGrouperProvisioningData().getCommonObjectDeletes());
-        }
-        if (StringUtils.equals("translateCommonToTarget", state)) {
+        if (StringUtils.equals("compareTargetObjects", state)) {
           appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
           appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
           appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
         }
-        if (StringUtils.equals("translateCommonToTarget", state)) {
-          
+        if (StringUtils.equals("idTargetObjects", state)) {
+          appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
+          appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
         }
         if (logMessage.charAt(logMessage.length()-1) == '\n') {
           logMessage.setLength(logMessage.length() - 1);

@@ -26,6 +26,57 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
 
+  /**
+   * expression to get the group id from target group
+   */
+  private String targetGroupIdExpression;
+
+  /**
+   * expression to get the membership id from the target group
+   */
+  private String targetMembershipIdExpression;
+
+  /**
+   * expression to get the entity id from the target entity
+   */
+  private String targetEntityIdExpression;
+  
+  
+  
+  public String getTargetGroupIdExpression() {
+    return targetGroupIdExpression;
+  }
+
+
+  
+  public void setTargetGroupIdExpression(String targetGroupIdExpression) {
+    this.targetGroupIdExpression = targetGroupIdExpression;
+  }
+
+
+  
+  public String getTargetMembershipIdExpression() {
+    return targetMembershipIdExpression;
+  }
+
+
+  
+  public void setTargetMembershipIdExpression(String targetMembershipIdExpression) {
+    this.targetMembershipIdExpression = targetMembershipIdExpression;
+  }
+
+
+  
+  public String getTargetEntityIdExpression() {
+    return targetEntityIdExpression;
+  }
+
+
+  
+  public void setTargetEntityIdExpression(String targetEntityIdExpression) {
+    this.targetEntityIdExpression = targetEntityIdExpression;
+  }
+
   private boolean logAllObjectsVerbose = false;
   
   
@@ -73,23 +124,14 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * key is groupEntity or membership
    */
-  private Map<String, List<String>> grouperProvisioningToCommonTranslation = new HashMap<String, List<String>>();
+  private Map<String, List<String>> grouperProvisioningToTargetTranslation = new HashMap<String, List<String>>();
   
   
-  public Map<String, List<String>> getGrouperProvisioningToCommonTranslation() {
-    return grouperProvisioningToCommonTranslation;
+  public Map<String, List<String>> getGrouperProvisioningToTargetTranslation() {
+    return grouperProvisioningToTargetTranslation;
   }
 
   
-  public Map<String, List<String>> getTargetProvisioningToCommonTranslation() {
-    return targetProvisioningToCommonTranslation;
-  }
-
-  
-  public Map<String, List<String>> getCommonProvisioningToTargetTranslation() {
-    return commonProvisioningToTargetTranslation;
-  }
-
   /**
    * get a config name for this or dependency
    * @param configName
@@ -335,16 +377,6 @@ public abstract class GrouperProvisioningConfigurationBase {
   private String membershipAttributeNames;
 
   /**
-   * key is groupEntity or membership
-   */
-  private Map<String, List<String>> targetProvisioningToCommonTranslation = new HashMap<String, List<String>>();
-
-  /**
-   * key is groupEntity or membership
-   */
-  private Map<String, List<String>> commonProvisioningToTargetTranslation = new HashMap<String, List<String>>();
-
-  /**
    * 
    */
   public abstract void configureSpecificSettings();
@@ -366,7 +398,10 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.debugMap.put("hasTargetUserLink", this.hasTargetUserLink);
     }
 
-        
+    this.targetEntityIdExpression = this.retrieveConfigString("targetEntityIdExpression", false);
+    this.targetGroupIdExpression = this.retrieveConfigString("targetGroupIdExpression", false);
+    this.targetMembershipIdExpression = this.retrieveConfigString("targetMembershipIdExpression", false);
+
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
     this.membershipAttributeNames = this.retrieveConfigString("membershipAttributeNames", false);
     
@@ -459,48 +494,15 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     for (int i=0; i<= 1000; i++) {
       
-      String script = this.retrieveConfigString("grouperToCommonTranslation."+i+".script" , false);
+      String script = this.retrieveConfigString("grouperToTargetTranslation."+i+".script" , false);
       if (StringUtils.isBlank(script)) {
         break;
       }
-      String forString = this.retrieveConfigString("grouperToCommonTranslation."+i+".for" , true);
-      List<String> scripts = this.grouperProvisioningToCommonTranslation.get(forString);
+      String forString = this.retrieveConfigString("grouperToTargetTranslation."+i+".for" , true);
+      List<String> scripts = this.grouperProvisioningToTargetTranslation.get(forString);
       if (scripts == null) {
         scripts = new ArrayList<String>();
-        this.grouperProvisioningToCommonTranslation.put(forString, scripts);
-      } 
-      scripts.add(script);
-      
-    }
-
-  
-    for (int i=0; i<= 1000; i++) {
-      
-      String script = this.retrieveConfigString("targetToCommonTranslation."+i+".script" , false);
-      if (StringUtils.isBlank(script)) {
-        break;
-      }
-      String forString = this.retrieveConfigString("targetToCommonTranslation."+i+".for" , true);
-      List<String> scripts = this.targetProvisioningToCommonTranslation.get(forString);
-      if (scripts == null) {
-        scripts = new ArrayList<String>();
-        this.targetProvisioningToCommonTranslation.put(forString, scripts);
-      } 
-      scripts.add(script);
-      
-    }
-
-    for (int i=0; i<= 1000; i++) {
-      
-      String script = this.retrieveConfigString("commonToTargetTranslation."+i+".script" , false);
-      if (StringUtils.isBlank(script)) {
-        break;
-      }
-      String forString = this.retrieveConfigString("commonToTargetTranslation."+i+".for" , true);
-      List<String> scripts = this.commonProvisioningToTargetTranslation.get(forString);
-      if (scripts == null) {
-        scripts = new ArrayList<String>();
-        this.commonProvisioningToTargetTranslation.put(forString, scripts);
+        this.grouperProvisioningToTargetTranslation.put(forString, scripts);
       } 
       scripts.add(script);
       

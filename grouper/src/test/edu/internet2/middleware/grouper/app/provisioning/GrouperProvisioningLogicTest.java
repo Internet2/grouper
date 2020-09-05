@@ -91,14 +91,14 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     grouperProvisioner.retrieveGrouperDao().processWrappers();
     
-    translator.translateGrouperToCommon();
+    translator.translateGrouperToTarget();
     
-    assertEquals(1, grouperProvisioningData.getGrouperCommonObjects().getProvisioningGroups().size());
-    ProvisioningGroup commonGroup = grouperProvisioningData.getGrouperCommonObjects().getProvisioningGroups().get(0);
+    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
+    ProvisioningGroup commonGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
     assertEquals("testName", commonGroup.getId());
     
-    assertEquals(1, grouperProvisioningData.getGrouperCommonObjects().getProvisioningEntities().size());
-    ProvisioningEntity commonEntity = grouperProvisioningData.getGrouperCommonObjects().getProvisioningEntities().get(0);
+    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
+    ProvisioningEntity commonEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
     
     assertEquals("testSubjectId", commonEntity.getId());
   }

@@ -9,6 +9,29 @@ package edu.internet2.middleware.grouper.app.provisioning;
 public class ProvisioningAttribute {
 
   /**
+   * if this attribute represents a membership keep that link here
+   */
+  private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+  
+
+  /**
+   * if this attribute represents a membership keep that link here
+   * @return
+   */
+  public ProvisioningMembershipWrapper getProvisioningMembershipWrapper() {
+    return provisioningMembershipWrapper;
+  }
+
+  /**
+   * if this attribute represents a membership keep that link here
+   * @param provisioningMembershipWrapper
+   */
+  public void setProvisioningMembershipWrapper(
+      ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    this.provisioningMembershipWrapper = provisioningMembershipWrapper;
+  }
+
+  /**
    * name of attribute
    */
   private String name;
