@@ -33,20 +33,20 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
   }
   
-  public void testTranslateGrouperToCommon() {
+  public void testTranslateGrouperToTarget() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
 
     //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToCommonTranslation.0.script", "${grouperCommonGroup.setId(grouperProvisioningGroup.getName())}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", "${grouperTargetGroup.setId(grouperProvisioningGroup.getName())}");
     // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToCommonTranslation.0.for", "group");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
     //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToCommonTranslation.1.script", "${grouperCommonEntity.setId(grouperProvisioningEntity.retrieveAttributeValue(\"subjectId\"))}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", "${grouperTargetEntity.setId(grouperProvisioningEntity.retrieveAttributeValue(\"subjectId\"))}");
     //# could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToCommonTranslation.1.for", "entity");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "entity");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipAttributeNames", "group_name, subject_id");
@@ -94,13 +94,13 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     translator.translateGrouperToTarget();
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
-    ProvisioningGroup commonGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
-    assertEquals("testName", commonGroup.getId());
+    ProvisioningGroup grouperTargetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
+    assertEquals("testName", grouperTargetGroup.getId());
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
-    ProvisioningEntity commonEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
+    ProvisioningEntity grouperTargetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
     
-    assertEquals("testSubjectId", commonEntity.getId());
+    assertEquals("testSubjectId", grouperTargetEntity.getId());
   }
   
 
