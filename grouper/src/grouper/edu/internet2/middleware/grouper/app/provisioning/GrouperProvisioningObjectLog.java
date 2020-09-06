@@ -12,6 +12,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperProvisioningObjectLog {
   
+  private StringBuilder objectLog = new StringBuilder();
+  
   public GrouperProvisioningObjectLog() {
     
   }
@@ -21,32 +23,34 @@ public class GrouperProvisioningObjectLog {
   }
   
   public void debug(String state) {
+    if (!grouperProvisioner.retrieveProvisioningConfiguration().isLogAllObjectsVerbose()) {
+      return;
+    }
+    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' object log after state: '").append(state).append("': ");
+    logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
+    if (StringUtils.equals("retrieveAllData", state)) {
+      appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.getGrouperProvisioningData().getGrouperProvisioningObjects());
+      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
+    }
+    if (StringUtils.equals("translateGrouperToTarget", state)) {
+      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
+    }
+    if (StringUtils.equals("compareTargetObjects", state)) {
+      appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
+      appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
+      appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
+    }
+    if (StringUtils.equals("idTargetObjects", state)) {
+      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
+      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
+    }
+    if (logMessage.charAt(logMessage.length()-1) == '\n') {
+      logMessage.setLength(logMessage.length() - 1);
+    }
     if (LOG.isDebugEnabled()) {
-      if (grouperProvisioner.retrieveProvisioningConfiguration().isLogAllObjectsVerbose()) {
-        
-        StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' object log after state: '").append(state).append("': ");
-        logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
-        if (StringUtils.equals("retrieveAllData", state)) {
-          appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.getGrouperProvisioningData().getGrouperProvisioningObjects());
-          appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
-        }
-        if (StringUtils.equals("translateGrouperToTarget", state)) {
-          appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
-        }
-        if (StringUtils.equals("compareTargetObjects", state)) {
-          appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
-          appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
-          appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
-        }
-        if (StringUtils.equals("idTargetObjects", state)) {
-          appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
-          appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
-        }
-        if (logMessage.charAt(logMessage.length()-1) == '\n') {
-          logMessage.setLength(logMessage.length() - 1);
-        }
-        LOG.debug(logMessage);
-      }
+      LOG.debug(logMessage);      
+    } else {
+      LOG.error(logMessage);
     }
   }
 

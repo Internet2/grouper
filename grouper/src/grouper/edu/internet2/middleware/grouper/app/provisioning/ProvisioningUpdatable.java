@@ -293,7 +293,7 @@ public abstract class ProvisioningUpdatable {
         }
 
         ProvisioningAttribute attrValue = this.attributes.get(key);
-        firstField = toStringAppendField(result, firstField, "attr_" + key, attrValue == null ? "null" : attrValue.getValue());
+        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue == null ? "null" : attrValue.getValue());
         
       }
     }
@@ -313,7 +313,7 @@ public abstract class ProvisioningUpdatable {
             
           }
           if (changeCount > 0) {
-            firstField = toStringAppendField(result, firstField,provisioningObjectChangeDataType+"_"+provisioningObjectAction, changeCount);
+            firstField = toStringAppendField(result, firstField,provisioningObjectChangeDataType+"s_to_"+provisioningObjectAction, changeCount);
           }
         }
       }
@@ -339,7 +339,22 @@ public abstract class ProvisioningUpdatable {
     firstField = false;
     result.append(fieldName).append(": ");
     
-    if (fieldValue.getClass().isArray() || fieldValue instanceof Collection || fieldValue instanceof Map) {
+    if (fieldValue instanceof Collection) {
+      int resultInitialLength = result.length();
+      int index = 0;
+      result.append(fieldValue.getClass().getSimpleName()).append("(").append(GrouperUtil.length(fieldValue)).append("): ");
+      for (Object item : (Collection)fieldValue) {
+        if (index > 0) {
+          result.append(", ");
+        }
+        result.append("[").append(index).append("]: ").append(GrouperUtil.stringValue(item));
+        if (result.length() - resultInitialLength > 1000) {
+          result.append("...");
+          break;
+        }
+        index++;
+      }
+    } else if (fieldValue.getClass().isArray() || fieldValue instanceof Map) {
       result.append(GrouperUtil.toStringForLog(fieldValue, 1000));
     } else {
       result.append(GrouperUtil.stringValue(fieldValue));
