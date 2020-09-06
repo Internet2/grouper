@@ -297,6 +297,27 @@ public abstract class ProvisioningUpdatable {
         
       }
     }
+    if (GrouperUtil.length(this.internal_objectChanges) > 0) {
+      for (ProvisioningObjectChangeDataType provisioningObjectChangeDataType : ProvisioningObjectChangeDataType.values()) {
+        
+        for (ProvisioningObjectChangeAction provisioningObjectAction : ProvisioningObjectChangeAction.values()) {
+        
+          int changeCount = 0;
+          
+          for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
+            
+            if (provisioningObjectChangeDataType == provisioningObjectChange.getProvisioningObjectChangeDataType()
+                && provisioningObjectAction == provisioningObjectChange.getProvisioningObjectChangeAction()) {
+              changeCount++;
+            }
+            
+          }
+          if (changeCount > 0) {
+            firstField = toStringAppendField(result, firstField,provisioningObjectChangeDataType+"_"+provisioningObjectAction, changeCount);
+          }
+        }
+      }
+    }
     return firstField;
   }
   

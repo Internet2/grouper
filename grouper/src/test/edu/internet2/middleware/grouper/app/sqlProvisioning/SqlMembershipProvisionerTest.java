@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -149,6 +150,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
 
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserColumn", "subject_id");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserValueFormat", "${targetEntity.id}");
@@ -165,32 +167,19 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetMembership.setProvisioningGroupId(grouperProvisioningMembership.getProvisioningGroup().getName())}");
+        "${grouperTargetMembership.assignAttribute('group_name', grouperProvisioningMembership.getProvisioningGroup().getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "membership");
     //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-        "${grouperTargetMembership.setProvisioningEntityId(grouperProvisioningMembership.getProvisioningEntity().retrieveAttributeValueString('subjectId'))}");
+        "${grouperTargetMembership.assignAttribute('subject_id', grouperProvisioningMembership.getProvisioningEntity().retrieveAttributeValueString('subjectId'))}");
     //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetMembershipIdExpression", 
-        "new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.retrieveAttributeValueString('group_name'), "
+        "new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('group_name'), "
         + "targetMembership.retrieveAttributeValueString('subject_id'))");
 
-    
-    //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetToCommonTranslation.0.script", 
-        "${grouperTargetMembership.setGroupId(targetProvisioningMembership.retrieveAttributeValueString('group_name')); "
-        + "grouperTargetMembership.setEntityId(targetProvisioningMembership.retrieveAttributeValueString('subject_id'));}");
-    //# could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetToCommonTranslation.0.for", "membership");
-    //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.script", 
-        "${commonProvisionToTargetMembership.assignAttribute('group_name', commonMembership.getProvisioningGroupId()); "
-        + "commonProvisionToTargetMembership.assignAttribute('subject_id', commonMembership.getProvisioningEntityId());}");
-    //# could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.for", "membership");
     
     
 //    
@@ -409,114 +398,6 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "70", true, true);
     
   }
-
-  /**
-     * just do a simple full sync of groups and memberships
-     */
-    public void testSimpleGroupMembershipProvisioningFull_translateGroupsEntities() {
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-  
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserColumn", "subject_id");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipUserValueFormat", "${targetEntity.id}");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupColumn", "group_name");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipGroupValueFormat", "${targetGroup.id}");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncMemberToId3AttributeValueFormat", "${targetEntity.id}");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.syncGroupToId3AttributeValueFormat", "${targetGroup.name}");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationNumberOfAttributes", "2");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_0", "group_name");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_0", "${targetGroup.name}");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_attr_1", "subject_id");
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipCreationColumnTemplate_val_1", "${targetEntity.id}");
-      
-      
-      //#translate from group auto translated to the common format
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-          "${grouperTargetGroup.setId(grouperProvisioningGroup.getName())}");
-      // # could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
-      //#translate from group auto translated to the common format
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-          "${grouperTargetEntity.setId(grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
-      //# could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "entity");
-      //#translate from group auto translated to the common format
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetToCommonTranslation.0.script", 
-          "${grouperTargetMembership.setGroupId(targetProvisioningMembership.retrieveAttributeValueString('group_name')); "
-          + "grouperTargetMembership.setEntityId(targetProvisioningMembership.retrieveAttributeValueString('subject_id'));}");
-      //# could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetToCommonTranslation.0.for", "membership");
-      //#translate from group auto translated to the common format
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.script", 
-          "${commonProvisionToTargetMembership.assignAttribute('group_name', commonMembership.getProvisioningGroupId()); "
-          + "commonProvisionToTargetMembership.assignAttribute('subject_id', commonMembership.getProvisioningEntityId());}");
-      //# could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.for", "membership");
-      
-      
-  //    
-  //    
-  //    
-  //    //#translate from group auto translated to the common format
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.2.script", "${targetCommonGroup.setId(targetProvisioningGroup.getId())}");
-  //    //# could be group, membership, or entity
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.2.for", "group");
-  //    //#translate from group auto translated to the common format
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.3.script", "${targetCommonEntity.setId(targetProvisioningEntity.getId())}");
-  //    //# could be group, membership, or entity
-  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.3.for", "entity");
-  //    
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipAttributeNames", "group_name, subject_id");
-      
-      // # if provisioning in ui should be enabled
-      //# {valueType: "boolean", required: true}
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-  
-          
-      Stem stem = new StemSave(this.grouperSession).assignName("test").save();
-      Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
-      
-      // mark some folders to provision
-      Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
-      Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
-      
-      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
-      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
-      
-      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
-      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
-      
-      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
-      attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision(true);
-      attributeValue.setTargetName("sqlProvTest");
-      attributeValue.setStemScopeString("sub");
-  
-      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
-  
-      //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
-      //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
-      
-      //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-      
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-    
-      List<Object[]> dataInTable = new GcDbAccess().sql("select group_name, subject_id from testgrouper_prov_mship0").selectList(Object[].class);
-      
-      Set<MultiKey> groupIdSubjectIdsInTable = new HashSet<MultiKey>();
-      
-      for (Object[] groupIdSubjectId: dataInTable) {
-        groupIdSubjectIdsInTable.add(new MultiKey(groupIdSubjectId[0], groupIdSubjectId[1]));
-      }
-      
-      assertEquals(2, groupIdSubjectIdsInTable.size());
-      assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
-      assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
-    }
 
   /**
      * just do a simple full sync of groups and memberships

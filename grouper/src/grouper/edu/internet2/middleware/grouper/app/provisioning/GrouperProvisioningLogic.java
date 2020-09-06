@@ -276,55 +276,64 @@ public class GrouperProvisioningLogic {
   
   protected void compareTargetMemberships(List<ProvisioningMembership> grouperTargetMemberships, List<ProvisioningMembership> targetProvisioningMemberships) { 
     
-    Map<MultiKey, ProvisioningMembership> grouperTargetGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
-    Map<MultiKey, ProvisioningMembership> targetProvisioningGroupIdEntityIdToMembership = new HashMap<MultiKey, ProvisioningMembership>();
+    Map<Object, ProvisioningMembership> grouperTargetIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
+    Map<Object, ProvisioningMembership> targetTargetIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     
+    List<ProvisioningMembership> grouperTargetMembershipsWithNullIds = new ArrayList<ProvisioningMembership>();
     
     for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(grouperTargetMemberships)) {
-      grouperTargetGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
+      Object targetId = provisioningMembership.getTargetId();
+      if (targetId != null) {
+        grouperTargetIdToTargetMembership.put(provisioningMembership.getTargetId(), provisioningMembership);
+      } else {
+        grouperTargetMembershipsWithNullIds.add(provisioningMembership);
+      }
     }
     
     for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(targetProvisioningMemberships)) {
-      targetProvisioningGroupIdEntityIdToMembership.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), provisioningMembership);
+      Object targetId = provisioningMembership.getTargetId();
+      if (targetId != null) {
+        targetTargetIdToTargetMembership.put(provisioningMembership.getTargetId(), provisioningMembership);
+      }
     }
     
     {
       // memberships to insert
-      Set<MultiKey> groupIdEntityIdsToInsert = new HashSet<MultiKey>(grouperTargetGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToInsert.removeAll(targetProvisioningGroupIdEntityIdToMembership.keySet());
+      Set<Object> targetIdsToInsert = new HashSet<Object>(grouperTargetIdToTargetMembership.keySet());
+      targetIdsToInsert.removeAll(targetTargetIdToTargetMembership.keySet());
       
       List<ProvisioningMembership> provisioningMembershipsToInsert = new ArrayList<ProvisioningMembership>();
       
-      for (MultiKey groupIdEntityIdToInsert: groupIdEntityIdsToInsert) {
-        provisioningMembershipsToInsert.add(grouperTargetGroupIdEntityIdToMembership.get(groupIdEntityIdToInsert));
+      for (Object groupIdEntityIdToInsert: targetIdsToInsert) {
+        provisioningMembershipsToInsert.add(grouperTargetIdToTargetMembership.get(groupIdEntityIdToInsert));
       }
       
       this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningMemberships(provisioningMembershipsToInsert);
     
     
       // memberships to delete
-      Set<MultiKey> groupIdEntityIdsToDelete = new HashSet<MultiKey>(targetProvisioningGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToDelete.removeAll(grouperTargetGroupIdEntityIdToMembership.keySet());
+      Set<Object> groupIdEntityIdsToDelete = new HashSet<Object>(targetTargetIdToTargetMembership.keySet());
+      groupIdEntityIdsToDelete.removeAll(grouperTargetIdToTargetMembership.keySet());
       
       List<ProvisioningMembership> provisioningMembershipsToDelete = new ArrayList<ProvisioningMembership>();
       
-      for (MultiKey groupIdEntityIdToDelete: groupIdEntityIdsToDelete) {
-        provisioningMembershipsToDelete.add(targetProvisioningGroupIdEntityIdToMembership.get(groupIdEntityIdToDelete));
+      for (Object targetIdsToDelete: groupIdEntityIdsToDelete) {
+        provisioningMembershipsToDelete.add(targetTargetIdToTargetMembership.get(targetIdsToDelete));
       }
       
       this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningMemberships(provisioningMembershipsToDelete);
     
       // memberships to update
-      Set<MultiKey> groupIdEntityIdsToUpdate = new HashSet<MultiKey>(targetProvisioningGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToUpdate.addAll(grouperTargetGroupIdEntityIdToMembership.keySet());
-      groupIdEntityIdsToUpdate.removeAll(groupIdEntityIdsToInsert);
-      groupIdEntityIdsToUpdate.removeAll(groupIdEntityIdsToDelete);
+      Set<Object> targetIdsToUpdate = new HashSet<Object>(targetTargetIdToTargetMembership.keySet());
+      targetIdsToUpdate.addAll(grouperTargetIdToTargetMembership.keySet());
+      targetIdsToUpdate.removeAll(targetIdsToInsert);
+      targetIdsToUpdate.removeAll(groupIdEntityIdsToDelete);
       
       List<ProvisioningMembership> provisioningMembershipsToUpdate = new ArrayList<ProvisioningMembership>();
       
-      for (MultiKey groupIdEntityIdToUpdate: groupIdEntityIdsToUpdate) {
-        ProvisioningMembership grouperTargetMembership = grouperTargetGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
-        ProvisioningMembership targetProvisioningMembership = targetProvisioningGroupIdEntityIdToMembership.get(groupIdEntityIdToUpdate);
+      for (Object targetIdToUpdate: targetIdsToUpdate) {
+        ProvisioningMembership grouperTargetMembership = grouperTargetIdToTargetMembership.get(targetIdToUpdate);
+        ProvisioningMembership targetProvisioningMembership = targetTargetIdToTargetMembership.get(targetIdToUpdate);
         
         compareFieldValue(provisioningMembershipsToUpdate, "id",
             grouperTargetMembership.getId(), targetProvisioningMembership.getId(),
@@ -343,55 +352,64 @@ public class GrouperProvisioningLogic {
   
   protected void compareTargetEntities(List<ProvisioningEntity> grouperTargetEntities, List<ProvisioningEntity> targetProvisioningEntities) { 
     
-    Map<String, ProvisioningEntity> grouperTargetEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
-    Map<String, ProvisioningEntity> targetProvisioningEntityIdToEntity = new HashMap<String, ProvisioningEntity>();
+    Map<Object, ProvisioningEntity> grouperTargetIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
+    Map<Object, ProvisioningEntity> targetTargetIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
     
+    List<ProvisioningEntity> grouperTargetEntitiesWithNullIds = new ArrayList<ProvisioningEntity>();
     
     for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(grouperTargetEntities)) {
-      grouperTargetEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
+      Object targetId = provisioningEntity.getTargetId();
+      if (targetId != null) {
+        grouperTargetIdToTargetEntity.put(provisioningEntity.getTargetId(), provisioningEntity);
+      } else {
+        grouperTargetEntitiesWithNullIds.add(provisioningEntity);
+      }
     }
     
     for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(targetProvisioningEntities)) {
-      targetProvisioningEntityIdToEntity.put(provisioningEntity.getId(), provisioningEntity);
+      Object targetId = provisioningEntity.getTargetId();
+      if (targetId != null) {
+        targetTargetIdToTargetEntity.put(provisioningEntity.getTargetId(), provisioningEntity);
+      }
     }
-    
+        
     {
       // entities to insert
-      Set<String> entityIdsToInsert = new HashSet<String>(grouperTargetEntityIdToEntity.keySet());
-      entityIdsToInsert.removeAll(targetProvisioningEntityIdToEntity.keySet());
+      Set<Object> entityIdsToInsert = new HashSet<Object>(grouperTargetIdToTargetEntity.keySet());
+      entityIdsToInsert.removeAll(targetTargetIdToTargetEntity.keySet());
       
       List<ProvisioningEntity> provisioningEntitiesToInsert = new ArrayList<ProvisioningEntity>();
       
-      for (String entityIdToInsert: entityIdsToInsert) {
-        provisioningEntitiesToInsert.add(grouperTargetEntityIdToEntity.get(entityIdToInsert));
+      for (Object entityIdToInsert: entityIdsToInsert) {
+        provisioningEntitiesToInsert.add(grouperTargetIdToTargetEntity.get(entityIdToInsert));
       }
       
       this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
     
     
       // entities to delete
-      Set<String> entityIdsToDelete = new HashSet<String>(targetProvisioningEntityIdToEntity.keySet());
-      entityIdsToDelete.removeAll(grouperTargetEntityIdToEntity.keySet());
+      Set<Object> entityIdsToDelete = new HashSet<Object>(targetTargetIdToTargetEntity.keySet());
+      entityIdsToDelete.removeAll(grouperTargetIdToTargetEntity.keySet());
       
       List<ProvisioningEntity> provisioningEntitiesToDelete = new ArrayList<ProvisioningEntity>();
       
-      for (String entityIdToDelete: entityIdsToDelete) {
-        provisioningEntitiesToDelete.add(targetProvisioningEntityIdToEntity.get(entityIdToDelete));
+      for (Object entityIdToDelete: entityIdsToDelete) {
+        provisioningEntitiesToDelete.add(targetTargetIdToTargetEntity.get(entityIdToDelete));
       }
       
       this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningEntities(provisioningEntitiesToDelete);
     
       // entities to update
-      Set<String> entityIdsToUpdate = new HashSet<String>(targetProvisioningEntityIdToEntity.keySet());
-      entityIdsToUpdate.addAll(grouperTargetEntityIdToEntity.keySet());
+      Set<Object> entityIdsToUpdate = new HashSet<Object>(targetTargetIdToTargetEntity.keySet());
+      entityIdsToUpdate.addAll(grouperTargetIdToTargetEntity.keySet());
       entityIdsToUpdate.removeAll(entityIdsToInsert);
       entityIdsToUpdate.removeAll(entityIdsToDelete);
       
       List<ProvisioningEntity> provisioningEntitiesToUpdate = new ArrayList<ProvisioningEntity>();
       
-      for (String entityIdToUpdate: entityIdsToUpdate) {
-        ProvisioningEntity grouperTargetEntity = grouperTargetEntityIdToEntity.get(entityIdToUpdate);
-        ProvisioningEntity targetProvisioningEntity = targetProvisioningEntityIdToEntity.get(entityIdToUpdate);
+      for (Object entityIdToUpdate: entityIdsToUpdate) {
+        ProvisioningEntity grouperTargetEntity = grouperTargetIdToTargetEntity.get(entityIdToUpdate);
+        ProvisioningEntity targetProvisioningEntity = targetTargetIdToTargetEntity.get(entityIdToUpdate);
         
         compareFieldValue(provisioningEntitiesToUpdate, "name",
             grouperTargetEntity.getName() , targetProvisioningEntity.getName(),
@@ -420,27 +438,36 @@ public class GrouperProvisioningLogic {
   protected void compareTargetGroups(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningGroup> targetProvisioningGroups) {
     
     // groups insert
-    Map<String, ProvisioningGroup> grouperTargetGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
-    Map<String, ProvisioningGroup> targetProvisioningGroupIdToGroup = new HashMap<String, ProvisioningGroup>();
+    Map<Object, ProvisioningGroup> grouperTargetIdToTargetGroup = new HashMap<Object, ProvisioningGroup>();
+    Map<Object, ProvisioningGroup> targetTargetIdToTargetGroup = new HashMap<Object, ProvisioningGroup>();
     
+    List<ProvisioningGroup> grouperTargetGroupsWithNullIds = new ArrayList<ProvisioningGroup>();
     
     for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(grouperTargetGroups)) {
-      grouperTargetGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
+      Object targetId = provisioningGroup.getTargetId();
+      if (targetId != null) {
+        grouperTargetIdToTargetGroup.put(provisioningGroup.getTargetId(), provisioningGroup);
+      } else {
+        grouperTargetGroupsWithNullIds.add(provisioningGroup);
+      }
     }
     
     for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(targetProvisioningGroups)) {
-      targetProvisioningGroupIdToGroup.put(provisioningGroup.getId(), provisioningGroup);
+      Object targetId = provisioningGroup.getTargetId();
+      if (targetId != null) {
+        targetTargetIdToTargetGroup.put(provisioningGroup.getTargetId(), provisioningGroup);
+      }
     }
     
     {
       // groups to insert
-      Set<String> groupIdsToInsert = new HashSet<String>(grouperTargetGroupIdToGroup.keySet());
-      groupIdsToInsert.removeAll(targetProvisioningGroupIdToGroup.keySet());
+      Set<Object> groupIdsToInsert = new HashSet<Object>(grouperTargetIdToTargetGroup.keySet());
+      groupIdsToInsert.removeAll(targetTargetIdToTargetGroup.keySet());
       
       List<ProvisioningGroup> provisioningGroupsToInsert = new ArrayList<ProvisioningGroup>();
       
-      for (String groupIdToInsert: groupIdsToInsert) {
-        ProvisioningGroup groupToInsert = grouperTargetGroupIdToGroup.get(groupIdToInsert);
+      for (Object groupIdToInsert: groupIdsToInsert) {
+        ProvisioningGroup groupToInsert = grouperTargetIdToTargetGroup.get(groupIdToInsert);
         provisioningGroupsToInsert.add(groupToInsert);
         for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(groupToInsert.getAttributes()).keySet())) {
           Object grouperValue = groupToInsert.getAttributes().get(attributeName).getValue();
@@ -478,13 +505,13 @@ public class GrouperProvisioningLogic {
     
     
       // groups to delete
-      Set<String> groupIdsToDelete = new HashSet<String>(targetProvisioningGroupIdToGroup.keySet());
-      groupIdsToDelete.removeAll(grouperTargetGroupIdToGroup.keySet());
+      Set<Object> groupIdsToDelete = new HashSet<Object>(targetTargetIdToTargetGroup.keySet());
+      groupIdsToDelete.removeAll(grouperTargetIdToTargetGroup.keySet());
       
       List<ProvisioningGroup> provisioningGroupsToDelete = new ArrayList<ProvisioningGroup>();
       
-      for (String groupIdToDelete: groupIdsToDelete) {
-        provisioningGroupsToDelete.add(targetProvisioningGroupIdToGroup.get(groupIdToDelete));
+      for (Object groupIdToDelete: groupIdsToDelete) {
+        provisioningGroupsToDelete.add(targetTargetIdToTargetGroup.get(groupIdToDelete));
         
         //TODO add indiv fields and attributes
       }
@@ -493,17 +520,17 @@ public class GrouperProvisioningLogic {
       .getTargetObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
     
       // groups to update
-      Set<String> groupIdsToUpdate = new HashSet<String>(targetProvisioningGroupIdToGroup.keySet());
-      groupIdsToUpdate.addAll(grouperTargetGroupIdToGroup.keySet());
+      Set<Object> groupIdsToUpdate = new HashSet<Object>(targetTargetIdToTargetGroup.keySet());
+      groupIdsToUpdate.addAll(grouperTargetIdToTargetGroup.keySet());
       groupIdsToUpdate.removeAll(groupIdsToInsert);
       groupIdsToUpdate.removeAll(groupIdsToDelete);
       
       
       List<ProvisioningGroup> provisioningGroupsToUpdate = new ArrayList<ProvisioningGroup>();
       
-      for (String groupIdToUpdate: groupIdsToUpdate) {
-        ProvisioningGroup grouperTargetGroup = grouperTargetGroupIdToGroup.get(groupIdToUpdate);
-        ProvisioningGroup targetProvisioningGroup = targetProvisioningGroupIdToGroup.get(groupIdToUpdate);
+      for (Object groupIdToUpdate: groupIdsToUpdate) {
+        ProvisioningGroup grouperTargetGroup = grouperTargetIdToTargetGroup.get(groupIdToUpdate);
+        ProvisioningGroup targetProvisioningGroup = targetTargetIdToTargetGroup.get(groupIdToUpdate);
         
         compareFieldValue(provisioningGroupsToUpdate, "displayName",
             grouperTargetGroup.getDisplayName(), targetProvisioningGroup.getDisplayName(),

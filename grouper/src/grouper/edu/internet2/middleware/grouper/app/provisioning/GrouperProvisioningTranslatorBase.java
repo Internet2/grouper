@@ -312,7 +312,7 @@ public class GrouperProvisioningTranslatorBase {
       if (!StringUtils.isBlank(membershipIdScript)) {
 
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
-        elVariableMap.put("targetEntity", targetMembership);
+        elVariableMap.put("targetMembership", targetMembership);
         
         id = runScript(membershipIdScript, elVariableMap);
         
@@ -334,6 +334,9 @@ public class GrouperProvisioningTranslatorBase {
 
   public Object runScript(String script, Map<String, Object> elVariableMap) {
     try {
+      if (!script.contains("${")) {
+        script = "${" + script + "}";
+      }
       return GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, ", script: '" + script + "', ");
