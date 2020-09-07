@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
@@ -111,15 +113,25 @@ public class GrouperProvisionerGrouperDao {
 
   }
   
-  public List<ProvisioningGroup> retrieveAllGroups() {
-    
+  /**
+   * get either all groups or a list of groups
+   * @param retrieveAll
+   * @param ids
+   * @return the groups
+   */
+  public List<ProvisioningGroup> retrieveGroups(boolean retrieveAll, Collection<String> ids) {
+
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
     
+    if (retrieveAll && ids != null) {
+      throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
+    }
+
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
-    String sql = "select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
+    String sqlInitial = "select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
         "        from grouper_groups gg, grouper_aval_asn_asn_group_v gaaagv_target, " + 
         "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
         "         where gg.id = gaaagv_do_provision.group_id and " + 
@@ -133,83 +145,75 @@ public class GrouperProvisionerGrouperDao {
         "         and gaaagv_do_provision.value_string = 'true'" + 
         "         ";
     
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
 
-    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(),
-        GrouperUtil.toListObject(
-            GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName(),
-            GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName(),
-            GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName(),
-            GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName(),
-            this.grouperProvisioner.getConfigId()), HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, 
-                StringType.INSTANCE, 
-                StringType.INSTANCE, StringType.INSTANCE));
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
 
-    List<ProvisioningGroup> provisioningGroupsFromGrouper = getTargetGroupMapFromQueryResults(queryResults);
-    results.addAll(GrouperUtil.nonNull(provisioningGroupsFromGrouper));
+    List<String[]> queryResults = null;
+    if (retrieveAll) {
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(),
+          paramsInitial, typesInitial);
+      List<ProvisioningGroup> provisioningGroupsFromGrouper = getTargetGroupMapFromQueryResults(queryResults);
+      results.addAll(GrouperUtil.nonNull(provisioningGroupsFromGrouper));
+    } else {
+      if (GrouperUtil.length(ids) == 0) {
+        return results;
+      }
+
+      List<String> idsList = GrouperUtil.listFromCollection(ids);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+        
+        List<Object> params = new ArrayList<Object>(paramsInitial);
+        params.addAll(currentBatchIds);
+
+        List<Type> types = new ArrayList<Type>(typesInitial);
+
+        for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+          types.add(StringType.INSTANCE);
+        }
+        
+        StringBuilder sql = new StringBuilder(sqlInitial);
+        sql.append(" and gg.id in (");
+        sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+        sql.append(") ");
+        
+        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+        
+        List<ProvisioningGroup> targetGroupMapFromQueryResults = getTargetGroupMapFromQueryResults(queryResults);
+        results.addAll(GrouperUtil.nonNull(targetGroupMapFromQueryResults));
+      }      
+    }
     
     return results;
+
   }
   
-  public Map<String, ProvisioningGroup> retrieveGroupsByIds(Collection<String> ids) {
-    
+  public List<ProvisioningEntity> retrieveMembers(boolean retrieveAll, Collection<String> ids) {
+
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
     
-    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    if (retrieveAll && ids != null) {
+      throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
+    }
 
-    Map<String, ProvisioningGroup> results = new HashMap<String, ProvisioningGroup>();
-    
-    if (GrouperUtil.length(ids) == 0) {
-      return results;
-    }
-    
-    String sqlPrefix = "select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
-        "from grouper_sync gs, grouper_sync_group gsg, grouper_groups gg " + 
-        "where gs.provisioner_name = ? " + 
-        "and gsg.grouper_sync_id = gs.id " + 
-        "and gsg.provisionable = 'T' " + 
-        "and gsg.group_id = gg.id";
-    
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids.size(), 900);
-    for (int i = 0; i < numberOfBatches; i++) {
-      List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
-      
-      List<Object> params = new ArrayList<Object>();
-      params.add(this.grouperProvisioner.getConfigId());
-      params.addAll(currentBatchIds);
-
-      List<Type> types = new ArrayList<Type>();
-      types.add(StringType.INSTANCE);
-      for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
-        types.add(StringType.INSTANCE);
-      }
-      
-      StringBuilder sql = new StringBuilder(sqlPrefix);
-      sql.append(" and gsg.group_id in (");
-      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
-      sql.append(") ");
-      
-      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
-      
-      for (ProvisioningGroup provisioningGroup: getTargetGroupMapFromQueryResults(queryResults)) {
-        results.put(provisioningGroup.getId(), provisioningGroup);
-      }
-      
-    }
-    
-    return results;
-  }
-  
-  public List<ProvisioningEntity> retrieveAllMembers() {
-    
-    if (this.grouperProvisioner == null) {
-      throw new RuntimeException("grouperProvisioner is not set");
-    }
-    
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
-    StringBuilder sql = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
+    StringBuilder sqlInitial = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
         "from grouper_members gm, grouper_memberships_all_v gmav," +  
      " grouper_aval_asn_asn_group_v gaaagv_target, " + 
     "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
@@ -244,63 +248,97 @@ public class GrouperProvisionerGrouperDao {
       throw new RuntimeException("Unexpected field type: " + membershipFieldType.name());
     }
     
-    List<Object> params = new ArrayList<Object>();
+    List<Object> paramsInitial = new ArrayList<Object>();
     
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName());
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
     
-    params.add(this.grouperProvisioner.getConfigId());
-    params.addAll(subjectSources);
-    params.addAll(fieldIds);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+    paramsInitial.addAll(subjectSources);
+    paramsInitial.addAll(fieldIds);
     
-    List<Type> types = new ArrayList<Type>();
-    types.add(StringType.INSTANCE);
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
     
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
     
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
-      types.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
     }
     
-    sql.append(" and gm.subject_source in (");
-    sql.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sql.append(") ");
+    sqlInitial.append(" and gm.subject_source in (");
+    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
+    sqlInitial.append(") ");
     
-    sql.append(" and gmav.field_id in (");
-    sql.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
-    sql.append(") ");
+    sqlInitial.append(" and gmav.field_id in (");
+    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
+    sqlInitial.append(") ");
+    
+    List<String[]> queryResults = null;
+    if (retrieveAll) {
 
-   
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(), paramsInitial, typesInitial);
     
-    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+      List<ProvisioningEntity> grouperProvisioningEntities = getProvisioningEntityMapFromQueryResults(queryResults);
+      results.addAll(grouperProvisioningEntities);
+    } else {
+      if (GrouperUtil.length(ids) == 0) {
+        return results;
+      }
+      List<String> idsList = GrouperUtil.listFromCollection(ids);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+        
+        List<Object> paramsCurrent = new ArrayList<Object>(paramsInitial);
+        paramsCurrent.addAll(currentBatchIds);
 
-    List<ProvisioningEntity> grouperProvisioningEntities = getProvisioningEntityMapFromQueryResults(queryResults);
-    results.addAll(grouperProvisioningEntities);
-    
+        List<Type> typesCurrent = new ArrayList<Type>(typesInitial);
+        for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+          typesCurrent.add(StringType.INSTANCE);
+        }
+        
+        StringBuilder sql = new StringBuilder(sqlInitial);
+        sql.append(" and gm.id in (");
+        sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+        sql.append(") ");
+        
+        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
+        
+        List<ProvisioningEntity> provisioningEntityMapFromQueryResults = getProvisioningEntityMapFromQueryResults(queryResults);
+        results.addAll(provisioningEntityMapFromQueryResults);
+        
+      }
+
+    }
     return results;
   }
   
-  public List<ProvisioningMembership> retrieveAllMemberships() {
-    
+  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, Collection<MultiKey> ids) {
+    //TODO if groups / members dont come back in incremental query, just remove from membership?
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    if (retrieveAll && ids != null) {
+      throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
     }
     
     List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
     
 
-    StringBuilder sql = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_source, gm.subject_identifier0, "
+    StringBuilder sqlInitial = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_source, gm.subject_identifier0, "
         + "gm.name, gm.description, gg.name, gg.display_name, gg.description, gg.id_index " +
         "from grouper_groups gg, grouper_memberships_all_v gmav, grouper_members gm, grouper_aval_asn_asn_group_v gaaagv_target, grouper_aval_asn_asn_group_v gaaagv_do_provision " + 
         "where " +
         " gmav.owner_group_id = gg.id " +
         "and gmav.member_id = gm.id " +
-    
     "         and gg.id = gaaagv_do_provision.group_id and " + 
     "          gg.id = gaaagv_target.group_id and " + 
     "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
@@ -330,105 +368,75 @@ public class GrouperProvisionerGrouperDao {
       throw new RuntimeException("Unexpected field type: " + membershipFieldType.name());
     }
     
-    List<Object> params = new ArrayList<Object>();
+    List<Object> paramsInitial = new ArrayList<Object>();
     
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getName());
-    params.add(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getName());
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
     
-    params.add(this.grouperProvisioner.getConfigId());
-    params.addAll(subjectSources);
-    params.addAll(fieldIds);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+    paramsInitial.addAll(subjectSources);
+    paramsInitial.addAll(fieldIds);
     
-    List<Type> types = new ArrayList<Type>();
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
-    types.add(StringType.INSTANCE);
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
-      types.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
     }
     
-    sql.append(" and gm.subject_source in (");
-    sql.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sql.append(") ");
+    sqlInitial.append(" and gm.subject_source in (");
+    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
+    sqlInitial.append(") ");
     
-    sql.append(" and gmav.field_id in (");
-    sql.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
-    sql.append(") ");
+    sqlInitial.append(" and gmav.field_id in (");
+    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
+    sqlInitial.append(") ");
     
-    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
-
-    List<ProvisioningMembership> grouperProvisioningMemberships = getProvisioningMembershipMapFromQueryResults(queryResults);
-    
-    results.addAll(grouperProvisioningMemberships);
-    
-    
-    return results;
-  }
+    List<String[]> queryResults = null;
+    if (retrieveAll) {
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(), paramsInitial, typesInitial);
   
-  public Map<String, ProvisioningEntity> retrieveMembersByIds(Collection<String> ids) {
-    
-    if (this.grouperProvisioner == null) {
-      throw new RuntimeException("grouperProvisioner is not set");
-    }
-    
-    List<String> idsList = GrouperUtil.listFromCollection(ids);
-    
-    Map<String, ProvisioningEntity> results = new HashMap<String, ProvisioningEntity>();
-    
-    if (GrouperUtil.length(ids) == 0) {
-      return results;
-    }
-    
-    StringBuilder sqlPrefix = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
-        "from grouper_sync gs, grouper_sync_member gsm, grouper_members gm " + 
-        "where gs.provisioner_name = ? " +
-        "and gsm.grouper_sync_id = gs.id " +
-        "and gsm.provisionable = 'T' " +
-        "and gsm.member_id = gm.id");
-    
-    List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveProvisioningConfiguration().getSubjectSourcesToProvision());
-    
-    List<Object> params = new ArrayList<Object>();
-    params.add(this.grouperProvisioner.getConfigId());
-    params.addAll(subjectSources);
-    
-    List<Type> types = new ArrayList<Type>();
-    types.add(StringType.INSTANCE);
-    for (int j = 0; j < GrouperUtil.length(subjectSources); j++) {
-      types.add(StringType.INSTANCE);
-    }
-    
-    sqlPrefix.append(" and gm.subject_source in (");
-    sqlPrefix.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sqlPrefix.append(") ");
-    
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids.size(), 900);
-    for (int i = 0; i < numberOfBatches; i++) {
-      List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+      List<ProvisioningMembership> grouperProvisioningMemberships = getProvisioningMembershipMapFromQueryResults(queryResults);
       
-      List<Object> paramsCurrent = new ArrayList<Object>(params);
-      paramsCurrent.addAll(currentBatchIds);
+      results.addAll(grouperProvisioningMemberships);
+    } else {
+      if (GrouperUtil.length(ids) == 0) {
+        return results;
+      }
+      List<MultiKey> idsList = GrouperUtil.listFromCollection(ids);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 450);
+      StringBuilder sql = new StringBuilder(sqlInitial);
+      
+      sql.append(" and ( ");
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<MultiKey> currentBatchIds = GrouperUtil.batchList(idsList, 450, i);
+        
+        List<Object> paramsCurrent = new ArrayList<Object>(paramsInitial);
 
-      List<Type> typesCurrent = new ArrayList<Type>(types);
-      for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
-        typesCurrent.add(StringType.INSTANCE);
+        List<Type> typesCurrent = new ArrayList<Type>(typesInitial);
+        for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+          typesCurrent.add(StringType.INSTANCE);
+          typesCurrent.add(StringType.INSTANCE);
+          paramsCurrent.add(currentBatchIds.get(j).getKey(0));
+          paramsCurrent.add(currentBatchIds.get(j).getKey(1));
+          if (j>0) {
+            sql.append(" or ");
+          }
+          sql.append("  (gg.id = ? && gm.id = ?) ");
+        }
+        
+         queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
+        
+        List<ProvisioningMembership> provisioningMembershipMapFromQueryResults = getProvisioningMembershipMapFromQueryResults(queryResults);
+        results.addAll(provisioningMembershipMapFromQueryResults);
       }
-      
-      StringBuilder sql = new StringBuilder(sqlPrefix);
-      sql.append(" and gsm.member_id in (");
-      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
-      sql.append(") ");
-      
-      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
-      
-      for (ProvisioningEntity provisioningEntity: getProvisioningEntityMapFromQueryResults(queryResults)) {
-        results.put(provisioningEntity.getId(), provisioningEntity);
-      }
-      
+
     }
     
     return results;
@@ -655,7 +663,7 @@ public class GrouperProvisionerGrouperDao {
     return results;
   }
 
-  public void retrieveAllGrouperData() {
+  public void retrieveGrouperData(GrouperProvisioningType grouperProvisioningType) {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     GrouperProvisioningLists grouperProvisioningObjects = 
@@ -663,31 +671,31 @@ public class GrouperProvisionerGrouperDao {
     
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningGroups(this.retrieveAllGroups());
+      grouperProvisioningObjects.setProvisioningGroups(grouperProvisioningType.retrieveGrouperGroups(this.grouperProvisioner));
       debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
     }
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningEntities(this.retrieveAllMembers());
+      grouperProvisioningObjects.setProvisioningEntities(grouperProvisioningType.retrieveGrouperMembers(this.grouperProvisioner));
       debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
     }
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningMemberships(this.retrieveAllMemberships());
+      grouperProvisioningObjects.setProvisioningMemberships(grouperProvisioningType.retrieveGrouperMemberships(this.grouperProvisioner));
       debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
     }
     
   }
 
-  public void retrieveAllSyncData() {
+  public void retrieveSyncData(GrouperProvisioningType grouperProvisioningType) {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     {
       long start = System.currentTimeMillis();
-      Map<String, GcGrouperSyncGroup> retrieveAllSyncGroups = this.retrieveAllSyncGroups();
+      Map<String, GcGrouperSyncGroup> retrieveAllSyncGroups = grouperProvisioningType.retrieveSyncGroups(this.grouperProvisioner);
       this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidToSyncGroup(retrieveAllSyncGroups);
       this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidToSyncGroupIncludeRemoved(
           new HashMap<String, GcGrouperSyncGroup>(retrieveAllSyncGroups));
@@ -698,7 +706,7 @@ public class GrouperProvisionerGrouperDao {
     }
     {
       long start = System.currentTimeMillis();
-      Map<String, GcGrouperSyncMember> retrieveAllSyncMembers = this.retrieveAllSyncMembers();
+      Map<String, GcGrouperSyncMember> retrieveAllSyncMembers = grouperProvisioningType.retrieveSyncMembers(this.grouperProvisioner);
       this.getGrouperProvisioner().getGrouperProvisioningData().setMemberUuidToSyncMember(retrieveAllSyncMembers);
       this.getGrouperProvisioner().getGrouperProvisioningData().setMemberUuidToSyncMemberIncludeRemoved(
           new HashMap<String, GcGrouperSyncMember>(retrieveAllSyncMembers));
@@ -707,7 +715,7 @@ public class GrouperProvisionerGrouperDao {
     }
     {
       long start = System.currentTimeMillis();
-      Map<MultiKey, GcGrouperSyncMembership> retrieveAllSyncMemberships = this.retrieveAllSyncMemberships();
+      Map<MultiKey, GcGrouperSyncMembership> retrieveAllSyncMemberships = grouperProvisioningType.retrieveSyncMemberships(this.grouperProvisioner);
       this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidMemberUuidToSyncMembership(
           retrieveAllSyncMemberships);
       this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidMemberUuidtoSyncMembershipIncludeRemoved(
@@ -933,6 +941,139 @@ public class GrouperProvisionerGrouperDao {
     
     this.grouperProvisioner.getDebugMap().put("fixSyncObjectStoreCount", objectStoreCount);
     
+  }
+
+  /**
+   * get sync objects from the database
+   */
+  public Map<String, GcGrouperSyncGroup> retrieveIncrementalSyncGroups() {
+    
+    Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
+
+    Set<String> groupIdsToRetrieve = incrementalGroupUuids();
+
+    if (groupIdsToRetrieve.size() > 0) {
+      GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+      Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieve);
+      for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(grouperSyncGroupIdToSyncGroup).values()) {
+        groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
+        
+      }
+    }
+    return groupUuidToSyncGroup;
+
+  }
+
+  private Set<String> incrementalGroupUuids = null;
+  
+  public Set<String> incrementalGroupUuids() {
+    if (incrementalGroupUuids == null) {
+      this.incrementalGroupUuids = new TreeSet<String>();
+      // this is coming from provisioning consumer
+      if (this.getGrouperProvisioner().getProvisioningConsumer() != null) {
+  
+        for (String groupIdToSync : GrouperUtil.nonNull(this.getGrouperProvisioner().getProvisioningConsumer().getGroupIdsToGroupSync())) {
+          incrementalGroupUuids.add(groupIdToSync);
+        }
+        for (MultiKey groupIdMemberIdFieldIdToSync : GrouperUtil.nonNull(this.getGrouperProvisioner().getProvisioningConsumer().getMembershipsToSync())) {
+          incrementalGroupUuids.add((String)groupIdMemberIdFieldIdToSync.getKey(0));
+        }
+      }
+      this.grouperProvisioner.getDebugMap().put("groupUuidCount", GrouperUtil.length(incrementalGroupUuids));
+    }
+    return this.incrementalGroupUuids;
+  }
+
+  /**
+   * get sync objects from the database
+   */
+  public Map<String, GcGrouperSyncMember> retrieveIncrementalSyncMembers() {
+    
+    Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
+  
+    Set<String> memberIdsToRetrieve = incrementalMemberUuids();
+
+    if (memberIdsToRetrieve.size() > 0) {
+      GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+      Map<String, GcGrouperSyncMember> grouperSyncMemberIdToSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieve);
+      for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(grouperSyncMemberIdToSyncMember).values()) {
+        memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
+        
+      }
+    }
+    return memberUuidToSyncMember;
+  
+  }
+
+  private Set<String> incrementalMemberUuids = null;
+
+  public Set<String> incrementalMemberUuids() {
+    this.incrementalMemberUuids = new TreeSet<String>();
+    // this is coming from provisioning consumer
+    if (this.getGrouperProvisioner().getProvisioningConsumer() != null) {
+      for (String memberIdToSync : GrouperUtil.nonNull(this.getGrouperProvisioner().getProvisioningConsumer().getMemberIdsToUserSync())) {
+        incrementalMemberUuids.add(memberIdToSync);
+      }
+      for (MultiKey groupIdMemberIdFieldIdToSync : GrouperUtil.nonNull(this.getGrouperProvisioner().getProvisioningConsumer().getMembershipsToSync())) {
+        incrementalMemberUuids.add((String)groupIdMemberIdFieldIdToSync.getKey(1));
+      }
+    }
+    this.grouperProvisioner.getDebugMap().put("memberUuidCount", GrouperUtil.length(incrementalMemberUuids));
+    return incrementalMemberUuids;
+  }
+
+  /**
+   * get sync objects from the database.  all records correspond to a sync group and sync member or its skipped
+   */
+  public Map<MultiKey, GcGrouperSyncMembership> retrieveIncrementalSyncMemberships() {
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    
+    Set<MultiKey> groupIdMemberIdsToRetrieve = incrementalGroupUuidsMemberUuids();
+    Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
+
+    if (groupIdMemberIdsToRetrieve.size() > 0) {
+      
+      int syncMembershipReferenceMissing = 0;
+      
+      Map<MultiKey, GcGrouperSyncMembership> gcSyncMemberIdGcSyncGroupIdToSyncMemberships = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(groupIdMemberIdsToRetrieve);
+
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperUtil.nonNull(gcSyncMemberIdGcSyncGroupIdToSyncMemberships).values()) {
+        
+        // data is not consistent just ignore for now
+        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncMembership.getGrouperSyncGroupId());
+        if (gcGrouperSyncGroup == null) {
+          syncMembershipReferenceMissing++;
+          continue;
+        }
+        
+        GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMembership.getGrouperSyncMemberId());
+        
+        if (gcGrouperSyncMember == null) {
+          syncMembershipReferenceMissing++;
+          continue;
+        }
+        groupUuidMemberUuidToSyncMembership.put(new MultiKey(gcGrouperSyncGroup.getGroupId(),
+            gcGrouperSyncMember.getMemberId()), gcGrouperSyncMembership);
+      }
+      if (syncMembershipReferenceMissing > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("syncMembershipReferenceMissing", syncMembershipReferenceMissing);
+      }
+    }
+    return groupUuidMemberUuidToSyncMembership;
+        
+  }
+  private Set<MultiKey> incrementalGroupUuidsMemberUuids = null;
+
+  public Set<MultiKey> incrementalGroupUuidsMemberUuids() {
+    this.incrementalGroupUuidsMemberUuids = new TreeSet<MultiKey>();
+    // this is coming from provisioning consumer
+    if (this.getGrouperProvisioner().getProvisioningConsumer() != null) {
+      for (MultiKey groupIdMemberIdFieldIdToSync : GrouperUtil.nonNull(this.getGrouperProvisioner().getProvisioningConsumer().getMembershipsToSync())) {
+        incrementalGroupUuidsMemberUuids.add(new MultiKey(groupIdMemberIdFieldIdToSync.getKey(0), groupIdMemberIdFieldIdToSync.getKey(1)));
+      }
+    }
+    this.grouperProvisioner.getDebugMap().put("groupUuidsMemberUuidsCount", GrouperUtil.length(incrementalGroupUuidsMemberUuids));
+    return incrementalGroupUuidsMemberUuids;
   }
 
 }

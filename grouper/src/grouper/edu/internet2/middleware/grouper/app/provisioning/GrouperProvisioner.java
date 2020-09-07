@@ -22,8 +22,33 @@ public abstract class GrouperProvisioner {
   
   private GrouperProvisioningObjectLog grouperProvisioningObjectLog = null;
   
-
+  /**
+   * reference to the consumer which is sending provisioning events to be processed
+   */
+  private ProvisioningConsumer provisioningConsumer = null;
   
+  
+  
+  /**
+   * reference to the consumer which is sending provisioning events to be processed
+   * @return
+   */
+  public ProvisioningConsumer getProvisioningConsumer() {
+    return provisioningConsumer;
+  }
+
+  /**
+   * reference to the consumer which is sending provisioning events to be processed
+   * @param provisioningConsumer
+   */
+  public void setProvisioningConsumer(ProvisioningConsumer provisioningConsumer) {
+    this.provisioningConsumer = provisioningConsumer;
+  }
+
+  public void setDebugMap(Map<String, Object> debugMap) {
+    this.debugMap = debugMap;
+  }
+
   public GrouperProvisioningObjectLog getGrouperProvisioningObjectLog() {
     if (this.grouperProvisioningObjectLog == null) {
       this.grouperProvisioningObjectLog = new GrouperProvisioningObjectLog(this);
@@ -313,13 +338,7 @@ public abstract class GrouperProvisioner {
       debugMap.put("configId", this.getConfigId());
       debugMap.put("provisioningType", grouperProvisioningType1);
     
-      switch (grouperProvisioningType1) {
-        case fullProvisionFull:
-          this.retrieveGrouperProvisioningLogic().fullProvisionFull();
-          break;
-        default:
-          throw new RuntimeException("Not expecting grouperProvisioningType: " + grouperProvisioningType1);
-      }
+      this.retrieveGrouperProvisioningLogic().provision();
       
       return this.grouperProvisioningOutput;
     } finally {

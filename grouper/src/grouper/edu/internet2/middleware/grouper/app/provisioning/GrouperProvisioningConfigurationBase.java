@@ -510,12 +510,20 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   }
   
+  /**
+   * no need to configure twice if the caller needs to configure before provisioning
+   */
+  private boolean configured = false;
+  
   
   /**
    * configure the provisioner, call super if subclassing
    */
   public void configureProvisioner() {
     
+    if (this.configured) {
+      return;
+    }
     try {
     
       this.preConfigure();
@@ -537,7 +545,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       throw re;
     }
 
-    
+    this.configured = true;
   }
 
   
