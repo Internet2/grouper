@@ -39,20 +39,22 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
 
-    //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", "${grouperTargetGroup.setId(grouperProvisioningGroup.getName())}");
-    // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
-    //#translate from group auto translated to the common format
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", "${grouperTargetEntity.setId(grouperProvisioningEntity.retrieveAttributeValue(\"subjectId\"))}");
-    //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "entity");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
+        "${grouperTargetMembership.assignAttribute('group_name', grouperProvisioningMembership.getProvisioningGroup().getName())}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.3.script", 
+        "${grouperTargetMembership.assignAttribute('subject_id', grouperProvisioningMembership.getProvisioningEntity().retrieveAttributeValueString('subjectId'))}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.3.for", "membership");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipAttributeNames", "group_name, subject_id");
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
+ 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
@@ -61,8 +63,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
     
-    //GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
     GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
@@ -89,18 +89,31 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     grouperProvisioningObjects.setProvisioningEntities(grouperProvisioningEntities);
     
+    List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    
+    ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+    grouperProvisioningMembership.setProvisioningGroup(grouperProvisioningGroup);
+    grouperProvisioningMembership.setProvisioningEntity(grouperProvisioningEntity);
+    
+    grouperProvisioningMemberships.add(grouperProvisioningMembership);
+    grouperProvisioningObjects.setProvisioningMemberships(grouperProvisioningMemberships);
+    
     grouperProvisioner.retrieveGrouperDao().processWrappers();
     
     translator.translateGrouperToTarget();
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
-    ProvisioningGroup grouperTargetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
-    assertEquals("testName", grouperTargetGroup.getId());
+    ProvisioningGroup targetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
+    assertEquals("testName", targetGroup.getId());
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
-    ProvisioningEntity grouperTargetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
+    ProvisioningEntity targetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
+    assertEquals("testSubjectId", targetEntity.getId());
     
-    assertEquals("testSubjectId", grouperTargetEntity.getId());
+    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().size());
+    ProvisioningMembership targetMembership = grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().get(0);
+    assertEquals("testName", targetMembership.getAttributes().get("group_name").getValue().toString());
+    assertEquals("testSubjectId", targetMembership.getAttributes().get("subject_id").getValue().toString());
   }
   
 
