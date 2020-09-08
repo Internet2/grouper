@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
@@ -21,8 +23,12 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -30,6 +36,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -69,7 +76,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDelete"));
+    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteRealTime"));
     
   }
   
@@ -466,7 +473,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupId", "groupName");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupTargetId", "groupName");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
@@ -708,6 +715,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.debugLog", "true");
   
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
@@ -816,6 +824,33 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.4")));
     assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.5")));
   
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+        EsbConsumer.class.getName());
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+        ProvisioningConsumer.class.getName());
+    
+    //something that will never fire
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+        "0 0 5 * * 2000");
+
+    // we dont need an EL filter
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
+//        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "sqlProvTest");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
+        GrouperProvisioningType.incrementalProvisionChangeLog.name());
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
+
+    //clear out changelog
+    // run the provisioner, it will init
+    hib3GrouperLoaderLog = runJobs(true, true);
+    
     // add 4
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem4);
   
@@ -825,11 +860,21 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     // add member, remove member
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
-  
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+
+    //make sure unexpected events are handled
+    new AttributeDefSave(grouperSession).assignName("test:whateverDef").assignCreateParentStemsIfNotExist(true).save();
     
-    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+    // run the provisioner
+    hib3GrouperLoaderLog = runJobs(true, true);
+
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    // this includes fields and attributes etc
+    assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+//TODO    assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+//TODO    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
+
+//TODO    assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.changeLogEntryListSize);
+    
     sql = "select uuid from testgrouper_prov_ldap_group";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -861,7 +906,117 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "groupName", "test4:testGroup4")));
     assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.6")));
     assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
+
+    // do an incremental should do nothing
+    hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
+
     
+    sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
+  
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.8")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "groupName", "test4:testGroup4")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.6")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
+
+    // do a full should do nothing
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+
+    
+    sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
+  
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.8")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "groupName", "test4:testGroup4")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.6")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
+
+
+  }
+
+  /**
+   * esb consumer
+   */
+  private EsbConsumer esbConsumer;
+
+  /**
+   * 
+   */
+  private final String JOB_NAME = "TEST_SQL_LDAP";
+
+  /**
+   * 
+   */
+  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
+    
+    if (runChangeLog) {
+      ChangeLogTempToEntity.convertRecords();
+    }
+    
+    if (runConsumer) {
+      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+      this.esbConsumer = new EsbConsumer();
+      ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, this.esbConsumer);
+  
+      return hib3GrouploaderLog;
+    }
+    
+    return null;
   }
 
 }

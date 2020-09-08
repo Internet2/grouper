@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -480,6 +481,13 @@ public class GrouperProvisioningOutput {
    */
   public void setMessage(String message1) {
     this.message = message1;
+  }
+
+  public void copyToHib3LoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    hib3GrouperLoaderLog.setDeleteCount(this.delete);
+    hib3GrouperLoaderLog.setInsertCount(this.insert);
+    hib3GrouperLoaderLog.setInsertCount(this.update);
+    hib3GrouperLoaderLog.setTotalCount(this.totalCount);
   }
   
 }

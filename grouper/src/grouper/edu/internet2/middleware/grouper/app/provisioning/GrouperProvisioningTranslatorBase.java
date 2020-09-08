@@ -345,14 +345,17 @@ public class GrouperProvisioningTranslatorBase {
     }
   }
 
-  public void idTargetObjects() {
-    
-    idTargetGroups(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
+  public void targetIdTargetObjects() {
     idTargetGroups(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
     idTargetEntities(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
     idTargetMemberships(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningMemberships());
+  }
+  
+  public void targetIdGrouperObjects() {
+    idTargetGroups(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+
   }
 
 }

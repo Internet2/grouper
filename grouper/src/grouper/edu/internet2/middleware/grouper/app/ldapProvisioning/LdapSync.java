@@ -7,8 +7,6 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicAlgorithmBase;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicAlgorithmGroupsOnly;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
@@ -38,11 +36,6 @@ public class LdapSync extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningTranslatorBase> retrieveTranslatorClass() {
     return LdapProvisioningTranslator.class;
-  }
-
-  @Override
-  protected Class<? extends GrouperProvisioningLogicAlgorithmBase> retrieveProvisioningLogicAlgorithmClass() {
-    return GrouperProvisioningLogicAlgorithmGroupsOnly.class;
   }
 
   @Override

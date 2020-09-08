@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -80,30 +81,70 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     
     long sequenceProcessed = -1;
     
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSync().getProvisionerName());
+    final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSync().getProvisionerName());
     grouperProvisioner.setProvisioningConsumer(this);
     grouperProvisioner.setDebugMap(debugMapOverall);
     grouperProvisioner.setGcGrouperSync(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSync());
     grouperProvisioner.setGcGrouperSyncJob(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncJob());
     grouperProvisioner.setGcGrouperSyncLog(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncLog());
     GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
     gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
 
       @Override
       public void run() {
-        ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog().store();
+        
+        
+        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
+        if (grouperProvisioningOutput != null) {
+          grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+        }
+        hib3GrouperLoaderLog.store();
       }
       
     });
     grouperProvisioner.setGcGrouperSyncHeartbeat(gcGrouperSyncHeartbeat);
 
-    grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
+    //look for full sync before we configure the real time
+    boolean ranFullSync = false;
+    GrouperProvisioningOutput grouperProvisioningOutput = null;
+    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
+      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
+            
+      switch (esbEventType) {
+        
+        case PROVISIONING_SYNC_FULL:
+          
+          GrouperProvisioningType grouperProvisioningType = null;
+          
+          if (!StringUtils.isBlank(esbEvent.getProvisionerSyncType())) {
+            grouperProvisioningType = GrouperProvisioningType.valueOfIgnoreCase(esbEvent.getProvisionerSyncType(), true);
+          } else {
+            grouperProvisioningType = GrouperProvisioningType.fullProvisionFull;
+          }
+          
+          grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType); 
+          ranFullSync = true;
+          break;
+        default: 
+          break;
+      }
+    }
+
+    if (!ranFullSync) {
+      GrouperProvisioningType grouperProvisioningType = GrouperProvisioningType.valueOfIgnoreCase(
+          this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncJob().getSyncType(), false);
+      if (grouperProvisioningType == null) {
+        grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
+      }
+      grouperProvisioner.setGrouperProvisioningType(grouperProvisioningType);
+      grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
+    }
     
     // see if we are getting memberships or privs
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
 
-    boolean ranFullSync = false;
-    GrouperProvisioningOutput grouperProvisioningOutput = null;
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
@@ -113,20 +154,6 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
         boolean syncThisMembership = false;
         
         switch (esbEventType) {
-          
-          case PROVISIONING_SYNC_FULL:
-            
-            GrouperProvisioningType grouperProvisioningType = null;
-            
-            if (!StringUtils.isBlank(esbEvent.getProvisionerSyncType())) {
-              grouperProvisioningType = GrouperProvisioningType.valueOfIgnoreCase(esbEvent.getProvisionerSyncType(), true);
-            } else {
-              grouperProvisioningType = GrouperProvisioningType.fullProvisionFull;
-            }
-            
-            grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType); 
-            ranFullSync = true;
-            break;
           
           case PROVISIONING_SYNC_GROUP:
             
@@ -203,13 +230,30 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       provisioningSyncConsumerResult.setLastProcessedSequenceNumber(sequenceProcessed);
     }
     
-    GrouperProvisioningType grouperProvisioningType = GrouperProvisioningType.valueOfIgnoreCase(
-        this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncJob().getSyncType(), false);
-    if (grouperProvisioningType == null) {
-      grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
+    if (!ranFullSync) {
+      
+      // add other events
+      for (String groupId : GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget())) {
+        if (this.groupIdsToGroupSync == null) {
+          this.groupIdsToGroupSync = new LinkedHashSet<String>();
+        }
+        this.groupIdsToGroupSync.add(groupId);
+      }
+      for (String groupId : GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget())) {
+        if (this.groupIdsToGroupSync == null) {
+          this.groupIdsToGroupSync = new LinkedHashSet<String>();
+        }
+        this.groupIdsToGroupSync.add(groupId);
+      }
+      
+      
+      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.incrementalProvisionChangeLog); 
     }
-    
-    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.incrementalProvisionChangeLog); 
+
+    grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
+    if (grouperProvisioningOutput != null) {
+      grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+    }
 
     // TODO handle errors
     

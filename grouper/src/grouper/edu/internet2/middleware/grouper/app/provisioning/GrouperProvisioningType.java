@@ -44,23 +44,23 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveData(GrouperProvisioner grouperProvisioner) {
+    protected void retrieveDataPass1(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
     }
 
     @Override
     public Map<String, GcGrouperSyncGroup> retrieveSyncGroups(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveAllSyncGroups();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncGroups();
     }
 
     @Override
     public Map<String, GcGrouperSyncMember> retrieveSyncMembers(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveAllSyncMembers();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncMembers();
     }
 
     @Override
     public Map<MultiKey, GcGrouperSyncMembership> retrieveSyncMemberships(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveAllSyncMemberships();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncMemberships();
     }
 
     @Override
@@ -79,6 +79,12 @@ public enum GrouperProvisioningType {
     public List<ProvisioningMembership> retrieveGrouperMemberships(
         GrouperProvisioner grouperProvisioner) {
       return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(true, null);
+    }
+
+    @Override
+    protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
+      // we already got all data
+      
     }
     
   },
@@ -105,23 +111,28 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveData(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalData();
+    protected void retrieveDataPass1(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalGrouperData();
+    }
+
+    @Override
+    protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveTargetDao().retrieveIncrementalData();
     }
 
     @Override
     public Map<String, GcGrouperSyncGroup> retrieveSyncGroups(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveIncrementalSyncGroups();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncGroups();
     }
 
     @Override
     public Map<String, GcGrouperSyncMember> retrieveSyncMembers(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveIncrementalSyncMembers();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncMembers();
     }
 
     @Override
     public Map<MultiKey, GcGrouperSyncMembership> retrieveSyncMemberships(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveIncrementalSyncMemberships();
+      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncMemberships();
     }
     
     @Override
@@ -191,5 +202,10 @@ public enum GrouperProvisioningType {
    * 
    * @param grouperProvisioner
    */
-  protected abstract void retrieveData(GrouperProvisioner grouperProvisioner);
+  protected abstract void retrieveDataPass1(GrouperProvisioner grouperProvisioner);
+  /**
+   * 
+   * @param grouperProvisioner
+   */
+  protected abstract void retrieveDataPass2(GrouperProvisioner grouperProvisioner);
 }

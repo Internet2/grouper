@@ -13,24 +13,16 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class GrouperProvisioningData {
 
   public GrouperProvisioningData() {
-    this.grouperProvisioningObjectsToDelete.setProvisioningGroups(new ArrayList<ProvisioningGroup>());
-    this.grouperProvisioningObjectsToDelete.setProvisioningEntities(new ArrayList<ProvisioningEntity>());
-    this.grouperProvisioningObjectsToDelete.setProvisioningMemberships(new ArrayList<ProvisioningMembership>());
   }
   
   private GrouperProvisioner grouperProvisioner = null;
-
-  /**
-   * these are in sync objects but not in grouper
-   */
-  private GrouperProvisioningLists grouperProvisioningObjectsToDelete = new GrouperProvisioningLists();
 
   private GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
 
   private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
   
   private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
-  
+
   private GrouperProvisioningLists targetObjectInserts = new GrouperProvisioningLists();
   
   private GrouperProvisioningLists targetObjectUpdates = new GrouperProvisioningLists();
@@ -113,101 +105,9 @@ public class GrouperProvisioningData {
 
 
 
-  /**
-   * these are in sync objects but not in grouper
-   * @return
-   */
-  public GrouperProvisioningLists getGrouperProvisioningObjectsToDelete() {
-    return grouperProvisioningObjectsToDelete;
-  }
-
-
-
-
-  /**
-   * these are in sync objects but not in grouper
-   * @param grouperProvisioningObjectsToDelete
-   */
-  public void setGrouperProvisioningObjectsToDelete(
-      GrouperProvisioningLists grouperProvisioningObjectsToDelete) {
-    this.grouperProvisioningObjectsToDelete = grouperProvisioningObjectsToDelete;
-  }
-
   public GcGrouperSync getGcGrouperSync() {
     return this.getGrouperProvisioner().getGcGrouperSync();
   }
-  
-  /**
-   * some sync ids we dont care about since they are assumed to be removed in target
-   * keep the full list here
-   */
-  private Map<String, GcGrouperSyncGroup> groupUuidToSyncGroupIncludeRemoved = null;
-
-  /**
-   * some sync ids we dont care about since they are assumed to be removed in target
-   * keep the full list here
-   */
-  private Map<String, GcGrouperSyncMember> memberUuidToSyncMemberIncludeRemoved = null;
-
-  /**
-   * some sync ids we dont care about since they are assumed to be removed in target
-   * keep the full list here
-   */
-  private Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidtoSyncMembershipIncludeRemoved = null;
-
-  
-  public Map<String, GcGrouperSyncGroup> getGroupUuidToSyncGroupIncludeRemoved() {
-    return groupUuidToSyncGroupIncludeRemoved;
-  }
-
-
-
-
-  
-  public void setGroupUuidToSyncGroupIncludeRemoved(
-      Map<String, GcGrouperSyncGroup> groupUuidToSyncGroupIncludeRemoved) {
-    this.groupUuidToSyncGroupIncludeRemoved = groupUuidToSyncGroupIncludeRemoved;
-  }
-
-
-
-
-  
-  
-  public Map<String, GcGrouperSyncMember> getMemberUuidToSyncMemberIncludeRemoved() {
-    return memberUuidToSyncMemberIncludeRemoved;
-  }
-
-
-
-
-  
-  public void setMemberUuidToSyncMemberIncludeRemoved(
-      Map<String, GcGrouperSyncMember> memberUuidToSyncMemberIncludeRemoved) {
-    this.memberUuidToSyncMemberIncludeRemoved = memberUuidToSyncMemberIncludeRemoved;
-  }
-
-
-
-
-  public Map<MultiKey, GcGrouperSyncMembership> getGroupUuidMemberUuidtoSyncMembershipIncludeRemoved() {
-    return groupUuidMemberUuidtoSyncMembershipIncludeRemoved;
-  }
-
-
-
-
-  
-  public void setGroupUuidMemberUuidtoSyncMembershipIncludeRemoved(
-      Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidtoSyncMembershipIncludeRemoved) {
-    this.groupUuidMemberUuidtoSyncMembershipIncludeRemoved = groupUuidMemberUuidtoSyncMembershipIncludeRemoved;
-  }
-
-
-
-
-
-
   
   public Map<Object, ProvisioningGroupWrapper> getTargetGroupIdToProvisioningGroupWrapper() {
     return targetGroupIdToProvisioningGroupWrapper;

@@ -11,15 +11,20 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 
 public abstract class GrouperProvisioner {
 
   private GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = null;
   
   private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
-  
+
+  private GrouperProvisionerGrouperSyncDao grouperProvisionerGrouperSyncDao = null;
+
   private GrouperProvisioningObjectLog grouperProvisioningObjectLog = null;
   
   /**
@@ -143,13 +148,6 @@ public abstract class GrouperProvisioner {
    */
   protected Class<GrouperProvisioningLogic> grouperProvisioningLogicClass() {
     return GrouperProvisioningLogic.class;
-  }
-  
-  /**
-   * return the class of the provisioning logic
-   */
-  protected Class<? extends GrouperProvisioningLogicAlgorithmBase> retrieveProvisioningLogicAlgorithmClass() {
-    return GrouperProvisioningLogicAlgorithmGroupsAndMemberships.class;
   }
   
   /**
@@ -340,9 +338,68 @@ public abstract class GrouperProvisioner {
     
       this.retrieveGrouperProvisioningLogic().provision();
       
+      if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
+      }
+
       return this.grouperProvisioningOutput;
+    } catch (RuntimeException re) {
+      gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
     } finally {
-      this.done=true;
+      this.done = true;
+      
+      GcGrouperSyncHeartbeat.endAndWaitForThread(this.gcGrouperSyncHeartbeat);
+
+      debugMap.put("finalLog", true);
+      
+      synchronized (this) {
+        try {
+          if (this.gcGrouperSyncJob != null) {
+            this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          if (this.gcGrouperSyncLog != null) {
+            this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          }
+          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+        }
+      }
+
+      // TODO sum with dao, hibernate, and client
+      this.grouperProvisioningOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
+      debugMap.put("queryCount", this.grouperProvisioningOutput.getQueryCount());
+      
+      int durationMillis = (int)((System.nanoTime()-now)/1000000);
+      debugMap.put("tookMillis", durationMillis);
+      debugMap.put("took", DurationFormatUtils.formatDurationHMS(durationMillis));
+      
+      String debugString = GrouperClientUtils.mapToString(debugMap);
+
+      try {
+        if (gcGrouperSyncLog != null) {
+          gcGrouperSyncLog.setDescription(debugString);
+          gcGrouperSyncLog.setJobTookMillis(durationMillis);
+          gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+        }
+      } catch (RuntimeException re3) {
+        debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
+        debugString = GrouperClientUtils.mapToString(debugMap);
+      }
+      
+      if (this.retrieveProvisioningConfiguration().isDebugLog()) {
+        GrouperProvisioningLog.debugLog(debugString);
+      }
+      
+      // already set total
+      //gcTableSyncOutput.setTotal();
+      this.grouperProvisioningOutput.setMessage(debugString);
+
+      // this isnt good
+      if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
+        throw new RuntimeException(debugString);
+      }
     }
   }
 
@@ -457,6 +514,64 @@ public abstract class GrouperProvisioner {
   
   public void setProvisioningSyncResult(ProvisioningSyncResult provisioningSyncResult) {
     this.provisioningSyncResult = provisioningSyncResult;
+  }
+
+  /**
+   * return the instance of the compare logic
+   * @return the logic
+   */
+  public GrouperProvisioningCompare retrieveGrouperProvisioningCompare() {
+    if (this.grouperProvisioningCompare == null) {
+      Class<GrouperProvisioningCompare> grouperProvisioningLogicClass = this.grouperProvisioningCompareClass();
+      this.grouperProvisioningCompare = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningCompare.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningCompare;
+    
+  }
+
+  private GrouperProvisioningCompare grouperProvisioningCompare;
+  
+  protected Class<GrouperProvisioningCompare> grouperProvisioningCompareClass() {
+    return GrouperProvisioningCompare.class;
+  }
+  
+  /**
+   * return the instance of the indexing logic
+   * @return the logic
+   */
+  public GrouperProvisioningTargetIdIndex retrieveGrouperProvisioningTargetIdIndex() {
+    if (this.grouperProvisioningTargetIdIndex == null) {
+      Class<GrouperProvisioningTargetIdIndex> grouperProvisioningLogicClass = this.grouperProvisioningTargetIdIndexClass();
+      this.grouperProvisioningTargetIdIndex = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningTargetIdIndex.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningTargetIdIndex;
+    
+  }
+
+  private GrouperProvisioningTargetIdIndex grouperProvisioningTargetIdIndex;
+  
+  protected Class<GrouperProvisioningTargetIdIndex> grouperProvisioningTargetIdIndexClass() {
+    return GrouperProvisioningTargetIdIndex.class;
+  }
+
+  /**
+   * returns the Grouper Sync Data access Object
+   * @return the DAO
+   */
+  public GrouperProvisionerGrouperSyncDao retrieveGrouperSyncDao() {
+    if (this.grouperProvisionerGrouperSyncDao == null) {
+      Class<? extends GrouperProvisionerGrouperSyncDao> grouperProvisionerGrouperSyncDaoClass = this.retrieveGrouperSyncDaoClass();
+      this.grouperProvisionerGrouperSyncDao = GrouperUtil.newInstance(grouperProvisionerGrouperSyncDaoClass);
+      this.grouperProvisionerGrouperSyncDao.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisionerGrouperSyncDao;
+    
+  }
+
+  protected Class<? extends GrouperProvisionerGrouperSyncDao> retrieveGrouperSyncDaoClass() {
+    return GrouperProvisionerGrouperSyncDao.class;
   }
   
   

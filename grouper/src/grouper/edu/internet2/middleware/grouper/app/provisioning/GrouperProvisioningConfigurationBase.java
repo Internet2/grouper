@@ -91,6 +91,22 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.logAllObjectsVerbose = logAllObjectsVerbose;
   }
 
+  private boolean debugLog = false;
+  
+  
+  
+  
+  public boolean isDebugLog() {
+    return debugLog;
+  }
+
+
+
+  
+  public void setDebugLog(boolean debugLog) {
+    this.debugLog = debugLog;
+  }
+
   /**
    * reference back up to the provisioner
    */
@@ -403,6 +419,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.targetMembershipIdExpression = this.retrieveConfigString("targetMembershipIdExpression", false);
 
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
+    
+    this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
+    
     this.membershipAttributeNames = this.retrieveConfigString("membershipAttributeNames", false);
     
     this.subjectSourcesToProvision = GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ",");

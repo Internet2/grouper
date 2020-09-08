@@ -24,8 +24,8 @@ public class GrouperProvisioningLog {
    * @param string
    */
   public static void debugLog(String string) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(string);
+    if (!LOG.isDebugEnabled()) {
+      return;
     }
   }
 
