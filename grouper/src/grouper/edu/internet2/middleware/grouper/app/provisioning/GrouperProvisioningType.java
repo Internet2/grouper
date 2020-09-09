@@ -78,12 +78,27 @@ public enum GrouperProvisioningType {
     @Override
     public List<ProvisioningMembership> retrieveGrouperMemberships(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(true, null);
+      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(true, null, null, null);
     }
 
     @Override
     protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
       // we already got all data
+      
+    }
+    
+    /**
+     * 
+     */
+    @Override
+    public void setupClonesOfGroupProvisioningObjects(
+        GrouperProvisioner grouperProvisioner) {
+      // full sync doesnt need to clone, it just retrieves all
+    }
+
+    @Override
+    public void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner) {
+      // full sync doesnt need to look at sync objects to know what to delete, its all in the full sync
       
     }
     
@@ -112,12 +127,13 @@ public enum GrouperProvisioningType {
 
     @Override
     protected void retrieveDataPass1(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalGrouperData();
+      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalDataPass1();
     }
 
     @Override
     protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveTargetDao().retrieveIncrementalData();
+      grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalGrouperTargetObjectsToRetrieveFromTarget();
+      grouperProvisioner.retrieveTargetDao().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget());
     }
 
     @Override
@@ -138,19 +154,33 @@ public enum GrouperProvisioningType {
     @Override
     public List<ProvisioningGroup> retrieveGrouperGroups(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, grouperProvisioner.retrieveGrouperDao().incrementalGroupUuids());
+      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly());
     }
 
     @Override
     public List<ProvisioningEntity> retrieveGrouperMembers(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, grouperProvisioner.retrieveGrouperDao().incrementalMemberUuids());
+      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly());
     }
 
     @Override
     public List<ProvisioningMembership> retrieveGrouperMemberships(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, grouperProvisioner.retrieveGrouperDao().incrementalGroupUuidsMemberUuids());
+      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, 
+          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
+          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
+          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
+    }
+
+    @Override
+    public void setupClonesOfGroupProvisioningObjects(
+        GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalClonesOfGroupProvisioningObjects();
+    }
+
+    @Override
+    public void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().calculateProvisioningDataToDelete(); 
     }
 
   };
@@ -186,7 +216,9 @@ public enum GrouperProvisioningType {
 
   public abstract List<ProvisioningMembership> retrieveGrouperMemberships(GrouperProvisioner grouperProvisioner);
 
+  public abstract void setupClonesOfGroupProvisioningObjects(GrouperProvisioner grouperProvisioner);
 
+  public abstract void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner);
   /**
    * do a case-insensitive matching
    * 

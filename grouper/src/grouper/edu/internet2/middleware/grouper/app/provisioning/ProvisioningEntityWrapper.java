@@ -33,20 +33,64 @@ public class ProvisioningEntityWrapper {
 
   private ProvisioningEntity grouperProvisioningEntity;
   
-  private ProvisioningEntity grouperProvisioningEntityToDelete;
-  
-  public ProvisioningEntity getGrouperProvisioningEntityToDelete() {
-    return grouperProvisioningEntityToDelete;
-  }
-  
-  public void setGrouperProvisioningEntityToDelete(
-      ProvisioningEntity grouperProvisioningEntityToDelete) {
-    this.grouperProvisioningEntityToDelete = grouperProvisioningEntityToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private ProvisioningEntity grouperProvisioningEntityIncludeDelete;
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public ProvisioningEntity getGrouperProvisioningEntityIncludeDelete() {
+    return grouperProvisioningEntityIncludeDelete;
   }
 
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param grouperProvisioningEntityIncludeDelete
+   */
+  public void setGrouperProvisioningEntityIncludeDelete(
+      ProvisioningEntity grouperProvisioningEntityIncludeDelete) {
+    this.grouperProvisioningEntityIncludeDelete = grouperProvisioningEntityIncludeDelete;
+  }
 
   private ProvisioningEntity targetProvisioningEntity;
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private ProvisioningEntity grouperTargetEntityIncludeDelete;
   
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public ProvisioningEntity getGrouperTargetEntityIncludeDelete() {
+    return grouperTargetEntityIncludeDelete;
+  }
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param targetProvisioningEntityIncludeDelete
+   */
+  public void setGrouperTargetEntityIncludeDelete(
+      ProvisioningEntity targetProvisioningEntityIncludeDelete) {
+    this.grouperTargetEntityIncludeDelete = targetProvisioningEntityIncludeDelete;
+  }
+
   private ProvisioningEntity grouperTargetEntity;
 
   private Object targetNativeEntity;

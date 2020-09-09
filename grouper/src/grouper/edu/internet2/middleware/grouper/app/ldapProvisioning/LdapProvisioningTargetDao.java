@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
   @Override
-  public List<ProvisioningGroup> retrieveAllGroups() {
+  public List<ProvisioningGroup> retrieveAllGroups(boolean includeAllMembershipsIfApplicable) {
     
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
@@ -163,7 +162,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  protected void sendChangesToTarget() {
+  public void sendChangesToTarget() {
     // TODO Auto-generated method stub
     
   }

@@ -722,6 +722,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
         "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
+    
     //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
         "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "

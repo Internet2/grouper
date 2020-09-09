@@ -1,10 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-
 /**
  * group in target system
  * @author mchyzer
@@ -118,4 +113,22 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return result.append(")").toString();
   }
   
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public ProvisioningGroup clone() {
+
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+
+    this.cloneUpdatable(provisioningGroup);
+    provisioningGroup.displayName = this.displayName;
+    provisioningGroup.id = this.id;
+    provisioningGroup.idIndex = this.idIndex;
+    provisioningGroup.name = this.name;
+    provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
+
+    return provisioningGroup;
+  }
+
 }

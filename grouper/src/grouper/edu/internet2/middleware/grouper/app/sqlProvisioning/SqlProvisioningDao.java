@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -23,12 +24,12 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
   public List<ProvisioningMembership> retrieveAllMemberships() {
-    return this.retrieveMemberships(true, null);
+    return this.retrieveMemberships(true, null, null, null);
   }
 
-  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningMembership> grouperTargetMemberships) {
+  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetMembershipMultiKeys) {
     
-    if (retrieveAll && grouperTargetMemberships != null) {
+    if (retrieveAll && (grouperTargetGroups != null || grouperTargetEntities != null || grouperTargetMembershipMultiKeys != null)) {
       throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
     }
     
@@ -42,11 +43,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
     List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
-    
-    if (!retrieveAll && GrouperUtil.isBlank(grouperTargetMemberships)) {
-      return result;
-    }
 
+    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
+    for (MultiKey grouperTargetMembershipMultiKey : GrouperUtil.nonNull(grouperTargetMembershipMultiKeys)) {
+      ProvisioningMembership grouperTargetMembership = (ProvisioningMembership)grouperTargetMembershipMultiKey.getKey(2);
+      if (grouperTargetMembership != null) {
+        grouperTargetMemberships.add(grouperTargetMembership);
+      }
+    }
+    
     if (!StringUtils.isBlank(membershipTableName)) {
 
       String commaSeparatedAttributeNames = sqlProvisioningConfiguration.getMembershipAttributeNames();
@@ -64,6 +69,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         retrieveMembershipsAddRecord(result, membershipAttributeValues, colNames);
       } else {
 
+        List<ProvisioningUpdatable> grouperTargetUpdatables = new ArrayList<ProvisioningUpdatable>();
+        
+        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetGroups));
+        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetEntities));
+        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetMemberships));
+
+        if (!retrieveAll && GrouperUtil.isBlank(grouperTargetMemberships)) {
+          return result;
+        }
 
         int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetMemberships.size(), 450);
         for (int i = 0; i < numberOfBatches; i++) {
@@ -264,11 +278,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public List<ProvisioningGroup> retrieveAllGroups() {
-    return retrieveGroups(true, null);
+  public List<ProvisioningGroup> retrieveAllGroups(boolean includeAllMembershipsIfApplicable) {
+    return retrieveGroups(true, null, includeAllMembershipsIfApplicable);
   }
 
-  public List<ProvisioningGroup> retrieveGroups(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups) {
+  public List<ProvisioningGroup> retrieveGroups(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, boolean retrieveAllMembershipsInGroups) {
     
     if (retrieveAll && grouperTargetGroups != null) {
       throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
@@ -323,6 +337,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         sqlInitial.append(" from ").append(groupTableName).append(" as g left outer join ").append(groupAttributeTableName).append(" as a on g.")
           .append(groupTableIdColumn).append(" = a.").append(groupAttributeTableForeignKeyToGroup);
+        
+        if (!retrieveAllMembershipsInGroups) {
+          
+        }
         
         List<Object[]> groupsAndAttributeValues = null;
         
@@ -596,13 +614,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public List<ProvisioningGroup> retrieveGroups(List<ProvisioningGroup> grouperTargetGroups) {
-    return this.retrieveGroups(false, grouperTargetGroups);
+  public List<ProvisioningGroup> retrieveGroups(List<ProvisioningGroup> grouperTargetGroups, boolean retrieveAllMembershipsInGroups) {
+    return this.retrieveGroups(false, grouperTargetGroups, retrieveAllMembershipsInGroups);
   }
 
   @Override
-  public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningMembership> grouperTargetMemberships) {
-    return this.retrieveMemberships(false, grouperTargetMemberships);
+  public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetMemberships) {
+    return this.retrieveMemberships(false, grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
   }
 
 

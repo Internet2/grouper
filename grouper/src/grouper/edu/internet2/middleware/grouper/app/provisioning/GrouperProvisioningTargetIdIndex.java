@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,13 +22,15 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfGrouperEntities() {
-    Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setTargetEntityIdToProvisioningEntityWrapper(targetEntityIdToProvisioningEntityWrapper);
+  public void indexTargetIdOfGrouperEntities(List<ProvisioningEntity> grouperTargetEntities) {
+    Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = 
+        this.grouperProvisioner.getGrouperProvisioningData().getTargetEntityIdToProvisioningEntityWrapper();
   
     int grouperTargetEntitiesWithNullTargetIds = 0;
-    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(
-        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities())) {
+    
+    Set<Object> targetIds = new HashSet<Object>();
+
+    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
       
       Object targetId = grouperTargetEntity.getTargetId();
       if (targetId == null) {
@@ -38,11 +40,12 @@ public class GrouperProvisioningTargetIdIndex {
         continue;
       }
       
-      if (targetEntityIdToProvisioningEntityWrapper.containsKey(targetId)) {
+      if (targetIds.contains(targetId)) {
         throw new NullPointerException("Why do multiple entities from grouper have the same target id???\n" 
             + grouperTargetEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(targetId));
       }
-  
+      targetIds.add(targetId);
+
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
       if (provisioningEntityWrapper == null) {
         throw new NullPointerException("Cant find entity wrapper: " + grouperTargetEntity);
@@ -58,13 +61,15 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfGrouperGroups() {
-    Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setTargetGroupIdToProvisioningGroupWrapper(targetGroupIdToProvisioningGroupWrapper);
+  public void indexTargetIdOfGrouperGroups(List<ProvisioningGroup> grouperTargetGroups) {
+    Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = 
+        this.grouperProvisioner.getGrouperProvisioningData().getTargetGroupIdToProvisioningGroupWrapper();
   
     int grouperTargetGroupsWithNullTargetIds = 0;
-    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(
-        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups())) {
+    
+    Set<Object> targetIds = new HashSet<Object>();
+    
+    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
       
       Object targetId = grouperTargetGroup.getTargetId();
       if (targetId == null) {
@@ -74,10 +79,11 @@ public class GrouperProvisioningTargetIdIndex {
         continue;
       }
       
-      if (targetGroupIdToProvisioningGroupWrapper.containsKey(targetId)) {
+      if (targetIds.contains(targetId)) {
         throw new NullPointerException("Why do multiple groups from grouper have the same target id???\n" 
             + grouperTargetGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(targetId));
       }
+      targetIds.add(targetId);
   
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
       if (provisioningGroupWrapper == null) {
@@ -93,13 +99,15 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfGrouperMemberships() {
-    Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
-    this.grouperProvisioner.getGrouperProvisioningData().setTargetMembershipIdToProvisioningMembershipWrapper(targetMembershipIdToProvisioningMembershipWrapper);
+  public void indexTargetIdOfGrouperMemberships(List<ProvisioningMembership> grouperTargetMemberships) {
+    Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = 
+        this.grouperProvisioner.getGrouperProvisioningData().getTargetMembershipIdToProvisioningMembershipWrapper();
   
     int grouperTargetMembershipsWithNullTargetIds = 0;
-    for (ProvisioningMembership grouperTargetMembership : GrouperUtil.nonNull(
-        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships())) {
+    
+    Set<Object> targetIds = new HashSet<Object>();
+
+    for (ProvisioningMembership grouperTargetMembership : GrouperUtil.nonNull(grouperTargetMemberships)) {
       
       Object targetId = grouperTargetMembership.getTargetId();
       if (targetId == null) {
@@ -109,10 +117,12 @@ public class GrouperProvisioningTargetIdIndex {
         continue;
       }
       
-      if (targetMembershipIdToProvisioningMembershipWrapper.containsKey(targetId)) {
+      if (targetIds.contains(targetId)) {
         throw new NullPointerException("Why do multiple memberships from grouper have the same target id???\n" 
             + grouperTargetMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(targetId));
       }
+      targetIds.add(targetId);
+
   
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership.getProvisioningMembershipWrapper();
       if (provisioningMembershipWrapper == null) {
@@ -130,11 +140,24 @@ public class GrouperProvisioningTargetIdIndex {
 
 
   public void indexTargetIdOfGrouperObjects() {
-    this.indexTargetIdOfGrouperGroups();
+    this.indexTargetIdOfGrouperGroups(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
     
-    this.indexTargetIdOfGrouperEntities();
+    this.indexTargetIdOfGrouperEntities(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
   
-    this.indexTargetIdOfGrouperMemberships();
+    this.indexTargetIdOfGrouperMemberships(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+
+    // these might be empty for full provisioning and thats ok
+    this.indexTargetIdOfGrouperGroups(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
+    
+    this.indexTargetIdOfGrouperEntities(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
+  
+    this.indexTargetIdOfGrouperMemberships(
+        this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
   }
 
 

@@ -67,24 +67,66 @@ public class ProvisioningMembershipWrapper {
 
   private ProvisioningMembership grouperProvisioningMembership;
   
-  private ProvisioningMembership grouperProvisioningMembershipToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * 
+   */
+  private ProvisioningMembership grouperProvisioningMembershipIncludeDelete;
 
-  
-  public ProvisioningMembership getGrouperProvisioningMembershipToDelete() {
-    return grouperProvisioningMembershipToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public ProvisioningMembership getGrouperProvisioningMembershipIncludeDelete() {
+    return grouperProvisioningMembershipIncludeDelete;
   }
 
-
-  
-  public void setGrouperProvisioningMembershipToDelete(
-      ProvisioningMembership grouperProvisioningMembershipToDelete) {
-    this.grouperProvisioningMembershipToDelete = grouperProvisioningMembershipToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param grouperProvisioningMembershipIncludeDelete
+   */
+  public void setGrouperProvisioningMembershipIncludeDelete(
+      ProvisioningMembership grouperProvisioningMembershipIncludeDelete) {
+    this.grouperProvisioningMembershipIncludeDelete = grouperProvisioningMembershipIncludeDelete;
   }
-
 
   private ProvisioningMembership targetProvisioningMembership;
   
   private ProvisioningMembership grouperTargetMembership;
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private ProvisioningMembership grouperTargetMembershipIncludeDelete;
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return mship
+   */
+  public ProvisioningMembership getGrouperTargetMembershipIncludeDelete() {
+    return grouperTargetMembershipIncludeDelete;
+  }
+
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param grouperTargetMembershipIncludeDelete
+   */
+  public void setGrouperTargetMembershipIncludeDelete(
+      ProvisioningMembership grouperTargetMembershipIncludeDelete) {
+    this.grouperTargetMembershipIncludeDelete = grouperTargetMembershipIncludeDelete;
+  }
 
   private Object targetNativeMembership;
   

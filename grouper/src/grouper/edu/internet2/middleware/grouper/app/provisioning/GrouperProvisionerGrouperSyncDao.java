@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +42,12 @@ public class GrouperProvisionerGrouperSyncDao {
     ProvisioningSyncIntegration.fullSyncMemberships(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
         this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper(),
         this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership());
-    int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
-    provisioningSyncResult.setSyncObjectStoreCount(objectStoreCount);
-    
-    this.grouperProvisioner.getDebugMap().put("fixSyncObjectStoreCount", objectStoreCount);
+
+//    //do we really need to do this now?  maybe just do this at end?
+//    int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+//    provisioningSyncResult.setSyncObjectStoreCount(objectStoreCount);
+//    
+//    this.grouperProvisioner.getDebugMap().put("fixSyncObjectStoreCount", objectStoreCount);
     
   }
 
@@ -135,7 +138,7 @@ public class GrouperProvisionerGrouperSyncDao {
     
     Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
   
-    Set<String> groupIdsToRetrieve = this.grouperProvisioner.retrieveGrouperDao().incrementalGroupUuids();
+    Set<String> groupIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly();
   
     if (groupIdsToRetrieve.size() > 0) {
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -157,7 +160,7 @@ public class GrouperProvisionerGrouperSyncDao {
     
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
   
-    Set<String> memberIdsToRetrieve = this.grouperProvisioner.retrieveGrouperDao().incrementalMemberUuids();
+    Set<String> memberIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly();
   
     if (memberIdsToRetrieve.size() > 0) {
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -178,16 +181,39 @@ public class GrouperProvisionerGrouperSyncDao {
   public Map<MultiKey, GcGrouperSyncMembership> retrieveIncrementalSyncMemberships() {
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
     
-    Set<MultiKey> groupIdMemberIdsToRetrieve = this.grouperProvisioner.retrieveGrouperDao().incrementalGroupUuidsMemberUuids();
+    List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+
+    {
+      Set<MultiKey> groupIdMemberIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync();
+      if (GrouperUtil.length(groupIdMemberIdsToRetrieve) > 0) {
+        Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveByGroupIdsAndMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(groupIdMemberIdsToRetrieve);
+        gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByGroupIdsAndMemberIds).values());
+      }
+    }    
+
+    {
+      Set<String> groupIdsToRetrieveMemberships = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync();
+      if (GrouperUtil.length(groupIdsToRetrieveMemberships) > 0) {
+        List<GcGrouperSyncMembership> membershipRetrieveByGroupIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIds(groupIdsToRetrieveMemberships);
+        gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByGroupIds));
+      }
+    }
+
+    {
+      Set<String> memberIdsToRetrieveMemberships = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync();
+      if (GrouperUtil.length(memberIdsToRetrieveMemberships) > 0) {
+        List<GcGrouperSyncMembership> membershipRetrieveByMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByMemberIds(memberIdsToRetrieveMemberships);
+        gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByMemberIds));
+      }
+    }
+    
     Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
   
-    if (groupIdMemberIdsToRetrieve.size() > 0) {
+    if (GrouperUtil.length(gcGrouperSyncMemberships) > 0) {
       
       int syncMembershipReferenceMissing = 0;
       
-      Map<MultiKey, GcGrouperSyncMembership> gcSyncMemberIdGcSyncGroupIdToSyncMemberships = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(groupIdMemberIdsToRetrieve);
-  
-      for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperUtil.nonNull(gcSyncMemberIdGcSyncGroupIdToSyncMemberships).values()) {
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMemberships) {
         
         // data is not consistent just ignore for now
         GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncMembership.getGrouperSyncGroupId());

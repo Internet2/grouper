@@ -114,4 +114,22 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     return result.append(")").toString();
   }
 
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public ProvisioningEntity clone() {
+
+    ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+
+    this.cloneUpdatable(provisioningEntity);
+    provisioningEntity.email = this.email;
+    provisioningEntity.id = this.id;
+    provisioningEntity.loginId = this.loginId;
+    provisioningEntity.name = this.name;
+    provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
+
+    return provisioningEntity;
+  }
+
 }

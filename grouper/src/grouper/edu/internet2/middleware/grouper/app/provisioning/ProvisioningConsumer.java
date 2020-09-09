@@ -1,9 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -31,45 +29,6 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
   public ProvisioningConsumer() {
   }
 
-  /**
-   * the group ids to group sync (e.g. if click group sync on ui)
-   */
-  private Set<String> groupIdsToGroupSync = null;
-  
-  /**
-   * the group ids to group sync (e.g. if click group sync on ui)
-   * @return group ids
-   */
-  public Set<String> getGroupIdsToGroupSync() {
-    return this.groupIdsToGroupSync;
-  }
-
-  /**
-   * the group ids to group sync (e.g. if click group sync on ui)
-   */
-  private Set<String> memberIdsToUserSync = null;
-  
-  /**
-   * the member ids to user sync (e.g. if click user sync on ui)
-   * @return user ids
-   */
-  public Set<String> getMemberIdsToUserSync() {
-    return this.memberIdsToUserSync;
-  }
-
-  /**
-   * groupId, memberId, fieldId to sync
-   */
-  private Set<MultiKey> membershipsToSync;
-  
-  /**
-   * groupId, memberId, fieldId to sync
-   * @return the membership to sync
-   */
-  public Set<MultiKey> getMembershipsToSync() {
-    return this.membershipsToSync;
-  }
-
   @Override
   public ProvisioningSyncConsumerResult dispatchEventList(
       List<EsbEventContainer> esbEventContainers,
@@ -87,9 +46,16 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     grouperProvisioner.setGcGrouperSync(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSync());
     grouperProvisioner.setGcGrouperSyncJob(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncJob());
     grouperProvisioner.setGcGrouperSyncLog(this.getEsbConsumer().getGrouperProvisioningProcessingResult().getGcGrouperSyncLog());
-    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = grouperProvisioningProcessingResult.getGcGrouperSyncHeartbeat();
+    
+    if (gcGrouperSyncHeartbeat == null) {
+      gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+      gcGrouperSyncHeartbeat.setGcGrouperSyncJob(grouperProvisioner.getGcGrouperSyncJob());
+      gcGrouperSyncHeartbeat.addHeartbeatLogic(this.getEsbConsumer().provisioningHeartbeatLogic());
+
+    }
     final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
-    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+    gcGrouperSyncHeartbeat.insertHeartbeatLogic(new Runnable() {
 
       @Override
       public void run() {
@@ -99,7 +65,6 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
         if (grouperProvisioningOutput != null) {
           grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
         }
-        hib3GrouperLoaderLog.store();
       }
       
     });
@@ -145,6 +110,10 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     // see if we are getting memberships or privs
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
 
+    GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper 
+      = grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper();
+    
+    // these events are already filtered
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
@@ -158,20 +127,16 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
           case PROVISIONING_SYNC_GROUP:
             
             if (!StringUtils.isBlank(esbEvent.getGroupId())) {
-              if (this.groupIdsToGroupSync == null) {
-                this.groupIdsToGroupSync = new LinkedHashSet<String>();
-              }
-              this.groupIdsToGroupSync.add(esbEvent.getGroupId());
+              grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupMembershipSync().add(esbEvent.getGroupId());
+              grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupOnly().add(esbEvent.getGroupId());
             }
             break;
   
           case PROVISIONING_SYNC_USER:
           
             if (!StringUtils.isBlank(esbEvent.getMemberId())) {
-              if (this.memberIdsToUserSync == null) {
-                this.memberIdsToUserSync = new LinkedHashSet<String>();
-              }
-              this.memberIdsToUserSync.add(esbEvent.getMemberId());
+              grouperIncrementalUuidsToRetrieveFromGrouper.getMemberUuidsForEntityMembershipSync().add(esbEvent.getMemberId());
+              grouperIncrementalUuidsToRetrieveFromGrouper.getMemberUuidsForEntityOnly().add(esbEvent.getMemberId());
             }
             break;
 
@@ -201,6 +166,15 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
             //always sync this from message
             syncThisMembership = true;
             break;
+          case GROUP_UPDATE:
+            
+            if (!StringUtils.isBlank(esbEvent.getGroupId())) {
+              // do we need to update memberships?  hmmm, maybe, so might as well
+              grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupOnly().add(esbEvent.getGroupId());
+              grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupMembershipSync().add(esbEvent.getGroupId());
+            }
+            
+            break;
           case MEMBERSHIP_ADD:
           case MEMBERSHIP_DELETE:
           case MEMBERSHIP_UPDATE:
@@ -218,10 +192,10 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
           Field field = FieldFinder.find(esbEvent.getFieldName(), true);
           MultiKey membershipFields = new MultiKey(esbEvent.getGroupId(), esbEvent.getMemberId(), field.getId());
           
-          if (this.membershipsToSync == null) {
-            this.membershipsToSync = new LinkedHashSet<MultiKey>();
-          }
-          this.membershipsToSync.add(membershipFields);
+          grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupOnly().add(esbEvent.getGroupId());
+          grouperIncrementalUuidsToRetrieveFromGrouper.getMemberUuidsForEntityOnly().add(esbEvent.getMemberId());
+          grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsMemberUuidsFieldIdsForMembershipSync().add(membershipFields);
+
 
         }
       }
@@ -234,16 +208,14 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       
       // add other events
       for (String groupId : GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget())) {
-        if (this.groupIdsToGroupSync == null) {
-          this.groupIdsToGroupSync = new LinkedHashSet<String>();
-        }
-        this.groupIdsToGroupSync.add(groupId);
+        grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupMembershipSync().add(groupId);
+        grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupOnly().add(groupId);
+
       }
       for (String groupId : GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget())) {
-        if (this.groupIdsToGroupSync == null) {
-          this.groupIdsToGroupSync = new LinkedHashSet<String>();
-        }
-        this.groupIdsToGroupSync.add(groupId);
+        // this might be overkill, i.e. do we need to retrieve all to remove from target?  might as well at this point
+        grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupMembershipSync().add(groupId);
+        grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupOnly().add(groupId);
       }
       
       

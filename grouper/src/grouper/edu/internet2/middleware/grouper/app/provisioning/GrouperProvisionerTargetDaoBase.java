@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 /**
@@ -19,11 +20,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public abstract class GrouperProvisionerTargetDaoBase {
   
-  public List<ProvisioningGroup> retrieveAllGroups() {
+  public List<ProvisioningGroup> retrieveAllGroups(boolean includeAllMembershipsIfApplicable) {
     throw new UnsupportedOperationException();
   }
   
-  public List<ProvisioningEntity> retrieveAllEntities() {
+  public List<ProvisioningEntity> retrieveAllEntities(boolean includeAllMembershipsIfApplicable) {
     throw new UnsupportedOperationException();
   }
   
@@ -68,7 +69,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
 
-  protected void sendChangesToTarget() {
+  public void sendChangesToTarget() {
 
     sendGroupChangesToTarget();
     sendEntityChangesToTarget();
@@ -127,7 +128,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     try {
       long start = System.currentTimeMillis();
-      List<ProvisioningGroup> targetProvisioningGroups = this.retrieveAllGroups();
+      List<ProvisioningGroup> targetProvisioningGroups = this.retrieveAllGroups(true);
       this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().setProvisioningGroups(targetProvisioningGroups);
       debugMap.put("retrieveTargetGroupsMillis", System.currentTimeMillis() - start);
       debugMap.put("targetGroupCount", GrouperUtil.length(targetProvisioningGroups));
@@ -136,7 +137,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
     }
     try {
       long start = System.currentTimeMillis();
-      List<ProvisioningEntity> targetProvisioningEntities = this.retrieveAllEntities();
+      List<ProvisioningEntity> targetProvisioningEntities = this.retrieveAllEntities(true);
       this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().setProvisioningEntities(targetProvisioningEntities);
       debugMap.put("retrieveTargetEntitiesMillis", System.currentTimeMillis() - start);
       debugMap.put("targetEntityCount", GrouperUtil.length(targetProvisioningEntities));
@@ -157,36 +158,40 @@ public abstract class GrouperProvisionerTargetDaoBase {
   /**
    * retrieve all incremental data from the target from the target ids of the grouper translated and indexed target groups
    */
-  public void retrieveIncrementalData() {
+  public void retrieveIncrementalData(GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalObjectsToRetrieveFromTarget) {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     {
-      List<ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups();
+      List<ProvisioningGroup> grouperTargetGroups = null;
+      grouperTargetGroups = grouperIncrementalObjectsToRetrieveFromTarget.getGrouperTargetGroupsForGroupOnly();
       if (GrouperUtil.length(grouperTargetGroups) > 0) {
         long start = System.currentTimeMillis();
         // if there are groups then this must be implemented
         List<ProvisioningGroup> targetProvisioningGroups = this.retrieveGroups(
-            grouperTargetGroups);
+            grouperTargetGroups, false);
         this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().setProvisioningGroups(targetProvisioningGroups);
         debugMap.put("retrieveTargetGroupsMillis", System.currentTimeMillis() - start);
         debugMap.put("targetGroupCount", GrouperUtil.length(targetProvisioningGroups));
       }
     }
     {
-      List<ProvisioningEntity> grouperTargetEntities = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities();
+      List<ProvisioningEntity> grouperTargetEntities = null;
+      grouperTargetEntities = grouperIncrementalObjectsToRetrieveFromTarget.getGrouperTargetEntitiesForEntityOnly();
       if (GrouperUtil.length(grouperTargetEntities) > 0) {
         long start = System.currentTimeMillis();
         List<ProvisioningEntity> targetProvisioningEntities = this.retrieveEntities(
-            grouperTargetEntities);
+            grouperTargetEntities, false);
         this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().setProvisioningEntities(targetProvisioningEntities);
         debugMap.put("retrieveTargetEntitiesMillis", System.currentTimeMillis() - start);
         debugMap.put("targetEntityCount", GrouperUtil.length(targetProvisioningEntities));
       }
     }
     {
-      List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships();
-      if (GrouperUtil.length(grouperTargetMemberships) > 0) {
+      List<ProvisioningGroup> grouperTargetGroups = grouperIncrementalObjectsToRetrieveFromTarget.getGrouperTargetGroupsForGroupMembershipSync();
+      List<ProvisioningEntity> grouperTargetEntities = grouperIncrementalObjectsToRetrieveFromTarget.getGrouperTargetEntitiesForEntityMembershipSync();
+      List<MultiKey> grouperTargetGroupsEntitiesMemberships = grouperIncrementalObjectsToRetrieveFromTarget.getGrouperTargetGroupsEntitiesMembershipsForMembershipSync();
+      if (GrouperUtil.length(grouperTargetGroupsEntitiesMemberships) > 0 || GrouperUtil.length(grouperTargetGroups) > 0 || GrouperUtil.length(grouperTargetEntities) > 0) {
         long start = System.currentTimeMillis();
-        List<ProvisioningMembership> targetProvisioningMemberships = this.retrieveMemberships(grouperTargetMemberships);
+        List<ProvisioningMembership> targetProvisioningMemberships = this.retrieveMemberships(grouperTargetGroups, grouperTargetEntities, grouperTargetGroupsEntitiesMemberships);
         this.getGrouperProvisioner().getGrouperProvisioningData().getTargetProvisioningObjects().setProvisioningMemberships(targetProvisioningMemberships);
         debugMap.put("retrieveTargetMshipsMillis", System.currentTimeMillis() - start);
         debugMap.put("targetMshipCount", GrouperUtil.length(targetProvisioningMemberships));
@@ -200,15 +205,95 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param grouperTargetGroups
    * @return the target provisioning groups
    */
-  public List<ProvisioningGroup> retrieveGroups(List<ProvisioningGroup> grouperTargetGroups) {
+  public List<ProvisioningGroup> retrieveGroups(List<ProvisioningGroup> grouperTargetGroups, boolean includeAllMembershipsIfApplicable) {
     List<ProvisioningGroup> targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
-      ProvisioningGroup targetProvisioningGroup = retrieveGroup(grouperTargetGroup);
+      ProvisioningGroup targetProvisioningGroup = retrieveGroup(grouperTargetGroup, includeAllMembershipsIfApplicable);
       if (targetProvisioningGroup != null) {
         targetProvisioningGroups.add(targetProvisioningGroup);
       }
     }
     return targetProvisioningGroups;
+  }
+
+  /**
+   * bulk retrieve target provisioning Memberships, generally use the target Ids in the grouperTargetMemberships
+   * @param grouperTargetMemberships
+   * @return the target provisioning Memberships
+   */
+  public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetGroupsEntitiesMemberships) {
+    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    
+    targetProvisioningMemberships.addAll(this.retrieveMembershipsByGroups(grouperTargetGroups));
+    targetProvisioningMemberships.addAll(this.retrieveMembershipsByEntities(grouperTargetEntities));
+    
+    targetProvisioningMemberships.addAll(this.retrieveMembershipsByTargetGroupMemberMembership(grouperTargetGroupsEntitiesMemberships));
+    
+    return targetProvisioningMemberships;
+  }
+  
+  /**
+   * bulk retrieve all target provisioning Memberships related to these groups, generally use the target Ids in the grouperTargetGroups
+   * @param grouperTargetMemberships
+   * @return the target provisioning memberships
+   */
+  public List<ProvisioningMembership> retrieveMembershipsByGroups(List<ProvisioningGroup> grouperTargetGroups) {
+    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
+      List<ProvisioningMembership> targetProvisioningMembershipsByGroup = retrieveMembershipsByGroup(grouperTargetGroup);
+      targetProvisioningMemberships.addAll((GrouperUtil.nonNull(targetProvisioningMembershipsByGroup)));
+    }
+    return targetProvisioningMemberships;
+  }
+
+  /**
+   * bulk retrieve all target provisioning Memberships related to these group
+   * @param grouperTargetGroup
+   * @return the memberships
+   */
+  public List<ProvisioningMembership> retrieveMembershipsByGroup(
+      ProvisioningGroup grouperTargetGroup) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * bulk retrieve target provisioning Memberships, generally use the target Ids in the grouperTargetEntities
+   * @param grouperTargetMemberships
+   * @return the target provisioning memberships
+   */
+  public List<ProvisioningMembership> retrieveMembershipsByEntities(List<ProvisioningEntity> grouperTargetEntities) {
+    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
+      List<ProvisioningMembership> targetProvisioningMembershipsByEntity = retrieveMembershipsByEntity(grouperTargetEntity);
+      targetProvisioningMemberships.addAll((GrouperUtil.nonNull(targetProvisioningMembershipsByEntity)));
+    }
+    return targetProvisioningMemberships;
+  }
+
+  /**
+   * bulk retrieve all target provisioning Memberships related to these entity
+   * @param grouperTargetEntity
+   * @return the memberships
+   */
+  public List<ProvisioningMembership> retrieveMembershipsByEntity(
+      ProvisioningEntity grouperTargetEntity) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * 
+   * @param grouperTargetGroupsMembersMemberships
+   * @return the memberships
+   */
+  public List<ProvisioningMembership> retrieveMembershipsByTargetGroupMemberMembership(List<MultiKey> grouperTargetGroupsMembersMemberships) {
+    List<ProvisioningMembership> targetProvisioningMembershipsToRetrieve = new ArrayList<ProvisioningMembership>();
+    for (MultiKey grouperTargetGroupEntityMembership : GrouperUtil.nonNull(grouperTargetGroupsMembersMemberships)) {
+      ProvisioningMembership grouperTargetMembership = (ProvisioningMembership)grouperTargetGroupEntityMembership.getKey(2);
+      if (grouperTargetMembership != null) {
+        targetProvisioningMembershipsToRetrieve.add(grouperTargetMembership);
+      }
+    }
+    return this.retrieveMemberships(targetProvisioningMembershipsToRetrieve);
   }
 
   /**
@@ -232,10 +317,10 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param grouperTargetEntities
    * @return the target provisioning Entities
    */
-  public List<ProvisioningEntity> retrieveEntities(List<ProvisioningEntity> grouperTargetEntities) {
+  public List<ProvisioningEntity> retrieveEntities(List<ProvisioningEntity> grouperTargetEntities, boolean includeAllMembershipsIfApplicable) {
     List<ProvisioningEntity> targetProvisioningEntities = new ArrayList<ProvisioningEntity>();
     for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
-      ProvisioningEntity targetProvisioningEntity = retrieveEntity(grouperTargetEntity);
+      ProvisioningEntity targetProvisioningEntity = retrieveEntity(grouperTargetEntity, includeAllMembershipsIfApplicable);
       if (targetProvisioningEntity != null) {
         targetProvisioningEntities.add(targetProvisioningEntity);
       }
@@ -248,7 +333,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param grouperTargetGroup
    * @return the target provisioning group or null if not found
    */
-  public ProvisioningGroup retrieveGroup(ProvisioningGroup grouperTargetGroup) {
+  public ProvisioningGroup retrieveGroup(ProvisioningGroup grouperTargetGroup, boolean includeAllMembershipsIfApplicable) {
     throw new UnsupportedOperationException();
   }
 
@@ -257,7 +342,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @param grouperTargetEntity
    * @return the target provisioning Entity or null if not found
    */
-  public ProvisioningEntity retrieveEntity(ProvisioningEntity grouperTargetEntity) {
+  public ProvisioningEntity retrieveEntity(ProvisioningEntity grouperTargetEntity, boolean includeAllMembershipsIfApplicable) {
     throw new UnsupportedOperationException();
   }
 

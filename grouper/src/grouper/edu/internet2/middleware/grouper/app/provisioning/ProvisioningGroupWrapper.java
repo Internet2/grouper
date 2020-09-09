@@ -60,21 +60,59 @@ public class ProvisioningGroupWrapper {
 
   private ProvisioningGroup grouperProvisioningGroup;
 
-  private ProvisioningGroup grouperProvisioningGroupToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private ProvisioningGroup grouperProvisioningGroupIncludeDelete;
 
-  public ProvisioningGroup getGrouperProvisioningGroupToDelete() {
-    return grouperProvisioningGroupToDelete;
-  }
-  
-  public void setGrouperProvisioningGroupToDelete(
-      ProvisioningGroup grouperProvisioningGroupToDelete) {
-    this.grouperProvisioningGroupToDelete = grouperProvisioningGroupToDelete;
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public ProvisioningGroup getGrouperProvisioningGroupIncludeDelete() {
+    return grouperProvisioningGroupIncludeDelete;
   }
 
+  /**
+   * incremental state of data that includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param grouperProvisioningGroupIncludeDelete
+   */
+  public void setGrouperProvisioningGroupIncludeDelete(
+      ProvisioningGroup grouperProvisioningGroupIncludeDelete) {
+    this.grouperProvisioningGroupIncludeDelete = grouperProvisioningGroupIncludeDelete;
+  }
 
   private ProvisioningGroup targetProvisioningGroup;
   
   private ProvisioningGroup grouperTargetGroup;
+
+  /**
+   * target state that includes deleted data, which is used to retrieve data from the target
+   */
+  private ProvisioningGroup grouperTargetGroupIncludeDelete;
+
+  /**
+   * target state that includes deleted data, which is used to retrieve data from the target
+   * @return
+   */
+  public ProvisioningGroup getGrouperTargetGroupIncludeDelete() {
+    return grouperTargetGroupIncludeDelete;
+  }
+
+  /**
+   * target state that includes deleted data, which is used to retrieve data from the target
+   * @param grouperTargetGroupIncludeDelete
+   */
+  public void setGrouperTargetGroupIncludeDelete(
+      ProvisioningGroup grouperTargetGroupIncludeDelete) {
+    this.grouperTargetGroupIncludeDelete = grouperTargetGroupIncludeDelete;
+  }
 
   private Object targetNativeGroup;
   

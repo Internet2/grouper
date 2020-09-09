@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -14,6 +16,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  /**
+   * do a deep clone of the data
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningUpdatable> clone(List<ProvisioningUpdatable> provisioningUpdatables) {
+    if (provisioningUpdatables == null) {
+      return null;
+    }
+    List<ProvisioningUpdatable> result = new ArrayList<ProvisioningUpdatable>();
+    for (ProvisioningUpdatable provisioningUpdatable : provisioningUpdatables) {
+      try {
+        ProvisioningUpdatable provisioningUpdatableClone = (ProvisioningUpdatable)provisioningUpdatable.clone();
+        result.add(provisioningUpdatableClone);
+      } catch (CloneNotSupportedException cnse) {
+        throw new RuntimeException("error", cnse);
+      }
+    }
+    return result;
+  }
+
+
+  
   /**
    * string, number, or multikey of strings and numbers
    */
@@ -361,6 +386,35 @@ public abstract class ProvisioningUpdatable {
     }
     
     return firstField;
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable) {
+
+    Map<String, ProvisioningAttribute> newAttributes = null;
+    if (provisioningUpdatable.attributes != null) {
+      newAttributes = new HashMap<String, ProvisioningAttribute>();
+      for (String attributeName : this.attributes.keySet()) {
+        ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
+        ProvisioningAttribute newProvisioningAttribute = null;
+        if (provisioningAttributeToClone != null) {
+          newProvisioningAttribute = provisioningAttributeToClone.clone();
+        }
+        newAttributes.put(attributeName, newProvisioningAttribute);
+      }
+      
+    }
+    provisioningUpdatable.attributes = newAttributes;
+    provisioningUpdatable.exception = exception;
+    // dont clone object changes
+    provisioningUpdatable.exception = exception;
+    provisioningUpdatable.removeFromList = removeFromList;
+    provisioningUpdatable.targetId = targetId;
+    
+    
+    
   }
 
 }

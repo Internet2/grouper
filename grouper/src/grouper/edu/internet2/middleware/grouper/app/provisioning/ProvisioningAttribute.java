@@ -1,5 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * name value pair could be multi valued
@@ -73,4 +79,32 @@ public class ProvisioningAttribute {
     this.value = value1;
   }
   
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public ProvisioningAttribute clone() {
+
+    ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+
+    provisioningAttribute.name = this.name;
+    provisioningAttribute.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
+    
+    Object newValue = null;
+    if (this.value != null) {
+      if (this.value instanceof Set) {
+        newValue = new HashSet((Set)this.value);
+      } else if (this.value instanceof List) {
+          newValue = new ArrayList((Set)this.value);
+      } else if (this.value instanceof Collection || this.value instanceof Map || this.value.getClass().isArray()) {
+        throw new RuntimeException("Not expecting type of attribute: " + this.value.getClass().getName());
+      } else {
+        newValue = this.value;
+      }
+    }      
+    provisioningAttribute.value = newValue;
+
+    return provisioningAttribute;
+  }
+
 }

@@ -272,5 +272,23 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     return result.append(")").toString();
   }
 
-  
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public ProvisioningMembership clone() {
+
+    ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+
+    this.cloneUpdatable(provisioningMembership);
+    provisioningMembership.id = this.id;
+    provisioningMembership.provisioningEntityId = this.provisioningEntityId;
+    // set this later
+    provisioningMembership.provisioningEntity = null;
+    provisioningMembership.provisioningGroupId = this.provisioningGroupId;
+    provisioningMembership.provisioningGroup = null;
+    provisioningMembership.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
+    return provisioningMembership;
+  }
+
 }

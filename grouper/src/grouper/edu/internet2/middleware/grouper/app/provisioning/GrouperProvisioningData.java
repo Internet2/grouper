@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +16,60 @@ public class GrouperProvisioningData {
   
   private GrouperProvisioner grouperProvisioner = null;
 
+  /**
+   * grouper state of the data
+   */
   private GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
+
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   */
+  private GrouperProvisioningLists grouperProvisioningObjectsIncludeDeletes = new GrouperProvisioningLists();
+
+  
+  
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperProvisioningObjectsIncludeDeletes() {
+    return grouperProvisioningObjectsIncludeDeletes;
+  }
+
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   * @param grouperProvisioningObjectsIncludeDeletes
+   */
+  public void setGrouperProvisioningObjectsIncludeDeletes(
+      GrouperProvisioningLists grouperProvisioningObjectsIncludeDeletes) {
+    this.grouperProvisioningObjectsIncludeDeletes = grouperProvisioningObjectsIncludeDeletes;
+  }
 
   private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
   
   private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
+
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   */
+  private GrouperProvisioningLists grouperTargetObjectsIncludeDeletes = new GrouperProvisioningLists();
+  
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperTargetObjectsIncludeDeletes() {
+    return grouperTargetObjectsIncludeDeletes;
+  }
+
+  /**
+   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
+   * @param grouperTargetObjectsIncludeDeletes
+   */
+  public void setGrouperTargetObjectsIncludeDeletes(
+      GrouperProvisioningLists grouperTargetObjectsIncludeDeletes) {
+    this.grouperTargetObjectsIncludeDeletes = grouperTargetObjectsIncludeDeletes;
+  }
 
   private GrouperProvisioningLists targetObjectInserts = new GrouperProvisioningLists();
   
@@ -29,20 +77,29 @@ public class GrouperProvisioningData {
   
   private GrouperProvisioningLists targetObjectDeletes = new GrouperProvisioningLists();
   
+  /**
+   * include deletes
+   */
   private Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = null;
-
+  
+  /**
+   * include deletes
+   */
   private Map<String, GcGrouperSyncMember> memberUuidToSyncMember = null;
 
+  /**
+   * include deletes
+   */
   private Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = null;
   
   /**
    * note some entries could be for deleting
    */
-  private Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = null;
+  private Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
 
-  private Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = null;
+  private Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
 
-  private Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = null;
+  private Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
   
   private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
 
@@ -50,8 +107,57 @@ public class GrouperProvisioningData {
 
   private Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
 
+  /**
+   * grouper uuids to retrieve from grouper and grouper sync
+   */
+  private GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper;
+
+  /**
+   * grouper uuids to retrieve from grouper and grouper sync
+   * @return
+   */
+  public GrouperIncrementalUuidsToRetrieveFromGrouper getGrouperIncrementalUuidsToRetrieveFromGrouper() {
+    if (this.grouperIncrementalUuidsToRetrieveFromGrouper == null) {
+      this.grouperIncrementalUuidsToRetrieveFromGrouper = new GrouperIncrementalUuidsToRetrieveFromGrouper();
+    }
+    return grouperIncrementalUuidsToRetrieveFromGrouper;
+  }
+
+  /**
+   * grouper uuids to retrieve from grouper and grouper sync
+   * @param grouperIncrementalUuidsToRetrieveFromGrouper
+   */
+  public void setGrouperIncrementalUuidsToRetrieveFromGrouper(
+      GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper) {
+    this.grouperIncrementalUuidsToRetrieveFromGrouper = grouperIncrementalUuidsToRetrieveFromGrouper;
+  }
+
+  /**
+   * grouper target objects to get from target for incremental sync
+   */
+  private GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
   
   
+  /**
+   * grouper target objects to get from target for incremental sync
+   * @return target object
+   */
+  public GrouperIncrementalObjectsToRetrieveFromTarget getGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget() {
+    if (this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget == null) {
+      this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget = new GrouperIncrementalObjectsToRetrieveFromTarget();
+    }
+    return grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
+  }
+
+  /**
+   * grouper target objects to get from target for incremental sync
+   * @param grouperIncrementalGroupTargetObjectsToRetrieveFromTarget
+   */
+  public void setGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget(
+      GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalGroupTargetObjectsToRetrieveFromTarget) {
+    this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget = grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
+  }
+
   
   public Map<String, ProvisioningGroupWrapper> getGroupUuidToProvisioningGroupWrapper() {
     return groupUuidToProvisioningGroupWrapper;
@@ -157,7 +263,10 @@ public class GrouperProvisioningData {
     this.grouperProvisioner = grouperProvisioner;
   }
 
-  
+  /**
+   * grouper state of the data
+   * @return
+   */
   public GrouperProvisioningLists getGrouperProvisioningObjects() {
     return grouperProvisioningObjects;
   }
@@ -189,7 +298,10 @@ public class GrouperProvisioningData {
 
 
 
-
+  /**
+   * grouper state of the data
+   * @param grouperProvisioningObjects
+   */
   public void setGrouperProvisioningObjects(
       GrouperProvisioningLists grouperProvisioningObjects) {
     this.grouperProvisioningObjects = grouperProvisioningObjects;

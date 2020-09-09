@@ -44,7 +44,7 @@ public class GrouperProvisioningTranslatorBase {
    */
   public void translateGrouperToTarget() {
     this.translateGrouperToTarget(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperProvisioningObjects(), 
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects());
+        this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects(), false);
   }
 
   /**
@@ -53,26 +53,38 @@ public class GrouperProvisioningTranslatorBase {
    * @param targetMemberships
    * @return translated objects from grouper to target
    */
-  public void translateGrouperToTarget(GrouperProvisioningLists grouperList, GrouperProvisioningLists targetList) {
+  public void translateGrouperToTargetIncludeDeletes() {
+    // note, this wont do anything in a full sync since the includeDelete objects are not there
+    this.translateGrouperToTarget(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperProvisioningObjectsIncludeDeletes(), 
+        this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes(), true);
+  }
+
+  /**
+   * @param targetGroups
+   * @param targetEntities
+   * @param targetMemberships
+   * @return translated objects from grouper to target
+   */
+  public void translateGrouperToTarget(GrouperProvisioningLists grouperList, GrouperProvisioningLists targetList, boolean includeDelete) {
     
 
     {
       List<ProvisioningGroup> grouperProvisioningGroups = grouperList.getProvisioningGroups();
-      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups);
+      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete);
       targetList.setProvisioningGroups(grouperTargetGroups);
     }
     
     {
       List<ProvisioningEntity> grouperProvisioningEntities = grouperList.getProvisioningEntities();
       List<ProvisioningEntity> grouperTargetEntities = translateGrouperToTargetEntities(
-          grouperProvisioningEntities);
+          grouperProvisioningEntities, includeDelete);
       targetList.setProvisioningEntities(grouperTargetEntities);
     }    
 
     {
       List<ProvisioningMembership> grouperProvisioningMemberships = grouperList.getProvisioningMemberships();
       List<ProvisioningMembership> grouperTargetMemberships = translateGrouperToTargetMemberships(
-          grouperProvisioningMemberships);
+          grouperProvisioningMemberships, includeDelete);
       targetList.setProvisioningMemberships(grouperTargetMemberships);
     }    
     
@@ -93,7 +105,7 @@ public class GrouperProvisioningTranslatorBase {
   }
 
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
-      List<ProvisioningMembership> grouperProvisioningMemberships) {
+      List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("membership"));
 
@@ -153,14 +165,19 @@ public class GrouperProvisioningTranslatorBase {
         }
       }
 
-      grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembership(grouperTargetMembership);
+      if (includeDelete) {
+        grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembershipIncludeDelete(grouperTargetMembership);
+      } else {
+        grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembership(grouperTargetMembership);
+      }
+
       grouperTargetMemberships.add(grouperTargetMembership); 
     }
     return grouperTargetMemberships;
   }
 
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
-      List<ProvisioningEntity> grouperProvisioningEntities) {
+      List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete) {
     
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
 
@@ -191,12 +208,18 @@ public class GrouperProvisioningTranslatorBase {
       }
       
       grouperTargetEntities.add(grouperTargetEntity);
-      grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
+      
+      if (includeDelete) {
+        grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntityIncludeDelete(grouperTargetEntity);
+      } else {
+        grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
+      }
+
     }
     return grouperTargetEntities;
   }
 
-  public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups) {
+  public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete) {
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(
         this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("group"));
@@ -227,7 +250,11 @@ public class GrouperProvisioningTranslatorBase {
         continue;
       }
 
-      grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
+      if (includeDelete) {
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroupIncludeDelete(grouperTargetGroup);
+      } else {
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
+      }
       grouperTargetGroups.add(grouperTargetGroup);
         
     }
@@ -355,6 +382,12 @@ public class GrouperProvisioningTranslatorBase {
     idTargetGroups(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
     idTargetEntities(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
     idTargetMemberships(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+
+  }
+  public void targetIdGrouperObjectsIncludeDeletes() {
+    idTargetGroups(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
 
   }
 
