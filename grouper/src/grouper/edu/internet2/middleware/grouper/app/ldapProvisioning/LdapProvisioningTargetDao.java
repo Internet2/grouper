@@ -76,6 +76,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
+    if (StringUtils.isBlank(targetGroup.getName())) {
+      throw new RuntimeException("Why is targetGroup.getName() blank?");
+    }
+    
     LdapEntry ldapEntry = new LdapEntry(targetGroup.getName());
     for (String attributeName : targetGroup.getAttributes().keySet()) {
       ProvisioningAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
@@ -96,7 +100,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         ldapEntry.addAttribute(ldapAttribute);
       }
     }
-    System.out.println(ldapEntry);
     
     new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
   }
@@ -105,8 +108,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
+    if (StringUtils.isBlank(targetGroup.getName())) {
+      throw new RuntimeException("Why is targetGroup.getName() blank?");
+    }
+    
     new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getName());
-   
   }
 
   public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
