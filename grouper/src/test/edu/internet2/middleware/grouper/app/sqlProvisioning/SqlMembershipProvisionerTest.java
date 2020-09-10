@@ -76,7 +76,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteRealTime"));
+    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteFullSync"));
     
   }
   

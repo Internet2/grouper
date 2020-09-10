@@ -17,6 +17,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public abstract class ProvisioningUpdatable {
 
   /**
+   * if this object has been provisioned successfully, set this to true. 
+   * otherwise set the exception field and set to false
+   */
+  private Boolean provisioned = null;
+  
+  /**
+   * if this object has been provisioned successfully, set this to true. 
+   * otherwise set the exception field
+   * @return if provisioned
+   */
+  public Boolean getProvisioned() {
+    return provisioned;
+  }
+
+  
+  public void setProvisioned(Boolean provisioned) {
+    this.provisioned = provisioned;
+  }
+
+  /**
    * do a deep clone of the data
    * @param provisioningUpdatables
    * @return the cloned list
@@ -302,6 +322,7 @@ public abstract class ProvisioningUpdatable {
   protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {
     firstField = toStringAppendField(result, firstField, "targetId", this.targetId);
     firstField = toStringAppendField(result, firstField, "exception", this.exception);
+    firstField = toStringAppendField(result, firstField, "provisioned", this.provisioned);
     if (this.removeFromList) {
       firstField = toStringAppendField(result, firstField, "removeFromList", this.removeFromList);
     }
@@ -410,6 +431,7 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.exception = exception;
     // dont clone object changes
     provisioningUpdatable.exception = exception;
+    provisioningUpdatable.provisioned = provisioned;
     provisioningUpdatable.removeFromList = removeFromList;
     provisioningUpdatable.targetId = targetId;
     

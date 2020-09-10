@@ -301,6 +301,69 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   private Set<String> subjectSourcesToProvision = null;
   
+  
+  private String subjectLinkMemberFromId2;
+
+  private String subjectLinkMemberFromId3;
+
+  private String subjectLinkMemberToId2;
+
+  private String subjectLinkMemberToId3;
+
+  
+  public String getSubjectLinkMemberFromId2() {
+    return subjectLinkMemberFromId2;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberFromId2(String subjectLinkMemberFromId2) {
+    this.subjectLinkMemberFromId2 = subjectLinkMemberFromId2;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberFromId3() {
+    return subjectLinkMemberFromId3;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberFromId3(String subjectLinkMemberFromId3) {
+    this.subjectLinkMemberFromId3 = subjectLinkMemberFromId3;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberToId2() {
+    return subjectLinkMemberToId2;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberToId2(String subjectLinkMemberToId2) {
+    this.subjectLinkMemberToId2 = subjectLinkMemberToId2;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberToId3() {
+    return subjectLinkMemberToId3;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberToId3(String subjectLinkMemberToId3) {
+    this.subjectLinkMemberToId3 = subjectLinkMemberToId3;
+  }
+
   /**
    * target attribute value that helps look up user, ${targetEntity.attributes['netId']} 
    */
@@ -351,6 +414,28 @@ public abstract class GrouperProvisioningConfigurationBase {
    * someAttr  everything is assumed to be single valued except objectclass and the provisionedAttributeName optional
    */
   private Set<String> groupAttributesMultivalued = null;
+
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   */
+  private int refreshSubjectLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   * @return
+   */
+  public int getRefreshSubjectLinkIfLessThanAmount() {
+    return refreshSubjectLinkIfLessThanAmount;
+  }
+
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   * @param refreshSubjectLinkIfLessThanAmount
+   */
+  public void setRefreshSubjectLinkIfLessThanAmount(
+      int refreshSubjectLinkIfLessThanAmount) {
+    this.refreshSubjectLinkIfLessThanAmount = refreshSubjectLinkIfLessThanAmount;
+  }
 
   /**
    * if should create missing users, default false
@@ -448,6 +533,13 @@ public abstract class GrouperProvisioningConfigurationBase {
           + this.userSearchAttributeName + "', '" + this.userSearchAttributeValueFormat + "'");
     }
 
+    this.subjectLinkMemberFromId2 = this.retrieveConfigString("common.subjectLink.memberFromId2", false);
+    this.subjectLinkMemberFromId3 = this.retrieveConfigString("common.subjectLink.memberFromId3", false);
+    this.subjectLinkMemberToId2 = this.retrieveConfigString("common.subjectLink.memberToId2", false);
+    this.subjectLinkMemberToId3 = this.retrieveConfigString("common.subjectLink.memberToId3", false);
+
+    this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", this.hasSubjectLink), 20);
+    
     this.userAttributeReferredToByGroup = this.retrieveConfigString("userAttributeReferredToByGroup", this.hasTargetUserLink);
     
     this.subjectApiAttributeForTargetUser = this.retrieveConfigString("subjectApiAttributeForTargetUser", this.hasSubjectLink);

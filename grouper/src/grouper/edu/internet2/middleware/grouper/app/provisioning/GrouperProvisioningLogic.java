@@ -1,12 +1,15 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -299,8 +302,53 @@ public class GrouperProvisioningLogic {
 
 
   public void retrieveSubjectLink() {
-    // TODO If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+
+    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData().getMemberUuidToSyncMember()).values();
+
+    if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
+      return;
+    }
     
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String subjectLinkMemberFromId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberFromId2();
+    boolean hasSubjectLinkMemberFromId2 = !StringUtils.isBlank(subjectLinkMemberFromId2);
+    
+    String subjectLinkMemberFromId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberFromId3();
+    boolean hasSubjectLinkMemberFromId3 = !StringUtils.isBlank(subjectLinkMemberFromId3);
+
+    String subjectLinkMemberToId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberToId2();
+    boolean hasSubjectLinkMemberToId2 = !StringUtils.isBlank(subjectLinkMemberToId2);
+
+    String subjectLinkMemberToId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberToId3();
+    boolean hasSubjectLinkMemberToId3 = !StringUtils.isBlank(subjectLinkMemberToId3);
+
+    if (!hasSubjectLinkMemberFromId2 && !hasSubjectLinkMemberFromId3 && !hasSubjectLinkMemberToId2 && !hasSubjectLinkMemberToId3) {
+      return;
+    }
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMembersToRefreshSubjectLink = new ArrayList<GcGrouperSyncMember>();
+    
+    int refreshSubjectLinkIfLessThanAmount = this.grouperProvisioner.retrieveProvisioningConfiguration().getRefreshSubjectLinkIfLessThanAmount();
+    if (GrouperUtil.length(gcGrouperSyncMembers) <= refreshSubjectLinkIfLessThanAmount) {
+      gcGrouperSyncMembersToRefreshSubjectLink.addAll(gcGrouperSyncMembers);
+    } else {
+      for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
+        boolean needsRefresh = false;
+        needsRefresh = needsRefresh || (hasSubjectLinkMemberFromId2 && StringUtils.isBlank(gcGrouperSyncMember.getMemberFromId2()));
+        needsRefresh = needsRefresh || (hasSubjectLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncMember.getMemberFromId3()));
+        needsRefresh = needsRefresh || (hasSubjectLinkMemberToId2 && StringUtils.isBlank(gcGrouperSyncMember.getMemberToId2()));
+        needsRefresh = needsRefresh || (hasSubjectLinkMemberToId3 && StringUtils.isBlank(gcGrouperSyncMember.getMemberToId3()));
+        if (needsRefresh) {
+          gcGrouperSyncMembersToRefreshSubjectLink.add(gcGrouperSyncMember);
+        }
+      }
+    }
+    int subjectsNeedsRefreshDueToLink = GrouperUtil.length(gcGrouperSyncMembersToRefreshSubjectLink);
+    this.grouperProvisioner.getDebugMap().put("subjectsNeedRefreshDueToLink", subjectsNeedsRefreshDueToLink);
+    if (subjectsNeedsRefreshDueToLink == 0) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperSyncDao().updateSubjectLink(gcGrouperSyncMembersToRefreshSubjectLink);
   }
 
   /**
