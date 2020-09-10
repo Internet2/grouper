@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
@@ -37,35 +38,32 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     String groupSearchBaseDn = ldapSyncConfiguration.getGroupSearchBaseDn();
 
-    boolean attributeNamesContainsObjectClass = false;
-    boolean attributeNamesContainsProvisionedAttributeName = false;
-    Set<String> attributeNames = new HashSet<String>();
-    for (String attributeName : ldapSyncConfiguration.getGroupCreationLdifTemplate_attrs()) {
-      if (attributeName.equalsIgnoreCase("objectClass")) {
-        attributeNamesContainsObjectClass = true;
-      } else if (attributeName.equalsIgnoreCase(ldapSyncConfiguration.getProvisionedAttributeName())) {
-        attributeNamesContainsProvisionedAttributeName = true;
-      }
-      
-      attributeNames.add(attributeName);
+    Set<String> groupSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSearchAttributes());
+    
+    Set<String> groupAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    if (ldapSyncConfiguration.getGroupAttributesMultivalued() != null) {
+      groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
     }
     
-    if (!attributeNamesContainsObjectClass) {
-      attributeNames.add("objectClass");
-    }
+    groupSearchAttributeNames.add("objectClass");
+    groupAttributesMultivalued.add("objectClass");
     
-    if (!attributeNamesContainsProvisionedAttributeName && !StringUtils.isEmpty(ldapSyncConfiguration.getProvisionedAttributeName())) {
-      attributeNames.add(ldapSyncConfiguration.getProvisionedAttributeName());
-    }
-    
-    List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(attributeNames));
+    List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
     
     for (LdapEntry ldapEntry : ldapEntries) {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
-      targetGroup.setId(ldapEntry.getDn());
+      targetGroup.setName(ldapEntry.getDn());
       
       for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-        targetGroup.assignAttribute(ldapAttribute.getName(), ldapAttribute.getValues());
+        Object value = null;
+        if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
+          value = new HashSet<Object>(ldapAttribute.getValues());
+        } else if (ldapAttribute.getValues().size() == 1) {
+          value = ldapAttribute.getValues().iterator().next();
+        }
+        
+        targetGroup.assignAttribute(ldapAttribute.getName(), value);
       }
       
       results.add(targetGroup);
@@ -74,29 +72,40 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return results;
   }
   
-  public boolean createGroup(ProvisioningGroup targetGroup) {
+  public void insertGroup(ProvisioningGroup targetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
-    LdapEntry ldapEntry = new LdapEntry(targetGroup.getId());
+    LdapEntry ldapEntry = new LdapEntry(targetGroup.getName());
     for (String attributeName : targetGroup.getAttributes().keySet()) {
       ProvisioningAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
-      Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
-      if (values.size() > 0) {
-        LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
-        ldapAttribute.addValues(values);
+      Object value = targetAttribute.getValue();
+      
+      LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
+
+      if (value instanceof String && !StringUtils.isEmpty((String)value)) {
+        ldapAttribute.addValue((String)value);
+      } else if (value instanceof Collection) {
+        Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
+        if (values.size() > 0) {
+          ldapAttribute.addValues(values);
+        } 
+      }
+      
+      if (ldapAttribute.getValues().size() > 0) {
         ldapEntry.addAttribute(ldapAttribute);
       }
     }
+    System.out.println(ldapEntry);
     
-    return new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
+    new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
   }
   
   public void deleteGroup(ProvisioningGroup targetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
-    new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getId());
+    new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getName());
    
   }
 
@@ -159,11 +168,5 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     
     return false;
-  }
-
-  @Override
-  public void sendChangesToTarget() {
-    // TODO Auto-generated method stub
-    
   }
 }
