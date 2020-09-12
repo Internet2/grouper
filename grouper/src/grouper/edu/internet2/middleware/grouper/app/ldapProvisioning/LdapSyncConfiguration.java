@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+// TODO clean up this class
 
 /**
  * an instance of this class focuses on the configuration for ldap sync
@@ -142,6 +143,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.groupObjectClass = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupObjectClass", false), ",");
 
     {
+      /*
       String groupDnTypeString = this.retrieveConfigString("groupDnType", true);
       if (StringUtils.equalsIgnoreCase("flat", groupDnTypeString)) {
         this.groupDnType = LdapSyncGroupDnType.flat;
@@ -150,6 +152,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
       } else {
         throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
       }
+      */
     }
     
     this.userCreationNumberOfAttributes = GrouperUtil.defaultIfNull(this.retrieveConfigInt("userCreationNumberOfAttributes", false), 0);
