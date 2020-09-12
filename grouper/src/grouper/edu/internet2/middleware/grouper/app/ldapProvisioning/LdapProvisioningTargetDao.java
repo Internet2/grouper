@@ -8,9 +8,17 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetResponse;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
@@ -23,7 +31,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
   @Override
-  public List<ProvisioningGroup> retrieveAllGroups(boolean includeAllMembershipsIfApplicable) {
+  public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
+    
+    boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false : targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
     
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
@@ -65,16 +75,18 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       targetGroup.setId(ldapEntry.getDn());
       
       for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-        targetGroup.assignAttribute(ldapAttribute.getName(), ldapAttribute.getValues());
+        targetGroup.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
       }
       
       results.add(targetGroup);
     }
 
-    return results;
+    return new TargetDaoRetrieveAllGroupsResponse(results);
   }
   
-  public boolean createGroup(ProvisioningGroup targetGroup) {
+  @Override
+  public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
+    ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
@@ -89,15 +101,19 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
     
-    return new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
+    new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
+    return null;
   }
   
-  public void deleteGroup(ProvisioningGroup targetGroup) {
+  @Override
+  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest == null ? null : targetDaoDeleteGroupRequest.getTargetGroup();
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
     new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getId());
-   
+    return null;
   }
 
   public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
@@ -162,8 +178,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public void sendChangesToTarget() {
+  public TargetDaoSendChangesToTargetResponse sendChangesToTarget(TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest) {
     // TODO Auto-generated method stub
-    
+    return null;
   }
 }

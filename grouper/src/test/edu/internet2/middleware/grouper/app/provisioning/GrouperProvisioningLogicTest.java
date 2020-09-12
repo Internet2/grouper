@@ -76,7 +76,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     grouperProvisioningGroup.setName("testName");
     grouperProvisioningGroup.setDisplayName("testDisplayName");
     grouperProvisioningGroup.setIdIndex(Long.parseLong("2313122331"));
-    grouperProvisioningGroup.assignAttribute("description", "testDescription");
+    grouperProvisioningGroup.assignAttributeValue("description", "testDescription");
     grouperProvisioningGroups.add(grouperProvisioningGroup);
     
     grouperProvisioningObjects.setProvisioningGroups(grouperProvisioningGroups);
@@ -84,7 +84,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     List<ProvisioningEntity> grouperProvisioningEntities = new ArrayList<ProvisioningEntity>();
     
     ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
-    grouperProvisioningEntity.assignAttribute("subjectId", "testSubjectId");
+    grouperProvisioningEntity.assignAttributeValue("subjectId", "testSubjectId");
     grouperProvisioningEntities.add(grouperProvisioningEntity);
     
     grouperProvisioningObjects.setProvisioningEntities(grouperProvisioningEntities);

@@ -202,7 +202,7 @@ public abstract class ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public void assignAttribute(String name, Object value) {
+  public void assignAttributeValue(String name, Object value) {
     
     if (this.attributes == null) {
       this.attributes = new HashMap<String, ProvisioningAttribute>();

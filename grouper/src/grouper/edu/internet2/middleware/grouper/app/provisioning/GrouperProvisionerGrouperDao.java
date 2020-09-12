@@ -539,7 +539,7 @@ public class GrouperProvisionerGrouperDao {
       grouperProvisioningGroup.setName(name);
       grouperProvisioningGroup.setDisplayName(displayName);
       grouperProvisioningGroup.setIdIndex(Long.parseLong(idIndex));
-      grouperProvisioningGroup.assignAttribute("description", description);
+      grouperProvisioningGroup.assignAttributeValue("description", description);
       
       results.add(grouperProvisioningGroup);
     }
@@ -562,9 +562,9 @@ public class GrouperProvisionerGrouperDao {
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
 
-      grouperProvisioningEntity.assignAttribute("description", description);
-      grouperProvisioningEntity.assignAttribute("subjectId", subjectId);
-      grouperProvisioningEntity.assignAttribute("subjectIdentifier0", subjectIdentifier0);
+      grouperProvisioningEntity.assignAttributeValue("description", description);
+      grouperProvisioningEntity.assignAttributeValue("subjectId", subjectId);
+      grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
       
       results.add(grouperProvisioningEntity);
     }
@@ -597,10 +597,10 @@ public class GrouperProvisionerGrouperDao {
         ProvisioningEntity targetEntity = new ProvisioningEntity();
         targetEntity.setId(memberId);
         targetEntity.setName(name);
-        targetEntity.assignAttribute("description", description);
-        targetEntity.assignAttribute("subjectId", subjectId);
-        targetEntity.assignAttribute("subjectSourceId", subjectSourceId);
-        targetEntity.assignAttribute("subjectIdentifier0", subjectIdentifier0);
+        targetEntity.assignAttributeValue("description", description);
+        targetEntity.assignAttributeValue("subjectId", subjectId);
+        targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
+        targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
         
         
         grouperProvisioningMembership.setProvisioningEntity(targetEntity);
@@ -611,7 +611,7 @@ public class GrouperProvisionerGrouperDao {
         targetGroup.setId(groupId);
         targetGroup.setName(groupName);
         targetGroup.setDisplayName(groupDisplayName);
-        targetGroup.assignAttribute("description", groupDescription);
+        targetGroup.assignAttributeValue("description", groupDescription);
 
         targetGroup.setIdIndex(groupIdIndex);
         grouperProvisioningMembership.setProvisioningGroup(targetGroup);

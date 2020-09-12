@@ -5,9 +5,9 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 

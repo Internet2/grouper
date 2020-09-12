@@ -9,7 +9,10 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -116,7 +119,11 @@ public class GrouperProvisioningLogic {
 
     try {
       debugMap.put("state", "sendChangesToTarget");
-      this.getGrouperProvisioner().retrieveTargetDao().sendChangesToTarget();
+      TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest = new TargetDaoSendChangesToTargetRequest();
+      targetDaoSendChangesToTargetRequest.setTargetObjectInserts(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
+      targetDaoSendChangesToTargetRequest.setTargetObjectUpdates(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
+      targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
+      this.getGrouperProvisioner().retrieveTargetDao().sendChangesToTarget(targetDaoSendChangesToTargetRequest);
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("sendChangesToTarget");
     }
@@ -157,8 +164,8 @@ public class GrouperProvisioningLogic {
 
   public void setupIncrementalGrouperTargetObjectsToRetrieveFromTarget() {
 
-    GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalObjectsToRetrieveFromTarget = 
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget();
+    TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = 
+        this.getGrouperProvisioner().getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest();
 
     GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper =
         this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper();
@@ -167,34 +174,34 @@ public class GrouperProvisioningLogic {
       //the groups only should be the full list of grouper target groups
       List<ProvisioningGroup> grouperTargetGroupsForGroupOnly = new ArrayList<ProvisioningGroup>(
           GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups()));
-      grouperIncrementalObjectsToRetrieveFromTarget.setGrouperTargetGroupsForGroupOnly(grouperTargetGroupsForGroupOnly);
+      targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(grouperTargetGroupsForGroupOnly);
     }
 
     {
       // generally these arent needed, but if there are no target groups (e.g. only entities or memberships), maybe needed
       List<ProvisioningGroupWrapper> groupWrappersForGroupOnly = new ArrayList<ProvisioningGroupWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData().getGroupUuidToProvisioningGroupWrapper()).values());
-      grouperIncrementalObjectsToRetrieveFromTarget.setProvisioningGroupWrappersForGroupOnly(groupWrappersForGroupOnly);
+      targetDaoRetrieveIncrementalDataRequest.setProvisioningGroupWrappersForGroupOnly(groupWrappersForGroupOnly);
     }
     {
       //the entities only should be the full list of grouper target entities
       List<ProvisioningEntity> grouperTargetEntitiesForEntityOnly = new ArrayList<ProvisioningEntity>(
           GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities()));
-      grouperIncrementalObjectsToRetrieveFromTarget.setGrouperTargetEntitiesForEntityOnly(grouperTargetEntitiesForEntityOnly);
+      targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(grouperTargetEntitiesForEntityOnly);
     }
     {
       // generally these arent needed, but if there are no target entities (e.g. only groups or memberships), maybe needed
       List<ProvisioningEntityWrapper> entityWrappersForEntityOnly = new ArrayList<ProvisioningEntityWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.getGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper()).values());
-      grouperIncrementalObjectsToRetrieveFromTarget.setProvisioningEntityWrappersForEntityOnly(entityWrappersForEntityOnly);
+      targetDaoRetrieveIncrementalDataRequest.setProvisioningEntityWrappersForEntityOnly(entityWrappersForEntityOnly);
     }
     {
       int missingGrouperTargetGroupsForGroupSync = 0;
       //the groups for group memberships should be looked up from the wrapper objects
       List<ProvisioningGroup> grouperTargetGroupForGroupSync = new ArrayList<ProvisioningGroup>();
       List<ProvisioningGroupWrapper> provisioningGroupWrappersForGroupSync = new ArrayList<ProvisioningGroupWrapper>();
-      grouperIncrementalObjectsToRetrieveFromTarget.setGrouperTargetGroupsForGroupMembershipSync(grouperTargetGroupForGroupSync);
-      grouperIncrementalObjectsToRetrieveFromTarget.setProvisioningGroupWrappersForGroupMembershipSync(provisioningGroupWrappersForGroupSync);
+      targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupMembershipSync(grouperTargetGroupForGroupSync);
+      targetDaoRetrieveIncrementalDataRequest.setProvisioningGroupWrappersForGroupMembershipSync(provisioningGroupWrappersForGroupSync);
       for (String groupUuid : GrouperUtil.nonNull(grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsForGroupMembershipSync())) {
         ProvisioningGroupWrapper provisioningGroupWrapper = this.grouperProvisioner.getGrouperProvisioningData().getGroupUuidToProvisioningGroupWrapper().get(groupUuid);
         if (provisioningGroupWrapper == null) {
@@ -219,8 +226,8 @@ public class GrouperProvisioningLogic {
       List<ProvisioningEntity> grouperTargetEntityForEntitySync = new ArrayList<ProvisioningEntity>();
       List<ProvisioningEntityWrapper> provisioningEntityWrappersForEntitySync = new ArrayList<ProvisioningEntityWrapper>();
       
-      grouperIncrementalObjectsToRetrieveFromTarget.setGrouperTargetEntitiesForEntityMembershipSync(grouperTargetEntityForEntitySync);
-      grouperIncrementalObjectsToRetrieveFromTarget.setProvisioningEntityWrappersforEntityMembershipSync(provisioningEntityWrappersForEntitySync);
+      targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityMembershipSync(grouperTargetEntityForEntitySync);
+      targetDaoRetrieveIncrementalDataRequest.setProvisioningEntityWrappersforEntityMembershipSync(provisioningEntityWrappersForEntitySync);
 
       for (String memberUuid : GrouperUtil.nonNull(grouperIncrementalUuidsToRetrieveFromGrouper.getMemberUuidsForEntityMembershipSync())) {
         ProvisioningEntityWrapper provisioningEntityWrapper = this.grouperProvisioner.getGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper().get(memberUuid);
@@ -245,11 +252,11 @@ public class GrouperProvisioningLogic {
       int missingGrouperTargetMembershipsForMembershipSync = 0;
       //the groups only should be the full list of grouper target groups
       List<MultiKey> groupEntityMembershipWrappers = new ArrayList<MultiKey>();
-      grouperIncrementalObjectsToRetrieveFromTarget.setProvisioningGroupMemberMembershipWrappersForMembershipSync(groupEntityMembershipWrappers);
+      targetDaoRetrieveIncrementalDataRequest.setProvisioningGroupMemberMembershipWrappersForMembershipSync(groupEntityMembershipWrappers);
 
       List<MultiKey> grouperTargetGroupsGrouperTargetEntitiesGrouperTargetMemberships = new ArrayList<MultiKey>();
-      grouperIncrementalObjectsToRetrieveFromTarget
-        .setGrouperTargetGroupsEntitiesMembershipsForMembershipSync(grouperTargetGroupsGrouperTargetEntitiesGrouperTargetMemberships);
+      targetDaoRetrieveIncrementalDataRequest
+        .setTargetGroupsEntitiesMembershipsForMembershipSync(grouperTargetGroupsGrouperTargetEntitiesGrouperTargetMemberships);
       
       //get the ones that were looked up in grouper
       for (MultiKey groupUuidMemberUuidFieldId : GrouperUtil.nonNull(grouperIncrementalUuidsToRetrieveFromGrouper.getGroupUuidsMemberUuidsFieldIdsForMembershipSync())) {
@@ -377,7 +384,11 @@ public class GrouperProvisioningLogic {
       public void run() {
         
         try {
-          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao().retrieveAllData();
+          TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
+            = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao()
+              .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
+          GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningData()
+            .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetProvisioningData());
         } catch (RuntimeException re) {
           LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
           RUNTIME_EXCEPTION[0] = re;
@@ -606,8 +617,8 @@ public class GrouperProvisioningLogic {
         ProvisioningEntity provisioningEntity = new ProvisioningEntity();
         provisioningEntity.setId(gcGrouperSyncMember.getMemberId());
   
-        provisioningEntity.assignAttribute("subjectId", gcGrouperSyncMember.getSubjectId());
-        provisioningEntity.assignAttribute("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
+        provisioningEntity.assignAttributeValue("subjectId", gcGrouperSyncMember.getSubjectId());
+        provisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
         if (grouperProvisioningEntities == null) {
           grouperProvisioningEntities = new ArrayList<ProvisioningEntity>();
           this.getGrouperProvisioner().getGrouperProvisioningData().getGrouperProvisioningObjects().setProvisioningEntities(grouperProvisioningEntities);

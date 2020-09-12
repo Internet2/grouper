@@ -27,6 +27,27 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    */
   private String email;
   
+  /**
+   * subject id (optional)
+   */
+  private String subjectId;
+  
+  /**
+   * 
+   * @return
+   */
+  public String getSubjectId() {
+    return subjectId;
+  }
+
+  /**
+   * 
+   * @param subjectId
+   */
+  public void setSubjectId(String subjectId) {
+    this.subjectId = subjectId;
+  }
+
   private ProvisioningEntityWrapper provisioningEntityWrapper;
   
   /**
@@ -110,6 +131,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "email", this.email);
     firstField = toStringAppendField(result, firstField, "name", this.name);
     firstField = toStringAppendField(result, firstField, "loginId", this.loginId);
+    firstField = toStringAppendField(result, firstField, "subjectId", this.loginId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     return result.append(")").toString();
   }
@@ -127,6 +149,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     provisioningEntity.id = this.id;
     provisioningEntity.loginId = this.loginId;
     provisioningEntity.name = this.name;
+    provisioningEntity.subjectId = this.subjectId;
     provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
 
     return provisioningEntity;

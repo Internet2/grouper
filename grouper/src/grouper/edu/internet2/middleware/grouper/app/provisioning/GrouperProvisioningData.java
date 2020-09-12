@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -135,27 +136,26 @@ public class GrouperProvisioningData {
   /**
    * grouper target objects to get from target for incremental sync
    */
-  private GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
-  
+  private TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest;
   
   /**
    * grouper target objects to get from target for incremental sync
    * @return target object
    */
-  public GrouperIncrementalObjectsToRetrieveFromTarget getGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget() {
-    if (this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget == null) {
-      this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget = new GrouperIncrementalObjectsToRetrieveFromTarget();
+  public TargetDaoRetrieveIncrementalDataRequest getTargetDaoRetrieveIncrementalDataRequest() {
+    if (this.targetDaoRetrieveIncrementalDataRequest == null) {
+      this.targetDaoRetrieveIncrementalDataRequest = new TargetDaoRetrieveIncrementalDataRequest();
     }
-    return grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
+    return targetDaoRetrieveIncrementalDataRequest;
   }
 
   /**
    * grouper target objects to get from target for incremental sync
    * @param grouperIncrementalGroupTargetObjectsToRetrieveFromTarget
    */
-  public void setGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget(
-      GrouperIncrementalObjectsToRetrieveFromTarget grouperIncrementalGroupTargetObjectsToRetrieveFromTarget) {
-    this.grouperIncrementalGroupTargetObjectsToRetrieveFromTarget = grouperIncrementalGroupTargetObjectsToRetrieveFromTarget;
+  public void setTargetDaoRetrieveIncrementalDataRequest(
+      TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest) {
+    this.targetDaoRetrieveIncrementalDataRequest = targetDaoRetrieveIncrementalDataRequest;
   }
 
   

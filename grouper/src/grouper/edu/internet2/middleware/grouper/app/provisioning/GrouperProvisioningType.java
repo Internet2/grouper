@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -133,7 +134,11 @@ public enum GrouperProvisioningType {
     @Override
     protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalGrouperTargetObjectsToRetrieveFromTarget();
-      grouperProvisioner.retrieveTargetDao().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalGroupTargetObjectsToRetrieveFromTarget());
+      TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
+        = grouperProvisioner.retrieveTargetDao().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
+      if (targetDaoRetrieveIncrementalDataResponse != null) {
+        grouperProvisioner.getGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetProvisioningData());
+      }
     }
 
     @Override

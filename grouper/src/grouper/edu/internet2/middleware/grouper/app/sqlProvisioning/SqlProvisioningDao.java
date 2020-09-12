@@ -7,12 +7,26 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -23,8 +37,9 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
-  public List<ProvisioningMembership> retrieveAllMemberships() {
-    return this.retrieveMemberships(true, null, null, null);
+  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
+    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(true, null, null, null);
+    return new TargetDaoRetrieveAllMembershipsResponse(targetMemberships);
   }
 
   public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetMembershipMultiKeys) {
@@ -117,7 +132,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         Object value = membershipAttributeValue[i];
         
-        provisioningMembership.assignAttribute(colName, value);
+        provisioningMembership.assignAttributeValue(colName, value);
       }
             
       result.add(provisioningMembership);
@@ -225,7 +240,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public void deleteGroup(ProvisioningGroup targetGroup) {
+  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest == null ? null : targetDaoDeleteGroupRequest.getTargetGroup();
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
@@ -275,11 +291,14 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     } else {
       throw new RuntimeException("Need group table name");
     }
+    return null;
   }
 
   @Override
-  public List<ProvisioningGroup> retrieveAllGroups(boolean includeAllMembershipsIfApplicable) {
-    return retrieveGroups(true, null, includeAllMembershipsIfApplicable);
+  public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
+    boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false: targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
+    List<ProvisioningGroup> targetGroups = retrieveGroups(true, null, includeAllMembershipsIfApplicable);
+    return new TargetDaoRetrieveAllGroupsResponse(targetGroups);
   }
 
   public List<ProvisioningGroup> retrieveGroups(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, boolean retrieveAllMembershipsInGroups) {
@@ -452,7 +471,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         if (!StringUtils.isBlank(groupTableIdColumn) && StringUtils.equalsIgnoreCase(groupTableIdColumn, colName)) {
           provisioningGroup.setId(GrouperUtil.stringValue(value));
         } else {
-          provisioningGroup.assignAttribute(colName, value);
+          provisioningGroup.assignAttributeValue(colName, value);
         }
         
       }
@@ -511,7 +530,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         if (StringUtils.equalsIgnoreCase(groupTableIdColumn, colName)) {
           provisioningGroup.setId(GrouperUtil.stringValue(value));
         } else {
-          provisioningGroup.assignAttribute(colName, value);
+          provisioningGroup.assignAttributeValue(colName, value);
         }
         columnIndex++;
       }
@@ -538,7 +557,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public void deleteMembership(ProvisioningMembership targetMembership) {
+  public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
+    
+    ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest == null ? null : targetDaoDeleteMembershipRequest.getTargetMembership();
+    
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
@@ -572,10 +594,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     gcDbAccess.sql(sql.toString()).executeSql();
     
+    return null;
+    
   }
 
   @Override
-  public void insertMembership(ProvisioningMembership targetMembership) {
+  public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
+    
+    ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
+    
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
@@ -611,16 +638,24 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     sql.append(")");
     gcDbAccess.sql(sql.toString()).executeSql();
     
+    return null;
   }
 
   @Override
-  public List<ProvisioningGroup> retrieveGroups(List<ProvisioningGroup> grouperTargetGroups, boolean retrieveAllMembershipsInGroups) {
-    return this.retrieveGroups(false, grouperTargetGroups, retrieveAllMembershipsInGroups);
+  public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
+    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveGroupsRequest == null ? null : targetDaoRetrieveGroupsRequest.getTargetGroups();
+    boolean retrieveAllMembershipsInGroups = targetDaoRetrieveGroupsRequest == null ? false : targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
+    List<ProvisioningGroup> targetGroups = this.retrieveGroups(false, grouperTargetGroups, retrieveAllMembershipsInGroups);
+    return new TargetDaoRetrieveGroupsResponse(targetGroups);
   }
 
   @Override
-  public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetMemberships) {
-    return this.retrieveMemberships(false, grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
+  public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
+    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroups();
+    List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntities();
+    List<MultiKey> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsEntitiesMemberships();
+    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(false, grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
+    return new TargetDaoRetrieveMembershipsBulkResponse(targetMemberships);
   }
 
 
