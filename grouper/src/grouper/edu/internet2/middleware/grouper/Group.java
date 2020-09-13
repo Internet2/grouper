@@ -1625,6 +1625,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               } catch (Exception exception) {
                 throw new RuntimeException(exception);
               }
+              
+              // if this is a wheel group then clear the wheel cache (granted if effective this wont work but cache lasts 10 seconds)
+              if (
+                  (GrouperConfig.retrieveConfig().propertyValueBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false) &&
+                      StringUtils.equals(Group.this.getName(), GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP )))
+               || (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false) &&
+                          StringUtils.equals(Group.this.getName(), GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group")))
+               || (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false) &&
+                              StringUtils.equals(Group.this.getName(), GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group")))) {
+                PrivilegeHelper.wheelMemberCacheClear();
+              }
+              
               if (doesntExist) {
                 
                 //this might be a wheel or a member of wheel...  maybe there is a more efficient way to do this...

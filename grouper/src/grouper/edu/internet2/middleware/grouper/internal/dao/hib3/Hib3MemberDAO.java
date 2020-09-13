@@ -641,11 +641,17 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         ByCriteriaStatic byCriteriaStatic = HibernateSession.byCriteriaStatic();
 
         Criterion filter = HibUtils.buildInCriterion("subjectIdDb", batchOfIds, 1000);
-        List<Criterion> criterionList = new ArrayList<Criterion>();
-        criterionList.add(filter);
-        criterionList.add(Restrictions.eq("subjectSourceIdDb", subjectSourceId));
 
-        List<Member> membersFromDb = byCriteriaStatic.list(Member.class, HibUtils.listCrit(criterionList));
+        if (!StringUtils.isBlank(subjectSourceId)) {
+	        List<Criterion> criterionList = new ArrayList<Criterion>();
+	        
+	        criterionList.add(filter);
+	        criterionList.add(Restrictions.eq("subjectSourceIdDb", subjectSourceId));
+	  
+	        filter = HibUtils.listCrit(criterionList);
+        }
+        
+        List<Member> membersFromDb = byCriteriaStatic.list(Member.class, filter);
 
         for (Member member : GrouperUtil.nonNull(membersFromDb)) {
           membersFlashCacheAddIfSupposedTo(member);
