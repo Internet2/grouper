@@ -76,7 +76,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteFullSync"));
+    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteRealTimeChangeLogSize"));
     
   }
   
@@ -1019,5 +1019,300 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     return null;
   }
+
+  /**
+   * just do a simple full sync of groups and memberships
+   */
+  public void testSimpleGroupLdapInsertUpdateDeleteFullSync2() {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
+  
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
+        "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
+    //#translate from group auto translated to the common format
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
+        "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
+        + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
+        "${grouperTargetMembership.setRemoveFromList(true)}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
+  
+    //# could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+        "${targetGroup.retrieveAttributeValueString('groupName')}");
+  
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupTargetId", "groupName");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
+    
+    // # if provisioning in ui should be enabled
+    //# {valueType: "boolean", required: true}
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+  
+        
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    Stem stem3 = new StemSave(this.grouperSession).assignName("test3").save();
+    Stem stem4 = new StemSave(this.grouperSession).assignName("test4").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test3:testGroup3").save();
+    Group testGroup4 = new GroupSave(this.grouperSession).assignName("test4:testGroup4").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+  
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+  
+    testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
+    testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
+  
+    testGroup4.addMember(SubjectTestHelper.SUBJ6, false);
+    testGroup4.addMember(SubjectTestHelper.SUBJ7, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(true);
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem3);
+  
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+  
+    String sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test3:testGroup3"})));
+  
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.1")));
+    assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "groupName", "test3:testGroup3")));
+    assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.4")));
+    assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.5")));
+  
+    // add 4
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem4);
+  
+    // remove 3
+    stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
+    GrouperProvisioningJob.runDaemonStandalone();
+    // add member, remove member
+    testGroup.addMember(SubjectTestHelper.SUBJ8, false);
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+  
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+  
+    sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
+  
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.8")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "groupName", "test4:testGroup4")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.6")));
+    assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
+    
+  }
+
+  /**
+     * just do a simple full sync of groups and memberships
+     */
+    public void testSimpleGroupLdapInsertUpdateDeleteRealTimeChangeLogSize() {
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.debugLog", "true");
+    
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
+          "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+      // # could be group, membership, or entity
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
+      
+      //#translate from group auto translated to the common format
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
+          "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
+          + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
+      // # could be group, membership, or entity
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
+    
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
+          "${grouperTargetMembership.setRemoveFromList(true)}");
+      // # could be group, membership, or entity
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
+    
+      //# could be group, membership, or entity
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+          "${targetGroup.retrieveAttributeValueString('groupName')}");
+    
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupTargetId", "groupName");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
+      
+      // # if provisioning in ui should be enabled
+      //# {valueType: "boolean", required: true}
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+    
+          
+      Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+      Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+      Stem stem3 = new StemSave(this.grouperSession).assignName("test3").save();
+      Stem stem4 = new StemSave(this.grouperSession).assignName("test4").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+      Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+      Group testGroup3 = new GroupSave(this.grouperSession).assignName("test3:testGroup3").save();
+      Group testGroup4 = new GroupSave(this.grouperSession).assignName("test4:testGroup4").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+      testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
+      testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
+    
+      testGroup4.addMember(SubjectTestHelper.SUBJ6, false);
+      testGroup4.addMember(SubjectTestHelper.SUBJ7, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision(true);
+      attributeValue.setTargetName("sqlProvTest");
+      attributeValue.setStemScopeString("sub");
+    
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem3);
+    
+    
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+          EsbConsumer.class.getName());
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+          ProvisioningConsumer.class.getName());
+      
+      //something that will never fire
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+          "0 0 5 * * 2000");
+  
+      // we dont need an EL filter
+  //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
+  //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
+  
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "sqlProvTest");
+  
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
+          GrouperProvisioningType.incrementalProvisionChangeLog.name());
+  
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
+  
+      //clear out changelog
+      // run the provisioner, it will init
+      hib3GrouperLoaderLog = runJobs(true, true);
+      
+      int changeLogTempSize = new GcDbAccess().sql("select count(1) from grouper_change_log_entry_temp").select(int.class);
+      assertEquals(0, changeLogTempSize);
+      
+      // add group 4
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem4);
+    
+      // remove group 3
+      stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
+      GrouperProvisioningJob.runDaemonStandalone();
+
+      // add member, remove member
+      testGroup.addMember(SubjectTestHelper.SUBJ8, false);
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+  
+      int newChangeLogTempSize = new GcDbAccess().sql("select count(1) from grouper_change_log_entry_temp").select(int.class);
+      
+      assertTrue(newChangeLogTempSize + "", newChangeLogTempSize - changeLogTempSize < 50);
+      
+    }
 
 }
