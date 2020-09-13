@@ -82,7 +82,7 @@
 
                             </c:if>
                             
-                            <c:if test="${ObjectType == 'Folder' }">
+                            <c:if test="${ObjectType == 'Folder' && grouperProvisioningAttributeValue.directAssignment }">
                             
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningStemScopeLabel']}</strong></td>
