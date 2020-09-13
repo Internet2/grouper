@@ -17,21 +17,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public abstract class ProvisioningUpdatable {
 
   /**
-   * if this object has been provisioned successfully, set this to true. 
-   * otherwise set the exception field and set to false
+   * if this object has been provisioned or deprovisioned successfully, set this to true. 
+   * e.g. if the insert/update/delete was successful, this should be "true"
+   * otherwise set to false and set the exception field
    */
   private Boolean provisioned = null;
   
   /**
-   * if this object has been provisioned successfully, set this to true. 
-   * otherwise set the exception field
+   * if this object has been provisioned or deprovisioned successfully, set this to true. 
+   * e.g. if the insert/update/delete was successful, this should be "true"
+   * otherwise set to false and set the exception field
    * @return if provisioned
    */
   public Boolean getProvisioned() {
     return provisioned;
   }
 
-  
+  /**
+   * if this object has been provisioned or deprovisioned successfully, set this to true. 
+   * e.g. if the insert/update/delete was successful, this should be "true"
+   * otherwise set to false and set the exception field
+   * @param provisioned
+   */
   public void setProvisioned(Boolean provisioned) {
     this.provisioned = provisioned;
   }

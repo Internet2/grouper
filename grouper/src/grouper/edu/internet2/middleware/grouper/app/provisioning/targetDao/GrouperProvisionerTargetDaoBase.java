@@ -44,6 +44,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
   
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningGrouproup
    */
   public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
@@ -51,6 +53,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningGrouproup
    */
   public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest ta) {
@@ -79,6 +83,12 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
 
+  /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
+   * @param targetDaoSendChangesToTargetRequest
+   * @return
+   */
   public TargetDaoSendChangesToTargetResponse sendChangesToTarget(TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest) {
 
     {
@@ -105,6 +115,12 @@ public abstract class GrouperProvisionerTargetDaoBase {
     return null;
   }
 
+  /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
+   * @param targetDaoSendGroupChangesToTargetRequest
+   * @return
+   */
   public TargetDaoSendGroupChangesToTargetResponse sendGroupChangesToTarget(TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest) {
 
     
@@ -125,6 +141,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * insert all these groups and either throw exception for all or mark each one with an exception
    * @param targetGroupInserts
    */
@@ -135,6 +153,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
         updateGroup(new TargetDaoUpdateGroupRequest(provisioningGroup));
       } catch (Exception e) {
         provisioningGroup.setException(e);
+        provisioningGroup.setProvisioned(false);
       }
     }
     return null;
@@ -142,6 +161,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * delete all these Memberships and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetMembershipDeletes
    */
   public TargetDaoDeleteMembershipsResponse deleteMemberships(TargetDaoDeleteMembershipsRequest targetDaoDeleteMembershipsRequest) {
@@ -150,6 +171,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
         deleteMembership(new TargetDaoDeleteMembershipRequest(provisioningMembership));
       } catch (Exception e) {
         provisioningMembership.setException(e);
+        provisioningMembership.setProvisioned(false);
       }
     }
     return null;
@@ -437,6 +459,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningGrouproup
    */
   public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
@@ -445,6 +469,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * insert all these groups and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetGroupInserts
    */
   public TargetDaoInsertGroupsResponse insertGroups(TargetDaoInsertGroupsRequest targetDaoInsertGroupsRequest) {
@@ -459,6 +485,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningEntity
    */
   public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
@@ -467,6 +495,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * delete all these entities and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetEntityDeletes
    */
   public TargetDaoDeleteEntitiesResponse deleteEntities(TargetDaoDeleteEntitiesRequest targetDaoDeleteEntitiesRequest) {
@@ -476,13 +506,20 @@ public abstract class GrouperProvisionerTargetDaoBase {
         targetDaoDeleteEntityRequest.setTargetEntity(provisioningEntity);
         deleteEntity(targetDaoDeleteEntityRequest);
       } catch (Exception e) {
-        provisioningEntity.setException(e);
+        if (provisioningEntity.getProvisioned() == null) {
+          provisioningEntity.setProvisioned(false);
+        }
+        if (provisioningEntity.getException() == null) {
+          provisioningEntity.setException(e);
+        }
       }
     }
     return null;
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningGrouproup
    */
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
@@ -491,6 +528,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * insert all these groups and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetEntityInserts
    */
   public TargetDaoInsertEntitiesRequest insertEntities(TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
@@ -505,6 +544,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningEntity
    */
   public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
@@ -513,6 +554,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * insert all these Entities and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetEntityInserts
    */
   public TargetDaoUpdateEntitiesResponse updateEntities(TargetDaoUpdateEntitiesRequest targetDaoUpdateEntitiesRequest) {
@@ -528,6 +571,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningMembership
    */
   public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
@@ -536,6 +581,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * delete all these groups and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetGroupDeletes
    */
   public TargetDaoDeleteGroupsResponse deleteGroups(TargetDaoDeleteGroupsRequest targetDaoDeleteGroupsRequest ) {
@@ -545,13 +592,20 @@ public abstract class GrouperProvisionerTargetDaoBase {
         targetDaoDeleteGroupRequest.setTargetGroup(provisioningGroup);
         deleteGroup(targetDaoDeleteGroupRequest);
       } catch (Exception e) {
-        provisioningGroup.setException(e);
+        if (provisioningGroup.getProvisioned() == null) {
+          provisioningGroup.setProvisioned(false);
+        }
+        if (provisioningGroup.getException() == null) {
+          provisioningGroup.setException(e);
+        }
       }
     }
     return null;
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningMembership
    */
   public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
@@ -560,6 +614,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
    * insert all these Memberships and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetMembershipInserts
    */
   public TargetDaoInsertMembershipsResponse insertMemberships(TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequest) {
@@ -574,6 +630,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @paProvisioningMembership
    */
   public TargetDaoUpdateMembershipResponse updateMembership(TargetDaoUpdateMembershipRequest targetDaoUpdateMembershipRequest) {
@@ -581,7 +639,9 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * insert all these Memberships and either throw exception for all or mark each one with an exception
+   * update all these Memberships and either throw exception for all or mark each one with an exception
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param targetGroupInserts
    */
   public TargetDaoUpdateMembershipsResponse updateMemberships(TargetDaoUpdateMembershipsRequest targetDaoUpdateMembershipsRequest) {
@@ -597,7 +657,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * 
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
    * @param ta
    * @return 
    */
@@ -621,6 +682,12 @@ public abstract class GrouperProvisionerTargetDaoBase {
     return null;
   }
 
+  /**
+   * set each provisioning object as "provisioned" after the insert/update/delete is done
+   * e.g. targetObject.setProvisioned(true)
+   * @param targetDaoSendMembershipChangesToTargetRequest
+   * @return
+   */
   public TargetDaoSendMembershipChangesToTargetResponse sendMembershipChangesToTarget(
       TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest) {
     

@@ -1021,7 +1021,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
   }
 
   /**
-   * just do a simple full sync of groups and memberships
+   * pa use case with group members ldap and user link
    */
   public void testSimpleGroupLdapInsertUpdateDeleteFullSync2() {
     
