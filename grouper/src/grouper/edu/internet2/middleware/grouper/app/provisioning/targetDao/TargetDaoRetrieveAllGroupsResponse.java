@@ -9,22 +9,22 @@ public class TargetDaoRetrieveAllGroupsResponse {
   public TargetDaoRetrieveAllGroupsResponse() {
   }
 
-  private List<ProvisioningGroup> targetProvisioningGroups;
+  private List<ProvisioningGroup> targetGroups;
 
   
-  public List<ProvisioningGroup> getTargetProvisioningGroups() {
-    return targetProvisioningGroups;
+  public List<ProvisioningGroup> getTargetGroups() {
+    return targetGroups;
   }
 
   
-  public void setTargetProvisioningGroups(List<ProvisioningGroup> targetGroups) {
-    this.targetProvisioningGroups = targetGroups;
+  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
   }
 
 
   public TargetDaoRetrieveAllGroupsResponse(List<ProvisioningGroup> targetGroups) {
     super();
-    this.targetProvisioningGroups = targetGroups;
+    this.targetGroups = targetGroups;
   }
   
 }

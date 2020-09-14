@@ -388,7 +388,7 @@ public class GrouperProvisioningLogic {
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao()
               .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
           GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningData()
-            .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetProvisioningData());
+            .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetData());
         } catch (RuntimeException re) {
           LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
           RUNTIME_EXCEPTION[0] = re;

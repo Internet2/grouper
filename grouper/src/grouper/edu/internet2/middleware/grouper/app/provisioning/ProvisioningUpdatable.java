@@ -264,6 +264,17 @@ public abstract class ProvisioningUpdatable {
    * @param name
    * @param value
    */
+  public Set<?> retrieveAttributeValueSet(String name) {
+    
+    return (Set<?>)this.retrieveAttributeValue(name);
+    
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
   public Integer retrieveAttributeValueInteger(String name) {
     
     return GrouperUtil.intObjectValue(this.retrieveAttributeValue(name), true);

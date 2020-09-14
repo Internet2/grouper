@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.ddlutils.model.Database;
@@ -24,6 +26,22 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutp
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeDataType;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
@@ -47,7 +65,7 @@ import junit.textui.TestRunner;
  * @author mchyzer
  *
  */
-public class SqlMembershipProvisionerTest extends GrouperTest {
+public class SqlProvisionerTest extends GrouperTest {
 
   /**
    * 
@@ -76,11 +94,11 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlMembershipProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteRealTimeChangeLogSize"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapDao"));
     
   }
   
-  public SqlMembershipProvisionerTest() {
+  public SqlProvisionerTest() {
     super();
     // TODO Auto-generated constructor stub
   }
@@ -89,7 +107,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    * 
    * @param name
    */
-  public SqlMembershipProvisionerTest(String name) {
+  public SqlProvisionerTest(String name) {
     super(name);
   }
 
@@ -113,6 +131,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
   
       new GcDbAccess().sql("delete from testgrouper_prov_ldap_group_attr").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_ldap_group").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_prov_ldap_entity_attr").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_prov_ldap_entity").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_group").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship0").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship1").executeSql();
@@ -144,6 +164,8 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
     
     dropTableSyncTable("testgrouper_prov_ldap_group_attr");
     dropTableSyncTable("testgrouper_prov_ldap_group");
+    dropTableSyncTable("testgrouper_prov_ldap_entity_attr");
+    dropTableSyncTable("testgrouper_prov_ldap_entity");
     dropTableSyncTable("testgrouper_prov_group");
     dropTableSyncTable("testgrouper_prov_mship0");
     dropTableSyncTable("testgrouper_prov_mship1");
@@ -156,7 +178,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupMembershipProvisioningFull_1() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -360,6 +382,20 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    * @param ddlVersionBean
    * @param database
    */
+  public void createTableLdapEntity(DdlVersionBean ddlVersionBean, Database database) {
+  
+    String tableName = "testgrouper_prov_ldap_entity";
+    
+    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+    
+  }
+  
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
   public void createTableLdapGroupAttr(DdlVersionBean ddlVersionBean, Database database) {
   
     String tableName = "testgrouper_prov_ldap_group_attr";
@@ -413,7 +449,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
      */
     public void testSimpleGroupLdap() {
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -546,7 +582,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
        */
       public void testSimpleGroupLdapInsertUpdateDeleteFullSync() {
         
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -711,7 +747,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapInsertUpdateDeleteRealTime() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -1025,7 +1061,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapInsertUpdateDeleteFullSync2() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -1190,7 +1226,7 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
      */
     public void testSimpleGroupLdapInsertUpdateDeleteRealTimeChangeLogSize() {
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlMembershipProvisioner.class.getName());
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
@@ -1314,5 +1350,372 @@ public class SqlMembershipProvisionerTest extends GrouperTest {
       assertTrue(newChangeLogTempSize + "", newChangeLogTempSize - changeLogTempSize < 50);
       
     }
+
+  /**
+   * just do a simple full sync of groups and memberships
+   */
+  public void testSimpleGroupLdapDao() {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.sqlProvisioningType", "groupsWithAttributesAsMembersLikeLdap");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
+        "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
+    //#translate from group auto translated to the common format
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
+        "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
+        + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
+        "${grouperTargetMembership.setRemoveFromList(true)}");
+    // # could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
+  
+    //# could be group, membership, or entity
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+        "${targetGroup.retrieveAttributeValueString('groupName')}");
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNameForMemberships", "subjectId");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupTargetId", "groupName");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTableName", "testgrouper_prov_ldap_entity");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeNames", "entity_uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableName", "testgrouper_prov_ldap_entity_attr");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTableIdColumn", "entity_uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeNameIsEntityTargetId", "entityName");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableForeignKeyToEntity", "entity_uuid");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeNameColumn", "entity_attribute_name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeValueColumn", "entity_attribute_value");
+
+    // # if provisioning in ui should be enabled
+    //# {valueType: "boolean", required: true}
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+
+    int countFromGroupTable = -1;
+    int countFromGroupAttributeTable = -1;
+    countFromGroupTable = new GcDbAccess().sql("select count(*) from testgrouper_prov_ldap_group").select(int.class);
+    assertEquals(0, countFromGroupTable);
+    countFromGroupAttributeTable = new GcDbAccess().sql("select count(*) from testgrouper_prov_ldap_group_attr").select(int.class);
+    assertEquals(0, countFromGroupAttributeTable);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    grouperProvisioner.setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
+
+    ProvisioningGroup provisioningGroup1 = new ProvisioningGroup();
+    provisioningGroup1.setId("abc123");
+    provisioningGroup1.assignAttributeValue("groupName", "a:b:c");
+    provisioningGroup1.assignAttributeValue("subjectId", "subjectId0");
+    provisioningGroup1.assignAttributeValue("subjectId", "subjectId1");
+
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "abc123"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "a:b:c"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId1"));
+
+    ProvisioningGroup provisioningGroup2 = new ProvisioningGroup();
+    provisioningGroup2.setId("def456");
+    provisioningGroup2.assignAttributeValue("groupName", "d:e:f");
+    provisioningGroup2.assignAttributeValue("subjectId", "subjectId2");
+    provisioningGroup2.assignAttributeValue("subjectId", "subjectId3");
+
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "def456"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "d:e:f"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId3"));
+    
+    ProvisioningGroup provisioningGroup3 = new ProvisioningGroup();
+    provisioningGroup3.setId("ghi789");
+    provisioningGroup3.assignAttributeValue("groupName", "g:h:i");
+    provisioningGroup3.assignAttributeValue("subjectId", "subjectId4");
+    provisioningGroup3.assignAttributeValue("subjectId", "subjectId5");
+
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "ghi789"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "g:h:i"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId4"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId5"));
+    
+    grouperProvisioner.retrieveTargetDao().insertGroups(new TargetDaoInsertGroupsRequest(GrouperUtil.toList(provisioningGroup1, provisioningGroup2, provisioningGroup3)));
+
+    Set<MultiKey> groupNamesInTable = selectGroupLikeLdapRecords();
+    
+    assertEquals(3, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"abc123"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"def456"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"ghi789"})));
+  
+    Set<MultiKey> attributesInTable = selectGroupLikeLdapAttributeRecords();
+    
+    assertEquals(9, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "groupName", "a:b:c")));
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId0")));
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId1")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "groupName", "d:e:f")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId2")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId3")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "groupName", "g:h:i")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId4")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId5")));
+
+    // retrieve all groups with memberships
+    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = grouperProvisioner.retrieveTargetDao().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
+    Map<String, ProvisioningGroup> idToGroup = new HashMap<String, ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveAllGroupsResponse.getTargetGroups()) {
+      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+    }
+    assertEquals(3, idToGroup.size());
+    ProvisioningGroup provisioningGroup1retrieved = idToGroup.get("abc123");
+    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
+    assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
+    ProvisioningGroup provisioningGroup2retrieved = idToGroup.get("def456");
+    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
+    assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
+    ProvisioningGroup provisioningGroup3retrieved = idToGroup.get("ghi789");
+    assertEquals("ghi789", provisioningGroup3retrieved.getId());
+    assertEquals("g:h:i", provisioningGroup3retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningGroup3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId4"));
+    assertTrue(provisioningGroup3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId5"));
+    
+    // retrieve some groups with memberships
+    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
+        GrouperUtil.toList(provisioningGroup1, provisioningGroup2), true);
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
+        grouperProvisioner.retrieveTargetDao().retrieveGroups(targetDaoRetrieveGroupsRequest);
+    idToGroup = new HashMap<String, ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
+      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+    }
+    assertEquals(2, idToGroup.size());
+    provisioningGroup1retrieved = idToGroup.get("abc123");
+    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
+    assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
+    provisioningGroup2retrieved = idToGroup.get("def456");
+    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
+    assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
+    
+    // retrieve some groups without memberships
+    targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
+        GrouperUtil.toList(provisioningGroup1, provisioningGroup2), false);
+    targetDaoRetrieveGroupsResponse = 
+        grouperProvisioner.retrieveTargetDao().retrieveGroups(targetDaoRetrieveGroupsRequest);
+    idToGroup = new HashMap<String, ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
+      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+    }
+    assertEquals(2, idToGroup.size());
+    provisioningGroup1retrieved = idToGroup.get("abc123");
+    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
+    assertFalse(provisioningGroup1retrieved.getAttributes().containsKey("subjectId"));
+    provisioningGroup2retrieved = idToGroup.get("def456");
+    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
+    assertFalse(provisioningGroup2retrieved.getAttributes().containsKey("subjectId"));
+
+    // update groups
+    ProvisioningGroup provisioningGroup1update = new ProvisioningGroup();
+    provisioningGroup1update.setId("abc123");
+    provisioningGroup1update.assignAttributeValue("groupName", "a:b:c");
+    provisioningGroup1update.assignAttributeValue("subjectId", "subjectId0");
+    provisioningGroup1update.assignAttributeValue("subjectId", "subjectId1");
+
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName2", ProvisioningObjectChangeAction.insert, null, "a:b:c2"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.update, "a:b:c", "a:b:cu"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0i"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.delete, "subjectId1", null));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.update, "subjectId0", "subjectId0u"));
+
+    ProvisioningGroup provisioningGroup2update = new ProvisioningGroup();
+    provisioningGroup2update.setId("def456");
+    provisioningGroup2update.assignAttributeValue("groupName", "d:e:f");
+    provisioningGroup2update.assignAttributeValue("subjectId", "subjectId2");
+    provisioningGroup2update.assignAttributeValue("subjectId", "subjectId3");
+
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName2", ProvisioningObjectChangeAction.insert, null, "d:e:f2"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.update, "d:e:f", "d:e:fu"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2i"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.delete, "subjectId3", null));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.update, "subjectId2", "subjectId2u"));
+
+    TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequest = new TargetDaoUpdateGroupsRequest(
+        GrouperUtil.toList(provisioningGroup1update, provisioningGroup2update));
+
+    TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = 
+        grouperProvisioner.retrieveTargetDao().updateGroups(targetDaoUpdateGroupsRequest);
+    
+    groupNamesInTable = selectGroupLikeLdapRecords();
+    
+    assertEquals(3, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"abc123"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"def456"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"ghi789"})));
+  
+    attributesInTable = selectGroupLikeLdapAttributeRecords();
+    
+    assertEquals(11, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "groupName2", "a:b:c2")));
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "groupName", "a:b:cu")));
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId0i")));
+    assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId0u")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "groupName2", "d:e:f2")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "groupName", "d:e:fu")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId2i")));
+    assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId2u")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "groupName", "g:h:i")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId4")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId5")));
+
+    
+    // delete groups
+    grouperProvisioner.retrieveTargetDao().deleteGroups(new TargetDaoDeleteGroupsRequest(
+        GrouperUtil.toList(provisioningGroup1, provisioningGroup2)));
+
+    groupNamesInTable = selectGroupLikeLdapRecords();
+    
+    assertEquals(1, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"ghi789"})));
+  
+    attributesInTable = selectGroupLikeLdapAttributeRecords();
+    
+    assertEquals(3, attributesInTable.size());
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "groupName", "g:h:i")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId4")));
+    assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId5")));
+
+    // insert some entities
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject0uuid").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject0uuid").addBindVar("dn").addBindVar("subject0").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject0uuid").addBindVar("employeeId").addBindVar("10021368").executeSql();
+    
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject1uuid").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject1uuid").addBindVar("dn").addBindVar("subject1").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject1uuid").addBindVar("employeeId").addBindVar("12345678").executeSql();
+
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject2uuid").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject2uuid").addBindVar("dn").addBindVar("subject2").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      .addBindVar("subject2uuid").addBindVar("employeeId").addBindVar("34567890").executeSql();
+
+    // retrieve all entities
+    TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = grouperProvisioner.retrieveTargetDao().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
+    Map<String, ProvisioningEntity> idToEntity = new HashMap<String, ProvisioningEntity>();
+    for (ProvisioningEntity provisioningEntity : targetDaoRetrieveAllEntitiesResponse.getTargetEntities()) {
+      idToEntity.put(provisioningEntity.getId(), provisioningEntity);
+    }
+    assertEquals(3, idToEntity.size());
+    ProvisioningEntity provisioningEntity1retrieved = idToEntity.get("abc123");
+    assertEquals("abc123", provisioningEntity1retrieved.getId());
+    assertEquals("a:b:c", provisioningEntity1retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
+    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
+    ProvisioningEntity provisioningEntity2retrieved = idToEntity.get("def456");
+    assertEquals("def456", provisioningEntity2retrieved.getId());
+    assertEquals("d:e:f", provisioningEntity2retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
+    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
+    ProvisioningEntity provisioningEntity3retrieved = idToEntity.get("ghi789");
+    assertEquals("ghi789", provisioningEntity3retrieved.getId());
+    assertEquals("g:h:i", provisioningEntity3retrieved.retrieveAttributeValueString("groupName"));
+    assertTrue(provisioningEntity3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId4"));
+    assertTrue(provisioningEntity3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId5"));
+    
+//    // retrieve some groups with memberships
+//    TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest(
+//        GrouperUtil.toList(provisioningEntity1, provisioningEntity2), true);
+//    TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
+//        grouperProvisioner.retrieveTargetDao().retrieveEntities(targetDaoRetrieveEntitiesRequest);
+//    idToEntity = new HashMap<String, ProvisioningEntity>();
+//    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveEntitiesResponse.getTargetGroups()) {
+//      idToEntity.put(provisioningGroup.getId(), provisioningGroup);
+//    }
+//    assertEquals(2, idToEntity.size());
+//    provisioningEntity1retrieved = idToEntity.get("abc123");
+//    assertEquals("abc123", provisioningEntity1retrieved.getId());
+//    assertEquals("a:b:c", provisioningEntity1retrieved.retrieveAttributeValueString("groupName"));
+//    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
+//    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
+//    provisioningEntity2retrieved = idToEntity.get("def456");
+//    assertEquals("def456", provisioningEntity2retrieved.getId());
+//    assertEquals("d:e:f", provisioningEntity2retrieved.retrieveAttributeValueString("groupName"));
+//    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
+//    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
+
+    
+  }
+
+  public Set<MultiKey> selectGroupLikeLdapAttributeRecords() {
+    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    return attributesInTable;
+  }
+
+  public Set<MultiKey> selectGroupLikeLdapRecords() {
+    String sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    return groupNamesInTable;
+  }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public void createTableLdapEntityAttr(DdlVersionBean ddlVersionBean, Database database) {
+  
+    String tableName = "testgrouper_prov_ldap_entity_attr";
+    
+    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_name", Types.VARCHAR, "200", true, true);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_value", Types.VARCHAR, "200", true, false);
+  
+  }
 
 }

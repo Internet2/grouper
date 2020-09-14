@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlMembershipProvisioner;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
@@ -36,7 +36,7 @@ public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
 
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
-    return SqlMembershipProvisioner.class.getName();
+    return SqlProvisioner.class.getName();
   }
 
 

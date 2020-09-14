@@ -15,9 +15,9 @@ public class TargetDaoRetrieveAllEntitiesResponse {
   }
 
   public TargetDaoRetrieveAllEntitiesResponse(
-      List<ProvisioningEntity> targetProvisioningEntities) {
+      List<ProvisioningEntity> targetEntities) {
     super();
-    this.targetEntities = targetProvisioningEntities;
+    this.targetEntities = targetEntities;
   }
 
   
@@ -27,8 +27,8 @@ public class TargetDaoRetrieveAllEntitiesResponse {
 
   
   public void setTargetEntities(
-      List<ProvisioningEntity> targetProvisioningEntities) {
-    this.targetEntities = targetProvisioningEntities;
+      List<ProvisioningEntity> targetEntities) {
+    this.targetEntities = targetEntities;
   }
 
   

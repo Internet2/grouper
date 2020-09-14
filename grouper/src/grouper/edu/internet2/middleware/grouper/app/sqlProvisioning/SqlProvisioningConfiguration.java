@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 
 
@@ -12,9 +13,23 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     return groupAttributeTableAttributeNameIsGroupTargetId;
   }
 
+  private SqlProvisioningType sqlProvisioningType;
+
+  
+  
+  public SqlProvisioningType getSqlProvisioningType() {
+    return sqlProvisioningType;
+  }
+
 
 
   
+  public void setSqlProvisioningType(SqlProvisioningType sqlProvisioningType) {
+    this.sqlProvisioningType = sqlProvisioningType;
+  }
+
+
+
   public void setgroupAttributeTableAttributeNameIsGroupTargetId(
       String groupAttributeTableAttributeNameIsGroupTargetId) {
     this.groupAttributeTableAttributeNameIsGroupTargetId = groupAttributeTableAttributeNameIsGroupTargetId;
@@ -203,12 +218,162 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.groupAttributeTableAttributeValueColumn = groupAttributeTableAttributeValueColumn;
   }
 
+  private String entityAttributeTableForeignKeyToEntity;
+  
+  private String entityTableName;
+  
+  private String entityAttributeTableAttributeNameColumn;
+  
+  private String entityAttributeNames;
+  
+  private String entityAttributeTableName;
+  
+  private String entityTableIdColumn;
+  
+  private String entityAttributeTableAttributeValueColumn;
+  
+  
+  
+  
+  public String getGroupAttributeTableAttributeNameIsGroupTargetId() {
+    return groupAttributeTableAttributeNameIsGroupTargetId;
+  }
+
+
+
+
+  
+  public void setGroupAttributeTableAttributeNameIsGroupTargetId(
+      String groupAttributeTableAttributeNameIsGroupTargetId) {
+    this.groupAttributeTableAttributeNameIsGroupTargetId = groupAttributeTableAttributeNameIsGroupTargetId;
+  }
+
+
+
+
+  
+  public String getEntityAttributeTableForeignKeyToEntity() {
+    return entityAttributeTableForeignKeyToEntity;
+  }
+
+
+
+
+  
+  public void setEntityAttributeTableForeignKeyToEntity(
+      String entityAttributeTableForeignKeyToEntity) {
+    this.entityAttributeTableForeignKeyToEntity = entityAttributeTableForeignKeyToEntity;
+  }
+
+
+
+
+  
+  public String getEntityTableName() {
+    return entityTableName;
+  }
+
+
+
+
+  
+  public void setEntityTableName(String entityTableName) {
+    this.entityTableName = entityTableName;
+  }
+
+
+
+
+  
+  public String getEntityAttributeTableAttributeNameColumn() {
+    return entityAttributeTableAttributeNameColumn;
+  }
+
+
+
+
+  
+  public void setEntityAttributeTableAttributeNameColumn(
+      String entityAttributeTableAttributeNameColumn) {
+    this.entityAttributeTableAttributeNameColumn = entityAttributeTableAttributeNameColumn;
+  }
+
+
+
+
+  
+  public String getEntityAttributeNames() {
+    return entityAttributeNames;
+  }
+
+
+
+
+  
+  public void setEntityAttributeNames(String entityAttributeNames) {
+    this.entityAttributeNames = entityAttributeNames;
+  }
+
+
+
+
+  
+  public String getEntityAttributeTableName() {
+    return entityAttributeTableName;
+  }
+
+
+
+
+  
+  public void setEntityAttributeTableName(String entityAttributeTableName) {
+    this.entityAttributeTableName = entityAttributeTableName;
+  }
+
+
+
+
+  
+  public String getEntityTableIdColumn() {
+    return entityTableIdColumn;
+  }
+
+
+
+
+  
+  public void setEntityTableIdColumn(String entityTableIdColumn) {
+    this.entityTableIdColumn = entityTableIdColumn;
+  }
+
+
+
+
+  
+  public String getEntityAttributeTableAttributeValueColumn() {
+    return entityAttributeTableAttributeValueColumn;
+  }
+
+
+
+
+  
+  public void setEntityAttributeTableAttributeValueColumn(
+      String entityAttributeTableAttributeValueColumn) {
+    this.entityAttributeTableAttributeValueColumn = entityAttributeTableAttributeValueColumn;
+  }
+
+
 
 
   @Override
   public void configureSpecificSettings() {
     
     this.dbExternalSystemConfigId = this.retrieveConfigString("dbExternalSystemConfigId", true);
+    
+    String sqlProvisioningTypeString = this.retrieveConfigString("sqlProvisioningType", true);
+    this.sqlProvisioningType = SqlProvisioningType.valueOfIgnoreCase(sqlProvisioningTypeString, true);
+    
     
     //TODO validate sql config id
     
@@ -224,7 +389,13 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //    this.membershipCreationColumnTemplate_attr_1 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_1", true);
 //    this.membershipCreationColumnTemplate_val_1 = this.retrieveConfigString("membershipCreationColumnTemplate_val_1", true);
 
-    
+    this.entityAttributeTableForeignKeyToEntity = this.retrieveConfigString("entityAttributeTableForeignKeyToEntity", false);
+    this.entityTableName = this.retrieveConfigString("entityTableName", false);
+    this.entityAttributeTableAttributeNameColumn = this.retrieveConfigString("entityAttributeTableAttributeNameColumn", false);
+    this.entityAttributeNames = this.retrieveConfigString("entityAttributeNames", false);
+    this.entityAttributeTableName = this.retrieveConfigString("entityAttributeTableName", false);
+    this.entityTableIdColumn = this.retrieveConfigString("entityTableIdColumn", false);
+    this.entityAttributeTableAttributeValueColumn = this.retrieveConfigString("entityAttributeTableAttributeValueColumn", false);
     
     this.groupAttributeTableAttributeNameIsGroupTargetId = this.retrieveConfigString("groupAttributeTableAttributeNameIsGroupTargetId", false);
     this.groupTableName = this.retrieveConfigString("groupTableName", false);

@@ -187,21 +187,21 @@ public abstract class GrouperProvisionerTargetDaoBase {
     try {
       long start = System.currentTimeMillis();
       TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
-      List<ProvisioningGroup> targetProvisioningGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetProvisioningGroups();
-      targetObjects.setProvisioningGroups(targetProvisioningGroups);
+      List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
+      targetObjects.setProvisioningGroups(targetGroups);
       debugMap.put("retrieveTargetGroupsMillis", System.currentTimeMillis() - start);
-      debugMap.put("targetGroupCount", GrouperUtil.length(targetProvisioningGroups));
+      debugMap.put("targetGroupCount", GrouperUtil.length(targetGroups));
     } catch (UnsupportedOperationException uoe) {
       //not implemented
     }
     try {
       long start = System.currentTimeMillis();
       TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest(true));
-      List<ProvisioningEntity> targetProvisioningEntities = 
+      List<ProvisioningEntity> targetEntities = 
           targetDaoRetrieveAllEntitiesResponse == null ? null : targetDaoRetrieveAllEntitiesResponse.getTargetEntities();
-      targetObjects.setProvisioningEntities(targetProvisioningEntities);
+      targetObjects.setProvisioningEntities(targetEntities);
       debugMap.put("retrieveTargetEntitiesMillis", System.currentTimeMillis() - start);
-      debugMap.put("targetEntityCount", GrouperUtil.length(targetProvisioningEntities));
+      debugMap.put("targetEntityCount", GrouperUtil.length(targetEntities));
     } catch (UnsupportedOperationException uoe) {
       //not implemented
     }
@@ -209,12 +209,12 @@ public abstract class GrouperProvisionerTargetDaoBase {
       long start = System.currentTimeMillis();
       TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = 
           this.retrieveAllMemberships(new TargetDaoRetrieveAllMembershipsRequest());
-      List<ProvisioningMembership> targetProvisioningMemberships = 
+      List<ProvisioningMembership> targetMemberships = 
           targetDaoRetrieveAllMembershipsResponse == null ? null : 
-            targetDaoRetrieveAllMembershipsResponse.getTargetProvisioningMemberships();
-      targetObjects.setProvisioningMemberships(targetProvisioningMemberships);
+            targetDaoRetrieveAllMembershipsResponse.getTargetMemberships();
+      targetObjects.setProvisioningMemberships(targetMemberships);
       debugMap.put("retrieveTargetMshipsMillis", System.currentTimeMillis() - start);
-      debugMap.put("targetMshipCount", GrouperUtil.length(targetProvisioningMemberships));
+      debugMap.put("targetMshipCount", GrouperUtil.length(targetMemberships));
     } catch (UnsupportedOperationException uoe) {
       //not implemented
     }
@@ -224,7 +224,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   /**
    * retrieve all incremental data from the target from the target ids of the grouper translated and indexed target groups
    */
-  public TargetDaoRetrieveIncrementalDataResponse retrieveIncrementalData(TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncementalDataRequest) {
+  public TargetDaoRetrieveIncrementalDataResponse retrieveIncrementalData(
+      TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncementalDataRequest) {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     GrouperProvisioningLists targetObjects = new GrouperProvisioningLists();
     TargetDaoRetrieveIncrementalDataResponse result = new TargetDaoRetrieveIncrementalDataResponse(targetObjects);
@@ -236,10 +237,10 @@ public abstract class GrouperProvisionerTargetDaoBase {
         // if there are groups then this must be implemented
         TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
             new TargetDaoRetrieveGroupsRequest(targetGroups, false));
-        List<ProvisioningGroup> targetProvisioningGroups = targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups();
-        targetObjects.setProvisioningGroups(targetProvisioningGroups);
+        List<ProvisioningGroup> targetGroupsResult = targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups();
+        targetObjects.setProvisioningGroups(targetGroupsResult);
         debugMap.put("retrieveTargetGroupsMillis", System.currentTimeMillis() - start);
-        debugMap.put("targetGroupCount", GrouperUtil.length(targetProvisioningGroups));
+        debugMap.put("targetGroupCount", GrouperUtil.length(targetGroupsResult));
       }
     }
     {
@@ -249,11 +250,11 @@ public abstract class GrouperProvisionerTargetDaoBase {
         long start = System.currentTimeMillis();
         TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.retrieveEntities(
             new TargetDaoRetrieveEntitiesRequest(targetEntities, false));
-        List<ProvisioningEntity> targetProvisioningEntities = targetDaoRetrieveEntitiesResponse == null ?
+        List<ProvisioningEntity> targetEntitiesResult = targetDaoRetrieveEntitiesResponse == null ?
             null : targetDaoRetrieveEntitiesResponse.getTargetEntities();
-        targetObjects.setProvisioningEntities(targetProvisioningEntities);
+        targetObjects.setProvisioningEntities(targetEntitiesResult);
         debugMap.put("retrieveTargetEntitiesMillis", System.currentTimeMillis() - start);
-        debugMap.put("targetEntityCount", GrouperUtil.length(targetProvisioningEntities));
+        debugMap.put("targetEntityCount", GrouperUtil.length(targetEntitiesResult));
       }
     }
     {
@@ -263,10 +264,10 @@ public abstract class GrouperProvisionerTargetDaoBase {
       if (GrouperUtil.length(targetGroupsEntitiesMemberships) > 0 || GrouperUtil.length(targetGroups) > 0 || GrouperUtil.length(targetEntities) > 0) {
         long start = System.currentTimeMillis();
         TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk = this.retrieveMembershipsBulk(new TargetDaoRetrieveMembershipsBulkRequest(targetGroups, targetEntities, targetGroupsEntitiesMemberships));
-        List<ProvisioningMembership> targetProvisioningMemberships = retrieveMembershipsBulk == null ? null : retrieveMembershipsBulk.getTargetMemberships();
-        targetObjects.setProvisioningMemberships(targetProvisioningMemberships);
+        List<ProvisioningMembership> targetMemberships = retrieveMembershipsBulk == null ? null : retrieveMembershipsBulk.getTargetMemberships();
+        targetObjects.setProvisioningMemberships(targetMemberships);
         debugMap.put("retrieveTargetMshipsMillis", System.currentTimeMillis() - start);
-        debugMap.put("targetMshipCount", GrouperUtil.length(targetProvisioningMemberships));
+        debugMap.put("targetMshipCount", GrouperUtil.length(targetMemberships));
       }
       //not implemented
     }
@@ -278,16 +279,16 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return the target provisioning groups
    */
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
-    List<ProvisioningGroup> targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
+    List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
     List<ProvisioningGroup> targetGroupsToRetrieve = targetDaoRetrieveGroupsRequest.getTargetGroups();
     for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroupsToRetrieve)) {
       TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable()));
-      ProvisioningGroup targetProvisioningGroup = targetDaoRetrieveGroupResponse == null ? null : targetDaoRetrieveGroupResponse.getTargetGroup();
-      if (targetProvisioningGroup != null) {
-        targetProvisioningGroups.add(targetProvisioningGroup);
+      ProvisioningGroup targetGroupResult = targetDaoRetrieveGroupResponse == null ? null : targetDaoRetrieveGroupResponse.getTargetGroup();
+      if (targetGroupResult != null) {
+        targetGroups.add(targetGroupResult);
       }
     }
-    return new TargetDaoRetrieveGroupsResponse(targetProvisioningGroups);
+    return new TargetDaoRetrieveGroupsResponse(targetGroups);
   }
 
   /**
@@ -296,28 +297,28 @@ public abstract class GrouperProvisionerTargetDaoBase {
    */
   public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(
       TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
     
     List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroups();
      
     TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups = this.retrieveMembershipsByGroups(new TargetDaoRetrieveMembershipsByGroupsRequest(targetGroups));
-    targetProvisioningMemberships.addAll(retrieveMembershipsByGroups == null ? null : retrieveMembershipsByGroups.getTargetMemberships());
+    targetMemberships.addAll(retrieveMembershipsByGroups == null ? null : retrieveMembershipsByGroups.getTargetMemberships());
     
     List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntities();
     TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse =
         this.retrieveMembershipsByEntities(new TargetDaoRetrieveMembershipsByEntitiesRequest(targetEntities));
-    List<ProvisioningMembership> targetMemberships = targetDaoRetrieveMembershipsByEntitiesResponse == null ? null : targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships();
-    targetProvisioningMemberships.addAll(targetMemberships);
+    List<ProvisioningMembership> targetMembershipsResult = targetDaoRetrieveMembershipsByEntitiesResponse == null ? null : targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships();
+    targetMemberships.addAll(targetMembershipsResult);
     
     List<MultiKey> targetGroupsMembersMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? 
         null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsEntitiesMemberships();
     
     TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership = this.retrieveMembershipsByTargetGroupEntityMembership(new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest(
         targetGroupsMembersMemberships));
-    targetProvisioningMemberships.addAll(retrieveMembershipsByTargetGroupEntityMembership == null ? null :
+    targetMemberships.addAll(retrieveMembershipsByTargetGroupEntityMembership == null ? null :
       retrieveMembershipsByTargetGroupEntityMembership.getTargetMemberships());
     
-    return new TargetDaoRetrieveMembershipsBulkResponse(targetProvisioningMemberships);
+    return new TargetDaoRetrieveMembershipsBulkResponse(targetMemberships);
   }
   
   /**
@@ -325,7 +326,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return the target provisioning memberships
    */
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
-    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
     List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsByGroupsRequest == null ? null :
       targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups();
     for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
@@ -333,10 +334,10 @@ public abstract class GrouperProvisionerTargetDaoBase {
           new TargetDaoRetrieveMembershipsByGroupRequest(targetGroup));
       List<ProvisioningMembership> retrieveMembershipsByGroup = targetDaoRetrieveMembershipsByGroupResponse == null ? null 
           : targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships();
-      List<ProvisioningMembership> targetProvisioningMembershipsByGroup = retrieveMembershipsByGroup;
-      targetProvisioningMemberships.addAll((GrouperUtil.nonNull(targetProvisioningMembershipsByGroup)));
+      List<ProvisioningMembership> targetMembershipsByGroup = retrieveMembershipsByGroup;
+      targetMemberships.addAll((GrouperUtil.nonNull(targetMembershipsByGroup)));
     }
-    return new TargetDaoRetrieveMembershipsByGroupsResponse(targetProvisioningMemberships);
+    return new TargetDaoRetrieveMembershipsByGroupsResponse(targetMemberships);
   }
 
   /**
@@ -355,15 +356,15 @@ public abstract class GrouperProvisionerTargetDaoBase {
    */
   public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
       TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequest) {
-    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
     List<ProvisioningEntity> targetEntitiesToRetrieve = targetDaoRetrieveMembershipsByEntitiesRequest == null ? null : targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities();
     for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntitiesToRetrieve)) {
       TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = retrieveMembershipsByEntity(new TargetDaoRetrieveMembershipsByEntityRequest(targetEntity));
-      List<ProvisioningMembership> targetProvisioningMembershipsByEntity = targetDaoRetrieveMembershipsByEntityResponse == null ? null : 
+      List<ProvisioningMembership> targetMembershipsByEntity = targetDaoRetrieveMembershipsByEntityResponse == null ? null : 
           targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships();
-      targetProvisioningMemberships.addAll((GrouperUtil.nonNull(targetProvisioningMembershipsByEntity)));
+      targetMemberships.addAll((GrouperUtil.nonNull(targetMembershipsByEntity)));
     }
-    return new TargetDaoRetrieveMembershipsByEntitiesResponse(targetProvisioningMemberships);
+    return new TargetDaoRetrieveMembershipsByEntitiesResponse(targetMemberships);
   }
 
   /**
@@ -381,16 +382,16 @@ public abstract class GrouperProvisionerTargetDaoBase {
    */
   public TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership(
       TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest) {
-    List<ProvisioningMembership> targetProvisioningMembershipsToRetrieve = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> targetMembershipsToRetrieve = new ArrayList<ProvisioningMembership>();
     List<MultiKey> groupsEntitiesMemberships = targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest == null ? null : 
       targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest.getTargetGroupsMembersMemberships();
     for (MultiKey targetGroupEntityMembership : GrouperUtil.nonNull(groupsEntitiesMemberships)) {
       ProvisioningMembership targetMembership = (ProvisioningMembership)targetGroupEntityMembership.getKey(2);
       if (targetMembership != null) {
-        targetProvisioningMembershipsToRetrieve.add(targetMembership);
+        targetMembershipsToRetrieve.add(targetMembership);
       }
     }
-    TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.retrieveMemberships(new TargetDaoRetrieveMembershipsRequest(targetProvisioningMembershipsToRetrieve));
+    TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.retrieveMemberships(new TargetDaoRetrieveMembershipsRequest(targetMembershipsToRetrieve));
     List<ProvisioningMembership> retrieveMemberships = targetDaoRetrieveMembershipsResponse == null ? null : targetDaoRetrieveMembershipsResponse.getTargetMemberships();
     return new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse(retrieveMemberships);
   }
@@ -401,16 +402,16 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return the target provisioning Memberships
    */
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
-    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
     List<ProvisioningMembership> targetMembershipsToRetrieve = targetDaoRetrieveMembershipsRequest == null ? null : targetDaoRetrieveMembershipsRequest.getTargetMemberships();
     for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMembershipsToRetrieve)) {
       TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = retrieveMembership(new TargetDaoRetrieveMembershipRequest(targetMembership));
-      ProvisioningMembership targetProvisioningMembership = targetDaoRetrieveMembershipResponse == null ? null : targetDaoRetrieveMembershipResponse.getTargetMembership();
-      if (targetProvisioningMembership != null) {
-        targetProvisioningMemberships.add(targetProvisioningMembership);
+      ProvisioningMembership targetMembershipResult = targetDaoRetrieveMembershipResponse == null ? null : targetDaoRetrieveMembershipResponse.getTargetMembership();
+      if (targetMembershipResult != null) {
+        targetMemberships.add(targetMembershipResult);
       }
     }
-    return new TargetDaoRetrieveMembershipsResponse(targetProvisioningMemberships);
+    return new TargetDaoRetrieveMembershipsResponse(targetMemberships);
   }
 
   /**
@@ -419,16 +420,16 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return the target provisioning Entities
    */
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
-    List<ProvisioningEntity> targetProvisioningEntities = new ArrayList<ProvisioningEntity>();
+    List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
     for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetDaoRetrieveEntitiesRequest.getTargetEntities())) {
       TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(targetEntity, targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable());
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = retrieveEntity(targetDaoRetrieveEntityRequest);
-      ProvisioningEntity targetProvisioningEntity = targetDaoRetrieveEntityResponse == null ? null : targetDaoRetrieveEntityResponse.getTargetEntity();
-      if (targetProvisioningEntity != null) {
-        targetProvisioningEntities.add(targetProvisioningEntity);
+      ProvisioningEntity targetEntityResult = targetDaoRetrieveEntityResponse == null ? null : targetDaoRetrieveEntityResponse.getTargetEntity();
+      if (targetEntityResult != null) {
+        targetEntities.add(targetEntityResult);
       }
     }
-    return new TargetDaoRetrieveEntitiesResponse(targetProvisioningEntities);
+    return new TargetDaoRetrieveEntitiesResponse(targetEntities);
   }
 
   /**

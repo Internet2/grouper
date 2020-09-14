@@ -137,7 +137,7 @@ public enum GrouperProvisioningType {
       TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
         = grouperProvisioner.retrieveTargetDao().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
       if (targetDaoRetrieveIncrementalDataResponse != null) {
-        grouperProvisioner.getGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetProvisioningData());
+        grouperProvisioner.getGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
       }
     }
 

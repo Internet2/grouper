@@ -10,7 +10,7 @@ public class AllSqlProvisioningTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllSqlProvisioningTests.class.getName());
     //$JUnit-BEGIN$
-    suite.addTestSuite(SqlMembershipProvisionerTest.class);
+    suite.addTestSuite(SqlProvisionerTest.class);
     //$JUnit-END$
     return suite;
   }

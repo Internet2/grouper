@@ -38,11 +38,5 @@ public class LdapSync extends GrouperProvisioner {
     return LdapProvisioningTranslator.class;
   }
 
-  @Override
-  public void syncTargetObjectsToTarget() {
-    // TODO Auto-generated method stub
-    
-  }
-  
   
 }

@@ -474,7 +474,27 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   private GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = null;
   
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   */
+  private String groupAttributeNameForMemberships;
   
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getGroupAttributeNameForMemberships() {
+    return groupAttributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   * @param groupAttributeNameForMemberships
+   */
+  public void setGroupAttributeNameForMemberships(String groupAttributeNameForMemberships) {
+    this.groupAttributeNameForMemberships = groupAttributeNameForMemberships;
+  }
+
   private String membershipAttributeNames;
 
   /**
@@ -576,6 +596,8 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.groupSearchAttributeName = this.retrieveConfigString("groupSearchAttributeName", false);
 
+    this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    
     this.groupSearchAttributeValueFormat = this.retrieveConfigString("groupSearchAttributeValueFormat", false);
     
     if (StringUtils.isBlank(this.groupSearchAttributeName) != StringUtils.isBlank(this.groupSearchAttributeValueFormat)) {
@@ -660,6 +682,13 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   
+  
+  public boolean isConfigured() {
+    return configured;
+  }
+
+
+
   public Map<String, Object> getDebugMap() {
     return debugMap;
   }

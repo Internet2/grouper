@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDele
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
@@ -662,7 +664,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   /**
    * @paProvisioningGrouproup
    */
-  public void insertGroup(ProvisioningGroup targetGroup) {
+  @Override
+  public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
+    ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
@@ -739,7 +743,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         throw new RuntimeException("Not implemented");
       }
     }
-  
+    return null;
   }
 
   

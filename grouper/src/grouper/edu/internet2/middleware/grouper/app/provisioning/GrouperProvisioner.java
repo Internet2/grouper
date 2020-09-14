@@ -76,8 +76,6 @@ public abstract class GrouperProvisioner {
   protected abstract Class<? extends GrouperProvisionerTargetDaoBase> retrieveTargetDaoClass();
   
   
-  public abstract void syncTargetObjectsToTarget();
-  
   /**
    * returns the subclass of Data Access Object for this provisioner
    * @return the DAO
