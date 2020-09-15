@@ -102,6 +102,11 @@ public enum GrouperProvisioningType {
       // full sync doesnt need to look at sync objects to know what to delete, its all in the full sync
       
     }
+
+    @Override
+    public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().updateGroupLinkFull();
+    }
     
   },
   incrementalProvisionChangeLog {
@@ -188,6 +193,11 @@ public enum GrouperProvisioningType {
       grouperProvisioner.retrieveGrouperProvisioningLogic().calculateProvisioningDataToDelete(); 
     }
 
+    @Override
+    public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().updateGroupLinkIncremental();
+    }
+
   };
 
   /**
@@ -224,6 +234,9 @@ public enum GrouperProvisioningType {
   public abstract void setupClonesOfGroupProvisioningObjects(GrouperProvisioner grouperProvisioner);
 
   public abstract void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner);
+  
+  public abstract void updateGroupLink(GrouperProvisioner grouperProvisioner);
+  
   /**
    * do a case-insensitive matching
    * 

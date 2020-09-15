@@ -421,6 +421,56 @@ public abstract class GrouperProvisioningConfigurationBase {
   private int refreshSubjectLinkIfLessThanAmount;
   
   /**
+   * if there are fewer than this many groups to process, just resolve them
+   */
+  private int refreshGroupLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   */
+  private int refreshEntityLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many groups to process, just resolve them
+   * @return
+   */
+  public int getRefreshGroupLinkIfLessThanAmount() {
+    return refreshGroupLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many groups to process, just resolve them
+   * @param refreshGroupLinkIfLessThanAmount
+   */
+  public void setRefreshGroupLinkIfLessThanAmount(int refreshGroupLinkIfLessThanAmount) {
+    this.refreshGroupLinkIfLessThanAmount = refreshGroupLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   * @return
+   */
+  public int getRefreshEntityLinkIfLessThanAmount() {
+    return refreshEntityLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   * @param refreshEntityLinkIfLessThanAmount
+   */
+  public void setRefreshEntityLinkIfLessThanAmount(int refreshEntityLinkIfLessThanAmount) {
+    this.refreshEntityLinkIfLessThanAmount = refreshEntityLinkIfLessThanAmount;
+  }
+
+
+
+  /**
    * if there are fewer than this many subjects to process, just resolve them
    * @return
    */
@@ -558,7 +608,19 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.subjectLinkMemberToId2 = this.retrieveConfigString("common.subjectLink.memberToId2", false);
     this.subjectLinkMemberToId3 = this.retrieveConfigString("common.subjectLink.memberToId3", false);
 
-    this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", this.hasSubjectLink), 20);
+    this.groupLinkGroupFromId2 = this.retrieveConfigString("common.groupLink.groupFromId2", false);
+    this.groupLinkGroupFromId3 = this.retrieveConfigString("common.groupLink.groupFromId3", false);
+    this.groupLinkGroupToId2 = this.retrieveConfigString("common.groupLink.groupToId2", false);
+    this.groupLinkGroupToId3 = this.retrieveConfigString("common.groupLink.groupToId3", false);
+
+    this.entityLinkMemberFromId2 = this.retrieveConfigString("common.entityLink.memberFromId2", false);
+    this.entityLinkMemberFromId3 = this.retrieveConfigString("common.entityLink.memberFromId3", false);
+    this.entityLinkMemberToId2 = this.retrieveConfigString("common.entityLink.memberToId2", false);
+    this.entityLinkMemberToId3 = this.retrieveConfigString("common.entityLink.memberToId3", false);
+
+    this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", false), 20);
+    this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
+    this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
     
     this.userAttributeReferredToByGroup = this.retrieveConfigString("userAttributeReferredToByGroup", this.hasTargetUserLink);
     
@@ -625,21 +687,26 @@ public abstract class GrouperProvisioningConfigurationBase {
       
     }
     
-    for (int i=0; i<= 1000; i++) {
-      
-      String script = this.retrieveConfigString("grouperToTargetTranslation."+i+".script" , false);
-      if (StringUtils.isBlank(script)) {
-        break;
+    for (String configItem : new String[] {"grouperToTargetTranslationMembership", "grouperToTargetTranslationEntity",
+        "grouperToTargetTranslationGroup", "grouperToTargetTranslationGroupCreateOnly"}) {
+      String key = GrouperUtil.stripPrefix(configItem, "grouperToTargetTranslation");
+      for (int i=0; i<= 1000; i++) {
+        
+        String script = this.retrieveConfigString(configItem + "."+i+".script" , false);
+        if (StringUtils.isBlank(script)) {
+          break;
+        }
+        List<String> scripts = this.grouperProvisioningToTargetTranslation.get(key);
+        if (scripts == null) {
+          scripts = new ArrayList<String>();
+          this.grouperProvisioningToTargetTranslation.put(key, scripts);
+        }
+        scripts.add(script);
+        
       }
-      String forString = this.retrieveConfigString("grouperToTargetTranslation."+i+".for" , true);
-      List<String> scripts = this.grouperProvisioningToTargetTranslation.get(forString);
-      if (scripts == null) {
-        scripts = new ArrayList<String>();
-        this.grouperProvisioningToTargetTranslation.put(forString, scripts);
-      } 
-      scripts.add(script);
       
     }
+    
 
   }
   
@@ -647,8 +714,135 @@ public abstract class GrouperProvisioningConfigurationBase {
    * no need to configure twice if the caller needs to configure before provisioning
    */
   private boolean configured = false;
+
+  private String entityLinkMemberFromId2;
+
+  private String entityLinkMemberFromId3;
+
+  private String entityLinkMemberToId2;
+
+  private String entityLinkMemberToId3;
   
   
+  
+  public String getEntityLinkMemberFromId2() {
+    return entityLinkMemberFromId2;
+  }
+
+
+
+  
+  public void setEntityLinkMemberFromId2(String entityLinkMemberFromId2) {
+    this.entityLinkMemberFromId2 = entityLinkMemberFromId2;
+  }
+
+
+
+  
+  public String getEntityLinkMemberFromId3() {
+    return entityLinkMemberFromId3;
+  }
+
+
+
+  
+  public void setEntityLinkMemberFromId3(String entityLinkMemberFromId3) {
+    this.entityLinkMemberFromId3 = entityLinkMemberFromId3;
+  }
+
+
+
+  
+  public String getEntityLinkMemberToId2() {
+    return entityLinkMemberToId2;
+  }
+
+
+
+  
+  public void setEntityLinkMemberToId2(String entityLinkMemberToId2) {
+    this.entityLinkMemberToId2 = entityLinkMemberToId2;
+  }
+
+
+
+  
+  public String getEntityLinkMemberToId3() {
+    return entityLinkMemberToId3;
+  }
+
+
+
+  
+  public void setEntityLinkMemberToId3(String entityLinkMemberToId3) {
+    this.entityLinkMemberToId3 = entityLinkMemberToId3;
+  }
+
+  private String groupLinkGroupFromId2;
+
+  private String groupLinkGroupFromId3;
+
+  private String groupLinkGroupToId2;
+
+  private String groupLinkGroupToId3;
+  
+  
+  
+  public String getGroupLinkGroupFromId2() {
+    return groupLinkGroupFromId2;
+  }
+
+
+
+  
+  public void setGroupLinkGroupFromId2(String groupLinkGroupFromId2) {
+    this.groupLinkGroupFromId2 = groupLinkGroupFromId2;
+  }
+
+
+
+  
+  public String getGroupLinkGroupFromId3() {
+    return groupLinkGroupFromId3;
+  }
+
+
+
+  
+  public void setGroupLinkGroupFromId3(String groupLinkGroupFromId3) {
+    this.groupLinkGroupFromId3 = groupLinkGroupFromId3;
+  }
+
+
+
+  
+  public String getGroupLinkGroupToId2() {
+    return groupLinkGroupToId2;
+  }
+
+
+
+  
+  public void setGroupLinkGroupToId2(String groupLinkGroupToId2) {
+    this.groupLinkGroupToId2 = groupLinkGroupToId2;
+  }
+
+
+
+  
+  public String getGroupLinkGroupToId3() {
+    return groupLinkGroupToId3;
+  }
+
+
+
+  
+  public void setGroupLinkGroupToId3(String groupLinkGroupToId3) {
+    this.groupLinkGroupToId3 = groupLinkGroupToId3;
+  }
+
+
+
   /**
    * configure the provisioner, call super if subclassing
    */

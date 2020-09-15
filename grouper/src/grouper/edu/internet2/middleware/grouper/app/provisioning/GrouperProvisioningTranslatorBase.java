@@ -107,7 +107,7 @@ public class GrouperProvisioningTranslatorBase {
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
-    List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("membership"));
+    List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Membership"));
 
     for (ProvisioningMembership grouperProvisioningMembership: GrouperUtil.nonNull(grouperProvisioningMemberships)) {
       
@@ -181,7 +181,7 @@ public class GrouperProvisioningTranslatorBase {
     
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
 
-    List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("entity"));
+    List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Entity"));
     if (GrouperUtil.length(scripts) == 0) {
       return grouperTargetEntities;
     }
@@ -222,7 +222,7 @@ public class GrouperProvisioningTranslatorBase {
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete) {
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("group"));
+        this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Group"));
 
     List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
 

@@ -94,7 +94,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapDao"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
@@ -331,6 +331,8 @@ public class SqlProvisionerTest extends GrouperTest {
   
         createTableLdapGroup(ddlVersionBean, database);
         createTableLdapGroupAttr(ddlVersionBean, database);
+        createTableLdapEntity(ddlVersionBean, database);
+        createTableLdapEntityAttr(ddlVersionBean, database);
 
         createTableGroup(ddlVersionBean, database);
         
@@ -1634,21 +1636,16 @@ public class SqlProvisionerTest extends GrouperTest {
       idToEntity.put(provisioningEntity.getId(), provisioningEntity);
     }
     assertEquals(3, idToEntity.size());
-    ProvisioningEntity provisioningEntity1retrieved = idToEntity.get("abc123");
-    assertEquals("abc123", provisioningEntity1retrieved.getId());
-    assertEquals("a:b:c", provisioningEntity1retrieved.retrieveAttributeValueString("groupName"));
-    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
-    assertTrue(provisioningEntity1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
-    ProvisioningEntity provisioningEntity2retrieved = idToEntity.get("def456");
-    assertEquals("def456", provisioningEntity2retrieved.getId());
-    assertEquals("d:e:f", provisioningEntity2retrieved.retrieveAttributeValueString("groupName"));
-    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
-    assertTrue(provisioningEntity2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
-    ProvisioningEntity provisioningEntity3retrieved = idToEntity.get("ghi789");
-    assertEquals("ghi789", provisioningEntity3retrieved.getId());
-    assertEquals("g:h:i", provisioningEntity3retrieved.retrieveAttributeValueString("groupName"));
-    assertTrue(provisioningEntity3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId4"));
-    assertTrue(provisioningEntity3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId5"));
+    ProvisioningEntity provisioningEntity1retrieved = idToEntity.get("subject0uuid");
+    assertEquals(provisioningEntity1retrieved.toString(), "subject0uuid", provisioningEntity1retrieved.getId());
+    assertEquals("subject0", provisioningEntity1retrieved.retrieveAttributeValueString("dn"));
+    assertEquals("10021368", provisioningEntity1retrieved.retrieveAttributeValueString("employeeId"));
+    ProvisioningEntity provisioningEntity2retrieved = idToEntity.get("subject1uuid");
+    assertEquals("subject1", provisioningEntity2retrieved.retrieveAttributeValueString("dn"));
+    assertEquals("12345678", provisioningEntity2retrieved.retrieveAttributeValueString("employeeId"));
+    ProvisioningEntity provisioningEntity3retrieved = idToEntity.get("subject2uuid");
+    assertEquals("subject2", provisioningEntity3retrieved.retrieveAttributeValueString("dn"));
+    assertEquals("34567890", provisioningEntity3retrieved.retrieveAttributeValueString("employeeId"));
     
 //    // retrieve some groups with memberships
 //    TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest(
@@ -1730,8 +1727,8 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.provisionerName", "One prod LDAP flat");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.sqlProvisioningType", "sqlLikeLdapGroupMemberships");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchBaseDn", "OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchBaseDn", "DC=one,DC=upenn,DC=edu");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchBaseDn", "OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchBaseDn", "DC=one,DC=upenn,DC=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.entityLink.memberToId2", "${targetEntity.retrieveAttributeValue('dn')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationMembership.scriptCount", "1");
@@ -1742,7 +1739,7 @@ public class SqlProvisionerTest extends GrouperTest {
         + "}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.scriptCount", "2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.0.script", 
-        "${grouperTargetGroup.assignAttribute('gidNumber', grouperProvisioningGroup.getIdIndex(); }");
+        "${grouperTargetGroup.assignAttribute('gidNumber', grouperProvisioningGroup.getIdIndex()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.1.script", 
         "${grouperTargetGroup.assignAttribute('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupTargetIdAttribute", "gidNumber");
@@ -1753,10 +1750,11 @@ public class SqlProvisionerTest extends GrouperTest {
         "${grouperTargetGroup.assignAttributeValue('cn', grouperProvisioningGroup.getName()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.2.script", 
         "${grouperTargetGroup.assignAttributeValue('objectClass', grouperUtil.toSet('group')); }");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAllFilter", "employeeID=*");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAllFilter", "employeeID=*");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchFilter", "employeeID=${grouperProvisioningEntity.getSubjectId()}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchFilter", "(&(objectclass=group) (gidNumber=${grouperProvisioningGroup.retrieveAttributeValue('gidNumber')}))");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchFilter", "(&(objectclass=group) (gidNumber=${grouperProvisioningGroup.retrieveAttributeValue('gidNumber')}))");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchFilter", "gidNumber=${grouperProvisioningGroup.retrieveAttributeValue('gidNumber')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAttributes", "dn");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAttributes", "dn,gidNumber");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.createEntities", "false");
@@ -1806,7 +1804,7 @@ public class SqlProvisionerTest extends GrouperTest {
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
     attributeValue.setDoProvision(true);
-    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setTargetName("pspng_oneprod");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -1815,7 +1813,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
 

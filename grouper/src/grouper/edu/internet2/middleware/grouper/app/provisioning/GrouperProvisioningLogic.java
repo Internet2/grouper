@@ -3,12 +3,15 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
@@ -19,6 +22,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * does the logic to use the data from the DAOs and call the correct methods to synnc things up or dry run or send messages for async
@@ -62,7 +66,11 @@ public class GrouperProvisioningLogic {
       
       debugMap.put("state", "retrieveTargetEntityLink");
       this.retrieveTargetEntityLink();
+    } finally {
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("linkData");
+    }
       
+    try {
       debugMap.put("state", "validateInitialProvisioningData");
       this.validateGrouperProvisioningData();
   
@@ -301,9 +309,144 @@ public class GrouperProvisioningLogic {
     
   }
 
+  public void updateGroupLinkIncremental() {
+    // If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
+    Collection<GcGrouperSyncGroup> gcGrouperSyncGroups = GrouperUtil.nonNull(
+        this.grouperProvisioner.getGrouperProvisioningData().getGroupUuidToSyncGroup()).values();
 
+    if (GrouperUtil.length(gcGrouperSyncGroups) == 0) {
+      return;
+    }
+    
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupFromId2();
+    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
+    
+    String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupFromId3();
+    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
+
+    String groupLinkGroupToId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupToId2();
+    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
+
+    String groupLinkGroupToId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupToId3();
+    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+
+    if (!hasGroupLinkGroupFromId2 && !hasGroupLinkGroupFromId3 && !hasGroupLinkGroupToId2 && !hasGroupLinkGroupToId3) {
+      return;
+    }
+    
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToRefreshGroupLink = new ArrayList<GcGrouperSyncGroup>();
+    
+    int refreshGroupLinkIfLessThanAmount = this.grouperProvisioner.retrieveProvisioningConfiguration().getRefreshSubjectLinkIfLessThanAmount();
+    if (GrouperUtil.length(gcGrouperSyncGroups) <= refreshGroupLinkIfLessThanAmount) {
+      gcGrouperSyncGroupsToRefreshGroupLink.addAll(gcGrouperSyncGroups);
+    } else {
+      for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
+        boolean needsRefresh = false;
+        needsRefresh = needsRefresh || (hasGroupLinkGroupFromId2 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupFromId2()));
+        needsRefresh = needsRefresh || (hasGroupLinkGroupFromId3 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupFromId3()));
+        needsRefresh = needsRefresh || (hasGroupLinkGroupToId2 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupToId2()));
+        needsRefresh = needsRefresh || (hasGroupLinkGroupToId3 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupToId3()));
+        if (needsRefresh) {
+          gcGrouperSyncGroupsToRefreshGroupLink.add(gcGrouperSyncGroup);
+        }
+      }
+    }
+    int subjectsNeedsRefreshDueToLink = GrouperUtil.length(gcGrouperSyncGroupsToRefreshGroupLink);
+    this.grouperProvisioner.getDebugMap().put("subjectsNeedRefreshDueToLink", subjectsNeedsRefreshDueToLink);
+    if (subjectsNeedsRefreshDueToLink == 0) {
+      return;
+    }
+    // TODO retrieve groups and updateGroupLink(gcGrouperSyncGroupsToRefreshGroupLink);
+  }
+
+  public void updateGroupLinkFull() {
+    updateGroupLink(GrouperUtil.nonNull(
+        this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningGroups()));
+  }
+
+  /**
+   * TODO make a link class and move logic there
+   */
   public void retrieveTargetGroupLink() {
-    // TODO If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
+    this.grouperProvisioner.getGrouperProvisioningType().updateGroupLink(this.grouperProvisioner);
+  }
+
+  /**
+   * update group link for these groups
+   * @param gcGrouperSyncGroupsToRefreshGroupLink
+   */
+  public void updateGroupLink(List<ProvisioningGroup> targetGroups) {
+
+    if (GrouperUtil.length(targetGroups) == 0) {
+      return;
+    }
+    
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupFromId2();
+    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
+    
+    String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupFromId3();
+    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
+
+    String groupLinkGroupToId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupToId2();
+    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
+
+    String groupLinkGroupToId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getGroupLinkGroupToId3();
+    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+
+    if (!hasGroupLinkGroupFromId2 && !hasGroupLinkGroupFromId3 && !hasGroupLinkGroupToId2 && !hasGroupLinkGroupToId3) {
+      return;
+    }
+
+    int groupsCannotFindLinkData = 0;
+
+    int groupsCannotFindSyncGroup = 0;
+
+    Set<MultiKey> sourceIdSubjectIds = new HashSet<MultiKey>();
+    
+    for (ProvisioningGroup targetGroup : targetGroups) {
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+      
+      if (gcGrouperSyncGroup == null) {
+        groupsCannotFindSyncGroup++;
+        continue;
+      }
+
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("targetGroup", targetGroup);
+      
+      if (hasGroupLinkGroupFromId2) {
+        String groupFromId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap);
+        gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
+      }
+      
+      if (hasGroupLinkGroupFromId3) {
+        String groupFromId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap);
+        gcGrouperSyncGroup.setGroupFromId3(groupFromId3Value);
+      }
+      
+      if (hasGroupLinkGroupToId2) {
+        String groupToId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap);
+        gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
+      }
+      
+      if (hasGroupLinkGroupFromId3) {
+        String groupToId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap);
+        gcGrouperSyncGroup.setGroupToId3(groupToId3Value);
+      }
+      
+    }
+
+    if (groupsCannotFindLinkData > 0) {
+      this.grouperProvisioner.getDebugMap().put("groupsCannotFindLinkData", groupsCannotFindLinkData);
+    }
+    if (groupsCannotFindSyncGroup > 0) {
+      this.grouperProvisioner.getDebugMap().put("groupsCannotFindSyncGroup", groupsCannotFindSyncGroup);
+    }
+    
     
   }
 

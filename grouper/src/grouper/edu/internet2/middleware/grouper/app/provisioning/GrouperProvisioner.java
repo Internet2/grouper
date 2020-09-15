@@ -572,6 +572,7 @@ public abstract class GrouperProvisioner {
   protected Class<? extends GrouperProvisionerGrouperSyncDao> retrieveGrouperSyncDaoClass() {
     return GrouperProvisionerGrouperSyncDao.class;
   }
+
   
   
 }
