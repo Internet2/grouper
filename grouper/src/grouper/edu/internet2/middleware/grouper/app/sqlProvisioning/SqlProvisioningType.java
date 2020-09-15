@@ -47,7 +47,7 @@ public enum SqlProvisioningType {
    * group table and attributes table like ldap
    * might have user link table with attributes too
    */
-  groupsWithAttributesAsMembersLikeLdap {
+  sqlLikeLdapGroupMemberships {
 
     @Override
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
@@ -59,7 +59,7 @@ public enum SqlProvisioningType {
    * entity table and attributes table like ldap
    * might have group table with attributes too
    */
-  entitiesWithAttributesAsMembersLikeLdap {
+  sqlLikeLdapUserAttributes {
 
     @Override
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
