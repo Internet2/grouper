@@ -28,14 +28,14 @@ public class GrouperProvisioningObjectLog {
     if (!grouperProvisioner.retrieveProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
-    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' type '").append(this.grouperProvisioner.getGrouperProvisioningType()).append("' state '").append(state).append("': ");
+    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType()).append("' state '").append(state).append("': ");
     logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
     if (StringUtils.equals("retrieveDataPass1", state)) {
       appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.getGrouperProvisioningData().getGrouperProvisioningObjects());
     }
-    if ((StringUtils.equals("retrieveDataPass2", state) && !grouperProvisioner.getGrouperProvisioningType().isFullSync()) || 
-        ((StringUtils.equals("retrieveDataPass1", state) && grouperProvisioner.getGrouperProvisioningType().isFullSync()))) {
-      if (!grouperProvisioner.getGrouperProvisioningType().isFullSync()) {
+    if ((StringUtils.equals("retrieveDataPass2", state) && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) || 
+        ((StringUtils.equals("retrieveDataPass1", state) && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()))) {
+      if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
         appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
       }
     }

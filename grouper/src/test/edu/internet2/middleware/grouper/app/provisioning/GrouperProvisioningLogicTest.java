@@ -60,7 +60,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
-    grouperProvisioner.setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     
     grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
     
@@ -140,7 +140,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
-    grouperProvisioner.setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     
     grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
     

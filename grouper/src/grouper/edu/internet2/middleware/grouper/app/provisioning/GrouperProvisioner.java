@@ -249,22 +249,6 @@ public abstract class GrouperProvisioner {
   private long millisWhenSyncStarted = -1;
 
   /**
-   * 
-   */
-  private GrouperProvisioningType grouperProvisioningType;
-  private String configId;
-  
-  
-  public GrouperProvisioningType getGrouperProvisioningType() {
-    return grouperProvisioningType;
-  }
-
-  
-  public void setGrouperProvisioningType(GrouperProvisioningType grouperProvisioningType) {
-    this.grouperProvisioningType = grouperProvisioningType;
-  }
-
-  /**
    * log periodically
    * @param debugMap
    * @param gcTableSyncOutput 
@@ -282,7 +266,8 @@ public abstract class GrouperProvisioner {
     
   }
 
-  
+  private String configId;
+
 
   /**
    * provision
@@ -295,7 +280,7 @@ public abstract class GrouperProvisioner {
       throw new RuntimeException("Dont re-use instances of this class: " + GcTableSync.class.getName());
     }
 
-    this.grouperProvisioningType = grouperProvisioningType1;
+    this.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(grouperProvisioningType1);
     
     this.millisWhenSyncStarted = System.currentTimeMillis();
     
@@ -316,7 +301,7 @@ public abstract class GrouperProvisioner {
       debugMap.put("state", "init");
 
       this.gcGrouperSyncHeartbeat.setGcGrouperSyncJob(this.gcGrouperSyncJob);
-      this.gcGrouperSyncHeartbeat.setFullSync(this.grouperProvisioningType.isFullSync());
+      this.gcGrouperSyncHeartbeat.setFullSync(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
       this.gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
 
         @Override
@@ -578,7 +563,7 @@ public abstract class GrouperProvisioner {
 
 
   
-  public GrouperProvisioningBehavior getGrouperProvisioningBehavior() {
+  public GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior() {
     return grouperProvisioningBehavior;
   }
 

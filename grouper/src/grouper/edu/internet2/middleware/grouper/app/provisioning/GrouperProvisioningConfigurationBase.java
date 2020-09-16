@@ -202,7 +202,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     }
 
     // must have provisioning type
-    if (this.grouperProvisioner.getGrouperProvisioningType() == null) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType() == null) {
       throw new RuntimeException("Why is provisioning type blank?");
     }
 
@@ -224,10 +224,10 @@ public abstract class GrouperProvisioningConfigurationBase {
     GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
     if (gcGrouperSyncJob == null) {
       gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao()
-          .jobRetrieveOrCreateBySyncType(this.grouperProvisioner.getGrouperProvisioningType().name());
+          .jobRetrieveOrCreateBySyncType(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().name());
       this.grouperProvisioner.setGcGrouperSyncJob(gcGrouperSyncJob);
     }
-    this.grouperProvisioner.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.grouperProvisioner.getGrouperProvisioningType().isFullSync());
+    this.grouperProvisioner.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
     
     if (this.grouperProvisioner.getGcGrouperSyncLog() == null) {
       this.grouperProvisioner.setGcGrouperSyncLog(this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao().jobCreateLog(this.grouperProvisioner.getGcGrouperSyncJob()));

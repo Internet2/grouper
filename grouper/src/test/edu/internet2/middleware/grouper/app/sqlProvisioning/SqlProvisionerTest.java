@@ -1419,7 +1419,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(0, countFromGroupAttributeTable);
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    grouperProvisioner.setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
 
     ProvisioningGroup provisioningGroup1 = new ProvisioningGroup();

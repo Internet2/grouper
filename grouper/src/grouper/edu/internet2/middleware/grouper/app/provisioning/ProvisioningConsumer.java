@@ -103,7 +103,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       if (grouperProvisioningType == null) {
         grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
       }
-      grouperProvisioner.setGrouperProvisioningType(grouperProvisioningType);
+      grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(grouperProvisioningType);
       grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
     }
     

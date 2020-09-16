@@ -10,6 +10,22 @@ import java.util.Set;
  */
 public class GrouperProvisioningBehavior {
 
+  /**
+   * 
+   */
+  private GrouperProvisioningType grouperProvisioningType;
+  
+  
+  public GrouperProvisioningType getGrouperProvisioningType() {
+    return grouperProvisioningType;
+  }
+
+  
+  public void setGrouperProvisioningType(GrouperProvisioningType grouperProvisioningType) {
+    this.grouperProvisioningType = grouperProvisioningType;
+  }
+
+
   private GrouperProvisioner grouperProvisioner;
   
   public GrouperProvisioner getGrouperProvisioner() {

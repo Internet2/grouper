@@ -48,12 +48,12 @@ public class GrouperProvisioningLogic {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     // let the provisioner tell the framework how the provisioner should behave with respect to the target
-    this.getGrouperProvisioner().registerProvisioningBehaviors(this.getGrouperProvisioner().getGrouperProvisioningBehavior());
+    this.getGrouperProvisioner().registerProvisioningBehaviors(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior());
 
     try {
       debugMap.put("state", "retrieveDataPass1");
       long start = System.currentTimeMillis();
-      this.getGrouperProvisioner().getGrouperProvisioningType().retrieveDataPass1(this.grouperProvisioner);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().retrieveDataPass1(this.grouperProvisioner);
       long retrieveDataPass1 = System.currentTimeMillis()-start;
       debugMap.put("retrieveDataPass1_millis", retrieveDataPass1);
     } finally {
@@ -99,7 +99,7 @@ public class GrouperProvisioningLogic {
     try {
       debugMap.put("state", "retrieveDataPass2");
       long start = System.currentTimeMillis();
-      this.getGrouperProvisioner().getGrouperProvisioningType().retrieveDataPass2(this.grouperProvisioner);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().retrieveDataPass2(this.grouperProvisioner);
       long retrieveDataPass2 = System.currentTimeMillis()-start;
       // if full dont log this
       if (retrieveDataPass2 > 1) {
@@ -373,7 +373,7 @@ public class GrouperProvisioningLogic {
    * TODO make a link class and move logic there
    */
   public void retrieveTargetGroupLink() {
-    this.grouperProvisioner.getGrouperProvisioningType().updateGroupLink(this.grouperProvisioner);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().updateGroupLink(this.grouperProvisioner);
   }
 
   /**
@@ -563,7 +563,7 @@ public class GrouperProvisioningLogic {
       public void run() {
         
         try {
-          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperSyncDao().retrieveSyncData(GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningType());
+          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperSyncDao().retrieveSyncData(GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType());
         } catch (RuntimeException re) {
           LOG.error("error querying sync objects: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
           RUNTIME_EXCEPTION2[0] = re;
@@ -574,12 +574,12 @@ public class GrouperProvisioningLogic {
 
     grouperSyncQueryThread.start();
     
-    this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperData(this.grouperProvisioner.getGrouperProvisioningType());
+    this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperData(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType());
     this.grouperProvisioner.retrieveGrouperDao().processWrappers();
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
     
     // incrementals need to clone and setup sync objects as deletes
-    this.grouperProvisioner.getGrouperProvisioningType().setupClonesOfGroupProvisioningObjects(grouperProvisioner);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().setupClonesOfGroupProvisioningObjects(grouperProvisioner);
 
     GrouperClientUtils.join(grouperSyncQueryThread);
     if (RUNTIME_EXCEPTION2[0] != null) {
@@ -589,7 +589,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();
 
     // incrementals need to consult sync objects to know what to delete
-    this.grouperProvisioner.getGrouperProvisioningType().calculateProvisioningDataToDelete(grouperProvisioner);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().calculateProvisioningDataToDelete(grouperProvisioner);
 
   }
   
