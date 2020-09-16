@@ -46,7 +46,10 @@ public class GrouperProvisioningLogic {
   public void provision() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
-    
+
+    // let the provisioner tell the framework how the provisioner should behave with respect to the target
+    this.getGrouperProvisioner().registerProvisioningBehaviors(this.getGrouperProvisioner().getGrouperProvisioningBehavior());
+
     try {
       debugMap.put("state", "retrieveDataPass1");
       long start = System.currentTimeMillis();

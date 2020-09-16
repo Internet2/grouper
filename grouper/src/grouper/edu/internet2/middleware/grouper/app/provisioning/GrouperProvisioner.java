@@ -302,7 +302,7 @@ public abstract class GrouperProvisioner {
     this.grouperProvisioningOutput = new GrouperProvisioningOutput();
     
     this.retrieveProvisioningConfiguration().configureProvisioner();
-    
+
     this.debugMap = new LinkedHashMap<String, Object>();
     
     long now = System.nanoTime();
@@ -573,6 +573,25 @@ public abstract class GrouperProvisioner {
     return GrouperProvisionerGrouperSyncDao.class;
   }
 
+  private GrouperProvisioningBehavior grouperProvisioningBehavior = new GrouperProvisioningBehavior(this);
+
+
+
   
+  public GrouperProvisioningBehavior getGrouperProvisioningBehavior() {
+    return grouperProvisioningBehavior;
+  }
+
+  
+  public void setGrouperProvisioningBehavior(
+      GrouperProvisioningBehavior grouperProvisioningBehavior) {
+    this.grouperProvisioningBehavior = grouperProvisioningBehavior;
+  }
+  
+  /**
+   * let the provisioner tell the framework how the provisioner should behave with respect to the target
+   * @param grouperProvisioningBehavior
+   */
+  public abstract void registerProvisioningBehaviors(GrouperProvisioningBehavior grouperProvisioningBehavior);
   
 }
