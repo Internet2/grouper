@@ -127,7 +127,7 @@ public class LdapProvisionerTestUtils {
     }
     
     if (dockerPath == null) {
-      throw new RuntimeException("Cannot find 'docker' command");
+      dockerPath = "docker";
     }
     
     return dockerPath;
