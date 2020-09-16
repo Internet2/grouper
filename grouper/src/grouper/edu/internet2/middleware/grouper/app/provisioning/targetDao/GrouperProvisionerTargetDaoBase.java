@@ -25,6 +25,20 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  */
 public abstract class GrouperProvisionerTargetDaoBase {
   
+  private GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities = new GrouperProvisionerDaoCapabilities();
+  
+  
+  public GrouperProvisionerDaoCapabilities getGrouperProvisionerDaoCapabilities() {
+    return grouperProvisionerDaoCapabilities;
+  }
+  
+  public void setGrouperProvisionerDaoCapabilities(
+      GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    this.grouperProvisionerDaoCapabilities = grouperProvisionerDaoCapabilities;
+  }
+
+  public abstract void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities);
+  
   private List<TargetDaoTimingInfo> targetDaoTimingInfos = new ArrayList<TargetDaoTimingInfo>();
   
   public void addTargetDaoTimingInfo(TargetDaoTimingInfo targetDaoTimingInfo) {
