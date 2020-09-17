@@ -140,7 +140,7 @@ public enum GrouperProvisioningType {
     protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalGrouperTargetObjectsToRetrieveFromTarget();
       TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
-        = grouperProvisioner.retrieveTargetDao().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
+        = grouperProvisioner.retrieveTargetDaoAdapter().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
       if (targetDaoRetrieveIncrementalDataResponse != null) {
         grouperProvisioner.getGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
       }

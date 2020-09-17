@@ -10,16 +10,16 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
  *
  */
 public class TargetDaoDeleteGroupsRequest {
-  private List<ProvisioningGroup> targetGroupDeletes;
+  private List<ProvisioningGroup> targetGroups;
 
   
-  public List<ProvisioningGroup> getTargetGroupDeletes() {
-    return targetGroupDeletes;
+  public List<ProvisioningGroup> getTargetGroups() {
+    return targetGroups;
   }
 
   
-  public void setTargetGroupDeletes(List<ProvisioningGroup> targetGroupDeletes) {
-    this.targetGroupDeletes = targetGroupDeletes;
+  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
   }
 
 
@@ -27,8 +27,8 @@ public class TargetDaoDeleteGroupsRequest {
   }
 
 
-  public TargetDaoDeleteGroupsRequest(List<ProvisioningGroup> targetGroupDeletes) {
-    this.targetGroupDeletes = targetGroupDeletes;
+  public TargetDaoDeleteGroupsRequest(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
   }
   
   

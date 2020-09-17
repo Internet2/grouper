@@ -14,8 +14,8 @@ public class TargetDaoInsertGroupsRequest {
   }
 
   
-  public void setTargetGroups(List<ProvisioningGroup> targetGroupInserts) {
-    this.targetGroups = targetGroupInserts;
+  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
   }
 
 

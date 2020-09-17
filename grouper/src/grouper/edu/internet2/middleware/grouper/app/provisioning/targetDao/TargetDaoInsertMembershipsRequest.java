@@ -6,17 +6,17 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoInsertMembershipsRequest {
 
-  private List<ProvisioningMembership> targetMembershipInserts;
+  private List<ProvisioningMembership> targetMemberships;
 
   
-  public List<ProvisioningMembership> getTargetMembershipInserts() {
-    return targetMembershipInserts;
+  public List<ProvisioningMembership> getTargetMemberships() {
+    return targetMemberships;
   }
 
   
-  public void setTargetMembershipInserts(
-      List<ProvisioningMembership> targetMembershipInserts) {
-    this.targetMembershipInserts = targetMembershipInserts;
+  public void setTargetMemberships(
+      List<ProvisioningMembership> targetMemberships) {
+    this.targetMemberships = targetMemberships;
   }
 
 
@@ -26,9 +26,9 @@ public class TargetDaoInsertMembershipsRequest {
 
 
   public TargetDaoInsertMembershipsRequest(
-      List<ProvisioningMembership> targetMembershipInserts) {
+      List<ProvisioningMembership> targetMemberships) {
     super();
-    this.targetMembershipInserts = targetMembershipInserts;
+    this.targetMemberships = targetMemberships;
   }
   
   

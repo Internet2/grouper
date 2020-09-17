@@ -134,7 +134,7 @@ public class GrouperProvisioningLogic {
       targetDaoSendChangesToTargetRequest.setTargetObjectInserts(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
       targetDaoSendChangesToTargetRequest.setTargetObjectUpdates(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
       targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
-      this.getGrouperProvisioner().retrieveTargetDao().sendChangesToTarget(targetDaoSendChangesToTargetRequest);
+      this.getGrouperProvisioner().retrieveTargetDaoAdapter().sendChangesToTarget(targetDaoSendChangesToTargetRequest);
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("sendChangesToTarget");
     }
@@ -531,7 +531,7 @@ public class GrouperProvisioningLogic {
         
         try {
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
-            = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDao()
+            = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveTargetDaoAdapter()
               .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
           GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningData()
             .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetData());

@@ -1455,7 +1455,7 @@ public class SqlProvisionerTest extends GrouperTest {
     provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId4"));
     provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId5"));
     
-    grouperProvisioner.retrieveTargetDao().insertGroups(new TargetDaoInsertGroupsRequest(GrouperUtil.toList(provisioningGroup1, provisioningGroup2, provisioningGroup3)));
+    grouperProvisioner.retrieveTargetDaoAdapter().insertGroups(new TargetDaoInsertGroupsRequest(GrouperUtil.toList(provisioningGroup1, provisioningGroup2, provisioningGroup3)));
 
     Set<MultiKey> groupNamesInTable = selectGroupLikeLdapRecords();
     
@@ -1478,7 +1478,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId5")));
 
     // retrieve all groups with memberships
-    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = grouperProvisioner.retrieveTargetDao().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
+    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = grouperProvisioner.retrieveTargetDaoAdapter().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
     Map<String, ProvisioningGroup> idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveAllGroupsResponse.getTargetGroups()) {
       idToGroup.put(provisioningGroup.getId(), provisioningGroup);
@@ -1504,7 +1504,7 @@ public class SqlProvisionerTest extends GrouperTest {
     TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2), true);
     TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
-        grouperProvisioner.retrieveTargetDao().retrieveGroups(targetDaoRetrieveGroupsRequest);
+        grouperProvisioner.retrieveTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
       idToGroup.put(provisioningGroup.getId(), provisioningGroup);
@@ -1525,7 +1525,7 @@ public class SqlProvisionerTest extends GrouperTest {
     targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2), false);
     targetDaoRetrieveGroupsResponse = 
-        grouperProvisioner.retrieveTargetDao().retrieveGroups(targetDaoRetrieveGroupsRequest);
+        grouperProvisioner.retrieveTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
       idToGroup.put(provisioningGroup.getId(), provisioningGroup);
@@ -1569,7 +1569,7 @@ public class SqlProvisionerTest extends GrouperTest {
         GrouperUtil.toList(provisioningGroup1update, provisioningGroup2update));
 
     TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = 
-        grouperProvisioner.retrieveTargetDao().updateGroups(targetDaoUpdateGroupsRequest);
+        grouperProvisioner.retrieveTargetDaoAdapter().updateGroups(targetDaoUpdateGroupsRequest);
     
     groupNamesInTable = selectGroupLikeLdapRecords();
     
@@ -1595,7 +1595,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     
     // delete groups
-    grouperProvisioner.retrieveTargetDao().deleteGroups(new TargetDaoDeleteGroupsRequest(
+    grouperProvisioner.retrieveTargetDaoAdapter().deleteGroups(new TargetDaoDeleteGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2)));
 
     groupNamesInTable = selectGroupLikeLdapRecords();
@@ -1630,7 +1630,7 @@ public class SqlProvisionerTest extends GrouperTest {
       .addBindVar("subject2uuid").addBindVar("employeeId").addBindVar("34567890").executeSql();
 
     // retrieve all entities
-    TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = grouperProvisioner.retrieveTargetDao().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
+    TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = grouperProvisioner.retrieveTargetDaoAdapter().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
     Map<String, ProvisioningEntity> idToEntity = new HashMap<String, ProvisioningEntity>();
     for (ProvisioningEntity provisioningEntity : targetDaoRetrieveAllEntitiesResponse.getTargetEntities()) {
       idToEntity.put(provisioningEntity.getId(), provisioningEntity);

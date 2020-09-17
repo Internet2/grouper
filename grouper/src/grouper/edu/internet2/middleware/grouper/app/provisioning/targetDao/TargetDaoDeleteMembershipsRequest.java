@@ -5,17 +5,17 @@ import java.util.List;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoDeleteMembershipsRequest {
-  private List<ProvisioningMembership> targetMembershipDeletes;
+  private List<ProvisioningMembership> targetMemberships;
 
   
-  public List<ProvisioningMembership> getTargetMembershipDeletes() {
-    return targetMembershipDeletes;
+  public List<ProvisioningMembership> getTargetMemberships() {
+    return targetMemberships;
   }
 
   
-  public void setTargetMembershipDeletes(
-      List<ProvisioningMembership> targetMembershipDeletes) {
-    this.targetMembershipDeletes = targetMembershipDeletes;
+  public void setTargetMemberships(
+      List<ProvisioningMembership> targetMemberships) {
+    this.targetMemberships = targetMemberships;
   }
 
 
@@ -24,8 +24,8 @@ public class TargetDaoDeleteMembershipsRequest {
 
 
   public TargetDaoDeleteMembershipsRequest(
-      List<ProvisioningMembership> targetMembershipDeletes) {
-    this.targetMembershipDeletes = targetMembershipDeletes;
+      List<ProvisioningMembership> targetMemberships) {
+    this.targetMemberships = targetMemberships;
   }
   
 }

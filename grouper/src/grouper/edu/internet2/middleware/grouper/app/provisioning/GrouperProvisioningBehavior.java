@@ -57,6 +57,48 @@ public class GrouperProvisioningBehavior {
 
   private GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType;
 
+  private Boolean entitiesRetrieve;
+
+  
+  public Boolean getEntitiesRetrieve() {
+    return entitiesRetrieve;
+  }
+
+
+  
+  public void setEntitiesRetrieve(Boolean entitiesRetrieve) {
+    this.entitiesRetrieve = entitiesRetrieve;
+  }
+
+  private Boolean membershipsRetrieve;
+
+  
+  
+  public Boolean getMembershipsRetrieve() {
+    return membershipsRetrieve;
+  }
+
+
+  
+  public void setMembershipsRetrieve(Boolean membershipsRetrieve) {
+    this.membershipsRetrieve = membershipsRetrieve;
+  }
+
+
+  private Boolean groupsRetrieve;
+
+  
+  public Boolean getGroupsRetrieve() {
+    return groupsRetrieve;
+  }
+
+
+  
+  public void setGroupsRetrieve(Boolean groupsRetrieve) {
+    this.groupsRetrieve = groupsRetrieve;
+  }
+
+
   private Boolean groupsRetrieveAll;
 
   private Set<String> groupsRetrieveAttributes;

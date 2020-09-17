@@ -6,21 +6,21 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 
 public class TargetDaoDeleteEntitiesRequest {
 
-  private List<ProvisioningEntity> targetEntityDeletes;
+  private List<ProvisioningEntity> targetEntities;
 
   
-  public List<ProvisioningEntity> getTargetEntityDeletes() {
-    return targetEntityDeletes;
+  public List<ProvisioningEntity> getTargetEntities() {
+    return targetEntities;
   }
 
   
-  public void setTargetEntityDeletes(List<ProvisioningEntity> targetEntityDeletes) {
-    this.targetEntityDeletes = targetEntityDeletes;
+  public void setTargetEntities(List<ProvisioningEntity> targetEntities) {
+    this.targetEntities = targetEntities;
   }
 
 
-  public TargetDaoDeleteEntitiesRequest(List<ProvisioningEntity> targetEntityDeletes) {
-    this.targetEntityDeletes = targetEntityDeletes;
+  public TargetDaoDeleteEntitiesRequest(List<ProvisioningEntity> targetEntities) {
+    this.targetEntities = targetEntities;
   }
 
 

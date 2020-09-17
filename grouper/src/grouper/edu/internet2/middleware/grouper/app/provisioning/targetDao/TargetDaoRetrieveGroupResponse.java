@@ -18,6 +18,12 @@ public class TargetDaoRetrieveGroupResponse {
   public void setTargetGroup(ProvisioningGroup targetGroup) {
     this.targetGroup = targetGroup;
   }
+
+
+  public TargetDaoRetrieveGroupResponse(ProvisioningGroup targetGroup) {
+    super();
+    this.targetGroup = targetGroup;
+  }
   
   
 }

@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -14,13 +15,12 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 
 public abstract class GrouperProvisioner {
 
-  private GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = null;
+  private GrouperProvisionerTargetDaoAdapter grouperProvisionerTargetDaoAdapter = null;
   
   private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
 
@@ -80,13 +80,14 @@ public abstract class GrouperProvisioner {
    * returns the subclass of Data Access Object for this provisioner
    * @return the DAO
    */
-  public GrouperProvisionerTargetDaoBase retrieveTargetDao() {
-    if (this.grouperProvisionerTargetDaoBase == null) {
+  public GrouperProvisionerTargetDaoAdapter retrieveTargetDaoAdapter() {
+    if (this.grouperProvisionerTargetDaoAdapter == null) {
       Class<? extends GrouperProvisionerTargetDaoBase> grouperProvisionerTargetDaoBaseClass = this.retrieveTargetDaoClass();
-      this.grouperProvisionerTargetDaoBase = GrouperUtil.newInstance(grouperProvisionerTargetDaoBaseClass);
-      this.grouperProvisionerTargetDaoBase.setGrouperProvisioner(this);
+      GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = GrouperUtil.newInstance(grouperProvisionerTargetDaoBaseClass);
+      grouperProvisionerTargetDaoBase.setGrouperProvisioner(this);
+      this.grouperProvisionerTargetDaoAdapter = new GrouperProvisionerTargetDaoAdapter(this, grouperProvisionerTargetDaoBase);
     }
-    return this.grouperProvisionerTargetDaoBase;
+    return this.grouperProvisionerTargetDaoAdapter;
     
   }
   

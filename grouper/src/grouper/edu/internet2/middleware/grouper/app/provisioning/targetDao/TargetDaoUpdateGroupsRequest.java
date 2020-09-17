@@ -17,14 +17,14 @@ public class TargetDaoUpdateGroupsRequest {
   }
 
   
-  public void setTargetGroups(List<ProvisioningGroup> targetGroupInserts) {
-    this.targetGroups = targetGroupInserts;
+  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
   }
 
 
-  public TargetDaoUpdateGroupsRequest(List<ProvisioningGroup> targetGroupInserts) {
+  public TargetDaoUpdateGroupsRequest(List<ProvisioningGroup> targetGroups) {
     super();
-    this.targetGroups = targetGroupInserts;
+    this.targetGroups = targetGroups;
   }
   
 }
