@@ -105,7 +105,13 @@ public enum GrouperProvisioningType {
 
     @Override
     public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().updateGroupLinkFull();
+      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
+    }
+
+    @Override
+    protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
+      // full sync already has all data, dont worry about it
+      
     }
     
   },
@@ -140,9 +146,9 @@ public enum GrouperProvisioningType {
     protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalGrouperTargetObjectsToRetrieveFromTarget();
       TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
-        = grouperProvisioner.retrieveTargetDaoAdapter().retrieveIncrementalData(grouperProvisioner.getGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
+        = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(grouperProvisioner.retrieveGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
       if (targetDaoRetrieveIncrementalDataResponse != null) {
-        grouperProvisioner.getGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
+        grouperProvisioner.retrieveGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
       }
     }
 
@@ -164,22 +170,22 @@ public enum GrouperProvisioningType {
     @Override
     public List<ProvisioningGroup> retrieveGrouperGroups(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly());
+      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly());
     }
 
     @Override
     public List<ProvisioningEntity> retrieveGrouperMembers(
         GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly());
+      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly());
     }
 
     @Override
     public List<ProvisioningMembership> retrieveGrouperMemberships(
         GrouperProvisioner grouperProvisioner) {
       return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, 
-          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
-          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
-          grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
     }
 
     @Override
@@ -195,7 +201,12 @@ public enum GrouperProvisioningType {
 
     @Override
     public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().updateGroupLinkIncremental();
+      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkIncremental();
+    }
+
+    @Override
+    protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveMissingObjectsIncremental();
     }
 
   };
@@ -258,4 +269,6 @@ public enum GrouperProvisioningType {
    * @param grouperProvisioner
    */
   protected abstract void retrieveDataPass2(GrouperProvisioner grouperProvisioner);
+
+  protected abstract void retrieveMissingObjects(GrouperProvisioner grouperProvisioner);
 }

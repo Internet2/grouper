@@ -503,6 +503,52 @@ public abstract class GrouperProvisioningConfigurationBase {
   private String groupSearchAttributeName = null;
   
   /**
+   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   */
+  private String userSearchFilter = null;
+  
+  /**
+   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   * @return
+   */
+  public String getUserSearchFilter() {
+    return userSearchFilter;
+  }
+
+  /**
+   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   * @param userSearchFilter
+   */
+  public void setUserSearchFilter(String userSearchFilter) {
+    this.userSearchFilter = userSearchFilter;
+  }
+
+  /**
+   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   */
+  private String groupSearchFilter = null;
+  
+  
+  
+  /**
+   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   * @return
+   */
+  public String getGroupSearchFilter() {
+    return groupSearchFilter;
+  }
+
+
+
+  /**
+   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   * @param groupSearchFilter
+   */
+  public void setGroupSearchFilter(String groupSearchFilter) {
+    this.groupSearchFilter = groupSearchFilter;
+  }
+
+  /**
    * EL scriptlet to get to the group attribute name, ${syncGroup.groupIdIndex}
    */
   private String groupSearchAttributeValueFormat = null;
@@ -568,6 +614,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     if (this.hasTargetUserLink) {
       this.debugMap.put("hasTargetUserLink", this.hasTargetUserLink);
     }
+
+    this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
 
     this.targetEntityIdExpression = this.retrieveConfigString("targetEntityIdExpression", false);
     this.targetGroupIdExpression = this.retrieveConfigString("targetGroupIdExpression", false);

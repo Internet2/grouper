@@ -1,5 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * entity is a member of a group which is typically a user/account or person
  * @author mchyzer
@@ -153,6 +160,16 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
 
     return provisioningEntity;
+  }
+
+  public void assignSearchFilter() {
+    String groupSearchFilter = this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getUserSearchFilter();
+    if (!StringUtils.isBlank(groupSearchFilter)) {
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("targetEntity", this);
+      String result = GrouperUtil.stringValue(this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runScript(groupSearchFilter, variableMap));
+      this.setSearchFilter(result);
+    }
   }
 
 }

@@ -25,34 +25,39 @@ public class GrouperProvisioningObjectLog {
   }
   
   public void debug(String state) {
-    if (!grouperProvisioner.retrieveProvisioningConfiguration().isLogAllObjectsVerbose()) {
+    if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
     StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType()).append("' state '").append(state).append("': ");
     logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
     if (StringUtils.equals("retrieveDataPass1", state)) {
-      appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.getGrouperProvisioningData().getGrouperProvisioningObjects());
+      appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());
     }
     if ((StringUtils.equals("retrieveDataPass2", state) && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) || 
         ((StringUtils.equals("retrieveDataPass1", state) && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()))) {
       if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
-        appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
+        appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
       }
     }
-    if (StringUtils.equals("linkData", state)) {
+    if (StringUtils.equals("incrementalMissingGroups", state)) {
+      appendProvisioningObjectsOfType(logMessage, "Incremental missing groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
+    } else if (StringUtils.equals("incrementalMissingTargetGroups", state)) {
+      appendProvisioningObjectsOfType(logMessage, "Incremental missing target groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
+    } else if (StringUtils.equals("incrementalMissingTargetGroupsRetrieved", state)) {
+      appendProvisioningObjectsOfType(logMessage, "Incremental missing target groups retrieved", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().getProvisioningGroups(), "groups");
+    } else if (StringUtils.equals("linkData", state)) {
       appendSyncObjects(logMessage, "Sync objects");
-    }
-    if (StringUtils.equals("translateGrouperToTarget", state)) {
-      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
-    }
-    if (StringUtils.equals("compareTargetObjects", state)) {
-      appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts());
-      appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates());
-      appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes());
-    }
-    if (StringUtils.equals("targetIdTargetObjects", state)) {
-      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects());
-      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects());
+    } else if (StringUtils.equals("retrieveSubjectLink", state)) {
+      appendSyncObjectsOfType(logMessage, "Sync objects", this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember(), "members");
+    } else if (StringUtils.equals("translateGrouperToTarget", state)) {
+      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects());
+    } else if (StringUtils.equals("compareTargetObjects", state)) {
+      appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts());
+      appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates());
+      appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes());
+    } else if (StringUtils.equals("targetIdTargetObjects", state)) {
+      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects());
+      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
     }
     if (logMessage.charAt(logMessage.length()-1) == '\n') {
       logMessage.setLength(logMessage.length() - 1);
@@ -82,9 +87,9 @@ public class GrouperProvisioningObjectLog {
    * @param grouperProvisioningObjects
    */
   private void appendSyncObjects(StringBuilder logMessage, String label) {
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.getGrouperProvisioningData().getGroupUuidToSyncGroup(), "groups");
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.getGrouperProvisioningData().getMemberUuidToSyncMember(), "members");
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership(), "memberships");
+    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupUuidToSyncGroup(), "groups");
+    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember(), "members");
+    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership(), "memberships");
   }
 
   private void appendSyncObjectsOfType(StringBuilder logMessage, String label,

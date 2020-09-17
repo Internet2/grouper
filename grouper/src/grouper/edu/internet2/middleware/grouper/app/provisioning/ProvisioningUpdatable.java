@@ -17,6 +17,30 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public abstract class ProvisioningUpdatable {
 
   /**
+   * if searching for this object, this is the search filter, translated and ready to use
+   */
+  private String searchFilter;
+  
+  
+  /**
+   * 
+   * @return
+   */
+  public String getSearchFilter() {
+    return searchFilter;
+  }
+
+  /**
+   * 
+   * @param searchFilter
+   */
+  public void setSearchFilter(String searchFilter) {
+    this.searchFilter = searchFilter;
+  }
+
+
+
+  /**
    * if this object has been provisioned or deprovisioned successfully, set this to true. 
    * e.g. if the insert/update/delete was successful, this should be "true"
    * otherwise set to false and set the exception field
@@ -344,6 +368,7 @@ public abstract class ProvisioningUpdatable {
     if (this.removeFromList) {
       firstField = toStringAppendField(result, firstField, "removeFromList", this.removeFromList);
     }
+    firstField = toStringAppendField(result, firstField, "searchFilter", this.searchFilter);
     if (GrouperUtil.length(this.attributes) > 0) {
       int attrCount = 0;
       // order these
@@ -451,6 +476,7 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.exception = exception;
     provisioningUpdatable.provisioned = provisioned;
     provisioningUpdatable.removeFromList = removeFromList;
+    provisioningUpdatable.searchFilter = searchFilter;
     provisioningUpdatable.targetId = targetId;
     
     

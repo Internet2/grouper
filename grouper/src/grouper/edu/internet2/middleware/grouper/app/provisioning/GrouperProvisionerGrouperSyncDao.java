@@ -39,14 +39,14 @@ public class GrouperProvisionerGrouperSyncDao {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.grouperProvisioner.setProvisioningSyncResult(provisioningSyncResult);
     ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidToProvisioningGroupWrapper(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidToSyncGroup());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidToProvisioningGroupWrapper(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidToSyncGroup());
     ProvisioningSyncIntegration.fullSyncMembers(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToSyncMember());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getMemberUuidToProvisioningEntityWrapper(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getMemberUuidToSyncMember());
     ProvisioningSyncIntegration.fullSyncMemberships(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper(),
-        this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership());
 
 //    //do we really need to do this now?  maybe just do this at end?
 //    int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
@@ -143,7 +143,7 @@ public class GrouperProvisionerGrouperSyncDao {
     
     Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
   
-    Set<String> groupIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly();
+    Set<String> groupIdsToRetrieve = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly();
   
     if (groupIdsToRetrieve.size() > 0) {
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -165,7 +165,7 @@ public class GrouperProvisionerGrouperSyncDao {
     
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
   
-    Set<String> memberIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly();
+    Set<String> memberIdsToRetrieve = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly();
   
     if (memberIdsToRetrieve.size() > 0) {
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -189,7 +189,7 @@ public class GrouperProvisionerGrouperSyncDao {
     List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
 
     {
-      Set<MultiKey> groupIdMemberIdsToRetrieve = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync();
+      Set<MultiKey> groupIdMemberIdsToRetrieve = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync();
       if (GrouperUtil.length(groupIdMemberIdsToRetrieve) > 0) {
         Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveByGroupIdsAndMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(groupIdMemberIdsToRetrieve);
         gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByGroupIdsAndMemberIds).values());
@@ -197,7 +197,7 @@ public class GrouperProvisionerGrouperSyncDao {
     }    
 
     {
-      Set<String> groupIdsToRetrieveMemberships = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync();
+      Set<String> groupIdsToRetrieveMemberships = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync();
       if (GrouperUtil.length(groupIdsToRetrieveMemberships) > 0) {
         List<GcGrouperSyncMembership> membershipRetrieveByGroupIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIds(groupIdsToRetrieveMemberships);
         gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByGroupIds));
@@ -205,7 +205,7 @@ public class GrouperProvisionerGrouperSyncDao {
     }
 
     {
-      Set<String> memberIdsToRetrieveMemberships = this.grouperProvisioner.getGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync();
+      Set<String> memberIdsToRetrieveMemberships = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync();
       if (GrouperUtil.length(memberIdsToRetrieveMemberships) > 0) {
         List<GcGrouperSyncMembership> membershipRetrieveByMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByMemberIds(memberIdsToRetrieveMemberships);
         gcGrouperSyncMemberships.addAll(GrouperUtil.nonNull(membershipRetrieveByMemberIds));
@@ -251,26 +251,26 @@ public class GrouperProvisionerGrouperSyncDao {
     {
       long start = System.currentTimeMillis();
       Map<String, GcGrouperSyncGroup> retrieveAllSyncGroups = grouperProvisioningType.retrieveSyncGroups(this.grouperProvisioner);
-      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidToSyncGroup(retrieveAllSyncGroups);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setGroupUuidToSyncGroup(retrieveAllSyncGroups);
   
       debugMap.put("retrieveSyncGroupsMillis", System.currentTimeMillis() - start);
-      debugMap.put("syncGroupCount", GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData()
+      debugMap.put("syncGroupCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData()
           .getGroupUuidToSyncGroup()));
     }
     {
       long start = System.currentTimeMillis();
       Map<String, GcGrouperSyncMember> retrieveAllSyncMembers = grouperProvisioningType.retrieveSyncMembers(this.grouperProvisioner);
-      this.getGrouperProvisioner().getGrouperProvisioningData().setMemberUuidToSyncMember(retrieveAllSyncMembers);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMemberUuidToSyncMember(retrieveAllSyncMembers);
       debugMap.put("retrieveSyncEntitiesMillis", System.currentTimeMillis() - start);
-      debugMap.put("syncEntityCount", GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getMemberUuidToSyncMember()));
+      debugMap.put("syncEntityCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getMemberUuidToSyncMember()));
     }
     {
       long start = System.currentTimeMillis();
       Map<MultiKey, GcGrouperSyncMembership> retrieveAllSyncMemberships = grouperProvisioningType.retrieveSyncMemberships(this.grouperProvisioner);
-      this.getGrouperProvisioner().getGrouperProvisioningData().setGroupUuidMemberUuidToSyncMembership(
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setGroupUuidMemberUuidToSyncMembership(
           retrieveAllSyncMemberships);
       debugMap.put("retrieveSyncMshipsMillis", System.currentTimeMillis() - start);
-      debugMap.put("syncMshipCount", GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership()));
+      debugMap.put("syncMshipCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership()));
     }
     
   }
@@ -285,16 +285,16 @@ public class GrouperProvisionerGrouperSyncDao {
     }
     
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String subjectLinkMemberFromId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberFromId2();
+    String subjectLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId2();
     boolean hasSubjectLinkMemberFromId2 = !StringUtils.isBlank(subjectLinkMemberFromId2);
     
-    String subjectLinkMemberFromId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberFromId3();
+    String subjectLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId3();
     boolean hasSubjectLinkMemberFromId3 = !StringUtils.isBlank(subjectLinkMemberFromId3);
 
-    String subjectLinkMemberToId2 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberToId2();
+    String subjectLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId2();
     boolean hasSubjectLinkMemberToId2 = !StringUtils.isBlank(subjectLinkMemberToId2);
 
-    String subjectLinkMemberToId3 = this.grouperProvisioner.retrieveProvisioningConfiguration().getSubjectLinkMemberToId3();
+    String subjectLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId3();
     boolean hasSubjectLinkMemberToId3 = !StringUtils.isBlank(subjectLinkMemberToId3);
 
     if (!hasSubjectLinkMemberFromId2 && !hasSubjectLinkMemberFromId3 && !hasSubjectLinkMemberToId2 && !hasSubjectLinkMemberToId3) {

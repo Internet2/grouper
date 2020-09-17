@@ -23,6 +23,42 @@ public class GrouperProvisioningData {
   private GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
 
   /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   */
+  private GrouperProvisioningLists grouperProvisioningObjectsMissing = new GrouperProvisioningLists();
+
+  /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   */
+  private GrouperProvisioningLists grouperProvisioningObjectsCreatedPass1 = new GrouperProvisioningLists();
+
+  /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperProvisioningObjectsCreatedPass1() {
+    return grouperProvisioningObjectsCreatedPass1;
+  }
+
+  /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   * @param grouperProvisioningObjectsCreatedPass1
+   */
+  public void setGrouperProvisioningObjectsCreatedPass1(
+      GrouperProvisioningLists grouperProvisioningObjectsCreatedPass1) {
+    this.grouperProvisioningObjectsCreatedPass1 = grouperProvisioningObjectsCreatedPass1;
+  }
+
+  /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   * @param grouperProvisioningObjectsMissing
+   */
+  public void setGrouperProvisioningObjectsMissing(
+      GrouperProvisioningLists grouperProvisioningObjectsMissing) {
+    this.grouperProvisioningObjectsMissing = grouperProvisioningObjectsMissing;
+  }
+
+  /**
    * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
    */
   private GrouperProvisioningLists grouperProvisioningObjectsIncludeDeletes = new GrouperProvisioningLists();
@@ -49,6 +85,76 @@ public class GrouperProvisioningData {
   private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
   
   private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   */
+  private GrouperProvisioningLists targetProvisioningObjectsMissingCreated = new GrouperProvisioningLists();
+
+  
+  
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @return
+   */
+  public GrouperProvisioningLists getTargetProvisioningObjectsMissingCreated() {
+    return targetProvisioningObjectsMissingCreated;
+  }
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @param targetProvisioningObjectsMissingCreated
+   */
+  public void setTargetProvisioningObjectsMissingCreated(
+      GrouperProvisioningLists targetProvisioningObjectsMissingCreated) {
+    this.targetProvisioningObjectsMissingCreated = targetProvisioningObjectsMissingCreated;
+  }
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   */
+  private GrouperProvisioningLists targetProvisioningObjectsMissingRetrieved = new GrouperProvisioningLists();
+
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @return
+   */
+  public GrouperProvisioningLists getTargetProvisioningObjectsMissingRetrieved() {
+    return targetProvisioningObjectsMissingRetrieved;
+  }
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @param grouperTargetObjectsMissingRetrieved
+   */
+  public void setTargetProvisioningObjectsMissingRetrieved(
+      GrouperProvisioningLists grouperTargetObjectsMissingRetrieved) {
+    this.targetProvisioningObjectsMissingRetrieved = grouperTargetObjectsMissingRetrieved;
+  }
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   */
+  private GrouperProvisioningLists grouperTargetObjectsMissing = new GrouperProvisioningLists();
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperTargetObjectsMissing() {
+    return grouperTargetObjectsMissing;
+  }
+
+
+  /**
+   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * @param grouperTargetObjectsMissing
+   */
+  public void setGrouperTargetObjectsMissing(
+      GrouperProvisioningLists grouperTargetObjectsMissing) {
+    this.grouperTargetObjectsMissing = grouperTargetObjectsMissing;
+  }
 
   /**
    * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
@@ -357,6 +463,16 @@ public class GrouperProvisioningData {
   public void setTargetObjectDeletes(GrouperProvisioningLists targetObjectDeletes) {
     this.targetObjectDeletes = targetObjectDeletes;
   }
+
+
+  /**
+   * objects that are in grouper but there is no sync object or there is missing link data
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperProvisioningObjectsMissing() {
+    return grouperProvisioningObjectsMissing;
+  }
+
   
 
 }

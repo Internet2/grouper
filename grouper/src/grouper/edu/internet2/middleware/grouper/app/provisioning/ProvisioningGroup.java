@@ -1,5 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * group in target system
  * @author mchyzer
@@ -129,6 +136,16 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
 
     return provisioningGroup;
+  }
+
+  public void assignSearchFilter() {
+    String groupSearchFilter = this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchFilter();
+    if (!StringUtils.isBlank(groupSearchFilter)) {
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("targetGroup", this);
+      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runScript(groupSearchFilter, variableMap));
+      this.setSearchFilter(result);
+    }
   }
 
 }

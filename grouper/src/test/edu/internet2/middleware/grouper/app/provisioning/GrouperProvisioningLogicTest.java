@@ -62,7 +62,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     
-    grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
+    grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
     
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
@@ -142,7 +142,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     
-    grouperProvisioner.retrieveProvisioningConfiguration().configureProvisioner();
+    grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
     
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);

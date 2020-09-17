@@ -11,6 +11,101 @@ import java.util.Set;
 public class GrouperProvisioningBehavior {
 
   /**
+   * If the subject API is needed to resolve attribute on subject  required, drives requirements of other configurations. defaults to false.
+   */
+  private Boolean hasSubjectLink = false;
+  
+  /**
+   * If groups need to be resolved in the target before provisioning
+   */
+  private Boolean hasTargetGroupLink = false;
+  
+  /**
+   * If users need to be resolved in the target before provisioning
+   */
+  private Boolean hasTargetUserLink = false;
+
+  
+  
+  
+  public Boolean getHasSubjectLink() {
+    if (hasSubjectLink != null) {
+      return hasSubjectLink;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasSubjectLink();
+  }
+
+
+  
+  public void setHasSubjectLink(Boolean hasSubjectLink) {
+    this.hasSubjectLink = hasSubjectLink;
+  }
+
+
+  
+  public Boolean getHasTargetGroupLink() {
+    if (hasTargetGroupLink != null) {
+      return hasTargetGroupLink;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasTargetGroupLink();
+  }
+
+
+  
+  public void setHasTargetGroupLink(Boolean hasTargetGroupLink) {
+    this.hasTargetGroupLink = hasTargetGroupLink;
+  }
+
+
+  
+  public Boolean getHasTargetUserLink() {
+    if (hasTargetUserLink != null) {
+      return hasTargetUserLink;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasTargetUserLink();
+  }
+
+
+  
+  public void setHasTargetUserLink(Boolean hasTargetUserLink) {
+    this.hasTargetUserLink = hasTargetUserLink;
+  }
+
+
+  /**
+   * 
+   */
+  private Boolean retrieveMissingGroupsIncremental;
+  
+  /**
+   * 
+   * @return
+   */
+  public Boolean getRetrieveMissingGroupsIncremental() {
+    if (retrieveMissingGroupsIncremental != null) {
+      return retrieveMissingGroupsIncremental;
+    }
+    if (!this.getGrouperProvisioningType().isIncrementalSync()) {
+      return false;
+    }
+    if (this.getGroupsRetrieve()) {
+      return true;
+    }
+    return null;
+  }
+
+
+  /**
+   * 
+   * @param retrieveMissingGroupsIncremental
+   */
+  public void setRetrieveMissingGroupsIncremental(
+      Boolean retrieveMissingGroupsIncremental) {
+    this.retrieveMissingGroupsIncremental = retrieveMissingGroupsIncremental;
+  }
+
+
+  /**
    * 
    */
   private GrouperProvisioningType grouperProvisioningType;

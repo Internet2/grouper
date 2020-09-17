@@ -414,7 +414,7 @@ public class GrouperProvisioningCompare {
   
         provisioningEntitiesToInsert.add(entityToInsert);
       }
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
     
     
       // entities to delete
@@ -452,7 +452,7 @@ public class GrouperProvisioningCompare {
         provisioningEntitiesToDelete.add(entityToDelete);
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningEntities(provisioningEntitiesToDelete);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().setProvisioningEntities(provisioningEntitiesToDelete);
     
       // entities to update
       Set<Object> entityIdsToUpdate = new HashSet<Object>(targetTargetIdToTargetEntity.keySet());
@@ -484,7 +484,7 @@ public class GrouperProvisioningCompare {
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningEntities(provisioningEntitiesToUpdate);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().setProvisioningEntities(provisioningEntitiesToUpdate);
     }
     
     
@@ -550,7 +550,7 @@ public class GrouperProvisioningCompare {
         compareAttributesForInsert(groupToInsert);
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData()
+      this.grouperProvisioner.retrieveGrouperProvisioningData()
       .getTargetObjectInserts().setProvisioningGroups(provisioningGroupsToInsert);
     
     
@@ -590,7 +590,7 @@ public class GrouperProvisioningCompare {
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData()
+      this.grouperProvisioner.retrieveGrouperProvisioningData()
       .getTargetObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
     
       // groups to update
@@ -623,7 +623,7 @@ public class GrouperProvisioningCompare {
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
   
     }
     
@@ -683,7 +683,7 @@ public class GrouperProvisioningCompare {
         provisioningMembershipsToInsert.add(membershipToInsert);
       }
   
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectInserts().setProvisioningMemberships(provisioningMembershipsToInsert);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().setProvisioningMemberships(provisioningMembershipsToInsert);
     
     
       // memberships to delete
@@ -715,7 +715,7 @@ public class GrouperProvisioningCompare {
 
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectDeletes().setProvisioningMemberships(provisioningMembershipsToDelete);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().setProvisioningMemberships(provisioningMembershipsToDelete);
     
       // memberships to update
       Set<Object> targetIdsToUpdate = new HashSet<Object>(targetTargetIdToTargetMembership.keySet());
@@ -738,7 +738,7 @@ public class GrouperProvisioningCompare {
         
       }
       
-      this.grouperProvisioner.getGrouperProvisioningData().getTargetObjectUpdates().setProvisioningMemberships(provisioningMembershipsToUpdate);
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().setProvisioningMemberships(provisioningMembershipsToUpdate);
     }
     
     
@@ -746,8 +746,8 @@ public class GrouperProvisioningCompare {
 
 
   protected void compareTargetObjects() {
-    GrouperProvisioningLists grouperTargetObjects = this.grouperProvisioner.getGrouperProvisioningData().getGrouperTargetObjects();
-    GrouperProvisioningLists targetProvisioningObjects = this.grouperProvisioner.getGrouperProvisioningData().getTargetProvisioningObjects();
+    GrouperProvisioningLists grouperTargetObjects = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects();
+    GrouperProvisioningLists targetProvisioningObjects = this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects();
     
     compareTargetGroups(grouperTargetObjects.getProvisioningGroups(), targetProvisioningObjects.getProvisioningGroups());
     compareTargetEntities(grouperTargetObjects.getProvisioningEntities(), targetProvisioningObjects.getProvisioningEntities());
@@ -756,55 +756,55 @@ public class GrouperProvisioningCompare {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
     {
-      int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups());
+      int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups());
       if (groupInserts > 0) {
         debugMap.put("groupInsertsAfterCompare", groupInserts);
       }
     }
     {
-      int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups());
+      int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups());
       if (groupUpdates > 0) {
         debugMap.put("groupUpdatesAfterCompare", groupUpdates);
       }
     }
     {
-      int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningGroups());
+      int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningGroups());
       if (groupDeletes > 0) {
         debugMap.put("groupDeletesAfterCompare", groupDeletes);
       }
     }
     {
-      int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningEntities());
+      int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningEntities());
       if (entityInserts > 0) {
         debugMap.put("entityInsertsAfterCompare", entityInserts);
       }
     }
     {
-      int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningEntities());
+      int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningEntities());
       if (entityUpdates > 0) {
         debugMap.put("entityUpdatesAfterCompare", entityUpdates);
       }
     }
     {
-      int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningEntities());
+      int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningEntities());
       if (entityDeletes > 0) {
         debugMap.put("entityDeletesAfterCompare", entityDeletes);
       }
     }
     {
-      int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectInserts().getProvisioningMemberships());
+      int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningMemberships());
       if (membershipInserts > 0) {
         debugMap.put("membershipInsertsAfterCompare", membershipInserts);
       }
     }
     {
-      int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectUpdates().getProvisioningMemberships());
+      int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningMemberships());
       if (membershipUpdates > 0) {
         debugMap.put("membershipUpdatesAfterCompare", membershipUpdates);
       }
     }
     {
-      int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().getGrouperProvisioningData().getTargetObjectDeletes().getProvisioningMemberships());
+      int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningMemberships());
       if (membershipDeletes > 0) {
         debugMap.put("membershipDeletesAfterCompare", membershipDeletes);
       }

@@ -54,7 +54,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     long startNanos = System.nanoTime();
     
     try {
-      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
@@ -163,7 +163,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     
     try {
 
-      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
@@ -224,7 +224,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
     }
     
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
@@ -397,7 +397,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         columnIndex++;
       }
       if (!StringUtils.isBlank(attributeName)) {
-        if (attributeName.equals(this.getGrouperProvisioner().retrieveProvisioningConfiguration().getGroupAttributeNameForMemberships())) {
+        if (attributeName.equals(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships())) {
           provisioningGroup.addAttributeValue(attributeName, attributeValue);
         } else {
           provisioningGroup.assignAttributeValue(attributeName, attributeValue);
@@ -424,7 +424,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
     try {
-      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
@@ -511,7 +511,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       throw new RuntimeException("Cant retrieve all and pass in entities to retrieve");
     }
     
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     

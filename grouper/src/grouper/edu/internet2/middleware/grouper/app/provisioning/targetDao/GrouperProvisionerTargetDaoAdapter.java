@@ -27,6 +27,37 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   
   
   
+  @Override
+  public GrouperProvisionerDaoCapabilities getGrouperProvisionerDaoCapabilities() {
+    return this.wrappedDao.getGrouperProvisionerDaoCapabilities();
+  }
+
+
+  @Override
+  public void setGrouperProvisionerDaoCapabilities(
+      GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    this.wrappedDao.setGrouperProvisionerDaoCapabilities(grouperProvisionerDaoCapabilities);
+  }
+
+
+  @Override
+  public void addTargetDaoTimingInfo(TargetDaoTimingInfo targetDaoTimingInfo) {
+    this.wrappedDao.addTargetDaoTimingInfo(targetDaoTimingInfo);
+  }
+
+
+  @Override
+  public List<TargetDaoTimingInfo> getTargetDaoTimingInfos() {
+    return this.wrappedDao.getTargetDaoTimingInfos();
+  }
+
+
+  @Override
+  public void setTargetDaoTimingInfos(List<TargetDaoTimingInfo> targetDaoTimingInfos) {
+    this.wrappedDao.setTargetDaoTimingInfos(targetDaoTimingInfos);
+  }
+
+
   public GrouperProvisionerTargetDaoBase getWrappedDao() {
     return wrappedDao;
   }
@@ -51,10 +82,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
-    // dont really need to do anything here
-    // its all about the wrapped dao anyways
-    // should never be called...
-    throw new UnsupportedOperationException();
+    // this probably would never be called here, but just delegate just in case
+    this.wrappedDao.registerGrouperProvisionerDaoCapabilities(grouperProvisionerDaoCapabilities);
   }
 
 
@@ -376,6 +405,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveGroupsResponse retrieveGroups(
       TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
+    
+    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
+      provisioningGroup.assignSearchFilter();
+    }
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
       return this.wrappedDao.retrieveGroups(targetDaoRetrieveGroupsRequest);
     }
@@ -580,6 +614,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(
       TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
+    
+    for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
+      provisioningEntity.assignSearchFilter();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)) {
       return this.wrappedDao.retrieveEntities(targetDaoRetrieveEntitiesRequest);
     }
@@ -605,6 +644,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveGroupResponse retrieveGroup(
       TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
+    
+    targetDaoRetrieveGroupRequest.getTargetGroup().assignSearchFilter();
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
       return this.wrappedDao.retrieveGroup(targetDaoRetrieveGroupRequest);
     }
@@ -626,6 +668,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveEntityResponse retrieveEntity(
       TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest) {
+    
+    targetDaoRetrieveEntityRequest.getTargetEntity().assignSearchFilter();
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
       return this.wrappedDao.retrieveEntity(targetDaoRetrieveEntityRequest);
     }
