@@ -250,7 +250,7 @@ public class GrouperProvisioningCompare {
                 );
             continue;
           }
-          if (grouperCollection != null || targetCollection != null) {
+          if (grouperCollection == null || targetCollection == null) {
             if (grouperCollection == null) {
               grouperCollection = new HashSet<Object>();
               if (grouperValue != null) {
