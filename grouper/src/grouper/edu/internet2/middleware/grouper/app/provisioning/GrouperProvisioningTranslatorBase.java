@@ -364,7 +364,7 @@ public class GrouperProvisioningTranslatorBase {
       if (!script.contains("${")) {
         script = "${" + script + "}";
       }
-      return GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, true);
+      return GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, false);
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, ", script: '" + script + "', ");
       GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
