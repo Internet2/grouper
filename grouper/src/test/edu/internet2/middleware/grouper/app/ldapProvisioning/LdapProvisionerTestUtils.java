@@ -70,7 +70,7 @@ public class LdapProvisionerTestUtils {
       String dockerImagesString = IOUtils.toString(pDockerList.getInputStream(), "UTF-8");
       if (!dockerImagesString.contains("openldap-dinkel-grouper")) {
         
-        pDockerCreateImage = new ProcessBuilder(getDockerPath(), "build", "-t", "openldap-dinkel-grouper", GrouperUtil.getGrouperHome() + "/../grouper-misc/openldap-dinkel-grouper").start();
+        pDockerCreateImage = new ProcessBuilder(getDockerPath(), "build", "-t", "openldap-dinkel-grouper", GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper").start();
         pDockerCreateImage.waitFor();
         
         if (pDockerCreateImage.exitValue() != 0) {
@@ -78,7 +78,7 @@ public class LdapProvisionerTestUtils {
         }
       }
       
-      pDockerRun = new ProcessBuilder(getDockerPath(), "run", "-d", "-p", "389:389", "--name", "openldap-dinkel-grouper", "--mount", "type=bind,source=" + GrouperUtil.getGrouperHome() + "/../grouper-misc/openldap-dinkel-grouper/ldap-seed-data,target=/etc/ldap/prepopulate", "-e", "SLAPD_PASSWORD=secret", "-e", "SLAPD_CONFIG_PASSWORD=secret", "-e", "SLAPD_DOMAIN=example.edu", "openldap-dinkel-grouper").start();
+      pDockerRun = new ProcessBuilder(getDockerPath(), "run", "-d", "-p", "389:389", "--name", "openldap-dinkel-grouper", "--mount", "type=bind,source=" + GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper" + File.separator + "ldap-seed-data,target=/etc/ldap/prepopulate", "-e", "SLAPD_PASSWORD=secret", "-e", "SLAPD_CONFIG_PASSWORD=secret", "-e", "SLAPD_DOMAIN=example.edu", "openldap-dinkel-grouper").start();
       pDockerRun.waitFor();
       
       if (pDockerRun.exitValue() != 0) {
