@@ -41,10 +41,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
-    String groupSearchAllFilter = ldapSyncConfiguration.getGroupsSearchAllFilter();
+    String groupSearchAllFilter = ldapSyncConfiguration.getGroupSearchAllFilter();
     
     if (StringUtils.isEmpty(groupSearchAllFilter)) {
-      throw new RuntimeException("Why is groupsSearchAllFilter empty?");
+      throw new RuntimeException("Why is groupSearchAllFilter empty?");
     }
 
     String groupSearchBaseDn = ldapSyncConfiguration.getGroupSearchBaseDn();

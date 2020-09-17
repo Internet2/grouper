@@ -65,7 +65,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private Integer userCreationLdifTemplate_maxLength_9;
   private String groupSearchBaseDn;
   private String groupSearchFilter;
-  private String groupsSearchAllFilter;
+  private String groupSearchAllFilter;
   private LdapSyncGroupDnType groupDnType;
   private Set<String> groupObjectClass;
   private int groupCreationNumberOfAttributes;
@@ -139,7 +139,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
-    this.groupsSearchAllFilter = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupsSearchAllFilter", false), "(&(objectclass=group)(gidNumber=*))");
+    this.groupSearchAllFilter = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupSearchAllFilter", false), "(&(objectclass=group)(gidNumber=*))");
     this.groupObjectClass = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupObjectClass", false), ",");
 
     {
@@ -685,13 +685,13 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   }
 
   
-  public String getGroupsSearchAllFilter() {
-    return groupsSearchAllFilter;
+  public String getGroupSearchAllFilter() {
+    return groupSearchAllFilter;
   }
 
   
-  public void setGroupsSearchAllFilter(String groupsSearchAllFilter) {
-    this.groupsSearchAllFilter = groupsSearchAllFilter;
+  public void setGroupSearchAllFilter(String groupSearchAllFilter) {
+    this.groupSearchAllFilter = groupSearchAllFilter;
   }
 
   
