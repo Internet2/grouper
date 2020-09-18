@@ -512,11 +512,11 @@ public class GrouperProvisioningService {
       return true;
     }
     
-    if (one.isDirectAssignment() && !two.isDirectAssignment()) {
+    if (one.isDirectAssignment() != two.isDirectAssignment()) {
       return true;
     }
     
-    if (one.isDoProvision() && !two.isDoProvision()) {
+    if (one.isDoProvision() != two.isDoProvision()) {
       return true;
     }
     
