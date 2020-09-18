@@ -133,7 +133,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationMembership.1.script", "${grouperTargetMembership.setRemoveFromList(true)}");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.createGroups", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteGroupsNotInGrouper", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteGroups", "true");
         
     // ldap specific properties
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.ldapProvisioningType", "groupMemberships");

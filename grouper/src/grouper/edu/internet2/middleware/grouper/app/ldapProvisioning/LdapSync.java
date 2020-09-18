@@ -55,6 +55,14 @@ public class LdapSync extends GrouperProvisioner {
       case groupMemberships:
         
         grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
+        
+        // TODO some or all of this needs to be inferred based on config and perhaps put into GrouperProvisioningBehavior instead
+        System.out.println("temp code in LdapSync regarding behaviors needs to be fixed");
+        grouperProvisioningBehavior.setGroupsRetrieveAll(true);
+        grouperProvisioningBehavior.setGroupsUpdate(true);
+        grouperProvisioningBehavior.setGroupsDeleteIfNotInGrouper(true);
+        grouperProvisioningBehavior.setGroupsDeleteIfDeletedFromGrouper(true);
+
        break;
         
       case userAttributes:
