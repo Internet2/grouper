@@ -143,7 +143,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     if (!StringUtils.isBlank(groupSearchFilter)) {
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("targetGroup", this);
-      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runScript(groupSearchFilter, variableMap));
+      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runExpression(groupSearchFilter, variableMap));
       this.setSearchFilter(result);
     }
   }

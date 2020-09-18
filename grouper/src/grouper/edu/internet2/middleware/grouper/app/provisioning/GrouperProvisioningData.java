@@ -134,6 +134,28 @@ public class GrouperProvisioningData {
   }
 
   /**
+   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
+   */
+  private GrouperProvisioningLists grouperTargetObjectsMissingforCreate = new GrouperProvisioningLists();
+
+  /**
+   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperTargetObjectsMissingForCreate() {
+    return grouperTargetObjectsMissingforCreate;
+  }
+
+  /**
+   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
+   * @param grouperTargetObjectsMissingforCreate
+   */
+  public void setGrouperTargetObjectsMissingforCreate(
+      GrouperProvisioningLists grouperTargetObjectsMissingforCreate) {
+    this.grouperTargetObjectsMissingforCreate = grouperTargetObjectsMissingforCreate;
+  }
+
+  /**
    * in incremental keep track of groups and entities we need to retrieve or create in target before group link
    */
   private GrouperProvisioningLists grouperTargetObjectsMissing = new GrouperProvisioningLists();

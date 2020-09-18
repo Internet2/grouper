@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * how this provisioner interacts with the target.
  * some of these things default to the common configuration
@@ -71,19 +73,100 @@ public class GrouperProvisioningBehavior {
     this.hasTargetUserLink = hasTargetUserLink;
   }
 
+  /**
+   * 
+   */
+  private Boolean entitiesRetrieveMissingIncremental;
+
+  
+  public Boolean getEntitiesRetrieveMissingIncremental() {
+    if (entitiesRetrieveMissingIncremental != null) {
+      return entitiesRetrieveMissingIncremental;
+    }
+    if (!this.getGrouperProvisioningType().isIncrementalSync()) {
+      return false;
+    }
+    if (this.getEntitiesRetrieve()) {
+      return true;
+    }
+    return null;
+  }
+
+
+
+  
+  public void setEntitiesRetrieveMissingIncremental(
+      Boolean entitiesRetrieveMissingIncremental) {
+    this.entitiesRetrieveMissingIncremental = entitiesRetrieveMissingIncremental;
+  }
 
   /**
    * 
    */
-  private Boolean retrieveMissingGroupsIncremental;
+  private Boolean groupsRetrieveMissingIncremental;
+
+  /**
+   * 
+   */
+  private Boolean groupsInsertMissingPass1;
+
+  /**
+   * 
+   */
+  private Boolean entitiesInsertMissingPass1;
+
   
+  
+  public Boolean getEntitiesInsertMissingPass1() {
+    
+    if (entitiesRetrieveMissingIncremental != null) {
+      return entitiesRetrieveMissingIncremental;
+    }
+
+    if (GrouperUtil.booleanValue(this.getEntitiesInsert(), false)) {
+      return true;
+    }
+    
+    return null;
+  }
+
+
+
+  
+  public void setEntitiesInsertMissingPass1(Boolean entitiesInsertMissingPass1) {
+    this.entitiesInsertMissingPass1 = entitiesInsertMissingPass1;
+  }
+
+
+
+  public Boolean getGroupsInsertMissingPass1() {
+    if (groupsRetrieveMissingIncremental != null) {
+      return groupsRetrieveMissingIncremental;
+    }
+
+    if (GrouperUtil.booleanValue(this.getGroupsInsert(), false)) {
+      return true;
+    }
+    
+    return null;
+  }
+
+
+
+  
+  public void setGroupsInsertMissingPass1(Boolean groupsInsertMissingPass1) {
+    this.groupsInsertMissingPass1 = groupsInsertMissingPass1;
+  }
+
+
+
   /**
    * 
    * @return
    */
-  public Boolean getRetrieveMissingGroupsIncremental() {
-    if (retrieveMissingGroupsIncremental != null) {
-      return retrieveMissingGroupsIncremental;
+  public Boolean getGroupsRetrieveMissingIncremental() {
+    if (groupsRetrieveMissingIncremental != null) {
+      return groupsRetrieveMissingIncremental;
     }
     if (!this.getGrouperProvisioningType().isIncrementalSync()) {
       return false;
@@ -99,9 +182,9 @@ public class GrouperProvisioningBehavior {
    * 
    * @param retrieveMissingGroupsIncremental
    */
-  public void setRetrieveMissingGroupsIncremental(
+  public void setGroupsRetrieveMissingIncremental(
       Boolean retrieveMissingGroupsIncremental) {
-    this.retrieveMissingGroupsIncremental = retrieveMissingGroupsIncremental;
+    this.groupsRetrieveMissingIncremental = retrieveMissingGroupsIncremental;
   }
 
 
@@ -322,7 +405,13 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getGroupsInsert() {
-    return groupsInsert;
+    if (this.groupsInsert != null) {
+      return groupsInsert;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingGroups()) {
+      return true;
+    }
+    return null;
   }
 
   
