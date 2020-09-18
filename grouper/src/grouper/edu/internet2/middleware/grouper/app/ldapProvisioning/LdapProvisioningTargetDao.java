@@ -19,8 +19,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInse
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetResponse;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
@@ -59,6 +57,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     groupSearchAttributeNames.add("objectClass");
     groupAttributesMultivalued.add("objectClass");
+    
+    if (includeAllMembershipsIfApplicable) {
+      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      groupSearchAttributeNames.add(groupAttributeNameForMemberships);
+      groupAttributesMultivalued.add(groupAttributeNameForMemberships);
+    }
     
     List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
     
@@ -104,6 +108,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       if (value instanceof String && !StringUtils.isEmpty((String)value)) {
         ldapAttribute.addValue((String)value);
       } else if (value instanceof Collection) {
+      @SuppressWarnings("unchecked")
       Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
       if (values.size() > 0) {
         ldapAttribute.addValues(values);
@@ -133,6 +138,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
