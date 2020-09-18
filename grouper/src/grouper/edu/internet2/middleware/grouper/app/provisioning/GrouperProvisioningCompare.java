@@ -248,49 +248,46 @@ public class GrouperProvisioningCompare {
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.update, targetValue, grouperValue)
                 );
-            continue;
-          }
-          if (grouperCollection == null || targetCollection == null) {
-            if (grouperCollection == null) {
-              grouperCollection = new HashSet<Object>();
-              if (grouperValue != null) {
-                grouperCollection.add(grouperValue);
-              }
-            }
-            if (targetCollection == null) {
-              targetCollection = new HashSet<Object>();
-              if (targetValue != null) {
-                targetCollection.add(targetValue);
-              }
-            }
-            
           }
           
-          Collection inserts = new HashSet<Object>(grouperCollection);
-          inserts.removeAll(targetCollection);
-          
-          for (Object insertValue : inserts) {
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.insert, null, insertValue)
-                );
-  
-          }
-          
-          Collection deletes = new HashSet<Object>(targetCollection);
-          deletes.removeAll(grouperCollection);
-          
-          for (Object deleteValue : deletes) {
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, deleteValue, null)
-                );
-  
-          }
-        }        
+          continue;
+        }
         
-      }
-      
+        if (grouperCollection == null) {
+          grouperCollection = new HashSet<Object>();
+          if (grouperValue != null) {
+            grouperCollection.add(grouperValue);
+          }
+        }
+        if (targetCollection == null) {
+          targetCollection = new HashSet<Object>();
+          if (targetValue != null) {
+            targetCollection.add(targetValue);
+          }
+        }
+        
+        Collection inserts = new HashSet<Object>(grouperCollection);
+        inserts.removeAll(targetCollection);
+        
+        for (Object insertValue : inserts) {
+          grouperProvisioningUpdatable.addInternal_objectChange(
+              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                  ProvisioningObjectChangeAction.insert, null, insertValue)
+              );
+
+        }
+        
+        Collection deletes = new HashSet<Object>(targetCollection);
+        deletes.removeAll(grouperCollection);
+        
+        for (Object deleteValue : deletes) {
+          grouperProvisioningUpdatable.addInternal_objectChange(
+              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                  ProvisioningObjectChangeAction.delete, deleteValue, null)
+              );
+
+        }
+      }      
     }
     
     for (String attributeName: targetProvisioningAttributes.keySet()) {

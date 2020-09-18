@@ -187,7 +187,6 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.1"));
     
     // try update
-    /*
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
@@ -204,7 +203,6 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.0"));
-    */
     
     // try delete
     attributeValue.setDoProvision(false);

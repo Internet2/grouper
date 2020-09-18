@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
@@ -19,10 +20,11 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInse
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
-import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -138,66 +140,67 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  public boolean updateGroupIfNeeded(ProvisioningGroup grouperTranslatedTargetGroup, ProvisioningGroup actualTargetGroup) {
+  public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
+
+    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
+    Set<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
+
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
     List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
-    
-    Map<String, ProvisioningAttribute> grouperTranslatedProvisioningAttributes = grouperTranslatedTargetGroup.getAttributes();
-    Map<String, ProvisioningAttribute> actualProvisioningAttributes = actualTargetGroup.getAttributes();
-    
-    Set<String> allAttributes = new HashSet<String>(grouperTranslatedProvisioningAttributes.keySet());
-    allAttributes.addAll(actualProvisioningAttributes.keySet());
-    
-    for (String attributeName : allAttributes) {
-      Set<Object> grouperValues = new HashSet<Object>();
-      Set<Object> targetValues = new HashSet<Object>();
+        
+    for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
       
-      if (grouperTranslatedProvisioningAttributes.containsKey(attributeName) && grouperTranslatedProvisioningAttributes.get(attributeName).getValue() != null) {
-        grouperValues = new HashSet<Object>((Collection<Object>)grouperTranslatedProvisioningAttributes.get(attributeName).getValue());
-      }
+      String attributeName = provisionObjectChange.getAttributeName();
+      ProvisioningObjectChangeAction action = provisionObjectChange.getProvisioningObjectChangeAction();
+      Object newValue = provisionObjectChange.getNewValue();
+      Object oldValue = provisionObjectChange.getOldValue();
       
-      if (actualProvisioningAttributes.containsKey(attributeName) && actualProvisioningAttributes.get(attributeName).getValue() != null) {
-        targetValues = new HashSet<Object>((Collection<Object>)actualProvisioningAttributes.get(attributeName).getValue());
-      }
-      
-      if (grouperValues.size() == 0 && targetValues.size() > 0) {
-        // delete attribute here
-        LdapModificationItem item = new LdapModificationItem(LdapModificationType.REPLACE_ATTRIBUTE, new LdapAttribute(attributeName));
+      if (action == ProvisioningObjectChangeAction.delete) {
+        if (newValue != null) {
+          throw new RuntimeException("Deleting value but there's a new value=" + newValue + ", attributeName=" + attributeName);
+        }
+                
+        if (oldValue == null) {
+          // delete the whole attribute
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName));
+          ldapModificationItems.add(item);
+        } else {
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
+          ldapModificationItems.add(item);
+        }
+      } else if (action == ProvisioningObjectChangeAction.update) {
+        if (oldValue != null) {
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
+          ldapModificationItems.add(item);
+        }
+        
+        if (newValue != null) {
+          LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute(attributeName, newValue));
+          ldapModificationItems.add(item);
+        }
+      } else if (action == ProvisioningObjectChangeAction.insert) {
+        if (oldValue != null) {
+          throw new RuntimeException("Inserting value but there's an old value=" + oldValue + ", attributeName=" + attributeName);
+        }
+        
+        if (newValue == null) {
+          throw new RuntimeException("Inserting value but there's no new value for attributeName=" + attributeName);
+        }
+        
+        LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute(attributeName, newValue));
         ldapModificationItems.add(item);
       } else {
-        Set<Object> valuesToAdd = new HashSet<Object>(grouperValues);
-        valuesToAdd.removeAll(targetValues);
-        
-        if (valuesToAdd.size() > 0) {
-          LdapAttribute ldapAttribute = new LdapAttribute(attributeName);
-          ldapAttribute.addValues(valuesToAdd);
-          LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, ldapAttribute);
-          ldapModificationItems.add(item);
-        }
-        
-        Set<Object> valuesToRemove = new HashSet<Object>(targetValues);
-        valuesToRemove.removeAll(grouperValues);
-        
-        if (valuesToRemove.size() > 0) {
-          LdapAttribute ldapAttribute = new LdapAttribute(attributeName);
-          ldapAttribute.addValues(valuesToRemove);
-          LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, ldapAttribute);
-          ldapModificationItems.add(item);
-        }
+        throw new RuntimeException("Unexpected provisioningObjectChangeAction: " + action);
       }
     }
-    
+
     if (ldapModificationItems.size() > 0) {
-      LdapModificationResult result = new LdapSyncDaoForLdap().modify(ldapConfigId, actualTargetGroup.getId(), ldapModificationItems);
-      
-      // TODO what to do about partial errors
-      return true;
+      new LdapSyncDaoForLdap().modify(ldapConfigId, targetGroup.getName(), ldapModificationItems);
     }
     
-    return false;
+    return null;
   }
   
   @Override
