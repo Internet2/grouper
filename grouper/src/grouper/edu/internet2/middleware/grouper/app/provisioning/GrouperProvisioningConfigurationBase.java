@@ -27,54 +27,181 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfigurationBase {
 
   /**
+   * use this attribute as a target id
+   */
+  private String entityTargetIdAttribute;
+
+  
+  public String getEntityTargetIdAttribute() {
+    return entityTargetIdAttribute;
+  }
+
+
+  
+  public void setEntityTargetIdAttribute(String entityTargetIdAttribute) {
+    this.entityTargetIdAttribute = entityTargetIdAttribute;
+  }
+
+  /**
+   * use this attribute as a target id
+   */
+  private String groupTargetIdAttribute;
+  
+  /**
+   * use this attribute as a target id
+   * @return
+   */
+  public String getGroupTargetIdAttribute() {
+    return groupTargetIdAttribute;
+  }
+
+
+  /**
+   * use this attribute as a target id
+   * @param groupTargetIdAttribute
+   */
+  public void setGroupTargetIdAttribute(String groupTargetIdAttribute) {
+    this.groupTargetIdAttribute = groupTargetIdAttribute;
+  }
+
+  /**
+   * id or "provisioningGroupId,provisioningEntityId"
+   */
+  private String membershipTargetIdField;
+
+  
+  
+  /**
+   * id or "provisioningGroupId,provisioningEntityId"
+   * @return
+   */
+  public String getMembershipTargetIdField() {
+    return membershipTargetIdField;
+  }
+
+
+
+  /**
+   * id or "provisioningGroupId,provisioningEntityId"
+   * @param membershipTargetIdField
+   */
+  public void setMembershipTargetIdField(String membershipTargetIdField) {
+    this.membershipTargetIdField = membershipTargetIdField;
+  }
+
+  /**
+   * id, subjectId, loginId
+   */
+  private String entityTargetIdField;
+  
+  /**
+   * id, subjectId, loginId
+   * @return
+   */
+  public String getEntityTargetIdField() {
+    return entityTargetIdField;
+  }
+
+  /**
+   * id, subjectId, loginId
+   * @param entityTargetIdField
+   */
+  public void setEntityTargetIdField(String entityTargetIdField) {
+    this.entityTargetIdField = entityTargetIdField;
+  }
+
+  /**
+   * id, idIndex, or name
+   */
+  private String groupTargetIdField;
+
+  
+
+  /**
+   * id, idIndex, or name
+   * @return
+   */
+  public String getGroupTargetIdField() {
+    return groupTargetIdField;
+  }
+
+
+
+  /**
+   * id, idIndex, or name
+   * @param groupTargetIdField
+   */
+  public void setGroupTargetIdField(String groupTargetIdField) {
+    this.groupTargetIdField = groupTargetIdField;
+  }
+
+  /**
+   * 
+   */
+  private String membershipTargetIdAttribute;
+
+  
+  
+  public String getMembershipTargetIdAttribute() {
+    return membershipTargetIdAttribute;
+  }
+
+
+
+  
+  public void setMembershipTargetIdAttribute(String membershipTargetIdAttribute) {
+    this.membershipTargetIdAttribute = membershipTargetIdAttribute;
+  }
+
+  /**
    * expression to get the group id from target group
    */
-  private String targetGroupIdExpression;
+  private String groupTargetIdExpression;
 
   /**
    * expression to get the membership id from the target group
    */
-  private String targetMembershipIdExpression;
+  private String membershipTargetIdExpression;
 
   /**
    * expression to get the entity id from the target entity
    */
-  private String targetEntityIdExpression;
+  private String entityTargetIdExpression;
   
   
   
-  public String getTargetGroupIdExpression() {
-    return targetGroupIdExpression;
+  public String getGroupTargetIdExpression() {
+    return groupTargetIdExpression;
   }
 
 
   
-  public void setTargetGroupIdExpression(String targetGroupIdExpression) {
-    this.targetGroupIdExpression = targetGroupIdExpression;
+  public void setGroupTargetIdExpression(String groupTargetIdExpression) {
+    this.groupTargetIdExpression = groupTargetIdExpression;
   }
 
 
   
-  public String getTargetMembershipIdExpression() {
-    return targetMembershipIdExpression;
+  public String getMembershipTargetIdExpression() {
+    return membershipTargetIdExpression;
   }
 
 
   
-  public void setTargetMembershipIdExpression(String targetMembershipIdExpression) {
-    this.targetMembershipIdExpression = targetMembershipIdExpression;
+  public void setMembershipTargetIdExpression(String membershipTargetIdExpression) {
+    this.membershipTargetIdExpression = membershipTargetIdExpression;
   }
 
 
   
-  public String getTargetEntityIdExpression() {
-    return targetEntityIdExpression;
+  public String getEntityTargetIdExpression() {
+    return entityTargetIdExpression;
   }
 
 
   
-  public void setTargetEntityIdExpression(String targetEntityIdExpression) {
-    this.targetEntityIdExpression = targetEntityIdExpression;
+  public void setEntityTargetIdExpression(String entityTargetIdExpression) {
+    this.entityTargetIdExpression = entityTargetIdExpression;
   }
 
   private boolean logAllObjectsVerbose = false;
@@ -617,10 +744,14 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
 
-    this.targetEntityIdExpression = this.retrieveConfigString("targetEntityIdExpression", false);
-    this.targetGroupIdExpression = this.retrieveConfigString("targetGroupIdExpression", false);
-    this.targetMembershipIdExpression = this.retrieveConfigString("targetMembershipIdExpression", false);
+    this.entityTargetIdExpression = this.retrieveConfigString("entityTargetIdExpression", false);
+    this.groupTargetIdExpression = this.retrieveConfigString("groupTargetIdExpression", false);
+    this.membershipTargetIdExpression = this.retrieveConfigString("membershipTargetIdExpression", false);
 
+    
+    this.entityTargetIdAttribute = this.retrieveConfigString("entityTargetIdAttribute", false);
+    this.groupTargetIdAttribute = this.retrieveConfigString("groupTargetIdAttribute", false);
+    
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
     
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);

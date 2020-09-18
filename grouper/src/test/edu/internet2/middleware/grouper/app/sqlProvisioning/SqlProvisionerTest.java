@@ -198,16 +198,16 @@ public class SqlProvisionerTest extends GrouperTest {
     
     //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetMembership.assignAttribute('group_name', grouperProvisioningMembership.getProvisioningGroup().getName())}");
+        "${grouperTargetMembership.assignAttributeValue('group_name', grouperProvisioningMembership.getProvisioningGroup().getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "membership");
     //#translate from group auto translated to the common format
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-        "${grouperTargetMembership.assignAttribute('subject_id', grouperProvisioningMembership.getProvisioningEntity().retrieveAttributeValueString('subjectId'))}");
+        "${grouperTargetMembership.assignAttributeValue('subject_id', grouperProvisioningMembership.getProvisioningEntity().retrieveAttributeValueString('subjectId'))}");
     //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetMembershipIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTargetIdExpression", 
         "new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('group_name'), "
         + "targetMembership.retrieveAttributeValueString('subject_id'))");
 
@@ -458,7 +458,7 @@ public class SqlProvisionerTest extends GrouperTest {
   
       
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-          "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+          "${grouperTargetGroup.assignAttributeValue(('groupName', grouperProvisioningGroup.getName())}");
       // # could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
       //#translate from group auto translated to the common format
@@ -473,13 +473,13 @@ public class SqlProvisionerTest extends GrouperTest {
       // # could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
 
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
           "${targetGroup.retrieveAttributeValueString('groupName')}");
 
-//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetMembershipIdExpression", 
+//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTargetIdExpression", 
 //          "${new MultiKey(targetMembership.retrieveAttributeValueString('groupName'), targetMembership.retrieveAttributeValueString('subjectId'))}");
 //
-//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityIdExpression", 
+//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTargetIdExpression", 
 //          "${targetEntity.retrieveAttributeValueString('subjectId')}");
       
       //      //#translate from group auto translated to the common format
@@ -495,7 +495,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetToCommonTranslation.0.for", "group");
 //      //#translate from group auto translated to the common format
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.script", 
-//          "${commonProvisionToTargetGroup.assignAttribute('groupName', commonGroup.getId());}");
+//          "${commonProvisionToTargetGroup.assignAttributeValue('groupName', commonGroup.getId());}");
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.0.for", "group");
 //      
 //      //#translate from group auto translated to the common format
@@ -591,7 +591,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
         
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-            "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+            "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
         // # could be group, membership, or entity
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
         //#translate from group auto translated to the common format
@@ -609,7 +609,7 @@ public class SqlProvisionerTest extends GrouperTest {
         //# could be group, membership, or entity
         GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
         
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
             "${targetGroup.retrieveAttributeValueString('groupName')}");
   
         
@@ -757,7 +757,7 @@ public class SqlProvisionerTest extends GrouperTest {
   
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+        "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
     
@@ -776,7 +776,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
         "${targetGroup.retrieveAttributeValueString('groupName')}");
   
     
@@ -1070,7 +1070,7 @@ public class SqlProvisionerTest extends GrouperTest {
   
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+        "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
     //#translate from group auto translated to the common format
@@ -1088,7 +1088,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
         "${targetGroup.retrieveAttributeValueString('groupName')}");
   
     
@@ -1236,7 +1236,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
       
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-          "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+          "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
       // # could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
       
@@ -1255,7 +1255,7 @@ public class SqlProvisionerTest extends GrouperTest {
       //# could be group, membership, or entity
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
           "${targetGroup.retrieveAttributeValueString('groupName')}");
     
       
@@ -1366,7 +1366,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetGroup.assignAttribute('groupName', grouperProvisioningGroup.getName())}");
+        "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
     // # could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
     //#translate from group auto translated to the common format
@@ -1384,7 +1384,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //# could be group, membership, or entity
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
         "${targetGroup.retrieveAttributeValueString('groupName')}");
   
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNameForMemberships", "subjectId");
@@ -1733,23 +1733,26 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationMembership.scriptCount", "1");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationMembership.0.script", 
-        "${if (!grouperUtil.isBlank(gcGrouperSyncMember.getMemberToId2()) { "
+        "${if (!grouperUtil.isBlank(gcGrouperSyncMember.getMemberToId2())) { "
         + "grouperTargetGroup.addAttributeValueForMembership('member', gcGrouperSyncMember.getMemberToId2());"
         + "}"
         + "}");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.scriptCount",  "2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.0.script",  
-        "${grouperTargetEntity.assignAttribute('employeeID',  grouperProvisioningEntity.getSubjectId())}");
+        "${grouperTargetEntity.assignAttributeValue('employeeID',  grouperProvisioningEntity.getSubjectId())}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.1.script",  
-        "${grouperTargetEntity.assignAttribute('dn', gcGrouperSyncMember.getMemberToId2() )}");
+        "${grouperTargetEntity.assignAttributeValue('dn', gcGrouperSyncMember.getMemberToId2() )}");
           
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.scriptCount", "2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.scriptCount", "3");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.0.script", 
-        "${grouperTargetGroup.assignAttribute('gidNumber', grouperProvisioningGroup.getIdIndex()); }");
+        "${grouperTargetGroup.assignAttributeValue('gidNumber', grouperProvisioningGroup.getIdIndex()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.1.script", 
-        "${grouperTargetGroup.assignAttribute('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupTargetIdAttribute", "gidNumber");
+        "${grouperTargetGroup.assignAttributeValue('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.2.script", 
+        "${grouperTargetGroup.setId(grouperProvisioningGroup.getName()); }");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupTargetIdAttribute", "gidNumber");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityTargetIdAttribute", "employeeID");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.scriptCount", "3");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.0.script", 
         "${grouperTargetGroup.assignAttributeValue('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");

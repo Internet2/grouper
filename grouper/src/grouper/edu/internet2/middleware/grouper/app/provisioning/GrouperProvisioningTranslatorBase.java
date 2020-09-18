@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class GrouperProvisioningTranslatorBase {
 
     {
       List<ProvisioningGroup> grouperProvisioningGroups = grouperList.getProvisioningGroups();
-      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete);
+      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete, false);
       targetList.setProvisioningGroups(grouperTargetGroups);
     }
     
@@ -219,11 +220,15 @@ public class GrouperProvisioningTranslatorBase {
     return grouperTargetEntities;
   }
 
-  public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete) {
+  public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete, boolean forCreate) {
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(
         this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Group"));
 
+    if (forCreate) {
+      scripts.addAll(GrouperUtil.nonNull(GrouperUtil.nonNull(
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("GroupCreateOnly")));
+    }
     List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
 
     if (GrouperUtil.length(scripts) == 0) {
@@ -263,100 +268,156 @@ public class GrouperProvisioningTranslatorBase {
 
   public void idTargetGroups(List<ProvisioningGroup> targetGroups) {
 
-    String groupIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupIdExpression(); 
-        
+    if (GrouperUtil.isBlank(targetGroups)) {
+      return;
+    }
+
+    String groupIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdExpression(); 
+
+    String groupIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdAttribute();
+
+    String groupIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdField();
+
+    if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute) && StringUtils.isBlank(groupIdField)) {
+      return;
+    }
+    
     for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
       
-      // why already set???
-      if (targetGroup.getTargetId() != null) {
-        throw new RuntimeException("Why is target id already set???? " + targetGroup);
-      }
       Object id = null;
-      if (!StringUtils.isBlank(groupIdScript)) {
-
+      if (!StringUtils.isBlank(groupIdField)) {
+        if ("id".equals(groupIdField)) {
+          id = targetGroup.getId();
+        } else if ("idIndex".equals(groupIdField)) {
+          id = targetGroup.getIdIndex();
+        } else if ("name".equals(groupIdField)) {
+          id = targetGroup.getName();
+        } else {
+          throw new RuntimeException("Invalid groupTargetIdField, expecting id, idIndex, or name");
+        }
+        targetGroup.setTargetId(id);
+      } else if (!StringUtils.isBlank(groupIdAttribute)) {
+        Object idValue = targetGroup.retrieveAttributeValue(groupIdAttribute);
+        if (idValue instanceof Collection) {
+          throw new RuntimeException("Cant have a multivalued target id attribute: '" + groupIdAttribute + "', " + targetGroup);
+        }
+        id = idValue;
+        targetGroup.setTargetId(id);
+      } else if (!StringUtils.isBlank(groupIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetGroup", targetGroup);
         
         id = runScript(groupIdScript, elVariableMap);
-        
-        // TODO remove from list somehow (from caller?)
-//        if (targetGroup.isRemoveFromList()) {
-//          continue;
-//        }
 
-        
+        targetGroup.setTargetId(id);
+                
       } else {
-        id = targetGroup.getId();
+        throw new RuntimeException("Must have groupTargetIdField, groupTargetIdAttribute, or groupTargetIdExpression");
       }
 
-      targetGroup.setTargetId(id);
     }
   }
 
   public void idTargetEntities(List<ProvisioningEntity> targetEntities) {
 
-    String entityIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityIdExpression(); 
-        
+    if (GrouperUtil.isBlank(targetEntities)) {
+      return;
+    }
+
+    String entityIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdExpression(); 
+
+    String entityIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdAttribute();
+
+    String entityIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdField();
+
+    if (StringUtils.isBlank(entityIdScript) && StringUtils.isBlank(entityIdAttribute) && StringUtils.isBlank(entityIdField)) {
+      return;
+    }
+    
     for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
       
-      // why already set???
-      if (targetEntity.getTargetId() != null) {
-        throw new RuntimeException("Why is target id already set???? " + targetEntity);
-      }
       Object id = null;
-      if (!StringUtils.isBlank(entityIdScript)) {
-
+      if (!StringUtils.isBlank(entityIdField)) {
+        if ("id".equals(entityIdField)) {
+          id = targetEntity.getId();
+        } else if ("subjectId".equals(entityIdField)) {
+          id = targetEntity.getSubjectId();
+        } else if ("loginId".equals(entityIdField)) {
+          id = targetEntity.getLoginId();
+        } else {
+          throw new RuntimeException("Invalid entityTargetIdField, expecting id, subjectId, or loginId");
+        }
+        targetEntity.setTargetId(id);
+      } else if (!StringUtils.isBlank(entityIdAttribute)) {
+        Object idValue = targetEntity.retrieveAttributeValue(entityIdAttribute);
+        if (idValue instanceof Collection) {
+          throw new RuntimeException("Cant have a multivalued target id attribute: '" + entityIdAttribute + "', " + targetEntity);
+        }
+        id = idValue;
+        targetEntity.setTargetId(id);
+      } else if (!StringUtils.isBlank(entityIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetEntity", targetEntity);
         
         id = runScript(entityIdScript, elVariableMap);
-        
-        // TODO remove from list somehow (from caller?)
-//        if (targetEntity.isRemoveFromList()) {
-//          continue;
-//        }
 
-        
+        targetEntity.setTargetId(id);
+                
       } else {
-        id = targetEntity.getId();
+        throw new RuntimeException("Must have entityTargetIdField, entityTargetIdAttribute, or entityTargetIdExpression");
       }
 
-      targetEntity.setTargetId(id);
     }
   }
 
   public void idTargetMemberships(List<ProvisioningMembership> targetMemberships) {
 
-    String membershipIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipIdExpression(); 
-        
+    if (GrouperUtil.isBlank(targetMemberships)) {
+      return;
+    }
+    String membershipIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdExpression(); 
+
+    String membershipIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdAttribute();
+
+    String membershipIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdField();
+
+    if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
+      return;
+    }
+    
     for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
       
-      // why already set???
-      if (targetMembership.getTargetId() != null) {
-        throw new RuntimeException("Why is target id already set???? " + targetMembership);
-      }
       Object id = null;
-      if (!StringUtils.isBlank(membershipIdScript)) {
-
+      if (!StringUtils.isBlank(membershipIdField)) {
+        if ("id".equals(membershipIdField)) {
+          id = targetMembership.getId();
+        } else if ("provisioningGroupId,provisioningMembershipId".equals(membershipIdField)) {
+          id = new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+        } else {
+          throw new RuntimeException("Invalid membershipTargetIdField, expecting id or 'provisioningGroupId,provisioningMembershipId'");
+        }
+        targetMembership.setTargetId(id);
+      } else if (!StringUtils.isBlank(membershipIdAttribute)) {
+        Object idValue = targetMembership.retrieveAttributeValue(membershipIdAttribute);
+        if (idValue instanceof Collection) {
+          throw new RuntimeException("Cant have a multivalued target id attribute: '" + membershipIdAttribute + "', " + targetMembership);
+        }
+        id = idValue;
+        targetMembership.setTargetId(id);
+      } else if (!StringUtils.isBlank(membershipIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetMembership", targetMembership);
         
         id = runScript(membershipIdScript, elVariableMap);
-        
-        // TODO remove from list somehow (from caller?)
-//        if (targetMembership.isRemoveFromList()) {
-//          continue;
-//        }
 
-        
+        targetMembership.setTargetId(id);
+                
       } else {
-        
-        id = new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
-        
+        throw new RuntimeException("Must have membershipTargetIdField, membershipTargetIdAttribute, or membershipTargetIdExpression");
       }
 
-      targetMembership.setTargetId(id);
     }
+
   }
 
   public Object runScript(String script, Map<String, Object> elVariableMap) {
@@ -365,6 +426,19 @@ public class GrouperProvisioningTranslatorBase {
         script = "${" + script + "}";
       }
       return GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, false);
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, ", script: '" + script + "', ");
+      GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
+      throw re;
+    }
+  }
+
+  public Object runExpression(String script, Map<String, Object> elVariableMap) {
+    try {
+      if (!script.contains("${")) {
+        script = "${" + script + "}";
+      }
+      return GrouperUtil.substituteExpressionLanguage(script, elVariableMap, true, false, false);
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, ", script: '" + script + "', ");
       GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
