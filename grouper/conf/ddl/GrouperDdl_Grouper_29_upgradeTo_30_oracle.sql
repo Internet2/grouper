@@ -321,6 +321,3 @@ COMMENT ON COLUMN grouper_aval_asn_efmship_v.action_id IS 'action_id: attribute 
 
 COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_assign_value_id IS 'attribute_assign_value_id: the id of the value';
 
-update grouper_ddl set db_version = 30, last_updated = to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substr((to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V30, ' || history), 1, 3500) where object_name = 'Grouper';
-commit;
-

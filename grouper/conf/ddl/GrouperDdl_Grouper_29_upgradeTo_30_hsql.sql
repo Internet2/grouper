@@ -1,10 +1,14 @@
 
-DROP VIEW grouper_aval_asn_efmship_v;
+CREATE VIEW grouper_perms_all_v IF EXISTS cascade;
 
-ALTER TABLE grouper_members
+CREATE VIEW grouper_pit_perms_all_v IF EXISTS cascade;
+
+DROP VIEW grouper_aval_asn_efmship_v IF EXISTS cascade;
+
+ALTER TABLE GROUPER_MEMBERS
     ADD COLUMN subject_identifier0 VARCHAR(255);
 
-ALTER TABLE grouper_pit_members
+ALTER TABLE GROUPER_PIT_MEMBERS
     ADD COLUMN subject_identifier0 VARCHAR(255);
 
 CREATE TABLE grouper_message
@@ -46,7 +50,7 @@ CREATE TABLE grouper_QZ_JOB_DETAILS
     is_nonconcurrent BOOLEAN NOT NULL,
     is_update_data BOOLEAN NOT NULL,
     requests_recovery BOOLEAN NOT NULL,
-    job_data BYTEA,
+    job_data LONGVARBINARY,
     PRIMARY KEY (sched_name, job_name, job_group)
 );
 
@@ -71,7 +75,7 @@ CREATE TABLE grouper_QZ_TRIGGERS
     end_time BIGINT,
     calendar_name VARCHAR(200),
     misfire_instr BIGINT,
-    job_data BYTEA,
+    job_data LONGVARBINARY,
     PRIMARY KEY (sched_name, trigger_name, trigger_group)
 );
 
@@ -132,8 +136,8 @@ CREATE TABLE grouper_QZ_SIMPROP_TRIGGERS
     int_prop_2 BIGINT,
     long_prop_1 BIGINT,
     long_prop_2 BIGINT,
-    dec_prop_1 DOUBLE PRECISION,
-    dec_prop_2 DOUBLE PRECISION,
+    dec_prop_1 DOUBLE,
+    dec_prop_2 DOUBLE,
     bool_prop_1 BOOLEAN,
     bool_prop_2 BOOLEAN,
     PRIMARY KEY (sched_name, trigger_name, trigger_group)
@@ -144,7 +148,7 @@ CREATE TABLE grouper_QZ_BLOB_TRIGGERS
     sched_name VARCHAR(120) NOT NULL,
     trigger_name VARCHAR(200) NOT NULL,
     trigger_group VARCHAR(200) NOT NULL,
-    blob_data BYTEA,
+    blob_data LONGVARBINARY,
     PRIMARY KEY (sched_name, trigger_name, trigger_group)
 );
 
@@ -152,7 +156,7 @@ CREATE TABLE grouper_QZ_CALENDARS
 (
     sched_name VARCHAR(120) NOT NULL,
     calendar_name VARCHAR(200) NOT NULL,
-    calendar BYTEA NOT NULL,
+    calendar LONGVARBINARY NOT NULL,
     PRIMARY KEY (sched_name, calendar_name)
 );
 
@@ -215,9 +219,8 @@ commit;
 update grouper_pit_fields set name='stemAdmins' where name='stemmers';
 commit;
 
-
 ALTER TABLE grouper_message
-    ADD CONSTRAINT fk_message_from_member_id FOREIGN KEY (from_member_id) REFERENCES grouper_members (id);
+    ADD CONSTRAINT fk_message_from_member_id FOREIGN KEY (from_member_id) REFERENCES GROUPER_MEMBERS (ID);
 
 ALTER TABLE grouper_QZ_TRIGGERS
     ADD CONSTRAINT qrtz_trigger_to_jobs_fk FOREIGN KEY (sched_name, job_name, job_group) REFERENCES grouper_QZ_JOB_DETAILS (sched_name, job_name, job_group);
@@ -233,88 +236,9 @@ ALTER TABLE grouper_QZ_SIMPROP_TRIGGERS
 
 ALTER TABLE grouper_QZ_BLOB_TRIGGERS
     ADD CONSTRAINT qrtz_blob_trig_to_trig_fk FOREIGN KEY (sched_name, trigger_name, trigger_group) REFERENCES grouper_QZ_TRIGGERS (sched_name, trigger_name, trigger_group);
-
-COMMENT ON TABLE grouper_message IS 'If using the default internal messaging with Grouper, this is the table that holds the messages and state of messages';
-
-COMMENT ON COLUMN grouper_message.from_member_id IS 'member id of user who sent the message';
-
-COMMENT ON COLUMN grouper_message.get_attempt_count IS 'how many times this message has been attempted to be retrieved';
-
-COMMENT ON COLUMN grouper_message.get_attempt_time_millis IS 'milliseconds since 1970 that the message was attempted to be received';
-
-COMMENT ON COLUMN grouper_message.get_time_millis IS 'millis since 1970 that this message was successfully received';
-
-COMMENT ON COLUMN grouper_message.attempt_time_expires_millis IS 'millis since 1970 that this message attempt expires if not sent successfully';
-
-COMMENT ON COLUMN grouper_message.hibernate_version_number IS 'hibernate version, optimistic locking so multiple processes dont update the same record at the same time';
-
-COMMENT ON COLUMN grouper_message.id IS 'db uuid for this row';
-
-COMMENT ON COLUMN grouper_message.message_body IS 'message body';
-
-COMMENT ON COLUMN grouper_message.queue_name IS 'queue name for the message';
-
-COMMENT ON COLUMN grouper_message.sent_time_micros IS 'microseconds since 1970 this message was sent (note this is probably unique, but not necessarily)';
-
-COMMENT ON COLUMN grouper_message.state IS 'state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED';
-
-COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
-
-COMMENT ON COLUMN grouper_pit_members.subject_identifier0 IS 'subject identifier of the subject';
-
+    
 CREATE VIEW grouper_aval_asn_efmship_v (group_name, subject_source_id, subject_id, action, attribute_def_name_name, value_string, value_integer, value_floating, value_member_id, group_display_name, attribute_def_name_disp_name, name_of_attribute_def, attribute_assign_notes, list_name, attribute_assign_delegatable, enabled, enabled_time, disabled_time, group_id, attribute_assign_id, attribute_def_name_id, attribute_def_id, member_id, action_id, attribute_assign_value_id) AS select distinct gg.name as group_name, gm.subject_source as subject_source_id, gm.subject_id, gaaa.name as action, gadn.name as attribute_def_name_name,  gaav.value_string AS value_string,  gaav.value_integer AS value_integer,  gaav.value_floating AS value_floating,  gaav.value_member_id AS value_member_id, gg.display_name as group_display_name, gadn.display_name as attribute_def_name_disp_name, gad.name as name_of_attribute_def, gaa.notes as attribute_assign_notes, gf.name as list_name, gaa.attribute_assign_delegatable, gaa.enabled, gaa.enabled_time, gaa.disabled_time, gg.id as group_id, gaa.id as attribute_assign_id, gadn.id as attribute_def_name_id, gad.id as attribute_def_id, gm.id as member_id, gaaa.id as action_id,  gaav.id AS attribute_assign_value_id from grouper_attribute_assign gaa, grouper_memberships_all_v gmav, grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_groups gg, grouper_fields gf, grouper_members gm, grouper_attr_assign_action gaaa, grouper_attribute_assign_value gaav  where gaav.attribute_assign_id = gaa.id  and gaa.owner_group_id = gmav.owner_group_id and gaa.owner_member_id = gmav.member_id and gaa.attribute_def_name_id = gadn.id and gadn.attribute_def_id = gad.id and gmav.immediate_mship_enabled = 'T' and gmav.owner_group_id = gg.id and gmav.field_id = gf.id and gf.type = 'list' and gmav.member_id = gm.id and gaa.owner_member_id is not null and gaa.owner_group_id is not null and gaa.attribute_assign_action_id = gaaa.id ;
 
-COMMENT ON VIEW grouper_aval_asn_efmship_v IS 'grouper_aval_asn_efmship_v: attribute assigned to an effective membership and values (multiple rows if multiple values, no rows if no values)';
+CREATE VIEW grouper_perms_all_v (role_name, subject_source_id, subject_id, action, attribute_def_name_name, attribute_def_name_disp_name, role_display_name, attribute_assign_delegatable, enabled, enabled_time, disabled_time, role_id, attribute_def_id, member_id, attribute_def_name_id, action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, attribute_assign_id, permission_type, assignment_notes, immediate_mship_enabled_time, immediate_mship_disabled_time, disallowed) AS select role_name,  subject_source_id,  subject_id,  action,  attribute_def_name_name,  attribute_def_name_disp_name,  role_display_name,  attribute_assign_delegatable, enabled, enabled_time, disabled_time, role_id,  attribute_def_id,  member_id,  attribute_def_name_id,  action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, attribute_assign_id, permission_type, assignment_notes, immediate_mship_enabled_time, immediate_mship_disabled_time, disallowed from grouper_perms_role_v  union  select role_name,  subject_source_id,  subject_id,  action,  attribute_def_name_name,  attribute_def_name_disp_name,  role_display_name,  attribute_assign_delegatable, enabled, enabled_time, disabled_time, role_id,  attribute_def_id,  member_id,  attribute_def_name_id,  action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, attribute_assign_id, permission_type, assignment_notes, immediate_mship_enabled_time, immediate_mship_disabled_time, disallowed from grouper_perms_role_subject_v  ;
 
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.group_name IS 'group_name: name of group assigned the attribute';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.subject_source_id IS 'subject_source_id: source id of the subject being assigned';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.subject_id IS 'subject_id: subject id of the subject being assigned';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.action IS 'action: the action associated with the attribute assignment (default is assign)';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_def_name_name IS 'attribute_def_name_name: name of the attribute definition name which is assigned to the group';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.value_string IS 'value_string: if this is a string attributeDef, then this is the string';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.value_integer IS 'value_integer: if this is an integer attributeDef, then this is the integer';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.value_floating IS 'value_floating: if this is a floating attributeDef, then this is the value';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.value_member_id IS 'value_member_id: if this is a memberId attributeDef, then this is the value';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.group_display_name IS 'group_display_name: display name of the group assigned an attribute';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_def_name_disp_name IS 'attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.name_of_attribute_def IS 'name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_assign_notes IS 'attribute_assign_notes: notes related to the attribute assignment';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.list_name IS 'list_name: name of the membership list for this effective membership';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_assign_delegatable IS 'attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.enabled IS 'enabled: if this assignment is enabled: T, F';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.enabled_time IS 'enabled_time: the time (seconds since 1970) that this assignment will be enabled';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.disabled_time IS 'disabled_time: the time (seconds since 1970) that this assignment will be disabled';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.group_id IS 'group_id: group id of the group assigned the attribute';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_assign_id IS 'attribute_assign_id: id of the attribute assignment';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_def_name_id IS 'attribute_def_name_id: id of the attribute definition name';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_def_id IS 'attribute_def_id: id of the attribute definition';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.member_id IS 'member_id: id of the member assigned the attribute';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.action_id IS 'action_id: attribute assign action id';
-
-COMMENT ON COLUMN grouper_aval_asn_efmship_v.attribute_assign_value_id IS 'attribute_assign_value_id: the id of the value';
-
-update grouper_ddl set db_version = 30, last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V30, ' || history) from 1 for 3500) where object_name = 'Grouper';
-commit;
+CREATE VIEW grouper_pit_perms_all_v (role_name, subject_source_id, subject_id, action, attribute_def_name_name, role_id, attribute_def_id, member_id, attribute_def_name_id, action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, group_set_id, role_set_id, attribute_def_name_set_id, action_set_id, attribute_assign_id, permission_type, group_set_active, group_set_start_time, group_set_end_time, membership_active, membership_start_time, membership_end_time, role_set_active, role_set_start_time, role_set_end_time, action_set_active, action_set_start_time, action_set_end_time, attr_def_name_set_active, attr_def_name_set_start_time, attr_def_name_set_end_time, attribute_assign_active, attribute_assign_start_time, attribute_assign_end_time, disallowed, action_source_id, role_source_id, attribute_def_name_source_id, attribute_def_source_id, member_source_id, membership_source_id, attribute_assign_source_id) AS select role_name,  subject_source_id,  subject_id,  action,  attribute_def_name_name,  role_id,  attribute_def_id,  member_id,  attribute_def_name_id,  action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, group_set_id, role_set_id, attribute_def_name_set_id, action_set_id, attribute_assign_id, permission_type, group_set_active, group_set_start_time, group_set_end_time, membership_active, membership_start_time, membership_end_time, role_set_active, role_set_start_time, role_set_end_time, action_set_active, action_set_start_time, action_set_end_time, attr_def_name_set_active, attr_def_name_set_start_time, attr_def_name_set_end_time, attribute_assign_active, attribute_assign_start_time, attribute_assign_end_time, disallowed, action_source_id, role_source_id, attribute_def_name_source_id, attribute_def_source_id, member_source_id, membership_source_id, attribute_assign_source_id from grouper_pit_perms_role_v  union  select role_name,  subject_source_id,  subject_id,  action,  attribute_def_name_name,  role_id,  attribute_def_id,  member_id,  attribute_def_name_id,  action_id, membership_depth, role_set_depth, attr_def_name_set_depth, attr_assign_action_set_depth, membership_id, group_set_id, role_set_id, attribute_def_name_set_id, action_set_id, attribute_assign_id, permission_type, group_set_active, group_set_start_time, group_set_end_time, membership_active, membership_start_time, membership_end_time, role_set_active, role_set_start_time, role_set_end_time, action_set_active, action_set_start_time, action_set_end_time, attr_def_name_set_active, attr_def_name_set_start_time, attr_def_name_set_end_time, attribute_assign_active, attribute_assign_start_time, attribute_assign_end_time, disallowed, action_source_id, role_source_id, attribute_def_name_source_id, attribute_def_source_id, member_source_id, membership_source_id, attribute_assign_source_id from grouper_pit_perms_role_subj_v  ;
