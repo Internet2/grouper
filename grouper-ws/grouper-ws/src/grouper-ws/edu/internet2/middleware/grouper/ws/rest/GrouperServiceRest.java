@@ -616,7 +616,10 @@ public class GrouperServiceRest {
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
         .getGroupName(), false, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestHasMemberLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
+    if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(wsRestHasMemberLiteRequest.getSubjectIdentifier())) {
+      throw new WsInvalidQueryException("Input a subjectId or subjectIdentifier!");
+    }
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestHasMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
   
