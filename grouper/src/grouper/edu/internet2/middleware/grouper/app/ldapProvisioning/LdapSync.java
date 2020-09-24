@@ -10,8 +10,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningConfiguration;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningType;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
@@ -55,13 +53,6 @@ public class LdapSync extends GrouperProvisioner {
       case groupMemberships:
         
         grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
-        
-        // TODO some or all of this needs to be inferred based on config and perhaps put into GrouperProvisioningBehavior instead
-        System.out.println("temp code in LdapSync regarding behaviors needs to be fixed");
-        grouperProvisioningBehavior.setGroupsRetrieveAll(true);
-        grouperProvisioningBehavior.setGroupsUpdate(true);
-        grouperProvisioningBehavior.setGroupsDeleteIfNotInGrouper(true);
-        grouperProvisioningBehavior.setGroupsDeleteIfDeletedFromGrouper(true);
 
        break;
         
