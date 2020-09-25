@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -717,6 +718,27 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setGroupAttributeNameForMemberships(String groupAttributeNameForMemberships) {
     this.groupAttributeNameForMemberships = groupAttributeNameForMemberships;
   }
+  
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   */
+  private String userAttributeNameForMemberships;
+  
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getUserAttributeNameForMemberships() {
+    return userAttributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   * @param userAttributeNameForMemberships
+   */
+  public void setUserAttributeNameForMemberships(String userAttributeNameForMemberships) {
+    this.userAttributeNameForMemberships = userAttributeNameForMemberships;
+  }
 
   private String membershipAttributeNames;
 
@@ -824,9 +846,15 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.syncGroupFromId3AttributeValueFormat = this.retrieveConfigString("syncGroupFromId3AttributeValueFormat", false);
 
     this.userSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userSearchAttributes", false), ",");
-
+    if (this.userSearchAttributes == null) {
+      this.userSearchAttributes = new HashSet<String>();
+    }
+    
     this.groupSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupSearchAttributes", false), ",");
-
+    if (this.groupSearchAttributes == null) {
+      this.groupSearchAttributes = new HashSet<String>();
+    }
+    
     this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
 
     this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
@@ -839,6 +867,8 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
     
+    this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
+
     this.groupSearchAttributeValueFormat = this.retrieveConfigString("groupSearchAttributeValueFormat", false);
     
     if (StringUtils.isBlank(this.groupSearchAttributeName) != StringUtils.isBlank(this.groupSearchAttributeValueFormat)) {

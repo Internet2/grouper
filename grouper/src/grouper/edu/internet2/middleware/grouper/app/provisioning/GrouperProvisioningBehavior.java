@@ -345,7 +345,16 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getGroupsRetrieveAll() {
-    return groupsRetrieveAll;
+    if (this.groupsRetrieveAll != null) {
+      return groupsRetrieveAll;
+    }
+    
+    // by default, if we're inserting/updating/deleting groups, then retrieve all groups?
+    if (this.getGroupsInsert() == Boolean.TRUE || this.getGroupsUpdate() == Boolean.TRUE ||
+        this.getGroupsDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getGroupsDeleteIfNotInGrouper() == Boolean.TRUE) {
+      return true;
+    }
+    return null;
   }
 
   
@@ -375,7 +384,17 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getGroupsUpdate() {
-    return groupsUpdate;
+    if (this.groupsUpdate != null) {
+      return groupsUpdate;
+    }
+    
+    // if we can create or delete then allow update by default?
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingGroups() ||
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfDeletedInGrouper() ||
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfInTargetAndNotGrouper()) {
+      return true;
+    }
+    return null;
   }
 
   
@@ -441,7 +460,13 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getGroupsDeleteIfNotInGrouper() {
-    return groupsDeleteIfNotInGrouper;
+    if (this.groupsDeleteIfNotInGrouper != null) {
+      return groupsDeleteIfNotInGrouper;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfInTargetAndNotGrouper()) {
+      return true;
+    }
+    return null;    
   }
 
   
@@ -451,7 +476,13 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getGroupsDeleteIfDeletedFromGrouper() {
-    return groupsDeleteIfDeletedFromGrouper;
+    if (this.groupsDeleteIfDeletedFromGrouper != null) {
+      return groupsDeleteIfDeletedFromGrouper;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfDeletedInGrouper()) {
+      return true;
+    }
+    return null;
   }
 
   
@@ -462,7 +493,20 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getEntitiesRetrieveAll() {
-    return entitiesRetrieveAll;
+    if (this.entitiesRetrieveAll != null) {
+      return entitiesRetrieveAll;
+    }
+    
+    // by default, if we're inserting/updating/deleting entities or there's an entity link, then retrieve all entities?
+    if (this.getEntitiesInsert() == Boolean.TRUE || this.getEntitiesUpdate() == Boolean.TRUE ||
+        this.getEntitiesDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getEntitiesDeleteIfNotInGrouper() == Boolean.TRUE ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3() != null) {
+      return true;
+    }
+    return null;
   }
 
   

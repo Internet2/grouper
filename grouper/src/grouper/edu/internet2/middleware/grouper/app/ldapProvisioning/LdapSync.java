@@ -10,8 +10,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningConfiguration;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningType;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
@@ -55,6 +53,7 @@ public class LdapSync extends GrouperProvisioner {
       case groupMemberships:
         
         grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
+
        break;
         
       case userAttributes:
