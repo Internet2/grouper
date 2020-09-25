@@ -134,8 +134,8 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupTargetIdExpression", "${targetGroup.retrieveAttributeValueString('gidNumber')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityTargetIdExpression", "${targetEntity.retrieveAttributeValueString('uid')}");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.common.entityLink.memberToId2", "${targetEntity.retrieveAttributeValue('dn')}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.common.entityLink.memberToId2", "${targetEntity.getName()}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.common.groupLink.groupToId2", "${targetGroup.getName()}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.scriptCount", "3");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.0.script", "${grouperTargetGroup.setName('cn=' + javax.naming.ldap.Rdn.escapeValue(grouperProvisioningGroup.getName()) + ',ou=Groups,dc=example,dc=edu')}");
@@ -152,7 +152,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationEntity.scriptCount", "2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationEntity.0.script", "${grouperTargetEntity.assignAttributeValue('uid',  grouperProvisioningEntity.getSubjectId())}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationEntity.1.script", "${grouperTargetEntity.assignAttributeValue('dn', gcGrouperSyncMember.getMemberToId2() )}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationEntity.1.script", "${grouperTargetEntity.setName(gcGrouperSyncMember.getMemberToId2())}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroupCreateOnly.scriptCount", "3");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroupCreateOnly.0.script", "${grouperTargetGroup.setName('cn=' + javax.naming.ldap.Rdn.escapeValue(grouperProvisioningGroup.getName()) + ',ou=Groups,dc=example,dc=edu')}");

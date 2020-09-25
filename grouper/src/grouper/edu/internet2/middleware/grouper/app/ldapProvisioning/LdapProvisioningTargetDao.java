@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
@@ -102,7 +104,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
         }
         
-        targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
+        //targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
         results.add(targetGroup);
       }
   
@@ -135,11 +137,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (value instanceof String && !StringUtils.isEmpty((String)value)) {
           ldapAttribute.addValue((String)value);
         } else if (value instanceof Collection) {
-        @SuppressWarnings("unchecked")
-        Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
-        if (values.size() > 0) {
-          ldapAttribute.addValues(values);
-          } 
+          @SuppressWarnings("unchecked")
+          Collection<Object> values = (Collection<Object>) targetAttribute.getValue();
+          if (values.size() > 0) {
+            ldapAttribute.addValues(values);
+          }
         }
         
         if (ldapAttribute.getValues().size() > 0) {
@@ -317,7 +319,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
           }
           
-          targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
+          //targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
           results.add(targetGroup);
         }    
       } finally {
@@ -386,7 +388,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
         }
         
-        targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
+        //targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
         results.add(targetEntity);
       }
   
@@ -467,7 +469,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
           
-          targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
+          //targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
           results.add(targetEntity);
         }    
       } finally {
@@ -476,6 +478,48 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     
     return new TargetDaoRetrieveEntitiesResponse(results);
+  }
+  
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+
+    try {
+      ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+      
+      if (StringUtils.isBlank(targetEntity.getName())) {
+        throw new RuntimeException("Why is targetEntity.getName() blank?");
+      }
+      
+      LdapEntry ldapEntry = new LdapEntry(targetEntity.getName());
+      for (String attributeName : targetEntity.getAttributes().keySet()) {
+        ProvisioningAttribute targetAttribute = targetEntity.getAttributes().get(attributeName);
+        Object value = targetAttribute.getValue();
+        
+        LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
+  
+        if (value instanceof String && !StringUtils.isEmpty((String)value)) {
+          ldapAttribute.addValue((String)value);
+        } else if (value instanceof Collection) {
+          @SuppressWarnings("unchecked")
+          Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
+          if (values.size() > 0) {
+            ldapAttribute.addValues(values);
+          } 
+        }
+        
+        if (ldapAttribute.getValues().size() > 0) {
+          ldapEntry.addAttribute(ldapAttribute);
+        }
+      }
+      
+      new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
+      targetEntity.setProvisioned(true);
+      return new TargetDaoInsertEntityResponse();
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
   }
   
   @Override
@@ -491,6 +535,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
+    grouperProvisionerDaoCapabilities.getCanInsertEntity();
   }
 
 }
