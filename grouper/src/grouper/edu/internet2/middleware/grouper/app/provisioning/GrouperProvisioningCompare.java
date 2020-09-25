@@ -293,8 +293,9 @@ public class GrouperProvisioningCompare {
     for (String attributeName: targetProvisioningAttributes.keySet()) {
       
       ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
-      if (grouperAttribute == null) {
-        Object targetValue = targetProvisioningAttributes.get(attributeName);
+      if (grouperAttribute == null) {        
+        ProvisioningAttribute targetAttribute = targetProvisioningAttributes.get(attributeName);
+        Object targetValue = targetAttribute == null ? null : targetAttribute.getValue();
         
         if (GrouperUtil.isArrayOrCollection(targetValue)) {
           if (targetValue instanceof Collection) {
