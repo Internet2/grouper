@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * name value pair could be multi valued
@@ -13,6 +16,55 @@ import java.util.Set;
  *
  */
 public class ProvisioningAttribute {
+
+  private static String scalarString(Object value) {
+    if (value == null) {
+      return "<null>";
+    }
+    if (value instanceof String) {
+      return "\"" + (String)value + "\"";
+    }
+    return GrouperUtil.stringValue(value);
+  }
+  
+  public String toString() {
+    if (value instanceof Set) {
+      
+      StringBuilder result = new StringBuilder();
+      
+      result.append("[");
+      
+      Set valueSet = (Set)value;
+      
+      if (GrouperUtil.length(valueSet) > 0) {
+        int attrCount = 0;
+        // order these
+        for (Object eachValue : valueSet) {
+          
+          if (attrCount > 0) {
+            result.append(", ");
+          }
+          // dont go crazy here
+          if (attrCount >= 100) {
+            result.append("100/" + GrouperUtil.length(valueSet) + " displayed");
+            break;
+          }
+          
+          result.append(scalarString(eachValue));
+          
+          attrCount++;
+        }
+      }
+      
+      
+      result.append("]");
+      
+      return result.toString();
+    }
+
+    return scalarString(this.value);
+    
+  }
 
   /**
    * if this attribute represents a membership keep that link here

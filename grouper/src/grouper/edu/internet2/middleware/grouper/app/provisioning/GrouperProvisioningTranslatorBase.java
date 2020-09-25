@@ -295,25 +295,25 @@ public class GrouperProvisioningTranslatorBase {
         } else {
           throw new RuntimeException("Invalid groupTargetIdField, expecting id, idIndex, or name");
         }
-        targetGroup.setTargetId(id);
+        
       } else if (!StringUtils.isBlank(groupIdAttribute)) {
         Object idValue = targetGroup.retrieveAttributeValue(groupIdAttribute);
         if (idValue instanceof Collection) {
           throw new RuntimeException("Cant have a multivalued target id attribute: '" + groupIdAttribute + "', " + targetGroup);
         }
         id = idValue;
-        targetGroup.setTargetId(id);
+
       } else if (!StringUtils.isBlank(groupIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetGroup", targetGroup);
         
         id = runScript(groupIdScript, elVariableMap);
 
-        targetGroup.setTargetId(id);
-                
       } else {
         throw new RuntimeException("Must have groupTargetIdField, groupTargetIdAttribute, or groupTargetIdExpression");
       }
+      id = massageToString(id, 2);
+      targetGroup.setTargetId(id);
 
     }
   }
@@ -347,27 +347,53 @@ public class GrouperProvisioningTranslatorBase {
         } else {
           throw new RuntimeException("Invalid entityTargetIdField, expecting id, subjectId, or loginId");
         }
-        targetEntity.setTargetId(id);
       } else if (!StringUtils.isBlank(entityIdAttribute)) {
         Object idValue = targetEntity.retrieveAttributeValue(entityIdAttribute);
         if (idValue instanceof Collection) {
           throw new RuntimeException("Cant have a multivalued target id attribute: '" + entityIdAttribute + "', " + targetEntity);
         }
         id = idValue;
-        targetEntity.setTargetId(id);
       } else if (!StringUtils.isBlank(entityIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetEntity", targetEntity);
         
         id = runScript(entityIdScript, elVariableMap);
-
-        targetEntity.setTargetId(id);
                 
       } else {
         throw new RuntimeException("Must have entityTargetIdField, entityTargetIdAttribute, or entityTargetIdExpression");
       }
 
+      id = massageToString(id, 2);
+      
+      targetEntity.setTargetId(id);
+
+      
     }
+  }
+
+  public Object massageToString(Object id, int timeToLive) {
+    if (timeToLive-- < 0) {
+      throw new RuntimeException("timeToLive expired?????  why????");
+    }
+    if (id == null) {
+      return null;
+    }
+    if (id instanceof String) {
+      return id;
+    }
+    if (id instanceof Number) {
+      return id.toString();
+    }
+    if (id instanceof MultiKey) {
+      MultiKey idMultiKey = (MultiKey)id;
+      Object[] newMultiKey = new Object[idMultiKey.size()];
+      for (int i=0;i<newMultiKey.length;i++) {
+        newMultiKey[i] = massageToString(idMultiKey.getKey(i), timeToLive);
+      }
+      return new MultiKey(newMultiKey);
+    }
+    // uh...
+    throw new RuntimeException("target ids should be string, number, or multikey of string and number! " + id.getClass() + ", " + id);
   }
 
   public void idTargetMemberships(List<ProvisioningMembership> targetMemberships) {
@@ -396,25 +422,24 @@ public class GrouperProvisioningTranslatorBase {
         } else {
           throw new RuntimeException("Invalid membershipTargetIdField, expecting id or 'provisioningGroupId,provisioningMembershipId'");
         }
-        targetMembership.setTargetId(id);
       } else if (!StringUtils.isBlank(membershipIdAttribute)) {
         Object idValue = targetMembership.retrieveAttributeValue(membershipIdAttribute);
         if (idValue instanceof Collection) {
           throw new RuntimeException("Cant have a multivalued target id attribute: '" + membershipIdAttribute + "', " + targetMembership);
         }
         id = idValue;
-        targetMembership.setTargetId(id);
       } else if (!StringUtils.isBlank(membershipIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetMembership", targetMembership);
         
         id = runScript(membershipIdScript, elVariableMap);
 
-        targetMembership.setTargetId(id);
                 
       } else {
         throw new RuntimeException("Must have membershipTargetIdField, membershipTargetIdAttribute, or membershipTargetIdExpression");
       }
+      id = massageToString(id, 2);
+      targetMembership.setTargetId(id);
 
     }
 

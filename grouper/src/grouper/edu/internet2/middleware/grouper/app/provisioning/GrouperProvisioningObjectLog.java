@@ -28,7 +28,10 @@ public class GrouperProvisioningObjectLog {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
-    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId()).append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType()).append("' state '").append(state).append("': ");
+    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId())
+        .append("' state '").append(state)
+        .append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType())
+        .append("': ");
     logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
     if (StringUtils.equals("retrieveDataPass1", state)) {
       appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());

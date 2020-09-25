@@ -525,30 +525,8 @@ public class GrouperProvisioningCompare {
       for (Object groupIdToInsert: groupIdsToInsert) {
         ProvisioningGroup groupToInsert = grouperTargetIdToTargetGroup.get(groupIdToInsert);
         provisioningGroupsToInsert.add(groupToInsert);
-        
-        if (groupToInsert.getId() != null) {
-          groupToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, 
-                  ProvisioningObjectChangeAction.insert, null, groupToInsert.getId()));
-        }
-        if (groupToInsert.getIdIndex() != null) {
-          groupToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "idIndex", null, 
-                  ProvisioningObjectChangeAction.insert, null, groupToInsert.getIdIndex()));
-        }
-        if (groupToInsert.getDisplayName() != null) {
-          groupToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "displayName", null, 
-                  ProvisioningObjectChangeAction.insert, null, groupToInsert.getDisplayName()));
-        }
-        if (groupToInsert.getName() != null) {
-          groupToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "name", null, 
-                  ProvisioningObjectChangeAction.insert, null, groupToInsert.getName()));
-        }
-        
-        compareAttributesForInsert(groupToInsert);
       }
+      addInternalObjectChangeForGroupsToInsert(provisioningGroupsToInsert);
       
       this.grouperProvisioner.retrieveGrouperProvisioningData()
       .getTargetObjectInserts().setProvisioningGroups(provisioningGroupsToInsert);
@@ -628,6 +606,35 @@ public class GrouperProvisioningCompare {
     }
     
     
+  }
+
+
+  public void addInternalObjectChangeForGroupsToInsert(
+      List<ProvisioningGroup> provisioningGroupsToInsert) {
+    for (ProvisioningGroup groupToInsert: provisioningGroupsToInsert) {
+      if (groupToInsert.getId() != null) {
+        groupToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, 
+                ProvisioningObjectChangeAction.insert, null, groupToInsert.getId()));
+      }
+      if (groupToInsert.getIdIndex() != null) {
+        groupToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "idIndex", null, 
+                ProvisioningObjectChangeAction.insert, null, groupToInsert.getIdIndex()));
+      }
+      if (groupToInsert.getDisplayName() != null) {
+        groupToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "displayName", null, 
+                ProvisioningObjectChangeAction.insert, null, groupToInsert.getDisplayName()));
+      }
+      if (groupToInsert.getName() != null) {
+        groupToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "name", null, 
+                ProvisioningObjectChangeAction.insert, null, groupToInsert.getName()));
+      }
+      
+      compareAttributesForInsert(groupToInsert);
+    }
   }
 
 

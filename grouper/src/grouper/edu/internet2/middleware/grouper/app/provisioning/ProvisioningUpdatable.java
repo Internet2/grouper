@@ -382,7 +382,7 @@ public abstract class ProvisioningUpdatable {
         }
 
         ProvisioningAttribute attrValue = this.attributes.get(key);
-        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue == null ? "null" : attrValue.getValue());
+        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue == null ? "null" : attrValue.toString());
         
       }
     }

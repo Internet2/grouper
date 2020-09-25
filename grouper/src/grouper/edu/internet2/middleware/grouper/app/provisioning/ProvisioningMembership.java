@@ -260,6 +260,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
         entity = this.provisioningEntity.getEmail();
       }
       if (StringUtils.isBlank(entity) ) {
+        entity = this.provisioningEntity.getSubjectId();
+      }
+      if (StringUtils.isBlank(entity) ) {
         entity = this.provisioningEntity.getName();
       }
     } 

@@ -224,7 +224,7 @@ public class GrouperProvisioningLogic {
       return;
     }
     // how many do we have 
-    this.grouperProvisioner.getDebugMap().put("missingIncrementalGroupsForCreate", missingGroups);
+    this.grouperProvisioner.getDebugMap().put("missingIncrementalGroupsForCreate", GrouperUtil.length(missingGroups));
     
     // we should clone these since they will be different with insert attributes...
     {
@@ -246,6 +246,9 @@ public class GrouperProvisioningLogic {
 
     // index
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
+    
+    // add object change entries
+    this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroups);
     
     // log this
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("incrementalMissingTargetGroupsForCreate");
