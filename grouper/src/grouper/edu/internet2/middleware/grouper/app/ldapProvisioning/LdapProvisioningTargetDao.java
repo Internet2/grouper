@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
@@ -392,6 +394,88 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
     }
+  }
+  
+  public TargetDaoRetrieveEntitiesResponse retrieveEntities(TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
+
+    List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
+
+    boolean includeAllMembershipsIfApplicable = targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable();
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    String userSearchBaseDn = ldapSyncConfiguration.getUserSearchBaseDn();
+    String userSearchFilter = ldapSyncConfiguration.getUserSearchFilter();
+    if (StringUtils.isEmpty(userSearchFilter)) {
+      throw new RuntimeException("Why is userSearchFilter empty?");
+    }
+    
+    Set<String> userSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    userSearchAttributeNames.addAll(ldapSyncConfiguration.getUserSearchAttributes());
+      
+    Set<String> userAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    if (ldapSyncConfiguration.getUserAttributesMultivalued() != null) {
+      userAttributesMultivalued.addAll(ldapSyncConfiguration.getUserAttributesMultivalued());
+    }
+    
+    userSearchAttributeNames.add("objectClass");
+    userAttributesMultivalued.add("objectClass");
+    
+    if (includeAllMembershipsIfApplicable) {
+      String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
+      
+      if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
+        userSearchAttributeNames.add(userAttributeNameForMemberships);
+        userAttributesMultivalued.add(userAttributeNameForMemberships);
+      }
+    }
+    
+    List<ProvisioningEntity> targetEntities = targetDaoRetrieveEntitiesRequest.getTargetEntities();
+    int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities.size(), batchSize);
+
+    for (int i = 0; i < numberOfBatches; i++) {
+      long startNanos = System.nanoTime();
+
+      try {
+        List<ProvisioningEntity> currentBatchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
+        String filter = "";
+        for (ProvisioningEntity targetEntity : currentBatchTargetEntities) {
+          filter += targetEntity.getSearchFilter();
+        }
+        
+        if (currentBatchTargetEntities.size() > 1) {
+          filter = "(|" + filter + ")";
+        }
+        
+        List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, userSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(userSearchAttributeNames));
+        
+        for (LdapEntry ldapEntry : ldapEntries) {
+          ProvisioningEntity targetEntity = new ProvisioningEntity();
+          targetEntity.setName(ldapEntry.getDn());
+          
+          for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
+            targetEntity.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
+            Object value = null;
+            if (userAttributesMultivalued.contains(ldapAttribute.getName())) {
+              value = new HashSet<Object>(ldapAttribute.getValues());
+            } else if (ldapAttribute.getValues().size() == 1) {
+              value = ldapAttribute.getValues().iterator().next();
+            }
+            
+            targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
+          }
+          
+          targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
+          results.add(targetEntity);
+        }    
+      } finally {
+        this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntities", startNanos));
+      }
+    }
+    
+    return new TargetDaoRetrieveEntitiesResponse(results);
   }
   
   @Override
