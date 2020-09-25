@@ -248,9 +248,11 @@ public class GrouperProvisioningCompare {
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.update, targetValue, grouperValue)
                 );
+          }
+          
             continue;
           }
-          if (grouperCollection == null || targetCollection == null) {
+        
             if (grouperCollection == null) {
               grouperCollection = new HashSet<Object>();
               if (grouperValue != null) {
@@ -264,8 +266,6 @@ public class GrouperProvisioningCompare {
               }
             }
             
-          }
-          
           Collection inserts = new HashSet<Object>(grouperCollection);
           inserts.removeAll(targetCollection);
           
@@ -288,16 +288,14 @@ public class GrouperProvisioningCompare {
   
           }
         }        
-        
-      }
-      
     }
     
     for (String attributeName: targetProvisioningAttributes.keySet()) {
       
       ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
       if (grouperAttribute == null) {
-        Object targetValue = targetProvisioningAttributes.get(attributeName);
+        ProvisioningAttribute targetAttribute = targetProvisioningAttributes.get(attributeName);
+        Object targetValue = targetAttribute == null ? null : targetAttribute.getValue();
         
         if (GrouperUtil.isArrayOrCollection(targetValue)) {
           if (targetValue instanceof Collection) {
