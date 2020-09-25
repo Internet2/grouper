@@ -493,7 +493,20 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getEntitiesRetrieveAll() {
-    return entitiesRetrieveAll;
+    if (this.entitiesRetrieveAll != null) {
+      return entitiesRetrieveAll;
+    }
+    
+    // by default, if we're inserting/updating/deleting entities or there's an entity link, then retrieve all entities?
+    if (this.getEntitiesInsert() == Boolean.TRUE || this.getEntitiesUpdate() == Boolean.TRUE ||
+        this.getEntitiesDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getEntitiesDeleteIfNotInGrouper() == Boolean.TRUE ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2() != null ||
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3() != null) {
+      return true;
+    }
+    return null;
   }
 
   

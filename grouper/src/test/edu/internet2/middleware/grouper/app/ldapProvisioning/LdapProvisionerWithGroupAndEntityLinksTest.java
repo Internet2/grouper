@@ -116,10 +116,19 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
    */
   public void testLdapProvisionerWithGroupAndEntityLinksFull_1() {
     
+    // TODO do these configs need to be dropped from grouper?  they are currently required
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userSearchAttributeName", "bogus");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userSearchAttributeValueFormat", "bogus");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userAttributeReferredToByGroup", "bogus");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberToId2AttributeValueFormat", "bogus");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberToId3AttributeValueFormat", "bogus");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberFromId2AttributeValueFormat", "bogus");
+
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.class", LdapSync.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.ldapExternalSystemConfigId", "personLdap");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.subjectSourcesToProvision", "personLdapSource");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupSearchAttributes", "cn, gidNumber");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userSearchAttributes", "uid");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeNameForMemberships", "description");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupTargetIdExpression", "${targetGroup.retrieveAttributeValueString('gidNumber')}");
