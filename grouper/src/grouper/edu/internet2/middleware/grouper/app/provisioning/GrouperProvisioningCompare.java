@@ -386,31 +386,11 @@ public class GrouperProvisioningCompare {
       
       for (Object entityIdToInsert: entityIdsToInsert) {
         ProvisioningEntity entityToInsert = grouperTargetIdToTargetEntity.get(entityIdToInsert);
-        if (entityToInsert.getId() != null) {
-          entityToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, 
-                  ProvisioningObjectChangeAction.insert, null, entityToInsert.getId()));
-        }
-        if (entityToInsert.getLoginId() != null) {
-          entityToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "loginId", null, 
-                  ProvisioningObjectChangeAction.insert, null, entityToInsert.getLoginId()));
-        }
-        if (entityToInsert.getName() != null) {
-          entityToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "name", null, 
-                  ProvisioningObjectChangeAction.insert, null, entityToInsert.getName()));
-        }
-        if (entityToInsert.getEmail() != null) {
-          entityToInsert.addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "email", null, 
-                  ProvisioningObjectChangeAction.insert, null, entityToInsert.getEmail()));
-        }
-  
-        compareAttributesForInsert(entityToInsert);
-  
         provisioningEntitiesToInsert.add(entityToInsert);
       }
+      
+      addInternalObjectChangeForEntitiesToInsert(provisioningEntitiesToInsert);
+      
       this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().setProvisioningEntities(provisioningEntitiesToInsert);
     
     
@@ -485,6 +465,37 @@ public class GrouperProvisioningCompare {
     }
     
     
+  }
+
+
+  public void addInternalObjectChangeForEntitiesToInsert(
+      List<ProvisioningEntity> provisioningEntitiesToInsert) {
+    for (ProvisioningEntity entityToInsert : provisioningEntitiesToInsert) {
+
+      if (entityToInsert.getId() != null) {
+        entityToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, 
+                ProvisioningObjectChangeAction.insert, null, entityToInsert.getId()));
+      }
+      if (entityToInsert.getLoginId() != null) {
+        entityToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "loginId", null, 
+                ProvisioningObjectChangeAction.insert, null, entityToInsert.getLoginId()));
+      }
+      if (entityToInsert.getName() != null) {
+        entityToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "name", null, 
+                ProvisioningObjectChangeAction.insert, null, entityToInsert.getName()));
+      }
+      if (entityToInsert.getEmail() != null) {
+        entityToInsert.addInternal_objectChange(
+            new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "email", null, 
+                ProvisioningObjectChangeAction.insert, null, entityToInsert.getEmail()));
+      }
+ 
+      compareAttributesForInsert(entityToInsert);
+ 
+    }
   }
 
 

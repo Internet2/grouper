@@ -78,7 +78,7 @@ public class GrouperProvisioningTranslatorBase {
     {
       List<ProvisioningEntity> grouperProvisioningEntities = grouperList.getProvisioningEntities();
       List<ProvisioningEntity> grouperTargetEntities = translateGrouperToTargetEntities(
-          grouperProvisioningEntities, includeDelete);
+          grouperProvisioningEntities, includeDelete, false);
       targetList.setProvisioningEntities(grouperTargetEntities);
     }    
 
@@ -178,11 +178,17 @@ public class GrouperProvisioningTranslatorBase {
   }
 
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
-      List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete) {
+      List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete, boolean forCreate) {
     
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Entity"));
+    
+    if (forCreate) {
+      scripts.addAll(GrouperUtil.nonNull(GrouperUtil.nonNull(
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("EntityCreateOnly")));
+    }
+
     if (GrouperUtil.length(scripts) == 0) {
       return grouperTargetEntities;
     }

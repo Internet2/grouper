@@ -25,11 +25,28 @@ public class GrouperProvisioningBehavior {
   /**
    * If users need to be resolved in the target before provisioning
    */
-  private Boolean hasTargetUserLink = false;
+  private Boolean hasTargetEntityLink = false;
 
   
   
   
+  
+  public Boolean getHasTargetEntityLink() {
+    if (hasTargetEntityLink != null) {
+      return hasTargetEntityLink;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasTargetEntityLink();
+  }
+
+
+
+  
+  public void setHasTargetEntityLink(Boolean hasTargetEntityLink) {
+    this.hasTargetEntityLink = hasTargetEntityLink;
+  }
+
+
+
   public Boolean getHasSubjectLink() {
     if (hasSubjectLink != null) {
       return hasSubjectLink;
@@ -60,19 +77,6 @@ public class GrouperProvisioningBehavior {
 
 
   
-  public Boolean getHasTargetUserLink() {
-    if (hasTargetUserLink != null) {
-      return hasTargetUserLink;
-    }
-    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasTargetUserLink();
-  }
-
-
-  
-  public void setHasTargetUserLink(Boolean hasTargetUserLink) {
-    this.hasTargetUserLink = hasTargetUserLink;
-  }
-
   /**
    * 
    */

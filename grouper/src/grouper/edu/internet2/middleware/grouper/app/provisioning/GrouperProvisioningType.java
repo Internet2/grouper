@@ -109,6 +109,11 @@ public enum GrouperProvisioningType {
     }
 
     @Override
+    public void updateEntityLink(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkFull();
+    }
+
+    @Override
     protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
       // full sync already has all data, dont worry about it
       
@@ -205,6 +210,11 @@ public enum GrouperProvisioningType {
     }
 
     @Override
+    public void updateEntityLink(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkIncremental();
+    }
+
+    @Override
     protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveMissingObjectsIncremental();
     }
@@ -247,6 +257,8 @@ public enum GrouperProvisioningType {
   public abstract void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner);
   
   public abstract void updateGroupLink(GrouperProvisioner grouperProvisioner);
+  
+  public abstract void updateEntityLink(GrouperProvisioner grouperProvisioner);
   
   /**
    * do a case-insensitive matching

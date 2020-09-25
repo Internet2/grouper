@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -1819,6 +1820,18 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
 
+    // add some entities
+    for (int i=0;i<10;i++) {
+      String uuid = GrouperUuid.getUuid();
+      String dn = "dn_test.subject." + i;
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+    }
+    
+    
     //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     

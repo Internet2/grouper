@@ -384,7 +384,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * If users need to be resolved in the target before provisioning
    */
-  private boolean hasTargetUserLink = false;
+  private boolean hasTargetEntityLink = false;
 
   /**
    * userSearchAttributeName employeeID  attribute to filter on  required if userAttributes or hasTargetUserLink
@@ -759,9 +759,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.debugMap.put("hasTargetGroupLink", this.hasTargetGroupLink);
     }
 
-    this.hasTargetUserLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetUserLink", false), false);
-    if (this.hasTargetUserLink) {
-      this.debugMap.put("hasTargetUserLink", this.hasTargetUserLink);
+    this.hasTargetEntityLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetUserLink", false), false);
+    if (this.hasTargetEntityLink) {
+      this.debugMap.put("hasTargetUserLink", this.hasTargetEntityLink);
     }
 
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
@@ -789,7 +789,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     }
     this.debugMap.put("subjectSourcesToProvision", GrouperUtil.join(this.subjectSourcesToProvision.iterator(), ','));
     
-    this.userSearchAttributeName = this.retrieveConfigString("userSearchAttributeName", this.hasTargetUserLink);
+    this.userSearchAttributeName = this.retrieveConfigString("userSearchAttributeName", this.hasTargetEntityLink);
     if (!StringUtils.isBlank(this.userSearchAttributeName)) {
       this.debugMap.put("userSearchAttributeName", this.userSearchAttributeName);
     }
@@ -823,17 +823,17 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
     this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
     
-    this.userAttributeReferredToByGroup = this.retrieveConfigString("userAttributeReferredToByGroup", this.hasTargetUserLink);
+    this.userAttributeReferredToByGroup = this.retrieveConfigString("userAttributeReferredToByGroup", this.hasTargetEntityLink);
     
     this.subjectApiAttributeForTargetUser = this.retrieveConfigString("subjectApiAttributeForTargetUser", this.hasSubjectLink);
 
     this.groupAttributeReferredToByUser = this.retrieveConfigString("groupAttributeReferredToByUser", this.hasTargetGroupLink);
     
-    this.syncMemberToId2AttributeValueFormat = this.retrieveConfigString("syncMemberToId2AttributeValueFormat", this.hasTargetUserLink);
+    this.syncMemberToId2AttributeValueFormat = this.retrieveConfigString("syncMemberToId2AttributeValueFormat", this.hasTargetEntityLink);
 
-    this.syncMemberToId3AttributeValueFormat = this.retrieveConfigString("syncMemberToId3AttributeValueFormat", this.hasTargetUserLink);
+    this.syncMemberToId3AttributeValueFormat = this.retrieveConfigString("syncMemberToId3AttributeValueFormat", this.hasTargetEntityLink);
 
-    this.syncMemberFromId2AttributeValueFormat = this.retrieveConfigString("syncMemberFromId2AttributeValueFormat", this.hasTargetUserLink);
+    this.syncMemberFromId2AttributeValueFormat = this.retrieveConfigString("syncMemberFromId2AttributeValueFormat", this.hasTargetEntityLink);
 
     this.syncMemberFromId3AttributeValueFormat = this.retrieveConfigString("syncMemberFromId3AttributeValueFormat", this.hasSubjectLink);
 
@@ -1122,13 +1122,13 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   
-  public boolean isHasTargetUserLink() {
-    return hasTargetUserLink;
+  public boolean isHasTargetEntityLink() {
+    return hasTargetEntityLink;
   }
 
   
-  public void setHasTargetUserLink(boolean hasTargetUserLink) {
-    this.hasTargetUserLink = hasTargetUserLink;
+  public void setHasTargetEntityLink(boolean hasTargetUserLink) {
+    this.hasTargetEntityLink = hasTargetUserLink;
   }
 
   

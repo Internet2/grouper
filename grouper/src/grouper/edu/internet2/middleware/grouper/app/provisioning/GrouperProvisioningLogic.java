@@ -7,10 +7,12 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
@@ -292,7 +294,104 @@ public class GrouperProvisioningLogic {
   }
 
   public void createMissingEntitiesPass1() {
+    // first lets see if we should even be doing this
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntitiesInsertMissingPass1(), false)) {
+      return;
+    }
+      
+    //do we have missing entities?
+    List<ProvisioningEntity> missingEntities = new ArrayList<ProvisioningEntity>();
     
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningEntities())) {
+      
+      // shouldnt be null at this point
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
+      
+      if (!gcGrouperSyncMember.isProvisionable()) {
+        continue;
+      }
+      
+      ProvisioningEntity targetEntity = provisioningEntity.getProvisioningEntityWrapper().getTargetEntity();
+      
+      if (targetEntity != null) {
+        continue;
+      }
+      
+      if (this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().entityLinkMissing(gcGrouperSyncMember)) {
+        
+        missingEntities.add(provisioningEntity);
+      }
+    }
+
+    if (GrouperUtil.length(missingEntities) == 0) {
+      return;
+    }
+    // how many do we have 
+    this.grouperProvisioner.getDebugMap().put("missingIncrementalEntitiesForCreate", GrouperUtil.length(missingEntities));
+    
+    // we should clone these since they will be different with insert attributes...
+    {
+      List<ProvisioningEntity> newMissingEntities = new ArrayList<ProvisioningEntity>();
+      for (ProvisioningEntity provisioningEntity : missingEntities) {
+        newMissingEntities.add(provisioningEntity.clone());
+      }
+      missingEntities = newMissingEntities;
+    }
+    
+    this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsCreatedPass1().setProvisioningEntities(missingEntities);
+
+    // log this
+    this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("incrementalMissingEntitiesForCreate");
+
+    // translate
+    List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(missingEntities, false, true);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsMissingForCreate().setProvisioningEntities(grouperTargetEntities);
+
+    // index
+    this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(grouperTargetEntities);
+    
+    // add object change entries
+    this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForEntitiesToInsert(grouperTargetEntities);
+    
+    // log this
+    this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("incrementalMissingTargetEntitiesForCreate");
+    
+    //lets create these
+    this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().insertEntities(new TargetDaoInsertEntitiesRequest(grouperTargetEntities));
+        
+    //retrieve so we have a copy
+    TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
+        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntities, false));
+    
+    List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
+    
+    // index
+    this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(targetEntities);
+    
+    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
+
+    this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("incrementalMissingTargetEntitiesCreated");
+
+    Map<Object, ProvisioningEntity> targetIdToGrouperTargetEntity = new HashMap<Object, ProvisioningEntity>();
+    
+    // match these up with retrieved groups
+    List<ProvisioningEntity> grouperProvisioningTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningEntities(), false, true);
+    this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(grouperProvisioningTargetEntities);
+
+    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperProvisioningTargetEntities)) {
+      targetIdToGrouperTargetEntity.put(grouperTargetEntity.getTargetId(), grouperTargetEntity);
+    }
+    
+    // set these in the wrapper so they are linked with grouper group
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      
+      // look up the grouper group that looked this up
+      ProvisioningEntity grouperTargetEntity = targetIdToGrouperTargetEntity.get(targetEntity.getTargetId());
+      
+      // not sure why it wouldnt match or exist...
+      grouperTargetEntity.getProvisioningEntityWrapper().setTargetProvisioningEntity(targetEntity);
+    }
+
   }
 
   public void setupIncrementalGrouperTargetObjectsToRetrieveFromTarget() {
