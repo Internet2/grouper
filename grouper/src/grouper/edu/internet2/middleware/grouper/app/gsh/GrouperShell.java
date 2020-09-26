@@ -106,6 +106,9 @@ public class GrouperShell {
     
     mainLookups.put("-psp",
         "edu.internet2.middleware.psp.PspCLI");
+    
+    mainLookups.put("-pspngattributestoprovisioningattributes",
+        "edu.internet2.middleware.grouper.app.provisioning.PspngToNewProvisioningAttributeConversion");
 
   }
   
@@ -537,6 +540,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.usdu.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.provisioning.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.privs.*;");
@@ -666,7 +670,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
 	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
 	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry | -usdu |"   + GrouperConfig.NL
-	            + "       -findbadmemberships | -ldappc) "
+	            + "       -findbadmemberships | -ldappc | pspngAttributesToProvisioningAttributes) "
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
 	            
@@ -681,6 +685,7 @@ private static boolean handleSpecialCase(String[] args) {
 	             
 	            + "  -usdu,                Invoke USDU - Unresolvable Subject Deletion "   + GrouperConfig.NL
 	            + "                        Utility"                                        + GrouperConfig.NL
+	            + "  -pspngAttributesToProvisioningAttributes Copies pspng attributes to provisioning"  + GrouperConfig.NL
 	           
 	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL
                 + "  -ldappc,              Run the grouper ldap provisioning connector to send data to ldap    "  + GrouperConfig.NL
