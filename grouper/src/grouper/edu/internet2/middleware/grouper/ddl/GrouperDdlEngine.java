@@ -806,7 +806,7 @@ public class GrouperDdlEngine {
           resources.add("ddl/GrouperDdl_" + objectName + "_install_" + scriptOverrideDatabase + ".sql");
           fromVersions.add(0);
           toVersions.add(javaVersion);
-        } else if ("Grouper".equals(objectName) && dbVersion >= 30) {
+        } else if ("Grouper".equals(objectName) && dbVersion >= 29) {
           for (int i=dbVersion;i<javaVersion;i++) {
             resources.add("ddl/GrouperDdl_" + objectName + "_" + i + "_upgradeTo_" + (i+1) 
                 + "_" + scriptOverrideDatabase + ".sql");
@@ -814,7 +814,7 @@ public class GrouperDdlEngine {
             toVersions.add(i+i);
           }
         } else {
-          throw new RuntimeException("Cant start this Grouper version against a database before 2.3.  Upgrade to 2.3 first!");
+          throw new RuntimeException("Cant start this Grouper version against a database before 2.2.1.  Upgrade to 2.2.1 first!");
         }
 
         

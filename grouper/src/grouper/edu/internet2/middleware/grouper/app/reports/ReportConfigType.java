@@ -4,10 +4,19 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
-import java.util.List;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.hibernate.internal.SessionImpl;
 
 
 /**
@@ -23,26 +32,56 @@ public enum ReportConfigType {
      * @return the grouper report data
      */
     public GrouperReportData retrieveReportDataByConfig(GrouperReportConfigurationBean grouperReportConfigurationBean) {
-      
-      GrouperReportData grouperReportData = new GrouperReportData();
 
-      //lets parse the query:
-      String headersString = grouperReportConfigurationBean.getReportConfigQuery();
-      headersString = headersString.substring("select ".length());
-      
-      headersString = headersString.substring(0, headersString.toLowerCase().indexOf(" from "));
-      
-      List<String> headers = GrouperUtil.splitTrimToList(headersString, ",");
-      
-      List<String[]> data = HibernateSession.bySqlStatic().listSelect(String[].class, grouperReportConfigurationBean.getReportConfigQuery(), null, null);
+      GrouperReportData grouperReportData = (GrouperReportData)HibernateSession.callbackHibernateSession(
+              GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
 
-      grouperReportData.setHeaders(headers);
-      grouperReportData.setData(data);
+                  HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+                  PreparedStatement preparedStatement = null;
+                  GrouperReportData grouperReportData = new GrouperReportData();
+                  String sql = grouperReportConfigurationBean.getReportConfigQuery();
+
+                  try {
+                    //we dont close this connection or anything since could be pooled
+                    Connection connection = ((SessionImpl) hibernateSession.getSession()).connection();
+                    preparedStatement = connection.prepareStatement(sql);
+
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+                    // set headers from metadata
+                    int columnCount = resultSetMetaData.getColumnCount();
+                    ArrayList<String> cols = new ArrayList<>();
+                    for (int index = 1; index <= columnCount; index++) {
+                      cols.add(resultSetMetaData.getColumnName(index));
+                    }
+                    grouperReportData.setHeaders(cols);
+
+                    // load rows as list of String[]
+                    ArrayList<String[]> resultList = new ArrayList<>();
+                    while (resultSet.next()) {
+                      String[] row = new String[columnCount];
+                      for (int i = 0; i < columnCount; i++) {
+                        row[i] = resultSet.getString(i + 1);
+                      }
+                      resultList.add(row);
+                    }
+                    grouperReportData.setData(resultList);
+
+                    return grouperReportData;
+                  } catch (Exception e) {
+                    throw new RuntimeException("Problem with query in listSelect: " + sql, e);
+                  } finally {
+                    GrouperUtil.closeQuietly(preparedStatement);
+                  }
+                }
+              });
+
       return grouperReportData;
-      
     }
-    
-
   };
   
   /**
