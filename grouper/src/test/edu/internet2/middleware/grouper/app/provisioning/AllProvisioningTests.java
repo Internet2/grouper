@@ -37,7 +37,6 @@ public class AllProvisioningTests {
     suite.addTestSuite(GrouperProvisioningJobTest.class);
     suite.addTestSuite(GrouperProvisioningServiceTest.class);
     suite.addTestSuite(ProvisionerConfigurationTest.class);
-    suite.addTestSuite(GrouperProvisioningLogicTest.class);
     suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);
     //$JUnit-END$
     return suite;

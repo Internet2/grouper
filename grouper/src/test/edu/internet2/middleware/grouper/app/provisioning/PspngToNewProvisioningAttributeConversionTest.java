@@ -7,7 +7,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -87,7 +86,7 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     
     // now pspng is all setup
     // configure sqlProvTest as a valid target name
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisionerConfiguration.class.getName());
     
     // create two stems and a group that already has the new provisioning attribute with sqlProvTest. They should be deleted in the end.
     Stem stemAlreadyPspngDirect = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test_already_pspng").save();
