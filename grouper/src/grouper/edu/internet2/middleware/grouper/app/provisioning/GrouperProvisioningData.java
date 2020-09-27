@@ -18,7 +18,7 @@ public class GrouperProvisioningData {
   private GrouperProvisioner grouperProvisioner = null;
 
   /**
-   * grouper state of the data
+   * grouper state of the data at first retrieve
    */
   private GrouperProvisioningLists grouperProvisioningObjects = new GrouperProvisioningLists();
 
@@ -30,23 +30,23 @@ public class GrouperProvisioningData {
   /**
    * objects that are in grouper but there is no sync object or there is missing link data
    */
-  private GrouperProvisioningLists grouperProvisioningObjectsCreatedPass1 = new GrouperProvisioningLists();
+  private GrouperProvisioningLists grouperProvisioningObjectsCreated = new GrouperProvisioningLists();
 
   /**
    * objects that are in grouper but there is no sync object or there is missing link data
    * @return
    */
-  public GrouperProvisioningLists getGrouperProvisioningObjectsCreatedPass1() {
-    return grouperProvisioningObjectsCreatedPass1;
+  public GrouperProvisioningLists getGrouperProvisioningObjectsCreated() {
+    return grouperProvisioningObjectsCreated;
   }
 
   /**
    * objects that are in grouper but there is no sync object or there is missing link data
    * @param grouperProvisioningObjectsCreatedPass1
    */
-  public void setGrouperProvisioningObjectsCreatedPass1(
+  public void setGrouperProvisioningObjectsCreated(
       GrouperProvisioningLists grouperProvisioningObjectsCreatedPass1) {
-    this.grouperProvisioningObjectsCreatedPass1 = grouperProvisioningObjectsCreatedPass1;
+    this.grouperProvisioningObjectsCreated = grouperProvisioningObjectsCreatedPass1;
   }
 
   /**
@@ -82,8 +82,14 @@ public class GrouperProvisioningData {
     this.grouperProvisioningObjectsIncludeDeletes = grouperProvisioningObjectsIncludeDeletes;
   }
 
+  /**
+   * target data from first pass data retrieve
+   */
   private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
   
+  /**
+   * normal translation (not for insert)
+   */
   private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
 
   /**
@@ -134,40 +140,17 @@ public class GrouperProvisioningData {
   }
 
   /**
-   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
-   */
-  private GrouperProvisioningLists grouperTargetObjectsMissingforCreate = new GrouperProvisioningLists();
-
-  /**
-   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
-   * @return
-   */
-  public GrouperProvisioningLists getGrouperTargetObjectsMissingForCreate() {
-    return grouperTargetObjectsMissingforCreate;
-  }
-
-  /**
-   * groups that are missing in pass1 which cant be retrieved which are translated to target objects
-   * @param grouperTargetObjectsMissingforCreate
-   */
-  public void setGrouperTargetObjectsMissingforCreate(
-      GrouperProvisioningLists grouperTargetObjectsMissingforCreate) {
-    this.grouperTargetObjectsMissingforCreate = grouperTargetObjectsMissingforCreate;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * insert translation
    */
   private GrouperProvisioningLists grouperTargetObjectsMissing = new GrouperProvisioningLists();
 
   /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
+   * insert translation
    * @return
    */
   public GrouperProvisioningLists getGrouperTargetObjectsMissing() {
     return grouperTargetObjectsMissing;
   }
-
 
   /**
    * in incremental keep track of groups and entities we need to retrieve or create in target before group link
@@ -224,11 +207,11 @@ public class GrouperProvisioningData {
   /**
    * note some entries could be for deleting
    */
-  private Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
+  private Map<Object, ProvisioningGroupWrapper> groupTargetIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
 
-  private Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
+  private Map<Object, ProvisioningEntityWrapper> entityTargetIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
 
-  private Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
+  private Map<Object, ProvisioningMembershipWrapper> membershipTargetIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
   
   private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
 
@@ -313,27 +296,27 @@ public class GrouperProvisioningData {
 
 
 
-  public void setTargetGroupIdToProvisioningGroupWrapper(
+  public void setGroupTargetIdToProvisioningGroupWrapper(
       Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper) {
-    this.targetGroupIdToProvisioningGroupWrapper = targetGroupIdToProvisioningGroupWrapper;
+    this.groupTargetIdToProvisioningGroupWrapper = targetGroupIdToProvisioningGroupWrapper;
   }
 
 
 
 
   
-  public void setTargetEntityIdToProvisioningEntityWrapper(
+  public void setEntityTargetIdToProvisioningEntityWrapper(
       Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper) {
-    this.targetEntityIdToProvisioningEntityWrapper = targetEntityIdToProvisioningEntityWrapper;
+    this.entityTargetIdToProvisioningEntityWrapper = targetEntityIdToProvisioningEntityWrapper;
   }
 
 
 
 
   
-  public void setTargetMembershipIdToProvisioningMembershipWrapper(
+  public void setMembershipTargetIdToProvisioningMembershipWrapper(
       Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper) {
-    this.targetMembershipIdToProvisioningMembershipWrapper = targetMembershipIdToProvisioningMembershipWrapper;
+    this.membershipTargetIdToProvisioningMembershipWrapper = targetMembershipIdToProvisioningMembershipWrapper;
   }
 
 
@@ -343,24 +326,24 @@ public class GrouperProvisioningData {
     return this.getGrouperProvisioner().getGcGrouperSync();
   }
   
-  public Map<Object, ProvisioningGroupWrapper> getTargetGroupIdToProvisioningGroupWrapper() {
-    return targetGroupIdToProvisioningGroupWrapper;
+  public Map<Object, ProvisioningGroupWrapper> getGroupTargetIdToProvisioningGroupWrapper() {
+    return groupTargetIdToProvisioningGroupWrapper;
   }
 
 
 
 
   
-  public Map<Object, ProvisioningEntityWrapper> getTargetEntityIdToProvisioningEntityWrapper() {
-    return targetEntityIdToProvisioningEntityWrapper;
+  public Map<Object, ProvisioningEntityWrapper> getEntityTargetIdToProvisioningEntityWrapper() {
+    return entityTargetIdToProvisioningEntityWrapper;
   }
 
 
 
 
   
-  public Map<Object, ProvisioningMembershipWrapper> getTargetMembershipIdToProvisioningMembershipWrapper() {
-    return targetMembershipIdToProvisioningMembershipWrapper;
+  public Map<Object, ProvisioningMembershipWrapper> getMembershipTargetIdToProvisioningMembershipWrapper() {
+    return membershipTargetIdToProvisioningMembershipWrapper;
   }
 
 
@@ -392,7 +375,7 @@ public class GrouperProvisioningData {
   }
 
   /**
-   * grouper state of the data
+   * grouper state of the data at first retrieve
    * @return
    */
   public GrouperProvisioningLists getGrouperProvisioningObjects() {
@@ -427,7 +410,7 @@ public class GrouperProvisioningData {
 
 
   /**
-   * grouper state of the data
+   * grouper state of the data at first retrieve
    * @param grouperProvisioningObjects
    */
   public void setGrouperProvisioningObjects(
@@ -445,12 +428,18 @@ public class GrouperProvisioningData {
     this.grouperTargetObjects = grouperCommonObjects;
   }
 
-  
+  /**
+   * target data from first pass data retrieve
+   * @return
+   */
   public GrouperProvisioningLists getTargetProvisioningObjects() {
     return targetProvisioningObjects;
   }
 
-  
+  /**
+   * target data from first pass data retrieve
+   * @param targetProvisioningObjects
+   */
   public void setTargetProvisioningObjects(
       GrouperProvisioningLists targetProvisioningObjects) {
     this.targetProvisioningObjects = targetProvisioningObjects;

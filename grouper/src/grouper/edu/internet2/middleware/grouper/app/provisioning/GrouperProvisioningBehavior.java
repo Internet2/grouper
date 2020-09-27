@@ -112,11 +112,6 @@ public class GrouperProvisioningBehavior {
   /**
    * 
    */
-  private Boolean groupsInsertMissingPass1;
-
-  /**
-   * 
-   */
   private Boolean entitiesInsertMissingPass1;
 
   
@@ -143,27 +138,7 @@ public class GrouperProvisioningBehavior {
 
 
 
-  public Boolean getGroupsInsertMissingPass1() {
-    if (groupsRetrieveMissingIncremental != null) {
-      return groupsRetrieveMissingIncremental;
-    }
-
-    if (GrouperUtil.booleanValue(this.getGroupsInsert(), false)) {
-      return true;
-    }
-    
-    return null;
-  }
-
-
-
   
-  public void setGroupsInsertMissingPass1(Boolean groupsInsertMissingPass1) {
-    this.groupsInsertMissingPass1 = groupsInsertMissingPass1;
-  }
-
-
-
   /**
    * 
    * @return

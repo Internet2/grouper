@@ -14,9 +14,6 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisionerGrouperDao {
 
@@ -561,9 +558,9 @@ public class GrouperProvisionerGrouperDao {
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
-
+      grouperProvisioningEntity.setSubjectId(subjectId);
+      //TODO do something with email?
       grouperProvisioningEntity.assignAttributeValue("description", description);
-      grouperProvisioningEntity.assignAttributeValue("subjectId", subjectId);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
       
       results.add(grouperProvisioningEntity);
@@ -623,8 +620,8 @@ public class GrouperProvisionerGrouperDao {
     
     return results;
   }
-
-  public void retrieveGrouperData(GrouperProvisioningType grouperProvisioningType) {
+  
+  public void retrieveGrouperDataFull() {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     GrouperProvisioningLists grouperProvisioningObjects = 
@@ -632,19 +629,50 @@ public class GrouperProvisionerGrouperDao {
     
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningGroups(grouperProvisioningType.retrieveGrouperGroups(this.grouperProvisioner));
+      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(true, null));
       debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
     }
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningEntities(grouperProvisioningType.retrieveGrouperMembers(this.grouperProvisioner));
+      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(true, null));
       debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
     }
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningMemberships(grouperProvisioningType.retrieveGrouperMemberships(this.grouperProvisioner));
+      grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(true, null, null, null));
+      debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
+      debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
+    }
+    
+  }
+
+  
+  public void retrieveGrouperDataIncremental() {
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+
+    GrouperProvisioningLists grouperProvisioningObjects = 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects();
+    
+    {
+      long start = System.currentTimeMillis();
+      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly()));
+      debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
+      debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
+    }
+    {
+      long start = System.currentTimeMillis();
+      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly()));
+      debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
+      debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
+    }
+    {
+      long start = System.currentTimeMillis();
+      grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(false, 
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()));
       debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
     }

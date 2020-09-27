@@ -45,65 +45,6 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveDataPass1(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
-    }
-
-    @Override
-    public Map<String, GcGrouperSyncGroup> retrieveSyncGroups(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncGroups();
-    }
-
-    @Override
-    public Map<String, GcGrouperSyncMember> retrieveSyncMembers(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncMembers();
-    }
-
-    @Override
-    public Map<MultiKey, GcGrouperSyncMembership> retrieveSyncMemberships(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveAllSyncMemberships();
-    }
-
-    @Override
-    public List<ProvisioningGroup> retrieveGrouperGroups(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(true, null);
-    }
-
-    @Override
-    public List<ProvisioningEntity> retrieveGrouperMembers(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(true, null);
-    }
-
-    @Override
-    public List<ProvisioningMembership> retrieveGrouperMemberships(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(true, null, null, null);
-    }
-
-    @Override
-    protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
-      // we already got all data
-      
-    }
-    
-    /**
-     * 
-     */
-    @Override
-    public void setupClonesOfGroupProvisioningObjects(
-        GrouperProvisioner grouperProvisioner) {
-      // full sync doesnt need to clone, it just retrieves all
-    }
-
-    @Override
-    public void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner) {
-      // full sync doesnt need to look at sync objects to know what to delete, its all in the full sync
-      
-    }
-
-    @Override
     public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
     }
@@ -114,9 +55,8 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
-      // full sync already has all data, dont worry about it
-      
+    protected void provision(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().provisionFull();
     }
     
   },
@@ -143,68 +83,6 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveDataPass1(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalDataPass1();
-    }
-
-    @Override
-    protected void retrieveDataPass2(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalGrouperTargetObjectsToRetrieveFromTarget();
-      TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
-        = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(grouperProvisioner.retrieveGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest());
-      if (targetDaoRetrieveIncrementalDataResponse != null) {
-        grouperProvisioner.retrieveGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
-      }
-    }
-
-    @Override
-    public Map<String, GcGrouperSyncGroup> retrieveSyncGroups(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncGroups();
-    }
-
-    @Override
-    public Map<String, GcGrouperSyncMember> retrieveSyncMembers(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncMembers();
-    }
-
-    @Override
-    public Map<MultiKey, GcGrouperSyncMembership> retrieveSyncMemberships(GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperSyncDao().retrieveIncrementalSyncMemberships();
-    }
-    
-    @Override
-    public List<ProvisioningGroup> retrieveGrouperGroups(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly());
-    }
-
-    @Override
-    public List<ProvisioningEntity> retrieveGrouperMembers(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly());
-    }
-
-    @Override
-    public List<ProvisioningMembership> retrieveGrouperMemberships(
-        GrouperProvisioner grouperProvisioner) {
-      return grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, 
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
-    }
-
-    @Override
-    public void setupClonesOfGroupProvisioningObjects(
-        GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().setupIncrementalClonesOfGroupProvisioningObjects();
-    }
-
-    @Override
-    public void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().calculateProvisioningDataToDelete(); 
-    }
-
-    @Override
     public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkIncremental();
     }
@@ -215,8 +93,9 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    protected void retrieveMissingObjects(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveMissingObjectsIncremental();
+    protected void provision(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningLogic().provisionIncremental();
+      
     }
 
   };
@@ -240,22 +119,6 @@ public enum GrouperProvisioningType {
   public abstract boolean isIncrementalSync();
 
  
-  public abstract Map<String, GcGrouperSyncGroup> retrieveSyncGroups(GrouperProvisioner grouperProvisioner);
-
-  public abstract Map<String, GcGrouperSyncMember> retrieveSyncMembers(GrouperProvisioner grouperProvisioner);
-
-  public abstract Map<MultiKey, GcGrouperSyncMembership> retrieveSyncMemberships(GrouperProvisioner grouperProvisioner);
-
-  public abstract List<ProvisioningGroup> retrieveGrouperGroups(GrouperProvisioner grouperProvisioner);
-
-  public abstract List<ProvisioningEntity> retrieveGrouperMembers(GrouperProvisioner grouperProvisioner);
-
-  public abstract List<ProvisioningMembership> retrieveGrouperMemberships(GrouperProvisioner grouperProvisioner);
-
-  public abstract void setupClonesOfGroupProvisioningObjects(GrouperProvisioner grouperProvisioner);
-
-  public abstract void calculateProvisioningDataToDelete(GrouperProvisioner grouperProvisioner);
-  
   public abstract void updateGroupLink(GrouperProvisioner grouperProvisioner);
   
   public abstract void updateEntityLink(GrouperProvisioner grouperProvisioner);
@@ -271,16 +134,5 @@ public enum GrouperProvisioningType {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperProvisioningType.class, string, exceptionOnNull);
   }
 
-  /**
-   * 
-   * @param grouperProvisioner
-   */
-  protected abstract void retrieveDataPass1(GrouperProvisioner grouperProvisioner);
-  /**
-   * 
-   * @param grouperProvisioner
-   */
-  protected abstract void retrieveDataPass2(GrouperProvisioner grouperProvisioner);
-
-  protected abstract void retrieveMissingObjects(GrouperProvisioner grouperProvisioner);
+  protected abstract void provision(GrouperProvisioner grouperProvisioner);
 }

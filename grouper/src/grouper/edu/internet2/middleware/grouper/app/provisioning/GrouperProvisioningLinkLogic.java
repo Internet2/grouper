@@ -162,6 +162,7 @@ public class GrouperProvisioningLinkLogic {
   }
 
   /**
+   * put target data in the sync objects
    */
   public void retrieveTargetGroupLink() {
     this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().updateGroupLink(this.grouperProvisioner);
@@ -387,6 +388,39 @@ public class GrouperProvisioningLinkLogic {
       return;
     }
     // TODO retrieve entities and updateEntityLink(gcGrouperSyncMembersToRefreshEntityLink);
+  }
+
+  /**
+   * 
+   * @param gcGrouperSyncMember
+   * @return
+   */
+  public boolean subjectLinkMissing(GcGrouperSyncMember gcGrouperSyncMember) {
+    
+    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getHasSubjectLink(), false)) {
+      return false;
+    }
+  
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String subjectLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId2();
+    boolean hasSubjectLinkMemberFromId2 = !StringUtils.isBlank(subjectLinkMemberFromId2);
+    
+    String subjectLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId3();
+    boolean hasSubjectLinkMemberFromId3 = !StringUtils.isBlank(subjectLinkMemberFromId3);
+  
+    String subjectLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId2();
+    boolean hasSubjectLinkMemberToId2 = !StringUtils.isBlank(subjectLinkMemberToId2);
+  
+    String subjectLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId3();
+    boolean hasSubjectLinkMemberToId3 = !StringUtils.isBlank(subjectLinkMemberToId3);
+  
+    boolean needsRefresh = false;
+    needsRefresh = needsRefresh || (hasSubjectLinkMemberFromId2 && StringUtils.isBlank(gcGrouperSyncMember.getMemberFromId2()));
+    needsRefresh = needsRefresh || (hasSubjectLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncMember.getMemberFromId3()));
+    needsRefresh = needsRefresh || (hasSubjectLinkMemberToId2 && StringUtils.isBlank(gcGrouperSyncMember.getMemberToId2()));
+    needsRefresh = needsRefresh || (hasSubjectLinkMemberToId3 && StringUtils.isBlank(gcGrouperSyncMember.getMemberToId3()));
+    return needsRefresh;
+  
   }
 
 }

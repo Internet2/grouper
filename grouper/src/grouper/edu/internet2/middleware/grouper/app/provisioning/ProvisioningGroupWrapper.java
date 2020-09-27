@@ -9,14 +9,6 @@ public class ProvisioningGroupWrapper {
     super();
   }
 
-  /**
-   * get grouper target group if its there, if not, get target provisioning group
-   * @return the target group
-   */
-  public ProvisioningGroup getTargetGroup() {
-    return GrouperUtil.defaultIfNull(this.grouperTargetGroup, this.targetProvisioningGroup);
-  }
-  
   private GrouperProvisioner grouperProvisioner;
   
   
