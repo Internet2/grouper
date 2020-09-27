@@ -1,12 +1,10 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.IOUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -14,100 +12,66 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapProvisionerTestUtils {
   
+  public static void main(String args[]) throws Exception {
+    stopAndRemoveLdapContainer();
+    startLdapContainer();
+  }
+  
   private static String dockerPath = null;
 
   public static void stopAndRemoveLdapContainer() {
+
+    String dockerProcesses = new CommandLineExec().assignCommand(getDockerPath() + " ps -a")
+        .assignErrorOnNonZero(true).execute().getStdout().getAllLines();
     
-    Process pDockerList = null;
-    Process pDockerStop = null;
-    Process pDockerRm = null;
-    
-    try {
-      pDockerList = new ProcessBuilder(getDockerPath(), "ps", "-a").start();
-      pDockerList.waitFor();
-      
-      if (pDockerList.exitValue() != 0) {
-        throw new RuntimeException("Failed to list containers: " + IOUtils.toString(pDockerList.getErrorStream(), "UTF-8"));
-      }
-      
-      String dockerContainersString = IOUtils.toString(pDockerList.getInputStream(), "UTF-8");
-      if (dockerContainersString.contains("openldap-dinkel-grouper")) {
-        pDockerStop = new ProcessBuilder(getDockerPath(), "stop", "openldap-dinkel-grouper").start();
-        pDockerStop.waitFor();
-        
-        if (pDockerStop.exitValue() != 0) {
-          throw new RuntimeException("Failed to stop container: " + IOUtils.toString(pDockerStop.getErrorStream(), "UTF-8"));
-        }
-        
-        pDockerRm = new ProcessBuilder(getDockerPath(), "rm", "openldap-dinkel-grouper").start();
-        pDockerRm.waitFor();
-        
-        if (pDockerRm.exitValue() != 0) {
-          throw new RuntimeException("Failed to delete container: " + IOUtils.toString(pDockerRm.getErrorStream(), "UTF-8"));
-        } 
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+    if (dockerProcesses.contains("openldap-dinkel-grouper")) {
+
+      new CommandLineExec().assignCommand(getDockerPath() + " stop openldap-dinkel-grouper")
+          .assignErrorOnNonZero(true).execute();
+
+      new CommandLineExec().assignCommand(getDockerPath() + " rm openldap-dinkel-grouper")
+        .assignErrorOnNonZero(true).execute();
     }
   }
   
   public static void startLdapContainer() {
     
-    Process pDockerList = null;
-    Process pDockerCreateImage = null;
-    Process pDockerRun = null;
+    String dockerImages = new CommandLineExec().assignCommand(getDockerPath() + " images")
+        .assignErrorOnNonZero(true).execute().getStdout().getAllLines();
+
+    if (!dockerImages.contains("openldap-dinkel-grouper")) {
+      
+      new CommandLineExec().assignCommand(getDockerPath() + " build -t openldap-dinkel-grouper '"
+          + GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper'")
+        .assignErrorOnNonZero(true)
+        .execute();
+    }
+
+    new CommandLineExec().assignCommand(getDockerPath() + " run -d -p 389:389 --name openldap-dinkel-grouper --mount type=bind,source='" 
+        + GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper" + File.separator + "ldap-seed-data',target=/etc/ldap/prepopulate "
+            + "-e SLAPD_PASSWORD=secret -e SLAPD_CONFIG_PASSWORD=secret -e SLAPD_DOMAIN=example.edu openldap-dinkel-grouper")
+      .assignErrorOnNonZero(true)
+      .execute();
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.url", "ldap://localhost:389");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.user", "cn=admin,dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.pass", "secret");
+
+    // abstract ldap class logs the errors, so just sleep 10 to wait until testing
+    GrouperUtil.sleep(10000);
     
-    try {
-      pDockerList = new ProcessBuilder(getDockerPath(), "images").start();
-      pDockerList.waitFor();
-      
-      if (pDockerList.exitValue() != 0) {
-        throw new RuntimeException("Failed to list images: " + IOUtils.toString(pDockerList.getErrorStream(), "UTF-8"));
-      }
-      
-      String dockerImagesString = IOUtils.toString(pDockerList.getInputStream(), "UTF-8");
-      if (!dockerImagesString.contains("openldap-dinkel-grouper")) {
-        
-        pDockerCreateImage = new ProcessBuilder(getDockerPath(), "build", "-t", "openldap-dinkel-grouper", GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper").start();
-        pDockerCreateImage.waitFor();
-        
-        if (pDockerCreateImage.exitValue() != 0) {
-          throw new RuntimeException("Failed to create image: " + IOUtils.toString(pDockerCreateImage.getErrorStream(), "UTF-8"));
+    RuntimeException lastException = null;
+    for (int i = 0; i < 20; i++) {
+      try {
+        if (LdapSessionUtils.ldapSession().testConnection("personLdap")) {
+          return;
+        } else {
+          GrouperUtil.sleep(1000);
         }
+      } catch (RuntimeException e) {
+        lastException = e;
+        GrouperUtil.sleep(1000);
       }
-      
-      pDockerRun = new ProcessBuilder(getDockerPath(), "run", "-d", "-p", "389:389", "--name", "openldap-dinkel-grouper", "--mount", "type=bind,source=" + GrouperUtil.getGrouperHome() + File.separator + ".." + File.separator + "grouper-misc" + File.separator + "openldap-dinkel-grouper" + File.separator + "ldap-seed-data,target=/etc/ldap/prepopulate", "-e", "SLAPD_PASSWORD=secret", "-e", "SLAPD_CONFIG_PASSWORD=secret", "-e", "SLAPD_DOMAIN=example.edu", "openldap-dinkel-grouper").start();
-      pDockerRun.waitFor();
-      
-      if (pDockerRun.exitValue() != 0) {
-        throw new RuntimeException("Failed to run container: " + IOUtils.toString(pDockerRun.getErrorStream(), "UTF-8"));
-      }
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.url", "ldap://localhost:389");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.user", "cn=admin,dc=example,dc=edu");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.pass", "secret");
-      
-      RuntimeException lastException = null;;
-      for (int i = 0; i < 20; i++) {
-        try {
-          if (LdapSessionUtils.ldapSession().testConnection("personLdap")) {
-            return;
-          } else {
-            Thread.sleep(1000);
-          }
-        } catch (RuntimeException e) {
-          lastException = e;
-          Thread.sleep(1000);
-        }
-      }
-      
-      throw lastException;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
     }
   }
   
@@ -122,13 +86,13 @@ public class LdapProvisionerTestUtils {
               break;
             } 
           }
+          if (dockerPath == null) {
+            dockerPath = "docker";
+          }
         }
       }
     }
     
-    if (dockerPath == null) {
-      dockerPath = "docker";
-    }
     
     return dockerPath;
   }
