@@ -1752,13 +1752,16 @@ public class SqlProvisionerTest extends GrouperTest {
         "${grouperTargetGroup.assignAttributeValue('dn', gcGrouperSyncGroup.getGroupToId2()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupTargetIdAttribute", "gidNumber");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityTargetIdAttribute", "employeeID");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.scriptCount", "3");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.scriptCount", "4");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.0.script", 
         "${grouperTargetGroup.assignAttributeValue('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.1.script", 
         "${grouperTargetGroup.assignAttributeValue('cn', grouperProvisioningGroup.getName()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.2.script", 
         "${grouperTargetGroup.assignAttributeValue('objectClass', grouperUtil.toSet('group')); }");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.3.script", 
+        "${grouperTargetGroup.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()); }");
+    
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAllFilter", "employeeID=*");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchFilter", "employeeID=${targetEntity.retrieveAttributeValue('employeeID')}");

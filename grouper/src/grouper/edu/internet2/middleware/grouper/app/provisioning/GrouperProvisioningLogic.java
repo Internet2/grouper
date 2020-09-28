@@ -413,7 +413,7 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug("missingTargetGroupsForCreate");
 
     // add object change entries
-    this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(missingGroups);
+    this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroupsToInsert);
     
     //lets create these
     this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().insertGroups(new TargetDaoInsertGroupsRequest(grouperTargetGroupsToInsert));

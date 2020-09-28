@@ -42,7 +42,7 @@ public class GrouperProvisioningObjectLog {
     } else if (StringUtils.equals("missingGroups", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingGroupsForCreate", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsCreated().getProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(logMessage, "Missing groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingTargetGroups", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing target groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingTargetGroupsRetrieved", state)) {
