@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -7,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 /**
  * provisioning log
@@ -37,17 +37,19 @@ public class GrouperProvisioningObjectLog {
     if (StringUtils.equals("retrieveAllDataFromGrouperAndTarget", state)) {
       appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());
       appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
-    } else if (StringUtils.equals("retrieveIncrementalDataFromGrouper", state)) {
+    } else if (StringUtils.equals("targetAttributeManipulation", state)) {
+      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());    
+    } else if (StringUtils.equals("retrieveIncrementalDataFromGrouper", state)) {      
       appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());
     } else if (StringUtils.equals("missingGroups", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingGroupsForCreate", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingTargetGroups", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
+    } else if (StringUtils.equals("missingGrouperTargetGroups", state)) {
+      appendProvisioningObjectsOfType(logMessage, "Missing grouper target groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingTargetGroupsRetrieved", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing target groups retrieved", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingTargetGroupsForCreate", state)) {
+    } else if (StringUtils.equals("missingGrouperTargetGroupsForCreate", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing grouper target groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
     } else if (StringUtils.equals("missingTargetGroupsCreated", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing target groups created", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().getProvisioningGroups(), "groups");
@@ -59,7 +61,7 @@ public class GrouperProvisioningObjectLog {
       appendProvisioningObjectsOfType(logMessage, "Missing target entities", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
     } else if (StringUtils.equals("missingTargetEntitiesRetrieved", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing target entities retrieved", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingTargetEntitiesForCreate", state)) {
+    } else if (StringUtils.equals("missingGrouperTargetEntitiesForCreate", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing grouper target entities for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
     } else if (StringUtils.equals("missingTargetEntitiesCreated", state)) {
       appendProvisioningObjectsOfType(logMessage, "Missing target entities created", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().getProvisioningEntities(), "entities");
@@ -81,11 +83,11 @@ public class GrouperProvisioningObjectLog {
 
       if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
 
-        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups(), "groups");
+        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper().values(), "grouperTargetGroup", "groups");
 
       } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
 
-        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities(), "entities");
+        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities(), "grouperTargetEntity", "entities");
 
       } else {
         appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships(), "memberships");
@@ -167,6 +169,11 @@ public class GrouperProvisioningObjectLog {
 
   private void appendProvisioningObjectsOfType(StringBuilder logMessage, String label,
       List beans, String type) {
+    appendProvisioningObjectsOfType(logMessage, label,
+        beans, null, type);
+  }
+  private void appendProvisioningObjectsOfType(StringBuilder logMessage, String label,
+      Collection beans, String field, String type) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
@@ -178,11 +185,17 @@ public class GrouperProvisioningObjectLog {
     logMessage.append(":\n");
     int objectCount = 0;
     for (Object bean : GrouperUtil.nonNull(beans)) {
-      if (objectCount++ > 10) {
-        logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-        break;
+      if ("grouperTargetGroup".equals(field)) {
+        bean = ((ProvisioningGroupWrapper)bean).getGrouperTargetGroup();
+      } else if ("grouperTargetEntity".equals(field)) {
+        bean = ((ProvisioningEntityWrapper)bean).getGrouperTargetEntity();
+      } else if (field != null) {
+        throw new RuntimeException("Not expecting field '" + field + "'");
       }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
+      if (objectCount++ > 10) {
+        break;
+      }
     }
   }
 

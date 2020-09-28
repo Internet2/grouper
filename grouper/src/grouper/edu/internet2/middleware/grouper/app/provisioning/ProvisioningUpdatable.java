@@ -268,6 +268,22 @@ public abstract class ProvisioningUpdatable {
    * @param name
    * @param value
    */
+  public void removeAttribute(String name) {
+    
+    if (this.attributes == null) {
+      return;
+    }
+
+    if (this.attributes.containsKey(name)) {
+      this.attributes.remove(name);
+    }
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
   public Object retrieveAttributeValue(String name) {
     
     if (this.attributes == null) {

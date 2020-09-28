@@ -141,6 +141,30 @@ public abstract class GrouperProvisioner {
 //  }
   
   
+  private GrouperProvisioningAttributeManipulation grouperProvisioningAttributeManipulation = null;
+
+  /**
+   * return the class of the attribute manipulation
+   */
+  protected Class<GrouperProvisioningAttributeManipulation> grouperProvisioningAttributeManipulationClass() {
+    return GrouperProvisioningAttributeManipulation.class;
+  }
+  
+  /**
+   * return the instance of the attribute manipulation
+   * @return the logic
+   */
+  public GrouperProvisioningAttributeManipulation retrieveGrouperProvisioningAttributeManipulation() {
+    if (this.grouperProvisioningAttributeManipulation == null) {
+      Class<GrouperProvisioningAttributeManipulation> grouperProvisioningLogicClass = this.grouperProvisioningAttributeManipulationClass();
+      this.grouperProvisioningAttributeManipulation = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningAttributeManipulation.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningAttributeManipulation;
+    
+  }
+
+  
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
   
   /**

@@ -28,6 +28,32 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfigurationBase {
 
   /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+  
+  /**
+   * field name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+  
+  /**
+   * field name to config
+   * @return
+   */
+  public Map<String, GrouperProvisioningConfigurationAttribute> getGroupFieldNameToConfig() {
+    return groupFieldNameToConfig;
+  }
+
+  /**
+   * 
+   * @return map
+   */
+  public Map<String, GrouperProvisioningConfigurationAttribute> getGroupAttributeNameToConfig() {
+    return groupAttributeNameToConfig;
+  }
+
+  /**
    * use this attribute as a target id
    */
   private String entityTargetIdAttribute;
@@ -749,6 +775,93 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   public void configureGenericSettings() {
 
+    for (String objectType: new String[] {"groupAttribute", "entityAttribute", "membershipAttribute"}) {
+      for (int i=0; i<= 1000; i++) {
+  
+        GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
+  
+        String name = this.retrieveConfigString("groupAttribute."+i+".name" , false);
+        if (StringUtils.isBlank(name)) {
+          break;
+        }
+        attributeConfig.setName(name);
+  
+        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".fieldOrAttribute" , false), false);
+        attributeConfig.setAttribute(attribute);
+        
+        {
+          boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".insert" , false), false);
+          attributeConfig.setInsert(insert);
+        }
+  
+        {
+          boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".membershipAttribute" , false), false);
+          attributeConfig.setMembershipAttribute(membershipAttribute);
+        }
+  
+        {
+          boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".multiValued" , false), false);
+          attributeConfig.setMultiValued(multiValued);
+        }
+  
+        {
+          boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".select" , false), false);
+          attributeConfig.setSelect(select);
+        }
+        
+        {
+          boolean targetId = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".targetId" , false), false);
+          attributeConfig.setTargetId(targetId);
+        }
+        
+        {
+          String translateExpression = this.retrieveConfigString("groupAttribute."+i+".translateExpression" , false);
+          attributeConfig.setTranslateExpression(translateExpression);
+        }
+        
+        {
+          String translateExpressionCreateOnly = this.retrieveConfigString("groupAttribute."+i+".translateExpressionCreateOnly" , false);
+          attributeConfig.setTranslateExpressionCreateOnly(translateExpressionCreateOnly);
+        }
+        
+        {
+          boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".update" , false), false);
+          attributeConfig.setUpdate(update);
+        }
+        
+        {
+          GrouperProvisioningConfigurationAttributeValueType valueType = 
+              GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
+                  this.retrieveConfigString("groupAttribute."+i+".valueType" , false), false);
+          attributeConfig.setValueType(valueType);
+        }
+        if ("groupAttribute".equals(objectType)) {
+          if (attribute) {
+            groupAttributeNameToConfig.put(name, attributeConfig);
+          } else {
+            groupFieldNameToConfig.put(name, attributeConfig);
+          }
+          
+        } else if ("entityAttribute".equals(objectType)) {
+          if (attribute) {
+            entityAttributeNameToConfig.put(name, attributeConfig);
+          } else {
+            entityFieldNameToConfig.put(name, attributeConfig);
+          }
+          
+        } else if ("membershipAttribute".equals(objectType)) {
+          if (attribute) {
+            membershipAttributeNameToConfig.put(name, attributeConfig);
+          } else {
+            membershipFieldNameToConfig.put(name, attributeConfig);
+          }
+          
+        } else {
+          throw new RuntimeException("Invalid object type: '" + objectType + "'");
+        }
+      }
+    }
+    
     this.hasSubjectLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasSubjectLink", false), false);
     if (this.hasSubjectLink) {
       this.debugMap.put("hasSubjectLink", this.hasSubjectLink);
@@ -994,9 +1107,47 @@ public abstract class GrouperProvisioningConfigurationBase {
   private String groupLinkGroupToId2;
 
   private String groupLinkGroupToId3;
+
+  /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  /**
+   * field name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  /**
+   * field name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
   
   
   
+  public Map<String, GrouperProvisioningConfigurationAttribute> getMembershipAttributeNameToConfig() {
+    return membershipAttributeNameToConfig;
+  }
+
+  
+  public Map<String, GrouperProvisioningConfigurationAttribute> getMembershipFieldNameToConfig() {
+    return membershipFieldNameToConfig;
+  }
+
+  public Map<String, GrouperProvisioningConfigurationAttribute> getEntityAttributeNameToConfig() {
+    return entityAttributeNameToConfig;
+  }
+
+  
+  public Map<String, GrouperProvisioningConfigurationAttribute> getEntityFieldNameToConfig() {
+    return entityFieldNameToConfig;
+  }
+
   public String getGroupLinkGroupFromId2() {
     return groupLinkGroupFromId2;
   }
