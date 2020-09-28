@@ -15,6 +15,23 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class ProvisioningEntity extends ProvisioningUpdatable {
 
   /**
+   * see if this object is empty e.g. after translating if empty then dont keep track of group
+   * since the translation might have affected another object
+   * @return
+   */
+  public boolean isEmpty() {
+    if (StringUtils.isBlank(this.email)
+        && StringUtils.isBlank(this.id)
+        && StringUtils.isBlank(this.name)
+        && StringUtils.isBlank(this.loginId)
+        && StringUtils.isBlank(this.subjectId)
+        && this.isEmptyUpdatable()) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * id uniquely identifies this record, might be a target uuid, or subject id
    */
   private String id;

@@ -3,15 +3,12 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
@@ -157,24 +154,13 @@ public class GrouperProvisioningLinkLogic {
     this.grouperProvisioner.retrieveGrouperSyncDao().updateSubjectLink(gcGrouperSyncMembersToRefreshSubjectLink);
   }
 
-  public void retrieveTargetEntityLink() {
-    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().updateEntityLink(this.grouperProvisioner);
-  }
-
-  /**
-   * put target data in the sync objects
-   */
-  public void retrieveTargetGroupLink() {
-    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().updateGroupLink(this.grouperProvisioner);
-  }
-
   /**
    * update group link for these groups
    * @param gcGrouperSyncGroupsToRefreshGroupLink
    */
-  public void updateGroupLink(List<ProvisioningGroup> targetGroups) {
+  public void updateGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
   
-    if (GrouperUtil.length(targetGroups) == 0) {
+    if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
       return;
     }
     
@@ -198,10 +184,26 @@ public class GrouperProvisioningLinkLogic {
     int groupsCannotFindLinkData = 0;
   
     int groupsCannotFindSyncGroup = 0;
+
+    int targetGroupsForLinkNull = 0;
+
+    int changeCount = 0;
+    
+    List<ProvisioningGroup> changedGroups = new ArrayList<ProvisioningGroup>();
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
   
-    for (ProvisioningGroup targetGroup : targetGroups) {
-  
-      GcGrouperSyncGroup gcGrouperSyncGroup = targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+      boolean hasChange = false;
+      
+      ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      
+      // not sure why this would happen... deleted?
+      if (targetGroup == null) {
+        targetGroupsForLinkNull++;
+        continue;
+      }
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       
       if (gcGrouperSyncGroup == null) {
         groupsCannotFindSyncGroup++;
@@ -213,26 +215,67 @@ public class GrouperProvisioningLinkLogic {
       
       if (hasGroupLinkGroupFromId2) {
         String groupFromId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap);
-        gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
+        if (!StringUtils.equals(groupFromId2Value, gcGrouperSyncGroup.getGroupFromId2())) {
+          gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
+          hasChange = true;
+        }
       }
       
       if (hasGroupLinkGroupFromId3) {
         String groupFromId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap);
-        gcGrouperSyncGroup.setGroupFromId3(groupFromId3Value);
+        if (!StringUtils.equals(groupFromId3Value, gcGrouperSyncGroup.getGroupFromId3())) {
+          gcGrouperSyncGroup.setGroupFromId3(groupFromId3Value);
+          hasChange = true;
+        }
       }
       
       if (hasGroupLinkGroupToId2) {
         String groupToId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap);
-        gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
+        if (!StringUtils.equals(groupToId2Value, gcGrouperSyncGroup.getGroupToId2())) {
+          gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
+          hasChange = true;
+        }
       }
       
       if (hasGroupLinkGroupFromId3) {
         String groupToId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap);
-        gcGrouperSyncGroup.setGroupToId3(groupToId3Value);
+        if (!StringUtils.equals(groupToId3Value, gcGrouperSyncGroup.getGroupToId3())) {
+          gcGrouperSyncGroup.setGroupToId3(groupToId3Value);
+          hasChange = true;
+        }
+      }
+      
+      if (hasChange) {
+        changeCount++;
+        if (provisioningGroupWrapper.getGrouperProvisioningGroup() != null) {
+          changedGroups.add(provisioningGroupWrapper.getGrouperProvisioningGroup());
+        }
+      }
+    }
+
+    if (changedGroups.size() > 0) {
+      // these need to be translated and indexed
+      List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetGroups(changedGroups, false, false);
+      
+      if (GrouperUtil.length(grouperTargetGroups) > 0) {
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfGrouperGroups(grouperTargetGroups);
+        
+        for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {
+          grouperTargetGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
+        }
       }
       
     }
-  
+    
+    if (changeCount > 0) {
+      this.grouperProvisioner.getDebugMap().put("linkGcSyncGroupsUpdated", changeCount);
+    }
+    if (targetGroupsForLinkNull > 0) {
+      this.grouperProvisioner.getDebugMap().put("targetGroupsForLinkNull", targetGroupsForLinkNull);
+    }
     if (groupsCannotFindLinkData > 0) {
       this.grouperProvisioner.getDebugMap().put("groupsCannotFindLinkData", groupsCannotFindLinkData);
     }
@@ -245,7 +288,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateGroupLinkFull() {
     updateGroupLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningGroups()));
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper()).values());
   }
 
   public void updateGroupLinkIncremental() {
@@ -281,22 +324,22 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningEntities()));
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper()).values());
   }
 
   /**
    * update entity link for these entities
    * @param gcGrouperSyncGroupsToRefreshGroupLink
    */
-  public void updateEntityLink(List<ProvisioningEntity> targetEntities) {
+  public void updateEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) {
   
-    if (GrouperUtil.length(targetEntities) == 0) {
+    if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
       return;
     }
     
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
     String entityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2();
-    boolean hasEnityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
+    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
     
     String entityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3();
     boolean hasEnityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3);
@@ -307,7 +350,7 @@ public class GrouperProvisioningLinkLogic {
     String entityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3();
     boolean hasEnityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3);
   
-    if (!hasEnityLinkMemberFromId2 && !hasEnityLinkMemberFromId3 && !hasEnityLinkMemberToId2 && !hasEnityLinkMemberToId3) {
+    if (!hasEntityLinkMemberFromId2 && !hasEnityLinkMemberFromId3 && !hasEnityLinkMemberToId2 && !hasEnityLinkMemberToId3) {
       return;
     }
   
@@ -315,8 +358,24 @@ public class GrouperProvisioningLinkLogic {
   
     int entitiesCannotFindSyncMember = 0;
   
-    for (ProvisioningEntity targetEntity : targetEntities) {
+    int targetEntitiesForLinkNull = 0;
+    
+    int changeCount = 0;
+    
+    List<ProvisioningEntity> changedEntities = new ArrayList<ProvisioningEntity>();
+    
+
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
   
+      boolean hasChange = false;
+
+      ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      
+      if (targetEntity == null) {
+        targetEntitiesForLinkNull++;
+        continue;
+      }
+      
       GcGrouperSyncMember gcGrouperSyncEntity = targetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
       
       if (gcGrouperSyncEntity == null) {
@@ -325,37 +384,77 @@ public class GrouperProvisioningLinkLogic {
       }
   
       Map<String, Object> variableMap = new HashMap<String, Object>();
-      variableMap.put("targetGroup", targetEntity);
+      variableMap.put("targetEntity", targetEntity);
       
-      if (hasEnityLinkMemberFromId2) {
-        String groupFromId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap);
-        gcGrouperSyncEntity.setMemberFromId2(groupFromId2Value);
+      if (hasEntityLinkMemberFromId2) {
+        String entityFromId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap);
+        if (!StringUtils.equals(entityFromId2Value, gcGrouperSyncEntity.getMemberFromId2())) {
+          gcGrouperSyncEntity.setMemberFromId2(entityFromId2Value);
+          hasChange = true;
+        }
       }
       
       if (hasEnityLinkMemberFromId3) {
-        String groupFromId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap);
-        gcGrouperSyncEntity.setMemberFromId3(groupFromId3Value);
+        String entityFromId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap);
+        if (!StringUtils.equals(entityFromId3Value, gcGrouperSyncEntity.getMemberFromId3())) {
+          gcGrouperSyncEntity.setMemberFromId3(entityFromId3Value);
+          hasChange = true;
+        }
       }
       
       if (hasEnityLinkMemberToId2) {
-        String groupToId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap);
-        gcGrouperSyncEntity.setMemberToId2(groupToId2Value);
+        String entityToId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap);
+        if (!StringUtils.equals(entityToId2Value, gcGrouperSyncEntity.getMemberToId2())) {
+          gcGrouperSyncEntity.setMemberToId2(entityToId2Value);
+          hasChange = true;
+        }
       }
       
       if (hasEnityLinkMemberFromId3) {
-        String groupToId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap);
-        gcGrouperSyncEntity.setMemberToId3(groupToId3Value);
+        String entityToId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap);
+        if (!StringUtils.equals(entityToId3Value, gcGrouperSyncEntity.getMemberToId3())) {
+          gcGrouperSyncEntity.setMemberToId3(entityToId3Value);
+          hasChange = true;
+        }
+      }
+      if (hasChange) {
+        changeCount++;
+        if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
+          changedEntities.add(provisioningEntityWrapper.getGrouperProvisioningEntity());
+        }
+      }
+ 
+    }
+    if (changedEntities.size() > 0) {
+      // these need to be translated and indexed
+      List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(changedEntities, false, false);
+      
+      if (GrouperUtil.length(grouperTargetEntities) > 0) {
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfGrouperEntities(grouperTargetEntities);
+        
+        for (ProvisioningEntity grouperTargetEntity : grouperTargetEntities) {
+          grouperTargetEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
+        }
       }
       
     }
-  
+    
+    if (changeCount > 0) {
+      this.grouperProvisioner.getDebugMap().put("linkGcSyncEntitiesUpdated", changeCount);
+    }
+
     if (entitiesCannotFindLinkData > 0) {
       this.grouperProvisioner.getDebugMap().put("entitiesCannotFindLinkData", entitiesCannotFindLinkData);
     }
     if (entitiesCannotFindSyncMember > 0) {
       this.grouperProvisioner.getDebugMap().put("entitiesCannotFindSyncMember", entitiesCannotFindSyncMember);
     }
-    
+    if (targetEntitiesForLinkNull > 0) {
+      this.grouperProvisioner.getDebugMap().put("targetEntitiesForLinkNull", targetEntitiesForLinkNull);
+    }
     
   }
 

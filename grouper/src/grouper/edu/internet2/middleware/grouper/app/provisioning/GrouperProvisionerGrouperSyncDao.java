@@ -35,6 +35,9 @@ public class GrouperProvisionerGrouperSyncDao {
   }
 
 
+  /**
+   * add / update / delete sync objects based on real data
+   */
   public void fixSyncObjects() {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.grouperProvisioner.setProvisioningSyncResult(provisioningSyncResult);

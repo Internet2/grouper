@@ -45,16 +45,6 @@ public enum GrouperProvisioningType {
     }
 
     @Override
-    public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
-    }
-
-    @Override
-    public void updateEntityLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkFull();
-    }
-
-    @Override
     protected void provision(GrouperProvisioner grouperProvisioner) {
       grouperProvisioner.retrieveGrouperProvisioningLogic().provisionFull();
     }
@@ -80,16 +70,6 @@ public enum GrouperProvisioningType {
     @Override
     public boolean isIncrementalSync() {
       return true;
-    }
-
-    @Override
-    public void updateGroupLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkIncremental();
-    }
-
-    @Override
-    public void updateEntityLink(GrouperProvisioner grouperProvisioner) {
-      grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkIncremental();
     }
 
     @Override
@@ -119,10 +99,6 @@ public enum GrouperProvisioningType {
   public abstract boolean isIncrementalSync();
 
  
-  public abstract void updateGroupLink(GrouperProvisioner grouperProvisioner);
-  
-  public abstract void updateEntityLink(GrouperProvisioner grouperProvisioner);
-  
   /**
    * do a case-insensitive matching
    * 

@@ -1759,8 +1759,10 @@ public class SqlProvisionerTest extends GrouperTest {
         "${grouperTargetGroup.assignAttributeValue('cn', grouperProvisioningGroup.getName()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.2.script", 
         "${grouperTargetGroup.assignAttributeValue('objectClass', grouperUtil.toSet('group')); }");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.3.script", 
+//        "${grouperTargetGroup.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()); }");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.3.script", 
-        "${grouperTargetGroup.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()); }");
+        "${grouperTargetGroup.setId(grouperProvisioningGroup.getName()); }");
     
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAllFilter", "employeeID=*");
@@ -1864,8 +1866,12 @@ public class SqlProvisionerTest extends GrouperTest {
       attributesInTable.add(new MultiKey(row));
     }
     
-    assertEquals(3, attributesInTable.size());
-    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
+    assertEquals(6, attributesInTable.size());
+    
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "cn", "test:testGroup")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "gid", testGroup.getIdIndex())));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "objectClass", "group")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.1")));
   }

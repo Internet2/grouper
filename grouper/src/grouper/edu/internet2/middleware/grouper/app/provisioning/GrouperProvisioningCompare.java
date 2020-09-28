@@ -354,26 +354,29 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetEntities(List<ProvisioningEntity> grouperTargetEntities, List<ProvisioningEntity> targetProvisioningEntities) { 
+  protected void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
     
     Map<Object, ProvisioningEntity> grouperTargetIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
     Map<Object, ProvisioningEntity> targetTargetIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
     
     List<ProvisioningEntity> grouperTargetEntitiesWithNullIds = new ArrayList<ProvisioningEntity>();
     
-    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(grouperTargetEntities)) {
-      Object targetId = provisioningEntity.getTargetId();
-      if (targetId != null) {
-        grouperTargetIdToTargetEntity.put(provisioningEntity.getTargetId(), provisioningEntity);
-      } else {
-        grouperTargetEntitiesWithNullIds.add(provisioningEntity);
+    for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
+      
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      
+      Object grouperTargetId = grouperTargetEntity == null ? null : grouperTargetEntity.getTargetId();
+      Object targetTargetId = targetProvisioningEntity == null ? null : targetProvisioningEntity.getTargetId();
+      
+      if (!GrouperUtil.isBlank(grouperTargetId)) {
+        grouperTargetIdToTargetEntity.put(grouperTargetId, grouperTargetEntity);
+      } else if (grouperTargetEntity != null) {
+        grouperTargetEntitiesWithNullIds.add(grouperTargetEntity);
       }
-    }
-    
-    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(targetProvisioningEntities)) {
-      Object targetId = provisioningEntity.getTargetId();
-      if (targetId != null) {
-        targetTargetIdToTargetEntity.put(provisioningEntity.getTargetId(), provisioningEntity);
+
+      if (!GrouperUtil.isBlank(targetTargetId)) {
+        targetTargetIdToTargetEntity.put(targetTargetId, targetProvisioningEntity);
       }
     }
         
@@ -499,7 +502,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetGroups(List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningGroup> targetProvisioningGroups) {
+  protected void compareTargetGroups(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
     
     // groups insert
     Map<Object, ProvisioningGroup> grouperTargetIdToTargetGroup = new HashMap<Object, ProvisioningGroup>();
@@ -507,22 +510,24 @@ public class GrouperProvisioningCompare {
     
     List<ProvisioningGroup> grouperTargetGroupsWithNullIds = new ArrayList<ProvisioningGroup>();
     
-    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(grouperTargetGroups)) {
-      Object targetId = provisioningGroup.getTargetId();
-      if (targetId != null) {
-        grouperTargetIdToTargetGroup.put(provisioningGroup.getTargetId(), provisioningGroup);
-      } else {
-        grouperTargetGroupsWithNullIds.add(provisioningGroup);
+    for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
+          
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      
+      Object grouperTargetId = grouperTargetGroup == null ? null : grouperTargetGroup.getTargetId();
+      Object targetTargetId = targetProvisioningGroup == null ? null : targetProvisioningGroup.getTargetId();
+      
+      if (!GrouperUtil.isBlank(grouperTargetId)) {
+        grouperTargetIdToTargetGroup.put(grouperTargetId, grouperTargetGroup);
+      } else if (grouperTargetGroup != null) {
+        grouperTargetGroupsWithNullIds.add(grouperTargetGroup);
+      }
+
+      if (!GrouperUtil.isBlank(targetTargetId)) {
+        targetTargetIdToTargetGroup.put(targetTargetId, targetProvisioningGroup);
       }
     }
-    
-    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(targetProvisioningGroups)) {
-      Object targetId = provisioningGroup.getTargetId();
-      if (targetId != null) {
-        targetTargetIdToTargetGroup.put(provisioningGroup.getTargetId(), provisioningGroup);
-      }
-    }
-    
     {
       // groups to insert
       Set<Object> groupIdsToInsert = new HashSet<Object>(grouperTargetIdToTargetGroup.keySet());
@@ -646,26 +651,29 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetMemberships(List<ProvisioningMembership> grouperTargetMemberships, List<ProvisioningMembership> targetProvisioningMemberships) { 
+  protected void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
     
     Map<Object, ProvisioningMembership> grouperTargetIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     Map<Object, ProvisioningMembership> targetTargetIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     
     List<ProvisioningMembership> grouperTargetMembershipsWithNullIds = new ArrayList<ProvisioningMembership>();
     
-    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(grouperTargetMemberships)) {
-      Object targetId = provisioningMembership.getTargetId();
-      if (targetId != null) {
-        grouperTargetIdToTargetMembership.put(provisioningMembership.getTargetId(), provisioningMembership);
-      } else {
-        grouperTargetMembershipsWithNullIds.add(provisioningMembership);
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+      
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+      
+      Object grouperTargetId = grouperTargetMembership == null ? null : grouperTargetMembership.getTargetId();
+      Object targetTargetId = targetProvisioningMembership == null ? null : targetProvisioningMembership.getTargetId();
+      
+      if (!GrouperUtil.isBlank(grouperTargetId)) {
+        grouperTargetIdToTargetMembership.put(grouperTargetId, grouperTargetMembership);
+      } else if (grouperTargetMembership != null) {
+        grouperTargetMembershipsWithNullIds.add(grouperTargetMembership);
       }
-    }
-    
-    for (ProvisioningMembership provisioningMembership: GrouperUtil.nonNull(targetProvisioningMemberships)) {
-      Object targetId = provisioningMembership.getTargetId();
-      if (targetId != null) {
-        targetTargetIdToTargetMembership.put(provisioningMembership.getTargetId(), provisioningMembership);
+
+      if (!GrouperUtil.isBlank(targetTargetId)) {
+        targetTargetIdToTargetMembership.put(targetTargetId, targetProvisioningMembership);
       }
     }
     
@@ -761,12 +769,10 @@ public class GrouperProvisioningCompare {
 
 
   protected void compareTargetObjects() {
-    GrouperProvisioningLists grouperTargetObjects = this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects();
-    GrouperProvisioningLists targetProvisioningObjects = this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects();
     
-    compareTargetGroups(grouperTargetObjects.getProvisioningGroups(), targetProvisioningObjects.getProvisioningGroups());
-    compareTargetEntities(grouperTargetObjects.getProvisioningEntities(), targetProvisioningObjects.getProvisioningEntities());
-    compareTargetMemberships(grouperTargetObjects.getProvisioningMemberships(), targetProvisioningObjects.getProvisioningMemberships());
+    compareTargetGroups(grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper().values());
+    compareTargetEntities(grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper().values());
+    compareTargetMemberships(grouperProvisioner.retrieveGrouperProvisioningData().getMembershipTargetIdToProvisioningMembershipWrapper().values());
   
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     

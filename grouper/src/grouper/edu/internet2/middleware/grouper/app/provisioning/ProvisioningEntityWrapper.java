@@ -1,20 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class ProvisioningEntityWrapper {
   
   public ProvisioningEntityWrapper() {
     super();
-  }
-
-  /**
-   * get grouper common entity if its there, if not, get target common entity
-   * @return the common entity
-   */
-  public ProvisioningEntity getTargetEntity() {
-    return GrouperUtil.defaultIfNull(this.grouperTargetEntity, this.targetProvisioningEntity);
   }
 
   private GrouperProvisioner grouperProvisioner;
@@ -89,6 +80,30 @@ public class ProvisioningEntityWrapper {
   public void setGrouperTargetEntityIncludeDelete(
       ProvisioningEntity targetProvisioningEntityIncludeDelete) {
     this.grouperTargetEntityIncludeDelete = targetProvisioningEntityIncludeDelete;
+  }
+
+  /**
+   * grouper provisioning entity translated for create
+   */
+  private ProvisioningEntity grouperTargetEntityForCreate;
+
+  
+  
+  /**
+   * grouper provisioning entity translated for create
+   * @return
+   */
+  public ProvisioningEntity getGrouperTargetEntityForCreate() {
+    return grouperTargetEntityForCreate;
+  }
+
+  /**
+   * grouper provisioning entity translated for create
+   * @param grouperTargetEntityForCreate
+   */
+  public void setGrouperTargetEntityForCreate(
+      ProvisioningEntity grouperTargetEntityForCreate) {
+    this.grouperTargetEntityForCreate = grouperTargetEntityForCreate;
   }
 
   private ProvisioningEntity grouperTargetEntity;

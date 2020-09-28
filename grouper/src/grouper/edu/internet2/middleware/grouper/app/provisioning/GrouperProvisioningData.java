@@ -93,6 +93,19 @@ public class GrouperProvisioningData {
   private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
 
   /**
+   * objects which were changed in link
+   */
+  private GrouperProvisioningLists grouperTargetObjectsChangedInLink = new GrouperProvisioningLists();
+
+  /**
+   * objects which were changed in link
+   * @return
+   */
+  public GrouperProvisioningLists getGrouperTargetObjectsChangedInLink() {
+    return grouperTargetObjectsChangedInLink;
+  }
+
+  /**
    * in incremental keep track of groups and entities we need to retrieve or create in target before group link
    */
   private GrouperProvisioningLists targetProvisioningObjectsMissingCreated = new GrouperProvisioningLists();

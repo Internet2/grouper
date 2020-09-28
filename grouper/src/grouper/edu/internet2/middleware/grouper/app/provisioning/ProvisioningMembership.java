@@ -13,6 +13,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class ProvisioningMembership extends ProvisioningUpdatable {
 
   /**
+   * see if this object is empty e.g. after translating if empty then dont keep track of group
+   * since the translation might have affected another object
+   * @return
+   */
+  public boolean isEmpty() {
+    if (StringUtils.isBlank(this.provisioningEntityId)
+        && StringUtils.isBlank(this.id)
+        && StringUtils.isBlank(this.provisioningGroupId)
+        && this.isEmptyUpdatable()) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * id of membership (optional)
    */
   private String id;

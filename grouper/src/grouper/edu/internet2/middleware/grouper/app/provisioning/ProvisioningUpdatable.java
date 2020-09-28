@@ -21,7 +21,19 @@ public abstract class ProvisioningUpdatable {
    */
   private String searchFilter;
   
-  
+  /**
+   * see if this object is empty e.g. after translating if empty then dont keep track of group
+   * since the translation might have affected another object
+   * @return
+   */
+  protected final boolean isEmptyUpdatable() {
+    if (targetId == null && GrouperUtil.length(this.attributes) == 0) {
+      return true;
+    }
+    return false;
+  }
+
+
   /**
    * 
    * @return
@@ -377,33 +389,48 @@ public abstract class ProvisioningUpdatable {
         
         // dont go crazy here
         if (attrCount++ > 100) {
-          result.append(", Only first 100 attributes displayed");
-          return firstField;
+          result.append(", Only first 100/" + GrouperUtil.length(this.attributes) + " attributes displayed");
+          break;
         }
 
         ProvisioningAttribute attrValue = this.attributes.get(key);
-        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue == null ? "null" : attrValue.toString());
+        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue.getValue());
         
       }
     }
     if (GrouperUtil.length(this.internal_objectChanges) > 0) {
-      for (ProvisioningObjectChangeDataType provisioningObjectChangeDataType : ProvisioningObjectChangeDataType.values()) {
+      int changeCount = 0;
+      
+      for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
         
-        for (ProvisioningObjectChangeAction provisioningObjectAction : ProvisioningObjectChangeAction.values()) {
-        
-          int changeCount = 0;
-          
-          for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
-            
-            if (provisioningObjectChangeDataType == provisioningObjectChange.getProvisioningObjectChangeDataType()
-                && provisioningObjectAction == provisioningObjectChange.getProvisioningObjectChangeAction()) {
-              changeCount++;
-            }
-            
-          }
-          if (changeCount > 0) {
-            firstField = toStringAppendField(result, firstField,provisioningObjectChangeDataType+"s_to_"+provisioningObjectAction, changeCount);
-          }
+        if (changeCount++ > 100) {
+          result.append(", Only first 100/" + GrouperUtil.length(this.internal_objectChanges) + " object changes displayed");
+          break;
+        }
+
+        if (!firstField) {
+          result.append(", ");
+        } else {
+          firstField = false;
+        }
+
+        result.append(provisioningObjectChange.getProvisioningObjectChangeAction()).append(" ");
+        result.append(provisioningObjectChange.getProvisioningObjectChangeDataType()).append(" ");
+        result.append(
+            provisioningObjectChange.getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.field ? 
+                provisioningObjectChange.getFieldName() : provisioningObjectChange.getAttributeName()).append(" ");
+        switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
+          case insert:
+            result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
+            break;
+          case delete:
+            result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
+            break;
+          case update:
+            result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
+            result.append(" -> ");
+            result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
+            break;
         }
       }
     }
@@ -446,12 +473,22 @@ public abstract class ProvisioningUpdatable {
     } else if (fieldValue.getClass().isArray() || fieldValue instanceof Map) {
       result.append(GrouperUtil.toStringForLog(fieldValue, 1000));
     } else {
-      result.append(GrouperUtil.stringValue(fieldValue));
+      result.append(stringValueWithType(fieldValue));
     }
     
     return firstField;
   }
 
+  public static String stringValueWithType(Object value) {
+    if (value == null) {
+      return "<null>";
+    }
+    if (value instanceof String) {
+      return "\"" + value + "\"";
+    }
+    return GrouperUtil.stringValue(value);
+  }
+  
   /**
    * deep clone the fields in this object
    */

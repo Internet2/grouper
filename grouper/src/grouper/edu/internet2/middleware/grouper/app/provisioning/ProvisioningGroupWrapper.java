@@ -85,6 +85,28 @@ public class ProvisioningGroupWrapper {
   private ProvisioningGroup grouperTargetGroup;
 
   /**
+   * translated grouper provisioning group for create
+   */
+  private ProvisioningGroup grouperTargetGroupForCreate;
+
+  /**
+   * translated grouper provisioning group for create
+   * @return
+   */
+  public ProvisioningGroup getGrouperTargetGroupForCreate() {
+    return grouperTargetGroupForCreate;
+  }
+
+  /**
+   * translated grouper provisioning group for create
+   * @param grouperTargetGroupForCreate
+   */
+  public void setGrouperTargetGroupForCreate(
+      ProvisioningGroup grouperTargetGroupForCreate) {
+    this.grouperTargetGroupForCreate = grouperTargetGroupForCreate;
+  }
+
+  /**
    * target state that includes deleted data, which is used to retrieve data from the target
    */
   private ProvisioningGroup grouperTargetGroupIncludeDelete;

@@ -148,4 +148,20 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     }
   }
 
+  /**
+   * see if this object is empty e.g. after translating if empty then dont keep track of group
+   * since the translation might have affected another object
+   * @return
+   */
+  public boolean isEmpty() {
+    if (StringUtils.isBlank(this.displayName)
+        && StringUtils.isBlank(this.id)
+        && this.idIndex == null
+        && StringUtils.isBlank(this.name)
+        && this.isEmptyUpdatable()) {
+      return true;
+    }
+    return false;
+  }
+
 }

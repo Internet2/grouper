@@ -149,7 +149,7 @@ public class GrouperProvisioningTranslatorBase {
       } finally {
         provisioningMembershipWrapperThreadLocal.remove();
       }
-      if (grouperTargetMembership.isRemoveFromList()) {
+      if (grouperTargetMembership.isRemoveFromList() || grouperTargetMembership.isEmpty()) {
         continue;
       }
       if (grouperTargetGroup != null) {
@@ -210,7 +210,7 @@ public class GrouperProvisioningTranslatorBase {
         
       }
 
-      if (grouperTargetEntity.isRemoveFromList()) {
+      if (grouperTargetEntity.isRemoveFromList() || grouperTargetEntity.isEmpty()) {
         continue;
       }
       
@@ -218,6 +218,8 @@ public class GrouperProvisioningTranslatorBase {
       
       if (includeDelete) {
         grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntityIncludeDelete(grouperTargetEntity);
+      } else if (forCreate) {
+        grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntityForCreate(grouperTargetEntity);
       } else {
         grouperProvisioningEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
       }
@@ -257,12 +259,14 @@ public class GrouperProvisioningTranslatorBase {
         
       }
 
-      if (grouperTargetGroup.isRemoveFromList()) {
+      if (grouperTargetGroup.isRemoveFromList() || grouperTargetGroup.isEmpty()) {
         continue;
       }
 
       if (includeDelete) {
         grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroupIncludeDelete(grouperTargetGroup);
+      } else if (forCreate) {
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroupForCreate(grouperTargetGroup);
       } else {
         grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
       }

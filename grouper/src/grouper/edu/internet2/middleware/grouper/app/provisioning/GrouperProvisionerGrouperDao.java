@@ -396,6 +396,9 @@ public class GrouperProvisionerGrouperDao {
     return results;
   }
   
+  /**
+   * add wrappers to grouper data and put in grouper uuid maps
+   */
   public void processWrappers() {
     
     GrouperProvisioningLists grouperProvisioningObjects = 

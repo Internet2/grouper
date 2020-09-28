@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-
 /**
  * how this provisioner interacts with the target.
  * some of these things default to the common configuration
@@ -75,68 +73,10 @@ public class GrouperProvisioningBehavior {
     this.hasTargetGroupLink = hasTargetGroupLink;
   }
 
-
-  
-  /**
-   * 
-   */
-  private Boolean entitiesRetrieveMissingIncremental;
-
-  
-  public Boolean getEntitiesRetrieveMissingIncremental() {
-    if (entitiesRetrieveMissingIncremental != null) {
-      return entitiesRetrieveMissingIncremental;
-    }
-    if (!this.getGrouperProvisioningType().isIncrementalSync()) {
-      return false;
-    }
-    if (this.getEntitiesRetrieve()) {
-      return true;
-    }
-    return null;
-  }
-
-
-
-  
-  public void setEntitiesRetrieveMissingIncremental(
-      Boolean entitiesRetrieveMissingIncremental) {
-    this.entitiesRetrieveMissingIncremental = entitiesRetrieveMissingIncremental;
-  }
-
   /**
    * 
    */
   private Boolean groupsRetrieveMissingIncremental;
-
-  /**
-   * 
-   */
-  private Boolean entitiesInsertMissingPass1;
-
-  
-  
-  public Boolean getEntitiesInsertMissingPass1() {
-    
-    if (entitiesRetrieveMissingIncremental != null) {
-      return entitiesRetrieveMissingIncremental;
-    }
-
-    if (GrouperUtil.booleanValue(this.getEntitiesInsert(), false)) {
-      return true;
-    }
-    
-    return null;
-  }
-
-
-
-  
-  public void setEntitiesInsertMissingPass1(Boolean entitiesInsertMissingPass1) {
-    this.entitiesInsertMissingPass1 = entitiesInsertMissingPass1;
-  }
-
-
 
   
   /**
