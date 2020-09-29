@@ -142,7 +142,7 @@ public class GrouperProvisioningTranslatorBase {
         elVariableMap.put("gcGrouperSyncMembership", grouperProvisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership());
 
         // attribute translations
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameToConfig().values()) {
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
           String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
           boolean hasExpression = !StringUtils.isBlank(expression);
           String expressionToUse = null;
@@ -159,13 +159,13 @@ public class GrouperProvisioningTranslatorBase {
         // field configurations
         grouperTargetMembership.setId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("id"))));
         grouperTargetMembership.setProvisioningEntityId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getProvisioningEntityId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("provisioningEntityId"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("provisioningEntityId"))));
         grouperTargetMembership.setProvisioningGroupId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getProvisioningGroupId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("provisioningGroupId"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("provisioningGroupId"))));
 
         for (String script: scripts) {
 
@@ -215,10 +215,6 @@ public class GrouperProvisioningTranslatorBase {
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("EntityCreateOnly")));
     }
 
-    if (GrouperUtil.length(scripts) == 0) {
-      return grouperTargetEntities;
-    }
- 
     for (ProvisioningEntity grouperProvisioningEntity: GrouperUtil.nonNull(grouperProvisioningEntities)) {
       
       ProvisioningEntity grouperTargetEntity = new ProvisioningEntity();
@@ -231,7 +227,7 @@ public class GrouperProvisioningTranslatorBase {
       elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
 
       // attribute translations
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeNameToConfig().values()) {
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
         String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
         boolean hasExpression = !StringUtils.isBlank(expression);
         String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
@@ -252,16 +248,16 @@ public class GrouperProvisioningTranslatorBase {
       // field configurations
       grouperTargetEntity.setId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("id"))));
       grouperTargetEntity.setName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("name"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("name"))));
       grouperTargetEntity.setEmail(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getEmail(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("email"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("email"))));
       grouperTargetEntity.setLoginId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getLoginId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("loginId"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("loginId"))));
 
       for (String script: scripts) {
                
@@ -298,10 +294,6 @@ public class GrouperProvisioningTranslatorBase {
     }
     List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
 
-    if (GrouperUtil.length(scripts) == 0) {
-      return grouperTargetGroups;
-    }
-    
     for (ProvisioningGroup grouperProvisioningGroup: GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       ProvisioningGroup grouperTargetGroup = new ProvisioningGroup();
@@ -314,7 +306,7 @@ public class GrouperProvisioningTranslatorBase {
       elVariableMap.put("gcGrouperSyncGroup", grouperProvisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup());
 
       // attribute translations
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameToConfig().values()) {
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
         String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
         boolean hasExpression = !StringUtils.isBlank(expression);
         String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
@@ -335,16 +327,16 @@ public class GrouperProvisioningTranslatorBase {
       // field configurations
       grouperTargetGroup.setId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("id"))));
       grouperTargetGroup.setName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("name"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("name"))));
       grouperTargetGroup.setIdIndex(GrouperUtil.longObjectValue(fieldTranslation( 
           grouperTargetGroup.getIdIndex(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("idIndex")), true));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("idIndex")), true));
       grouperTargetGroup.setDisplayName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getDisplayName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("displayName"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("displayName"))));
       
       
       for (String script: scripts) {
@@ -406,6 +398,22 @@ public class GrouperProvisioningTranslatorBase {
     String groupIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdField();
 
     if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute) && StringUtils.isBlank(groupIdField)) {
+      
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          groupIdAttribute = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          groupIdField = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      
+    }
+    if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute) && StringUtils.isBlank(groupIdField)) {
       return;
     }
     
@@ -456,6 +464,23 @@ public class GrouperProvisioningTranslatorBase {
     String entityIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdAttribute();
 
     String entityIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdField();
+
+    if (StringUtils.isBlank(entityIdScript) && StringUtils.isBlank(entityIdAttribute) && StringUtils.isBlank(entityIdField)) {
+      
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          entityIdAttribute = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          entityIdField = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      
+    }
 
     if (StringUtils.isBlank(entityIdScript) && StringUtils.isBlank(entityIdAttribute) && StringUtils.isBlank(entityIdField)) {
       return;
@@ -533,6 +558,23 @@ public class GrouperProvisioningTranslatorBase {
     String membershipIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdAttribute();
 
     String membershipIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdField();
+
+    if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
+      
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          membershipIdAttribute = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().values()) {
+        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+          membershipIdField = grouperProvisioningConfigurationAttribute.getName();
+          break;
+        }
+      }
+      
+    }
 
     if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
       return;

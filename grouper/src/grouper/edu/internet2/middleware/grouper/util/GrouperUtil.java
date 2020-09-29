@@ -5242,7 +5242,7 @@ public class GrouperUtil {
    */
   public static Method getter(Class theClass, String fieldName, boolean callOnSupers,
       boolean throwExceptionIfNotFound) {
-    String getterName = getterNameFromPropertyName(fieldName);
+    String getterName = getterNameFromPropertyName(theClass, fieldName);
     return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
   }
 
@@ -5285,7 +5285,19 @@ public class GrouperUtil {
    * @param propertyName
    * @return the getter
    */
-  public static String getterNameFromPropertyName(String propertyName) {
+  public static String getterNameFromPropertyName(Class theClass, String propertyName) {
+    
+    Set<Field> fields = fields(theClass, null, null, false);
+    for (Field field : nonNull(fields)) {
+      if (propertyName.equals(field.getName())) {
+        if (boolean.class.equals(field.getType())) {
+          return "is" + capitalize(propertyName);
+        }
+        break;
+      }
+    }
+    
+    
     return "get" + capitalize(propertyName);
   }
 
