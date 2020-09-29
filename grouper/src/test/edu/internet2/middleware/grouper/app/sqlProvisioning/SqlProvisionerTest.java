@@ -1814,23 +1814,24 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.multiValued", "true");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.name", "id");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.fieldOrAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.update", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.translateExpressionCreateOnly", "${grouperProvisioningGroup.getName()}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.translateExpression", "${grouperProvisioningGroup.getName()}");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttributeCount", "2");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.name", "dn");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.targetId", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.translateExpression", "${gcGrouperSyncMember.getMemberToId2()}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.name", "employeeID");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.select", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.targetId", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.getSubjectId()}");
     
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
@@ -1939,10 +1940,10 @@ public class SqlProvisionerTest extends GrouperTest {
     
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "cn", "test:testGroup")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu")));
-    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "gid", testGroup.getIdIndex())));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex())));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "objectClass", "group")));
-    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
-    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.1")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.0")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
   }
 
 }

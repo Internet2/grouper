@@ -470,7 +470,8 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
                 GrouperUtil.assertion(!StringUtils.isBlank(provisioningObjectChange.getAttributeName()), "attribute name is null");
                 sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
                 gcDbAccess.sql(sql).addBindVar(groupUuid).addBindVar(provisioningObjectChange.getAttributeName())
-                  .addBindVar(provisioningObjectChange.getNewValue()).executeSql();
+                  // primary key cant be null so do default string
+                  .addBindVar(GrouperUtil.defaultString(GrouperUtil.stringValue(provisioningObjectChange.getNewValue()))).executeSql();
   
                 break;
                                   

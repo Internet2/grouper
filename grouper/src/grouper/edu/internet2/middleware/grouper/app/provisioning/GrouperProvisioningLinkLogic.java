@@ -261,6 +261,12 @@ public class GrouperProvisioningLinkLogic {
         
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
         
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroups(grouperTargetGroups, true, false, false);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
+
+        // index
+        this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
+
         this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfGrouperGroups(grouperTargetGroups);
         
         for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {

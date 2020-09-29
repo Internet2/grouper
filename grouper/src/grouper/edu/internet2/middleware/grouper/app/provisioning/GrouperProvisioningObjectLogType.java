@@ -307,9 +307,10 @@ public enum GrouperProvisioningObjectLogType {
         throw new RuntimeException("Not expecting field '" + field + "'");
       }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-      if (objectCount++ > 10) {
+      if (objectCount >= 10) {
         break;
       }
+      objectCount++;
     }
   }
 
@@ -344,11 +345,11 @@ public enum GrouperProvisioningObjectLogType {
     int objectCount = 0;
     for (Object id : GrouperUtil.nonNull(idToSyncObject).keySet()) {
       Object bean = idToSyncObject.get(id);
-      if (objectCount++ > 10) {
-        logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
+      if (objectCount > 10) {
         break;
       }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
+      objectCount++;
     }
   }
 

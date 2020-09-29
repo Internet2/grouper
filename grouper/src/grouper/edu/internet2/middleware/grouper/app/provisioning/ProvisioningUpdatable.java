@@ -410,7 +410,7 @@ public abstract class ProvisioningUpdatable {
         }
 
         ProvisioningAttribute attrValue = this.attributes.get(key);
-        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue.getValue());
+        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue.getValue(), true);
         
       }
     }
@@ -453,6 +453,12 @@ public abstract class ProvisioningUpdatable {
     return firstField;
   }
   
+  protected boolean toStringAppendField(StringBuilder result, boolean firstField,
+      String fieldName, Object fieldValue) {
+    return toStringAppendField(result, firstField, fieldName, fieldValue, false);
+  }
+
+
   /**
    * 
    * @param result
@@ -461,8 +467,8 @@ public abstract class ProvisioningUpdatable {
    * @param fieldValue
    * @return
    */
-  protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue) {
-    if (fieldValue == null || GrouperUtil.length(fieldValue) == 0) {
+  protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue, boolean appendIfEmpty) {
+    if (!appendIfEmpty && (fieldValue == null || GrouperUtil.length(fieldValue) == 0)) {
       return firstField;
     }
     if (!firstField) {
@@ -470,6 +476,15 @@ public abstract class ProvisioningUpdatable {
     }
     firstField = false;
     result.append(fieldName).append(": ");
+
+    if (fieldValue == null) {
+      result.append("<null>");
+      return firstField;
+    }
+    if (GrouperUtil.length(fieldValue) == 0) {
+      result.append("<empty>");
+      return firstField;
+    }
     
     if (fieldValue instanceof Collection) {
       int resultInitialLength = result.length();

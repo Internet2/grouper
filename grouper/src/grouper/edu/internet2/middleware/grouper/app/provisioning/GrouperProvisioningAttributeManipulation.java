@@ -44,9 +44,7 @@ public class GrouperProvisioningAttributeManipulation {
     
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
-        String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        provisioningGroup.assignAttributeValue(attributeName, 
-            manipulateValue(provisioningGroup.retrieveAttributeValue(attributeName), grouperProvisioningConfigurationAttribute));
+        manipulateValue(provisioningGroup, grouperProvisioningConfigurationAttribute);
       }
     }
   }
@@ -58,9 +56,7 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
-        String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        provisioningEntity.assignAttributeValue(attributeName, 
-            manipulateValue(provisioningEntity.retrieveAttributeValue(attributeName), grouperProvisioningConfigurationAttribute));
+        manipulateValue(provisioningEntity, grouperProvisioningConfigurationAttribute);
       }
     }
   }
@@ -72,21 +68,22 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
-        String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        provisioningMembership.assignAttributeValue(attributeName, 
-            manipulateValue(provisioningMembership.retrieveAttributeValue(attributeName), grouperProvisioningConfigurationAttribute));
+        manipulateValue(provisioningMembership, grouperProvisioningConfigurationAttribute);
       }
     }
   }
 
-  public Object manipulateValue(Object currentValue,
+  public void manipulateValue(ProvisioningUpdatable provisioningUpdatable,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+
+    Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
+    
     if (grouperProvisioningConfigurationAttribute == null || currentValue == null) {
-      return currentValue;
+      return;
     }
     GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
     if (valueType == null) {
-      return currentValue;
+      return;
     }
     
     if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
@@ -111,7 +108,8 @@ public class GrouperProvisioningAttributeManipulation {
         }
         currentValue = newValue;
       }
-      return currentValue;
+      provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), currentValue);
+      return;
     }
     // unwrap collections?
     if (currentValue instanceof Collection) {
@@ -119,7 +117,7 @@ public class GrouperProvisioningAttributeManipulation {
       if (collection.size() == 1) {
         currentValue = collection.iterator().next();
       } else if (collection.size() == 0) {
-        return null;
+        return;
       } else {
         throw new RuntimeException("Attribute should not be a collection: " + grouperProvisioningConfigurationAttribute.getName());
       }
@@ -127,12 +125,12 @@ public class GrouperProvisioningAttributeManipulation {
       if (Array.getLength(currentValue) == 1) {
         currentValue = Array.get(currentValue, 0);
       } else if (Array.getLength(currentValue) == 0) {
-        return null;
+        return;
       } else {
         throw new RuntimeException("Attribute should not be an array: " + grouperProvisioningConfigurationAttribute.getName());
       }
     }
-    return valueType.convert(currentValue);
+    provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), valueType.convert(currentValue));
   }
 
   public void filterForSelect(GrouperProvisioningLists grouperProvisioningLists) {
