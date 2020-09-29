@@ -123,25 +123,51 @@ public class GrouperProvisioningTranslatorBase {
  
       provisioningMembershipWrapperThreadLocal.set(grouperProvisioningMembership.getProvisioningMembershipWrapper());
       try {
-      
+
+        Map<String, Object> elVariableMap = new HashMap<String, Object>();
+        
+        elVariableMap.put("grouperProvisioningGroup", grouperProvisioningMembership.getProvisioningGroup());
+        elVariableMap.put("provisioningGroupWrapper", provisioningGroupWrapper);
+        elVariableMap.put("grouperTargetGroup", grouperTargetGroup);
+        elVariableMap.put("gcGrouperSyncGroup", provisioningGroupWrapper.getGcGrouperSyncGroup());
+ 
+        elVariableMap.put("grouperProvisioningEntity", grouperProvisioningMembership.getProvisioningEntity());
+        elVariableMap.put("provisioningEntityWrapper", provisioningEntityWrapper);
+        elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
+        elVariableMap.put("gcGrouperSyncMember", provisioningEntityWrapper.getGcGrouperSyncMember());
+        
+        elVariableMap.put("grouperProvisioningMembership", grouperProvisioningMembership);
+        elVariableMap.put("provisioningMembershipWrapper", grouperProvisioningMembership.getProvisioningMembershipWrapper());
+        elVariableMap.put("grouperTargetMembership", grouperTargetMembership);
+        elVariableMap.put("gcGrouperSyncMembership", grouperProvisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership());
+
+        // attribute translations
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameToConfig().values()) {
+          String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
+          boolean hasExpression = !StringUtils.isBlank(expression);
+          String expressionToUse = null;
+          if (hasExpression) {
+            expressionToUse = expression;
+          }
+          if (!StringUtils.isBlank(expressionToUse)) {
+            Object result = runScript(expressionToUse, elVariableMap);
+            result = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(result, grouperProvisioningConfigurationAttribute);
+            grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
+          }
+        }
+        
+        // field configurations
+        grouperTargetMembership.setId(GrouperUtil.stringValue(fieldTranslation( 
+            grouperTargetMembership.getId(), elVariableMap, false, 
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+        grouperTargetMembership.setProvisioningEntityId(GrouperUtil.stringValue(fieldTranslation( 
+            grouperTargetMembership.getProvisioningEntityId(), elVariableMap, false, 
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("provisioningEntityId"))));
+        grouperTargetMembership.setProvisioningGroupId(GrouperUtil.stringValue(fieldTranslation( 
+            grouperTargetMembership.getProvisioningGroupId(), elVariableMap, false, 
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("provisioningGroupId"))));
+
         for (String script: scripts) {
-         
-          Map<String, Object> elVariableMap = new HashMap<String, Object>();
-   
-          elVariableMap.put("grouperProvisioningGroup", grouperProvisioningMembership.getProvisioningGroup());
-          elVariableMap.put("provisioningGroupWrapper", provisioningGroupWrapper);
-          elVariableMap.put("grouperTargetGroup", grouperTargetGroup);
-          elVariableMap.put("gcGrouperSyncGroup", provisioningGroupWrapper.getGcGrouperSyncGroup());
-   
-          elVariableMap.put("grouperProvisioningEntity", grouperProvisioningMembership.getProvisioningEntity());
-          elVariableMap.put("provisioningEntityWrapper", provisioningEntityWrapper);
-          elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
-          elVariableMap.put("gcGrouperSyncMember", provisioningEntityWrapper.getGcGrouperSyncMember());
-          
-          elVariableMap.put("grouperProvisioningMembership", grouperProvisioningMembership);
-          elVariableMap.put("provisioningMembershipWrapper", grouperProvisioningMembership.getProvisioningMembershipWrapper());
-          elVariableMap.put("grouperTargetMembership", grouperTargetMembership);
-          elVariableMap.put("gcGrouperSyncMembership", grouperProvisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership());
 
           runScript(script, elVariableMap);
           
@@ -197,15 +223,48 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningEntity grouperTargetEntity = new ProvisioningEntity();
       grouperTargetEntity.setProvisioningEntityWrapper(grouperProvisioningEntity.getProvisioningEntityWrapper());
+
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("grouperProvisioningEntity", grouperProvisioningEntity);
+      elVariableMap.put("provisioningEntityWrapper", grouperProvisioningEntity.getProvisioningEntityWrapper());
+      elVariableMap.put("gcGrouperSyncMember", grouperProvisioningEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember());
+      elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
+
+      // attribute translations
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeNameToConfig().values()) {
+        String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
+        boolean hasExpression = !StringUtils.isBlank(expression);
+        String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
+        boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+        String expressionToUse = null;
+        if (forCreate && hasExpressionCreateOnly) {
+          expressionToUse = expressionCreateOnly;
+        } else if (hasExpression) {
+          expressionToUse = expression;
+        }
+        if (!StringUtils.isBlank(expressionToUse)) {
+          Object result = runScript(expressionToUse, elVariableMap);
+          result = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(result, grouperProvisioningConfigurationAttribute);
+          grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
+        }
+      }
       
+      // field configurations
+      grouperTargetEntity.setId(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetEntity.getId(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+      grouperTargetEntity.setName(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetEntity.getName(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("name"))));
+      grouperTargetEntity.setEmail(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetEntity.getEmail(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("email"))));
+      grouperTargetEntity.setLoginId(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetEntity.getLoginId(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("loginId"))));
+
       for (String script: scripts) {
-       
-        Map<String, Object> elVariableMap = new HashMap<String, Object>();
-        elVariableMap.put("grouperProvisioningEntity", grouperProvisioningEntity);
-        elVariableMap.put("provisioningEntityWrapper", grouperProvisioningEntity.getProvisioningEntityWrapper());
-        elVariableMap.put("gcGrouperSyncMember", grouperProvisioningEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember());
-        elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
-        
+               
         runScript(script, elVariableMap);
         
       }
@@ -247,13 +306,49 @@ public class GrouperProvisioningTranslatorBase {
       
       ProvisioningGroup grouperTargetGroup = new ProvisioningGroup();
       grouperTargetGroup.setProvisioningGroupWrapper(grouperProvisioningGroup.getProvisioningGroupWrapper());
+
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+      elVariableMap.put("provisioningGroupWrapper", grouperProvisioningGroup.getProvisioningGroupWrapper());
+      elVariableMap.put("grouperTargetGroup", grouperTargetGroup);
+      elVariableMap.put("gcGrouperSyncGroup", grouperProvisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup());
+
+      // attribute translations
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameToConfig().values()) {
+        String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
+        boolean hasExpression = !StringUtils.isBlank(expression);
+        String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
+        boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+        String expressionToUse = null;
+        if (forCreate && hasExpressionCreateOnly) {
+          expressionToUse = expressionCreateOnly;
+        } else if (hasExpression) {
+          expressionToUse = expression;
+        }
+        if (!StringUtils.isBlank(expressionToUse)) {
+          Object result = runScript(expressionToUse, elVariableMap);
+          result = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(result, grouperProvisioningConfigurationAttribute);
+          grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
+        }
+      }
+      
+      // field configurations
+      grouperTargetGroup.setId(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetGroup.getId(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("id"))));
+      grouperTargetGroup.setName(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetGroup.getName(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("name"))));
+      grouperTargetGroup.setIdIndex(GrouperUtil.longObjectValue(fieldTranslation( 
+          grouperTargetGroup.getIdIndex(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("idIndex")), true));
+      grouperTargetGroup.setDisplayName(GrouperUtil.stringValue(fieldTranslation( 
+          grouperTargetGroup.getDisplayName(), elVariableMap, forCreate, 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupFieldNameToConfig().get("displayName"))));
+      
+      
       for (String script: scripts) {
 
-        Map<String, Object> elVariableMap = new HashMap<String, Object>();
-        elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
-        elVariableMap.put("provisioningGroupWrapper", grouperProvisioningGroup.getProvisioningGroupWrapper());
-        elVariableMap.put("grouperTargetGroup", grouperTargetGroup);
-        elVariableMap.put("gcGrouperSyncGroup", grouperProvisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup());
         
         runScript(script, elVariableMap);
         
@@ -274,6 +369,28 @@ public class GrouperProvisioningTranslatorBase {
         
     }
     return grouperTargetGroups;
+  }
+
+  public Object fieldTranslation(Object currentValue, Map<String, Object> elVariableMap, boolean forCreate,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return currentValue;
+    }
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
+    boolean hasExpression = !StringUtils.isBlank(expression);
+    String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
+    boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+    String expressionToUse = null;
+    if (forCreate && hasExpressionCreateOnly) {
+      expressionToUse = expressionCreateOnly;
+    } else if (hasExpression) {
+      expressionToUse = expression;
+    }
+    if (!StringUtils.isBlank(expressionToUse)) {
+      Object result = runScript(expressionToUse, elVariableMap);
+      return result;
+    }
+    return currentValue;
   }
 
   public void idTargetGroups(List<ProvisioningGroup> targetGroups) {

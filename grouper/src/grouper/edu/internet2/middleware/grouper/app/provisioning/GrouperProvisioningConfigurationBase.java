@@ -1,13 +1,16 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -677,6 +680,65 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.userSearchFilter = userSearchFilter;
   }
 
+  
+  
+  @Override
+  public String toString() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    GrouperProvisioningConfigurationBase provisionerConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    Set<String> fieldNames = GrouperUtil.fieldNames(provisionerConfiguration.getClass(), 
+        GrouperProvisioningConfigurationBase.class, null, true, false, false);
+    
+    // assume configurations cache stuff in fields.  We can make this more flexible / customizable at some point
+    fieldNames.remove("configId");
+    fieldNames.remove("debugLog");
+    fieldNames.remove("debugMap");
+    fieldNames.remove("grouperProvisioner");
+    
+    
+    fieldNames = new TreeSet<String>(fieldNames);
+    boolean firstField = true;
+    for (String fieldName : fieldNames) {
+      
+      Object value = GrouperUtil.fieldValue(provisionerConfiguration, fieldName);
+      if (!GrouperUtil.isBlank(value)) {
+        
+        if ((value instanceof Collection) && ((Collection)value).size() == 0) {
+          continue;
+        }
+        if ((value instanceof Map) && ((Map)value).size() == 0) {
+          continue;
+        }
+        if ((value.getClass().isArray()) && Array.getLength(value) == 0) {
+          continue;
+        }
+        
+        if ("grouperProvisioningToTargetTranslation".equals(fieldName)) {
+          for (String key : new TreeSet<String>(this.grouperProvisioningToTargetTranslation.keySet())) {
+            List<String> translations = this.grouperProvisioningToTargetTranslation.get(key);
+            for (int i=0;i<translations.size();i++) {
+              if (!firstField) {
+                result.append(", ");
+              }
+              firstField = false;
+              result.append("grouperProvisioningToTargetTranslation").append(key).append(".").append(i).append(".script = '").append(translations.get(i)).append("'");
+            }
+          }
+        } else {
+          if (!firstField) {
+            result.append(", ");
+          }
+          firstField = false;
+          result.append(fieldName).append(" = '").append(GrouperUtil.toStringForLog(value, false)).append("'");
+        }
+      }
+    }
+    
+    return result.toString();
+  }
+
   /**
    * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
    */
@@ -775,7 +837,7 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   public void configureGenericSettings() {
 
-    for (String objectType: new String[] {"groupAttribute", "entityAttribute", "membershipAttribute"}) {
+    for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       for (int i=0; i<= 1000; i++) {
   
         GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
@@ -786,53 +848,53 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         attributeConfig.setName(name);
   
-        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".fieldOrAttribute" , false), false);
+        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".fieldOrAttribute" , false), false);
         attributeConfig.setAttribute(attribute);
         
         {
-          boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".insert" , false), false);
+          boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
           attributeConfig.setInsert(insert);
         }
   
         {
-          boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".membershipAttribute" , false), false);
+          boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
           attributeConfig.setMembershipAttribute(membershipAttribute);
         }
   
         {
-          boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".multiValued" , false), false);
+          boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
           attributeConfig.setMultiValued(multiValued);
         }
   
         {
-          boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".select" , false), false);
+          boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), false);
           attributeConfig.setSelect(select);
         }
         
         {
-          boolean targetId = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".targetId" , false), false);
+          boolean targetId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".targetId" , false), false);
           attributeConfig.setTargetId(targetId);
         }
         
         {
-          String translateExpression = this.retrieveConfigString("groupAttribute."+i+".translateExpression" , false);
+          String translateExpression = this.retrieveConfigString(objectType + "."+i+".translateExpression" , false);
           attributeConfig.setTranslateExpression(translateExpression);
         }
         
         {
-          String translateExpressionCreateOnly = this.retrieveConfigString("groupAttribute."+i+".translateExpressionCreateOnly" , false);
+          String translateExpressionCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateExpressionCreateOnly" , false);
           attributeConfig.setTranslateExpressionCreateOnly(translateExpressionCreateOnly);
         }
         
         {
-          boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttribute."+i+".update" , false), false);
+          boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
           attributeConfig.setUpdate(update);
         }
         
         {
           GrouperProvisioningConfigurationAttributeValueType valueType = 
               GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
-                  this.retrieveConfigString("groupAttribute."+i+".valueType" , false), false);
+                  this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
           attributeConfig.setValueType(valueType);
         }
         if ("groupAttribute".equals(objectType)) {

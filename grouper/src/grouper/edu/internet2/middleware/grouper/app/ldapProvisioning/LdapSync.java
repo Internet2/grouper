@@ -26,17 +26,17 @@ public class LdapSync extends GrouperProvisioner {
   private static final Log LOG = LogFactory.getLog(LdapSync.class);
 
   @Override
-  protected Class<? extends GrouperProvisionerTargetDaoBase> retrieveGrouperTargetDaoClass() {
+  protected Class<? extends GrouperProvisionerTargetDaoBase> grouperTargetDaoClass() {
     return LdapProvisioningTargetDao.class;
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningConfigurationBase> retrieveGrouperProvisioningConfigurationClass() {
+  protected Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass() {
     return LdapSyncConfiguration.class;
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningTranslatorBase> retrieveGrouperTranslatorClass() {
+  protected Class<? extends GrouperProvisioningTranslatorBase> grouperTranslatorClass() {
     return LdapProvisioningTranslator.class;
   }
 

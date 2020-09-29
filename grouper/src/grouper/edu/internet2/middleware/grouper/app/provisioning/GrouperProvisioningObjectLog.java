@@ -1,6 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +17,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperProvisioningObjectLog {
   
-  private StringBuilder objectLog = new StringBuilder();
+  private Map<String, Object> alreadyLogged = new HashMap<String, Object>();
   
   public GrouperProvisioningObjectLog() {
     
@@ -24,93 +27,40 @@ public class GrouperProvisioningObjectLog {
     this.grouperProvisioner = grouperProvisioner;
   }
   
-  public void debug(String state) {
+  public void debug(GrouperProvisioningObjectLogType state) {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
     StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId())
-        .append("' state '").append(state)
+        .append("' (").append(this.grouperProvisioner.getInstanceId()).append(")")
+        .append(" state '").append(state)
         .append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType())
         .append("': ");
-    logMessage.append(GrouperUtil.toStringForLog(this.grouperProvisioner.getDebugMap()));
     
-    if (StringUtils.equals("retrieveAllDataFromGrouperAndTarget", state)) {
-      appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());
-      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
-    } else if (StringUtils.equals("targetAttributeManipulation", state)) {
-      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());    
-    } else if (StringUtils.equals("retrieveIncrementalDataFromGrouper", state)) {      
-      appendProvisioningObjects(logMessage, "Grouper provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjects());
-    } else if (StringUtils.equals("missingGroups", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingGroupsForCreate", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingGrouperTargetGroups", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing grouper target groups", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingTargetGroupsRetrieved", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target groups retrieved", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingGrouperTargetGroupsForCreate", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing grouper target groups for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingTargetGroupsCreated", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target groups created", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().getProvisioningGroups(), "groups");
-    } else if (StringUtils.equals("missingEntities", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing entities", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingEntitiesForCreate", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing entities for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperProvisioningObjectsMissing().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingTargetEntities", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target entities", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingTargetEntitiesRetrieved", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target entities retrieved", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingGrouperTargetEntitiesForCreate", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing grouper target entities for create", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
-    } else if (StringUtils.equals("missingTargetEntitiesCreated", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Missing target entities created", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().getProvisioningEntities(), "entities");
+    Map<String, Object> debugLog = new LinkedHashMap<String, Object>(this.grouperProvisioner.getDebugMap());
+    
+    // remove known things:
+    debugLog.remove("provisionerClass");
+    debugLog.remove("configId");
+    debugLog.remove("provisioningType");
 
-    } else if (StringUtils.equals("linkData", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Grouper target objects changed in link", 
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().getProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(logMessage, "Grouper target objects changed in link", 
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().getProvisioningEntities(), "entities");
-      appendSyncObjects(logMessage, "Sync objects");
-    } else if (StringUtils.equals("retrieveSubjectLink", state)) {
-      appendSyncObjectsOfType(logMessage, "Sync objects", this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember(), "members");
-    } else if (StringUtils.equals("translateGrouperGroupsEntitiesToTarget", state)) {
-      
-      appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities(), "entities");
-      
-    } else if (StringUtils.equals("translateGrouperMembershipsToTarget", state)) {
-
-      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-
-        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper().values(), "grouperTargetGroup", "groups");
-
-      } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-
-        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities(), "grouperTargetEntity", "entities");
-
-      } else {
-        appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships(), "memberships");
+    {
+      // remove things already printed if same value
+      Iterator<String> iterator = debugLog.keySet().iterator();
+      while (iterator.hasNext()) {
+        String key = iterator.next();
+        Object value = debugLog.get(key);
+        Object alreadyLoggedValue = alreadyLogged.get(key);
+        boolean isAlreadyLogged = alreadyLogged.containsKey(key) && GrouperUtil.equals(value, alreadyLoggedValue);
+        if (isAlreadyLogged) {
+          iterator.remove();
+        } else {
+          alreadyLogged.put(key, value);
+        }
       }
-      
-
-    } else if (StringUtils.equals("compareTargetObjects", state)) {
-      appendProvisioningObjects(logMessage, "Target inserts", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts());
-      appendProvisioningObjects(logMessage, "Target updates", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates());
-      appendProvisioningObjects(logMessage, "Target deletes", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes());
-    } else if (StringUtils.equals("targetIdGrouperGroupsEntities", state)) {
-      
-      appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities(), "entities");
-      
-    } else if (StringUtils.equals("targetIdGrouperMemberships", state)) {
-      appendProvisioningObjectsOfType(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships(), "memberships");
-    } else if (StringUtils.equals("targetIdTargetObjects", state)) {
-      appendProvisioningObjects(logMessage, "Target provisioning", this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
-    } else if (StringUtils.equals("targetIdGrouperObjects", state)) {
-      appendProvisioningObjects(logMessage, "Grouper target", this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects());
+      logMessage.append(GrouperUtil.toStringForLog(debugLog));
     }
-    
+    state.logState(this, this.grouperProvisioner, logMessage);
     
     if (logMessage.charAt(logMessage.length()-1) == '\n') {
       logMessage.setLength(logMessage.length() - 1);
@@ -119,83 +69,6 @@ public class GrouperProvisioningObjectLog {
       LOG.debug(logMessage);      
     } else {
       LOG.error(logMessage);
-    }
-  }
-
-  /**
-   * 
-   * @param string
-   * @param grouperProvisioningObjects
-   */
-  private void appendProvisioningObjects(StringBuilder logMessage, String label,
-      GrouperProvisioningLists grouperProvisioningObjects) {
-    appendProvisioningObjectsOfType(logMessage, label, grouperProvisioningObjects.getProvisioningGroups(), "groups");
-    appendProvisioningObjectsOfType(logMessage, label, grouperProvisioningObjects.getProvisioningEntities(), "entities");
-    appendProvisioningObjectsOfType(logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
-  }
-
-  /**
-   * 
-   * @param string
-   * @param grouperProvisioningObjects
-   */
-  private void appendSyncObjects(StringBuilder logMessage, String label) {
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupUuidToSyncGroup(), "groups");
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember(), "members");
-    appendSyncObjectsOfType(logMessage, label, this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership(), "memberships");
-  }
-
-  private void appendSyncObjectsOfType(StringBuilder logMessage, String label,
-      Map idToSyncObject, String type) {
-    if (logMessage.charAt(logMessage.length()-1) != '\n') {
-      logMessage.append("\n");
-    }
-    logMessage.append(label).append(" ").append(type).append(" (")
-      .append(GrouperUtil.length(idToSyncObject)).append(")");
-    if (GrouperUtil.length(idToSyncObject) == 0) {
-      return;
-    }
-    logMessage.append(":\n");
-    int objectCount = 0;
-    for (Object id : GrouperUtil.nonNull(idToSyncObject).keySet()) {
-      Object bean = idToSyncObject.get(id);
-      if (objectCount++ > 10) {
-        logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-        break;
-      }
-      logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-    }
-  }
-
-  private void appendProvisioningObjectsOfType(StringBuilder logMessage, String label,
-      List beans, String type) {
-    appendProvisioningObjectsOfType(logMessage, label,
-        beans, null, type);
-  }
-  private void appendProvisioningObjectsOfType(StringBuilder logMessage, String label,
-      Collection beans, String field, String type) {
-    if (logMessage.charAt(logMessage.length()-1) != '\n') {
-      logMessage.append("\n");
-    }
-    logMessage.append(label).append(" ").append(type).append(" (")
-      .append(GrouperUtil.length(beans)).append(")");
-    if (GrouperUtil.length(beans) == 0) {
-      return;
-    }
-    logMessage.append(":\n");
-    int objectCount = 0;
-    for (Object bean : GrouperUtil.nonNull(beans)) {
-      if ("grouperTargetGroup".equals(field)) {
-        bean = ((ProvisioningGroupWrapper)bean).getGrouperTargetGroup();
-      } else if ("grouperTargetEntity".equals(field)) {
-        bean = ((ProvisioningEntityWrapper)bean).getGrouperTargetEntity();
-      } else if (field != null) {
-        throw new RuntimeException("Not expecting field '" + field + "'");
-      }
-      logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-      if (objectCount++ > 10) {
-        break;
-      }
     }
   }
 

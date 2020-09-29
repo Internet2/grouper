@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 public class SqlProvisioner extends GrouperProvisioner {
 
   @Override
-  protected Class<? extends GrouperProvisionerTargetDaoBase> retrieveGrouperTargetDaoClass() {
+  protected Class<? extends GrouperProvisionerTargetDaoBase> grouperTargetDaoClass() {
     if (!this.retrieveGrouperProvisioningConfiguration().isConfigured()) {
       throw new RuntimeException("Why is provisioner not configured???");
     }
@@ -26,7 +26,7 @@ public class SqlProvisioner extends GrouperProvisioner {
   }
   
   @Override
-  protected Class<? extends GrouperProvisioningConfigurationBase> retrieveGrouperProvisioningConfigurationClass() {
+  protected Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass() {
     return SqlProvisioningConfiguration.class;
   }
 

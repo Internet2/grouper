@@ -2025,7 +2025,7 @@ public class GrouperUtil {
    * need to abbreviate when back
    * @param result is where to append to
    */
-  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result, boolean newLines) {
 
     try {
       if (object == null) {
@@ -2039,7 +2039,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(Array.get(object, i), maxChars)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2056,7 +2056,7 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(collectionObject, maxChars)).append("\n");
+                toStringForLog(collectionObject, maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2180,7 +2180,19 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
+    return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, boolean newLines) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result, newLines);
     return result.toString();
   }
 
@@ -2193,7 +2205,7 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object, int maxChars) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
     String resultString = result.toString();
     if (maxChars != -1) {
       return abbreviate(resultString, maxChars);
