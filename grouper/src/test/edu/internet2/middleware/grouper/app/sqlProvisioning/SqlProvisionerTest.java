@@ -1774,7 +1774,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttributeCount", "6");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.name", "cn");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.fieldOrAttribute", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.multiValued", "false");
@@ -1782,7 +1782,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.translateExpressionCreateOnly", "${grouperProvisioningGroup.getName()}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.name", "dn");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.fieldOrAttribute", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.select", "true");
@@ -1791,7 +1791,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.translateExpressionCreateOnly", "${'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.name", "gidNumber");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.fieldOrAttribute", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.valueType", "long");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.select", "true");
@@ -1800,7 +1800,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.translateExpression", "${grouperProvisioningGroup.getIdIndex()}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.name", "objectClass");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.fieldOrAttribute", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.multiValued", "true");
@@ -1814,7 +1814,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.multiValued", "true");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.name", "id");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.fieldOrAttribute", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.update", "true");

@@ -898,7 +898,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         attributeConfig.setName(name);
   
-        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".fieldOrAttribute" , false), false);
+        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false), false);
         attributeConfig.setAttribute(attribute);
         
         {
