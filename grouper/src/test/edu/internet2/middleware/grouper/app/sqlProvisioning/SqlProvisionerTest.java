@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1809,7 +1810,9 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.name", "member");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.select", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.update", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.delete", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.membershipAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.multiValued", "true");
 
@@ -1944,6 +1947,27 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "objectClass", "group")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.0")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
+    
+    //object changes
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningMemberships()));
+    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningMemberships()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningMemberships()));
+    
+    // field changes
+    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges()));
+    List<ProvisioningObjectChange> provisioningObjectChanges = new ArrayList<ProvisioningObjectChange>(
+        grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges());
+    assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(0).getProvisioningObjectChangeAction());
+    assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
+    assertEquals("member", provisioningObjectChanges.get(0).getAttributeName());
+    assertEquals("member", provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
+
   }
 
 }

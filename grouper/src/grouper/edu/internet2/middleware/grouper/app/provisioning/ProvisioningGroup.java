@@ -164,4 +164,19 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return false;
   }
 
+  @Override
+  public boolean canInsertAttribute(String name) {
+    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupInsertAttribute(name);
+  }
+
+  @Override
+  public boolean canUpdateAttribute(String name) {
+    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupUpdateAttribute(name);
+  }
+
+  @Override
+  public boolean canDeleteAttrbute(String name) {
+    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupDeleteAttribute(name);
+  }
+
 }

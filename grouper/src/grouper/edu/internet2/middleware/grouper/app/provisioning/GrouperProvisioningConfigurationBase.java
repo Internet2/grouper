@@ -907,6 +907,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
   
         {
+          boolean delete = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".delete" , false), false);
+          attributeConfig.setDelete(delete);
+        }
+  
+        {
           boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
           if (membershipAttribute) {
             if (foundMembershipAttribute) {

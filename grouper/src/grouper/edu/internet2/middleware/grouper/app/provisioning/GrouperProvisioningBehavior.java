@@ -33,8 +33,102 @@ public class GrouperProvisioningBehavior {
   private Boolean hasTargetEntityLink = false;
 
   
+  public boolean canGroupInsertField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canGroupInsertAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canGroupUpdateField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canGroupUpdateAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canGroupDeleteField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+  public boolean canGroupDeleteAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+
+
   
+  public boolean canEntityInsertField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canEntityInsertAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canEntityUpdateField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canEntityUpdateAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canEntityDeleteField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+  public boolean canEntityDeleteAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+
   
+  public boolean canMembershipInsertField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canMembershipInsertAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isInsert();
+  }
+  public boolean canMembershipUpdateField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canMembershipUpdateAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isUpdate();
+  }
+  public boolean canMembershipDeleteField(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+  public boolean canMembershipDeleteAttribute(String name) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().get(name);
+    return grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isDelete();
+  }
+
   
   public Boolean getHasTargetEntityLink() {
     if (hasTargetEntityLink != null) {

@@ -309,4 +309,19 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     return provisioningMembership;
   }
 
+  @Override
+  public boolean canInsertAttribute(String name) {
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipInsertAttribute(name);
+  }
+
+  @Override
+  public boolean canUpdateAttribute(String name) {
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipUpdateAttribute(name);
+  }
+
+  @Override
+  public boolean canDeleteAttrbute(String name) {
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipDeleteAttribute(name);
+  }
+
 }

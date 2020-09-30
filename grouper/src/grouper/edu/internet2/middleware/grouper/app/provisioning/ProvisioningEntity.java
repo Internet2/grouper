@@ -189,4 +189,19 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     }
   }
 
+  @Override
+  public boolean canInsertAttribute(String name) {
+    return this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canEntityInsertAttribute(name);
+  }
+
+  @Override
+  public boolean canUpdateAttribute(String name) {
+    return this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canEntityUpdateAttribute(name);
+  }
+
+  @Override
+  public boolean canDeleteAttrbute(String name) {
+    return this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canEntityDeleteAttribute(name);
+  }
+
 }

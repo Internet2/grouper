@@ -16,6 +16,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  public abstract boolean canInsertAttribute(String name);
+  public abstract boolean canUpdateAttribute(String name);
+  public abstract boolean canDeleteAttrbute(String name);
+  
   /**
    * if searching for this object, this is the search filter, translated and ready to use
    */

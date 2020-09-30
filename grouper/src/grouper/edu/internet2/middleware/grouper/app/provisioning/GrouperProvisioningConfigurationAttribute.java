@@ -69,6 +69,27 @@ public class GrouperProvisioningConfigurationAttribute {
   private boolean insert;
   
   /**
+   * delete this attribute
+   */
+  private boolean delete;
+  
+  /**
+   * delete this attribute
+   * @return
+   */
+  public boolean isDelete() {
+    return delete;
+  }
+
+  /**
+   * delete this attribute
+   * @param delete
+   */
+  public void setDelete(boolean delete) {
+    this.delete = delete;
+  }
+
+  /**
    * select this attribute for normal selects
    */
   private boolean select;
