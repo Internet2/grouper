@@ -39,9 +39,9 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected ProvisioningObjectChangeAction attributeChangeType(Object first, Object second) {
-    if (first == null) return ProvisioningObjectChangeAction.insert;
-    if (second == null) return ProvisioningObjectChangeAction.delete;
+  protected ProvisioningObjectChangeAction attributeChangeType(Object old, Object theNew) {
+    if (old == null) return ProvisioningObjectChangeAction.insert;
+    if (theNew == null) return ProvisioningObjectChangeAction.delete;
     return ProvisioningObjectChangeAction.update;
   }
 
@@ -348,7 +348,7 @@ public class GrouperProvisioningCompare {
           grouperTargetUpdatable);
       grouperTargetUpdatable.addInternal_objectChange(
           new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, fieldName, null, 
-              attributeChangeType(grouperValue, targetValue), targetValue, grouperValue)
+              attributeChangeType(targetValue, grouperValue), targetValue, grouperValue)
           );
     }
   }

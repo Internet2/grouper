@@ -216,7 +216,7 @@ public class GrouperProvisioningAttributeManipulation {
   private Object filterField(Object value,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
     if (value == null || grouperProvisioningConfigurationAttribute == null) {
-      return null;
+      return value;
     }
     if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
         || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
