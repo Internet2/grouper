@@ -2013,18 +2013,14 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertTrue(started < gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
-    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
     assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
     assertNull(gcGrouperSyncGroup.getGroupFromId2());
     assertNull(gcGrouperSyncGroup.getGroupFromId3());
     assertNull(gcGrouperSyncGroup.getGroupToId3());
-    assertTrue(started < gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
-    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
+    assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
-    assertTrue(started < gcGrouperSyncGroup.getLastGroupSync().getTime());
-    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupSync().getTime());
+    assertNull(gcGrouperSyncGroup.getLastGroupSync());
 
   }
 

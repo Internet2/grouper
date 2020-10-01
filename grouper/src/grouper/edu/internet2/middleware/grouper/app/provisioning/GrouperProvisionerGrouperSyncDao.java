@@ -407,7 +407,7 @@ public class GrouperProvisionerGrouperSyncDao {
         gcGrouperSyncGroup.setInTarget(true);
         gcGrouperSyncGroup.setInTargetStart(nowTimestamp);
         gcGrouperSyncGroup.setInTargetInsertOrExists(true);
-        gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
+        //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
         gcGrouperSyncGroup.setErrorMessage(null);
         gcGrouperSyncGroup.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -423,7 +423,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
+              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
             }
           }
         }
@@ -462,7 +462,10 @@ public class GrouperProvisionerGrouperSyncDao {
     if (targetObjectDeletes == null) {
       return;
     }
-    
+    processResultsDeleteGroups(targetObjectDeletes.getProvisioningGroups(), true);
+    processResultsDeleteEntities(targetObjectDeletes.getProvisioningEntities(), true);
+    processResultsDeleteMemberships(targetObjectDeletes.getProvisioningMemberships());
+
   }
 
 
@@ -483,7 +486,7 @@ public class GrouperProvisionerGrouperSyncDao {
         gcGrouperSyncMember.setInTarget(true);
         gcGrouperSyncMember.setInTargetStart(nowTimestamp);
         gcGrouperSyncMember.setInTargetInsertOrExists(true);
-        gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
+        //gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
         gcGrouperSyncMember.setErrorMessage(null);
         gcGrouperSyncMember.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -499,7 +502,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
             }
           }
         }
@@ -550,7 +553,7 @@ public class GrouperProvisionerGrouperSyncDao {
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetEntity.getException() == null && GrouperUtil.booleanValue(grouperTargetEntity.getProvisioned(), false)) {
-        gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
+        //gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
         gcGrouperSyncMember.setErrorMessage(null);
         gcGrouperSyncMember.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -566,7 +569,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
             }
           }
         }
@@ -592,7 +595,7 @@ public class GrouperProvisionerGrouperSyncDao {
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetGroup.getException() == null && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
-        gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
+        //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
         gcGrouperSyncGroup.setErrorMessage(null);
         gcGrouperSyncGroup.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -608,7 +611,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
+              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
             }
           }
         }
@@ -658,7 +661,7 @@ public class GrouperProvisionerGrouperSyncDao {
       if (grouperTargetEntity.getException() == null && GrouperUtil.booleanValue(grouperTargetEntity.getProvisioned(), false)) {
         gcGrouperSyncMember.setInTarget(false);
         gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
-        gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
+        //gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
         gcGrouperSyncMember.setErrorMessage(null);
         gcGrouperSyncMember.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -674,7 +677,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
             }
           }
         }
@@ -702,7 +705,7 @@ public class GrouperProvisionerGrouperSyncDao {
       if (grouperTargetGroup.getException() == null && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
         gcGrouperSyncGroup.setInTarget(false);
         gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);
-        gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
+        //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
         gcGrouperSyncGroup.setErrorMessage(null);
         gcGrouperSyncGroup.setErrorTimestamp(null);
         if (includeMembershipsIfApplicable) {
@@ -718,7 +721,7 @@ public class GrouperProvisionerGrouperSyncDao {
               }
             }
             if (fullSyncSuccess) {
-              gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
+              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
             }
           }
         }
