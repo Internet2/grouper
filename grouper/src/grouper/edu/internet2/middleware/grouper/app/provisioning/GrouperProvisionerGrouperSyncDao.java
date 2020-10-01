@@ -415,17 +415,9 @@ public class GrouperProvisionerGrouperSyncDao {
           //see if all attributes were synced
           if (GrouperProvisioningBehaviorMembershipType.groupAttributes 
               == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetGroup.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
-              }
-            }
-            if (fullSyncSuccess) {
-              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
-            }
+
+            processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
+                grouperTargetGroup);
           }
         }
       } else {
@@ -494,17 +486,9 @@ public class GrouperProvisionerGrouperSyncDao {
           //see if all attributes were synced
           if (GrouperProvisioningBehaviorMembershipType.entityAttributes 
               == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
-              }
-            }
-            if (fullSyncSuccess) {
-              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
-            }
+
+            processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
+                grouperTargetEntity);
           }
         }
       } else {
@@ -561,17 +545,9 @@ public class GrouperProvisionerGrouperSyncDao {
           //see if all attributes were synced
           if (GrouperProvisioningBehaviorMembershipType.entityAttributes 
               == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
-              }
-            }
-            if (fullSyncSuccess) {
-              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
-            }
+
+            processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
+                grouperTargetEntity);
           }
         }
       } else {
@@ -589,11 +565,12 @@ public class GrouperProvisionerGrouperSyncDao {
    * @param grouperTargetGroupsToInsert
    */
   public void processResultsUpdateGroupsFull(List<ProvisioningGroup> grouperTargetGroupsToInsert, boolean includeMembershipsIfApplicable) {
-    
+
+    Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
-      Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetGroup.getException() == null && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
         //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
@@ -603,22 +580,62 @@ public class GrouperProvisionerGrouperSyncDao {
           //see if all attributes were synced
           if (GrouperProvisioningBehaviorMembershipType.groupAttributes 
               == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetGroup.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
-              }
-            }
-            if (fullSyncSuccess) {
-              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
-            }
+
+            processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
+                grouperTargetGroup);
           }
         }
       } else {
         gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+      }
+    }
+  }
+
+
+  public void processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(Timestamp nowTimestamp,
+      ProvisioningUpdatable provisioningUpdatable) {
+    boolean fullSyncSuccess = true;
+    // see if all attributes were processed
+    for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(provisioningUpdatable.getInternal_objectChanges())) {
+      if (provisioningObjectChange.getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute) {
+        if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
+          fullSyncSuccess = false;
+          break;
+        }
+        
+      }
+    }
+    if (fullSyncSuccess) {
+      //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
+    }
+    // see if all attributes were processed
+    for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(provisioningUpdatable.getInternal_objectChanges())) {
+      if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
+        continue;
+      }
+      if (provisioningObjectChange.getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute) {
+        ProvisioningAttribute provisioningAttribute = provisioningUpdatable.getAttributes().get(provisioningObjectChange.getAttributeName());
+        Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+        if (valueToProvisioningMembershipWrapper != null) {
+          if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getNewValue());
+            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
+            gcGrouperSyncMembership.setErrorMessage(null);
+            gcGrouperSyncMembership.setErrorTimestamp(null);
+            gcGrouperSyncMembership.setInTarget(true);
+            gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
+            gcGrouperSyncMembership.setInTargetInsertOrExists(true);
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
+            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
+            gcGrouperSyncMembership.setErrorMessage(null);
+            gcGrouperSyncMembership.setErrorTimestamp(null);
+            gcGrouperSyncMembership.setInTarget(false);
+            gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+          }
+        }
+        
       }
     }
   }
