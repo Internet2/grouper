@@ -90,62 +90,67 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       }
       //TODO batch there
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-  
-        switch (provisioningObjectChange.getProvisioningObjectChangeDataType()) {
-          case field:
-            throw new RuntimeException("Not implemented");
-          case attribute:
-            
-            switch (provisioningObjectChange.getProvisioningObjectChangeAction()) {
+        try {
+          switch (provisioningObjectChange.getProvisioningObjectChangeDataType()) {
+            case field:
+              throw new RuntimeException("Not implemented");
+            case attribute:
               
-              case insert:
+              switch (provisioningObjectChange.getProvisioningObjectChangeAction()) {
                 
-                GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+                case insert:
+                  
+                  GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+                  
+                  String sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
+                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
+                    .addBindVar(provisioningObjectChange.getNewValue()).executeSql();
+    
+                  break;
+                  
+                  
+                case delete:
+    
+                  gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+                  
+                  sql = "delete from " + groupAttributeTableName + " where " + groupAttributeTableForeignKeyToGroup + " = ? and "
+                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
+                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
+                    .addBindVar(provisioningObjectChange.getOldValue()).executeSql();
+    
+                  break;
+                  
+                case update:
+    
+                  gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+                  
+                  sql = "update " + groupAttributeTableName + " set " + groupAttributeTableAttributeValueColumn 
+                      + " = ? where " + groupAttributeTableForeignKeyToGroup + " = ? and "
+                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
+                  gcDbAccess.sql(sql).addBindVar(provisioningObjectChange.getNewValue())
+                    .addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName()).addBindVar(provisioningObjectChange.getOldValue())
+                    .executeSql();
+    
+                  break;
+                  
+                default:
+                  throw new RuntimeException("Not implemented");
                 
-                String sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
-                gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
-                  .addBindVar(provisioningObjectChange.getNewValue()).executeSql();
-  
-                break;
                 
                 
-              case delete:
-  
-                gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-                
-                sql = "delete from " + groupAttributeTableName + " where " + groupAttributeTableForeignKeyToGroup + " = ? and "
-                    + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
-                gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
-                  .addBindVar(provisioningObjectChange.getOldValue()).executeSql();
-  
-                break;
-                
-              case update:
-  
-                gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-                
-                sql = "update " + groupAttributeTableName + " set " + groupAttributeTableAttributeValueColumn 
-                    + " = ? where " + groupAttributeTableForeignKeyToGroup + " = ? and "
-                    + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
-                gcDbAccess.sql(sql).addBindVar(provisioningObjectChange.getNewValue())
-                  .addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName()).addBindVar(provisioningObjectChange.getOldValue())
-                  .executeSql();
-  
-                break;
-                
-              default:
-                throw new RuntimeException("Not implemented");
+              }
+              
+              break;
+            default:
+              throw new RuntimeException("Not implemented");
               
               
               
-            }
-            
-            break;
-          default:
-            throw new RuntimeException("Not implemented");
-            
-            
-            
+          }
+          provisioningObjectChange.setProvisioned(true);
+        } catch (RuntimeException re) {
+          provisioningObjectChange.setException(re);
+          throw re;
         }
       }
       targetGroup.setProvisioned(true);
@@ -203,6 +208,9 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         
       });
       targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
     }
@@ -489,6 +497,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
             
             
         }
+        provisioningObjectChange.setProvisioned(true);
       }
       targetGroup.setProvisioned(true);
     } finally {

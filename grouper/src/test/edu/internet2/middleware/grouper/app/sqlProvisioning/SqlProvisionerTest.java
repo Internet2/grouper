@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -1997,6 +1998,34 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncJob.getErrorMessage());
     assertNull(gcGrouperSyncJob.getErrorTimestamp());
     
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+    assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncGroup.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncGroup.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertTrue(started < gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
+    assertNull(gcGrouperSyncGroup.getGroupFromId2());
+    assertNull(gcGrouperSyncGroup.getGroupFromId3());
+    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertTrue(started < gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupMetadataSync().getTime());
+    assertNull(gcGrouperSyncGroup.getErrorMessage());
+    assertNull(gcGrouperSyncGroup.getErrorTimestamp());
+    assertTrue(started < gcGrouperSyncGroup.getLastGroupSync().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastGroupSync().getTime());
+
   }
 
 }

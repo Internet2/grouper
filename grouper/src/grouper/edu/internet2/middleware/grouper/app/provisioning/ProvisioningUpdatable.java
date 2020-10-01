@@ -207,14 +207,27 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValueForMembership(String name, Object value) {
     this.addAttributeValue(name, value);
-    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    
     ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslatorBase.retrieveProvisioningMembershipWrapper();
+    
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
     }
-    provisioningAttribute.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
+    
+    // keep track of membership this attribute value represents
+    ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+    
+    Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+    
+    if (valueToProvisioningMembershipWrapper == null) {
+      valueToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
+      provisioningAttribute.setValueToProvisioningMembershipWrapper(valueToProvisioningMembershipWrapper);
+    }
+
+    valueToProvisioningMembershipWrapper.put(value, provisioningMembershipWrapper);
+
   }
-  
+
   /**
    * this is a multivalued attribute using sets
    * @param name

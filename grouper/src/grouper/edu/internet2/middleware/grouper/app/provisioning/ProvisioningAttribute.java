@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,26 +68,30 @@ public class ProvisioningAttribute {
   }
 
   /**
-   * if this attribute represents a membership keep that link here
+   * if this attribute is multivalued and represents a membership, this map links a value with a specific membership
+   * so it can be logged and tracked
    */
-  private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+  private Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = null;
   
-
+  
+  
   /**
-   * if this attribute represents a membership keep that link here
-   * @return
+   * if this attribute is multivalued and represents a membership, this map links a value with a specific membership
+   * so it can be logged and tracked
+   * @return the map
    */
-  public ProvisioningMembershipWrapper getProvisioningMembershipWrapper() {
-    return provisioningMembershipWrapper;
+  public Map<Object, ProvisioningMembershipWrapper> getValueToProvisioningMembershipWrapper() {
+    return valueToProvisioningMembershipWrapper;
   }
 
   /**
-   * if this attribute represents a membership keep that link here
-   * @param provisioningMembershipWrapper
+   * if this attribute is multivalued and represents a membership, this map links a value with a specific membership
+   * so it can be logged and tracked
+   * @param valueToProvisioningMembershipWrapper
    */
-  public void setProvisioningMembershipWrapper(
-      ProvisioningMembershipWrapper provisioningMembershipWrapper) {
-    this.provisioningMembershipWrapper = provisioningMembershipWrapper;
+  public void setValueToProvisioningMembershipWrapper(
+      Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper) {
+    this.valueToProvisioningMembershipWrapper = valueToProvisioningMembershipWrapper;
   }
 
   /**
@@ -140,7 +145,9 @@ public class ProvisioningAttribute {
     ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
 
     provisioningAttribute.name = this.name;
-    provisioningAttribute.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
+    provisioningAttribute.valueToProvisioningMembershipWrapper = 
+        this.valueToProvisioningMembershipWrapper == null ? null 
+            : new HashMap<Object, ProvisioningMembershipWrapper>(this.valueToProvisioningMembershipWrapper);
     
     Object newValue = null;
     if (this.value != null) {

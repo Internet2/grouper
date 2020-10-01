@@ -2,12 +2,58 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 
 public class ProvisioningObjectChange {
+
+  /**
+   * if there is a specific exception for this one attribute, list it here
+   */
+  private Exception exception;
+
+  /**
+   * true if this change has been successfully made in the target
+   */
+  private Boolean provisioned;
   
   public ProvisioningObjectChange() {
     super();
   }
 
   
+  /**
+   * if there is a specific exception for this one attribute, list it here
+   * @return
+   */
+  public Exception getException() {
+    return exception;
+  }
+
+
+  /**
+   * if there is a specific exception for this one attribute, list it here
+   * @param exception
+   */
+  public void setException(Exception exception) {
+    this.exception = exception;
+  }
+
+
+  /**
+   * true if this change has been successfully made in the target
+   * @return
+   */
+  public Boolean getProvisioned() {
+    return provisioned;
+  }
+
+
+  /**
+   * true if this change has been successfully made in the target
+   * @param provisioned
+   */
+  public void setProvisioned(Boolean provisioned) {
+    this.provisioned = provisioned;
+  }
+
+
   public ProvisioningObjectChange(
       ProvisioningObjectChangeDataType provisioningObjectChangeDataType, String fieldName,
       String attributeName, ProvisioningObjectChangeAction provisioningObjectChangeAction,
