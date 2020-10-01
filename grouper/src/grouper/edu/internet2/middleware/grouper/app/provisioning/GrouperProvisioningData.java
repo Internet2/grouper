@@ -12,6 +12,24 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class GrouperProvisioningData {
 
+  public boolean wasWorkDone() {
+    if (this.targetObjectInserts.wasWorkDone()) {
+      return true;
+    }
+    if (this.targetObjectUpdates.wasWorkDone()) {
+      return true;
+    }
+    if (this.targetObjectDeletes.wasWorkDone()) {
+      return true;
+    }
+    // maybe group or entity inserts
+    if (this.grouperTargetObjectsMissing.wasWorkDone()) {
+      return true;
+    }
+    return false;
+  }
+  
+
   public GrouperProvisioningData() {
   }
   

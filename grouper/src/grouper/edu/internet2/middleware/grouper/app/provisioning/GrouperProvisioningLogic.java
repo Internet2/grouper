@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -212,9 +213,20 @@ public class GrouperProvisioningLogic {
     }
   
     {
-      GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-      gcGrouperSync.setLastFullSyncRun(new Timestamp(System.currentTimeMillis()));
+      Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
+      GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+      gcGrouperSync.setLastFullSyncRun(nowTimestamp);
+
+      GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
+      gcGrouperSyncJob.setErrorMessage(null);
+      gcGrouperSyncJob.setErrorTimestamp(null);
+      gcGrouperSyncJob.setLastSyncTimestamp(nowTimestamp);
+      if (this.grouperProvisioner.retrieveGrouperProvisioningData().wasWorkDone()) {
+        gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
+      }
+      gcGrouperSyncJob.setPercentComplete(100);
+      
       // do this in the right spot, after assigning correct sync info about sync
       int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
       this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
