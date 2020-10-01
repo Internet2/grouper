@@ -138,7 +138,7 @@ public class GrouperProvisionerGrouperDao {
 
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
-    StringBuilder sqlInitial = new StringBuilder("select gm.id, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
+    StringBuilder sqlInitial = new StringBuilder("select gm.id, gm.subject_source, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
         "from grouper_members gm, grouper_memberships_all_v gmav," +  
      " grouper_aval_asn_asn_group_v gaaagv_target, " + 
     "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
@@ -553,16 +553,18 @@ public class GrouperProvisionerGrouperDao {
 
     for (String[] queryResult : queryResults) {
       String id = queryResult[0];
-      String subjectId = queryResult[1];
-      String subjectIdentifier0 = queryResult[2];
-      String name = queryResult[3];
-      String description = queryResult[4];
+      String subjectSource = queryResult[1];
+      String subjectId = queryResult[2];
+      String subjectIdentifier0 = queryResult[3];
+      String name = queryResult[4];
+      String description = queryResult[5];
       
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
       //TODO do something with email?
+      grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
       
@@ -598,7 +600,7 @@ public class GrouperProvisionerGrouperDao {
         targetEntity.setId(memberId);
         targetEntity.setName(name);
         targetEntity.assignAttributeValue("description", description);
-        targetEntity.assignAttributeValue("subjectId", subjectId);
+        targetEntity.setSubjectId(subjectId);
         targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
         targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
         

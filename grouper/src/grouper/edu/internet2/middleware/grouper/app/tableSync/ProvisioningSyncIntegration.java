@@ -310,7 +310,7 @@ public class ProvisioningSyncIntegration {
           gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateByMemberId(memberIdToInsert);
         }
         gcGrouperSyncMember.setSourceId(grouperProvisioningEntity.retrieveAttributeValueString("subjectSourceId"));
-        gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.retrieveAttributeValueString("subjectId"));
+        gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.getSubjectId());
         gcGrouperSyncMember.setSubjectIdentifier(grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier0"));
         gcGrouperSyncMember.setProvisionable(true);
         gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));

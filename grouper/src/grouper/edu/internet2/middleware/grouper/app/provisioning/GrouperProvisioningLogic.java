@@ -192,6 +192,10 @@ public class GrouperProvisioningLogic {
     // index target memberships
     this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfTargetMemberships();
 
+    this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper().values());
+    this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper().values());
+    this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipTargetIdToProvisioningMembershipWrapper().values());
+    
     try {
       debugMap.put("state", "compareTargetObjects");
       this.grouperProvisioner.retrieveGrouperProvisioningCompare().compareTargetObjects();

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -754,6 +755,110 @@ public class GrouperProvisionerGrouperSyncDao {
         gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
       }
     }
+  }
+
+  /**
+   * go through what was selected from full and keep track of whats there and what isnt there
+   * @param values
+   */
+  public void processResultsSelectGroupsFull(
+      Collection<ProvisioningGroupWrapper> values) {
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(values)) {
+      ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      
+      boolean exists = targetProvisioningGroup != null;
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+
+      if (gcGrouperSyncGroup == null) {
+        continue;
+      }
+
+      if (exists != gcGrouperSyncGroup.isInTarget()) {
+
+        Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+        gcGrouperSyncGroup.setInTarget(exists);
+        if (exists) {
+          gcGrouperSyncGroup.setInTargetStart(nowTimestamp);
+          if (StringUtils.isBlank(gcGrouperSyncGroup.getInTargetInsertOrExistsDb())) {
+            gcGrouperSyncGroup.setInTargetInsertOrExists(false);
+          }
+
+        } else {
+          gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);
+        }
+      }
+      
+    }    
+  }
+
+  /**
+   * go through what was selected from full and keep track of whats there and what isnt there
+   * @param values
+   */
+  public void processResultsSelectEntitiesFull(
+      Collection<ProvisioningEntityWrapper> values) {
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(values)) {
+      ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      
+      boolean exists = targetProvisioningEntity != null;
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+
+      if (gcGrouperSyncMember == null) {
+        continue;
+      }
+
+      if (exists != gcGrouperSyncMember.isInTarget()) {
+
+        Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+        gcGrouperSyncMember.setInTarget(exists);
+        if (exists) {
+          gcGrouperSyncMember.setInTargetStart(nowTimestamp);
+          if (StringUtils.isBlank(gcGrouperSyncMember.getInTargetInsertOrExistsDb())) {
+            gcGrouperSyncMember.setInTargetInsertOrExists(false);
+          }
+        } else {
+          gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
+        }
+      }
+      
+    }    
+
+    
+  }
+
+  /**
+   * go through what was selected from full and keep track of whats there and what isnt there
+   * @param values
+   */
+  public void processResultsSelectMembershipsFull(
+      Collection<ProvisioningMembershipWrapper> values) {
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(values)) {
+      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+      
+      boolean exists = targetProvisioningMembership != null;
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
+      if (gcGrouperSyncMembership == null) {
+        continue;
+      }
+
+      if (exists != gcGrouperSyncMembership.isInTarget()) {
+
+        Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+        gcGrouperSyncMembership.setInTarget(exists);
+        if (exists) {
+          gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
+          if (StringUtils.isBlank(gcGrouperSyncMembership.getInTargetInsertOrExistsDb())) {
+            gcGrouperSyncMembership.setInTargetInsertOrExists(false);
+          }
+
+        } else {
+          gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+        }
+      }
+      
+    }    
+    
   }
 
   
