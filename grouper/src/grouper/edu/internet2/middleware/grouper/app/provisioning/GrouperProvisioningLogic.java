@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -210,6 +212,9 @@ public class GrouperProvisioningLogic {
     }
   
     {
+      GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+      gcGrouperSync.setLastFullSyncRun(new Timestamp(System.currentTimeMillis()));
+
       // do this in the right spot, after assigning correct sync info about sync
       int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
       this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
@@ -217,6 +222,7 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.getDebugMap().put("syncObjectStoreCount", objectStoreCount);
     }
     
+
     // TODO flesh this out, resolve subjects, linked cached data, etc, try individually again
 //    this.getGrouperProvisioner().retrieveTargetDao().resolveErrors();
 //    this.getGrouperProvisioner().retrieveTargetDao().sendErrorFixesToTarget();
@@ -780,6 +786,15 @@ public class GrouperProvisioningLogic {
     // put the sync objects in their respective wrapper objects
     assignSyncObjectsToWrappers();
 
+    GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+    gcGrouperSync.setGroupCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningGroups()));
+    gcGrouperSync.setUserCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningEntities()));
+    gcGrouperSync.setRecordsCount(
+        GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningEntities())
+        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningGroups())
+        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningMemberships())
+        );
+    
   }
 
 

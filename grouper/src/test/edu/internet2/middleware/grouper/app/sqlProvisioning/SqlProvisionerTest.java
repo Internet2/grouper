@@ -59,6 +59,8 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import junit.textui.TestRunner;
 
@@ -1722,6 +1724,8 @@ public class SqlProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapPa() {
     
+    long started = System.currentTimeMillis();
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.class", SqlProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.subjectSourcesToProvision", "jdbc");
@@ -1966,8 +1970,17 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(0).getProvisioningObjectChangeAction());
     assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
     assertEquals("member", provisioningObjectChanges.get(0).getAttributeName());
-    assertEquals("member", provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
+    assertEquals("member", provisioningObjectChanges.get(1).getAttributeName());
 
+    //get the grouper_sync and check cols
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "pspng_oneprod");
+    assertEquals(1, gcGrouperSync.getGroupCount().intValue());
+    assertEquals(2, gcGrouperSync.getUserCount().intValue());
+    assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
+    assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSync.getLastUpdated().getTime());
   }
 
 }
