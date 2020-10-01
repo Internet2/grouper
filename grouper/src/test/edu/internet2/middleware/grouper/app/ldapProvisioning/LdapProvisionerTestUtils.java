@@ -58,10 +58,10 @@ public class LdapProvisionerTestUtils {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.pass", "secret");
 
     // abstract ldap class logs the errors, so just sleep 10 to wait until testing
-    GrouperUtil.sleep(10000);
+    GrouperUtil.sleep(14000);
     
     RuntimeException lastException = null;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 100; i++) {
       try {
         if (LdapSessionUtils.ldapSession().testConnection("personLdap")) {
           return;
