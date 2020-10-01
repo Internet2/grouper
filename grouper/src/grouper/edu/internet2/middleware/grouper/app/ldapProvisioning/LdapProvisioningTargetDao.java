@@ -152,6 +152,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
       targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
       return new TargetDaoInsertGroupResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertGroup", startNanos));
@@ -173,6 +177,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       new LdapSyncDaoForLdap().delete(ldapConfigId, targetGroup.getName());
       targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
       return new TargetDaoDeleteGroupResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
@@ -243,6 +250,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
       return new TargetDaoUpdateGroupResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
@@ -517,6 +527,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       new LdapSyncDaoForLdap().create(ldapConfigId, ldapEntry);
       targetEntity.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
       return new TargetDaoInsertEntityResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));

@@ -866,13 +866,13 @@ public class GrouperProvisioningLogic {
     }
 
     {
-      Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
+      Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
     
       // loop through sync groups
       for (MultiKey groupUuidMemberUuid : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership()).keySet()) {
     
         GcGrouperSyncMembership gcGrouperSyncMembership  = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership().get(groupUuidMemberUuid);
-        ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningEntityWrapper.get(groupUuidMemberUuid);
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupUuidMemberUuid);
         
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
         

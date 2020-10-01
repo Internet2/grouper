@@ -5,6 +5,8 @@ import java.util.List;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -19,6 +21,13 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -115,6 +124,8 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    */
   public void testSimpleLdapProvisionerFull_1() {
     
+    long started = System.currentTimeMillis();
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.class", LdapSync.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.ldapExternalSystemConfigId", "personLdap");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.subjectSourcesToProvision", "jdbc, personLdapSource");
@@ -204,6 +215,95 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.0"));
+    
+    
+    //get the grouper_sync and check cols
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "ldapProvTest");
+    assertEquals(1, gcGrouperSync.getGroupCount().intValue());
+    assertEquals(1, gcGrouperSync.getUserCount().intValue());
+    assertEquals(1+1+1, gcGrouperSync.getRecordsCount().intValue());
+    assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSync.getLastUpdated().getTime());
+    
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+    assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
+    assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
+    assertTrue(started < gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(started < gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncJob.getErrorMessage());
+    assertNull(gcGrouperSyncJob.getErrorTimestamp());
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+    assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncGroup.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncGroup.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncGroup.getGroupToId2());
+    assertNull(gcGrouperSyncGroup.getGroupFromId2());
+    assertNull(gcGrouperSyncGroup.getGroupFromId3());
+    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+    assertNull(gcGrouperSyncGroup.getErrorMessage());
+    assertNull(gcGrouperSyncGroup.getErrorTimestamp());
+    assertNull(gcGrouperSyncGroup.getLastGroupSync());
+
+    Member testSubject0member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
+    assertEquals(testSubject0member.getId(), gcGrouperSyncMember.getMemberId());
+    assertEquals(testSubject0member.getSubjectId(), gcGrouperSyncMember.getSubjectId());
+    assertEquals(testSubject0member.getSubjectSourceId(), gcGrouperSyncMember.getSourceId());
+    assertEquals(testSubject0member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
+    assertEquals("T", gcGrouperSyncMember.getProvisionableDb());
+    assertNull(gcGrouperSyncMember.getInTargetDb());
+    assertNull(gcGrouperSyncMember.getInTargetInsertOrExistsDb());
+    assertNull(gcGrouperSyncMember.getInTargetStart());
+    assertNull(gcGrouperSyncMember.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncMember.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncMember.getMemberFromId2());
+    assertNull(gcGrouperSyncMember.getMemberFromId3());
+    assertNull(gcGrouperSyncMember.getMemberToId2());
+    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
+    assertNull(gcGrouperSyncMember.getErrorMessage());
+    assertNull(gcGrouperSyncMember.getErrorTimestamp());
+    assertNull(gcGrouperSyncMember.getLastUserSync());
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), testSubject0member.getId());
+    assertEquals("T", gcGrouperSyncMembership.getInTargetDb());
+    assertEquals("T", gcGrouperSyncMembership.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncMembership.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMembership.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMembership.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncMembership.getMembershipId());
+    assertNull(gcGrouperSyncMembership.getMembershipId2());
+    assertNull(gcGrouperSyncMembership.getErrorMessage());
+    assertNull(gcGrouperSyncMembership.getErrorTimestamp());
+
     
     // try delete, not configured to
     attributeValue.setDoProvision(false);

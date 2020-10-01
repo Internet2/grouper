@@ -2063,8 +2063,8 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(System.currentTimeMillis() > gcGrouperSyncMembership.getLastUpdated().getTime());
     assertNull(gcGrouperSyncMembership.getMembershipId());
     assertNull(gcGrouperSyncMembership.getMembershipId2());
-    assertNull(gcGrouperSyncMember.getErrorMessage());
-    assertNull(gcGrouperSyncMember.getErrorTimestamp());
+    assertNull(gcGrouperSyncMembership.getErrorMessage());
+    assertNull(gcGrouperSyncMembership.getErrorTimestamp());
 
   }
 
