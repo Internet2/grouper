@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
@@ -129,17 +128,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       LdapEntry ldapEntry = new LdapEntry(targetGroup.getName());
-      for (String attributeName : targetGroup.getAttributes().keySet()) {
-        ProvisioningAttribute targetAttribute = targetGroup.getAttributes().get(attributeName);
-        Object value = targetAttribute.getValue();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        Object value = provisioningObjectChange.getNewValue();
         
-        LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
+        if (StringUtils.isEmpty(provisioningObjectChange.getAttributeName())) {
+          if ("name".equals(provisioningObjectChange.getFieldName())) {
+            // update the ldap entry dn just in case it's different
+            ldapEntry.setDn((String)provisioningObjectChange.getNewValue());
+          }
+          
+          continue;
+        }
+        
+        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
   
         if (value instanceof String && !StringUtils.isEmpty((String)value)) {
           ldapAttribute.addValue((String)value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
-          Collection<Object> values = (Collection<Object>) targetAttribute.getValue();
+          Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
           if (values.size() > 0) {
             ldapAttribute.addValues(values);
           }
@@ -504,17 +511,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       LdapEntry ldapEntry = new LdapEntry(targetEntity.getName());
-      for (String attributeName : targetEntity.getAttributes().keySet()) {
-        ProvisioningAttribute targetAttribute = targetEntity.getAttributes().get(attributeName);
-        Object value = targetAttribute.getValue();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        Object value = provisioningObjectChange.getNewValue();
         
-        LdapAttribute ldapAttribute = new LdapAttribute(targetAttribute.getName());
+        if (StringUtils.isEmpty(provisioningObjectChange.getAttributeName())) {
+          if ("name".equals(provisioningObjectChange.getFieldName())) {
+            // update the ldap entry dn just in case it's different
+            ldapEntry.setDn((String)provisioningObjectChange.getNewValue());
+          }
+
+          continue;
+        }
+        
+        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
   
         if (value instanceof String && !StringUtils.isEmpty((String)value)) {
           ldapAttribute.addValue((String)value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
-          Collection<Object> values = (Collection<Object>)targetAttribute.getValue();
+          Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
           if (values.size() > 0) {
             ldapAttribute.addValues(values);
           } 
