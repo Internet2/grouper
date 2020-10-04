@@ -285,8 +285,16 @@ public class GrouperProvisioningBehavior {
 
   private Boolean groupsRetrieve;
 
-  
   public Boolean getGroupsRetrieve() {
+    
+    if (this.groupsRetrieve != null) {
+      return groupsRetrieve;
+    }
+
+    Boolean groupsRetrieveAllLocal = this.getGroupsRetrieveAll();
+    if (groupsRetrieveAllLocal != null) {
+      return groupsRetrieveAllLocal;
+    }
     return groupsRetrieve;
   }
 

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -142,7 +143,7 @@ public class GrouperIncrementalUuidsToRetrieveFromGrouper {
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    */
-  private Set<MultiKey> groupUuidsMemberUuidsFieldIdsForMembershipSync = new TreeSet<MultiKey>();
+  private Set<MultiKey> groupUuidsMemberUuidsFieldIdsForMembershipSync = new HashSet<MultiKey>();
   
   /**
    * multi key of group uuid, member uuids, field ids for membership sync

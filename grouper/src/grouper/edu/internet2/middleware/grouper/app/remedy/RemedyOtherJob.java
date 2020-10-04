@@ -6,8 +6,6 @@ package edu.internet2.middleware.grouper.app.remedy;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyFullRefresh;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyFullRefresh;
 
 
 /**

@@ -743,9 +743,6 @@ public class GrouperProvisioningLogic {
    */
   public void retrieveIncrementalDataFromGrouper() {
         
-    GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
-    this.grouperProvisioner.setGrouperProvisioningData(grouperProvisioningData);
-
     this.retrieveGrouperDataIncremental();
   }
   /**
