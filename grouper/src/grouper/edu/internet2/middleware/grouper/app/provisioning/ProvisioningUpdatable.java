@@ -31,7 +31,7 @@ public abstract class ProvisioningUpdatable {
    * @return
    */
   protected final boolean isEmptyUpdatable() {
-    if (targetId == null && GrouperUtil.length(this.attributes) == 0) {
+    if (matchingId == null && GrouperUtil.length(this.attributes) == 0) {
       return true;
     }
     return false;
@@ -109,23 +109,23 @@ public abstract class ProvisioningUpdatable {
   /**
    * string, number, or multikey of strings and numbers
    */
-  private Object targetId;
+  private Object matchingId;
   
 
   /**
    * string, number, or multikey of strings and numbers
    * @return
    */
-  public Object getTargetId() {
-    return targetId;
+  public Object getMatchingId() {
+    return matchingId;
   }
 
   /**
    * string, number, or multikey of strings and numbers
-   * @param targetId
+   * @param matchingId
    */
-  public void setTargetId(Object targetId) {
-    this.targetId = targetId;
+  public void setMatchingId(Object matchingId) {
+    this.matchingId = matchingId;
   }
 
   /**
@@ -407,7 +407,7 @@ public abstract class ProvisioningUpdatable {
   }
  
   protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {
-    firstField = toStringAppendField(result, firstField, "targetId", this.targetId);
+    firstField = toStringAppendField(result, firstField, "matchingId", this.matchingId);
     firstField = toStringAppendField(result, firstField, "exception", this.exception);
     firstField = toStringAppendField(result, firstField, "provisioned", this.provisioned);
     if (this.removeFromList) {
@@ -562,7 +562,7 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.provisioned = provisioned;
     provisioningUpdatable.removeFromList = removeFromList;
     provisioningUpdatable.searchFilter = searchFilter;
-    provisioningUpdatable.targetId = targetId;
+    provisioningUpdatable.matchingId = matchingId;
     
     
     

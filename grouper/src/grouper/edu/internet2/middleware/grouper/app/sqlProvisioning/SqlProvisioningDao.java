@@ -106,8 +106,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           
           for (int j=0; j<currentBatchGrouperTargetMemberships.size();j++) {
             ProvisioningMembership grouperTargetMembership = currentBatchGrouperTargetMemberships.get(j);
-            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getTargetId()).getKey(0));
-            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getTargetId()).getKey(1));
+            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getMatchingId()).getKey(0));
+            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getMatchingId()).getKey(1));
             if (j>0) {
               sql.append(" or ");
             }
@@ -173,13 +173,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
         String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
 
-        String groupAttributeTableAttributeNameIsGroupTargetId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupTargetId();
+        String groupAttributeTableAttributeNameIsGroupMatchingId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupMatchingId();
         
         // we need to lookup the group
         String groupTargetUuid = new GcDbAccess().connectionName(dbExternalSystemConfigId)
             .sql("select " + groupAttributeTableForeignKeyToGroup + " from " + groupAttributeTableName 
                 + " where " + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?")
-            .addBindVar(groupAttributeTableAttributeNameIsGroupTargetId).addBindVar(targetGroup.getId()).select(String.class);
+            .addBindVar(groupAttributeTableAttributeNameIsGroupMatchingId).addBindVar(targetGroup.getId()).select(String.class);
 
         // shouldnt happen
         if (StringUtils.isBlank(groupTargetUuid)) {
@@ -386,7 +386,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             
             for (int j=0; j<currentBatchGrouperTargetGroups.size();j++) {
               ProvisioningGroup grouperTargetGroup = currentBatchGrouperTargetGroups.get(j);
-              gcDbAccess.addBindVar(grouperTargetGroup.getTargetId());
+              gcDbAccess.addBindVar(grouperTargetGroup.getMatchingId());
               if (j>0) {
                 sql.append(",");
               }
@@ -436,7 +436,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             
             for (int j=0; j<currentBatchGrouperTargetGroups.size();j++) {
               ProvisioningGroup grouperTargetGroup = currentBatchGrouperTargetGroups.get(j);
-              gcDbAccess.addBindVar(grouperTargetGroup.getTargetId());
+              gcDbAccess.addBindVar(grouperTargetGroup.getMatchingId());
               if (j>0) {
                 sql.append(",");
               }
@@ -691,15 +691,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   
         String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
   
-        String groupAttributeTableAttributeNameIsGroupTargetId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupTargetId();
+        String groupAttributeTableAttributeNameIsGroupMatchingId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupMatchingId();
 
         GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
         
         String sql = "insert into " + groupTableName + "(" + groupTableIdColumn + ") values (?)";
-        // get from targetId instead?
-        Object groupUuid = targetGroup.retrieveAttributeValue(groupAttributeTableAttributeNameIsGroupTargetId);
+        // get from matchingId instead?
+        Object groupUuid = targetGroup.retrieveAttributeValue(groupAttributeTableAttributeNameIsGroupMatchingId);
         if (groupUuid == null) {
-          throw new RuntimeException("Cant find group target id from attribute: '" + groupAttributeTableAttributeNameIsGroupTargetId + "': " + targetGroup);
+          throw new RuntimeException("Cant find group matching id from attribute: '" + groupAttributeTableAttributeNameIsGroupMatchingId + "': " + targetGroup);
         }
         gcDbAccess.sql(sql).addBindVar(groupUuid).executeSql();
         

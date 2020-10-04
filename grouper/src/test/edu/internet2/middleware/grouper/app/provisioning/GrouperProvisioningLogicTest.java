@@ -117,20 +117,20 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertEquals("testSubjectId", targetMembership.getAttributes().get("subject_id").getValue().toString());
   }
   
-  public void testTargetIdGrouperObjects() {
+  public void testMatchingIdGrouperObjects() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTargetIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
         "${targetGroup.retrieveAttributeValueString('groupName')}");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTargetIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipMatchingIdExpression", 
         "new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('groupName'), "
         + "targetMembership.retrieveAttributeValueString('subjectId'))");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTargetIdExpression", 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityMatchingIdExpression", 
         "${targetEntity.retrieveAttributeValueString('subjectId')}");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipTableName", "testgrouper_prov_mship0");
@@ -180,21 +180,21 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     grouperProvisioner.retrieveGrouperDao().processWrappers();
     
     // when
-    translator.targetIdGrouperObjects();
+    translator.matchingIdGrouperObjects();
     
     // then
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
     ProvisioningGroup targetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
-    assertEquals("testName", targetGroup.getTargetId());
+    assertEquals("testName", targetGroup.getMatchingId());
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
     ProvisioningEntity targetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
-    assertEquals("testSubjectId", targetEntity.getTargetId());
+    assertEquals("testSubjectId", targetEntity.getMatchingId());
     
     assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().size());
     ProvisioningMembership targetMembership = grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().get(0);
-    assertEquals("testName", ((MultiKey)targetMembership.getTargetId()).getKey(0));
-    assertEquals("testSubjectId", ((MultiKey)targetMembership.getTargetId()).getKey(1));
+    assertEquals("testName", ((MultiKey)targetMembership.getMatchingId()).getKey(0));
+    assertEquals("testSubjectId", ((MultiKey)targetMembership.getMatchingId()).getKey(1));
     
   }
   

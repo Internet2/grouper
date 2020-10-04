@@ -193,7 +193,7 @@ public enum GrouperProvisioningObjectLogType {
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
       if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
 
-        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper().values(), "grouperTargetGroup", "groups");
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper().values(), "grouperTargetGroup", "groups");
 
       } else if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
 
@@ -216,7 +216,7 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
-  targetIdGrouperGroupsEntities {
+  matchingIdGrouperGroupsEntities {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -226,7 +226,7 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   }, 
-  targetIdGrouperMemberships {
+  matchingIdGrouperMemberships {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -235,7 +235,7 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
-  targetIdTargetObjects {
+  matchingIdTargetObjects {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -244,7 +244,7 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   }, 
-  targetIdGrouperObjects {
+  matchingIdGrouperObjects {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,

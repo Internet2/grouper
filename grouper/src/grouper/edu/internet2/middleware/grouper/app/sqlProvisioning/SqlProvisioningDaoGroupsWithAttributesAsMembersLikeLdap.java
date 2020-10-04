@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
  * attribute table foreign key col: groupAttributeTableForeignKeyToGroup
  * attribute name col: groupAttributeTableAttributeNameColumn
  * attribute value col: groupAttributeTableAttributeValueColumn
- * attribute name is the target id: groupAttributeTableAttributeNameIsGroupTargetId (e.g. gidNumber)
+ * attribute name is the matching id: groupAttributeTableAttributeNameIsGroupMatchingId (e.g. gidNumber)
  * 
  * @author mchyzer-local
  *
@@ -76,13 +76,13 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
       String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
   
-      String groupAttributeTableAttributeNameIsGroupTargetId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupTargetId();
+      String groupAttributeTableAttributeNameIsGroupMatchingId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupMatchingId();
       
   //    // we need to lookup the group
   //    String groupTargetUuid = new GcDbAccess().connectionName(dbExternalSystemConfigId)
   //        .sql("select " + groupAttributeTableForeignKeyToGroup + " from " + groupAttributeTableName 
   //            + " where " + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?")
-  //        .addBindVar(groupAttributeTableAttributeNameIsGroupTargetId).addBindVar(targetGroup.getId()).select(String.class);
+  //        .addBindVar(groupAttributeTableAttributeNameIsGroupMatchingId).addBindVar(targetGroup.getId()).select(String.class);
   
       // shouldnt happen
       if (StringUtils.isBlank(targetGroup.getId())) {
@@ -453,7 +453,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
       
       String sql = "insert into " + groupTableName + "(" + groupTableIdColumn + ") values (?)";
-      // get from targetId instead?
+      // get from matchingId instead?
       Object groupUuid = targetGroup.getId();
       if (groupUuid == null) {
         throw new RuntimeException("Cant find group id: " + targetGroup);

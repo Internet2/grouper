@@ -238,11 +238,11 @@ public class GrouperProvisioningData {
   /**
    * note some entries could be for deleting
    */
-  private Map<Object, ProvisioningGroupWrapper> groupTargetIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
+  private Map<Object, ProvisioningGroupWrapper> groupMatchingIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
 
-  private Map<Object, ProvisioningEntityWrapper> entityTargetIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
+  private Map<Object, ProvisioningEntityWrapper> entityMatchingIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
 
-  private Map<Object, ProvisioningMembershipWrapper> membershipTargetIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
+  private Map<Object, ProvisioningMembershipWrapper> membershipMatchingIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
   
   private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
 
@@ -327,27 +327,27 @@ public class GrouperProvisioningData {
 
 
 
-  public void setGroupTargetIdToProvisioningGroupWrapper(
+  public void setGroupMatchingIdToProvisioningGroupWrapper(
       Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper) {
-    this.groupTargetIdToProvisioningGroupWrapper = targetGroupIdToProvisioningGroupWrapper;
+    this.groupMatchingIdToProvisioningGroupWrapper = targetGroupIdToProvisioningGroupWrapper;
   }
 
 
 
 
   
-  public void setEntityTargetIdToProvisioningEntityWrapper(
+  public void setEntityMatchingIdToProvisioningEntityWrapper(
       Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper) {
-    this.entityTargetIdToProvisioningEntityWrapper = targetEntityIdToProvisioningEntityWrapper;
+    this.entityMatchingIdToProvisioningEntityWrapper = targetEntityIdToProvisioningEntityWrapper;
   }
 
 
 
 
   
-  public void setMembershipTargetIdToProvisioningMembershipWrapper(
+  public void setMembershipMatchingIdToProvisioningMembershipWrapper(
       Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper) {
-    this.membershipTargetIdToProvisioningMembershipWrapper = targetMembershipIdToProvisioningMembershipWrapper;
+    this.membershipMatchingIdToProvisioningMembershipWrapper = targetMembershipIdToProvisioningMembershipWrapper;
   }
 
 
@@ -357,24 +357,24 @@ public class GrouperProvisioningData {
     return this.getGrouperProvisioner().getGcGrouperSync();
   }
   
-  public Map<Object, ProvisioningGroupWrapper> getGroupTargetIdToProvisioningGroupWrapper() {
-    return groupTargetIdToProvisioningGroupWrapper;
+  public Map<Object, ProvisioningGroupWrapper> getGroupMatchingIdToProvisioningGroupWrapper() {
+    return groupMatchingIdToProvisioningGroupWrapper;
   }
 
 
 
 
   
-  public Map<Object, ProvisioningEntityWrapper> getEntityTargetIdToProvisioningEntityWrapper() {
-    return entityTargetIdToProvisioningEntityWrapper;
+  public Map<Object, ProvisioningEntityWrapper> getEntityMatchingIdToProvisioningEntityWrapper() {
+    return entityMatchingIdToProvisioningEntityWrapper;
   }
 
 
 
 
   
-  public Map<Object, ProvisioningMembershipWrapper> getMembershipTargetIdToProvisioningMembershipWrapper() {
-    return membershipTargetIdToProvisioningMembershipWrapper;
+  public Map<Object, ProvisioningMembershipWrapper> getMembershipMatchingIdToProvisioningMembershipWrapper() {
+    return membershipMatchingIdToProvisioningMembershipWrapper;
   }
 
 

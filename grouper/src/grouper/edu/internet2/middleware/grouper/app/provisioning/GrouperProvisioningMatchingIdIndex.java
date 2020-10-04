@@ -7,7 +7,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-public class GrouperProvisioningTargetIdIndex {
+public class GrouperProvisioningMatchingIdIndex {
 
   private GrouperProvisioner grouperProvisioner = null;
 
@@ -22,171 +22,171 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfGrouperEntities(List<ProvisioningEntity> grouperTargetEntities) {
+  public void indexMatchingIdOfGrouperEntities(List<ProvisioningEntity> grouperTargetEntities) {
     Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper();
   
-    int grouperTargetEntitiesWithNullTargetIds = 0;
+    int grouperTargetEntitiesWithNullMatchingIds = 0;
     
-    Set<Object> targetIds = new HashSet<Object>();
+    Set<Object> macthingIds = new HashSet<Object>();
 
     for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
       
-      Object targetId = grouperTargetEntity.getTargetId();
-      if (targetId == null) {
+      Object macthingId = grouperTargetEntity.getMatchingId();
+      if (macthingId == null) {
         // this could be an insert?
-        grouperTargetEntitiesWithNullTargetIds++;
+        grouperTargetEntitiesWithNullMatchingIds++;
         // TODO make sure to handle this in the compare
         continue;
       }
       
-      if (targetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple entities from grouper have the same target id???\n" 
-            + grouperTargetEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(targetId));
+      if (macthingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple entities from grouper have the same matching id???\n" 
+            + grouperTargetEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(macthingId));
       }
-      targetIds.add(targetId);
+      macthingIds.add(macthingId);
 
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
       if (provisioningEntityWrapper == null) {
         throw new NullPointerException("Cant find entity wrapper: " + grouperTargetEntity);
       }
-      targetEntityIdToProvisioningEntityWrapper.put(targetId, provisioningEntityWrapper);
+      targetEntityIdToProvisioningEntityWrapper.put(macthingId, provisioningEntityWrapper);
     }
     
-    if (grouperTargetEntitiesWithNullTargetIds > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("grouperTargetEntitiesWithNullTargetIds", grouperTargetEntitiesWithNullTargetIds);
+    if (grouperTargetEntitiesWithNullMatchingIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetEntitiesWithNullMatchingIds", grouperTargetEntitiesWithNullMatchingIds);
     }
   
   
   }
 
 
-  public void indexTargetIdOfGrouperGroups(List<ProvisioningGroup> grouperTargetGroups) {
+  public void indexMatchingIdOfGrouperGroups(List<ProvisioningGroup> grouperTargetGroups) {
     Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper();
   
-    int grouperTargetGroupsWithNullTargetIds = 0;
+    int grouperTargetGroupsWithNullMatchingIds = 0;
     
-    Set<Object> targetIds = new HashSet<Object>();
+    Set<Object> macthingIds = new HashSet<Object>();
     
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
       
-      Object targetId = grouperTargetGroup.getTargetId();
-      if (targetId == null) {
+      Object macthingId = grouperTargetGroup.getMatchingId();
+      if (macthingId == null) {
         // this could be an insert?
-        grouperTargetGroupsWithNullTargetIds++;
+        grouperTargetGroupsWithNullMatchingIds++;
         // TODO make sure to handle this in the compare
         continue;
       }
       
-      if (targetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple groups from grouper have the same target id???\n" 
-            + grouperTargetGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(targetId));
+      if (macthingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple groups from grouper have the same matching id???\n" 
+            + grouperTargetGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(macthingId));
       }
-      targetIds.add(targetId);
+      macthingIds.add(macthingId);
   
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
       if (provisioningGroupWrapper == null) {
         throw new NullPointerException("Cant find group wrapper: " + grouperTargetGroup);
       }
-      targetGroupIdToProvisioningGroupWrapper.put(targetId, provisioningGroupWrapper);
+      targetGroupIdToProvisioningGroupWrapper.put(macthingId, provisioningGroupWrapper);
     }
     
-    if (grouperTargetGroupsWithNullTargetIds > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("grouperTargetGroupsWithNullTargetIds", grouperTargetGroupsWithNullTargetIds);
+    if (grouperTargetGroupsWithNullMatchingIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetGroupsWithNullMatchingIds", grouperTargetGroupsWithNullMatchingIds);
     }
   
   }
 
 
-  public void indexTargetIdOfGrouperMemberships(List<ProvisioningMembership> grouperTargetMemberships) {
+  public void indexMatchingIdOfGrouperMemberships(List<ProvisioningMembership> grouperTargetMemberships) {
     Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipTargetIdToProvisioningMembershipWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipMatchingIdToProvisioningMembershipWrapper();
   
-    int grouperTargetMembershipsWithNullTargetIds = 0;
+    int grouperTargetMembershipsWithNullMatchingIds = 0;
     
-    Set<Object> targetIds = new HashSet<Object>();
+    Set<Object> macthingIds = new HashSet<Object>();
 
     for (ProvisioningMembership grouperTargetMembership : GrouperUtil.nonNull(grouperTargetMemberships)) {
       
-      Object targetId = grouperTargetMembership.getTargetId();
-      if (targetId == null) {
+      Object macthingId = grouperTargetMembership.getMatchingId();
+      if (macthingId == null) {
         // this could be an insert?
-        grouperTargetMembershipsWithNullTargetIds++;
+        grouperTargetMembershipsWithNullMatchingIds++;
         // TODO make sure to handle this in the compare
         continue;
       }
       
-      if (targetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple memberships from grouper have the same target id???\n" 
-            + grouperTargetMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(targetId));
+      if (macthingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple memberships from grouper have the same matching id???\n" 
+            + grouperTargetMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(macthingId));
       }
-      targetIds.add(targetId);
+      macthingIds.add(macthingId);
 
   
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership.getProvisioningMembershipWrapper();
       if (provisioningMembershipWrapper == null) {
         throw new NullPointerException("Cant find membership wrapper: " + grouperTargetMembership);
       }
-      targetMembershipIdToProvisioningMembershipWrapper.put(targetId, provisioningMembershipWrapper);
+      targetMembershipIdToProvisioningMembershipWrapper.put(macthingId, provisioningMembershipWrapper);
     }
     
-    if (grouperTargetMembershipsWithNullTargetIds > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("grouperTargetMembershipsWithNullTargetIds", grouperTargetMembershipsWithNullTargetIds);
+    if (grouperTargetMembershipsWithNullMatchingIds > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetMembershipsWithNullMatchingIds", grouperTargetMembershipsWithNullMatchingIds);
     }
   
   
   }
 
 
-  public void indexTargetIdOfGrouperObjects() {
-    this.indexTargetIdOfGrouperGroups(
+  public void indexMatchingIdOfGrouperObjects() {
+    this.indexMatchingIdOfGrouperGroups(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
     
-    this.indexTargetIdOfGrouperEntities(
+    this.indexMatchingIdOfGrouperEntities(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
   
-    this.indexTargetIdOfGrouperMemberships(
+    this.indexMatchingIdOfGrouperMemberships(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
 
     // these might be empty for full provisioning and thats ok
-    this.indexTargetIdOfGrouperGroups(
+    this.indexMatchingIdOfGrouperGroups(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
     
-    this.indexTargetIdOfGrouperEntities(
+    this.indexMatchingIdOfGrouperEntities(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
   
-    this.indexTargetIdOfGrouperMemberships(
+    this.indexMatchingIdOfGrouperMemberships(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
   }
 
 
-  public void indexTargetIdOfTargetEntities() {
+  public void indexMatchingIdOfTargetEntities() {
   
     Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper();
   
-    // make sure we arent double dipping target provisioning target ids
-    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    // make sure we arent double dipping target provisioning matching ids
+    Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningEntity targetProvisioningEntity : 
       GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
           .getTargetProvisioningObjects().getProvisioningEntities())) {
       
-      Object targetId = targetProvisioningEntity.getTargetId();
-      if (targetId == null) {
+      Object macthingId = targetProvisioningEntity.getMatchingId();
+      if (macthingId == null) {
         throw new NullPointerException("Cant find id for targetProvisioningEntity! " + targetProvisioningEntity);
       }
       
-      if (targetProvisioningTargetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple entities from target have the same target id???\n" 
-            + targetProvisioningEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(targetId));
+      if (targetProvisioningMatchingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple entities from target have the same matching id???\n" 
+            + targetProvisioningEntity + "\n" + targetEntityIdToProvisioningEntityWrapper.get(macthingId));
       }
-      targetProvisioningTargetIds.add(targetId);
+      targetProvisioningMatchingIds.add(macthingId);
   
-      ProvisioningEntityWrapper provisioningEntityWrapperReal = targetEntityIdToProvisioningEntityWrapper.get(targetId);
+      ProvisioningEntityWrapper provisioningEntityWrapperReal = targetEntityIdToProvisioningEntityWrapper.get(macthingId);
       if (provisioningEntityWrapperReal == null) {
         provisioningEntityWrapperReal = new ProvisioningEntityWrapper();
-        targetEntityIdToProvisioningEntityWrapper.put(targetId, provisioningEntityWrapperReal);
+        targetEntityIdToProvisioningEntityWrapper.put(macthingId, provisioningEntityWrapperReal);
       }
   
       ProvisioningEntityWrapper provisioningEntityWrapperTarget = targetProvisioningEntity.getProvisioningEntityWrapper();
@@ -202,32 +202,32 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfTargetGroups() {
+  public void indexMatchingIdOfTargetGroups() {
   
     Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper();
   
-    // make sure we arent double dipping target provisioning target ids
-    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    // make sure we arent double dipping target provisioning matching ids
+    Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningGroup targetProvisioningGroup : 
       GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
           .getTargetProvisioningObjects().getProvisioningGroups())) {
       
-      Object targetId = targetProvisioningGroup.getTargetId();
-      if (targetId == null) {
+      Object macthingId = targetProvisioningGroup.getMatchingId();
+      if (macthingId == null) {
         throw new NullPointerException("Cant find id for targetProvisioningGroup! " + targetProvisioningGroup);
       }
       
-      if (targetProvisioningTargetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple groups from target have the same target id???\n" 
-            + targetProvisioningGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(targetId));
+      if (targetProvisioningMatchingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple groups from target have the same matching id???\n" 
+            + targetProvisioningGroup + "\n" + targetGroupIdToProvisioningGroupWrapper.get(macthingId));
       }
-      targetProvisioningTargetIds.add(targetId);
+      targetProvisioningMatchingIds.add(macthingId);
   
-      ProvisioningGroupWrapper provisioningGroupWrapperReal = targetGroupIdToProvisioningGroupWrapper.get(targetId);
+      ProvisioningGroupWrapper provisioningGroupWrapperReal = targetGroupIdToProvisioningGroupWrapper.get(macthingId);
       if (provisioningGroupWrapperReal == null) {
         provisioningGroupWrapperReal = new ProvisioningGroupWrapper();
-        targetGroupIdToProvisioningGroupWrapper.put(targetId, provisioningGroupWrapperReal);
+        targetGroupIdToProvisioningGroupWrapper.put(macthingId, provisioningGroupWrapperReal);
       }
   
       ProvisioningGroupWrapper provisioningGroupWrapperTarget = targetProvisioningGroup.getProvisioningGroupWrapper();
@@ -243,32 +243,32 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfTargetMemberships() {
+  public void indexMatchingIdOfTargetMemberships() {
   
     Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipTargetIdToProvisioningMembershipWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipMatchingIdToProvisioningMembershipWrapper();
   
-    // make sure we arent double dipping target provisioning target ids
-    Set<Object> targetProvisioningTargetIds = new HashSet<Object>();
+    // make sure we arent double dipping target provisioning matching ids
+    Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningMembership targetProvisioningMembership : 
       GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
           .getTargetProvisioningObjects().getProvisioningMemberships())) {
       
-      Object targetId = targetProvisioningMembership.getTargetId();
-      if (targetId == null) {
+      Object macthingId = targetProvisioningMembership.getMatchingId();
+      if (macthingId == null) {
         throw new NullPointerException("Cant find id for targetProvisioningMembership! " + targetProvisioningMembership);
       }
       
-      if (targetProvisioningTargetIds.contains(targetId)) {
-        throw new NullPointerException("Why do multiple memberships from target have the same target id???\n" 
-            + targetProvisioningMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(targetId));
+      if (targetProvisioningMatchingIds.contains(macthingId)) {
+        throw new NullPointerException("Why do multiple memberships from target have the same matching id???\n" 
+            + targetProvisioningMembership + "\n" + targetMembershipIdToProvisioningMembershipWrapper.get(macthingId));
       }
-      targetProvisioningTargetIds.add(targetId);
+      targetProvisioningMatchingIds.add(macthingId);
   
-      ProvisioningMembershipWrapper provisioningMembershipWrapperReal = targetMembershipIdToProvisioningMembershipWrapper.get(targetId);
+      ProvisioningMembershipWrapper provisioningMembershipWrapperReal = targetMembershipIdToProvisioningMembershipWrapper.get(macthingId);
       if (provisioningMembershipWrapperReal == null) {
         provisioningMembershipWrapperReal = new ProvisioningMembershipWrapper();
-        targetMembershipIdToProvisioningMembershipWrapper.put(targetId, provisioningMembershipWrapperReal);
+        targetMembershipIdToProvisioningMembershipWrapper.put(macthingId, provisioningMembershipWrapperReal);
       }
   
       ProvisioningMembershipWrapper provisioningMembershipWrapperTarget = targetProvisioningMembership.getProvisioningMembershipWrapper();
@@ -287,12 +287,12 @@ public class GrouperProvisioningTargetIdIndex {
   }
 
 
-  public void indexTargetIdOfTargetObjects() {
-    this.indexTargetIdOfTargetGroups();
+  public void indexMatchingIdOfTargetObjects() {
+    this.indexMatchingIdOfTargetGroups();
     
-    this.indexTargetIdOfTargetEntities();
+    this.indexMatchingIdOfTargetEntities();
   
-    this.indexTargetIdOfTargetMemberships();
+    this.indexMatchingIdOfTargetMemberships();
   }
 
 

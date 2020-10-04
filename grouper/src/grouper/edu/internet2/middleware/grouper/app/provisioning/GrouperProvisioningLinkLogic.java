@@ -267,7 +267,7 @@ public class GrouperProvisioningLinkLogic {
         // index
         this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
 
-        this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfGrouperGroups(grouperTargetGroups);
+        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperGroups(grouperTargetGroups);
         
         for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {
           grouperTargetGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
@@ -294,7 +294,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateGroupLinkFull() {
     updateGroupLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupTargetIdToProvisioningGroupWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper()).values());
   }
 
   public void updateGroupLinkIncremental() {
@@ -330,7 +330,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityTargetIdToProvisioningEntityWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper()).values());
   }
 
   /**
@@ -439,7 +439,7 @@ public class GrouperProvisioningLinkLogic {
         
         this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
         
-        this.grouperProvisioner.retrieveGrouperProvisioningTargetIdIndex().indexTargetIdOfGrouperEntities(grouperTargetEntities);
+        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperEntities(grouperTargetEntities);
         
         for (ProvisioningEntity grouperTargetEntity : grouperTargetEntities) {
           grouperTargetEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);

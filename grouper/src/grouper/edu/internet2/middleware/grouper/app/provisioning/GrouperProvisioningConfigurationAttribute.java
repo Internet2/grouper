@@ -115,9 +115,9 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateExpressionCreateOnly;
   
   /**
-   * if this attribute is used as the target id
+   * if this attribute is used as the matching id
    */
-  private boolean targetId;
+  private boolean matchingId;
 
   /**
    * if this attribute is the membership attribute
@@ -269,19 +269,19 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
-   * if this attribute is used as the target id
+   * if this attribute is used as the matching id
    * @return
    */
-  public boolean isTargetId() {
-    return targetId;
+  public boolean isMatchingId() {
+    return matchingId;
   }
 
   /**
-   * if this attribute is used as the target id
-   * @param targetId
+   * if this attribute is used as the matching id
+   * @param matchingId
    */
-  public void setTargetId(boolean targetId) {
-    this.targetId = targetId;
+  public void setMatchingId(boolean matchingId) {
+    this.matchingId = matchingId;
   }
 
   /**

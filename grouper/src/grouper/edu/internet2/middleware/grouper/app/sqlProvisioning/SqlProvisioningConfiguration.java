@@ -6,11 +6,11 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 
 public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurationBase {
 
-  private String groupAttributeTableAttributeNameIsGroupTargetId;
+  private String groupAttributeTableAttributeNameIsGroupMatchingId;
   
   
-  public String getgroupAttributeTableAttributeNameIsGroupTargetId() {
-    return groupAttributeTableAttributeNameIsGroupTargetId;
+  public String getgroupAttributeTableAttributeNameIsGroupMatchingId() {
+    return groupAttributeTableAttributeNameIsGroupMatchingId;
   }
 
   private SqlProvisioningType sqlProvisioningType;
@@ -30,9 +30,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 
 
 
-  public void setgroupAttributeTableAttributeNameIsGroupTargetId(
-      String groupAttributeTableAttributeNameIsGroupTargetId) {
-    this.groupAttributeTableAttributeNameIsGroupTargetId = groupAttributeTableAttributeNameIsGroupTargetId;
+  public void setgroupAttributeTableAttributeNameIsGroupMatchingId(
+      String groupAttributeTableAttributeNameIsGroupMatchingId) {
+    this.groupAttributeTableAttributeNameIsGroupMatchingId = groupAttributeTableAttributeNameIsGroupMatchingId;
   }
 
 
@@ -235,17 +235,17 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   
   
   
-  public String getGroupAttributeTableAttributeNameIsGroupTargetId() {
-    return groupAttributeTableAttributeNameIsGroupTargetId;
+  public String getGroupAttributeTableAttributeNameIsGroupMatchingId() {
+    return groupAttributeTableAttributeNameIsGroupMatchingId;
   }
 
 
 
 
   
-  public void setGroupAttributeTableAttributeNameIsGroupTargetId(
-      String groupAttributeTableAttributeNameIsGroupTargetId) {
-    this.groupAttributeTableAttributeNameIsGroupTargetId = groupAttributeTableAttributeNameIsGroupTargetId;
+  public void setGroupAttributeTableAttributeNameIsGroupMatchingId(
+      String groupAttributeTableAttributeNameIsGroupMatchingId) {
+    this.groupAttributeTableAttributeNameIsGroupMatchingId = groupAttributeTableAttributeNameIsGroupMatchingId;
   }
 
 
@@ -397,7 +397,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.entityTableIdColumn = this.retrieveConfigString("entityTableIdColumn", false);
     this.entityAttributeTableAttributeValueColumn = this.retrieveConfigString("entityAttributeTableAttributeValueColumn", false);
     
-    this.groupAttributeTableAttributeNameIsGroupTargetId = this.retrieveConfigString("groupAttributeTableAttributeNameIsGroupTargetId", false);
+    this.groupAttributeTableAttributeNameIsGroupMatchingId = this.retrieveConfigString("groupAttributeTableAttributeNameIsGroupMatchingId", false);
     this.groupTableName = this.retrieveConfigString("groupTableName", false);
     this.groupAttributeNames = this.retrieveConfigString("groupAttributeNames", false);
     this.groupAttributeTableName = this.retrieveConfigString("groupAttributeTableName", false);

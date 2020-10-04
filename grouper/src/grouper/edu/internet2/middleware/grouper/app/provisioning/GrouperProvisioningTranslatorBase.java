@@ -393,22 +393,22 @@ public class GrouperProvisioningTranslatorBase {
       return;
     }
 
-    String groupIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdExpression(); 
+    String groupIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingIdExpression(); 
 
-    String groupIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdAttribute();
+    String groupIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingIdAttribute();
 
-    String groupIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupTargetIdField();
+    String groupIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingIdField();
 
     if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute) && StringUtils.isBlank(groupIdField)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           groupIdAttribute = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
       }
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           groupIdField = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
@@ -430,13 +430,13 @@ public class GrouperProvisioningTranslatorBase {
         } else if ("name".equals(groupIdField)) {
           id = targetGroup.getName();
         } else {
-          throw new RuntimeException("Invalid groupTargetIdField, expecting id, idIndex, or name: '" + groupIdField + "'");
+          throw new RuntimeException("Invalid groupMatchingIdField, expecting id, idIndex, or name: '" + groupIdField + "'");
         }
         
       } else if (!StringUtils.isBlank(groupIdAttribute)) {
         Object idValue = targetGroup.retrieveAttributeValue(groupIdAttribute);
         if (idValue instanceof Collection) {
-          throw new RuntimeException("Cant have a multivalued target id attribute: '" + groupIdAttribute + "', " + targetGroup);
+          throw new RuntimeException("Cant have a multivalued matching id attribute: '" + groupIdAttribute + "', " + targetGroup);
         }
         id = idValue;
 
@@ -447,10 +447,10 @@ public class GrouperProvisioningTranslatorBase {
         id = runScript(groupIdScript, elVariableMap);
 
       } else {
-        throw new RuntimeException("Must have groupTargetIdField, groupTargetIdAttribute, or groupTargetIdExpression");
+        throw new RuntimeException("Must have groupMatchingIdField, groupMatchingIdAttribute, or groupMatchingIdExpression");
       }
       id = massageToString(id, 2);
-      targetGroup.setTargetId(id);
+      targetGroup.setMatchingId(id);
 
     }
   }
@@ -461,22 +461,22 @@ public class GrouperProvisioningTranslatorBase {
       return;
     }
 
-    String entityIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdExpression(); 
+    String entityIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingIdExpression(); 
 
-    String entityIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdAttribute();
+    String entityIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingIdAttribute();
 
-    String entityIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityTargetIdField();
+    String entityIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingIdField();
 
     if (StringUtils.isBlank(entityIdScript) && StringUtils.isBlank(entityIdAttribute) && StringUtils.isBlank(entityIdField)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           entityIdAttribute = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
       }
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           entityIdField = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
@@ -499,12 +499,12 @@ public class GrouperProvisioningTranslatorBase {
         } else if ("loginId".equals(entityIdField)) {
           id = targetEntity.getLoginId();
         } else {
-          throw new RuntimeException("Invalid entityTargetIdField, expecting id, subjectId, or loginId '" + entityIdField + "'");
+          throw new RuntimeException("Invalid entityMatchingIdField, expecting id, subjectId, or loginId '" + entityIdField + "'");
         }
       } else if (!StringUtils.isBlank(entityIdAttribute)) {
         Object idValue = targetEntity.retrieveAttributeValue(entityIdAttribute);
         if (idValue instanceof Collection) {
-          throw new RuntimeException("Cant have a multivalued target id attribute: '" + entityIdAttribute + "', " + targetEntity);
+          throw new RuntimeException("Cant have a multivalued matching id attribute: '" + entityIdAttribute + "', " + targetEntity);
         }
         id = idValue;
       } else if (!StringUtils.isBlank(entityIdScript)) {
@@ -514,12 +514,12 @@ public class GrouperProvisioningTranslatorBase {
         id = runScript(entityIdScript, elVariableMap);
                 
       } else {
-        throw new RuntimeException("Must have entityTargetIdField, entityTargetIdAttribute, or entityTargetIdExpression");
+        throw new RuntimeException("Must have entityMatchingIdField, entityMatchingIdAttribute, or entityMatchingIdExpression");
       }
 
       id = massageToString(id, 2);
       
-      targetEntity.setTargetId(id);
+      targetEntity.setMatchingId(id);
 
       
     }
@@ -547,7 +547,7 @@ public class GrouperProvisioningTranslatorBase {
       return new MultiKey(newMultiKey);
     }
     // uh...
-    throw new RuntimeException("target ids should be string, number, or multikey of string and number! " + id.getClass() + ", " + id);
+    throw new RuntimeException("matching ids should be string, number, or multikey of string and number! " + id.getClass() + ", " + id);
   }
 
   public void idTargetMemberships(List<ProvisioningMembership> targetMemberships) {
@@ -555,22 +555,22 @@ public class GrouperProvisioningTranslatorBase {
     if (GrouperUtil.isBlank(targetMemberships)) {
       return;
     }
-    String membershipIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdExpression(); 
+    String membershipIdScript = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipMatchingIdExpression(); 
 
-    String membershipIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdAttribute();
+    String membershipIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipMatchingIdAttribute();
 
-    String membershipIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipTargetIdField();
+    String membershipIdField = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipMatchingIdField();
 
     if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           membershipIdAttribute = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
       }
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().values()) {
-        if (grouperProvisioningConfigurationAttribute.isTargetId()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
           membershipIdField = grouperProvisioningConfigurationAttribute.getName();
           break;
         }
@@ -591,12 +591,12 @@ public class GrouperProvisioningTranslatorBase {
         } else if ("provisioningGroupId,provisioningMembershipId".equals(membershipIdField)) {
           id = new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
         } else {
-          throw new RuntimeException("Invalid membershipTargetIdField, expecting id or 'provisioningGroupId,provisioningMembershipId' '" + membershipIdField + "'");
+          throw new RuntimeException("Invalid membershipMatchingIdField, expecting id or 'provisioningGroupId,provisioningMembershipId' '" + membershipIdField + "'");
         }
       } else if (!StringUtils.isBlank(membershipIdAttribute)) {
         Object idValue = targetMembership.retrieveAttributeValue(membershipIdAttribute);
         if (idValue instanceof Collection) {
-          throw new RuntimeException("Cant have a multivalued target id attribute: '" + membershipIdAttribute + "', " + targetMembership);
+          throw new RuntimeException("Cant have a multivalued matching id attribute: '" + membershipIdAttribute + "', " + targetMembership);
         }
         id = idValue;
       } else if (!StringUtils.isBlank(membershipIdScript)) {
@@ -607,10 +607,10 @@ public class GrouperProvisioningTranslatorBase {
 
                 
       } else {
-        throw new RuntimeException("Must have membershipTargetIdField, membershipTargetIdAttribute, or membershipTargetIdExpression");
+        throw new RuntimeException("Must have membershipMatchingIdField, membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
       id = massageToString(id, 2);
-      targetMembership.setTargetId(id);
+      targetMembership.setMatchingId(id);
 
     }
 
@@ -642,19 +642,19 @@ public class GrouperProvisioningTranslatorBase {
     }
   }
 
-  public void targetIdTargetObjects() {
+  public void matchingIdTargetObjects() {
     idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningGroups());
     idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningEntities());
     idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningMemberships());
   }
   
-  public void targetIdGrouperObjects() {
+  public void matchingIdGrouperObjects() {
     idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
     idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
     idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
 
   }
-  public void targetIdGrouperObjectsIncludeDeletes() {
+  public void matchingIdGrouperObjectsIncludeDeletes() {
     idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
     idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
     idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());

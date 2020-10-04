@@ -57,93 +57,98 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
-   * use this attribute as a target id
+   * use this attribute as a matching id
    */
-  private String entityTargetIdAttribute;
-
-  
-  public String getEntityTargetIdAttribute() {
-    return entityTargetIdAttribute;
-  }
-
-
-  
-  public void setEntityTargetIdAttribute(String entityTargetIdAttribute) {
-    this.entityTargetIdAttribute = entityTargetIdAttribute;
-  }
+  private String entityMatchingIdAttribute;
 
   /**
-   * use this attribute as a target id
-   */
-  private String groupTargetIdAttribute;
-  
-  /**
-   * use this attribute as a target id
+   * use this attribute as a matching id
    * @return
    */
-  public String getGroupTargetIdAttribute() {
-    return groupTargetIdAttribute;
+  public String getEntityMatchingIdAttribute() {
+    return entityMatchingIdAttribute;
   }
 
+  /**
+   * use this attribute as a matching id
+   * @param entityMatchingIdAttribute
+   */
+  public void setEntityMatchingIdAttribute(String entityMatchingIdAttribute) {
+    this.entityMatchingIdAttribute = entityMatchingIdAttribute;
+  }
 
   /**
-   * use this attribute as a target id
-   * @param groupTargetIdAttribute
+   * use this attribute as a matching id
    */
-  public void setGroupTargetIdAttribute(String groupTargetIdAttribute) {
-    this.groupTargetIdAttribute = groupTargetIdAttribute;
+  private String groupMatchingIdAttribute;
+  
+  
+
+  /**
+   * use this attribute as a matching id
+   * @return
+   */
+  public String getGroupMatchingIdAttribute() {
+    return groupMatchingIdAttribute;
+  }
+
+  /**
+   * use this attribute as a matching id
+   * @param groupMatchingIdAttribute
+   */
+  public void setGroupMatchingIdAttribute(String groupMatchingIdAttribute) {
+    this.groupMatchingIdAttribute = groupMatchingIdAttribute;
   }
 
   /**
    * id or "provisioningGroupId,provisioningEntityId"
    */
-  private String membershipTargetIdField;
+  private String membershipMatchingIdField;
 
-  
   
   /**
    * id or "provisioningGroupId,provisioningEntityId"
    * @return
    */
-  public String getMembershipTargetIdField() {
-    return membershipTargetIdField;
+  public String getMembershipMatchingIdField() {
+    return membershipMatchingIdField;
   }
 
 
 
   /**
    * id or "provisioningGroupId,provisioningEntityId"
-   * @param membershipTargetIdField
+   * @param membershipMatchingIdField
    */
-  public void setMembershipTargetIdField(String membershipTargetIdField) {
-    this.membershipTargetIdField = membershipTargetIdField;
+  public void setMembershipMatchingIdField(String membershipMatchingIdField) {
+    this.membershipMatchingIdField = membershipMatchingIdField;
   }
 
   /**
    * id, subjectId, loginId
    */
-  private String entityTargetIdField;
+  private String entityMatchingIdField;
   
   /**
    * id, subjectId, loginId
    * @return
    */
-  public String getEntityTargetIdField() {
-    return entityTargetIdField;
+  public String getEntityMatchingIdField() {
+    return entityMatchingIdField;
   }
 
   /**
    * id, subjectId, loginId
-   * @param entityTargetIdField
+   * @param entityMatchingIdField
    */
-  public void setEntityTargetIdField(String entityTargetIdField) {
-    this.entityTargetIdField = entityTargetIdField;
+  public void setEntityMatchingIdField(String entityMatchingIdField) {
+    this.entityMatchingIdField = entityMatchingIdField;
   }
 
   /**
    * id, idIndex, or name
    */
-  private String groupTargetIdField;
+  private String groupMatchingIdField;
 
   
 
@@ -151,87 +156,85 @@ public abstract class GrouperProvisioningConfigurationBase {
    * id, idIndex, or name
    * @return
    */
-  public String getGroupTargetIdField() {
-    return groupTargetIdField;
+  public String getGroupMatchingIdField() {
+    return groupMatchingIdField;
   }
 
 
 
   /**
    * id, idIndex, or name
-   * @param groupTargetIdField
+   * @param groupMatchingIdField
    */
-  public void setGroupTargetIdField(String groupTargetIdField) {
-    this.groupTargetIdField = groupTargetIdField;
+  public void setGroupMatchingIdField(String groupMatchingIdField) {
+    this.groupMatchingIdField = groupMatchingIdField;
   }
 
   /**
    * 
    */
-  private String membershipTargetIdAttribute;
+  private String membershipMatchingIdAttribute;
 
   
   
-  public String getMembershipTargetIdAttribute() {
-    return membershipTargetIdAttribute;
+  public String getMembershipMatchingIdAttribute() {
+    return membershipMatchingIdAttribute;
   }
 
-
-
   
-  public void setMembershipTargetIdAttribute(String membershipTargetIdAttribute) {
-    this.membershipTargetIdAttribute = membershipTargetIdAttribute;
+  public void setMembershipMatchingIdAttribute(String membershipMatchingIdAttribute) {
+    this.membershipMatchingIdAttribute = membershipMatchingIdAttribute;
   }
 
   /**
    * expression to get the group id from target group
    */
-  private String groupTargetIdExpression;
+  private String groupMatchingIdExpression;
 
   /**
    * expression to get the membership id from the target group
    */
-  private String membershipTargetIdExpression;
+  private String membershipMatchingIdExpression;
 
   /**
    * expression to get the entity id from the target entity
    */
-  private String entityTargetIdExpression;
+  private String entityMatchingIdExpression;
   
   
   
-  public String getGroupTargetIdExpression() {
-    return groupTargetIdExpression;
+  public String getGroupMatchingIdExpression() {
+    return groupMatchingIdExpression;
   }
 
 
   
-  public void setGroupTargetIdExpression(String groupTargetIdExpression) {
-    this.groupTargetIdExpression = groupTargetIdExpression;
+  public void setGroupMatchingIdExpression(String groupMatchingIdExpression) {
+    this.groupMatchingIdExpression = groupMatchingIdExpression;
   }
 
 
   
-  public String getMembershipTargetIdExpression() {
-    return membershipTargetIdExpression;
+  public String getMembershipMatchingIdExpression() {
+    return membershipMatchingIdExpression;
   }
 
 
   
-  public void setMembershipTargetIdExpression(String membershipTargetIdExpression) {
-    this.membershipTargetIdExpression = membershipTargetIdExpression;
+  public void setMembershipMatchingIdExpression(String membershipMatchingIdExpression) {
+    this.membershipMatchingIdExpression = membershipMatchingIdExpression;
   }
 
 
   
-  public String getEntityTargetIdExpression() {
-    return entityTargetIdExpression;
+  public String getEntityMatchingIdExpression() {
+    return entityMatchingIdExpression;
   }
 
 
   
-  public void setEntityTargetIdExpression(String entityTargetIdExpression) {
-    this.entityTargetIdExpression = entityTargetIdExpression;
+  public void setEntityMatchingIdExpression(String entityMatchingIdExpression) {
+    this.entityMatchingIdExpression = entityMatchingIdExpression;
   }
 
   private boolean logAllObjectsVerbose = false;
@@ -660,12 +663,12 @@ public abstract class GrouperProvisioningConfigurationBase {
   private String groupSearchAttributeName = null;
   
   /**
-   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
    */
   private String userSearchFilter = null;
   
   /**
-   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
    * @return
    */
   public String getUserSearchFilter() {
@@ -673,7 +676,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
-   * search filter to look up entity if cannot just use the targetId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
    * @param userSearchFilter
    */
   public void setUserSearchFilter(String userSearchFilter) {
@@ -783,14 +786,14 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
-   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
    */
   private String groupSearchFilter = null;
   
   
   
   /**
-   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
    * @return
    */
   public String getGroupSearchFilter() {
@@ -800,7 +803,7 @@ public abstract class GrouperProvisioningConfigurationBase {
 
 
   /**
-   * search filter to look up group if cannot just use the targetId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
    * @param groupSearchFilter
    */
   public void setGroupSearchFilter(String groupSearchFilter) {
@@ -882,8 +885,8 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       
-      boolean foundTargetId = false;
-      String foundTargetIdName = null;
+      boolean foundMatchingId = false;
+      String foundMatchingIdName = null;
       
       boolean foundMembershipAttribute = false;
       String foundMembershipAttributeName = null;
@@ -934,15 +937,15 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
-          boolean targetId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".targetId" , false), false);
-          if (targetId) {
-            if (foundTargetId) {
-              throw new RuntimeException("Can only have one " + objectType + " targetId attribute or field! " + name + ", " + foundTargetIdName);
+          boolean matchingId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".matchingId" , false), false);
+          if (matchingId) {
+            if (foundMatchingId) {
+              throw new RuntimeException("Can only have one " + objectType + " matchingId attribute or field! " + name + ", " + foundMatchingIdName);
             }
-            foundTargetId = true;
-            foundTargetIdName = name;
+            foundMatchingId = true;
+            foundMatchingIdName = name;
           }
-          attributeConfig.setTargetId(targetId);
+          attributeConfig.setMatchingId(matchingId);
         }
         
         {
@@ -1029,13 +1032,13 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
 
-    this.entityTargetIdExpression = this.retrieveConfigString("entityTargetIdExpression", false);
-    this.groupTargetIdExpression = this.retrieveConfigString("groupTargetIdExpression", false);
-    this.membershipTargetIdExpression = this.retrieveConfigString("membershipTargetIdExpression", false);
+    this.entityMatchingIdExpression = this.retrieveConfigString("entityMatchingIdExpression", false);
+    this.groupMatchingIdExpression = this.retrieveConfigString("groupMatchingIdExpression", false);
+    this.membershipMatchingIdExpression = this.retrieveConfigString("membershipMatchingIdExpression", false);
 
     
-    this.entityTargetIdAttribute = this.retrieveConfigString("entityTargetIdAttribute", false);
-    this.groupTargetIdAttribute = this.retrieveConfigString("groupTargetIdAttribute", false);
+    this.entityMatchingIdAttribute = this.retrieveConfigString("entityMatchingIdAttribute", false);
+    this.groupMatchingIdAttribute = this.retrieveConfigString("groupMatchingIdAttribute", false);
     
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
     

@@ -59,8 +59,8 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningLogic.class.equals(this.grouperProvisioningLogicClass())) {
       result.append(", Logic: ").append(this.grouperProvisioningLogicClass().getName());
     }
-    if (!GrouperProvisioningTargetIdIndex.class.equals(this.grouperProvisioningTargetIdIndexClass())) {
-      result.append(", TargetIdIndex: ").append(this.grouperProvisioningTargetIdIndexClass().getName());
+    if (!GrouperProvisioningMatchingIdIndex.class.equals(this.grouperProvisioningMatchingIdIndexClass())) {
+      result.append(", MatchingIdIndex: ").append(this.grouperProvisioningMatchingIdIndexClass().getName());
     }
     if (!GrouperProvisioningTranslatorBase.class.equals(this.grouperTranslatorClass())) {
       result.append(", Translator: ").append(this.grouperTranslatorClass().getName());
@@ -588,20 +588,20 @@ public abstract class GrouperProvisioner {
    * return the instance of the indexing logic
    * @return the logic
    */
-  public GrouperProvisioningTargetIdIndex retrieveGrouperProvisioningTargetIdIndex() {
-    if (this.grouperProvisioningTargetIdIndex == null) {
-      Class<GrouperProvisioningTargetIdIndex> grouperProvisioningLogicClass = this.grouperProvisioningTargetIdIndexClass();
-      this.grouperProvisioningTargetIdIndex = GrouperUtil.newInstance(grouperProvisioningLogicClass);
-      this.grouperProvisioningTargetIdIndex.setGrouperProvisioner(this);
+  public GrouperProvisioningMatchingIdIndex retrieveGrouperProvisioningMatchingIdIndex() {
+    if (this.grouperProvisioningMatchingIdIndex == null) {
+      Class<GrouperProvisioningMatchingIdIndex> grouperProvisioningLogicClass = this.grouperProvisioningMatchingIdIndexClass();
+      this.grouperProvisioningMatchingIdIndex = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningMatchingIdIndex.setGrouperProvisioner(this);
     }
-    return this.grouperProvisioningTargetIdIndex;
+    return this.grouperProvisioningMatchingIdIndex;
     
   }
 
-  private GrouperProvisioningTargetIdIndex grouperProvisioningTargetIdIndex;
+  private GrouperProvisioningMatchingIdIndex grouperProvisioningMatchingIdIndex;
   
-  protected Class<GrouperProvisioningTargetIdIndex> grouperProvisioningTargetIdIndexClass() {
-    return GrouperProvisioningTargetIdIndex.class;
+  protected Class<GrouperProvisioningMatchingIdIndex> grouperProvisioningMatchingIdIndexClass() {
+    return GrouperProvisioningMatchingIdIndex.class;
   }
 
   /**

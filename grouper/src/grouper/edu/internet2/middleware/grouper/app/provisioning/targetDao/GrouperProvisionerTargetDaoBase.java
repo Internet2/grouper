@@ -15,8 +15,8 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * generally when you deal with insert/update/delete/retrieve
- * you should use the "targetId" of the parameter to the method.
- * Note: when you retrieve the data, you should not set the targetId,
+ * you should use the "matchingId" of the parameter to the method.
+ * Note: when you retrieve the data, you should not set the matchingId,
  * you should let the provisioning framework set that.
  * 
  * The results of retrieving a few objects should be in the same format
@@ -163,7 +163,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * retrieve all incremental data from the target from the target ids of the grouper translated and indexed target groups
+   * retrieve all incremental data from the target from the matching ids of the grouper translated and indexed target groups
    */
   public TargetDaoRetrieveIncrementalDataResponse retrieveIncrementalData(
       TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncementalDataRequest) {
@@ -171,7 +171,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * bulk retrieve target provisioning groups, generally use the target Ids in the targetGroups
+   * bulk retrieve target provisioning groups, generally use the matching Ids in the targetGroups
    * @return the target provisioning groups
    */
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
@@ -179,7 +179,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * bulk retrieve target provisioning Memberships, generally use the target Ids in the targetMemberships
+   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
    * @return the target provisioning Memberships
    */
   public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(
@@ -189,7 +189,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
   
   /**
-   * bulk retrieve all target provisioning Memberships related to these groups, generally use the target Ids in the targetGroups
+   * bulk retrieve all target provisioning Memberships related to these groups, generally use the matching Ids in the targetGroups
    * @return the target provisioning memberships
    */
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
@@ -207,7 +207,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * bulk retrieve target provisioning Memberships, generally use the target Ids in the targetEntities
+   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetEntities
    * @return the target provisioning memberships
    */
   public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
@@ -234,7 +234,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * bulk retrieve target provisioning Memberships, generally use the target Ids in the targetMemberships
+   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
    * @ptouperTargetMemberships
    * @return the target provisioning Memberships
    */
@@ -243,7 +243,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * bulk retrieve target provisioning Entities, generally use the target Ids in the targetEntities
+   * bulk retrieve target provisioning Entities, generally use the matching Ids in the targetEntities
    * @param targetEntities
    * @return the target provisioning Entities
    */
@@ -252,7 +252,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * return a group by target id of grouper target group, or null if not found
+   * return a group by matching id of grouper target group, or null if not found
    * @param targetGroup
    * @return the target provisioning group or null if not found
    */
@@ -261,7 +261,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * return a Entity by target id of grouper target Entity, or null if not found
+   * return a Entity by matching id of grouper target Entity, or null if not found
    * @param targetEntity
    * @return the target provisioning Entity or null if not found
    */
@@ -270,7 +270,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * return a Membership by target id of grouper target Membership, or null if not found
+   * return a Membership by matching id of grouper target Membership, or null if not found
    * @param targetMembership
    * @return the target provisioning Membership or null if not found
    */
