@@ -370,7 +370,7 @@ public class GrouperProvisionerGrouperDao {
             typesCurrent.add(StringType.INSTANCE);
             paramsCurrent.add(groupUuid);
             paramsCurrent.add(memberUuid);
-            sql.append("  (gg.id = ? && gm.id = ?) ");
+            sql.append("  (gg.id = ? and gm.id = ?) ");
           } else if (!StringUtils.isBlank(groupUuid) && StringUtils.isBlank(memberUuid)) {
             typesCurrent.add(StringType.INSTANCE);
             paramsCurrent.add(groupUuid);
@@ -662,22 +662,22 @@ public class GrouperProvisionerGrouperDao {
     
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupOnly()));
+      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupOnly()));
       debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
     }
     {
       long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityOnly()));
+      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityOnly()));
       debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
     }
     {
       long start = System.currentTimeMillis();
       grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(false, 
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsForGroupMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getMemberUuidsForEntityMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()));
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityMembershipSync(),
+          grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()));
       debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
     }

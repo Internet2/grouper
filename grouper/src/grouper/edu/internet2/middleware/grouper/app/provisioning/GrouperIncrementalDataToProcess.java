@@ -11,7 +11,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  * @author mchyzer-local
  *
  */
-public class GrouperIncrementalUuidsToRetrieveFromGrouper {
+public class GrouperIncrementalDataToProcess {
 
   private GrouperProvisioner grouperProvisioner;
 

@@ -282,7 +282,7 @@ public class GrouperProvisioningLogic {
     try {
       debugMap.put("state", "retrieveIncrementalDataFromGrouper");
       long start = System.currentTimeMillis();
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalDataFromGrouper();
+      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
       long retrieveDataPass1 = System.currentTimeMillis()-start;
       debugMap.put("retrieveDataPass1_millis", retrieveDataPass1);
     } finally {
@@ -609,8 +609,8 @@ public class GrouperProvisioningLogic {
     TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = 
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest();
 
-    GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper =
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper();
+    GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc();
 
     {
       //the groups only should be the full list of grouper target groups
@@ -737,14 +737,6 @@ public class GrouperProvisioningLogic {
 
   }
 
-
-  /**
-   * get data from change log
-   */
-  public void retrieveIncrementalDataFromGrouper() {
-        
-    this.retrieveGrouperDataIncremental();
-  }
   /**
    * retrieve all data from both sides, grouper and target, do this in a thread
    */
