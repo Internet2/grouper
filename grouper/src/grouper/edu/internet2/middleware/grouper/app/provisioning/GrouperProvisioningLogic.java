@@ -218,7 +218,7 @@ public class GrouperProvisioningLogic {
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsUpdatesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates());
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes());
       } catch (Exception e) {
-        LOG.error(e);
+        LOG.error("error sync objects", e);
       }
       //TODO this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.sendChangesToTarget);
 
