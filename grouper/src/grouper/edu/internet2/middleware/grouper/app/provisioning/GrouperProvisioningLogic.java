@@ -844,8 +844,9 @@ public class GrouperProvisioningLogic {
     
         ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(gcGrouperSyncGroup.getGroupId());
         
-        provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
-        
+        if (provisioningGroupWrapper != null) {
+          provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+        }
       }
     }
 
@@ -857,8 +858,9 @@ public class GrouperProvisioningLogic {
     
         ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(gcGrouperSyncMember.getMemberId());
         
-        provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
-        
+        if (provisioningEntityWrapper != null) {
+          provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+        }
       }
     }
 
@@ -871,8 +873,9 @@ public class GrouperProvisioningLogic {
         GcGrouperSyncMembership gcGrouperSyncMembership  = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership().get(groupUuidMemberUuid);
         ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupUuidMemberUuid);
         
-        provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
-        
+        if (provisioningMembershipWrapper != null) {
+          provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        }
       }
     }
   }
