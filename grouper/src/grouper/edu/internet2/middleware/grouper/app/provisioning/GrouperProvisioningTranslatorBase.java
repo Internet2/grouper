@@ -164,8 +164,11 @@ public class GrouperProvisioningTranslatorBase {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(groupMembershipAttribute);
             if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
               Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
-              grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
-              this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+              
+              if (result != null) {
+                grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+              }
             }
           }
         }
@@ -176,8 +179,11 @@ public class GrouperProvisioningTranslatorBase {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(userMembershipAttribute);
             if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
               Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
-              grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
-              this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+              
+              if (result != null) {
+                grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+              }
             }
           }
         }
