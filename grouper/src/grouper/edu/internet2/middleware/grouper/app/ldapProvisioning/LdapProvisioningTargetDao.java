@@ -139,9 +139,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           
           continue;
         }
+
+        LdapAttribute ldapAttribute = ldapEntry.getAttribute(provisioningObjectChange.getAttributeName());
+        if (ldapAttribute == null) {
+          ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        }
         
-        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
-  
         if (value instanceof String && !StringUtils.isEmpty((String)value)) {
           ldapAttribute.addValue((String)value);
         } else if (value instanceof Collection) {
@@ -523,7 +526,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           continue;
         }
         
-        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        LdapAttribute ldapAttribute = ldapEntry.getAttribute(provisioningObjectChange.getAttributeName());
+        if (ldapAttribute == null) {
+          ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        }
   
         if (value instanceof String && !StringUtils.isEmpty((String)value)) {
           ldapAttribute.addValue((String)value);
