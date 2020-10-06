@@ -1121,6 +1121,18 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.groupSearchAttributes = new HashSet<String>();
     }
     
+    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isSelect()) {
+        this.groupSearchAttributes.add(targetGroupAttributeName);
+      }
+    }
+    
+    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isSelect()) {
+        this.userSearchAttributes.add(targetEntityAttributeName);
+      }
+    }
+    
     this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
 
     this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
