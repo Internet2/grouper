@@ -228,6 +228,20 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         Object newValue = provisionObjectChange.getNewValue();
         Object oldValue = provisionObjectChange.getOldValue();
         
+        if (newValue != null && !(newValue instanceof byte[])) {
+          newValue = GrouperUtil.stringValue(newValue);
+          if (StringUtils.isEmpty((String)newValue)) {
+            newValue = null;
+          }
+        }
+        
+        if (oldValue != null && !(oldValue instanceof byte[])) {
+          oldValue = GrouperUtil.stringValue(oldValue);
+          if (StringUtils.isEmpty((String)oldValue)) {
+            oldValue = null;
+          }
+        }
+        
         if (action == ProvisioningObjectChangeAction.delete) {
           if (newValue != null) {
             throw new RuntimeException("Deleting value but there's a new value=" + newValue + ", attributeName=" + attributeName);
