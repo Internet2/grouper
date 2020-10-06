@@ -145,13 +145,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
         }
         
-        if (value instanceof String && !StringUtils.isEmpty((String)value)) {
-          ldapAttribute.addValue((String)value);
+        if (value instanceof byte[]) {
+          ldapAttribute.addValue(value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
           Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
-          if (values.size() > 0) {
-            ldapAttribute.addValues(values);
+          for (Object singleValue : values) {
+            if (singleValue instanceof byte[]) {
+              ldapAttribute.addValue(singleValue);
+            } else {
+              String singleStringValue = GrouperUtil.stringValue(singleValue);
+              if (!StringUtils.isEmpty(singleStringValue)) {
+                ldapAttribute.addValue(singleStringValue);
+              }
+            }
+          }
+        } else {
+          String stringValue = GrouperUtil.stringValue(value);
+          if (!StringUtils.isEmpty(stringValue)) {
+            ldapAttribute.addValue(stringValue);
           }
         }
         
@@ -531,14 +543,26 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
         }
   
-        if (value instanceof String && !StringUtils.isEmpty((String)value)) {
-          ldapAttribute.addValue((String)value);
+        if (value instanceof byte[]) {
+          ldapAttribute.addValue(value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
           Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
-          if (values.size() > 0) {
-            ldapAttribute.addValues(values);
-          } 
+          for (Object singleValue : values) {
+            if (singleValue instanceof byte[]) {
+              ldapAttribute.addValue(singleValue);
+            } else {
+              String singleStringValue = GrouperUtil.stringValue(singleValue);
+              if (!StringUtils.isEmpty(singleStringValue)) {
+                ldapAttribute.addValue(singleStringValue);
+              }
+            }
+          }
+        } else {
+          String stringValue = GrouperUtil.stringValue(value);
+          if (!StringUtils.isEmpty(stringValue)) {
+            ldapAttribute.addValue(stringValue);
+          }
         }
         
         if (ldapAttribute.getValues().size() > 0) {
