@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
-public class PspngFullSyncTest extends TestCase {
+public class PspngFullSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
     TestRunner.run(new PspngFullSyncTest("testFullSync"));
@@ -48,20 +49,14 @@ public class PspngFullSyncTest extends TestCase {
    */
   @Override
   protected void setUp() {
-    
+
+    super.setUp();
     try {
       this.grouperSession = GrouperSession.startRootSession();  
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
     
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    
-    // clear config cache
-    GrouperCacheUtils.clearAllCaches();
-    
-    GrouperCheckConfig.checkObjects();
-
     Provisioner.checkAttributeDefinitions();
     
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
