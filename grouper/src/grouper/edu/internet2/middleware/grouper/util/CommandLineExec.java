@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.pspng;
+package edu.internet2.middleware.grouper.util;
 
 import java.io.File;
 

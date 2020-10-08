@@ -49,6 +49,13 @@
         <artifactId>grouper</artifactId>
     </dependency>
     <dependency>
+       <groupId>${project.groupId}</groupId>
+       <version>${project.version}</version>
+       <artifactId>grouper</artifactId>
+       <type>test-jar</type>
+       <scope>test</scope>
+    </dependency>
+    <dependency>
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive</artifactId>
     </dependency>
