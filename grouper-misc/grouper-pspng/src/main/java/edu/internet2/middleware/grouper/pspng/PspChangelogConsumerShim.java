@@ -60,18 +60,19 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         if (args.length != 1) {
-          throw new RuntimeException("Pass in change log consumer name");
+          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_oneprodFull");
         }
         
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_pspng_oneprodFull");
+        hib3GrouploaderLog.setJobName(args[0]);
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
 //        hib3GrouploaderLog.store();
         
         try {
+          String consumerName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
 
-          ChangeLogHelper.processRecords(args[0], hib3GrouploaderLog, new PspChangelogConsumerShim());
+          ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, new PspChangelogConsumerShim());
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
           

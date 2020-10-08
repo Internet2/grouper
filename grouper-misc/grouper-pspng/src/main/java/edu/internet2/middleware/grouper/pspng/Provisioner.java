@@ -280,7 +280,7 @@ public abstract class Provisioner
   /**
    * This creates any attributes missing within the etc:pspng: folder.
    */
-  private void checkAttributeDefinitions() {
+  public static void checkAttributeDefinitions() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     if ( grouperSession == null )
       grouperSession = GrouperSession.startRootSession();
@@ -778,7 +778,7 @@ public abstract class Provisioner
 
     Set<Subject> subjects = new HashSet<Subject>();
 
-    // Use this Set to remove duplicate group names that are referenced in multiple workItemsß
+    // Use this Set to remove duplicate group names that are referenced in multiple workItems
     Set<GrouperGroupInfo> grouperGroupInfos = new HashSet<GrouperGroupInfo>();
 
     for ( ProvisioningWorkItem workItem : workItems) {
@@ -1953,20 +1953,21 @@ public abstract class Provisioner
         if (grouperGroupInfo.hasGroupBeenDeleted() ) {
           provisionable = false;
         }
-        String objectName = group.getName();
+        final String objectName = group.getName();
         // first look for not provisionable
         if (provisionable == null && attributeToGroupNameAssigned.get(doNotProvisionToName).contains(objectName)) {
           provisionable = false;
         }
         //lets walk up the folder structure and look for an assignment
         if (provisionable == null) {
+          String currentObjectNamePointer = objectName;
           for (int i=0;i<1000;i++) {
-            objectName = GrouperUtil.parentStemNameFromName(objectName, false);
-            if (provisionable == null && attributeToStemNameAssigned.get(doNotProvisionToName).contains(objectName)) {
+            currentObjectNamePointer = GrouperUtil.parentStemNameFromName(currentObjectNamePointer, false);
+            if (provisionable == null && attributeToStemNameAssigned.get(doNotProvisionToName).contains(currentObjectNamePointer)) {
               provisionable = false;
               break;
             }
-            if (":".equals(objectName)) {
+            if (":".equals(currentObjectNamePointer) || "".equals(currentObjectNamePointer)) {
               break;
             }
           }
@@ -1978,12 +1979,13 @@ public abstract class Provisioner
         //lets walk up the folder structure and look for an assignment
         if (provisionable == null) {
           for (int i=0;i<1000;i++) {
-            objectName = GrouperUtil.parentStemNameFromName(objectName, false);
-            if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(objectName)) {
+            String currentObjectNamePointer = objectName;
+            currentObjectNamePointer = GrouperUtil.parentStemNameFromName(currentObjectNamePointer, false);
+            if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(currentObjectNamePointer)) {
               provisionable = true;
               break;
             }
-            if (":".equals(objectName)) {
+            if (":".equals(currentObjectNamePointer) || "".equals(currentObjectNamePointer)) {
               break;
             }
           }
