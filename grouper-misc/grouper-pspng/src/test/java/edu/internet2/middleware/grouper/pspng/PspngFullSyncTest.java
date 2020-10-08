@@ -94,7 +94,19 @@ public class PspngFullSyncTest extends TestCase {
     SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("personLdapSource"));
   }
 
-  public void testFullSync() throws Exception {
+  public void testFullSyncWithCache() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "true");
+    fullSyncHelper();
+  }
+  
+  public void testFullSyncWithoutCache() throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "false");
+    fullSyncHelper();
+  }
+  
+  public void fullSyncHelper() throws Exception {
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.type", LdapGroupProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.class", PspChangelogConsumerShim.class.getName());
