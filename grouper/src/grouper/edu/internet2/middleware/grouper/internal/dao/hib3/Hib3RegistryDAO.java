@@ -178,6 +178,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3StemDAO.reset(hibernateSession);
             Hib3FieldDAO.reset(hibernateSession);
             Hib3MessageDAO.reset(hibernateSession);
+            Hib3GrouperFileDAO.reset(hibernateSession);
 
             GcGrouperSyncLog.reset();
             GcGrouperSyncMembership.reset();
@@ -207,6 +208,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3PITStemDAO.reset(hibernateSession);
             Hib3PITFieldDAO.reset(hibernateSession);
             Hib3PITMemberDAO.reset(hibernateSession);
+            Hib3PITConfigDAO.reset(hibernateSession);
 
             Hib3ExternalSubjectAttributeDAO.reset(hibernateSession);
             Hib3ExternalSubjectDAO.reset(hibernateSession);

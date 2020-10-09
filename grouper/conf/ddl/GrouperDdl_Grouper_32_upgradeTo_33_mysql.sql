@@ -31,7 +31,7 @@ CREATE TABLE grouper_cache_overall
 
 CREATE TABLE grouper_cache_instance
 (
-    cache_name VARCHAR(400) NOT NULL,
+    cache_name VARCHAR(250) NOT NULL,
     nanos_since_1970 BIGINT NOT NULL,
     PRIMARY KEY (cache_name)
 );

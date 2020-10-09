@@ -5,12 +5,22 @@
 	                    <c:set var="grouperProvisioningAttributeValue" 
 	                        value="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue}" />
                       
-                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: ${guiGrouperProvisioningAttributeValue.externalizedName}</h4>
+                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: 
+                      
+                      <c:if test="${ObjectType == 'Folder' }">
+	                      <a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
+	                              >${guiGrouperProvisioningAttributeValue.externalizedName}</a>
+                      </c:if>
+                      <c:if test="${ObjectType == 'Group' }">
+	                      <a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
+	                              >${guiGrouperProvisioningAttributeValue.externalizedName}</a>
+                      </c:if>
+                      </h4>
                       <table class="table table-condensed table-striped">
                         <tbody>
                          
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningeHasConfigurationLabel'] }</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningHasConfigurationLabel'] }</strong></td>
                             <td>
                               <c:choose>
                                 <c:when test="${grouperProvisioningAttributeValue.directAssignment || not empty grouperProvisioningAttributeValue.ownerStemId }">
@@ -72,7 +82,7 @@
 
                             </c:if>
                             
-                            <c:if test="${ObjectType == 'Folder' }">
+                            <c:if test="${ObjectType == 'Folder' && grouperProvisioningAttributeValue.directAssignment }">
                             
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningStemScopeLabel']}</strong></td>

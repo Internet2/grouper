@@ -41,10 +41,13 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefAttributeNameValidationHook;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
+import edu.internet2.middleware.grouper.hooks.examples.StemAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -107,11 +110,14 @@ public class GrouperHooksUtils {
           addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
         }
         
-        
+         
       } catch (ClassNotFoundException cnfe) {
         //just ignore, probably not running unit tests
       }
+      AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true);
+      AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true);
       GroupAttributeNameValidationHook.registerHookIfNecessary(true);
+      StemAttributeNameValidationHook.registerHookIfNecessary(true);
       
       GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
 

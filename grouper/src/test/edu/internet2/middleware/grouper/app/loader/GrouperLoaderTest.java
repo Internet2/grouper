@@ -149,7 +149,7 @@ public class GrouperLoaderTest extends GrouperTest {
   public void testConnectionsLoaderAndClient() {
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("test.db.connect.multiple.dbs", false)) {
-      
+      return;
     }
     
     String grouperUrl = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");

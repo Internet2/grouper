@@ -94,9 +94,8 @@ public class UpgradeTasksJob extends OtherJobBase {
     String groupName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
     String upgradeTasksVersionName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
-    String versionString = group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName);
     
-    int oldDBVersion = Integer.parseInt(versionString);    
+    int oldDBVersion = getDBVersion();
     int newDBVersion = UpgradeTasks.currentVersion();
     
     for (int version = oldDBVersion + 1; version <= newDBVersion; version++) {
@@ -121,5 +120,15 @@ public class UpgradeTasksJob extends OtherJobBase {
    */
   public static String grouperUpgradeTasksStemName() {
     return GrouperCheckConfig.attributeRootStemName() + ":upgradeTasks";
+  }
+  
+  public static int getDBVersion() {
+    String groupName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    String upgradeTasksVersionName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+    String versionString = group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName);
+    
+    int oldDBVersion = Integer.parseInt(versionString);  
+    return oldDBVersion;
   }
 }

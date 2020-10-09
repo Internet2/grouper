@@ -34,6 +34,8 @@ public class AllHooksExamplesTests {
         "Test for edu.internet2.middleware.grouper.hooks.examples");
     //$JUnit-BEGIN$
     suite.addTestSuite(AttributeAutoCreateHookTest.class);
+    suite.addTestSuite(AttributeDefAttributeNameValidationHookTest.class);
+    suite.addTestSuite(AttributeDefNameAttributeNameValidationHookTest.class);
     suite.addTestSuite(AttributeSecurityFromTypeHookTest.class);
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
     suite.addTestSuite(GroupUniqueNameCaseInsensitiveHookTest.class);
@@ -42,6 +44,7 @@ public class AllHooksExamplesTests {
       suite.addTestSuite(MembershipCannotAddSelfToGroupHookTest.class);
     }
     suite.addTestSuite(MembershipOneInFolderMaxHookTest.class);
+    suite.addTestSuite(StemAttributeNameValidationHookTest.class);
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(UniqueObjectHookTest.class);
     suite.addTestSuite(GroupUniqueExtensionHookTest.class);

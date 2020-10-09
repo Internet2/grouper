@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.messaging;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -89,7 +90,21 @@ public class MessagingListenerController {
       int pollingTimeoutSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".pollingTimeoutSeconds", 18);
       int sleepSecondsInBetweenIterations = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".sleepSecondsInBetweenIterations", 0);
       int maxMessagesToReceiveAtOnce = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".maxMessagesToReceiveAtOnce", 20);
-      
+
+      Map<String, Object> queueArguments = null;
+      for (int i=0;i<100;i++) {
+        String key = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".queueArgs." + i + ".key");
+        if (key == null || "".equals(key)) {
+          break;
+        }
+
+        String value = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".queueArgs." + i + ".value");
+        if (queueArguments == null) {
+          queueArguments = new HashMap<>();
+        }
+        queueArguments.put(key, value);
+      }
+
       boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
       
       if (maxMessagesToReceiveAtOnce < 1) {
@@ -128,7 +143,8 @@ public class MessagingListenerController {
                 .assignQueueType(grouperMessageQueueType)
                 .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
                 .assignRoutingKey(routingKey)
-                .assignExchangeType(exchangeType));
+                .assignExchangeType(exchangeType)
+                .assignQueueArguments(queueArguments));
           numberOfTries++;
           grouperMessages = grouperMessageReceiveResult.getGrouperMessages();
 

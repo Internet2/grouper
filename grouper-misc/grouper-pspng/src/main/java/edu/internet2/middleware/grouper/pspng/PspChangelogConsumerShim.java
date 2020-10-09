@@ -24,9 +24,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
@@ -41,6 +52,39 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
   
   public PspChangelogConsumerShim() {
     LOG.debug("Constructing PspngChangelogConsumerShim");
+  }
+  
+  public static void main(final String[] args) {
+    GrouperStartup.startup();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (args.length != 1) {
+          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_oneprodFull");
+        }
+        
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobName(args[0]);
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+//        hib3GrouploaderLog.store();
+        
+        try {
+          String consumerName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
+
+          ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, new PspChangelogConsumerShim());
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          
+        } catch (Exception e) {
+          LOG.error("Error processing records", e);
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        }
+//        hib3GrouploaderLog.store();
+
+        return null;
+      }
+    });
   }
   
   @Override

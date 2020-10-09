@@ -136,6 +136,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
+          <artifactId>commons-exec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl</artifactId>
         </dependency>
         <dependency>
@@ -303,11 +307,11 @@
             <artifactId>jandex</artifactId>
         </dependency>
         <!-- custom Penn -->
-        <dependency>
+        <!-- dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency -->
         <dependency>
             <groupId>xmlpull</groupId>
             <artifactId>xmlpull</artifactId>

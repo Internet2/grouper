@@ -288,6 +288,11 @@ public abstract class GuiObjectBase {
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
    */
   private boolean showBreadcrumbLinkSeparator = true;
+  
+  /**
+   * additional breadcrumb bullets if someone wants to add more custom bullets to the breadcrumb
+   */
+  private String additionalBreadcrumbBullets = "";
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GuiObjectBase.class);
@@ -323,6 +328,23 @@ public abstract class GuiObjectBase {
   public void setShowBreadcrumbLink(boolean showBreadcrumbLink1) {
     this.showBreadcrumbLink = showBreadcrumbLink1;
   }
+  
+  
+  /**
+   * additional breadcrumb bullets if someone wants to add more custom bullets to the breadcrumb
+   * @return
+   */
+  public String getAdditionalBreadcrumbBullets() {
+    return additionalBreadcrumbBullets;
+  }
+
+  /**
+   * additional breadcrumb bullets if someone wants to add more custom bullets to the breadcrumb
+   * @param additionalBreadcrumbBullets
+   */
+  public void setAdditionalBreadcrumbBullets(String additionalBreadcrumbBullets) {
+    this.additionalBreadcrumbBullets = additionalBreadcrumbBullets;
+  }
 
   /**
    * get the full breadcrumbs with list tags outside
@@ -335,12 +357,14 @@ public abstract class GuiObjectBase {
     result.append("<nav role=\"navigation\" aria-label=\""+GrouperUtil.xmlEscape(ariaLabel, true)+"\">");
     result.append("<ul class=\"breadcrumb\">");
     result.append(this.getBreadcrumbBullets());
+    result.append(this.getAdditionalBreadcrumbBullets());
     result.append("</ul>");
     result.append("</nav>");
     return result.toString();
   }
   
-   /**
+  
+  /**
    * breadcrumbs for v2 ui
    * @return the breadcrumbs
    */

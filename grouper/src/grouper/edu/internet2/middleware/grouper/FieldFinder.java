@@ -68,7 +68,7 @@ public class FieldFinder {
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
 
   /** default field cache seconds */
-  static int defaultFieldCacheSeconds = 1*60;
+  static int defaultFieldCacheSeconds = 1*600;
   
   /** last time refreshed, for testing */
   static long lastTimeRefreshed = -1;
@@ -95,34 +95,34 @@ public class FieldFinder {
    * </pre>
    * @return cache
    */
-  private static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
+  public static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
     if (fieldGrouperCache == null) {
       fieldGrouperCache = new GrouperCache<Boolean, Map<String,Field>>(
           cacheName, 10000, false, 
           defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
+      fieldGrouperCache.registerDatabaseClearableCache();
     }
     return fieldGrouperCache;
   }
   
   /**
-   * synchronize on this object
-   */
-  private static Object fieldGrouperCacheSemaphore = new Object();
-
-  /**
    * init and return the cache
    * @return the cache
    */
   private static Map<String,Field> fieldCache() {
-    //synchronize on GrouperStartup to avoid deadlock
-    synchronized(fieldGrouperCacheSemaphore) {
-      Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
+    GrouperCache<Boolean, Map<String, Field>> theFieldOuterGrouperCache = fieldGrouperCache();
+    Map<String,Field> theFieldCache = theFieldOuterGrouperCache.get(Boolean.TRUE);
+    if (theFieldCache == null || theFieldCache.size() == 0) {
+      
+      // dont synchronize, just sleep a bit to reduce deadlock
+      GrouperUtil.sleep(Math.round(Math.random() * 100d));
+      theFieldCache = theFieldOuterGrouperCache.get(Boolean.TRUE);
+      
       if (theFieldCache == null || theFieldCache.size() == 0) {
         theFieldCache = internal_updateKnownFields();
       }
-      return theFieldCache;
-      
     }
+    return theFieldCache;
   }
 
   /**
@@ -392,27 +392,24 @@ public class FieldFinder {
    */
   public static Map<String, Field> internal_updateKnownFields() {
 
-    //synchronize on GrouperStartup to avoid deadlock
-    synchronized(internal_updateKnownFieldsSemaphore) {
-      GrouperStartup.startup();
-      Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
-  
-      Field f;
-      Set   fieldsInRegistry = findAllFromDb();
-      
-      // find fields to add to the cache
-      Iterator it = fieldsInRegistry.iterator();
-      while (it.hasNext()) {
-        f = (Field) it.next();
-        theFieldCache.put( f.getName(), f );
-        }
-  
-      fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
-  
-      FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
-      
-      return theFieldCache;
-    }
+    GrouperStartup.startup();
+    Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
+
+    Field f;
+    Set   fieldsInRegistry = findAllFromDb();
+    
+    // find fields to add to the cache
+    Iterator it = fieldsInRegistry.iterator();
+    while (it.hasNext()) {
+      f = (Field) it.next();
+      theFieldCache.put( f.getName(), f );
+      }
+
+    fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
+
+    FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
+    
+    return theFieldCache;
   } 
 
   /**

@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
-import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -90,7 +90,7 @@ public class GuiConfigProperty {
    */
   public String escapePassword(String value) {
     
-    if (DbConfigEngine.isPassword(this.getGuiConfigSection().getGuiConfigFile().getConfigFileName(), 
+    if (GrouperConfigHibernate.isPassword(this.getGuiConfigSection().getGuiConfigFile().getConfigFileName(), 
         this.configItemMetadata, this.configItemMetadata.getKeyOrSampleKey(), value, true, this.isEncryptedInDatabase())) {
       if (!StringUtils.isBlank(value)) {
         File theFile = new File(value);
@@ -98,7 +98,7 @@ public class GuiConfigProperty {
           return theFile.getAbsolutePath();
         }
       }
-      return DbConfigEngine.ESCAPED_PASSWORD;
+      return GrouperConfigHibernate.ESCAPED_PASSWORD;
     }
     return value;
   }
@@ -229,7 +229,7 @@ public class GuiConfigProperty {
     String elKey = key + ".elConfig";
     String propertyValue = this.getPropertyValue();
     
-    if (StringUtils.equals(propertyValue, DbConfigEngine.ESCAPED_PASSWORD)) {
+    if (StringUtils.equals(propertyValue, GrouperConfigHibernate.ESCAPED_PASSWORD)) {
       return null;
     }
     
@@ -273,7 +273,7 @@ public class GuiConfigProperty {
 
     String propertyValue = this.getPropertyValue();
     
-    if (StringUtils.equals(propertyValue, DbConfigEngine.ESCAPED_PASSWORD)) {
+    if (StringUtils.equals(propertyValue, GrouperConfigHibernate.ESCAPED_PASSWORD)) {
       return null;
     }
     

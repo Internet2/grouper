@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -246,6 +247,13 @@ public class UiV2ExternalSystem {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
               "#externalSystemConfigId",
               TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemCreateErrorConfigIdRequired")));
+          return;
+        }
+        
+        if (grouperExternalSystem instanceof DatabaseGrouperExternalSystem && StringUtils.equals(externalSystemConfigId, "grouper")) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#externalSystemConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemCreateErrorConfigIdGrouperCanNotBeUsed")));
           return;
         }
         

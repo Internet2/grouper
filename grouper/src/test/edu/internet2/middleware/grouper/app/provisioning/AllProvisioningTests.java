@@ -36,6 +36,8 @@ public class AllProvisioningTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperProvisioningJobTest.class);
     suite.addTestSuite(GrouperProvisioningServiceTest.class);
+    suite.addTestSuite(ProvisionerConfigurationTest.class);
+    suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);
     //$JUnit-END$
     return suite;
   }

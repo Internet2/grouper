@@ -60,7 +60,7 @@ public class GuiGrouperProvisioningAttributeValue {
    * @return target key
    */
   public String getTargetKey() {
-    return GrouperProvisioningSettings.getTargets().get(this.grouperProvisioningAttributeValue.getTargetName()).getKey();
+    return GrouperProvisioningSettings.getTargets(true).get(this.grouperProvisioningAttributeValue.getTargetName()).getKey();
   }
   
   public static List<GuiGrouperProvisioningAttributeValue> convertFromGrouperProvisioningAttributeValues(List<GrouperProvisioningAttributeValue> attributeValues) {

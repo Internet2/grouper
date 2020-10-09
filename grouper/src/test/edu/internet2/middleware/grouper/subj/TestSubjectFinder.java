@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.Entity;
@@ -62,6 +63,7 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -97,8 +99,8 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(TestSubjectFinder.class);
-    //TestRunner.run(new TestSubjectFinder("testFindAllMultipleInAllSources"));
+    //TestRunner.run(TestSubjectFinder.class);
+    TestRunner.run(new TestSubjectFinder("testFindByIds"));
     //new TestSubjectFinder("").testFindGroupsCanRead();
   }
   
@@ -416,6 +418,28 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     
     numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    //one for subjects in other sources
+    //TODO fix this for subject caching
+    //assertEquals("queries: " + numberOfQueries, 1, numberOfQueries);
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    //################ DO IT AGAIN BY SOURCE NOT IN CACHE
+
+    GrouperCacheUtils.clearAllCaches();
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
+    subjectMap = SubjectFinder.findByIds(idsExist, "jdbc");
+
+    assertEquals(10, subjectMap.size());
+    assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
+    
+    numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
+    
+    GrouperDAOFactory.getFactory().getMember().findBySubjectIds(ids, "jdbc");
     
     //one for subjects in other sources
     //TODO fix this for subject caching

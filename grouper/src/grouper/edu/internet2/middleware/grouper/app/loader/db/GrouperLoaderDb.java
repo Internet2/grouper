@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,7 @@ import com.mchange.v2.c3p0.C3P0Registry;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DriverManagerDataSource;
 import com.mchange.v2.c3p0.PoolBackedDataSource;
+import com.mchange.v2.c3p0.PooledDataSource;
 import com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -157,6 +159,18 @@ public class GrouperLoaderDb {
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderDb.class);
 
+  public static void closeAllDataSources() {
+    //TODO dont end the hibernate pool when unit testing?
+    for (Object dataSourceObject : GrouperUtil.nonNull(C3P0Registry.getPooledDataSources())) {
+      PooledDataSource pooledDataSource = (PooledDataSource) dataSourceObject;
+      try {
+        pooledDataSource.close();
+      } catch (SQLException sqle) {
+        throw new RuntimeException("error: " + pooledDataSource.getDataSourceName(), sqle);
+      }
+    }
+  }
+  
   /**
    * get a pooled data source by url and user
    * NOTE: this is also in ConfigDatabaseLogic

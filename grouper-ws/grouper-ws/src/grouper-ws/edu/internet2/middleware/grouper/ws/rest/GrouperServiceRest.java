@@ -616,7 +616,10 @@ public class GrouperServiceRest {
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
         .getGroupName(), false, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestHasMemberLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
+    if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(wsRestHasMemberLiteRequest.getSubjectIdentifier())) {
+      throw new WsInvalidQueryException("Input a subjectId or subjectIdentifier!");
+    }
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestHasMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
   
@@ -2556,6 +2559,8 @@ public class GrouperServiceRest {
         wsRestSendMessageRequest.getQueueOrTopicName(),
         wsRestSendMessageRequest.getMessageSystemName(),
         wsRestSendMessageRequest.getRoutingKey(),
+        wsRestSendMessageRequest.getExchangeType(),
+        wsRestSendMessageRequest.getQueueArguments(),
         wsRestSendMessageRequest.isAutocreateObjects(),
         wsRestSendMessageRequest.getMessages(),
         wsRestSendMessageRequest.getActAsSubjectLookup(),
@@ -2582,9 +2587,12 @@ public class GrouperServiceRest {
         false, "clientVersion");
 
     WsMessageResults wsReceiveMessageResults = new GrouperService(false).receiveMessage(
-        clientVersionString, wsRestReceiveMessageRequest.getQueueOrTopicName(),
+        clientVersionString, wsRestReceiveMessageRequest.getQueueType(),
+        wsRestReceiveMessageRequest.getQueueOrTopicName(),
         wsRestReceiveMessageRequest.getMessageSystemName(),
         wsRestReceiveMessageRequest.getRoutingKey(),
+        wsRestReceiveMessageRequest.getExchangeType(),
+        wsRestReceiveMessageRequest.getQueueArguments(),
         wsRestReceiveMessageRequest.isAutocreateObjects(),
         wsRestReceiveMessageRequest.getBlockMillis(),
         wsRestReceiveMessageRequest.getMaxMessagesToReceiveAtOnce(),

@@ -44,6 +44,7 @@
                 }
               };
               var daemonJobsRefreshInterval = setInterval(theFunction, 1000);
+              grouperCancelAllScheduledTasks(daemonJobsRefreshInterval-1);
             </script>
             <div class="row-fluid">
               <div class="span12">
@@ -63,7 +64,7 @@
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">&nbsp;</div>
                     <div class="span4" style="white-space: nowrap;">
-                      <select name="daemonJobsCommonFilter">
+                      <select name="daemonJobsCommonFilter" id="daemonJobsCommonFilterId">
                         <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder'] }</option>
                         <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsCommonFilters}" var="daemonJobsCommonFilter" >
                           <option value="${grouper:escapeHtml(daemonJobsCommonFilter.value)}"
@@ -78,7 +79,7 @@
                     <div class="span1">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
                       <label class="checkbox">
-                        <input type="checkbox" name="daemonJobsFilterShowExtendedResults" 
+                        <input type="checkbox" name="daemonJobsFilterShowExtendedResults" id="daemonJobsFilterShowExtendedResultsId" 
                            ${grouperRequestContainer.adminContainer.daemonJobsShowExtendedResults ? 'checked="checked"' : ''} 
                            >${textContainer.text['daemonJobsFilterShowExtendedResults']}
  
@@ -89,7 +90,7 @@
                     <div class="span1">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
                       <label class="checkbox">
-                        <input type="checkbox" name="daemonJobsFilterShowOnlyErrors"
+                        <input type="checkbox" name="daemonJobsFilterShowOnlyErrors" id="daemonJobsFilterShowOnlyErrorsId" 
                         ${grouperRequestContainer.adminContainer.daemonJobsShowOnlyErrors ? 'checked="checked"' : ''}
                         >${textContainer.text['daemonJobsFilterShowOnlyErrors']}
                       </label>
@@ -97,8 +98,8 @@
                   </div>
                   <div class="row-fluid">
                     <div class="span1">&nbsp;</div>
-                      <a class="btn" role="button" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
-                      <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
+                      <a class="btn" role="button" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;grouperAssignDaemonUrl();ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
+                      <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); grouperAssignDaemonUrl(); return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
                     </div>
                   </div>
                 </form>

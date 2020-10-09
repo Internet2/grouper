@@ -117,6 +117,8 @@ public class GrouperCacheDatabase {
     }
   }
 
+  // we need to keep incrementing
+  private static long lastNanos = -1;
   
   /**
    * @param cacheName name of cache to clear
@@ -127,10 +129,18 @@ public class GrouperCacheDatabase {
       try {
         // do a try/catch since another JVM could be updating the same cache at the same time
         long nowNanos = System.currentTimeMillis();
+        
         // convert to nanos
         nowNanos *= 1000000;
         // add some random
         nowNanos += Math.random()*1000000;
+        
+        // we dont want to try the same number
+        if (nowNanos <= lastNanos) {
+          nowNanos = lastNanos+1;
+        }
+        lastNanos = nowNanos;
+
         notifyDatabaseOfCacheUpdateHelper(cacheName, nowNanos);
         notifyDatabaseOverallOfCacheUpdateHelper(nowNanos);
         // we good
@@ -236,7 +246,7 @@ public class GrouperCacheDatabase {
       grouperCacheDatabaseClear.clear();
       return true;
     }
-    
+
     throw new RuntimeException("Invalid cache name: '" + cacheNameWithPrefix + "'");
   }
 
@@ -324,7 +334,7 @@ public class GrouperCacheDatabase {
                 
               }
               
-              int checkIncrementalAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkIncrementalAfterSeconds", 10);
+              int checkIncrementalAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkIncrementalAfterSeconds", 5);
               int checkFullAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.cache.database.checkFullAfterSeconds", 3600);
               
               

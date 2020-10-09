@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouperClient.messaging;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -145,6 +146,21 @@ public class GrouperMessageSendParam {
     return this;
   }
 
+  /**
+   * assign extra queue arguments
+   * @param queueArguments
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignQueueArguments(Map<String, Object> queueArguments) {
+    if (queueArguments == null) {
+      return this;
+    }
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueArguments(queueArguments);
+    return this;
+  }
 
   /**
    * message body for the message

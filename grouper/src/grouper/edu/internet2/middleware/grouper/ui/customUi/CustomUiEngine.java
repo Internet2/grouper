@@ -17,19 +17,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import jline.internal.Log;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
@@ -44,6 +40,9 @@ import edu.internet2.middleware.subject.SubjectUtils;
  */
 public class CustomUiEngine {
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(CustomUiEngine.class);
+
   /**
    * debug map for custom ui
    */
@@ -478,6 +477,9 @@ public class CustomUiEngine {
       throw re;
     } finally {
       this.debugMap.put("processGroupMillis", ((System.nanoTime() - startedNanos)/1000000));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(this.debugMap));
+      }
     }
   }
   
@@ -737,7 +739,7 @@ public class CustomUiEngine {
         this.userQueryVariables().put(variableToAssign, result);
       } catch (RuntimeException re) {
         String error = "Error evaluating: " + customUiUserQueryConfigBean;
-        Log.error(error, re);
+        LOG.error(error, re);
         if (!StringUtils.isBlank(variableToAssignOnError)) {
           if (this.error != null) {
             this.error += "\n";

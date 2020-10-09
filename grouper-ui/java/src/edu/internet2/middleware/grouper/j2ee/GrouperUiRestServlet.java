@@ -28,14 +28,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -51,6 +48,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Admin;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Deprovisioning;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntities;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
@@ -77,9 +75,9 @@ import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import net.sf.json.JSONObject;
 
 /**
  * servlet for rest ui web services
@@ -191,7 +189,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForFolder",
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup",
       UiV2SubjectResolution.class.getSimpleName() + ".addMemberFilter",
-      UiV2GrouperLoader.class.getSimpleName() + ".recentMembershipsGroupFromFilter"
+      UiV2GrouperLoader.class.getSimpleName() + ".recentMembershipsGroupFromFilter",
+      UiV2Configure.class.getSimpleName() + ".configurationFileExport"
   );
 
   /**

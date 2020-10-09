@@ -16,6 +16,8 @@
 
 package edu.internet2.middleware.grouper.app.messaging;
 
+import java.util.Map;
+
 // https://spaces.at.internet2.edu/display/Grouper/Grouper+messaging+to+web+service+API
 public class InputMessageGrouperHeader {
   
@@ -58,12 +60,17 @@ public class InputMessageGrouperHeader {
    * if replying to rabbitmq (optional)
    */
   private String replyToRoutingKey;
-  
+
   /**
    * if replying to rabbitmq (optional)
    */
   private String replyToExchangeType;
-  
+
+  /**
+   * if replying to rabbitmq (optional)
+   */
+  private Map<String, Object> replyToQueueArguments;
+
   /**
    * http method that would be in WS (mandatory)
    */
@@ -216,6 +223,22 @@ public class InputMessageGrouperHeader {
    */
   public void setReplyToExchangeType(String replyToExchangeType) {
     this.replyToExchangeType = replyToExchangeType;
+  }
+
+  /**
+   * if replying to rabbitmq (optional)
+   * @return
+   */
+  public Map<String, Object> getReplyToQueueArguments() {
+    return replyToQueueArguments;
+  }
+
+  /**
+   * if replying to rabbitmq (optional)
+   * @param replyToQueueArguments
+   */
+  public void setReplyToQueueArguments(Map<String, Object> replyToQueueArguments) {
+    this.replyToQueueArguments = replyToQueueArguments;
   }
 
   /**

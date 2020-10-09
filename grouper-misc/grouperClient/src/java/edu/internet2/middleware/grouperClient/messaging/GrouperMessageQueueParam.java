@@ -5,6 +5,9 @@
 package edu.internet2.middleware.grouperClient.messaging;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * method chaining receive message config
  */
@@ -20,7 +23,12 @@ public class GrouperMessageQueueParam {
    * queue type: queue or topic
    */
   private GrouperMessageQueueType queueType;
-  
+
+  /**
+   * queue arguments (e.g. "x-queue-type" -> "quorum")
+   */
+  private Map<String, Object> queueArguments;
+
   /**
    * assign the queue type
    * @param theGrouperMessageQueueType
@@ -61,5 +69,22 @@ public class GrouperMessageQueueParam {
   public String getQueueOrTopicName() {
     return this.queueOrTopicName;
   }
-    
+
+  /**
+   * optional queue argument map
+   * @param theQueueArguments
+   * @return this for chaining
+   */
+  public GrouperMessageQueueParam assignQueueArguments(Map<String, Object> theQueueArguments) {
+    this.queueArguments = theQueueArguments;
+    return this;
+  }
+
+  /**
+   * optional queue argument map
+   * @return the argument map
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
 }

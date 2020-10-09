@@ -112,6 +112,11 @@ public class FullSyncProvisioner  {
 
   final Map<String, DateTime> lastSuccessfulFullSyncDate = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+  
+  public Provisioner<?, ?, ?> getProvisioner() {
+    return provisioner;
+  }
+
   /**
    * Constructor used by the getfullSyncer() factory method to construct a full-sync wrapper
    * around a provisioner. In other words, do not call this constructor directly.

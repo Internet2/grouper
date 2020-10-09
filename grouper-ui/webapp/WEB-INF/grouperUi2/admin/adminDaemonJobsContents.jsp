@@ -91,7 +91,7 @@
 	                                <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.multiple}">                        
-                                  <li><a href="#" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${guiDaemonJob.jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${guiDaemonJob.jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
                                 </c:if>
                               </ul>
                             </div>

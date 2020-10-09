@@ -2568,6 +2568,35 @@ function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
   }
 }
 
+
+// this will set the url in the browser so the back button works with the filter
+function grouperAssignDaemonUrl() {
+  var url = window.location.href; 
+  var question = url.indexOf('?'); 
+  if (question > 0) { 
+    url = url.substring(0,question); 
+  } 
+  url += '?operation=UiV2Admin.daemonJobs';
+  url += '&daemonJobsFilter=' + $("#daemonJobsFilterId").val();
+  url += '&daemonJobsCommonFilter=' + $("#daemonJobsCommonFilterId option:selected").val();
+  url += '&daemonJobsFilterShowExtendedResults[]=' + ($("#daemonJobsFilterShowExtendedResultsId").is(':checked') ? 'on' : '');
+  url += '&daemonJobsFilterShowOnlyErrors[]=' + ($("#daemonJobsFilterShowOnlyErrorsId").is(':checked') ? 'on' : '');
+  url = encodeURI(url);
+  history.pushState(null, null, url);
+}
+
+// theres a problem with back button and ajax where scheduled tasks stay around, kill them all
+// pass in the current entry minus 1
+function grouperCancelAllScheduledTasks(taskStart) {
+  for (var i = taskStart; i >= 0; i--) {
+    window.clearInterval(i);
+    window.clearTimeout(i);
+    if (typeof window.mozCancelAnimationFrame === "function") {
+      window.mozCancelAnimationFrame(i); // Firefox
+    }
+  }
+}
+
 /**
  * Refreshes the dijit Treefolder navigation to expand folders to the current
  * object and highlight it. It simulates manually clicking
@@ -2577,3 +2606,8 @@ function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
 function openFolderTreePathToObject(pathArray) {
   folderTree.set('path', pathArray);
 }
+
+// sometimes window is blocked on back button
+$(window).unload(function() {
+  $.unblockUI();                
+});

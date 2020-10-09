@@ -29,6 +29,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -48,6 +49,9 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiAttributeDef extends GuiObjectBase implements Serializable {
 
+  public boolean isPermission() {
+    return this.getAttributeDef().getAttributeDefType() == AttributeDefType.perm;
+  }
   
   /**
    * @param attributeDef the attributeDef to set

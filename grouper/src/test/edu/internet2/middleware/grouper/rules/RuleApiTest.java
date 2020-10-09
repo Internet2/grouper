@@ -91,10 +91,10 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-//    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
+    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
-    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
+//    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeStringNotMatch"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemoveWithLikeString"));
 //    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesRemove"));
@@ -4685,9 +4685,13 @@ public class RuleApiTest extends GrouperTest {
     mainStem.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.CREATE);
 
     Group groupAdmins = new GroupSave(grouperSession).assignName("stemX:admins").assignCreateParentStemsIfNotExist(true).save();
+    Group groupAdminsSubGroup = new GroupSave(grouperSession).assignName("stemX:adminssubgroup").assignCreateParentStemsIfNotExist(true).save();
     
     groupAdmins.addMember(SubjectTestHelper.SUBJ0);
     groupAdmins.addMember(SubjectTestHelper.SUBJ1);
+    groupAdminsSubGroup.addMember(SubjectTestHelper.SUBJ0);
+    groupAdminsSubGroup.addMember(SubjectTestHelper.SUBJ1);
+    groupAdmins.addMember(groupAdminsSubGroup.toSubject());  // make sure it works properly if user in group multiple ways (GRP-2951)
 
     // stem2 inherits SUB to groupA read/update
     RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), mainStem, Scope.SUB, groupAdmins.toSubject(), Privilege.getInstances("admin"));

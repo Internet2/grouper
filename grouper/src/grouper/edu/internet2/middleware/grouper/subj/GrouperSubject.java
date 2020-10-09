@@ -311,7 +311,8 @@ public class GrouperSubject extends SubjectImpl {
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF0) {
-      LOG.warn(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
+      LOG.info(E.GSUBJ_NOCREATOR + eSNF0.getMessage() + ", groupId: " + (this.group == null ? null : this.group.getId() ) 
+          + ", creatorMemberId: " + (this.group == null ? null : this.group.getCreatorUuid() ));
     }
     try {
       // Don't bother with any of the modify* attrs unless we can find

@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
 import java.util.Collection;
 
 public class Group {
-    public enum Visibility {Public, Private, Hiddenmembership}
+    public enum Visibility {Public, Private, HiddenMembership}
 
     public final String id;
     public final String displayName;

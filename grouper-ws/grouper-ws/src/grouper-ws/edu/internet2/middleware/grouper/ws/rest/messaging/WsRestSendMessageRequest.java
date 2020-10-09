@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
+import java.util.Map;
+
 
 /**
  * request bean in body of rest request
@@ -51,7 +53,13 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   
   /** routing key for rabbitmq **/
   private String routingKey;
-  
+
+  /** if the messaging system can use exchange type (e.g. rabbitmq), set it here **/
+  private String exchangeType;
+
+  /** extra queue arguments if needed **/
+  private Map<String, Object> queueArguments;
+
   /** create queue/topic if doesn't exist already. **/
   private String autocreateObjects;
 
@@ -87,17 +95,49 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   public void setRoutingKey(String routingKey1) {
     this.routingKey = routingKey1;
   }
-  
+
   /**
-   * queue or topic
-   * @return queueOrTopic
+   * exchange type (e.g. rabbitmq)
+   * @return
+   */
+  public String getExchangeType() {
+    return exchangeType;
+  }
+
+  /**
+   * exchange type (e.g. rabbitmq)
+   * @param exchangeType1
+   */
+  public void setExchangeType(String exchangeType1) {
+    this.exchangeType = exchangeType1;
+  }
+
+  /**
+   * optional queue argument map for rabbitmq
+   * @return queueArguments
+   */
+  public Map<String, Object> getQueueArguments() {
+    return queueArguments;
+  }
+
+  /**
+   * optional queue argument map for rabbitmq
+   * @param queueArguments map of key:value of queue arguments
+   */
+  public void setQueueArguments(Map<String, Object> queueArguments) {
+    this.queueArguments = queueArguments;
+  }
+
+  /**
+   * queue type
+   * @return queueType
    */
   public String getQueueType() {
     return this.queueType;
   }
 
   /**
-   * queue or topic
+   * queue type
    * @param queueType1
    */
   public void setQueueType(String queueType1) {

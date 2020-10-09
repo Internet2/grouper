@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -64,17 +65,23 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -87,6 +94,26 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class PrivilegeHelper {
 
+  public static void main(String[] args) {
+
+   //def gs = GrouperSession.start(SubjectFinder.findByIdentifierAndSource("my-uid", "pid", true))
+   //Stem s = new StemSave(gs).assignName("unc:app:temp:base:hr:org").assignCreateParentStemsIfNotExist(true).save()
+    GrouperStartup.startup();
+    
+//    RegistryReset rr = new RegistryReset();
+//
+//    rr._addSubjects();
+    
+    //GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "jdbc", true));
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject subject = SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "jdbc", true);
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(subject);
+    Stem s = new StemSave(grouperSession).assignName("unc:app:temp:base:hr:org").assignCreateParentStemsIfNotExist(true).save();
+    
+  }
+  
   /**
    * convert a collection of privileges to a collection of fieldIds
    * @param privileges
@@ -985,6 +1012,83 @@ public class PrivilegeHelper {
     return SubjectHelper.eq( subject, SubjectFinder.findRootSubject() );
   }
 
+  private static enum PrivilegeHelperWheelType { admin, read, view};
+  
+  /**
+   * 
+   * @param subject to check
+   * @param wheelType admin, read, or view
+   * @return true if wheel
+   */
+  private static boolean isWheelType(final Subject subject, PrivilegeHelperWheelType wheelType) {
+    
+    // circular reference
+    if (GrouperUtil.booleanValue(inIsWheel.get(), false)) {
+      return false;
+    }
+    
+    // we are in the iswheel, no circular problems
+    inIsWheel.set(true);
+    try {
+      
+      boolean useThisTypeOfWheel = false;
+      String wheelGroupName = null;
+      
+      switch (wheelType) {
+        case admin: 
+          useThisTypeOfWheel = GrouperConfig.retrieveConfig().propertyValueBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false);
+          wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP );
+          break;
+        case read:
+          useThisTypeOfWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false);
+          wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
+          break;
+        case view: 
+          useThisTypeOfWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
+          wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
+          break;
+        default:
+          throw new RuntimeException("Invalid type: '" + wheelType + "'");
+      }
+      
+      if (useThisTypeOfWheel) {
+        
+        // multikey is type of root, source, and subject
+        final MultiKey subjectKey = new MultiKey(wheelType, subject.getSourceId(), subject.getId());
+        Boolean isWheel = wheelMemberCache().get(subjectKey);
+        
+        // cache yes and no
+        if (isWheel != null) {
+          return isWheel;
+        }
+        
+        final String WHEEL_GROUP_NAME = wheelGroupName;
+        
+        // callback might have fewer circular references
+        isWheel = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            try {
+              Group wheel = GroupFinder.findByName( grouperSession, WHEEL_GROUP_NAME, true );
+              return wheel.hasMember(subject);
+            } catch (GroupNotFoundException gnfe) {
+              throw new GrouperException("Cant find wheel " + wheelType + " group: " + WHEEL_GROUP_NAME, gnfe);
+            }
+          }
+        });
+        
+        // add to cache
+        wheelMemberCache.put(subjectKey, isWheel);
+        return isWheel;
+      }
+    } finally {
+      // dont worry about circular anymore
+      inIsWheel.remove();
+    }
+    return false;
+  }
+  
   /**
    * TODO 20070823 find a real home for this and/or add tests
    * @param s 
@@ -998,20 +1102,7 @@ public class PrivilegeHelper {
     if (s.isConsiderIfWheelMember() == false) {
       return false;
     }
-    
-    if ( Boolean.valueOf( GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
-      String name = GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP );
-      try {
-        // goodbye, performance
-        Group wheel = GroupFinder.findByName( s.internal_getRootSession(), name, true );
-        rv          = wheel.hasMember( s.getSubject() );
-      }
-      catch (GroupNotFoundException eGNF) {
-        // wheel group not found. oh well!
-        LOG.error( E.NO_WHEEL_GROUP + name );
-      }
-    } 
-    return rv;
+    return isWheelType(s.getSubject(), PrivilegeHelperWheelType.admin);
   }
 
   /**
@@ -1024,17 +1115,7 @@ public class PrivilegeHelper {
     if (isWheelOrRootOrReadonlyRoot(subject)) {
       return true;
     }
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false)) {
-      String name = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
-      try {
-        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
-        return wheel.hasMember(subject);
-      } catch (GroupNotFoundException gnfe) {
-        throw new GrouperException("Cant find wheel group: " + name, gnfe);
-      }
-    }
-    return false;
-
+    return isWheelType(subject, PrivilegeHelperWheelType.view);
   }
 
   
@@ -1047,42 +1128,52 @@ public class PrivilegeHelper {
     if (isWheelOrRoot(subject)) {
       return true;
     }
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false)) {
-      String name = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
-      try {
-        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
-        return wheel.hasMember(subject);
-      } catch (GroupNotFoundException gnfe) {
-        throw new GrouperException("Cant find wheel group: " + name, gnfe);
-      }
-    }
-    return false;
+    return isWheelType(subject, PrivilegeHelperWheelType.read);
   }
 
+  private static ExpirableCache<MultiKey, Boolean> wheelMemberCache = null;
+  
+  /**
+   * init and return the wheel member cache
+   * @return the wheel member cache
+   */
+  private static ExpirableCache<MultiKey, Boolean> wheelMemberCache() {
+    if (wheelMemberCache == null) {
+      wheelMemberCache = new ExpirableCache<MultiKey, Boolean>(GrouperConfig.retrieveConfig().propertyValueInt("wheel.member.cache.seconds", 10));
+      wheelMemberCache.registerDatabaseClearableCache(PrivilegeHelper.class.getName() + ".wheelMemberCache");
+    }
+    return wheelMemberCache;
+  }
+  
+  /**
+   * clear cache on this jvm when adjusting wheel members
+   */
+  public static void wheelMemberCacheClear() {
+    wheelMemberCache().clear();
+    wheelMemberCache().notifyDatabaseOfChanges();
+  }
+  
+  /**
+   * 
+   */
+  private static ThreadLocal<Boolean> inIsWheel = new ThreadLocal<Boolean>();
+  
   /**
    * see if a subject is wheel or root
    * @param subject 
    * @return true or false
    */
   public static boolean isWheelOrRoot(Subject subject) {
-    if (SubjectHelper.eq( subject, SubjectFinder.findRootSubject() )) {
+    
+    if (StringUtils.equals(subject.getSourceId(), InternalSourceAdapter.ID) && StringUtils.equals(subject.getId(), GrouperConfig.ROOT)) {
       return true;
     }
-    
+
     if (GrouperSession.staticGrouperSession().isConsiderIfWheelMember() == false) {
       return false;
     }
-    
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
-      String name = GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP );
-      try {
-        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
-        return wheel.hasMember(subject);
-      } catch (GroupNotFoundException gnfe) {
-        throw new GrouperException("Cant find wheel group: " + name, gnfe);
-      }
-    }
-    return false;
+
+    return isWheelType(subject, PrivilegeHelperWheelType.admin);
   } 
   
   /**

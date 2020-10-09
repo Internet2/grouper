@@ -590,7 +590,7 @@ public class RuleApi {
         //if consider
         if (considerInGroup) {
           if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), ruleSubject.getSourceId())) {
-            subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembership(false) != null;
+            subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembershipsMembers().size() > 0;
           }
         }
 

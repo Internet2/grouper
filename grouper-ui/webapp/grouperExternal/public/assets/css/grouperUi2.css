@@ -150,27 +150,27 @@ div.visualization-text-node {
 }
 
 #jobHistoryChartPaneDiv .status-started {
-  fill: blue; //#33b5e5
+  fill: blue;
 }
 
 #jobHistoryChartPaneDiv .status-running {
-  fill: purple; //#CC0000
+  fill: purple;
 }
 
 #jobHistoryChartPaneDiv .status-config_error {
-  fill: red; //#669900
+  fill: red;
 }
 
 #jobHistoryChartPaneDiv .status-subject_problems {
-  fill: ; //#33b5e5
+  fill: darkorange;
 }
 
 #jobHistoryChartPaneDiv .status-success {
-  fill: green; //#ffbb33
+  fill: green;
 }
 
 #jobHistoryChartPaneDiv .status-warning {
-  fill: orange; //#ffbb33
+  fill: orange;
 }
 
 #jobHistoryChartPaneDiv .status-error {
