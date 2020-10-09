@@ -154,7 +154,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
 
       ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
-      stats.insertCount.set(correctSubjects.size());
+      stats.insertCount.addAndGet(correctSubjects.size());
 
       // Make note of the group if it was created
       if ( ldapGroup != null ) {
@@ -174,7 +174,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Update stats with the number of values removed by group deletion
       Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
-      stats.deleteCount.set(membershipValues.size());
+      stats.deleteCount.addAndGet(membershipValues.size());
 
       return true;
     }
@@ -201,7 +201,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> extraValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), currentMembershipValues, correctMembershipValues);
 
-      stats.deleteCount.set(extraValues.size());
+      stats.deleteCount.addAndGet(extraValues.size());
 
       LOG.info("{}: Group {} has {} extra values",
           new Object[] {getDisplayName(), grouperGroupInfo, extraValues.size()});
@@ -220,7 +220,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> missingValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), correctMembershipValues, currentMembershipValues);
 
-      stats.insertCount.set(missingValues.size());
+      stats.insertCount.addAndGet(missingValues.size());
 
       LOG.info("{}: Group {} has {} missing values",
           new Object[]{getDisplayName(), grouperGroupInfo, missingValues.size()});

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.pspng;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,33 +8,31 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 public class PspngFullSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new PspngFullSyncTest("testFullSync"));
+    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulk"));
   }
 
   public PspngFullSyncTest() {
@@ -216,6 +215,355 @@ public class PspngFullSyncTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_alewis.getId()));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_amorrison.getId()));
+  }
+  public void testFullSyncWithCacheBulk() throws Exception {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "true");
+
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.type", LdapGroupProvisioner.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.class", PspChangelogConsumerShim.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.quartzCron", "*/5 * * * * ?");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.ldapPoolName", "personLdap");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.memberAttributeName", "description");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.memberAttributeValueFormat", "${subject.getId()}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupCreationBaseDn", "ou=Groups,dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.allGroupsSearchFilter", "objectclass=posixGroup");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.singleGroupSearchFilter", "(&(objectclass=posixGroup)(gidNumber=${idIndex}))");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupCreationLdifTemplate", 
+        "dn: ${utils.escapeLdapRdn(\"cn=${group.name}\")}"
+        + "||cn: ${group.name}||objectclass: posixGroup||gidNumber: ${group.idIndex}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchBaseDn", "dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchFilter", "uid=${subject.id}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.grouperIsAuthoritative", "true");
+          
+    List<Group> groups = new ArrayList<Group>();
+    
+    List<Subject> subjects = new ArrayList<Subject>();
+
+    subjects.add(SubjectFinder.findByIdAndSource("aanderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("aanderson727", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("abrown", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("abrown643", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("aclark", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("adoe", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("agasper", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("agonazles", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ahenderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ahenderson594", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ajohnson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ajohnson871", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("alangenberg", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("alangenberg704", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("alangenberg855", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("alee", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("alewis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("amorrison", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("amorrison30", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("apeterson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("aprice", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("aroberts", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("asmith", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("asmith583", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("asmith765", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("avales", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("avales508", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("avales695", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("awhite", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("awhite728", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("awhite847", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("awilliams", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("banderson572", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("banderson971", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbrown", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbrown705", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbrown721", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbutler", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbutler437", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bbutler843", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bclark", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bclark226", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bclark446", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bclark730", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bclark968", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdavis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdavis369", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdavis480", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdavis570", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdoe", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdoe365", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdoe422", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bdoe672", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgasper", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgasper28", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgasper456", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgasper872", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgonazles", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgonazles345", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgonazles633", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgonazles994", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady136", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady203", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady415", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady505", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bgrady967", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bhenderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bjohnson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bjohnson177", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bjohnson513", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bjohnson992", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blangenberg", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blee", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blee483", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blewis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blewis390", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blewis553", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blewis798", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blewis840", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blopez", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blopez563", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("blopez966", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmartinez", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmartinez582", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmorrison", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmorrison491", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmorrison620", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bmorrison655", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bpeterson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bpeterson304", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bpeterson881", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bpeterson928", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bprice", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bprice170", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bprice574", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bprice745", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bprice903", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("broberts", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("broberts298", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("broberts750", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bscott", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bscott527", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bsmith", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bsmith471", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bsmith649", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bthompson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bthompson878", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bvales", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bvales414", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bvales580", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bvales722", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwalters", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwalters566", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwalters958", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwhite", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwhite551", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwhite914", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwilliams", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwilliams457", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("bwilliams466", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cbrown", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cdavis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cdavis900", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cdoe", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cdoe981", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cgasper", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("chenderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cjohnson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cjohnson758", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("clangenberg", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("clewis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("clewis800", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("clopez", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cmorrison", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cmorrison129", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cmorrison684", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cpeterson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cpeterson772", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cprice", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("csmith", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cthompson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("cwalters", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("danderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("danderson228", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("danderson523", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("danderson634", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("danderson96", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbrown", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbrown597", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbrown739", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbrown834", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbutler", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbutler347", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dbutler979", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dclark", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dclark671", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dclark720", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dclark839", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dclark888", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddavis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddavis141", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddavis27", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddavis822", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddavis919", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe431", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe577", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe605", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe638", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe688", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe814", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("ddoe895", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgasper", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgonazles", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgonazles682", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgonazles785", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgrady", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgrady229", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgrady427", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgrady76", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dgrady97", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dhenderson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dhenderson425", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dhenderson833", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dhenderson848", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dhenderson867", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("djohnson", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("djohnson606", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg121", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg358", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg397", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg509", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg61", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlangenberg934", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlee", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlewis", "personLdapSource", true));
+    subjects.add(SubjectFinder.findByIdAndSource("dlewis327", "personLdapSource", true));    
+    
+    int secondLevelGroupCount = 5;
+    
+    for (char char0 = 'a'; char0<='e'; char0++) {
+      for (char char1 = 'a'; char1<='e'; char1++) {
+        for (char char2 = 'a'; char2<='a'; char2++) {
+          //new StemSave(this.grouperSession).assignName(char0 + ":" + char1 + ":" + char2).save();
+          Group group = new GroupSave(this.grouperSession).assignName(char0 + ":" + char1 + ":" + char2 + ":group").assignCreateParentStemsIfNotExist(true).save();
+          groups.add(group);
+
+          int numSubjects = (int)Math.round(Math.random() * 10);
+          
+          for (int i=0;i<numSubjects;i++) {
+            int subjectIndex = (int)Math.floor(Math.random()*200);
+            if (group.addMember(subjects.get(subjectIndex), false)) {
+              System.out.println("adding " + subjects.get(subjectIndex).getId() + " to group " + group.getName()); }
+          }
+        }
+      }
+    }
+    
+    // 26 groups
+    Stem stem = StemFinder.findByName(grouperSession, "a", true);
+    
+    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+
+    // 26 groups
+    stem = StemFinder.findByName(grouperSession, "b", true);
+    
+    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+
+    // 26 groups
+    stem = StemFinder.findByName(grouperSession, "c", true);
+    
+    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+    
+    // 1 group
+    stem = StemFinder.findByName(grouperSession, "d:a", true);
+    
+    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+    
+    // 1 group
+    stem = StemFinder.findByName(grouperSession, "d:b", true);
+    
+    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+
+    // 1 group
+    Group group = GroupFinder.findByName(grouperSession, "d:c:a:group", true);
+    
+    group.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+    
+    // 1 group
+    group = GroupFinder.findByName(grouperSession, "d:d:a:group", true);
+    
+    group.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
+
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
+
+    // Find the name of the provisioner
+    FullSyncProvisioner fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer("pspng1");
+    if ( fullSyncProvisioner == null ) {
+      throw new Exception("No provisioner found for job: " + "pspng1");
+    }
+
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+    hib3GrouploaderLog.setJobName("OTHER_JOB_pspng1_full");
+    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+
+    JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
+
+    System.out.println("Insert: " + hib3GrouploaderLog.getInsertCount());
+    System.out.println("Update: " + hib3GrouploaderLog.getUpdateCount());
+    System.out.println("Delete: " + hib3GrouploaderLog.getDeleteCount());
+    System.out.println("Total: " + hib3GrouploaderLog.getTotalCount());
+    
+    //fullSyncProvisioner
+    Provisioner provisioner = fullSyncProvisioner.getProvisioner();
+    
+    Set<GrouperGroupInfo> grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
+    Set<String> groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    assertEquals(GrouperUtil.toStringForLog(groupNames), secondLevelGroupCount*3+4, groupNames.size());
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    assertEquals(GrouperUtil.toStringForLog(groupNames), secondLevelGroupCount*3+4, groupNames.size());
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    assertEquals(secondLevelGroupCount*3+4, ldapEntries.size());
+    
+    Map<String, LdapEntry> ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
+    
+    for (LdapEntry ldapEntry : ldapEntries) {
+      ldapEntryNameToEntry.put(ldapEntry.getAttribute("cn").getStringValues().iterator().next(), ldapEntry);
+    }
+
+    LdapEntry ldapEntry = ldapEntryNameToEntry.get("d:d:a:group");
+    
+    assertEquals("cn=d:d:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("d:d:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    ldapEntry = ldapEntryNameToEntry.get("a:a:a:group");
+    
+    assertEquals("cn=a:a:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("a:a:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
   }
   /**
    * grouper session

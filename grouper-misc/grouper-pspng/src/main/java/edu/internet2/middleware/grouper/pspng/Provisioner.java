@@ -1978,8 +1978,8 @@ public abstract class Provisioner
         }
         //lets walk up the folder structure and look for an assignment
         if (provisionable == null) {
+          String currentObjectNamePointer = objectName;
           for (int i=0;i<1000;i++) {
-            String currentObjectNamePointer = objectName;
             currentObjectNamePointer = GrouperUtil.parentStemNameFromName(currentObjectNamePointer, false);
             if (provisionable == null && attributeToStemNameAssigned.get(provisionToName).contains(currentObjectNamePointer)) {
               provisionable = true;
