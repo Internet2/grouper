@@ -391,6 +391,11 @@ public class GrouperStartup {
           SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
           
         }
+        
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldaptiveEncodeControlChars", false)) {
+          System.setProperty("org.ldaptive.response.ENCODE_CNTRL_CHARS", "true");
+        }
+        
         GrouperCacheDatabase.startThreadIfNotStarted();
         GrouperCacheUtils.clearAllCaches();
 

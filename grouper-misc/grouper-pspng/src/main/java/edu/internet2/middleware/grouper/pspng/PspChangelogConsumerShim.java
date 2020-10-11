@@ -87,23 +87,37 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
     });
   }
   
+  private Provisioner provisioner = null;
+  
+  
+  
+  
+  public Provisioner getProvisioner() {
+    return provisioner;
+  }
+
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
     Date batchStartTime = new Date();
-
+    JobStatistics incrementalStats = new JobStatistics();
+    JobStatistics fullSyncStats = new JobStatistics();
     try {
       String consumerName = changeLogProcessorMetadata.getConsumerName();
       MDC.put("why", "CLog/");
       MDC.put("who", consumerName+"/");
       LOG.info("{}: +processChangeLogEntries({})", consumerName, changeLogEntryList.size());
       
-      Provisioner provisioner;
       try {
-        provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
+        this.provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
+        this.provisioner.allGroupsForProvisionerFromCacheClear();
         
+        this.provisioner.setJobStatistics(incrementalStats);
         // Make sure the full syncer is also created and running
-        FullSyncProvisionerFactory.getFullSyncer(provisioner);
+        FullSyncProvisioner fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer(provisioner);
+        fullSyncProvisioner.getProvisioner().allGroupsForProvisionerFromCacheClear();
+        fullSyncProvisioner.getProvisioner().setJobStatistics(fullSyncStats);
+
       } catch (PspException e1) {
         LOG.error("Provisioner {} could not be created", consumerName, e1);
         throw new RuntimeException("provisioner could not be created: " + e1.getMessage());
@@ -158,6 +172,10 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
         LOG.warn("Provisioning batch summary: {}", summary);
       else
         LOG.info("Provisioning batch summary: {}", summary);
+      
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setTotalCount(workItems.size());
       
       changeLogProcessorMetadata.getHib3GrouperLoaderLog().appendJobMessage(summary.toString());
       return lastSuccessfulChangelogEntry;

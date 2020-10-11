@@ -88,6 +88,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.insertCount.addAndGet(1);
+    }
+
     scheduleUserModification(ldapUser, AttributeModificationType.ADD, Arrays.asList(attributeValue));
   }
 
@@ -101,6 +106,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     }
     
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
+
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
 
     scheduleUserModification(ldapUser, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
   }
@@ -277,6 +287,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       throws PspException {
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
+
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
 
     purgeAttributeValue(attributeName, attributeValue, new JobStatistics());
   }

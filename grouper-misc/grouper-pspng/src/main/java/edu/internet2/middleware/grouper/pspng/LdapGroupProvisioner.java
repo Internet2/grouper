@@ -79,6 +79,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
       if ( membershipAttributeValue != null ) {
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+        JobStatistics jobStatistics = this.getJobStatistics();
+        if (jobStatistics != null) {
+          jobStatistics.insertCount.addAndGet(1);
+        }
       }
     }
   }
@@ -124,6 +128,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
 
     if ( membershipAttributeValue != null ) {
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.deleteCount.addAndGet(1);
+      }
       scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
     }
   }
@@ -361,6 +369,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         if ( membershipAttributeValue != null ) {
           membershipValues.add(membershipAttributeValue);
         }
+      }
+
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(membershipValues.size());
       }
 
       StringBuilder ldifForMemberships = new StringBuilder();
@@ -632,7 +645,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String dn = ldapGroup.getLdapObject().getDn();
     
     LOG.info("Deleting group {} by deleting DN {}", grouperGroupInfo, dn);
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
     
-    getLdapSystem().performLdapDelete(dn);;
+    getLdapSystem().performLdapDelete(dn);
   }
 }

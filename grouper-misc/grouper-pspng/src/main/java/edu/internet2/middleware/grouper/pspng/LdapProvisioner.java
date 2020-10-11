@@ -330,6 +330,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getUserCreationBaseDn());
       ldifEntry.setDn(actualDn);
 
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(1);
+      }
+
       performLdapAdd(ldifEntry);
       
       // Read the acount that was just created
@@ -864,6 +869,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       // Add the current attribute from the RDN if it was not already in the ldif template
       if ( ldifEntry.getAttribute( topRdnAttribute.getName() ) == null ) {
         ldifEntry.addAttribute(topRdnAttribute);
+      }
+
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(1);
       }
 
       performLdapAdd(ldifEntry);

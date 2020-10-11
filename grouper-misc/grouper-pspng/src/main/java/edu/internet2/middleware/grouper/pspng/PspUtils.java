@@ -26,7 +26,9 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -34,6 +36,8 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hibernate.*;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.joda.time.DateTime;
@@ -134,7 +138,24 @@ public class PspUtils {
     // We do this by walking up the stem path from the group to the root
     // and save them and then reverse them. 
     List<Stem> groupStemPath = new ArrayList<Stem>();
-    Stem stem = group.getParentStem();
+    Stem stem = null;
+    try {
+      stem = group.getParentStem();
+    } catch (Exception e) {
+      // if the group was deleted...
+      // we can get the ancestor stems in order
+      String stemName = GrouperUtil.parentStemNameFromName(group.getName(), true);
+      for (int i=0;i<1000;i++) {
+        stemName = GrouperUtil.parentStemNameFromName(stemName, true);
+        if (StringUtils.isBlank(stemName)) {
+          break;
+        }
+        stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+        if (stem != null) {
+          break;
+        }
+      }
+    }
     while ( stem != null ) {
       groupStemPath.add(stem);
       

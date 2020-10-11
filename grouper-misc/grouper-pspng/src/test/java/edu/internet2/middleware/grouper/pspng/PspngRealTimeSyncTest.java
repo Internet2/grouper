@@ -13,12 +13,13 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -29,17 +30,17 @@ import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
-public class PspngFullSyncTest extends GrouperTest {
+public class PspngRealTimeSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulk"));
+    TestRunner.run(new PspngRealTimeSyncTest("testRealTimeSyncWithCacheBulk"));
   }
 
-  public PspngFullSyncTest() {
+  public PspngRealTimeSyncTest() {
     super();
   }
 
-  public PspngFullSyncTest(String name) {
+  public PspngRealTimeSyncTest(String name) {
     super(name);
   }
   
@@ -89,151 +90,49 @@ public class PspngFullSyncTest extends GrouperTest {
     SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("personLdapSource"));
   }
 
-  public void testFullSyncWithCache() throws Exception {
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "true");
-    fullSyncHelper();
-  }
-  
-  public void testFullSyncWithoutCache() throws Exception {
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "false");
-    fullSyncHelper();
-  }
-  
-  public void fullSyncHelper() throws Exception {
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.type", LdapGroupProvisioner.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.class", PspChangelogConsumerShim.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.quartzCron", "*/5 * * * * ?");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.ldapPoolName", "personLdap");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.memberAttributeName", "description");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.memberAttributeValueFormat", "${subject.getId()}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupCreationBaseDn", "ou=Groups,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.allGroupsSearchFilter", "objectclass=posixGroup");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.singleGroupSearchFilter", "(&(objectclass=posixGroup)(gidNumber=${idIndex}))");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.groupCreationLdifTemplate", 
-        "dn: ${utils.escapeLdapRdn(\"cn=${group.name}\")}"
-        + "||cn: ${group.name}||objectclass: posixGroup||gidNumber: ${group.idIndex}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchBaseDn", "dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchFilter", "uid=${subject.id}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.grouperIsAuthoritative", "true");
-            
-        
-    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
-    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
-    
-    // mark some folders to provision
-    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
-    Group testGroupA = new GroupSave(this.grouperSession).assignName("test:testGroupA").save();
-    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
-    
-    Subject subject_aanderson = SubjectFinder.findById("aanderson", true);
-    Subject subject_ajohnson = SubjectFinder.findById("ajohnson", true);
-    Subject subject_adoe = SubjectFinder.findById("adoe", true);
-    Subject subject_agasper = SubjectFinder.findById("agasper", true);
-    Subject subject_alewis = SubjectFinder.findById("alewis", true);
-    Subject subject_amorrison = SubjectFinder.findById("amorrison", true);
-    
-    testGroup.addMember(subject_aanderson, false);
-    testGroup.addMember(subject_ajohnson, false);
-    
-    testGroupA.addMember(subject_alewis, false);
-    testGroupA.addMember(subject_amorrison, false);
-    
-    testGroup2.addMember(subject_adoe, false);
-    testGroup2.addMember(subject_agasper, false);
-    
-    stem.getAttributeValueDelegate().assignValue("etc:pspng:provision_to", "pspng1");
-
-    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
-
-    // Find the name of the provisioner
-    FullSyncProvisioner fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer("pspng1");
-    if ( fullSyncProvisioner == null ) {
-      throw new Exception("No provisioner found for job: " + "pspng1");
-    }
-
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-    hib3GrouploaderLog.setJobName("OTHER_JOB_pspng1_full");
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-
-    JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
-
-    //fullSyncProvisioner
-    Provisioner provisioner = fullSyncProvisioner.getProvisioner();
-    
-    Set<GrouperGroupInfo> grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
-    Set<String> groupNames = new HashSet<String>();
-    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
-      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
-    }
-
-    assertEquals(2, groupNames.size());
-    assertTrue(groupNames.contains("test:testGroup"));
-    assertTrue(groupNames.contains("test:testGroupA"));
-    
-    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
-    groupNames = new HashSet<String>();
-    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
-      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
-    }
-
-    assertEquals(2, groupNames.size());
-    assertTrue(groupNames.contains("test:testGroup"));
-    assertTrue(groupNames.contains("test:testGroupA"));
-    
-    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
-    assertEquals(2, ldapEntries.size());
-    
-    Map<String, LdapEntry> ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
-    
-    for (LdapEntry ldapEntry : ldapEntries) {
-      ldapEntryNameToEntry.put(ldapEntry.getAttribute("cn").getStringValues().iterator().next(), ldapEntry);
-    }
-
-    LdapEntry ldapEntry = ldapEntryNameToEntry.get("test:testGroup");
-    
-    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
-    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
-    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
-    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
-    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_aanderson.getId()));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_ajohnson.getId()));
-
-    ldapEntry = ldapEntryNameToEntry.get("test:testGroupA");
-    
-    assertEquals("cn=test:testGroupA,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
-    assertEquals("test:testGroupA", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
-    assertEquals(testGroupA.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
-    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
-    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_alewis.getId()));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(subject_amorrison.getId()));
-  }
-  
-  public void testFullSyncWithCacheBulkWithCache() throws Exception {
+  public void testRealTimeSyncWithCacheBulk() throws Exception {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "true");
     
-    fullSyncBulkHelper();
+    realTimeSyncBulkHelper();
   }
 
-  public void testFullSyncWithCacheBulkWithoutCache() throws Exception {
+  public void testRealTimeSyncWithoutCacheBulk() throws Exception {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngCacheGroupProvisionable", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("pspngNonScriptProvisionable", "false");
     
-    fullSyncBulkHelper();
+    realTimeSyncBulkHelper();
   }
 
-  public void fullSyncBulkHelper() throws Exception {
+  private PspChangelogConsumerShim pspChangelogConsumerShim = null;
+  
+  /**
+   * 
+   */
+  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
+    
+    if (runChangeLog) {
+      ChangeLogTempToEntity.convertRecords();
+    }
+    
+    if (runConsumer) {
+      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_pspng1");
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+      this.pspChangelogConsumerShim = new PspChangelogConsumerShim();
+      ChangeLogHelper.processRecords("pspng1", hib3GrouploaderLog, pspChangelogConsumerShim);
+  
+      return hib3GrouploaderLog;
+    }
+    
+    return null;
+  }
+
+  public void realTimeSyncBulkHelper() throws Exception {
+    
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.type", LdapGroupProvisioner.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.class", PspChangelogConsumerShim.class.getName());
@@ -647,48 +546,27 @@ public class PspngFullSyncTest extends GrouperTest {
     assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
     
-    // run it again it should do nothing
-    fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer("pspng1");
-    if ( fullSyncProvisioner == null ) {
-      throw new Exception("No provisioner found for job: " + "pspng1");
-    }
+    // run real time it should do nothing
 
-    hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-    hib3GrouploaderLog.setJobName("OTHER_JOB_pspng1_full");
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-
-    stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
-
+    //clear out changelog
+    // run the provisioner, it will init
+    hib3GrouploaderLog = runJobs(true, true);
+    
     assertEquals(0, hib3GrouploaderLog.getInsertCount().intValue());
     assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
     assertEquals(0, hib3GrouploaderLog.getDeleteCount().intValue());
-    assertEquals(membershipCount, hib3GrouploaderLog.getTotalCount().intValue());
-    
-    //fullSyncProvisioner
-    provisioner = fullSyncProvisioner.getProvisioner();
-    
-    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
-    groupNames = new HashSet<String>();
-    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
-      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
-    }
+    assertEquals(0, hib3GrouploaderLog.getTotalCount().intValue());
 
-    provisionedGroupCount = (secondLevelGroupCount-2) + (secondLevelGroupCount-2) + (secondLevelGroupCount) +4;
-    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
-    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    // go again after init, still no change
+    hib3GrouploaderLog = runJobs(true, true);
     
-    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
-    groupNames = new HashSet<String>();
-    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
-      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
-    }
+    assertEquals(0, hib3GrouploaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getDeleteCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getTotalCount().intValue());
 
-    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
-    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
-    
+    provisioner = this.pspChangelogConsumerShim.getProvisioner();
+        
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
     assertEquals(provisionedGroupCount, ldapEntries.size());
     
@@ -735,25 +613,21 @@ public class PspngFullSyncTest extends GrouperTest {
     group = GroupFinder.findByName(grouperSession, "a:d:a:group", true);
     group.addMember(SubjectFinder.findByIdAndSource("msmith896", "personLdapSource", true), true);
     
-    fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer("pspng1");
-    if ( fullSyncProvisioner == null ) {
-      throw new Exception("No provisioner found for job: " + "pspng1");
-    }
-
-    hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-    hib3GrouploaderLog.setJobName("OTHER_JOB_pspng1_full");
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-
-    stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
-
-    assertEquals(membershipAddCount + 1, hib3GrouploaderLog.getInsertCount().intValue());
-    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
-    assertEquals(membershipNotProvisionableCount+1, hib3GrouploaderLog.getDeleteCount().intValue());
-    assertEquals(membershipCount + membershipAddCount + 1 - (membershipNotProvisionableCount + 1), hib3GrouploaderLog.getTotalCount().intValue());
+    //System.out.println("STARTING INCREMENTAL!!!!!");
     
-    //fullSyncProvisioner
-    provisioner = fullSyncProvisioner.getProvisioner();
+    hib3GrouploaderLog = runJobs(true, true);
+
+    //System.out.println("WAITING FOR INCREMENTAL FULL SYNCS!!!!!");
+
+    // lets wait for full sync queueing
+    GrouperUtil.sleep(10000);
+    
+    assertTrue(hib3GrouploaderLog.getInsertCount().intValue() > 0);
+    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
+    assertTrue(hib3GrouploaderLog.getDeleteCount().intValue() > 0);
+    assertTrue(hib3GrouploaderLog.getTotalCount().intValue() > 0);
+    
+    provisioner = this.pspChangelogConsumerShim.getProvisioner();
     
     grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
     groupNames = new HashSet<String>();
@@ -762,12 +636,23 @@ public class PspngFullSyncTest extends GrouperTest {
     }
 
     provisionedGroupCount = (secondLevelGroupCount-2) + (secondLevelGroupCount-2) +4 + (secondLevelGroupCount-1);
-    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
     
     grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
     groupNames = new HashSet<String>();
@@ -775,15 +660,26 @@ public class PspngFullSyncTest extends GrouperTest {
       groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
     }
 
-    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
     assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
     
-    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
-    assertEquals(provisionedGroupCount, ldapEntries.size());
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", 
+        LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
     
     ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
     
@@ -791,11 +687,357 @@ public class PspngFullSyncTest extends GrouperTest {
       ldapEntryNameToEntry.put(ldapEntry1.getAttribute("cn").getStringValues().iterator().next(), ldapEntry1);
     }
 
-    assertTrue(GrouperUtil.toStringForLog(groupNames), ldapEntryNameToEntry.containsKey("a:a:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), ldapEntryNameToEntry.containsKey("d:d:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), !ldapEntryNameToEntry.containsKey("c:d:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), !ldapEntryNameToEntry.containsKey("e:b:a:group"));
-    assertTrue(GrouperUtil.toStringForLog(groupNames), ldapEntryNameToEntry.containsKey("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:e:a:group"));
+
+    assertEquals(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), provisionedGroupCount, ldapEntries.size());
+    
+    ldapEntry = ldapEntryNameToEntry.get("d:d:a:group");
+    
+    assertEquals("cn=d:d:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("d:d:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    ldapEntry = ldapEntryNameToEntry.get("a:a:a:group");
+    
+    assertEquals("cn=a:a:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("a:a:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    // obliterate a stem that isnt provisionable
+    Stem c = StemFinder.findByName(grouperSession, "c", true);
+    c.obliterate(false, false);
+
+    //System.out.println("STARTING INCREMENTAL!!!!!");
+    
+    hib3GrouploaderLog = runJobs(true, true);
+
+    //System.out.println("WAITING FOR INCREMENTAL FULL SYNCS!!!!!");
+
+    // lets wait for full sync queueing
+    GrouperUtil.sleep(10000);
+    
+    assertEquals(0, hib3GrouploaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getDeleteCount().intValue());
+    assertTrue(hib3GrouploaderLog.getTotalCount().intValue() > 0);
+    
+    provisioner = this.pspChangelogConsumerShim.getProvisioner();
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    provisionedGroupCount = (secondLevelGroupCount-2) + (secondLevelGroupCount-2) +4 + (secondLevelGroupCount-1);
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", 
+        LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    
+    ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
+    
+    for (LdapEntry ldapEntry1 : ldapEntries) {
+      ldapEntryNameToEntry.put(ldapEntry1.getAttribute("cn").getStringValues().iterator().next(), ldapEntry1);
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("e:e:a:group"));
+
+    assertEquals(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), provisionedGroupCount, ldapEntries.size());
+    
+    ldapEntry = ldapEntryNameToEntry.get("d:d:a:group");
+    
+    assertEquals("cn=d:d:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("d:d:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    ldapEntry = ldapEntryNameToEntry.get("a:a:a:group");
+    
+    assertEquals("cn=a:a:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("a:a:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    // obliterate a stem that is provisionable
+    Stem e = StemFinder.findByName(grouperSession, "e", true);
+    e.obliterate(false, false);
+
+    //System.out.println("STARTING INCREMENTAL!!!!!");
+    
+    hib3GrouploaderLog = runJobs(true, true);
+
+    //System.out.println("WAITING FOR INCREMENTAL FULL SYNCS!!!!!");
+
+    // lets wait for full sync queueing
+    GrouperUtil.sleep(10000);
+    
+    assertEquals(0, hib3GrouploaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
+    assertTrue(hib3GrouploaderLog.getDeleteCount().intValue()>0);
+    assertTrue(hib3GrouploaderLog.getTotalCount().intValue() > 0);
+    
+    provisioner = this.pspChangelogConsumerShim.getProvisioner();
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    provisionedGroupCount = (secondLevelGroupCount-2) + (secondLevelGroupCount-2) +4;
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", 
+        LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    
+    ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
+    
+    for (LdapEntry ldapEntry1 : ldapEntries) {
+      ldapEntryNameToEntry.put(ldapEntry1.getAttribute("cn").getStringValues().iterator().next(), ldapEntry1);
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:e:a:group"));
+
+    assertEquals(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), provisionedGroupCount, ldapEntries.size());
+    
+    ldapEntry = ldapEntryNameToEntry.get("d:d:a:group");
+    
+    assertEquals("cn=d:d:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("d:d:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    ldapEntry = ldapEntryNameToEntry.get("a:a:a:group");
+    
+    assertEquals("cn=a:a:a:group,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("a:a:a:group", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(1, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+
+    // obliterate a stem that is provisionable but not top level
+    Stem ad = StemFinder.findByName(grouperSession, "a:d", true);
+    ad.obliterate(false, false);
+
+    //System.out.println("STARTING INCREMENTAL!!!!!");
+    
+    hib3GrouploaderLog = runJobs(true, true);
+
+    //System.out.println("WAITING FOR INCREMENTAL FULL SYNCS!!!!!");
+
+    // lets wait for full sync queueing
+    GrouperUtil.sleep(10000);
+    
+    assertEquals(0, hib3GrouploaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
+    assertTrue(hib3GrouploaderLog.getDeleteCount().intValue()>0);
+    assertTrue(hib3GrouploaderLog.getTotalCount().intValue() > 0);
+    
+    provisioner = this.pspChangelogConsumerShim.getProvisioner();
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    provisionedGroupCount = (secondLevelGroupCount-3) + (secondLevelGroupCount-2) +4;
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    grouperGroupInfoSet = provisioner.getAllGroupsForProvisioner2();
+    groupNames = new HashSet<String>();
+    for (GrouperGroupInfo grouperGroupInfo : grouperGroupInfoSet) {
+      groupNames.add(grouperGroupInfo.getGrouperGroup().getName());
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), groupNames.contains("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(groupNames), !groupNames.contains("e:e:a:group"));
+    assertEquals(GrouperUtil.toStringForLog(groupNames), provisionedGroupCount, groupNames.size());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", 
+        LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    
+    ldapEntryNameToEntry = new HashMap<String, LdapEntry>();
+    
+    for (LdapEntry ldapEntry1 : ldapEntries) {
+      ldapEntryNameToEntry.put(ldapEntry1.getAttribute("cn").getStringValues().iterator().next(), ldapEntry1);
+    }
+
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("a:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("a:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("b:e:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), ldapEntryNameToEntry.containsKey("d:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("c:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:b:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:a:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:c:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:d:a:group"));
+    assertTrue(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), !ldapEntryNameToEntry.containsKey("e:e:a:group"));
+
+    assertEquals(GrouperUtil.toStringForLog(ldapEntryNameToEntry.keySet()), provisionedGroupCount, ldapEntries.size());
     
     ldapEntry = ldapEntryNameToEntry.get("d:d:a:group");
     

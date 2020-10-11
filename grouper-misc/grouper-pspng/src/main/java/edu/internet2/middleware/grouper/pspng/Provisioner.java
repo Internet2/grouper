@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -73,6 +74,7 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -133,6 +135,27 @@ public abstract class Provisioner
   static final Logger STATIC_LOG = LoggerFactory.getLogger(Provisioner.class);
   
   protected final Logger LOG;
+
+  /**
+   * job stats for real time
+   */
+  private JobStatistics jobStatistics;
+
+  /**
+   * job stats for real time
+   * @return
+   */
+  public JobStatistics getJobStatistics() {
+    return jobStatistics;
+  }
+
+  /**
+   * job stats for real time
+   * @param jobStatistics
+   */
+  public void setJobStatistics(JobStatistics jobStatistics) {
+    this.jobStatistics = jobStatistics;
+  }
 
   // What should logs show for this provisioner's name. This differentiates between the
   // Incremental/Normal version of the provisioner and its full-sync version
@@ -266,7 +289,9 @@ public abstract class Provisioner
                 AtomicInteger counter = new AtomicInteger(1);
                 @Override
                 public Thread newThread(Runnable r) {
-                  return new Thread(r, String.format("TSUserFetcher-%s-%d", getDisplayName(), counter.getAndIncrement()));
+                  Thread thread = new Thread(r, String.format("TSUserFetcher-%s-%d", getDisplayName(), counter.getAndIncrement()));
+                  thread.setDaemon(true);
+                  return thread;
                 }
               });
     } else {
@@ -1448,8 +1473,9 @@ public abstract class Provisioner
 
   private void processAnyChangesInGroupSelection(ProvisioningWorkItem workItem) throws PspException {
     String workItem_identifier;
-    if ( workItem.getChangelogEntry() != null ) {
-      workItem_identifier = String.format("chlog #%d",workItem.getChangelogEntry().getSequenceNumber());
+    ChangeLogEntry changelogEntry = workItem.getChangelogEntry();
+    if ( changelogEntry != null ) {
+      workItem_identifier = String.format("chlog #%d",changelogEntry.getSequenceNumber());
     } else {
       workItem_identifier = workItem.toString();
     }
@@ -1488,6 +1514,11 @@ public abstract class Provisioner
     for (GrouperGroupInfo group : newlySelectedGroups) {
       LOG.info("{}: Scheduling full sync of group because it is now selected for provisioning: {}", getDisplayName(), group);
 
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(1);
+      }
+
       getFullSyncer().scheduleGroupForSync(
               FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,
               group.getName(),
@@ -1495,6 +1526,140 @@ public abstract class Provisioner
               "group newly selected for provisioning");
 
     }
+
+    String attributeValue = null;
+    String attributeAssignId = null;
+    String nameOfAttributeDefName = null;
+    boolean isAddAndNotDelete = false;
+    
+    // if this is an add value or delete value, and the value matches, then process that group(s) or folder(s)
+    if (changelogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
+      attributeValue = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value);
+      attributeAssignId = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId);
+      nameOfAttributeDefName = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName);
+      isAddAndNotDelete = true;
+    }
+
+    if (changelogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
+      attributeValue = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value);
+      attributeAssignId = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId);
+      nameOfAttributeDefName = changelogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName);
+    }
+
+    String provisionToName = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
+    String doNotProvisionToName = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.rootStemForBuiltinObjects", "etc") + ":pspng:do_not_provision_to";
+
+    // attribute value affects this provisioner
+    if (!StringUtils.isBlank(attributeAssignId) && !StringUtils.isBlank(attributeValue) && StringUtils.equals(attributeValue, this.provisionerConfigName)
+        && getConfig().getAttributesUsedInGroupSelectionExpression().contains(nameOfAttributeDefName)
+        && (StringUtils.equals(provisionToName, nameOfAttributeDefName) || StringUtils.equals(doNotProvisionToName, nameOfAttributeDefName))) {
+      
+      List<String> groupNames = new GcDbAccess().sql("SELECT gg.name FROM grouper_attribute_assign gaa, grouper_groups gg "
+          + "WHERE gaa.id = ? AND gg.id = gaa.OWNER_GROUP_ID and gg.name is not null").addBindVar(attributeAssignId).selectList(String.class);
+
+      if (GrouperUtil.length(groupNames) == 0) {
+        groupNames = new GcDbAccess().sql("SELECT gg.name FROM grouper_attribute_assign gaa, grouper_stems gs, grouper_stem_set gss, grouper_groups gg "
+            + " WHERE gss.then_has_stem_id = gs.id AND gg.PARENT_STEM  = gss.IF_HAS_STEM_ID "   
+            + " AND gaa.id = ? AND gs.id = gaa.OWNER_STEM_ID").addBindVar(attributeAssignId).selectList(String.class);
+      }        
+
+      if (GrouperUtil.length(groupNames) == 0) {
+        groupNames = new GcDbAccess().sql("SELECT gpg.name FROM grouper_pit_attribute_assign gpaa, grouper_pit_groups gpg "
+            + "WHERE gpaa.source_id = ? AND gpg.id = gpaa.OWNER_GROUP_ID AND gpaa.END_TIME IS NULL and gpg.name is not null")
+            .addBindVar(attributeAssignId).selectList(String.class);
+      }
+
+      if (GrouperUtil.length(groupNames) == 0) {
+        groupNames = new GcDbAccess().sql("SELECT gpg.name FROM grouper_pit_attribute_assign gpaa, grouper_pit_groups gpg "
+            + "WHERE gpaa.source_id = ? AND gpg.name IS NOT NULL AND gpg.id = gpaa.OWNER_GROUP_ID AND gpaa.END_TIME = "
+            + "(SELECT max(gpaa2.end_time) FROM grouper_pit_attribute_assign gpaa2 WHERE gpaa2.end_time IS NOT NULL AND gpaa.source_id = gpaa2.source_id)")
+            .addBindVar(attributeAssignId).selectList(String.class);
+      }
+
+      if (GrouperUtil.length(groupNames) == 0) {
+        groupNames = new GcDbAccess().sql("SELECT gg.name FROM grouper_pit_attribute_assign gpaa, grouper_pit_stems gps, "
+            + "grouper_stem_set gss, grouper_groups gg "
+            + "WHERE gss.then_has_stem_id = gps.source_id AND gg.PARENT_STEM  = gss.IF_HAS_STEM_ID AND gpaa.end_time IS null "
+            + "AND gpaa.source_id = ? AND gps.id = gpaa.OWNER_STEM_ID")
+            .addBindVar(attributeAssignId).selectList(String.class);
+      }
+
+      if (GrouperUtil.length(groupNames) == 0) {
+        groupNames = new GcDbAccess().sql("SELECT gg.name FROM grouper_pit_attribute_assign gpaa, grouper_pit_stems gps, grouper_stem_set gss, grouper_groups gg "
+            + "WHERE gss.then_has_stem_id = gps.source_id AND gg.PARENT_STEM  = gss.IF_HAS_STEM_ID "
+            + "AND gpaa.source_id = ? AND gps.id = gpaa.OWNER_STEM_ID "
+            + "AND gpaa.end_time = (SELECT max(gpaa2.end_time) FROM grouper_pit_attribute_assign gpaa2 WHERE gpaa2.end_time IS NOT NULL AND gpaa.source_id = gpaa2.source_id)")
+            .addBindVar(attributeAssignId).selectList(String.class);
+      }
+      
+
+//    String stemName = new GcDbAccess().sql("SELECT gs.name FROM grouper_attribute_assign gaa, grouper_stems gs "
+//    + "WHERE gaa.id = ? AND gs.id = gaa.OWNER_STEM_ID").addBindVar(attributeAssignId).select(String.class);
+
+  // if groups are deleted they will be handled elsewhere
+//  groupName = new GcDbAccess().sql("SELECT gpg.NAME FROM grouper_pit_attribute_assign gpaa, grouper_pit_groups gpg "
+//      + "WHERE gpaa.source_id = ? AND gpaa.owner_group_id = gpg.id and gpaa.END_TIME IS null").addBindVar(attributeAssignId).select(String.class);
+//  stemName = new GcDbAccess().sql("SELECT gps.NAME FROM grouper_pit_attribute_assign gpaa, grouper_pit_stems gps "
+//      + "WHERE gpaa.source_id = ? AND gpaa.owner_stem_id = gps.id and gpaa.END_TIME IS null").addBindVar(attributeAssignId).select(String.class);
+//  
+////  groupName = new GcDbAccess().sql("SELECT gpg.NAME FROM grouper_pit_groups gpg WHERE source_id = ? and gpg.END_TIME IS null")
+////      .addBindVar(attributeAssign.getOwnerGroupId()).select(String.class);
+////
+////  groupName = new GcDbAccess().sql("SELECT gpg.NAME FROM grouper_pit_groups gpg WHERE source_id = ? and gpg.END_TIME = "
+////      + "(SELECT max(gpg2.end_time) FROM grouper_pit_groups gpg2 WHERE gpg2.source_id = gpg.source_id AND gpg2.end_time IS NOT null)")
+////         .addBindVar(attributeAssign.getOwnerGroupId()).select(String.class);
+
+
+      HashSet<String> groupNameSet = new HashSet<String>(GrouperUtil.nonNull(groupNames));
+      for (String groupName : groupNameSet) {
+
+        // if true, this is adding provisionable or removing do_not_provision, else removing pro
+        boolean newlyProvisionable = (StringUtils.equals(provisionToName, nameOfAttributeDefName) && isAddAndNotDelete) 
+            || (StringUtils.equals(doNotProvisionToName, nameOfAttributeDefName) && !isAddAndNotDelete);
+        
+        GrouperGroupInfo group = getGroupInfoOfExistingGroup(groupName);
+
+        boolean provisionable = GrouperUtil.nonNull(selectedGroups_now).contains(group);
+        
+        if (!newlyProvisionable) {
+          if (!provisionable) {
+            TSGroupClass tsGroup=null;
+            if ( getConfig().needsTargetSystemGroups() ) {
+              tsGroup = fetchTargetSystemGroup(group);
+              if ( tsGroup == null ) {
+                LOG.info("{}: Group is already not present in target system: {}", getDisplayName(), group.getName());
+                continue;
+              }
+            }
+            LOG.info("{}: Deleting group from target system because it is no longer selected for provisioning: {}", getDisplayName(), group);
+            deleteGroup(group, tsGroup);
+          }
+        } else {
+          if (provisionable) {
+            LOG.info("{}: Scheduling full sync of group because it is now selected for provisioning: {}", getDisplayName(), group);
+  
+            JobStatistics jobStatistics = this.getJobStatistics();
+            if (jobStatistics != null) {
+              jobStatistics.insertCount.addAndGet(1);
+            }
+
+            getFullSyncer().scheduleGroupForSync(
+                    FullSyncProvisioner.QUEUE_TYPE.CHANGELOG,
+                    group.getName(),
+                    workItem_identifier,
+                    "group newly selected for provisioning");
+            
+          }
+        }
+
+      
+      }
+      
+      
+    }
+    
     workItem.markAsSuccess("Processed any changes in group selection");
   }
 
@@ -2005,6 +2170,26 @@ public abstract class Provisioner
     return result;
   }
   
+  private ExpirableCache<Boolean, Set<GrouperGroupInfo>> allGroupsForProvisionerCache = null;
+
+  public void allGroupsForProvisionerFromCacheClear() {
+    if (allGroupsForProvisionerCache != null) {
+      allGroupsForProvisionerCache.clear();
+    }
+  }
+
+  public Set<GrouperGroupInfo> allGroupsForProvisionerFromCache() {
+    int pspngCacheAllGroupProvisionableMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pspngCacheAllGroupProvisionableMinutes", 2);
+    if (pspngCacheAllGroupProvisionableMinutes <= 0) {
+      return null;
+    }
+    if (allGroupsForProvisionerCache == null) {
+      allGroupsForProvisionerCache = new ExpirableCache<Boolean, Set<GrouperGroupInfo>>(pspngCacheAllGroupProvisionableMinutes);
+    }
+    Set<GrouperGroupInfo> result = allGroupsForProvisionerCache.get(Boolean.TRUE);
+    return result;
+  }
+  
   /**
    * This method looks for groups that are marked for provisioning as determined by 
    * the GroupSelectionExpression. 
@@ -2017,17 +2202,25 @@ public abstract class Provisioner
    * @return A collection of groups that are to be provisioned by this provisioner
    */
   public Set<GrouperGroupInfo> getAllGroupsForProvisioner()  {
+    Set<GrouperGroupInfo> result = this.allGroupsForProvisionerFromCache();
     
+    if (result != null) {
+      return result;
+    }
     
     boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
     if (pspngCacheGroupProvisionable) {
-      return getAllGroupsForProvisioner2();
+      result = getAllGroupsForProvisioner2();
+      if (this.allGroupsForProvisionerCache != null) {
+        this.allGroupsForProvisionerCache.put(Boolean.TRUE, result);
+      }
+      return result;
     }
 
     Date start = new Date();
 
     LOG.debug("{}: Compiling a list of all groups selected for provisioning", getDisplayName());
-    Set<GrouperGroupInfo> result = new HashSet<>();
+    result = new HashSet<>();
 
     Set<Group> interestingGroups = new HashSet<Group>();
     for ( String attribute : getConfig().getAttributesUsedInGroupSelectionExpression() ) {
@@ -2069,6 +2262,9 @@ public abstract class Provisioner
     LOG.info("{}: There are {} groups selected for provisioning (found in %s)",
         getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
 
+    if (this.allGroupsForProvisionerCache != null) {
+      this.allGroupsForProvisionerCache.put(Boolean.TRUE, result);
+    }
     return result;
   }
   
