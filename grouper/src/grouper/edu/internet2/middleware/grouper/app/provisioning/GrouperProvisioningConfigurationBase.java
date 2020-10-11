@@ -916,12 +916,15 @@ public abstract class GrouperProvisioningConfigurationBase {
   
         {
           boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
+          String translateExpressionFromMembership = this.retrieveConfigString(objectType + "." + i + ".translateExpressionFromMembership", false);
           if (membershipAttribute) {
             if (foundMembershipAttribute) {
               throw new RuntimeException("Can only have one " + objectType + " membershipAttribute attribute or field! " + name + ", " + foundMembershipAttributeName);
             }
             foundMembershipAttribute = true;
             foundMembershipAttributeName = name;
+            
+            attributeConfig.setTranslateExpressionFromMembership(translateExpressionFromMembership);
           }
           attributeConfig.setMembershipAttribute(membershipAttribute);
         }
@@ -1121,6 +1124,26 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.groupSearchAttributes = new HashSet<String>();
     }
     
+    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isSelect()) {
+        this.groupSearchAttributes.add(targetGroupAttributeName);
+      }
+      
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
+        this.groupAttributeNameForMemberships = targetGroupAttributeName;
+      }
+    }
+    
+    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isSelect()) {
+        this.userSearchAttributes.add(targetEntityAttributeName);
+      }
+      
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
+        this.userAttributeNameForMemberships = targetEntityAttributeName;
+      }
+    }
+    
     this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
 
     this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
@@ -1131,10 +1154,18 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.groupSearchAttributeName = this.retrieveConfigString("groupSearchAttributeName", false);
 
-    this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
+      this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("groupAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or groupAttributeNameForMemberships");
+    }
     
-    this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
-
+    if (StringUtils.isEmpty(this.userAttributeNameForMemberships)) {
+      this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("userAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or userAttributeNameForMemberships");
+    }
+    
     this.groupSearchAttributeValueFormat = this.retrieveConfigString("groupSearchAttributeValueFormat", false);
     
     if (StringUtils.isBlank(this.groupSearchAttributeName) != StringUtils.isBlank(this.groupSearchAttributeValueFormat)) {

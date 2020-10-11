@@ -158,6 +158,36 @@ public class GrouperProvisioningTranslatorBase {
           }
         }
         
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+          String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
+          if (!StringUtils.isEmpty(groupMembershipAttribute)) {
+            GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(groupMembershipAttribute);
+            if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
+              Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+              
+              if (result != null) {
+                grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+              }
+            }
+          }
+        }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+          String userMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getUserAttributeNameForMemberships();
+          if (!StringUtils.isEmpty(userMembershipAttribute)) {
+            GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(userMembershipAttribute);
+            if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
+              Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+              
+              if (result != null) {
+                grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+              }
+            }
+          }
+        }
+        
         // field configurations
         grouperTargetMembership.setId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getId(), elVariableMap, false, 

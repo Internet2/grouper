@@ -110,8 +110,8 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     // see if we are getting memberships or privs
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
 
-    GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper 
-      = grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper();
+    GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper 
+      = grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc();
     
     // these events are already filtered
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {

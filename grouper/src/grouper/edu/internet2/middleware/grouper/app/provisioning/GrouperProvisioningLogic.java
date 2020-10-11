@@ -218,7 +218,7 @@ public class GrouperProvisioningLogic {
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsUpdatesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates());
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes());
       } catch (Exception e) {
-        LOG.error(e);
+        LOG.error("error sync objects", e);
       }
       //TODO this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.sendChangesToTarget);
 
@@ -282,7 +282,7 @@ public class GrouperProvisioningLogic {
     try {
       debugMap.put("state", "retrieveIncrementalDataFromGrouper");
       long start = System.currentTimeMillis();
-      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIncrementalDataFromGrouper();
+      grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
       long retrieveDataPass1 = System.currentTimeMillis()-start;
       debugMap.put("retrieveDataPass1_millis", retrieveDataPass1);
     } finally {
@@ -609,8 +609,8 @@ public class GrouperProvisioningLogic {
     TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = 
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetDaoRetrieveIncrementalDataRequest();
 
-    GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper =
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperIncrementalUuidsToRetrieveFromGrouper();
+    GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc();
 
     {
       //the groups only should be the full list of grouper target groups
@@ -737,14 +737,6 @@ public class GrouperProvisioningLogic {
 
   }
 
-
-  /**
-   * get data from change log
-   */
-  public void retrieveIncrementalDataFromGrouper() {
-        
-    this.retrieveGrouperDataIncremental();
-  }
   /**
    * retrieve all data from both sides, grouper and target, do this in a thread
    */
@@ -844,8 +836,9 @@ public class GrouperProvisioningLogic {
     
         ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(gcGrouperSyncGroup.getGroupId());
         
-        provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
-        
+        if (provisioningGroupWrapper != null) {
+          provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+        }
       }
     }
 
@@ -857,8 +850,9 @@ public class GrouperProvisioningLogic {
     
         ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(gcGrouperSyncMember.getMemberId());
         
-        provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
-        
+        if (provisioningEntityWrapper != null) {
+          provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+        }
       }
     }
 
@@ -871,8 +865,9 @@ public class GrouperProvisioningLogic {
         GcGrouperSyncMembership gcGrouperSyncMembership  = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGroupUuidMemberUuidToSyncMembership().get(groupUuidMemberUuid);
         ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupUuidMemberUuid);
         
-        provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
-        
+        if (provisioningMembershipWrapper != null) {
+          provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        }
       }
     }
   }

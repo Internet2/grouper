@@ -77,12 +77,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       groupSearchAttributeNames.add("objectClass");
       groupAttributesMultivalued.add("objectClass");
       
-      if (includeAllMembershipsIfApplicable) {
-        String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
-        
-        if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
+      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
+        if (includeAllMembershipsIfApplicable) {
           groupSearchAttributeNames.add(groupAttributeNameForMemberships);
           groupAttributesMultivalued.add(groupAttributeNameForMemberships);
+        } else {
+          groupSearchAttributeNames.remove(groupAttributeNameForMemberships);
+          groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
         }
       }
       
@@ -139,16 +141,31 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           
           continue;
         }
+
+        LdapAttribute ldapAttribute = ldapEntry.getAttribute(provisioningObjectChange.getAttributeName());
+        if (ldapAttribute == null) {
+          ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        }
         
-        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
-  
-        if (value instanceof String && !StringUtils.isEmpty((String)value)) {
-          ldapAttribute.addValue((String)value);
+        if (value instanceof byte[]) {
+          ldapAttribute.addValue(value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
           Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
-          if (values.size() > 0) {
-            ldapAttribute.addValues(values);
+          for (Object singleValue : values) {
+            if (singleValue instanceof byte[]) {
+              ldapAttribute.addValue(singleValue);
+            } else {
+              String singleStringValue = GrouperUtil.stringValue(singleValue);
+              if (!StringUtils.isEmpty(singleStringValue)) {
+                ldapAttribute.addValue(singleStringValue);
+              }
+            }
+          }
+        } else {
+          String stringValue = GrouperUtil.stringValue(value);
+          if (!StringUtils.isEmpty(stringValue)) {
+            ldapAttribute.addValue(stringValue);
           }
         }
         
@@ -212,6 +229,20 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningObjectChangeAction action = provisionObjectChange.getProvisioningObjectChangeAction();
         Object newValue = provisionObjectChange.getNewValue();
         Object oldValue = provisionObjectChange.getOldValue();
+        
+        if (newValue != null && !(newValue instanceof byte[])) {
+          newValue = GrouperUtil.stringValue(newValue);
+          if (StringUtils.isEmpty((String)newValue)) {
+            newValue = null;
+          }
+        }
+        
+        if (oldValue != null && !(oldValue instanceof byte[])) {
+          oldValue = GrouperUtil.stringValue(oldValue);
+          if (StringUtils.isEmpty((String)oldValue)) {
+            oldValue = null;
+          }
+        }
         
         if (action == ProvisioningObjectChangeAction.delete) {
           if (newValue != null) {
@@ -292,12 +323,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     groupSearchAttributeNames.add("objectClass");
     groupAttributesMultivalued.add("objectClass");
     
-    if (includeAllMembershipsIfApplicable) {
-      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
-      
-      if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
+      if (includeAllMembershipsIfApplicable) {
         groupSearchAttributeNames.add(groupAttributeNameForMemberships);
         groupAttributesMultivalued.add(groupAttributeNameForMemberships);
+      } else {
+        groupSearchAttributeNames.remove(groupAttributeNameForMemberships);
+        groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
       }
     }
     
@@ -379,12 +412,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       userSearchAttributeNames.add("objectClass");
       userAttributesMultivalued.add("objectClass");
       
-      if (includeAllMembershipsIfApplicable) {
-        String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
-        
-        if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
+      String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
+      if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
+        if (includeAllMembershipsIfApplicable) {
           userSearchAttributeNames.add(userAttributeNameForMemberships);
           userAttributesMultivalued.add(userAttributeNameForMemberships);
+        } else {
+          userSearchAttributeNames.remove(userAttributeNameForMemberships);
+          userAttributesMultivalued.remove(userAttributeNameForMemberships);
         }
       }
       
@@ -442,12 +477,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     userSearchAttributeNames.add("objectClass");
     userAttributesMultivalued.add("objectClass");
     
-    if (includeAllMembershipsIfApplicable) {
-      String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
-      
-      if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
+    String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
+    if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
+      if (includeAllMembershipsIfApplicable) {
         userSearchAttributeNames.add(userAttributeNameForMemberships);
         userAttributesMultivalued.add(userAttributeNameForMemberships);
+      } else {
+        userSearchAttributeNames.remove(userAttributeNameForMemberships);
+        userAttributesMultivalued.remove(userAttributeNameForMemberships);
       }
     }
     
@@ -523,16 +560,31 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           continue;
         }
         
-        LdapAttribute ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        LdapAttribute ldapAttribute = ldapEntry.getAttribute(provisioningObjectChange.getAttributeName());
+        if (ldapAttribute == null) {
+          ldapAttribute = new LdapAttribute(provisioningObjectChange.getAttributeName());
+        }
   
-        if (value instanceof String && !StringUtils.isEmpty((String)value)) {
-          ldapAttribute.addValue((String)value);
+        if (value instanceof byte[]) {
+          ldapAttribute.addValue(value);
         } else if (value instanceof Collection) {
           @SuppressWarnings("unchecked")
           Collection<Object> values = (Collection<Object>) provisioningObjectChange.getNewValue();
-          if (values.size() > 0) {
-            ldapAttribute.addValues(values);
-          } 
+          for (Object singleValue : values) {
+            if (singleValue instanceof byte[]) {
+              ldapAttribute.addValue(singleValue);
+            } else {
+              String singleStringValue = GrouperUtil.stringValue(singleValue);
+              if (!StringUtils.isEmpty(singleStringValue)) {
+                ldapAttribute.addValue(singleStringValue);
+              }
+            }
+          }
+        } else {
+          String stringValue = GrouperUtil.stringValue(value);
+          if (!StringUtils.isEmpty(stringValue)) {
+            ldapAttribute.addValue(stringValue);
+          }
         }
         
         if (ldapAttribute.getValues().size() > 0) {

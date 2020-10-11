@@ -251,35 +251,58 @@ public class GrouperProvisioningData {
   private Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
 
   /**
-   * grouper uuids to retrieve from grouper and grouper sync
+   * grouper uuids to retrieve without first retrieving from target
    */
-  private GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper;
+  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc;
 
   /**
    * grouper uuids to retrieve from grouper and grouper sync
    * @return
    */
-  public GrouperIncrementalUuidsToRetrieveFromGrouper getGrouperIncrementalUuidsToRetrieveFromGrouper() {
-    if (this.grouperIncrementalUuidsToRetrieveFromGrouper == null) {
-      this.grouperIncrementalUuidsToRetrieveFromGrouper = new GrouperIncrementalUuidsToRetrieveFromGrouper();
+  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithoutRecalc() {
+    if (this.grouperIncrementalDataToProcessWithoutRecalc == null) {
+      this.grouperIncrementalDataToProcessWithoutRecalc = new GrouperIncrementalDataToProcess();
     }
-    return grouperIncrementalUuidsToRetrieveFromGrouper;
+    return grouperIncrementalDataToProcessWithoutRecalc;
   }
 
   /**
    * grouper uuids to retrieve from grouper and grouper sync
    * @param grouperIncrementalUuidsToRetrieveFromGrouper
    */
-  public void setGrouperIncrementalUuidsToRetrieveFromGrouper(
-      GrouperIncrementalUuidsToRetrieveFromGrouper grouperIncrementalUuidsToRetrieveFromGrouper) {
-    this.grouperIncrementalUuidsToRetrieveFromGrouper = grouperIncrementalUuidsToRetrieveFromGrouper;
+  public void setGrouperIncrementalDataToProcessWithoutRecalc(
+      GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper) {
+    this.grouperIncrementalDataToProcessWithoutRecalc = grouperIncrementalUuidsToRetrieveFromGrouper;
   }
 
   /**
    * grouper target objects to get from target for incremental sync
    */
   private TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest;
+
+  /**
+   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
+   */
+  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc;
   
+  /**
+   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
+   * @return
+   */
+  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithRecalc() {
+    return grouperIncrementalDataToProcessWithRecalc;
+  }
+
+  /**
+   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
+   * @param grouperIncrementalDataToProcessWithRecalc
+   */
+  public void setGrouperIncrementalDataToProcessWithRecalc(
+      GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc) {
+    this.grouperIncrementalDataToProcessWithRecalc = grouperIncrementalDataToProcessWithRecalc;
+  }
+
+
   /**
    * grouper target objects to get from target for incremental sync
    * @return target object
