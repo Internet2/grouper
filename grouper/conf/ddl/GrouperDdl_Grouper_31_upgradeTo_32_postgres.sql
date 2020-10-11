@@ -632,4 +632,6 @@ COMMENT ON COLUMN grouper_config.last_updated IS 'when this record was inserted 
 
 COMMENT ON COLUMN grouper_config.hibernate_version_number IS 'hibernate version for optimistic locking';
 
+update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V32, ' || history) from 1 for 3500), db_version = 32 where object_name = 'Grouper';
+commit;
 

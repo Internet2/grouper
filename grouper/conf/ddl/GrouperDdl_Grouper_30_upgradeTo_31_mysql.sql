@@ -27,3 +27,6 @@ CREATE INDEX pit_member_subjidentifier0_idx ON grouper_pit_members (subject_iden
 CREATE INDEX grpconfig_config_key_idx ON grouper_config (config_key(100), config_file_name(50));
 
 CREATE unique INDEX grpconfig_unique_idx ON grouper_config (config_file_name(20), config_file_hierarchy(20), config_key(100), config_sequence);
+
+update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V31, ', history), 1, 3500), db_version = 31 where object_name = 'Grouper';
+commit;

@@ -270,3 +270,5 @@ CREATE INDEX grouper_sync_mship_f2_idx ON grouper_sync_membership (grouper_sync_
 
 CREATE unique INDEX grouper_ext_subj_idfr_idx ON grouper_ext_subj (identifier(255));
 
+update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V32, ', history), 1, 3500), db_version = 32 where object_name = 'Grouper';
+commit;

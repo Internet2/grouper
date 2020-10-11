@@ -437,7 +437,7 @@ public abstract class GrouperProvisioner {
 
       try {
         if (gcGrouperSyncLog != null) {
-          gcGrouperSyncLog.setDescription(debugString);
+          gcGrouperSyncLog.setDescriptionToSave(debugString);
           gcGrouperSyncLog.setJobTookMillis(durationMillis);
           gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
         }
