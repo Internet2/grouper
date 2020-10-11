@@ -521,7 +521,7 @@ public abstract class Provisioner
     
     LOG.debug("Filtering provisioning batch of {} items", workItems.size());
 
-    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
 
     Set<String> attributesUsedInProvisioning = new HashSet<String>(GrouperUtil.nonNull(getConfig().getAttributesUsedInGroupSelectionExpression()));
     
@@ -633,7 +633,7 @@ public abstract class Provisioner
   public List<ProvisioningWorkItem> 
   filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
     
-    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
     if (pspngCacheGroupProvisionable) {
       return filterWorkItems2(workItems);
     }
@@ -2208,7 +2208,7 @@ public abstract class Provisioner
       return result;
     }
     
-    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", false);
+    boolean pspngCacheGroupProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupProvisionable", true);
     if (pspngCacheGroupProvisionable) {
       result = getAllGroupsForProvisioner2();
       if (this.allGroupsForProvisionerCache != null) {
