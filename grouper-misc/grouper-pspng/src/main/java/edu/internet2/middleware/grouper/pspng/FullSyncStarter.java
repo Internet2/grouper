@@ -106,7 +106,6 @@ public class FullSyncStarter
       if ( fullSyncProvisioner == null ) {
         throw new Exception("No provisioner found for job: " + otherJobConfigName);
       }
-      fullSyncProvisioner.getProvisioner().allGroupsForProvisionerFromCacheClear();
 
       JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
 

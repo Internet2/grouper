@@ -537,7 +537,19 @@ public class FullSyncProvisioner  {
 
 
   public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion(Hib3GrouperLoaderLog hib3GrouploaderLog) throws PspException {
+    
+      Provisioner.allGroupsForProvisionerFromCacheClear(this.getProvisioner().getConfigName());
+
+      for (QUEUE_TYPE queue_type : QUEUE_TYPE.values()) {
+        if (queue_type.usesGrouperMessagingQueue) {
+          setUpGrouperMessagingQueue(queue_type);
+        }
+      }
+
       Date startDate = new Date();
+
+      JobStatistics fullSyncStats = new JobStatistics();
+      this.provisioner.setJobStatistics(fullSyncStats);
 
       List<FullSyncQueueItem> queuedGroupSyncs
               = queueAllGroupsForFullSync(QUEUE_TYPE.SCHEDULED_LOCAL, null,"Scheduled full sync");
@@ -561,7 +573,11 @@ public class FullSyncProvisioner  {
                   everythingHasBeenCompleted=false;
               }
           }
-
+          
+          statisticsSoFar.deleteCount.getAndSet(Math.max(statisticsSoFar.deleteCount.get(), fullSyncStats.deleteCount.get()));
+          statisticsSoFar.insertCount.getAndSet(Math.max(statisticsSoFar.insertCount.get(), fullSyncStats.insertCount.get()));
+          statisticsSoFar.updateCount.getAndSet(Math.max(statisticsSoFar.updateCount.get(), fullSyncStats.updateCount.get()));
+          
           // log the progress every FULL_SYNC_PROGRESS_INTERVAL_SECS
           if ( everythingHasBeenCompleted ||
                   statusLastLoggedDate==null ||
@@ -687,6 +703,7 @@ public class FullSyncProvisioner  {
       GrouperMessageSendParam sendParam = new GrouperMessageSendParam()
               .assignGrouperMessageSystemName(provisioner.getConfig().getGrouperMessagingSystemName())
               .assignQueueOrTopicName(queue.getQueueName_grouperMessaging(this))
+              .assignAutocreateObjects(true)
               .assignQueueType(GrouperMessageQueueType.queue)
               .addMessageBody(queueItemJson);
       GrouperMessagingEngine.send(sendParam);

@@ -32,7 +32,7 @@ import junit.textui.TestRunner;
 public class PspngFullSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulk"));
+    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulkWithoutCache"));
   }
 
   public PspngFullSyncTest() {
@@ -747,7 +747,7 @@ public class PspngFullSyncTest extends GrouperTest {
 
     stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
 
-    assertEquals(membershipAddCount + 1, hib3GrouploaderLog.getInsertCount().intValue());
+    assertEquals(hib3GrouploaderLog.getInsertCount().toString(), membershipAddCount + 1, hib3GrouploaderLog.getInsertCount().intValue());
     assertEquals(0, hib3GrouploaderLog.getUpdateCount().intValue());
     assertEquals(membershipNotProvisionableCount+1, hib3GrouploaderLog.getDeleteCount().intValue());
     assertEquals(membershipCount + membershipAddCount + 1 - (membershipNotProvisionableCount + 1), hib3GrouploaderLog.getTotalCount().intValue());

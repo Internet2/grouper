@@ -495,7 +495,7 @@ public abstract class Provisioner
   fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException;
 
   /**
-   * cache for ten minutes decisions about if provisionable
+   * cache for two minutes decisions about if provisionable
    */
   private ExpirableCache<String, MultiKey> groupNameToMillisAndProvisionable = new ExpirableCache<String, MultiKey>(10);
 
@@ -2170,23 +2170,23 @@ public abstract class Provisioner
     return result;
   }
   
-  private ExpirableCache<Boolean, Set<GrouperGroupInfo>> allGroupsForProvisionerCache = null;
+  private static ExpirableCache<String, Set<GrouperGroupInfo>> allGroupsForProvisionerCache = null;
 
-  public void allGroupsForProvisionerFromCacheClear() {
+  public static void allGroupsForProvisionerFromCacheClear(String provisionerName) {
     if (allGroupsForProvisionerCache != null) {
-      allGroupsForProvisionerCache.clear();
+      allGroupsForProvisionerCache.put(provisionerName, null);
     }
   }
 
-  public Set<GrouperGroupInfo> allGroupsForProvisionerFromCache() {
+  public Set<GrouperGroupInfo> allGroupsForProvisionerFromCache(String provisionerName) {
     int pspngCacheAllGroupProvisionableMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pspngCacheAllGroupProvisionableMinutes", 2);
     if (pspngCacheAllGroupProvisionableMinutes <= 0) {
       return null;
     }
     if (allGroupsForProvisionerCache == null) {
-      allGroupsForProvisionerCache = new ExpirableCache<Boolean, Set<GrouperGroupInfo>>(pspngCacheAllGroupProvisionableMinutes);
+      allGroupsForProvisionerCache = new ExpirableCache<String, Set<GrouperGroupInfo>>(pspngCacheAllGroupProvisionableMinutes);
     }
-    Set<GrouperGroupInfo> result = allGroupsForProvisionerCache.get(Boolean.TRUE);
+    Set<GrouperGroupInfo> result = allGroupsForProvisionerCache.get(provisionerName);
     return result;
   }
   
@@ -2202,7 +2202,7 @@ public abstract class Provisioner
    * @return A collection of groups that are to be provisioned by this provisioner
    */
   public Set<GrouperGroupInfo> getAllGroupsForProvisioner()  {
-    Set<GrouperGroupInfo> result = this.allGroupsForProvisionerFromCache();
+    Set<GrouperGroupInfo> result = allGroupsForProvisionerFromCache(this.provisionerConfigName);
     
     if (result != null) {
       return result;
@@ -2212,7 +2212,7 @@ public abstract class Provisioner
     if (pspngCacheGroupProvisionable) {
       result = getAllGroupsForProvisioner2();
       if (this.allGroupsForProvisionerCache != null) {
-        this.allGroupsForProvisionerCache.put(Boolean.TRUE, result);
+        this.allGroupsForProvisionerCache.put(this.provisionerConfigName, result);
       }
       return result;
     }
@@ -2263,7 +2263,7 @@ public abstract class Provisioner
         getDisplayName(), result.size(), PspUtils.formatElapsedTime(start, null));
 
     if (this.allGroupsForProvisionerCache != null) {
-      this.allGroupsForProvisionerCache.put(Boolean.TRUE, result);
+      this.allGroupsForProvisionerCache.put(this.provisionerConfigName, result);
     }
     return result;
   }

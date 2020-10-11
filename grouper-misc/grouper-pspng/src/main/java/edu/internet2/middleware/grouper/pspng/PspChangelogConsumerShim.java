@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.pspng.FullSyncProvisioner.QUEUE_TYPE;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -110,13 +111,19 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       try {
         this.provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
-        this.provisioner.allGroupsForProvisionerFromCacheClear();
+        Provisioner.allGroupsForProvisionerFromCacheClear(this.provisioner.getConfigName());
         
         this.provisioner.setJobStatistics(incrementalStats);
         // Make sure the full syncer is also created and running
         FullSyncProvisioner fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer(provisioner);
-        fullSyncProvisioner.getProvisioner().allGroupsForProvisionerFromCacheClear();
         fullSyncProvisioner.getProvisioner().setJobStatistics(fullSyncStats);
+
+        for (QUEUE_TYPE queue_type : QUEUE_TYPE.values()) {
+          if (queue_type.usesGrouperMessagingQueue) {
+            fullSyncProvisioner.setUpGrouperMessagingQueue(queue_type);
+          }
+        }
+
 
       } catch (PspException e1) {
         LOG.error("Provisioner {} could not be created", consumerName, e1);
