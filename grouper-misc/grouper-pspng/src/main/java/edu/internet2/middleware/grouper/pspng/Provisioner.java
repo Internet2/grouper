@@ -497,8 +497,20 @@ public abstract class Provisioner
   /**
    * cache for two minutes decisions about if provisionable
    */
-  private ExpirableCache<String, MultiKey> groupNameToMillisAndProvisionable = new ExpirableCache<String, MultiKey>(10);
+  private static Map<String, ExpirableCache<String, MultiKey>> configIdToGroupNameToMillisAndProvisionable = new HashMap<String, ExpirableCache<String, MultiKey>>();
 
+  public static ExpirableCache<String, MultiKey> groupNameToMillisAndProvisionable(String provisionerConfigId) {
+    
+    ExpirableCache<String, MultiKey> cache = configIdToGroupNameToMillisAndProvisionable.get(provisionerConfigId);
+    if (cache == null) {
+      cache = new ExpirableCache<String, MultiKey>(10);
+      configIdToGroupNameToMillisAndProvisionable.put(provisionerConfigId, cache);
+    }
+    
+    return cache;
+  }
+  
+  
   /**
    * This method returns the work items that are supposed to be provisioned
    * by calling shouldGroupBeProvisioned on each group mentioned
@@ -525,6 +537,8 @@ public abstract class Provisioner
 
     Set<String> attributesUsedInProvisioning = new HashSet<String>(GrouperUtil.nonNull(getConfig().getAttributesUsedInGroupSelectionExpression()));
     
+    ExpirableCache<String, MultiKey> groupNameToMillisAndProvisionable = groupNameToMillisAndProvisionable(this.provisionerConfigName);
+    
     for ( ProvisioningWorkItem workItem : workItems ) {
       
       String groupNameForCache = null;
@@ -538,14 +552,14 @@ public abstract class Provisioner
         if (!StringUtils.isBlank(attributeName) && attributesUsedInProvisioning.contains(attributeName)) {
           
           // clear this if attributes are being changed
-          this.groupNameToMillisAndProvisionable.clear();
+          groupNameToMillisAndProvisionable.clear();
         } else {
 
           // if this change log has a group associated
           if (!StringUtils.isBlank(groupNameForCache)) {
 
             // cache entry
-            MultiKey millisProvisionable = this.groupNameToMillisAndProvisionable.get(groupNameForCache);
+            MultiKey millisProvisionable = groupNameToMillisAndProvisionable.get(groupNameForCache);
             ChangeLogEntry changeLogEntry = workItem.getChangelogEntry();
             
             // when this change log entry happened
@@ -583,7 +597,7 @@ public abstract class Provisioner
           
           // cache that this is irrelevant
           if (!StringUtils.isBlank(groupNameForCache)) {
-            this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
+            groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
           continue;
         }
@@ -592,7 +606,7 @@ public abstract class Provisioner
           workItem.markAsSkippedAndWarn("Ignoring work item because (deleted) group was not provisioned before it was deleted");
           // cache that this is irrelevant
           if (!StringUtils.isBlank(groupNameForCache)) {
-            this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
+            groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, false));
           }
           continue;
         }
@@ -600,7 +614,7 @@ public abstract class Provisioner
 
       if (!StringUtils.isBlank(groupNameForCache) && provisionableFromCache == null) {
         // this means group is provisionable, but still do shouldWorkItemBeProcessed()
-        this.groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, true));
+        groupNameToMillisAndProvisionable.put(groupNameForCache, new MultiKey(millisWhenProvisionableDecisionMade, true));
       }
       
       // check to see if the subject is applicable etc

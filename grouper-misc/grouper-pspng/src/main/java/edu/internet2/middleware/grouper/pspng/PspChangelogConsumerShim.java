@@ -112,6 +112,7 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       try {
         this.provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
         Provisioner.allGroupsForProvisionerFromCacheClear(this.provisioner.getConfigName());
+        Provisioner.groupNameToMillisAndProvisionable(this.provisioner.getConfigName()).clear();
         
         this.provisioner.setJobStatistics(incrementalStats);
         // Make sure the full syncer is also created and running

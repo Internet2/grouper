@@ -81,6 +81,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
     // Make sure we can connect
     try {
+
       if (!getLdapSystem().test()) {
         throw new RuntimeException("Unable to make ldap connection");
       }
