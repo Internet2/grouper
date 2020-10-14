@@ -1124,6 +1124,16 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.groupSearchAttributes = new HashSet<String>();
     }
     
+    this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
+    if (this.userAttributesMultivalued == null) {
+      this.userAttributesMultivalued = new HashSet<String>();
+    }
+    
+    this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
+    if (this.groupAttributesMultivalued == null) {
+      this.groupAttributesMultivalued = new HashSet<String>(); 
+    }
+    
     for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isSelect()) {
         this.groupSearchAttributes.add(targetGroupAttributeName);
@@ -1131,6 +1141,10 @@ public abstract class GrouperProvisioningConfigurationBase {
       
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
         this.groupAttributeNameForMemberships = targetGroupAttributeName;
+      }
+      
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMultiValued()) {
+        this.groupAttributesMultivalued.add(targetGroupAttributeName);
       }
     }
     
@@ -1142,11 +1156,11 @@ public abstract class GrouperProvisioningConfigurationBase {
       if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
         this.userAttributeNameForMemberships = targetEntityAttributeName;
       }
+      
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMultiValued()) {
+        this.userAttributesMultivalued.add(targetEntityAttributeName);
+      }
     }
-    
-    this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
-
-    this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
     
     this.createMissingUsers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("createMissingUsers", false), false);
 
