@@ -50,6 +50,7 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
   public List<String> test() throws UnsupportedOperationException {
 
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(this.getConfigId());
+    grouperLoaderDb.initProperties();
 
     String query = GrouperLoaderConfig.retrieveConfig().propertyValueString("db.warehouse.testQuery");
     
