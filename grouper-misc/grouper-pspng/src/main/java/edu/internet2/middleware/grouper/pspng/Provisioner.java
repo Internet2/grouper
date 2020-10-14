@@ -919,7 +919,7 @@ public abstract class Provisioner
       variableMap.put(keysAndValues[i].toString(), keysAndValues[i+1]);
 
     // Give provisioner subclasses to add information
-    populateJexlMap(variableMap, 
+    populateJexlMap(expression, variableMap, 
         subject, 
         tsUser,
         grouperGroupInfo, 
@@ -1011,7 +1011,7 @@ public abstract class Provisioner
    * @param grouperGroupInfo
    * @param tsGroup
    */
-  protected void populateJexlMap(Map<String, Object> variableMap, Subject subject, 
+  protected void populateJexlMap(String expression, Map<String, Object> variableMap, Subject subject, 
       TSUserClass tsUser, GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup) {
     variableMap.put("provisionerType", getClass().getSimpleName());
     variableMap.put("provisionerName", getDisplayName());
@@ -1023,7 +1023,7 @@ public abstract class Provisioner
         variableMap.put("tsUser",  tsUser.getJexlMap());
     
     if ( grouperGroupInfo != null ) {
-      Map<String, Object> groupMap = getGroupJexlMap(grouperGroupInfo);
+      Map<String, Object> groupMap = getGroupJexlMap(expression, grouperGroupInfo);
       variableMap.putAll(groupMap);
     }
       
@@ -1220,7 +1220,7 @@ public abstract class Provisioner
     if ( config.areEmptyGroupsSupported() ) {
       for (GrouperGroupInfo grouperGroupInfo : groupsToFetch) {
         if (!tsGroupCache_shortTerm.containsKey(grouperGroupInfo) &&
-            shouldGroupBeProvisioned(grouperGroupInfo))
+            shouldGroupBeProvisionedConsiderCache(grouperGroupInfo))
         {
           // Group does not already exist so create it
           TSGroupClass tsGroup = createGroup(grouperGroupInfo, new ArrayList<Subject>());
@@ -1690,7 +1690,7 @@ public abstract class Provisioner
         return;
       }
 
-      if ( !shouldGroupBeProvisioned(grouperGroupInfo) ) {
+      if ( !shouldGroupBeProvisionedConsiderCache(grouperGroupInfo) ) {
         workItem.markAsSkipped("Group %s is not selected to be provisioned", grouperGroupInfo);
         return;
       } else {
@@ -1872,7 +1872,7 @@ public abstract class Provisioner
         return true;
       }
 
-      if (!shouldGroupBeProvisioned(grouperGroupInfo)) {
+      if (!shouldGroupBeProvisionedConsiderCache(grouperGroupInfo)) {
         LOG.info("{} full sync: Deleting group because it is not selected for this provisioner: {}/{}",
                 new Object[]{getDisplayName(), grouperGroupInfo, tsGroup});
 
@@ -2304,11 +2304,62 @@ public abstract class Provisioner
     return ProvisionerConfiguration.class;
   }
 
-  
-  protected Map<String, Object> getGroupJexlMap(GrouperGroupInfo grouperGroupInfo) {
-	return grouperGroupInfo.getJexlMap();
+  protected Map<String, Object> getGroupJexlMap(String expression, GrouperGroupInfo grouperGroupInfo) {
+    
+    Map<String, Object> result = grouperGroupInfo.getJexlMap();
+
+    boolean pspngCacheGroupAndStemAttributes = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupAndStemAttributes", true);
+
+    if (!pspngCacheGroupAndStemAttributes) {
+      // just do old behavior
+      Map<String, Object> stemAttributes = PspUtils.getStemAttributes(grouperGroupInfo.getGrouperGroup());
+      result.put("stemAttributes", stemAttributes);
+      Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(grouperGroupInfo.getGrouperGroup());
+      result.put("groupAttributes", groupAttributes);
+    } else {
+      
+      // first off, if it doesnt look like the expression even uses attribute, then forget it
+      if (expression != null && expression.contains("stemAttributes")) {
+        
+        Map<String, Object> stemAttributes = PspUtils.getStemAttributes(grouperGroupInfo.getGrouperGroup());
+        result.put("stemAttributes", stemAttributes);
+      }
+      
+      // first off, if it doesnt look like the expression even uses attribute, then forget it
+      if (expression != null && expression.contains("groupAttributes")) {
+
+        Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(grouperGroupInfo.getGrouperGroup());
+        result.put("groupAttributes", groupAttributes);
+      }
+    }
+    return result;
   }
   
+  /**
+   * Evaluate the GroupSelectionExpression to see if group should be processed by this
+   * provisioner.
+   * 
+   * @param grouperGroupInfo
+   * @return
+   */
+  protected boolean shouldGroupBeProvisionedConsiderCache(GrouperGroupInfo grouperGroupInfo) {
+    boolean provisionable = false;
+    int pspngCacheAllGroupProvisionableMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pspngCacheAllGroupProvisionableMinutes", 2);
+    
+    boolean pspngNonScriptProvisionable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngNonScriptProvisionable", true);
+
+    // if getting all provisionable groups is more efficient
+    if (pspngCacheAllGroupProvisionableMinutes > 0 && pspngNonScriptProvisionable 
+        && StringUtils.equals(config.getGroupSelectionExpression(), config.groupSelectionExpression_defaultValue())) {
+      provisionable = this.getAllGroupsForProvisioner().contains(grouperGroupInfo);
+      
+    } else {
+      provisionable = this.shouldGroupBeProvisioned(grouperGroupInfo);
+    }
+    
+    return provisionable;
+  }
+
   /**
    * Evaluate the GroupSelectionExpression to see if group should be processed by this
    * provisioner.

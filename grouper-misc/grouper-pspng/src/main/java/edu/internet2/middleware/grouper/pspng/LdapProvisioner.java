@@ -396,10 +396,10 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
   @Override
-  protected void populateJexlMap(Map<String, Object> variableMap, Subject subject,
+  protected void populateJexlMap(String expression, Map<String, Object> variableMap, Subject subject,
       LdapUser ldapUser, GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup) {
     
-    super.populateJexlMap(variableMap, subject, ldapUser, grouperGroupInfo, ldapGroup);
+    super.populateJexlMap(expression, variableMap, subject, ldapUser, grouperGroupInfo, ldapGroup);
     
     if ( ldapGroup != null )
       variableMap.put("ldapGroup", ldapGroup.getLdapObject());

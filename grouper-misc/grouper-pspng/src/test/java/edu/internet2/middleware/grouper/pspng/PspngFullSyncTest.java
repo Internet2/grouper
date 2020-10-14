@@ -32,7 +32,7 @@ import junit.textui.TestRunner;
 public class PspngFullSyncTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulkWithoutCache"));
+    TestRunner.run(new PspngFullSyncTest("testFullSyncWithCacheBulkWithCache"));
   }
 
   public PspngFullSyncTest() {

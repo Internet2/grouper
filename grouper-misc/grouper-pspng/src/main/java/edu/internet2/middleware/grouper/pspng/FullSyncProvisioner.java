@@ -434,7 +434,7 @@ public class FullSyncProvisioner  {
           return;
         }
 
-        if ( provisioner.shouldGroupBeProvisioned(grouperGroupInfo) ) {
+        if ( provisioner.shouldGroupBeProvisionedConsiderCache(grouperGroupInfo) ) {
           boolean changesWereMade=false;
 
           for(int i=0; i<provisioner.getConfig().getMaxNumberOfTimesToRepeatedlyFullSyncGroup(); i++) {
@@ -535,9 +535,18 @@ public class FullSyncProvisioner  {
     return result;
   }
 
+  private static Map<String, Boolean> provisionerIdToFullSyncRunning = new HashMap<String, Boolean>();
+  
+  
+  public static boolean isFullSyncRunning(String provisionerId) {
+    return GrouperUtil.booleanValue(provisionerIdToFullSyncRunning.get(provisionerId), false);
+  }
 
   public JobStatistics startFullSyncOfAllGroupsAndWaitForCompletion(Hib3GrouperLoaderLog hib3GrouploaderLog) throws PspException {
     
+    provisionerIdToFullSyncRunning.put(this.getConfigName(), true);
+    
+    try {
       Provisioner.allGroupsForProvisionerFromCacheClear(this.getProvisioner().getConfigName());
 
       for (QUEUE_TYPE queue_type : QUEUE_TYPE.values()) {
@@ -610,6 +619,9 @@ public class FullSyncProvisioner  {
 
       LOG.info("{}: Full Sync of all groups: Finished. Stats: {}", getName(), overallStats);
       return overallStats;
+    } finally {
+      provisionerIdToFullSyncRunning.put(this.getConfigName(), false);
+    }
   }
 
     /**

@@ -27,6 +27,7 @@ import org.slf4j.MDC;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -100,7 +101,9 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+    
     Date batchStartTime = new Date();
+    
     JobStatistics incrementalStats = new JobStatistics();
     JobStatistics fullSyncStats = new JobStatistics();
     try {
@@ -111,6 +114,36 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       try {
         this.provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
+
+        long millisLastStoreLog = System.currentTimeMillis();
+        int pspngDontRunChangeLogDuringFullSyncForMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pspngDontRunChangeLogDuringFullSyncForMinutes", 10); 
+
+        if (pspngDontRunChangeLogDuringFullSyncForMinutes > 0) {
+          while (true) {
+            if (FullSyncProvisioner.isFullSyncRunning(this.provisioner.getConfigName())) {
+              
+              GrouperUtil.sleep(5000);
+              
+              if (System.currentTimeMillis() - millisLastStoreLog > 1000*60*pspngDontRunChangeLogDuringFullSyncForMinutes) {
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Waited for full sync for " + pspngDontRunChangeLogDuringFullSyncForMinutes + " minutes, continuing... ");
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+                break;
+              }
+              
+              // heartbeat
+              if (System.currentTimeMillis() - millisLastStoreLog > 1000*60) {
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Waiting for full sync for " + pspngDontRunChangeLogDuringFullSyncForMinutes + " minutes");
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+                millisLastStoreLog = System.currentTimeMillis();
+              }
+            } else {
+              changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Full sync done, running... ");
+              changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+              break;
+            }
+          }
+        }
+        
         Provisioner.allGroupsForProvisionerFromCacheClear(this.provisioner.getConfigName());
         Provisioner.groupNameToMillisAndProvisionable(this.provisioner.getConfigName()).clear();
         
