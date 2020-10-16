@@ -55,7 +55,14 @@ public class GroupContainer {
    * @return if has custom ui attribute
    */
   public boolean isHasCustomUi() {
-    return CustomUiAttributeNames.retrieveAttributeValuesForGroup(this.getGuiGroup().getGroup()).size() > 0;
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return CustomUiAttributeNames.retrieveAttributeValuesForGroup(GroupContainer.this.getGuiGroup().getGroup()).size() > 0;
+      }
+    });
+    
   }
   
   /**
