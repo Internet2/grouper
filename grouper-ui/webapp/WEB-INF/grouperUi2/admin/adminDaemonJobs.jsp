@@ -44,7 +44,7 @@
                 }
               };
               var daemonJobsRefreshInterval = setInterval(theFunction, 1000);
-              grouperCancelAllScheduledTasks(daemonJobsRefreshInterval-1);
+              //grouperCancelAllScheduledTasks(daemonJobsRefreshInterval-1);
             </script>
             <div class="row-fluid">
               <div class="span12">
@@ -98,8 +98,8 @@
                   </div>
                   <div class="row-fluid">
                     <div class="span1">&nbsp;</div>
-                      <a class="btn" role="button" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;grouperAssignDaemonUrl();ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
-                      <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); grouperAssignDaemonUrl(); return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
+                      <a class="btn" role="button" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
+                      <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); /*grouperAssignDaemonUrl();*/ return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
                     </div>
                   </div>
                 </form>
