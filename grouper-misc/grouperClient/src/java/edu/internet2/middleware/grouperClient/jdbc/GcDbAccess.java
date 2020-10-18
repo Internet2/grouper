@@ -2450,6 +2450,21 @@ public class GcDbAccess {
       }
       return t;
     }
+    // If someone is selecting a list of Map then we are just going to put the object and column name in the map.
+    if (clazz.isAssignableFrom(String[].class)){
+      int columnCount = resultSet.getMetaData().getColumnCount();
+      String[] results = new String[columnCount];
+      for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
+        Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
+        results[columnNumber-1] = boundDataConversion.getFieldValue(String.class, value);
+      }
+      @SuppressWarnings("unchecked")
+      T t = (T)results;
+      if (theList != null){
+        theList.add(t);
+      }
+      return t;
+    }
 
     // Or we are just returning a primitive or single object such as Long, etc.
     Object value = retrieveObjectFromResultSetByIndex(resultSet, 1);

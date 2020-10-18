@@ -91,7 +91,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testNoNeedForInheritedAdminPrivileges"));
+    TestRunner.run(new RuleApiTest("testFixInheritedPrivs"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
@@ -102,6 +102,96 @@ public class RuleApiTest extends GrouperTest {
     
   }
 
+  public void testFixInheritedPrivs() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = new StemSave(grouperSession).assignName("test:test1").assignCreateParentStemsIfNotExist(true).save();
+    
+    //assign inherited privs
+    AttributeAssign stemAssign = RuleApi.inheritFolderPrivileges(stem, 
+        Scope.SUB, SubjectTestHelper.SUBJ0, GrouperUtil.toSet(NamingPrivilege.CREATE));
+    
+    AttributeAssign groupAssign = RuleApi.inheritGroupPrivileges(stem, 
+        Scope.SUB, SubjectTestHelper.SUBJ0, GrouperUtil.toSet(AccessPrivilege.ADMIN));
+
+    AttributeAssign attributeDefAssign = RuleApi.inheritAttributeDefPrivileges(stem, 
+        Scope.SUB, SubjectTestHelper.SUBJ0, GrouperUtil.toSet(AttributeDefPrivilege.ATTR_OPTIN));
+
+    // red herring rule
+    AttributeAssign emailAssign = RuleApi.emailOnFlattenedMembershipAddFromStem(
+        SubjectTestHelper.SUBJ0, stem, Scope.SUB, "a@b.c", "subject", "body");
+    
+    String sourceId = stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+
+    String subjectId = stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+
+    sourceId = groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+
+    subjectId = groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+
+    sourceId = attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+
+    subjectId = attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+
+    sourceId = emailAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), sourceId);
+
+    subjectId = emailAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectId);
+
+    //lets adjust some of these (like the way it used to be)
+    stemAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), SubjectTestHelper.SUBJ0.getSourceId());
+    stemAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectTestHelper.SUBJ0.getId());
+    assertEquals("T", stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+    
+    groupAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), SubjectTestHelper.SUBJ0.getSourceId());
+    groupAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectTestHelper.SUBJ0.getId());
+    assertEquals("T", groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+
+    attributeDefAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), SubjectTestHelper.SUBJ0.getSourceId());
+    attributeDefAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectTestHelper.SUBJ0.getId());
+    assertEquals("T", attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+    
+    //run the conversion
+    RuleUtils.changeInheritedPrivsToActAsGrouperSystem();
+
+    sourceId = stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+    assertEquals("T", stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+
+    subjectId = stemAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+
+    sourceId = groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+
+    subjectId = groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+
+    assertEquals("T", groupAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+
+    sourceId = attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectFinder.findRootSubject().getSourceId(), sourceId);
+
+    subjectId = attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectFinder.findRootSubject().getId(), subjectId);
+    assertEquals("T", attributeDefAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName()));
+
+    sourceId = emailAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectSourceIdName());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), sourceId);
+
+    subjectId = emailAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleActAsSubjectIdName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectId);
+
+  }
+  
   /**
    * @see GrouperTest#setUp()
    */

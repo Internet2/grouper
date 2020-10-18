@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.rules;
 
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,8 +35,11 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -47,6 +51,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 
@@ -338,7 +343,29 @@ public class RuleUtils {
    * @return the attribute def name
    */
   public static AttributeDefName ruleAttributeDefName() {
-    return AttributeDefNameFinder.findByName(attributeRuleStemName() + ":rule", true);
+    return AttributeDefNameFinder.findByName(ruleMarkerName(), true);
+  }
+
+  
+  /**
+   * 
+   */
+  public static final String RULE_MARKER = "rule";
+
+  /**
+   * rule marker name
+   */
+  private static String ruleMarkerName = null;
+
+  /**
+   * rule marker name
+   * @return name
+   */
+  public static String ruleMarkerName() {
+    if (ruleMarkerName == null) {
+      ruleMarkerName = RuleUtils.attributeRuleStemName() + ":" + RULE_MARKER;
+    }
+    return ruleMarkerName;
   }
   
   /**
@@ -1066,6 +1093,57 @@ public class RuleUtils {
       return e.getMessage();
     }
     return null;
+  }
+
+  /**
+   * 
+   */
+  public static int changeInheritedPrivsToActAsGrouperSystem() {
+    
+    final List<String[]> ruleData = new GcDbAccess().sql(
+        "select attribute_assign_id, assigned_to_stem_name, rule_check_type, rule_check_stem_scope, rule_then_enum_arg1, "
+        + "rule_act_as_subject_id, rule_act_as_subject_source_id from grouper_rules_v where rule_act_as_subject_id != ? "
+        + "and assigned_to_type = 'stem' and rule_check_type in ('attributeDefCreate' , 'stemCreate' , 'groupCreate') "
+        + "and rule_then_enum in ('assignAttributeDefPrivilegeToAttributeDefId' , 'assignStemPrivilegeToStemId' , 'assignGroupPrivilegeToGroupId')")
+        .addBindVar(RuleUtils.ruleActAsSubjectIdName()).selectList(String[].class);
+
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        for (String[] ruleRow : ruleData) {
+
+          // get a log string
+          String attributeAssignId = ruleRow[0];
+          String assignedToStemName = ruleRow[1];
+          String ruleCheckType = ruleRow[2];
+          String ruleCheckStemScope = ruleRow[3];
+          String privs = ruleRow[4];
+          String actAsSubject = ruleRow[5];
+          String actAsSourceId = ruleRow[6];
+
+          LOG.warn("Fixing (GRP-2926) inherited priv rule act as to GrouperSystem, attributeAssignId: " + attributeAssignId 
+              + ", assignedToStemName: " + assignedToStemName
+              + ", ruleCheckType: " + ruleCheckType
+              + ", ruleCheckStemScope: " + ruleCheckStemScope
+              + ", privs: " + privs
+              + ", actAsSubject: " + actAsSubject
+              + ", actAsSourceId: " + actAsSourceId);
+          
+          AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
+          
+          attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), SubjectFinder.findRootSubject().getSourceId());
+          attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
+          
+          
+        }
+        
+        return null;
+      }
+    });
+    LOG.warn("Fixed (GRP-2926) " + GrouperUtil.length(ruleData) + " inherited priv rules");
+    return GrouperUtil.length(ruleData);
   }
   
   

@@ -3215,7 +3215,7 @@ public class UiV2Stem {
             
             @Override
             public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
-              RuleApi.inheritFolderPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              RuleApi.inheritFolderPrivileges(stem, stemScope, SUBJECT, privileges);
               return null;
             }
           }
@@ -3291,7 +3291,7 @@ public class UiV2Stem {
             
             @Override
             public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
-              RuleApi.inheritGroupPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              RuleApi.inheritGroupPrivileges(stem, stemScope, SUBJECT, privileges);
               return null;
             }
           }
@@ -3360,7 +3360,7 @@ public class UiV2Stem {
             
             @Override
             public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
-              RuleApi.inheritAttributeDefPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              RuleApi.inheritAttributeDefPrivileges(stem, stemScope, SUBJECT, privileges);
               return null;
             }
           }
