@@ -60,7 +60,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
@@ -115,7 +115,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       return;
     }
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
