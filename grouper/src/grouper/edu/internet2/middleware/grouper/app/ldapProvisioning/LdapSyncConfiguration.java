@@ -52,7 +52,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
-    this.groupSearchAllFilter = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupSearchAllFilter", false), "(&(objectclass=group)(gidNumber=*))");
+    this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
 
     {
       /*
