@@ -753,7 +753,7 @@ public class GrouperLoaderResultset {
               LdapAttribute groupAttribute = searchResult.getAttribute(
                   groupAttributeName);
 
-              if (groupAttribute != null) {
+              if (groupAttribute != null && !groupAttribute.getStringValues().isEmpty()) {
 
                 if (groupAttribute.getStringValues().size() > 1) {
                   throw new RuntimeException(
@@ -1053,7 +1053,7 @@ public class GrouperLoaderResultset {
 
         if (!StringUtils.isBlank(subjectAttributeName)) {
           LdapAttribute subjectAttributeObject = searchResult.getAttribute(subjectAttributeName);
-          if (subjectAttributeObject == null) {
+          if (subjectAttributeObject == null || subjectAttributeObject.getStringValues().isEmpty()) {
             throw new RuntimeException("Cant find attribute " + subjectAttributeName + " in LDAP record.  Maybe you have "
                 + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
                 + subjectNameInNamespace + "'");
@@ -1076,7 +1076,7 @@ public class GrouperLoaderResultset {
               LdapAttribute subjectAttribute = searchResult.getAttribute(
                   currSubjectAttributeName);
 
-              if (subjectAttribute != null) {
+              if (subjectAttribute != null && !subjectAttribute.getStringValues().isEmpty()) {
 
                 if (subjectAttribute.getStringValues().size() > 1) {
                   throw new RuntimeException(
@@ -1084,7 +1084,6 @@ public class GrouperLoaderResultset {
                       + currSubjectAttributeName);
                 }
                 subjectAttributes.put(currSubjectAttributeName, subjectAttribute.getStringValues().iterator().next());
-
               }
             }
           }
@@ -1175,7 +1174,7 @@ public class GrouperLoaderResultset {
                       for (String currGroupAttributeName : extraAttributeArray) {
                         LdapAttribute tmpAttribValue = searchResult.getAttribute(currGroupAttributeName);
 
-                        if (tmpAttribValue != null) {
+                        if (tmpAttribValue != null && !tmpAttribValue.getStringValues().isEmpty()) {
 
                           if (tmpAttribValue.getStringValues().size() > 1) {
                             throw new RuntimeException(
