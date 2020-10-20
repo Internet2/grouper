@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouperClient.AllClientConfigTests;
 import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
@@ -206,6 +207,7 @@ public class AllTests extends GrouperTest {
     //////////////////////////////////////////
     // All manual suites from packages in alphabetical order
 
+    suite.addTest(AllClientConfigTests.suite());
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAttributeTests.suite());
     suite.addTest(AllAuditTests.suite());

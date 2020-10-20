@@ -15,6 +15,10 @@
  */
 package edu.internet2.middleware.grouperClient.config;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -32,6 +36,10 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  */
 public class ConfigPropertiesCascadeBaseTest extends TestCase {
 
+  File tmpCustomfolder = new File("/tmp/grouperClient_test");
+  File tmpCustomExampleProps = new File(tmpCustomfolder, "testCascadeConfig.properties");
+  File tmpCustomExampleProps2 = new File(tmpCustomfolder, "testCascadeConfig2.properties");
+
   /**
    * 
    * @param args
@@ -46,6 +54,30 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    */
   public ConfigPropertiesCascadeBaseTest(String name) {
     super(name);
+  }
+
+  private void createTempProperties() {
+    try {
+      tmpCustomfolder.mkdir();
+
+      InputStream in = this.getClass().getClassLoader().getResourceAsStream("testCascadeConfig.properties");
+      byte[] buffer = new byte[in.available()];
+      in.read(buffer);
+      new FileOutputStream(tmpCustomExampleProps).write(buffer);
+
+      InputStream in2 = this.getClass().getClassLoader().getResourceAsStream("testCascadeConfig2.properties");
+      buffer = new byte[in2.available()];
+      in2.read(buffer);
+      new FileOutputStream(tmpCustomExampleProps2).write(buffer);
+    } catch (IOException e) {
+      ;
+    }
+  }
+
+  private void deleteTempProperties() {
+    tmpCustomExampleProps.delete();
+    tmpCustomExampleProps2.delete();
+    tmpCustomfolder.delete();
   }
 
   /**
@@ -130,6 +162,9 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     //override:
     //test2 = somethingElse2
     //test3 = yet another something
+
+    createTempProperties();
+
     assertEquals("something", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test1"));
     assertEquals("somethingElse2", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test2"));
     assertEquals("yet another something", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test3"));
@@ -269,7 +304,8 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     //some.config.2.elConfig = ${edu.internet2.middleware.grouperClient.config.SomeTestElClass.someMethod('start', ' middle')}
     
     assertEquals("start middle something else", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("some.config.2"));
-    
+
+    deleteTempProperties();
     
   }
   
@@ -284,6 +320,9 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
 
     //test2 = somethingElse2A
     //test3 = yet another somethingA
+
+    createTempProperties();
+
     assertEquals("somethingA", ConfigPropertiesOriginalHasHierarchy.retrieveConfig().propertyValueStringRequired("test1"));
     assertEquals("somethingElse2A", ConfigPropertiesOriginalHasHierarchy.retrieveConfig().propertyValueStringRequired("test2"));
     assertEquals("yet another somethingA", ConfigPropertiesOriginalHasHierarchy.retrieveConfig().propertyValueStringRequired("test3"));
@@ -296,31 +335,36 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     }
     
     assertEquals("somethingNotThere", ConfigPropertiesOriginalHasHierarchy.retrieveConfig().propertyValueString("somethingWhateversdfsdf", "somethingNotThere"));
-    
+
+    deleteTempProperties();
   }
   
   /**
    * 
    */
   public void testAutoReload() {
-    
+
+    createTempProperties();
     for (int i=0;i<60;i++) {
       
       System.out.println("Last reloaded: " + new Date(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().getCreatedTime()) + ", last checked: " + new Date(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().getLastCheckedTime()));
       System.out.println("Property: testAutoReload: " + ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("testAutoReload", null));
       GrouperClientUtils.sleep(1000);
     }
+    deleteTempProperties();
   }
 
     /**
      *
      */
     public void testHooks() {
+      createTempProperties();
       assertFalse("non-existing single class", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks1", Object.class, true));
       assertFalse("non-existing multiple classes", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks2", Object.class, true));
       assertTrue("Existing matching type class", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks3", Object.class, true));
       assertTrue("Existing matching type classes", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks4", Object.class, true));
       assertTrue("Existing matching type classes with whitespace in config", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks5", Object.class, true));
+      deleteTempProperties();
     }
   
 }

@@ -48,6 +48,13 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>grouperClient</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <exclusions>
