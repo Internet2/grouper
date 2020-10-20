@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -2533,6 +2533,10 @@ public class GcDbAccess {
         
         return resultSet.getTimestamp(columnNumberOneIndexed);
 
+      case Types.CLOB:
+        Clob clob = resultSet.getClob(columnNumberOneIndexed);
+        return clob != null ? clob.getSubString(1, (int) clob.length()) : null;
+        
       default:
         throw new RuntimeException("Not expecting column type: " + type);
     }
@@ -2670,5 +2674,4 @@ public class GcDbAccess {
     }
     return connectionCreateNew(connectionName, url);
   }
-
 }
