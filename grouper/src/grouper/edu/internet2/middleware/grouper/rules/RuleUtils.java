@@ -1105,7 +1105,7 @@ public class RuleUtils {
         + "rule_act_as_subject_id, rule_act_as_subject_source_id from grouper_rules_v where rule_act_as_subject_id != ? "
         + "and assigned_to_type = 'stem' and rule_check_type in ('attributeDefCreate' , 'stemCreate' , 'groupCreate') "
         + "and rule_then_enum in ('assignAttributeDefPrivilegeToAttributeDefId' , 'assignStemPrivilegeToStemId' , 'assignGroupPrivilegeToGroupId')")
-        .addBindVar(RuleUtils.ruleActAsSubjectIdName()).selectList(String[].class);
+        .addBindVar(SubjectFinder.findRootSubject().getId()).selectList(String[].class);
 
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
