@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -231,11 +233,15 @@ public class ChangeLogConsumerBaseImpl extends ChangeLogConsumerBase {
         }
         
         // we only care about effective membership for people in marked groups, skip addMembership for everything else
-        if (!subject.getType().equals(SubjectTypeEnum.PERSON)) {
+        if (GrouperSourceAdapter.groupSourceId().equals(sourceId) || subject == null || !subject.getType().equals(SubjectTypeEnum.PERSON)) {
           if (consumer.debugLog != null) {
             consumer.debugLog.put("skippingAddMembership", true);
-            consumer.debugLog.put("notPerson", true);
-            consumer.debugLog.put("subjectType", subject.getType());
+            if (subject == null) {
+              consumer.debugLog.put("subjectNotFound", true);
+            } else {
+              consumer.debugLog.put("notPerson", true);
+              consumer.debugLog.put("subjectType", subject.getType());
+            }
           }
         } else {
           if (consumer.isGroupMarkedForSync(groupName)) {
@@ -279,11 +285,15 @@ public class ChangeLogConsumerBaseImpl extends ChangeLogConsumerBase {
         }
         
         // we only care about effective membership for people in marked groups, skip deleteMembership for everything else
-        if (!subject.getType().equals(SubjectTypeEnum.PERSON)) {
+        if (GrouperSourceAdapter.groupSourceId().equals(sourceId) || subject == null || !subject.getType().equals(SubjectTypeEnum.PERSON)) {
           if (consumer.debugLog != null) {
             consumer.debugLog.put("skippingRemoveMembership", true);
-            consumer.debugLog.put("notPerson", true);
-            consumer.debugLog.put("subjectType", subject.getType());
+            if (subject == null) {
+              consumer.debugLog.put("subjectNotFound", true);
+            } else {
+              consumer.debugLog.put("notPerson", true);
+              consumer.debugLog.put("subjectType", subject.getType());
+            }
           }
         } else {
           if (consumer.isGroupMarkedForSync(groupName)) {
