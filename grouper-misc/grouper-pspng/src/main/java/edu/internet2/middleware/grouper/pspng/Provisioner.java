@@ -2011,32 +2011,30 @@ public abstract class Provisioner
       LOG.debug("{}: Found existing group {}", getDisplayName(), result);
       return result;
     }
-
+    PITGroup pitGroup = null;
     try {
       // If an existing grouper group wasn't found, look for a PITGroup
-        PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
-  	    
-        if ( pitGroup != null ) {
-            result = new GrouperGroupInfo(pitGroup);
-            result.idIndex = workItem.getGroupIdIndex();
-
-            // Avoiding caching pitGroup-based items because they are workItem dependent
-            //grouperGroupInfoCache.put(groupName, result);
-            LOG.debug("{}: Found PIT group {}", getDisplayName(), result);
-
-            return result;
-        } else {
-          LOG.warn("Could not find PIT group: {}", groupName);
-          result = new GrouperGroupInfo(groupName, workItem.getGroupIdIndex());
-          LOG.debug("{}: Using barebones group info {}", getDisplayName(), result);
-          return result;
-        }
+        pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
     }
     catch (GroupNotFoundException e) {
       LOG.warn("Unable to find PIT group '{}'", groupName);
     }
+    if ( pitGroup != null ) {
+        result = new GrouperGroupInfo(pitGroup);
+        result.idIndex = workItem.getGroupIdIndex();
+
+        // Avoiding caching pitGroup-based items because they are workItem dependent
+        //grouperGroupInfoCache.put(groupName, result);
+        LOG.debug("{}: Found PIT group {}", getDisplayName(), result);
+
+        return result;
+    } else {
+      LOG.warn("Could not find PIT group: {}", groupName);
+      result = new GrouperGroupInfo(groupName, workItem.getGroupIdIndex());
+      LOG.debug("{}: Using barebones group info {}", getDisplayName(), result);
+      return result;
+    }
     
-    return null;
   }
   
   private FullSyncProvisioner getFullSyncer() throws PspException {
