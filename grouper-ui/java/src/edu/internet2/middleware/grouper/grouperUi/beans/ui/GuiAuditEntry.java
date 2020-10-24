@@ -334,7 +334,7 @@ public class GuiAuditEntry {
    * @return formatted audit entry date
    */
   public String getGuiDate() {
-    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.audit.dateFormat", "yyyy/MM/dd kk:mm aa");
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.audit.dateFormat", "yyyy/MM/dd h:mm aa");
     SimpleDateFormat guiDateFormat = new SimpleDateFormat(dateFormat);
 
     return guiDateFormat.format(this.auditEntry.getCreatedOn());
