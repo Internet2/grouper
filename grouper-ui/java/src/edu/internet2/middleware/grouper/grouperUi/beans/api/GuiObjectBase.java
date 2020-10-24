@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -147,17 +148,33 @@ public abstract class GuiObjectBase {
   }
 
   /**
-   * e.g. Sun Feb 9 5:48:12 PM EST 2014
+   * fallback if property missing from base config; style is "Sun Feb 9 5:48:12 PM EST 2014"
    */
-  final static SimpleDateFormat dateUiFormat = new SimpleDateFormat(
-      "EE MMM d h:mm:ss aa zz yyyy");
+  private static String dateUiFormatString = "EE MMM d h:mm:ss aa zz yyyy";
+
+  private static SimpleDateFormat dateUiFormat = new SimpleDateFormat(dateUiFormatString);
+
+  /**
+   * default format for created/modified dates on objects, from UI config property uiV2.grouperObjects.dateFormat
+   * @return created/modified date format
+   */
+  public static SimpleDateFormat getDateUiFormat() {
+    String newFormatString = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.grouperObjects.dateFormat");
+
+    // only re-create SimpleDateFormat if the property changed
+    if (newFormatString != null && !dateUiFormatString.equals(newFormatString)) {
+      dateUiFormatString = newFormatString;
+      dateUiFormat = new SimpleDateFormat(dateUiFormatString);
+    }
+    return dateUiFormat;
+  }
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    System.out.println(dateUiFormat.format(new Date(System.currentTimeMillis())));
+    System.out.println(getDateUiFormat().format(new Date(System.currentTimeMillis())));
   }
   
   /**
@@ -234,7 +251,7 @@ public abstract class GuiObjectBase {
     } else if (this instanceof GuiAttributeDefName) {
       lastEditedTimeLong = GrouperUtil.longValue(((GuiAttributeDefName)this).getAttributeDefName().getLastUpdatedDb(), 0);
     }
-    return lastEditedTimeLong <= 0 ? "" : dateUiFormat.format(new Date(lastEditedTimeLong));
+    return lastEditedTimeLong <= 0 ? "" : getDateUiFormat().format(new Date(lastEditedTimeLong));
   }
   
   /**
@@ -254,7 +271,7 @@ public abstract class GuiObjectBase {
     } else {
       return null;
     }
-    return createTimeLong <= 0 ? "" : dateUiFormat.format(new Date(createTimeLong));
+    return createTimeLong <= 0 ? "" : getDateUiFormat().format(new Date(createTimeLong));
   }
   
   /**

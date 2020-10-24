@@ -330,14 +330,13 @@ public class GuiAuditEntry {
   }
   
   /**
-   * 2/1/2013 8:03 AM
-   * @return the date for screen
+   * audit date string, format based on ui property uiV2.audit.dateFormat
+   * @return formatted audit entry date
    */
   public String getGuiDate() {
-    
-    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
-    Locale locale = httpServletRequest.getLocale();
-    DateFormat guiDateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm aa", locale);
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.audit.dateFormat", "yyyy/MM/dd kk:mm aa");
+    SimpleDateFormat guiDateFormat = new SimpleDateFormat(dateFormat);
+
     return guiDateFormat.format(this.auditEntry.getCreatedOn());
   }
   
