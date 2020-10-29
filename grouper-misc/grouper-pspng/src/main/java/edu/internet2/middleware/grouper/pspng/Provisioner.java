@@ -945,6 +945,9 @@ public abstract class Provisioner
         // Check to see if expression has a backup expression
         //   xyz:-pdq ==> evaluate pdq if xyz cannot be evaluated
         if ( ! atomicExpression.contains(":-") ) {
+          if (atomicExpression.contains("idIndex") && !variableMap.containsKey("idIndex")) {
+            throw new DeletedGroupException("EL has idIndex but variable doesnt!");
+          }
           atomicExpressionResult = GrouperUtil.substituteExpressionLanguage(atomicExpression, variableMap, true, false, false);
         }
         else {

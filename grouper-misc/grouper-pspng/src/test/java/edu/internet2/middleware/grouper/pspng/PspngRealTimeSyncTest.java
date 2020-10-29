@@ -150,7 +150,12 @@ public class PspngRealTimeSyncTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchBaseDn", "dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.userSearchFilter", "uid=${subject.id}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.grouperIsAuthoritative", "true");
-          
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.quartzCron", "0 * * * * ?");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.pspng1.class", "edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.pspng1_full.class", "edu.internet2.middleware.grouper.pspng.FullSyncStarter");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.pspng1_full.quartzCron", "0 10 20 ? * SAT *");
+    
     List<Group> groups = new ArrayList<Group>();
     
     List<Subject> subjects = new ArrayList<Subject>();

@@ -548,7 +548,14 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
 
     for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
-      SearchFilter groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      SearchFilter groupLdapFilter = null;
+      try {
+        groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      } catch (DeletedGroupException dge) {
+        LOG.debug("{}: " + dge.getMessage(), getDisplayName());
+        // cant find, just let full sync deal with it
+        continue;
+      }
       try {
         LOG.debug("{}: Searching for group {} with:: {}",
                 new Object[]{getDisplayName(), grouperGroup, groupLdapFilter});

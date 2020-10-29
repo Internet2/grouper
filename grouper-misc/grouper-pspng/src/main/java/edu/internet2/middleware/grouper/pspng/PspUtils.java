@@ -146,6 +146,17 @@ public class PspUtils {
   }
   
   public static Map<String, Object> getStemAttributes(Group group) {
+    
+    // OverallAttributeValues: Stores all Stem attributes from root to parent stem
+    // If an attribute appears in multiple parent stems: 
+    //   Single-Valued: stem closest to the group wins (parent attributes take prec over grandparent)
+    //   Multi-Valued: All the attribute values are merged into a list of values for the attribute
+    Map<String, Object> stemPathAttributes = new HashMap<String, Object>();
+    
+    if (group == null) {
+      return stemPathAttributes;
+    }
+    
     // In order for stems closer to the group to take precedence, 
     // we need the stem path in reverse order (from root to group's parent)
     // We do this by walking up the stem path from the group to the root
@@ -179,12 +190,6 @@ public class PspUtils {
     }
     Collections.reverse(groupStemPath);
     
-    
-    // OverallAttributeValues: Stores all Stem attributes from root to parent stem
-    // If an attribute appears in multiple parent stems: 
-    //   Single-Valued: stem closest to the group wins (parent attributes take prec over grandparent)
-    //   Multi-Valued: All the attribute values are merged into a list of values for the attribute
-    Map<String, Object> stemPathAttributes = new HashMap<String, Object>();
     
     for ( Stem aStem : groupStemPath ) {
       Set<AttributeAssign> attributeAssigns = aStem.getAttributeDelegate().getAttributeAssigns();
@@ -240,6 +245,10 @@ public class PspUtils {
 //    }
     
     result = new HashMap<String, Object>();
+    
+    if (group == null) {
+      return result;
+    }
     
     // Perhaps this should start with something like
     // an iteration over group.getAttributeDelegate().getAttributeAssigns()
