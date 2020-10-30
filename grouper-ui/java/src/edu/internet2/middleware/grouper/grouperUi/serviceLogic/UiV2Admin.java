@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -955,21 +956,26 @@ public class UiV2Admin extends UiServiceLogicBase {
     String namesLikeFilterString = request.getParameter("namesLikeFilter");
     adminContainer.setGuiJobHistoryNamesLikeFilter(namesLikeFilterString);
 
+    Junction allCriteria = Restrictions.conjunction().add(
+            Restrictions.disjunction().add(
+                    Restrictions.ge("millis", minElapsed * 1000)).add(
+                    Restrictions.isNull("millis"))
+            ).add(
+                    Restrictions.isNull("parentJobId")
+            ).add(
+                    Restrictions.disjunction().add(
+                            Restrictions.between("startedTime", dateFromDate, dateToDate)).add(
+                            Restrictions.between("lastUpdated", dateFromDate, dateToDate))
+            );
 
-    List<Criterion> criterionList = new ArrayList<>();
-    //criterionList.add(Restrictions.not(Restrictions.in("jobType", new String[]{"CHANGE_LOG", "OTHER_JOB"})));
-    criterionList.add(Restrictions.ge("millis", minElapsed * 1000));
-    criterionList.add(Restrictions.isNull("parentJobId"));
-    criterionList.add(Restrictions.between("startedTime", dateFromDate, dateToDate));
     if (!GrouperUtil.isEmpty(namesLikeFilterString)) {
+      Junction namesLikeCriteria = Restrictions.disjunction();
       String[] filterStrings = GrouperUtil.splitTrim(namesLikeFilterString, ",");
-      Criterion[] namesLikeCriteria = new Criterion[filterStrings.length];
       for (int i = 0; i < filterStrings.length; ++i) {
-        namesLikeCriteria[i] = Restrictions.like("jobName", filterStrings[i]);
+        namesLikeCriteria.add(Restrictions.like("jobName", filterStrings[i]));
       }
-      criterionList.add(Restrictions.and(Restrictions.or(namesLikeCriteria)));
+      allCriteria.add(namesLikeCriteria);
     }
-    Criterion allCriteria = HibUtils.listCrit(criterionList);
 
     QueryOptions queryOptions = new QueryOptions().sort(new QuerySort("startedTime", true));
 
@@ -986,8 +992,9 @@ public class UiV2Admin extends UiServiceLogicBase {
     for (Hib3GrouperLoaderLog log : loaderLogs) {
       String jobShortName = log.getGroupNameFromJobName();
       Map<String, String> ganttJob = new HashMap<>();
-      ganttJob.put("startDateString", dateFormat.format(log.getStartedTime()));
-      ganttJob.put("endDateString", dateFormat.format(log.getEndedTime()));
+      ganttJob.put("startDateString", log.getStartedTime() != null ? dateFormat.format(log.getStartedTime()) : "null");
+      ganttJob.put("endDateString", log.getEndedTime() != null ? dateFormat.format(log.getEndedTime()) : "null");
+      ganttJob.put("lastUpdatedDateString", log.getLastUpdated() != null ? dateFormat.format(log.getLastUpdated()) : "null");
       ganttJob.put("taskName", jobShortName);
       ganttJob.put("status", log.getStatus());
 
@@ -1002,17 +1009,24 @@ public class UiV2Admin extends UiServiceLogicBase {
         .append(": ").append(log.getStatus())
         .append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStarted"))
-        .append(": ").append(dateFormat.format(log.getStartedTime()));
+        .append(": ").append(ganttJob.get("startDateString"));
       if (log.getEndedTime() != null) {
         tooltipBuilder.append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipFinished"))
-        .append(": " + dateFormat.format(log.getEndedTime()));
-        Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
+        .append(": " + ganttJob.get("endDateString"));
+        if (log.getStartedTime() != null) {
+          Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
+          tooltipBuilder.append("<br/>")
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
+              .append(":" + duration.getSeconds() + " ")
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
+          ;
+        }
+      } else if (log.getLastUpdated() != null) {
+        // no end date but still in progress, so show the last updated time
         tooltipBuilder.append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
-        .append(":" + duration.getSeconds() + " ")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
-        ;
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipLastUpdated"))
+              .append(": " + ganttJob.get("lastUpdatedDateString"));
       }
       tooltipBuilder.append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipInsertPrefix"))
