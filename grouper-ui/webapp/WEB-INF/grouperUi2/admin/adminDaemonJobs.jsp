@@ -103,7 +103,9 @@
                     </div>
                   </div>
                 </form>
-                <div style="white-space: nowrap;" class="span3">${textContainer.text['daemonJobsNextRefresh']} <span id="daemonJobsNextRefreshSeconds">${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval}</span></div>
+                <c:if test="${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval > 0}">
+                  <div style="white-space: nowrap;" class="span3">${textContainer.text['daemonJobsNextRefresh']} <span id="daemonJobsNextRefreshSeconds">${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval}</span></div>
+                </c:if>
                 <div id="daemonJobsResultsId" role="region" aria-live="polite">
                 </div>
               </div>
