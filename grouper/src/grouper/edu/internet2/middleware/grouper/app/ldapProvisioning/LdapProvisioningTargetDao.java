@@ -241,9 +241,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
+      boolean hasRenameFailure = false;
+      
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
+        String fieldName = provisionObjectChange.getFieldName();
         ProvisioningObjectChangeAction action = provisionObjectChange.getProvisioningObjectChangeAction();
         Object newValue = provisionObjectChange.getNewValue();
         Object oldValue = provisionObjectChange.getOldValue();
@@ -262,7 +265,20 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           }
         }
         
-        if (action == ProvisioningObjectChangeAction.delete) {
+        if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
+          // this is a rename
+          try {
+            new LdapSyncDaoForLdap().move(ldapConfigId, (String)oldValue, (String)newValue);
+            provisionObjectChange.setProvisioned(true);
+          } catch (Exception e) {
+            provisionObjectChange.setProvisioned(false);
+            provisionObjectChange.setException(e);
+            targetGroup.setProvisioned(false);
+            hasRenameFailure = true;
+          }
+        } else if (attributeName == null) {
+          throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
+        } else if (action == ProvisioningObjectChangeAction.delete) {
           if (newValue != null) {
             throw new RuntimeException("Deleting value but there's a new value=" + newValue + ", attributeName=" + attributeName);
           }
@@ -302,11 +318,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapModificationResult result = new LdapSyncDaoForLdap().modify(ldapConfigId, targetGroup.getName(), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
-      targetGroup.setProvisioned(true);  // assume true to start with
-
+      
+      if (!hasRenameFailure) {
+        targetGroup.setProvisioned(true);  // assume true to start with
+      }
+      
       if (result.isSuccess()) {
         for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-          provisioningObjectChange.setProvisioned(true);
+          if (provisioningObjectChange.getProvisioned() == null) {
+            provisioningObjectChange.setProvisioned(true);
+          }
         }
       } else {        
         // need to see what actually failed
