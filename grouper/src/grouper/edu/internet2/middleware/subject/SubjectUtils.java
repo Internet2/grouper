@@ -2531,7 +2531,7 @@ public class SubjectUtils {
       return null;
     }
     try {
-      return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+      return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSourceId();
     } catch (RuntimeException e) {
       //might be subject not found if lazy subject
       return subject.toString();

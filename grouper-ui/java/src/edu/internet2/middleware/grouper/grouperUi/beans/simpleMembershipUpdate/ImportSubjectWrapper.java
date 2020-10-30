@@ -52,6 +52,11 @@ public class ImportSubjectWrapper implements Subject {
   /** this is the row of the file, row 1 is the header */
   private int row;
   
+  
+  public CSVRecord getRowData() {
+    return rowData;
+  }
+
   /** keep row data for error message */
   private CSVRecord rowData;
   

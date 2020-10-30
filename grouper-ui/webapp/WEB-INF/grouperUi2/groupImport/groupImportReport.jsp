@@ -28,24 +28,14 @@
             <div class="row-fluid">
               <div class="span12">
                 <p class="lead">${textContainer.text['groupImportReportPageSummary']}</p>
-                <ul>
-                  <c:forEach items="${grouperRequestContainer.groupImportContainer.guiGroups}" var="guiGroup" >
-                    <li>${guiGroup.linkWithIcon}</li>
-                  </c:forEach>
-                </ul>
-                <%-- loop through all the groups and give each report --%>
-                <c:forEach items="${grouperRequestContainer.groupImportContainer.guiGroups}" var="guiGroup" >
-                  <hr />
-                  <h4>${guiGroup.linkWithIcon}</h4>
-                  ${grouperRequestContainer.groupImportContainer.reportForGroupNameMap[guiGroup.group.name]}
-                </c:forEach>
+                ${grouperRequestContainer.groupImportContainer.report}
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.groupImportContainer.subjectId}&sourceId=${grouperRequestContainer.groupImportContainer.sourceId}');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                    <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupImportContainer.groupId}');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:when>
                   <c:otherwise>

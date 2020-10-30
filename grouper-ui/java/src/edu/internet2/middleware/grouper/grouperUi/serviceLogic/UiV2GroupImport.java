@@ -19,7 +19,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -31,7 +30,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -55,6 +54,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportError;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportGroupSummary;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -77,8 +78,10 @@ import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -443,9 +446,10 @@ public class UiV2GroupImport {
   }
   
   /**
-   * keep an expirble cache of import progress for 5 hours (longest an import is expected)
+   * keep an expirble cache of import progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
+   * uniquely identifies this import as opposed to other imports in other tabs
    */
-  private static ExpirableCache<String, GroupImportContainer> importThreadProgress = new ExpirableCache<String, GroupImportContainer>(300);
+  private static ExpirableCache<MultiKey, GroupImportContainer> importThreadProgress = new ExpirableCache<MultiKey, GroupImportContainer>(300);
 
   /**
    * submit a group import
@@ -453,261 +457,322 @@ public class UiV2GroupImport {
    * @param response
    */
   public void groupImportSubmit(HttpServletRequest request, HttpServletResponse response) {
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-
-    final GroupImportContainer groupImportContainer = grouperRequestContainer.getGroupImportContainer();
-
-    String sessionId = request.getSession().getId();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startNanos = System.nanoTime();
     
-    importThreadProgress.put(sessionId, groupImportContainer);
+    debugMap.put("method", "groupImportSubmit");
     
-    GrouperSession grouperSession = null;
-
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    //TODO should this be called "groupsTheUserCanUpdate" ?
-    final Set<Group> groups = new LinkedHashSet<Group>();
-    final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
-    final Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
-    
-    GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
-
-    FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
-
-    final String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
-
-
-    final boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
-    final boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
-    final String bulkAddOption = request.getParameter("bulkAddOptions");
-
     try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-
-      boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups, false);
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       
-      if (!success) {
-        //error message already shown
-        return;
-      }
-
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+  
+      final GroupImportContainer groupImportContainer = grouperRequestContainer.getGroupImportContainer();
+  
+      String sessionId = request.getSession().getId();
       
-      if (groups.size() == 0) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportGroupComboErrorId",
-            TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
-        return;
-      }
-
-      // can be import, input, list
-
-      if (StringUtils.equals(bulkAddOption, "import")) {
-        
-        if (importCsvFile == null) {
-          
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#importCsvFileId",
-              TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
-          return;
-        }
-        
-        Reader reader = null;
-        reader = new InputStreamReader(importCsvFile.getInputStream());
-        
-        try {
-          subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
-              listInvalidSubjectIdsAndRow, true));
-        } catch (GrouperImportException gie) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("error in import", gie);
-          }
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#importCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
-          return;
-        }
-        
-      } else if (StringUtils.equals(bulkAddOption, "input")) {
-
-        //combobox
-        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjectSet, false);
+      debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
+  
+      
+      // uniquely identifies this import as opposed to other imports in other tabs
+      String uniqueImportId = GrouperUuid.getUuid();
+  
+      debugMap.put("uniqueImportId", GrouperUtil.abbreviate(uniqueImportId, 8));
+  
+      groupImportContainer.setUniqueImportId(uniqueImportId);
+      
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueImportId);
+      
+      importThreadProgress.put(reportMultiKey, groupImportContainer);
+      
+      GrouperSession grouperSession = null;
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      final String bulkAddOption = request.getParameter("bulkAddOptions");
+  
+      
+      //TODO should this be called "groupsTheUserCanUpdate" ?
+      final Set<Group> groups = new LinkedHashSet<Group>();
+      final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+      final Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
+      
+      final boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
+      final boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
+  
+      final Object[] csvEntriesObject = new Object[1];
+  
+      final String[] fileName = new String[1];
+  
+      try {
+        grouperSession = GrouperSession.start(loggedInSubject);
+  
+        boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups, false);
         
         if (!success) {
           //error message already shown
           return;
         }
+  
         
-        if (subjectSet.size() == 0) {
+        debugMap.put("groups", groups.size());
+
+        if (groups.size() == 0) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#groupAddMemberComboErrorId", 
-              TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
+              "#groupImportGroupComboErrorId",
+              TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
           return;
         }
+  
+        // can be import, input, list
+        debugMap.put("bulkAddOption", bulkAddOption);
+  
+        if (StringUtils.equals(bulkAddOption, "import")) {
+          
+          GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+          
+          FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+  
+          if (importCsvFile == null) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                "#importCsvFileId",
+                TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
+            return;
+          }
+          
+          Reader reader = null;
+          reader = new InputStreamReader(importCsvFile.getInputStream());
+          
+          fileName[0] = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
+  
+          try {
+            
+            List<CSVRecord> csvEntries = SimpleMembershipUpdateImportExport.parseCsvImportFileToCsv(reader, fileName[0]);
+            debugMap.put("csvEntries", GrouperUtil.length(csvEntries));
+            csvEntriesObject[0] = csvEntries;
+          } catch (GrouperImportException gie) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("error in import", gie);
+            }
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                "#importCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
+            return;
+          }
+          
+        } else if (StringUtils.equals(bulkAddOption, "input")) {
+  
+          //combobox
+          success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjectSet, false);
+          
+          if (!success) {
+            //error message already shown
+            return;
+          }
+          
+          if (subjectSet.size() == 0) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                "#groupAddMemberComboErrorId", 
+                TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
+            return;
+          }
+  
+  
+        } else if (StringUtils.equals(bulkAddOption, "list")) {
+  
+          String entityList = StringUtils.defaultString(request.getParameter("entityList"));
+          
+          //split trim by comma, semi, or whitespace
+          entityList = StringUtils.replace(entityList, ",", " ");
+          entityList = StringUtils.replace(entityList, ";", " ");
+          
+          String[] entityIdOrIdentifiers = GrouperUtil.splitTrim(entityList, null, true);
 
-
-      } else if (StringUtils.equals(bulkAddOption, "list")) {
-
-        String entityList = StringUtils.defaultString(request.getParameter("entityList"));
-        
-        //split trim by comma, semi, or whitespace
-        entityList = StringUtils.replace(entityList, ",", " ");
-        entityList = StringUtils.replace(entityList, ";", " ");
-        
-        String[] entityIdOrIdentifiers = GrouperUtil.splitTrim(entityList, null, true);
-
-        if (GrouperUtil.length(entityIdOrIdentifiers) == 0) {
-
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#entityListId",
-              TextContainer.retrieveFromRequest().getText().get("groupImportNoEntitiesSpecified")));
-          return;
-
-        }
-        
-        String source = request.getParameter("searchEntitySourceName");
-        
-        List<String> entityIdOrIdentifiersList = new ArrayList<String>(Arrays.asList(GrouperUtil.nonNull(
-            entityIdOrIdentifiers, String.class)));
-        
-        Map<String, Subject> entityIdOrIdentifierMap = null;
-        
-        if (StringUtils.equals("all", source)) {
-
-          entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList);
+          debugMap.put("entityIdOrIdentifiers", GrouperUtil.length(entityIdOrIdentifiers));
+          if (GrouperUtil.length(entityIdOrIdentifiers) == 0) {
+  
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                "#entityListId",
+                TextContainer.retrieveFromRequest().getText().get("groupImportNoEntitiesSpecified")));
+            return;
+  
+          }
+          
+          String source = request.getParameter("searchEntitySourceName");
+          
+          List<String> entityIdOrIdentifiersList = new ArrayList<String>(Arrays.asList(GrouperUtil.nonNull(
+              entityIdOrIdentifiers, String.class)));
+          
+          Map<String, Subject> entityIdOrIdentifierMap = null;
+          
+          if (StringUtils.equals("all", source)) {
+  
+            entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList);
+            
+          } else {
+  
+            entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList, source);
+  
+          }
+          
+          //lets add all the subjects
+          subjectSet.addAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).values());
+  
+          //lets see which are missing
+          List<String> originalIdList = new ArrayList<String>(entityIdOrIdentifiersList);
+  
+          //lets see which are missing
+          entityIdOrIdentifiersList.removeAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).keySet());
+  
+          //keep trac of the index of the invalid ids
+          for (String invalidId : entityIdOrIdentifiersList) {
+            int index = originalIdList.indexOf(invalidId);
+            listInvalidSubjectIdsAndRow.put(invalidId, index == -1 ? null : index);
+          }
           
         } else {
-
-          entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList, source);
-
+          throw new RuntimeException("Not expecting bulk add option: " + bulkAddOption);
+        }
+  
+        {
+          Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+          if (group != null) {
+            groupImportContainer.setImportFromGroup(true);
+            groupImportContainer.setGroupId(group.getId());
+          }
+        }
+        {
+          Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
+          if (subject != null) {
+            groupImportContainer.setImportFromSubject(true);
+            groupImportContainer.setSubjectId(subject.getId());
+            groupImportContainer.setSourceId(subject.getSourceId());
+          }
+        }
+  
+        if (importReplaceMembers && removeMembers) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#replaceExistingMembersId",
+              TextContainer.retrieveFromRequest().getText().get("groupImportCantReplaceAndRemove")));
+          return;
         }
         
-        //lets add all the subjects
-        subjectSet.addAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).values());
-
-        //lets see which are missing
-        List<String> originalIdList = new ArrayList<String>(entityIdOrIdentifiersList);
-
-        //lets see which are missing
-        entityIdOrIdentifiersList.removeAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).keySet());
-
-        //keep trac of the index of the invalid ids
-        for (String invalidId : entityIdOrIdentifiersList) {
-          int index = originalIdList.indexOf(invalidId);
-          listInvalidSubjectIdsAndRow.put(invalidId, index == -1 ? null : index);
+        Iterator<Group> groupIterator = groups.iterator();
+  
+        //TODO first off, why checking VIEW?  should it be READ?  or just UPDATE?
+        //TODO second, are groups not checked for UPDATE above in groupImportSetupExtraGroups()?  or is it just groups added from gruop screen?
+        
+        //lets go through the groups that were submitted
+        while (groupIterator.hasNext()) {
+  
+          final Group group = groupIterator.next();
+  
+          {
+            //remove groups that cannot be viewed
+            boolean canView = (Boolean)GrouperSession.callbackGrouperSession(
+              GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    
+                @Override
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  return group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+                }
+              });
+    
+            if (!canView) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
+                  TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantView")));
+              groupIterator.remove();
+              continue;
+            }
+          }
+  
+          {
+            //give error if cant update
+            boolean canUpdate = (Boolean)GrouperSession.callbackGrouperSession(
+              GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+                @Override
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  return group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
+                }
+              });
+  
+            if (!canUpdate) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
+                  TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate")));
+              continue;
+            }
+          }
         }
         
+      } catch (Exception e) {
+        throw new RuntimeException("error", e);
+  
+  
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      
+      // TODO should be GrouperCallable
+      Runnable runnable = new Runnable() {
+        
+        public void run() {
+          try {
+            UiV2GroupImport.this.groupImportSubmitHelper(loggedInSubject, groupImportContainer, groups, subjectSet, 
+                listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName[0], (List<CSVRecord>)csvEntriesObject[0]);
+          } catch (RuntimeException re) {
+            groupImportContainer.getProgressBean().setHasException(true);
+            // log this since the thread will just end and will never get logged
+            LOG.error("error", re);
+          } finally {
+            // we done
+            groupImportContainer.getProgressBean().setComplete(true);
+          }
+        }
+      };
+      
+      Thread thread = new Thread(runnable);
+      
+      // see if running in thread
+      boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.import.useThread");
+      debugMap.put("useThreads", useThreads);
+
+      if (useThreads) {
+        thread.start();
+        
+        Integer waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.import.progressStartsInSeconds");
+        debugMap.put("waitForCompleteForSeconds", waitForCompleteForSeconds);
+
+        GrouperUtil.threadJoin(thread, waitForCompleteForSeconds * 1000);
+        
+        debugMap.put("threadAlive", thread.isAlive());
+
       } else {
-        throw new RuntimeException("Not expecting bulk add option: " + bulkAddOption);
+        runnable.run();
       }
-
-      {
-        Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
-        if (group != null) {
-          groupImportContainer.setImportFromGroup(true);
-        }
-      }
-      {
-        Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
-        if (subject != null) {
-          groupImportContainer.setImportFromSubject(true);
-        }
-      }
-
-      if (importReplaceMembers && removeMembers) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#replaceExistingMembersId",
-            TextContainer.retrieveFromRequest().getText().get("groupImportCantReplaceAndRemove")));
-        return;
-      }
-      
-      Iterator<Group> groupIterator = groups.iterator();
-
-      //TODO first off, why checking VIEW?  should it be READ?  or just UPDATE?
-      //TODO second, are groups not checked for UPDATE above in groupImportSetupExtraGroups()?  or is it just groups added from gruop screen?
-      
-      //lets go through the groups that were submitted
-      while (groupIterator.hasNext()) {
-
-        final Group group = groupIterator.next();
-
-        {
-          //remove groups that cannot be viewed
-          boolean canView = (Boolean)GrouperSession.callbackGrouperSession(
-            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
   
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
-              }
-            });
-  
-          if (!canView) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
-                TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantView")));
-            groupIterator.remove();
-            return;
-          }
-        }
-
-        {
-          //give error if cant update
-          boolean canUpdate = (Boolean)GrouperSession.callbackGrouperSession(
-            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
-              }
-            });
-
-          if (!canUpdate) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
-                TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate")));
-            return;
-          }
-        }
-      }
-      
-    } catch (Exception e) {
-      throw new RuntimeException("error", e);
-
-
+      groupImportReportStatusHelper(sessionId, uniqueImportId);
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-    
-    // TODO should be GrouperCallable
-    Runnable runnable = new Runnable() {
-      
-      public void run() {
-        try {
-          UiV2GroupImport.this.groupImportSubmitHelper(loggedInSubject, groupImportContainer, groups, subjectSet, 
-              listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName);
-        } catch (RuntimeException re) {
-          groupImportContainer.getProgressBean().setHasException(true);
-          // log this since the thread will just end and will never get logged
-          LOG.error("error", re);
-        } finally {
-          // we done
-          groupImportContainer.getProgressBean().setComplete(true);
-        }
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime()-startNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-    };
-    
-    Thread thread = new Thread(runnable);
-    
-    // see if running in thread
-    if (GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.import.useThread")) {
-      thread.start();
-      
-      GrouperUtil.threadJoin(thread, GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.import.progressStartsInSeconds") * 1000);
-    } else {
-      runnable.run();
     }
+  }
 
-    groupImportReportStatus(request, response);
-    
+  /**
+   * get the status of a report
+   * @param request
+   * @param response
+   */
+  public void groupImportReportStatus(HttpServletRequest request, HttpServletResponse response) {
+    String sessionId = request.getSession().getId();
+    String uniqueImportId = request.getParameter("uniqueImportId");
+    groupImportReportStatusHelper(sessionId, uniqueImportId);
   }
   
   /**
@@ -715,42 +780,67 @@ public class UiV2GroupImport {
    * @param request
    * @param response
    */
-  public void groupImportReportStatus(HttpServletRequest request, HttpServletResponse response) {
+  private void groupImportReportStatusHelper(String sessionId, String uniqueImportId) {
     
-    String sessionId = request.getSession().getId();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    debugMap.put("method", "groupImportReportStatus");
+    debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
+    debugMap.put("uniqueImportId", GrouperUtil.abbreviate(uniqueImportId, 8));
 
-    GroupImportContainer groupImportContainer = importThreadProgress.get(sessionId);
-    
-    GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupImportContainer(groupImportContainer);
-
-    //show the report screen
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-        "/WEB-INF/grouperUi2/groupImport/groupImportReport.jsp"));
-    // guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
-
-    if (groupImportContainer != null) {
+    long startNanos = System.nanoTime();
+    try {
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueImportId);
       
-      // endless loop?
-      if (groupImportContainer.getProgressBean().isThisLastStatus()) {
-        return;
-      }
+      GroupImportContainer groupImportContainer = importThreadProgress.get(reportMultiKey);
       
-      if (groupImportContainer.getProgressBean().isHasException()) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("groupImportException")));
-        // it has an exception, leave it be
-        importThreadProgress.put(sessionId, null);
-        return;
+      GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupImportContainer(groupImportContainer);
+  
+      //show the report screen
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportReport.jsp"));
+      // guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
+
+      debugMap.put("percentComplete", groupImportContainer.getProgressBean().getPercentComplete());
+      debugMap.put("progressCompleteRecords", groupImportContainer.getProgressBean().getProgressCompleteRecords());
+      debugMap.put("progressTotalRecords", groupImportContainer.getProgressBean().getProgressTotalRecords());
+      
+
+      if (groupImportContainer != null) {
+        
+        // endless loop?
+        if (groupImportContainer.getProgressBean().isThisLastStatus()) {
+          return;
+        }
+        
+        if (groupImportContainer.getProgressBean().isHasException()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupImportException")));
+          // it has an exception, leave it be
+          importThreadProgress.put(reportMultiKey, null);
+          return;
+        }
+        // kick it off again?
+        debugMap.put("complete", groupImportContainer.getProgressBean().isComplete());
+        if (!groupImportContainer.getProgressBean().isComplete()) {
+          int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.import.progressRefreshSeconds");
+          progressRefreshSeconds = Math.max(progressRefreshSeconds, 1);
+          progressRefreshSeconds *= 1000;
+          guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2GroupImport.groupImportReportStatus?uniqueImportId=" + uniqueImportId + "')}, " + progressRefreshSeconds + ")"));
+        } else {
+          // it is complete, leave it be
+          importThreadProgress.put(reportMultiKey, null);
+        }
       }
-      // kick it off again?
-      if (!groupImportContainer.getProgressBean().isComplete()) {
-        int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.import.progressRefreshSeconds");
-        guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2GroupImport.groupImportReportStatus'}, " + progressRefreshSeconds + ")"));
-      } else {
-        // it is complete, leave it be
-        importThreadProgress.put(sessionId, null);
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime()-startNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
 
@@ -771,7 +861,12 @@ public class UiV2GroupImport {
    */
   private void groupImportSubmitHelper(final Subject loggedInSubject, final GroupImportContainer groupImportContainer, 
       final Set<Group> groups, final Set<Subject> subjectSet, Map<String, Integer> listInvalidSubjectIdsAndRow, 
-      boolean removeMembers, boolean importReplaceMembers, String bulkAddOption, String fileName) {
+      boolean removeMembers, boolean importReplaceMembers, String bulkAddOption, String fileName, List<CSVRecord> csvEntries) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "groupImportSubmit");
+
     GrouperSession grouperSession = null;
 
     int pauseBetweenRecordsMillis = GrouperUiConfig.retrieveConfig().propertyValueIntRequired("grouperUi.import.pauseInBetweenRecordsMillis");
@@ -779,12 +874,21 @@ public class UiV2GroupImport {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      groupImportContainer.getProgressBean().setStartedMillis(System.currentTimeMillis());
+      ProgressBean progressBean = groupImportContainer.getProgressBean();
+      
+      progressBean.setStartedMillis(System.currentTimeMillis());
+      
+      if (GrouperUtil.length(subjectSet) == 0 && csvEntries != null) {
+        subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(csvEntries, new ArrayList<String>(), 
+            listInvalidSubjectIdsAndRow, true));
+      }
       
       Iterator<Group> groupIterator = groups.iterator();
 
       Set<GuiGroup> guiGroups = new LinkedHashSet<GuiGroup>();
       groupImportContainer.setGuiGroups(guiGroups);
+      
+      progressBean.setProgressTotalRecords(GrouperUtil.length(groups) * GrouperUtil.length(subjectSet));
       
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {
@@ -798,57 +902,70 @@ public class UiV2GroupImport {
         
         List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
         List<Subject> subjectList = new ArrayList<Subject>(GrouperUtil.nonNull(subjectSet));
-        int existingCount = GrouperUtil.length(existingMembers);
-        groupImportGroupSummary.setGroupCountOriginal(existingCount);
-        
+        groupImportGroupSummary.setGroupCountOriginal(GrouperUtil.length(existingMembers));
+
         List<Member> overlappingMembers = new ArrayList<Member>(GrouperUtil.nonNull(GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList)));
-
-        int deletedCount = 0;
-        int addedCount = 0;
-        int errorsCount = 0;
-
-        StringBuilder errors = new StringBuilder();
 
         // figure out subject not founds
         if (listInvalidSubjectIdsAndRow.size() > 0) {
           for (String subjectLabel : listInvalidSubjectIdsAndRow.keySet()) {
             int rowNumber = listInvalidSubjectIdsAndRow.get(subjectLabel);
-            String errorLine = errorLine(subjectLabel, TextContainer.retrieveFromRequest().getText().get(
+            
+            GroupImportError groupImportError = new GroupImportError(subjectLabel, TextContainer.retrieveFromRequest().getText().get(
                 "groupImportProblemFindingSubjectError"), rowNumber);
-            errors.append(errorLine).append("\n");
-            errorsCount++;
+            
+            groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+            
+            groupImportGroupSummary.groupCountErrorsIncrement();
           }
         }
 
         if (!removeMembers) {
+          progressBean.addProgressCompleteRecords(GrouperUtil.length(subjectSet) - GrouperUtil.length(subjectList));
           //first lets add some members
           for (int i=0;i<subjectList.size();i++) {
             
             Subject subject = subjectList.get(i);
-            
+
+            boolean hasError = false;
             if (subject instanceof ImportSubjectWrapper) {
               try {
                 subject = ((ImportSubjectWrapper)subject).wrappedSubject();
               } catch (Exception e) {
-                //ignore
+                int rowNumber = ((ImportSubjectWrapper)subject).getRow();
+                String label = ImportSubjectWrapper.errorLabelForRowStatic(rowNumber, ((ImportSubjectWrapper)subject).getRowData());
+                GroupImportError groupImportError = new GroupImportError(label, TextContainer.retrieveFromRequest().getText().get(
+                    "groupImportProblemFindingSubjectError"), rowNumber);
+                
+                groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+                
+                groupImportGroupSummary.groupCountErrorsIncrement();
+                hasError = true;
               }
             }
             
             try {
-                
+              // try this even if we have an error
               group.addMember(subject, false);
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
-              addedCount++;
+              groupImportGroupSummary.groupCountAddedIncrement();
             } catch (Exception e) {
-              
-              String errorLine = errorLine(subject, GrouperUtil.xmlEscape(e.getMessage()));
-              errors.append(errorLine).append("\n");
-              errorsCount++;
-              LOG.warn(errorLine, e);
+              if (!hasError) {
+                // if not already logged
+                String subjectString = SubjectUtils.subjectToString(subject);
+
+                GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+                groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+
+                groupImportGroupSummary.groupCountErrorsIncrement();
+                LOG.warn("error with " + subjectString, e);
+              }
             }
+            progressBean.addProgressCompleteRecords(1);
       
           }
         } else {
+          progressBean.addProgressCompleteRecords(GrouperUtil.length(subjectSet) - GrouperUtil.length(overlappingMembers));
           //first lets remove some members
           for (int i=0;i<overlappingMembers.size();i++) {
             
@@ -858,77 +975,53 @@ public class UiV2GroupImport {
                 
               group.deleteMember(member, false);
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
-
-              deletedCount++;
-            } catch (Exception e) {
               
-              String errorLine = errorLine(member.getSubject(), GrouperUtil.xmlEscape(e.getMessage()));
-              errors.append(errorLine).append("\n");
-              errorsCount++;
-              LOG.warn(errorLine, e);
+              groupImportGroupSummary.groupCountDeletedIncrement();
+            } catch (Exception e) {
+              String subjectString = SubjectUtils.subjectToString(member.getSubject());
+              GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+              groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+              groupImportGroupSummary.groupCountErrorsIncrement();
+              LOG.warn("error with " + subjectString, e);
             }
-      
+
+            progressBean.addProgressCompleteRecords(1);
+
           }
           
         }
     
-        boolean didntImportDueToSubjects = errorsCount > 0;
+        boolean didntImportDueToSubjects = groupImportGroupSummary.getGroupCountErrors() > 0;
     
         //remove the ones which are already there
         if (importReplaceMembers && !didntImportDueToSubjects && !removeMembers) {
           
+          progressBean.addProgressCompleteRecords(GrouperUtil.length(subjectSet) - GrouperUtil.length(existingMembers));
           for (Member existingMember : existingMembers) {
             
             try {
               group.deleteMember(existingMember, false);
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
-              deletedCount++;
+              groupImportGroupSummary.groupCountDeletedIncrement();
             } catch (Exception e) {
-              String errorLine = errorLine(existingMember.getSubject(), GrouperUtil.xmlEscape(e.getMessage()));
-              errors.append(errorLine).append("\n");
-              errorsCount++;
-              LOG.warn(errorLine, e);
-            
+
+              
+              String subjectString = SubjectUtils.subjectToString(existingMember.getSubject());
+              GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+              groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+              groupImportGroupSummary.groupCountErrorsIncrement();
+              LOG.warn("error with " + subjectString, e);
+
             }
+            progressBean.addProgressCompleteRecords(1);
           }
         }
 
-        if (importReplaceMembers && didntImportDueToSubjects) {
-          report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportNoReplaceError")).append("\n");
-        }
-        
         //this might be a little wasteful, but I think it is a good sanity check
         int newSize = group.getImmediateMembers().size();
 
-        // = Errors
-        //groupImportReportErrorLine = <li><span class="label label-important">Error</span>&nbsp;on row ${grouperRequestContainer.groupImportContainer.errorRowNumber}. ${grouperRequestContainer.groupImportContainer.errorText}: "${grouperUtil.xmlEscape(grouperRequestContainer.groupImportContainer.errorSubject)}"</li>
-
-        //set stuff for text to use
-        groupImportContainer.setGroupCountAdded(addedCount);
-        groupImportContainer.setGroupCountDeleted(deletedCount);
-        groupImportContainer.setGroupCountErrors(errorsCount);
-        groupImportContainer.setGroupCountOriginal(existingCount);
-        groupImportContainer.setGroupCountNew(newSize);
+        groupImportGroupSummary.setGroupCountNew(newSize);
         
-        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSummary")).append("\n");
-        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSuccess")).append("\n");
-        
-        // dont add the error report line if there are no errors 
-        if (errorsCount > 0) {
-          report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorSummary")).append("\n");
-        }
-        report.append("</ul>\n");
-        
-        //only add the errors section if there are errors
-        if (errorsCount > 0) {
-          report.append("<h5>").append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorsTitle")).append("</h5>\n");
-          report.append("<ul>\n");
-          report.append(errors.toString());
-          report.append("</ul>\n");
-        }
-        
-        reportByGroupName.put(group.getName(), report.toString());
-
         try {
           GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
               loggedInSubject, group);
@@ -937,10 +1030,13 @@ public class UiV2GroupImport {
         }
         
         if (StringUtils.equals(bulkAddOption, "import")) {
-          auditImport(group.getUuid(), group.getName(), fileName, addedCount, deletedCount);
+          auditImport(group.getUuid(), group.getName(), fileName, groupImportGroupSummary.getGroupCountAdded(), groupImportGroupSummary.getGroupCountDeleted());
         }
 
+        groupImportGroupSummary.setComplete(true);
       }
+      // done
+      progressBean.setProgressCompleteRecords(progressBean.getProgressTotalRecords());
       
 
     } catch (NoSessionException se) {
@@ -973,48 +1069,6 @@ public class UiV2GroupImport {
       });
     }
   
-  
-  /**
-   * get an error line
-   * @param subject
-   * @param errorEscaped
-   * @return the line
-   */
-  private static String errorLine(Subject subject, String errorEscaped) {
-
-    String subjectLabel = null;
-    Integer rowNumber = null;
-    if (subject instanceof ImportSubjectWrapper) {
-      subjectLabel = ((ImportSubjectWrapper)subject).getSubjectIdOrIdentifier();
-      rowNumber = ((ImportSubjectWrapper)subject).getRow();
-    } else {
-      subjectLabel = subject.getId();
-    }
-    return errorLine(subjectLabel, errorEscaped, rowNumber);
-  }
-  
-  /**
-   * get an error line
-   * @param subject
-   * @param errorEscaped
-   * @param rowNumber
-   * @return the line
-   */
-  private static String errorLine(String subjectLabel, String errorEscaped, Integer rowNumber) {
-
-    GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
-    groupImportContainer.setErrorText(errorEscaped);
-
-    groupImportContainer.setErrorSubject(subjectLabel);
-
-    if (rowNumber != null) {
-      groupImportContainer.setErrorRowNumber(rowNumber);
-      return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
-    }
-    
-    return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
-    
-  }
   
   /**
    * modal search form results for add group to import

@@ -79,7 +79,7 @@ public class ProgressBean {
       return 100;
     }
     
-    int percentComplete = (int)(Math.round(100 * (this.completeRecords / this.totalRecords)));
+    int percentComplete = (int)(Math.round(100 * ((1.0D*this.completeRecords) / this.totalRecords)));
     return percentComplete;
   }
 
@@ -97,6 +97,10 @@ public class ProgressBean {
     return this.completeRecords;
   }
 
+  public void addProgressCompleteRecords(long complete) {
+    this.completeRecords += complete;
+  }
+  
   /**
    * total records to process (groups * subjects)
    * @return the progressTotalRecords

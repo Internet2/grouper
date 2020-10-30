@@ -2222,11 +2222,15 @@ function guiSubmitFileForm(event, formJqueryHandle, operation) {
       dataType: "json",
       success:    function(json) { 
         guiProcessJsonResponse(json);
+        $.unblockUI();
+      },
+      error:    function(json) { 
+        $.unblockUI();
       },
       url: operation
   };
   //$.modal.close(); 
-  //$.blockUI();  
+  $.blockUI();  
   $(formJqueryHandle).ajaxSubmit(options);
   return false;
 }

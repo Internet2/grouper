@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * summary for one group in a group import
  * @author mchyzer
@@ -7,12 +10,42 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
  */
 public class GroupImportGroupSummary {
 
-  private 
+  private boolean complete = false;
   
+  private List<GroupImportError> groupImportErrors = new ArrayList<GroupImportError>();
+  
+  public List<GroupImportError> getGroupImportErrors() {
+    return groupImportErrors;
+  }
+
+
+  public boolean isComplete() {
+    return complete;
+  }
+
+  
+  public void setComplete(boolean complete) {
+    this.complete = complete;
+  }
+
   /**
    * count of added members
    */
   private int groupCountAdded;
+  
+  public void groupCountAddedIncrement() {
+    this.groupCountAdded++;
+  }
+  
+  public void groupCountDeletedIncrement() {
+    this.groupCountDeleted++;
+  }
+  
+  public void groupCountErrorsIncrement() {
+    this.groupCountErrors++;
+  }
+  
+
   /**
    * count of deleted members
    */

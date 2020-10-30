@@ -13,7 +13,7 @@
 <script src="../../grouperExternal/public/assets/js/jquery.form.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=2.5.36"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=2.5.37"></script>
 <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
