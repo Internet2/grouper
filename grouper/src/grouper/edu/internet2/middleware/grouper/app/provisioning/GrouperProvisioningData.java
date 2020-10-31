@@ -1,34 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisioningData {
-
-  public boolean wasWorkDone() {
-    if (this.targetObjectInserts.wasWorkDone()) {
-      return true;
-    }
-    if (this.targetObjectUpdates.wasWorkDone()) {
-      return true;
-    }
-    if (this.targetObjectDeletes.wasWorkDone()) {
-      return true;
-    }
-    // maybe group or entity inserts
-    if (this.grouperTargetObjectsMissing.wasWorkDone()) {
-      return true;
-    }
-    return false;
-  }
-  
 
   public GrouperProvisioningData() {
   }
@@ -171,28 +145,6 @@ public class GrouperProvisioningData {
   }
 
   /**
-   * insert translation
-   */
-  private GrouperProvisioningLists grouperTargetObjectsMissing = new GrouperProvisioningLists();
-
-  /**
-   * insert translation
-   * @return
-   */
-  public GrouperProvisioningLists getGrouperTargetObjectsMissing() {
-    return grouperTargetObjectsMissing;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   * @param grouperTargetObjectsMissing
-   */
-  public void setGrouperTargetObjectsMissing(
-      GrouperProvisioningLists grouperTargetObjectsMissing) {
-    this.grouperTargetObjectsMissing = grouperTargetObjectsMissing;
-  }
-
-  /**
    * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
    */
   private GrouperProvisioningLists grouperTargetObjectsIncludeDeletes = new GrouperProvisioningLists();
@@ -214,212 +166,6 @@ public class GrouperProvisioningData {
     this.grouperTargetObjectsIncludeDeletes = grouperTargetObjectsIncludeDeletes;
   }
 
-  private GrouperProvisioningLists targetObjectInserts = new GrouperProvisioningLists();
-  
-  private GrouperProvisioningLists targetObjectUpdates = new GrouperProvisioningLists();
-  
-  private GrouperProvisioningLists targetObjectDeletes = new GrouperProvisioningLists();
-  
-  /**
-   * include deletes
-   */
-  private Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = null;
-  
-  /**
-   * include deletes
-   */
-  private Map<String, GcGrouperSyncMember> memberUuidToSyncMember = null;
-
-  /**
-   * include deletes
-   */
-  private Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership = null;
-  
-  /**
-   * note some entries could be for deleting
-   */
-  private Map<Object, ProvisioningGroupWrapper> groupMatchingIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
-
-  private Map<Object, ProvisioningEntityWrapper> entityMatchingIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
-
-  private Map<Object, ProvisioningMembershipWrapper> membershipMatchingIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
-  
-  private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
-
-  private Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
-
-  private Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
-
-  /**
-   * grouper uuids to retrieve without first retrieving from target
-   */
-  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc;
-
-  /**
-   * grouper uuids to retrieve from grouper and grouper sync
-   * @return
-   */
-  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithoutRecalc() {
-    if (this.grouperIncrementalDataToProcessWithoutRecalc == null) {
-      this.grouperIncrementalDataToProcessWithoutRecalc = new GrouperIncrementalDataToProcess();
-    }
-    return grouperIncrementalDataToProcessWithoutRecalc;
-  }
-
-  /**
-   * grouper uuids to retrieve from grouper and grouper sync
-   * @param grouperIncrementalUuidsToRetrieveFromGrouper
-   */
-  public void setGrouperIncrementalDataToProcessWithoutRecalc(
-      GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper) {
-    this.grouperIncrementalDataToProcessWithoutRecalc = grouperIncrementalUuidsToRetrieveFromGrouper;
-  }
-
-  /**
-   * grouper target objects to get from target for incremental sync
-   */
-  private TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest;
-
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   */
-  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc;
-  
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   * @return
-   */
-  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithRecalc() {
-    return grouperIncrementalDataToProcessWithRecalc;
-  }
-
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   * @param grouperIncrementalDataToProcessWithRecalc
-   */
-  public void setGrouperIncrementalDataToProcessWithRecalc(
-      GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc) {
-    this.grouperIncrementalDataToProcessWithRecalc = grouperIncrementalDataToProcessWithRecalc;
-  }
-
-
-  /**
-   * grouper target objects to get from target for incremental sync
-   * @return target object
-   */
-  public TargetDaoRetrieveIncrementalDataRequest getTargetDaoRetrieveIncrementalDataRequest() {
-    if (this.targetDaoRetrieveIncrementalDataRequest == null) {
-      this.targetDaoRetrieveIncrementalDataRequest = new TargetDaoRetrieveIncrementalDataRequest();
-    }
-    return targetDaoRetrieveIncrementalDataRequest;
-  }
-
-  /**
-   * grouper target objects to get from target for incremental sync
-   * @param grouperIncrementalGroupTargetObjectsToRetrieveFromTarget
-   */
-  public void setTargetDaoRetrieveIncrementalDataRequest(
-      TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest) {
-    this.targetDaoRetrieveIncrementalDataRequest = targetDaoRetrieveIncrementalDataRequest;
-  }
-
-  
-  public Map<String, ProvisioningGroupWrapper> getGroupUuidToProvisioningGroupWrapper() {
-    return groupUuidToProvisioningGroupWrapper;
-  }
-
-
-
-
-
-  
-  public Map<String, ProvisioningEntityWrapper> getMemberUuidToProvisioningEntityWrapper() {
-    return memberUuidToProvisioningEntityWrapper;
-  }
-
-
-
-
-
-  
-  public Map<MultiKey, ProvisioningMembershipWrapper> getGroupUuidMemberUuidToProvisioningMembershipWrapper() {
-    return groupUuidMemberUuidToProvisioningMembershipWrapper;
-  }
-
-
-
-
-
-  public void setGroupMatchingIdToProvisioningGroupWrapper(
-      Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper) {
-    this.groupMatchingIdToProvisioningGroupWrapper = targetGroupIdToProvisioningGroupWrapper;
-  }
-
-
-
-
-  
-  public void setEntityMatchingIdToProvisioningEntityWrapper(
-      Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper) {
-    this.entityMatchingIdToProvisioningEntityWrapper = targetEntityIdToProvisioningEntityWrapper;
-  }
-
-
-
-
-  
-  public void setMembershipMatchingIdToProvisioningMembershipWrapper(
-      Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper) {
-    this.membershipMatchingIdToProvisioningMembershipWrapper = targetMembershipIdToProvisioningMembershipWrapper;
-  }
-
-
-
-
-  public GcGrouperSync getGcGrouperSync() {
-    return this.getGrouperProvisioner().getGcGrouperSync();
-  }
-  
-  public Map<Object, ProvisioningGroupWrapper> getGroupMatchingIdToProvisioningGroupWrapper() {
-    return groupMatchingIdToProvisioningGroupWrapper;
-  }
-
-
-
-
-  
-  public Map<Object, ProvisioningEntityWrapper> getEntityMatchingIdToProvisioningEntityWrapper() {
-    return entityMatchingIdToProvisioningEntityWrapper;
-  }
-
-
-
-
-  
-  public Map<Object, ProvisioningMembershipWrapper> getMembershipMatchingIdToProvisioningMembershipWrapper() {
-    return membershipMatchingIdToProvisioningMembershipWrapper;
-  }
-
-
-
-
-  public Map<MultiKey, GcGrouperSyncMembership> getGroupUuidMemberUuidToSyncMembership() {
-    return groupUuidMemberUuidToSyncMembership;
-  }
-
-
-
-  public Map<String, GcGrouperSyncGroup> getGroupUuidToSyncGroup() {
-    return groupUuidToSyncGroup;
-  }
-  
-  
-  
-  public Map<String, GcGrouperSyncMember> getMemberUuidToSyncMember() {
-    return memberUuidToSyncMember;
-  }
-
-
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -438,31 +184,6 @@ public class GrouperProvisioningData {
 
   
   
-  public void setGroupUuidToSyncGroup(
-      Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup) {
-    this.groupUuidToSyncGroup = groupUuidToSyncGroup;
-  }
-
-
-
-
-  
-  public void setMemberUuidToSyncMember(
-      Map<String, GcGrouperSyncMember> memberUuidToSyncMember) {
-    this.memberUuidToSyncMember = memberUuidToSyncMember;
-  }
-
-
-
-
-  
-  public void setGroupUuidMemberUuidToSyncMembership(
-      Map<MultiKey, GcGrouperSyncMembership> groupUuidMemberUuidToSyncMembership) {
-    this.groupUuidMemberUuidToSyncMembership = groupUuidMemberUuidToSyncMembership;
-  }
-
-
-
   /**
    * grouper state of the data at first retrieve
    * @param grouperProvisioningObjects
@@ -500,36 +221,6 @@ public class GrouperProvisioningData {
   }
 
   
-  public GrouperProvisioningLists getTargetObjectInserts() {
-    return targetObjectInserts;
-  }
-
-  
-  public void setTargetObjectInserts(GrouperProvisioningLists targetObjectInserts) {
-    this.targetObjectInserts = targetObjectInserts;
-  }
-
-  
-  public GrouperProvisioningLists getTargetObjectUpdates() {
-    return targetObjectUpdates;
-  }
-
-  
-  public void setTargetObjectUpdates(GrouperProvisioningLists targetObjectUpdates) {
-    this.targetObjectUpdates = targetObjectUpdates;
-  }
-
-  
-  public GrouperProvisioningLists getTargetObjectDeletes() {
-    return targetObjectDeletes;
-  }
-
-  
-  public void setTargetObjectDeletes(GrouperProvisioningLists targetObjectDeletes) {
-    this.targetObjectDeletes = targetObjectDeletes;
-  }
-
-
   /**
    * objects that are in grouper but there is no sync object or there is missing link data
    * @return

@@ -105,8 +105,8 @@ public class GrouperProvisioningLinkLogic {
   }
 
   public void retrieveSubjectLink() {
-  
-    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember()).values();
+    //TODO should this come from index?
+    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
   
     if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
       return;
@@ -294,13 +294,14 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateGroupLinkFull() {
     updateGroupLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper()).values());
   }
 
   public void updateGroupLinkIncremental() {
     // If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
+    //TODO should this come from wrappers?
     Collection<GcGrouperSyncGroup> gcGrouperSyncGroups = GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupUuidToSyncGroup()).values();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups());
   
     if (GrouperUtil.length(gcGrouperSyncGroups) == 0) {
       return;
@@ -330,7 +331,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper()).values());
   }
 
   /**
@@ -466,8 +467,9 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateEntityLinkIncremental() {
     // If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
+    //TODO should this come from index
     Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getMemberUuidToSyncMember()).values();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
   
     if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
       return;

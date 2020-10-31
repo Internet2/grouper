@@ -144,6 +144,25 @@ import net.sf.json.util.PropertyFilter;
 public class GrouperUtil {
 
   /**
+   * in a finally block, take an exception and inject and throw the existing exception, or just throw the finally exception
+   * @param tryException
+   * @param finallyException
+   */
+  public static void exceptionFinallyInjectOrThrow(Exception tryException,
+      Exception finallyException) {
+    if (tryException != null) {
+      GrouperUtil.injectInException(tryException, "\n\n####FINALLY EXCEPTION START####\n\n" + GrouperUtil.getFullStackTrace(finallyException) + "\n\n####FINALLY EXCEPTION END####\n\n");
+    } else {
+      tryException = finallyException;
+    }
+    if (tryException instanceof RuntimeException) {
+      throw (RuntimeException)tryException;
+    }
+    throw new RuntimeException(tryException);
+  }
+
+
+  /**
    * take out accented chars with
    * grouperUtil.normalize("NFD", groupAttribute).replaceAll("\\p{M}", "")
    * @param form

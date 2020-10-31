@@ -24,7 +24,7 @@ public class GrouperProvisioningMatchingIdIndex {
 
   public void indexMatchingIdOfGrouperEntities(List<ProvisioningEntity> grouperTargetEntities) {
     Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
   
     int grouperTargetEntitiesWithNullMatchingIds = 0;
     
@@ -63,7 +63,7 @@ public class GrouperProvisioningMatchingIdIndex {
 
   public void indexMatchingIdOfGrouperGroups(List<ProvisioningGroup> grouperTargetGroups) {
     Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
   
     int grouperTargetGroupsWithNullMatchingIds = 0;
     
@@ -101,7 +101,7 @@ public class GrouperProvisioningMatchingIdIndex {
 
   public void indexMatchingIdOfGrouperMemberships(List<ProvisioningMembership> grouperTargetMemberships) {
     Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipMatchingIdToProvisioningMembershipWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper();
   
     int grouperTargetMembershipsWithNullMatchingIds = 0;
     
@@ -164,7 +164,7 @@ public class GrouperProvisioningMatchingIdIndex {
   public void indexMatchingIdOfTargetEntities() {
   
     Map<Object, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getEntityMatchingIdToProvisioningEntityWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
   
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
@@ -205,7 +205,7 @@ public class GrouperProvisioningMatchingIdIndex {
   public void indexMatchingIdOfTargetGroups() {
   
     Map<Object, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGroupMatchingIdToProvisioningGroupWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
   
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
@@ -246,7 +246,7 @@ public class GrouperProvisioningMatchingIdIndex {
   public void indexMatchingIdOfTargetMemberships() {
   
     Map<Object, ProvisioningMembershipWrapper> targetMembershipIdToProvisioningMembershipWrapper = 
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipMatchingIdToProvisioningMembershipWrapper();
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper();
   
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();

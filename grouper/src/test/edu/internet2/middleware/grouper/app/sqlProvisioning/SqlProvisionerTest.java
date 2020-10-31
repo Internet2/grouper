@@ -1812,20 +1812,20 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.0")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
     //object changes
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningGroups()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningEntities()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectInserts().getProvisioningMemberships()));
-    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningEntities()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningMemberships()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningGroups()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningEntities()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectDeletes().getProvisioningMemberships()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningMemberships()));
+    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningMemberships()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships()));
     
     // field changes
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges()));
+    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges()));
     List<ProvisioningObjectChange> provisioningObjectChanges = new ArrayList<ProvisioningObjectChange>(
-        grouperProvisioner.retrieveGrouperProvisioningData().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges());
+        grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges());
     assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(0).getProvisioningObjectChangeAction());
     assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
     assertEquals("member", provisioningObjectChanges.get(0).getAttributeName());

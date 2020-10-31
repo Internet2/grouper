@@ -111,7 +111,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
 
     GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper 
-      = grouperProvisioner.retrieveGrouperProvisioningData().getGrouperIncrementalDataToProcessWithoutRecalc();
+      = grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
     
     // these events are already filtered
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
