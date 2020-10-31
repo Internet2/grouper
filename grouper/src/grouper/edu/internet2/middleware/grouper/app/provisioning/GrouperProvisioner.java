@@ -123,6 +123,8 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningObjectLog;
   }
 
+  private GrouperProvisioningData grouperProvisioningData;
+
   private GrouperProvisioningDataGrouper grouperProvisioningDataGrouper;
 
   private GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget;
@@ -581,6 +583,14 @@ public abstract class GrouperProvisioner {
       this.grouperProvisioningDataSync.setGrouperProvisioner(this);
     }
     return grouperProvisioningDataSync;
+  }
+
+  public GrouperProvisioningData retrieveGrouperProvisioningData() {
+    if (this.grouperProvisioningData == null) {
+      this.grouperProvisioningData = new GrouperProvisioningData();
+      this.grouperProvisioningData.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningData;
   }
 
   public GrouperProvisioningDataGrouperTarget retrieveGrouperProvisioningDataGrouperTarget() {

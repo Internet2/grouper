@@ -6,8 +6,9 @@ import java.util.Map;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
- * index objects by uuid or by matching id.  Generally this is what should be used to process
- * data since it is a complete list of data and easy to look up
+ * index objects by uuid, sync id, or matching id.  Generally this is what should be used to process
+ * data since it is a complete list of data and easy to look up.  Or the complete list of wrappers is in 
+ * GrouperProvisioningData
  * @author mchyzer
  *
  */
@@ -32,6 +33,44 @@ public class GrouperProvisioningDataIndex {
   private Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
 
   private Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
+
+  private Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
+
+  private Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
+
+  private Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
+
+  
+  
+  
+  public Map<String, ProvisioningGroupWrapper> getGrouperSyncGroupIdToProvisioningGroupWrapper() {
+    return grouperSyncGroupIdToProvisioningGroupWrapper;
+  }
+
+
+
+
+
+
+  
+  public Map<String, ProvisioningEntityWrapper> getGrouperSyncMemberIdToProvisioningEntityWrapper() {
+    return grouperSyncMemberIdToProvisioningEntityWrapper;
+  }
+
+
+
+
+
+
+  
+  public Map<MultiKey, ProvisioningMembershipWrapper> getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper() {
+    return grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper;
+  }
+
+
+
+
+
 
   public Map<String, ProvisioningGroupWrapper> getGroupUuidToProvisioningGroupWrapper() {
     return groupUuidToProvisioningGroupWrapper;

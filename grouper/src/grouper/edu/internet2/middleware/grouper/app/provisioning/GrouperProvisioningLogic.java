@@ -657,7 +657,7 @@ public class GrouperProvisioningLogic {
           continue;
         }
         provisioningGroupWrappersForGroupSync.add(provisioningGroupWrapper);
-        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroupIncludeDelete();
+        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
         if (grouperTargetGroup == null) {
           // this might be expected
           continue;
@@ -719,7 +719,7 @@ public class GrouperProvisioningLogic {
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperTargetEntityIncludeDelete();
 
         ProvisioningGroupWrapper provisioningGroupWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(groupUuid);
-        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroupIncludeDelete();
+        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
 
         ProvisioningMembershipWrapper provisioningMembershipWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(groupUuidMemberUuid);
         ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGrouperTargetMembershipIncludeDelete();
@@ -759,6 +759,7 @@ public class GrouperProvisioningLogic {
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
               .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
+          // retrieve all the target data and put in GrouperProvisioningDataTarget
           GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
             .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetData());
         } catch (RuntimeException re) {
@@ -789,6 +790,7 @@ public class GrouperProvisioningLogic {
       public void run() {
         
         try {
+          // retrieve all grouper sync data and put in GrouperProvisioningDataSync
           GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperSyncDao().retrieveSyncDataFull();
         } catch (RuntimeException re) {
           LOG.error("error querying sync objects: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
@@ -801,9 +803,11 @@ public class GrouperProvisioningLogic {
     grouperSyncQueryThread.start();
     
     // get all grouper data for the provisioner
+    // and put in GrouperProvisioningDataSyncGrouper
     this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataFull();
     
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object
+    // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
     this.grouperProvisioner.retrieveGrouperDao().processWrappers();
     
     // point the membership pointers to groups and entities to what they should point to
@@ -840,7 +844,9 @@ public class GrouperProvisioningLogic {
     
     {
       Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper();
-    
+
+      Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
+
       // loop through sync groups
       for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups())) {
     
@@ -853,12 +859,15 @@ public class GrouperProvisioningLogic {
         provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
         
         syncIdToSyncGroup.put(gcGrouperSyncGroup.getId(), gcGrouperSyncGroup);
+        grouperSyncGroupIdToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getId(), provisioningGroupWrapper);
       }
     }
 
     {
       Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
-    
+
+      Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
+
       // loop through sync groups
       for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers())) {
     
@@ -871,6 +880,7 @@ public class GrouperProvisioningLogic {
         provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
 
         syncIdToSyncMember.put(gcGrouperSyncMember.getId(), gcGrouperSyncMember);
+        grouperSyncMemberIdToProvisioningEntityWrapper.put(gcGrouperSyncMember.getId(), provisioningEntityWrapper);
       }
     }
 
@@ -878,7 +888,9 @@ public class GrouperProvisioningLogic {
       Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
       List<GcGrouperSyncMembership> gcGrouperSyncMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMemberships();
-      
+
+      Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper();
+
       if (GrouperUtil.length(gcGrouperSyncMemberships) > 0) {
         
         int syncMembershipReferenceMissing = 0;
@@ -1057,7 +1069,8 @@ public class GrouperProvisioningLogic {
     for (ProvisioningGroup provisioningGroupIncludeDelete : GrouperUtil.nonNull(grouperProvisioningGroupsIncludeDeletes)) {
       groupUuidToProvisioningGroupIncludeDelete.put(provisioningGroupIncludeDelete.getId(), provisioningGroupIncludeDelete);
       ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroupIncludeDelete.getProvisioningGroupWrapper();
-      provisioningGroupWrapper.setGrouperProvisioningGroupIncludeDelete(provisioningGroupIncludeDelete);
+      provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroupIncludeDelete);
+      provisioningGroupWrapper.setDelete(true);
     }
 
     Map<String, ProvisioningEntity> memberUuidToProvisioningEntityIncludeDelete = new HashMap<String, ProvisioningEntity>();
@@ -1210,7 +1223,8 @@ public class GrouperProvisioningLogic {
         provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
   
         provisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
-        provisioningGroupWrapper.setGrouperProvisioningGroupIncludeDelete(provisioningGroup);
+        provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroup);
+        provisioningGroupWrapper.setDelete(true);
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -1297,8 +1311,6 @@ public class GrouperProvisioningLogic {
         // the group is either the provisioning group or provisioning group to delete
         if (provisioningGroupWrapper.getGrouperProvisioningGroup() != null) {
           provisioningMembership.setProvisioningGroup(provisioningGroupWrapper.getGrouperProvisioningGroup());
-        } else if (provisioningGroupWrapper.getGrouperProvisioningGroupIncludeDelete() != null) {
-            provisioningMembership.setProvisioningGroup(provisioningGroupWrapper.getGrouperProvisioningGroupIncludeDelete());
         } else {
           throw new RuntimeException("Cant find provisioning group: '" + groupId + "'");
         }

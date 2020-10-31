@@ -382,12 +382,11 @@ public class GrouperProvisioningTranslatorBase {
         continue;
       }
 
+      grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
       if (includeDelete) {
-        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroupIncludeDelete(grouperTargetGroup);
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setDelete(true);
       } else if (forCreate) {
-        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroupForCreate(grouperTargetGroup);
-      } else {
-        grouperProvisioningGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
+        grouperProvisioningGroup.getProvisioningGroupWrapper().setCreate(true);
       }
       grouperTargetGroups.add(grouperTargetGroup);
         

@@ -162,7 +162,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
-//    dropTableSyncTables();
+// TODO   dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
