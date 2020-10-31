@@ -658,7 +658,7 @@ public class GrouperProvisioningLogic {
         }
         provisioningGroupWrappersForGroupSync.add(provisioningGroupWrapper);
         ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
-        if (grouperTargetGroup == null) {
+        if (grouperTargetGroup == null || !provisioningGroupWrapper.isDelete()) {
           // this might be expected
           continue;
         }
@@ -685,8 +685,8 @@ public class GrouperProvisioningLogic {
         }
         provisioningEntityWrappersForEntitySync.add(provisioningEntityWrapper);
         
-        ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntityIncludeDelete();
-        if (grouperTargetEntity == null) {
+        ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+        if (grouperTargetEntity == null || !provisioningEntityWrapper.isDelete()) {
           continue;
         }
         grouperTargetEntityForEntitySync.add(grouperTargetEntity);
@@ -716,13 +716,13 @@ public class GrouperProvisioningLogic {
         
         // dont need field id
         ProvisioningEntityWrapper provisioningEntityWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberUuid);
-        ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperTargetEntityIncludeDelete();
+        ProvisioningEntity grouperTargetEntity = (provisioningEntityWrapper == null || !provisioningEntityWrapper.isDelete()) ? null : provisioningEntityWrapper.getGrouperTargetEntity();
 
         ProvisioningGroupWrapper provisioningGroupWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(groupUuid);
-        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+        ProvisioningGroup grouperTargetGroup = (provisioningGroupWrapper == null || !provisioningGroupWrapper.isDelete()) ? null : provisioningGroupWrapper.getGrouperTargetGroup();
 
         ProvisioningMembershipWrapper provisioningMembershipWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(groupUuidMemberUuid);
-        ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGrouperTargetMembershipIncludeDelete();
+        ProvisioningMembership grouperTargetMembership = (provisioningMembershipWrapper == null || !provisioningMembershipWrapper.isDelete()) ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
 
         if (grouperTargetMembership != null || (grouperTargetGroup != null && grouperTargetEntity != null)) {
           grouperTargetGroupsGrouperTargetEntitiesGrouperTargetMemberships.add(new MultiKey(grouperTargetGroup, grouperTargetEntity, grouperTargetMembership));
@@ -1077,7 +1077,8 @@ public class GrouperProvisioningLogic {
     for (ProvisioningEntity provisioningEntityIncludeDelete : GrouperUtil.nonNull(grouperProvisioningEntitysIncludeDeletes)) {
       memberUuidToProvisioningEntityIncludeDelete.put(provisioningEntityIncludeDelete.getId(), provisioningEntityIncludeDelete);
       ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntityIncludeDelete.getProvisioningEntityWrapper();
-      provisioningEntityWrapper.setGrouperProvisioningEntityIncludeDelete(provisioningEntityIncludeDelete);
+      provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntityIncludeDelete);
+      provisioningEntityWrapper.setDelete(true);
     }
 
     int membershipReferenceNotMatchIncludeDeletes = 0;
@@ -1098,7 +1099,8 @@ public class GrouperProvisioningLogic {
         provisioningMembershipIncludeDelete.setProvisioningEntity(grouperProvisioningEntityIncludeDelete);
       }
       ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningMembershipIncludeDelete.getProvisioningMembershipWrapper();
-      provisioningMembershipWrapper.setGrouperProvisioningMembershipIncludeDelete(provisioningMembershipIncludeDelete);
+      provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembershipIncludeDelete);
+      provisioningMembershipWrapper.setDelete(true);
 
     }
     if (membershipReferenceNotMatchIncludeDeletes > 0) {
@@ -1120,48 +1122,29 @@ public class GrouperProvisioningLogic {
    */
   public void calculateProvisioningEntitiesToDelete() {
   
-    Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
-    
-    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().values()) {
-      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
-      if (gcGrouperSyncMember != null) {
-        memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
-      }
-    }
-  
-    List<ProvisioningEntity> grouperProvisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningEntities();
-    
     Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningMemberWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
   
     int provisioningEntitiesToDelete = 0;
   
     // loop through sync groups
-    for (GcGrouperSyncMember gcGrouperSyncMember : memberUuidToSyncMember.values()) {
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
   
-      ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningMemberWrapper.get(gcGrouperSyncMember.getMemberId());
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
       // if a entity has been deleted in grouper_members table but copy still exists in grouper_sync_member
       // we are sending the copy over to the target so that target can also delete
-      if (provisioningEntityWrapper == null) {
+      if (provisioningEntity == null) {
         
         provisioningEntitiesToDelete++;
         
-        ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+        provisioningEntity = new ProvisioningEntity();
         provisioningEntity.setId(gcGrouperSyncMember.getMemberId());
   
         provisioningEntity.assignAttributeValue("subjectId", gcGrouperSyncMember.getSubjectId());
         provisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
-        if (grouperProvisioningEntities == null) {
-          grouperProvisioningEntities = new ArrayList<ProvisioningEntity>();
-          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().setProvisioningEntities(grouperProvisioningEntities);
-        }
-        grouperProvisioningEntities.add(provisioningEntity);
   
-        provisioningEntityWrapper = new ProvisioningEntityWrapper();
-        provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
-        provisioningEntityWrapper.setGrouperProvisioningEntityIncludeDelete(provisioningEntity);
-        provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
         
         memberUuidToProvisioningMemberWrapper.put(provisioningEntity.getId(), provisioningEntityWrapper);
       }
@@ -1318,8 +1301,6 @@ public class GrouperProvisioningLogic {
         // the group is either the provisioning group or provisioning group to delete
         if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
           provisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getGrouperProvisioningEntity());
-        } else if (provisioningEntityWrapper.getGrouperProvisioningEntityIncludeDelete() != null) {
-            provisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getGrouperProvisioningEntityIncludeDelete());
         } else {
           throw new RuntimeException("Cant find provisioning entity: '" + memberId + "'");
         }
@@ -1333,7 +1314,8 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
-        provisioningMembershipWrapper.setGrouperProvisioningMembershipIncludeDelete(provisioningMembership);
+        provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
+        provisioningMembershipWrapper.setDelete(true);
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupUuidMemberUuid, provisioningMembershipWrapper);
         

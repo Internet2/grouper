@@ -67,70 +67,25 @@ public class ProvisioningMembershipWrapper {
 
   private ProvisioningMembership grouperProvisioningMembership;
   
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * 
-   */
-  private ProvisioningMembership grouperProvisioningMembershipIncludeDelete;
-
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public ProvisioningMembership getGrouperProvisioningMembershipIncludeDelete() {
-    return grouperProvisioningMembershipIncludeDelete;
-  }
-
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param grouperProvisioningMembershipIncludeDelete
-   */
-  public void setGrouperProvisioningMembershipIncludeDelete(
-      ProvisioningMembership grouperProvisioningMembershipIncludeDelete) {
-    this.grouperProvisioningMembershipIncludeDelete = grouperProvisioningMembershipIncludeDelete;
-  }
-
   private ProvisioningMembership targetProvisioningMembership;
   
   private ProvisioningMembership grouperTargetMembership;
 
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private ProvisioningMembership grouperTargetMembershipIncludeDelete;
-
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return mship
-   */
-  public ProvisioningMembership getGrouperTargetMembershipIncludeDelete() {
-    return grouperTargetMembershipIncludeDelete;
-  }
-
-  /**
-   * incremental state of data that includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param grouperTargetMembershipIncludeDelete
-   */
-  public void setGrouperTargetMembershipIncludeDelete(
-      ProvisioningMembership grouperTargetMembershipIncludeDelete) {
-    this.grouperTargetMembershipIncludeDelete = grouperTargetMembershipIncludeDelete;
-  }
-
   private Object targetNativeMembership;
   
   private GcGrouperSyncMembership gcGrouperSyncMembership;
+
+  /**
+   * if this is for a create in target
+   */
+  private boolean create;
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private boolean delete;
 
   
   public ProvisioningMembership getGrouperProvisioningMembership() {
@@ -182,6 +137,46 @@ public class ProvisioningMembershipWrapper {
   
   public void setGcGrouperSyncMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
     this.gcGrouperSyncMembership = gcGrouperSyncMembership;
+  }
+
+
+  /**
+   * if this is for a create in target
+   * @return
+   */
+  public boolean isCreate() {
+    return create;
+  }
+
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public boolean isDelete() {
+    return delete;
+  }
+
+
+  /**
+   * if this is for a create in target
+   * @param create
+   */
+  public void setCreate(boolean create) {
+    this.create = create;
+  }
+
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param delete
+   */
+  public void setDelete(boolean delete) {
+    this.delete = delete;
   }
 
   

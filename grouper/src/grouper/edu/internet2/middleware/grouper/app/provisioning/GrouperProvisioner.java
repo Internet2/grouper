@@ -44,11 +44,17 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningCompare.class.equals(this.grouperProvisioningCompareClass())) {
       result.append(", Compare: ").append(this.grouperProvisioningCompareClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningDataGrouper().getClass().equals(GrouperProvisioningDataGrouper.class))) {
-      result.append(", Data: ").append(this.retrieveGrouperProvisioningDataGrouper().getClass().getName());
+    if (!(this.retrieveGrouperProvisioningData().getClass().equals(GrouperProvisioningData.class))) {
+      result.append(", Data: ").append(this.retrieveGrouperProvisioningData().getClass().getName());
     }
     if (!(this.retrieveGrouperProvisioningDataChanges().getClass().equals(GrouperProvisioningDataChanges.class))) {
       result.append(", DataChanges: ").append(this.retrieveGrouperProvisioningDataChanges().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataGrouper().getClass().equals(GrouperProvisioningDataGrouper.class))) {
+      result.append(", DataGrouper: ").append(this.retrieveGrouperProvisioningDataGrouper().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().equals(GrouperProvisioningDataGrouperTarget.class))) {
+      result.append(", DataGrouperTarget: ").append(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().getName());
     }
     if (!(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().equals(GrouperProvisioningDataIncrementalInput.class))) {
       result.append(", DataIncrementalInput: ").append(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().getName());
@@ -58,6 +64,9 @@ public abstract class GrouperProvisioner {
     }
     if (!(this.retrieveGrouperProvisioningDataSync().getClass().equals(GrouperProvisioningDataSync.class))) {
       result.append(", DataSync: ").append(this.retrieveGrouperProvisioningDataSync().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataTarget().getClass().equals(GrouperProvisioningDataTarget.class))) {
+      result.append(", DataTarget: ").append(this.retrieveGrouperProvisioningDataTarget().getClass().getName());
     }
     if (!GrouperProvisionerGrouperDao.class.equals(this.grouperDaoClass())) {
       result.append(", GrouperDao: ").append(this.grouperDaoClass().getName());
