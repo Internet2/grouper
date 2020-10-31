@@ -2,9 +2,9 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 
-public class GrouperProvisioningData {
+public class GrouperProvisioningDataGrouper {
 
-  public GrouperProvisioningData() {
+  public GrouperProvisioningDataGrouper() {
   }
   
   private GrouperProvisioner grouperProvisioner = null;

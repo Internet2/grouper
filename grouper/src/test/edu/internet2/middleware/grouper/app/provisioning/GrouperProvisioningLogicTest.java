@@ -66,10 +66,10 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
-    GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+    GrouperProvisioningDataGrouper grouperProvisioningDataGrouper = grouperProvisioner.retrieveGrouperProvisioningDataGrouper();
     GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();
     
-    GrouperProvisioningLists grouperProvisioningObjects = grouperProvisioningData.getGrouperProvisioningObjects();
+    GrouperProvisioningLists grouperProvisioningObjects = grouperProvisioningDataGrouper.getGrouperProvisioningObjects();
     
     List<ProvisioningGroup> grouperProvisioningGroups = new ArrayList<ProvisioningGroup>();
     ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
@@ -146,7 +146,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
-    GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+    GrouperProvisioningDataGrouper grouperProvisioningDataGrouper = grouperProvisioner.retrieveGrouperProvisioningDataGrouper();
     GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();
     
     GrouperProvisioningLists grouperTargetObjects = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects();

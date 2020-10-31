@@ -44,8 +44,8 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningCompare.class.equals(this.grouperProvisioningCompareClass())) {
       result.append(", Compare: ").append(this.grouperProvisioningCompareClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningData().getClass().equals(GrouperProvisioningData.class))) {
-      result.append(", Data: ").append(this.retrieveGrouperProvisioningData().getClass().getName());
+    if (!(this.retrieveGrouperProvisioningDataGrouper().getClass().equals(GrouperProvisioningDataGrouper.class))) {
+      result.append(", Data: ").append(this.retrieveGrouperProvisioningDataGrouper().getClass().getName());
     }
     if (!(this.retrieveGrouperProvisioningDataChanges().getClass().equals(GrouperProvisioningDataChanges.class))) {
       result.append(", DataChanges: ").append(this.retrieveGrouperProvisioningDataChanges().getClass().getName());
@@ -123,7 +123,7 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningObjectLog;
   }
 
-  private GrouperProvisioningData grouperProvisioningData;
+  private GrouperProvisioningDataGrouper grouperProvisioningDataGrouper;
 
   private GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget;
 
@@ -567,12 +567,12 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public GrouperProvisioningData retrieveGrouperProvisioningData() {
-    if (this.grouperProvisioningData == null) {
-      this.grouperProvisioningData = new GrouperProvisioningData();
-      this.grouperProvisioningData.setGrouperProvisioner(this);
+  public GrouperProvisioningDataGrouper retrieveGrouperProvisioningDataGrouper() {
+    if (this.grouperProvisioningDataGrouper == null) {
+      this.grouperProvisioningDataGrouper = new GrouperProvisioningDataGrouper();
+      this.grouperProvisioningDataGrouper.setGrouperProvisioner(this);
     }
-    return grouperProvisioningData;
+    return grouperProvisioningDataGrouper;
   }
   
   public GrouperProvisioningDataSync retrieveGrouperProvisioningDataSync() {

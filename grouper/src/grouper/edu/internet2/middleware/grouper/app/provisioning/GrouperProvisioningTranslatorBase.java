@@ -44,7 +44,7 @@ public class GrouperProvisioningTranslatorBase {
    * @return translated objects from grouper to target
    */
   public void translateGrouperToTarget() {
-    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects(), 
+    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects(), 
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects(), false);
   }
 
@@ -56,7 +56,7 @@ public class GrouperProvisioningTranslatorBase {
    */
   public void translateGrouperToTargetIncludeDeletes() {
     // note, this wont do anything in a full sync since the includeDelete objects are not there
-    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjectsIncludeDeletes(), 
+    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes(), 
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes(), true);
   }
 

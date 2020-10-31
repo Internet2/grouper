@@ -402,7 +402,7 @@ public class GrouperProvisionerGrouperDao {
   public void processWrappers() {
     
     GrouperProvisioningLists grouperProvisioningObjects = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
 
     Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper
       = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper();
@@ -450,7 +450,7 @@ public class GrouperProvisionerGrouperDao {
   public void fixGrouperProvisioningMembershipReferences() {
     
     GrouperProvisioningLists grouperProvisioningObjects = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
     
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
@@ -630,7 +630,7 @@ public class GrouperProvisionerGrouperDao {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     GrouperProvisioningLists grouperProvisioningObjects = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
     
     {
       long start = System.currentTimeMillis();
@@ -658,7 +658,7 @@ public class GrouperProvisionerGrouperDao {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     GrouperProvisioningLists grouperProvisioningObjects = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
     
     {
       long start = System.currentTimeMillis();
