@@ -3,9 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 
 /**
  * index objects by uuid or by matching id.  Generally this is what should be used to process

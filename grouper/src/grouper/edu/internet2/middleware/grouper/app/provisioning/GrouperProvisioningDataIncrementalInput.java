@@ -1,15 +1,13 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
+/**
+ * contains data to process for incremental
+ * @author mchyzer
+ *
+ */
 public class GrouperProvisioningDataIncrementalInput {
 
   public GrouperProvisioningDataIncrementalInput() {

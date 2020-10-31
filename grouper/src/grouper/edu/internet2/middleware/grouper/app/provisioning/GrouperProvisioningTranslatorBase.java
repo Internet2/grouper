@@ -45,7 +45,7 @@ public class GrouperProvisioningTranslatorBase {
    */
   public void translateGrouperToTarget() {
     this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects(), 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects(), false);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects(), false);
   }
 
   /**
@@ -57,7 +57,7 @@ public class GrouperProvisioningTranslatorBase {
   public void translateGrouperToTargetIncludeDeletes() {
     // note, this wont do anything in a full sync since the includeDelete objects are not there
     this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjectsIncludeDeletes(), 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes(), true);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes(), true);
   }
 
   /**
@@ -673,21 +673,21 @@ public class GrouperProvisioningTranslatorBase {
   }
 
   public void matchingIdTargetObjects() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjects().getProvisioningMemberships());
+    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships());
   }
   
   public void matchingIdGrouperObjects() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningMemberships());
 
   }
   public void matchingIdGrouperObjectsIncludeDeletes() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
+    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
 
   }
 

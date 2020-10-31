@@ -74,98 +74,6 @@ public class GrouperProvisioningData {
     this.grouperProvisioningObjectsIncludeDeletes = grouperProvisioningObjectsIncludeDeletes;
   }
 
-  /**
-   * target data from first pass data retrieve
-   */
-  private GrouperProvisioningLists targetProvisioningObjects = new GrouperProvisioningLists();
-  
-  /**
-   * normal translation (not for insert)
-   */
-  private GrouperProvisioningLists grouperTargetObjects = new GrouperProvisioningLists();
-
-  /**
-   * objects which were changed in link
-   */
-  private GrouperProvisioningLists grouperTargetObjectsChangedInLink = new GrouperProvisioningLists();
-
-  /**
-   * objects which were changed in link
-   * @return
-   */
-  public GrouperProvisioningLists getGrouperTargetObjectsChangedInLink() {
-    return grouperTargetObjectsChangedInLink;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   */
-  private GrouperProvisioningLists targetProvisioningObjectsMissingCreated = new GrouperProvisioningLists();
-
-  
-  
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   * @return
-   */
-  public GrouperProvisioningLists getTargetProvisioningObjectsMissingCreated() {
-    return targetProvisioningObjectsMissingCreated;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   * @param targetProvisioningObjectsMissingCreated
-   */
-  public void setTargetProvisioningObjectsMissingCreated(
-      GrouperProvisioningLists targetProvisioningObjectsMissingCreated) {
-    this.targetProvisioningObjectsMissingCreated = targetProvisioningObjectsMissingCreated;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   */
-  private GrouperProvisioningLists targetProvisioningObjectsMissingRetrieved = new GrouperProvisioningLists();
-
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   * @return
-   */
-  public GrouperProvisioningLists getTargetProvisioningObjectsMissingRetrieved() {
-    return targetProvisioningObjectsMissingRetrieved;
-  }
-
-  /**
-   * in incremental keep track of groups and entities we need to retrieve or create in target before group link
-   * @param grouperTargetObjectsMissingRetrieved
-   */
-  public void setTargetProvisioningObjectsMissingRetrieved(
-      GrouperProvisioningLists grouperTargetObjectsMissingRetrieved) {
-    this.targetProvisioningObjectsMissingRetrieved = grouperTargetObjectsMissingRetrieved;
-  }
-
-  /**
-   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
-   */
-  private GrouperProvisioningLists grouperTargetObjectsIncludeDeletes = new GrouperProvisioningLists();
-  
-  /**
-   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
-   * @return
-   */
-  public GrouperProvisioningLists getGrouperTargetObjectsIncludeDeletes() {
-    return grouperTargetObjectsIncludeDeletes;
-  }
-
-  /**
-   * grouper state of the data but include deletes so that the right stuff can be retrieved from the target
-   * @param grouperTargetObjectsIncludeDeletes
-   */
-  public void setGrouperTargetObjectsIncludeDeletes(
-      GrouperProvisioningLists grouperTargetObjectsIncludeDeletes) {
-    this.grouperTargetObjectsIncludeDeletes = grouperTargetObjectsIncludeDeletes;
-  }
-
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -191,33 +99,6 @@ public class GrouperProvisioningData {
   public void setGrouperProvisioningObjects(
       GrouperProvisioningLists grouperProvisioningObjects) {
     this.grouperProvisioningObjects = grouperProvisioningObjects;
-  }
-
-  
-  public GrouperProvisioningLists getGrouperTargetObjects() {
-    return grouperTargetObjects;
-  }
-
-  
-  public void setGrouperTargetObjects(GrouperProvisioningLists grouperCommonObjects) {
-    this.grouperTargetObjects = grouperCommonObjects;
-  }
-
-  /**
-   * target data from first pass data retrieve
-   * @return
-   */
-  public GrouperProvisioningLists getTargetProvisioningObjects() {
-    return targetProvisioningObjects;
-  }
-
-  /**
-   * target data from first pass data retrieve
-   * @param targetProvisioningObjects
-   */
-  public void setTargetProvisioningObjects(
-      GrouperProvisioningLists targetProvisioningObjects) {
-    this.targetProvisioningObjects = targetProvisioningObjects;
   }
 
   

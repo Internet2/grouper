@@ -75,9 +75,9 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "targetAttributeManipulation");
       // assign matching id to target objects
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterForSelect(
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
+          this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects());
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributes(
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningObjects());
+          this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects());
       
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.targetAttributeManipulation);
@@ -106,14 +106,14 @@ public class GrouperProvisioningLogic {
       {
         List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningGroups();
         List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetGroups(grouperProvisioningGroups, false, false);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().setProvisioningGroups(grouperTargetGroups);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningGroups(grouperTargetGroups);
       }
       
       {
         List<ProvisioningEntity> grouperProvisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningEntities();
         List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(
             grouperProvisioningEntities, false, false);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().setProvisioningEntities(grouperTargetEntities);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningEntities(grouperTargetEntities);
       }    
 
     } finally {
@@ -123,9 +123,9 @@ public class GrouperProvisioningLogic {
     try {
       debugMap.put("state", "matchingIdGrouperGroupsEntities");
       this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningGroups());
       this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningEntities());
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperGroupsEntities);
     }
@@ -135,12 +135,12 @@ public class GrouperProvisioningLogic {
       
       // index the groups and entity matching ids
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperGroups(
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningGroups());
+          this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningGroups());
       
       debugMap.put("state", "indexMatchingIdOfGrouperEntities");
       
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperEntities(
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningEntities());
+          this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningEntities());
     }
 
     debugMap.put("state", "indexMatchingIdOfTargetGroupsEntities");
@@ -171,7 +171,7 @@ public class GrouperProvisioningLogic {
         List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperProvisioningObjects().getProvisioningMemberships();
         List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
             grouperProvisioningMemberships, false);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
       }    
 
     } finally {
@@ -180,14 +180,14 @@ public class GrouperProvisioningLogic {
 
     try {
       debugMap.put("state", "matchingIdGrouperMemberships");
-      this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningMemberships());
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
     }
 
     // index the memberships
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperMemberships(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjects().getProvisioningMemberships());
+        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningMemberships());
 
     // index target memberships
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfTargetMemberships();
@@ -352,7 +352,7 @@ public class GrouperProvisioningLogic {
       TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
         = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest());
       if (targetDaoRetrieveIncrementalDataResponse != null) {
-        grouperProvisioner.retrieveGrouperProvisioningData().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
+        grouperProvisioner.retrieveGrouperProvisioningDataTarget().setTargetProvisioningObjects(targetDaoRetrieveIncrementalDataResponse.getTargetData());
       }
 
       long retrieveDataPass2 = System.currentTimeMillis()-start;
@@ -496,7 +496,7 @@ public class GrouperProvisioningLogic {
     // index
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(targetGroups);
     
-    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsCreated);
 
@@ -588,7 +588,7 @@ public class GrouperProvisioningLogic {
     // index
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(targetEntities);
     
-    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesCreated);
 
@@ -621,7 +621,7 @@ public class GrouperProvisioningLogic {
     {
       //the groups only should be the full list of grouper target groups
       List<ProvisioningGroup> grouperTargetGroupsForGroupOnly = new ArrayList<ProvisioningGroup>(
-          GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups()));
+          GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups()));
       targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(grouperTargetGroupsForGroupOnly);
     }
 
@@ -634,7 +634,7 @@ public class GrouperProvisioningLogic {
     {
       //the entities only should be the full list of grouper target entities
       List<ProvisioningEntity> grouperTargetEntitiesForEntityOnly = new ArrayList<ProvisioningEntity>(
-          GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities()));
+          GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities()));
       targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(grouperTargetEntitiesForEntityOnly);
     }
     {
@@ -759,7 +759,7 @@ public class GrouperProvisioningLogic {
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
               .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
-          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningData()
+          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
             .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetData());
         } catch (RuntimeException re) {
           LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
@@ -1397,7 +1397,7 @@ public class GrouperProvisioningLogic {
     // index
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(targetGroups);
 
-    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningObjectsMissingRetrieved().setProvisioningGroups(targetGroups);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingRetrieved().setProvisioningGroups(targetGroups);
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsRetrieved);
     

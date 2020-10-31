@@ -125,7 +125,11 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningData grouperProvisioningData;
 
+  private GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget;
+
   private GrouperProvisioningDataSync grouperProvisioningDataSync;
+
+  private GrouperProvisioningDataTarget grouperProvisioningDataTarget;
 
   private GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput ;
 
@@ -134,11 +138,6 @@ public abstract class GrouperProvisioner {
   private GrouperProvisioningDataIndex grouperProvisioningDataIndex;
 
   
-  public void setGrouperProvisioningDataChanges(
-      GrouperProvisioningDataChanges grouperProvisioningDataChanges) {
-    this.grouperProvisioningDataChanges = grouperProvisioningDataChanges;
-  }
-
   public Map<String, Object> getDebugMap() {
     return debugMap;
   }
@@ -584,12 +583,23 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningDataSync;
   }
 
-  
-  public void setGrouperProvisioningDataSync(
-      GrouperProvisioningDataSync grouperProvisioningDataSync) {
-    this.grouperProvisioningDataSync = grouperProvisioningDataSync;
+  public GrouperProvisioningDataGrouperTarget retrieveGrouperProvisioningDataGrouperTarget() {
+    if (this.grouperProvisioningDataGrouperTarget == null) {
+      this.grouperProvisioningDataGrouperTarget = new GrouperProvisioningDataGrouperTarget();
+      this.grouperProvisioningDataGrouperTarget.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataGrouperTarget;
   }
 
+  public GrouperProvisioningDataTarget retrieveGrouperProvisioningDataTarget() {
+    if (this.grouperProvisioningDataTarget == null) {
+      this.grouperProvisioningDataTarget = new GrouperProvisioningDataTarget();
+      this.grouperProvisioningDataTarget.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataTarget;
+  }
+
+  
   public GrouperProvisioningDataIncrementalInput retrieveGrouperProvisioningDataIncrementalInput() {
     if (this.grouperProvisioningDataIncrementalInput == null) {
       this.grouperProvisioningDataIncrementalInput = new GrouperProvisioningDataIncrementalInput();
@@ -599,17 +609,6 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public void setGrouperProvisioningDataIncrementalInput(
-      GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput) {
-    this.grouperProvisioningDataIncrementalInput = grouperProvisioningDataIncrementalInput;
-  }
-
-  
-  public void setGrouperProvisioningDataIndex(
-      GrouperProvisioningDataIndex grouperProvisioningDataIndex) {
-    this.grouperProvisioningDataIndex = grouperProvisioningDataIndex;
-  }
-
   public GrouperProvisioningDataChanges retrieveGrouperProvisioningDataChanges() {
     if (this.grouperProvisioningDataChanges == null) {
       this.grouperProvisioningDataChanges = new GrouperProvisioningDataChanges();

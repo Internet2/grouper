@@ -259,7 +259,7 @@ public class GrouperProvisioningLinkLogic {
       
       if (GrouperUtil.length(grouperTargetGroups) > 0) {
         
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
+        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
         
         this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroups(grouperTargetGroups, true, false, false);
         this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
@@ -438,7 +438,7 @@ public class GrouperProvisioningLinkLogic {
       
       if (GrouperUtil.length(grouperTargetEntities) > 0) {
         
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
+        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
         
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperEntities(grouperTargetEntities);
         

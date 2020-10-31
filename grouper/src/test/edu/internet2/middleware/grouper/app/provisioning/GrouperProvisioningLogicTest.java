@@ -67,6 +67,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
     GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+    GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();
     
     GrouperProvisioningLists grouperProvisioningObjects = grouperProvisioningData.getGrouperProvisioningObjects();
     
@@ -102,16 +103,16 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     translator.translateGrouperToTarget();
     
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
-    ProvisioningGroup targetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningGroups().size());
+    ProvisioningGroup targetGroup = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningGroups().get(0);
     assertEquals("testName", targetGroup.getId());
     
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
-    ProvisioningEntity targetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningEntities().size());
+    ProvisioningEntity targetEntity = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningEntities().get(0);
     assertEquals("testSubjectId", targetEntity.getId());
     
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().size());
-    ProvisioningMembership targetMembership = grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningMemberships().size());
+    ProvisioningMembership targetMembership = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningMemberships().get(0);
     assertEquals("testName", targetMembership.getAttributes().get("group_name").getValue().toString());
     assertEquals("testSubjectId", targetMembership.getAttributes().get("subject_id").getValue().toString());
   }
@@ -146,8 +147,9 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
     translator.setGrouperProvisioner(grouperProvisioner);
     GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+    GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();
     
-    GrouperProvisioningLists grouperTargetObjects = grouperProvisioningData.getGrouperTargetObjects();
+    GrouperProvisioningLists grouperTargetObjects = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects();
     
     List<ProvisioningGroup> grouperProvisioningGroups = new ArrayList<ProvisioningGroup>();
     ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
@@ -181,16 +183,16 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     translator.matchingIdGrouperObjects();
     
     // then
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().size());
-    ProvisioningGroup targetGroup = grouperProvisioningData.getGrouperTargetObjects().getProvisioningGroups().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningGroups().size());
+    ProvisioningGroup targetGroup = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningGroups().get(0);
     assertEquals("testName", targetGroup.getMatchingId());
     
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().size());
-    ProvisioningEntity targetEntity = grouperProvisioningData.getGrouperTargetObjects().getProvisioningEntities().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningEntities().size());
+    ProvisioningEntity targetEntity = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningEntities().get(0);
     assertEquals("testSubjectId", targetEntity.getMatchingId());
     
-    assertEquals(1, grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().size());
-    ProvisioningMembership targetMembership = grouperProvisioningData.getGrouperTargetObjects().getProvisioningMemberships().get(0);
+    assertEquals(1, grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningMemberships().size());
+    ProvisioningMembership targetMembership = grouperProvisioningDataGrouperTarget.getGrouperTargetObjects().getProvisioningMemberships().get(0);
     assertEquals("testName", ((MultiKey)targetMembership.getMatchingId()).getKey(0));
     assertEquals("testSubjectId", ((MultiKey)targetMembership.getMatchingId()).getKey(1));
     

@@ -7,7 +7,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
- * grouper sync objects
+ * grouper sync objects retrieved from database on first retrieve
  * @author mchyzer
  *
  */
