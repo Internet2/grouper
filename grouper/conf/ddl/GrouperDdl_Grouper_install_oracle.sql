@@ -1814,6 +1814,8 @@ CREATE TABLE grouper_sync_log
     job_took_millis INTEGER,
     server VARCHAR2(200),
     last_updated DATE NOT NULL,
+    description_clob CLOB,
+    description_bytes INTEGER,
     PRIMARY KEY (id)
 );
 
@@ -6637,3 +6639,12 @@ COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if
 COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
 
 COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';
+
+COMMENT ON COLUMN grouper_sync_log.description_clob IS 'description for large data';
+
+COMMENT ON COLUMN grouper_sync_log.description_bytes IS 'size of description in bytes';
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 35, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V35, ');
+commit;

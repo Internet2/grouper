@@ -432,7 +432,7 @@ public class GrouperDdlEngine {
     //see if already in db
     if (upgradeDdlTable || ((!GrouperDdlUtils.containsDbRecord(objectName) || dropBeforeCreate) 
         && !GrouperDdlUtils.alreadyInsertedForObjectName.contains(objectName))) {
-    
+
       result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
           "last_updated, history) values ('" + GrouperUuid.getUuid() 
           +  "', '" + objectName + "', " + javaVersion + ", '" + timestamp + "', \n'" + historyString + "');\n");
@@ -826,15 +826,6 @@ public class GrouperDdlEngine {
   
           script.append(localScript).append("\n");
           
-          //make sure no single quotes in any of these...
-          String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-          //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-          String summary = timestamp + ": upgrade " + objectName + " from V" + (fromVersions.get(i)) + " to V" + toVersions.get(i);
-          
-          addGrouperDdlLogEntryIfNeeded(objectName, script, historyBuilder, javaVersion,
-              timestamp, summary, upgradeDdlTable);
-          
-   
         }
         
       }

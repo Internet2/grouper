@@ -22,65 +22,27 @@ package edu.internet2.middleware.grouper.ldap;
  */
 public class LdapModificationAttributeError {
 
+  private LdapModificationItem ldapModificationItem;
+
   /**
-   * attribute with error if applicable
+   * @return ldap modification item that had error
    */
-  private LdapAttribute ldapAttribute;
-  
-  /**
-   * modification type that had issue
-   */
-  private LdapModificationType ldapModificationType;
-  
-  /**
-   * @return attribute with error if applicable
-   */
-  public LdapAttribute getLdapAttribute() {
-    return ldapAttribute;
+  public LdapModificationItem getLdapModificationItem() {
+    return ldapModificationItem;
   }
 
   /**
-   * @param ldapAttribute attribute with error if applicable
+   * @param ldapModificationItem
    */
-  public void setLdapAttribute(LdapAttribute ldapAttribute) {
-    this.ldapAttribute = ldapAttribute;
-  }
-
-  /**
-   * @return modification type that had issue
-   */
-  public LdapModificationType getLdapModificationType() {
-    return ldapModificationType;
-  }
-
-  /**
-   * @param ldapModificationType modification type that had issue
-   */
-  public void setLdapModificationType(LdapModificationType ldapModificationType) {
-    this.ldapModificationType = ldapModificationType;
-  }
-
-  /**
-   * error code if applicable
-   * @return error code
-   */
-  public String getErrorCode() {
-    return this.errorCode;
-  }
-
-  /**
-   * error code if applicable
-   * @param errorCode1
-   */
-  public void setErrorCode(String errorCode1) {
-    this.errorCode = errorCode1;
+  public void setLdapModificationItem(LdapModificationItem ldapModificationItem) {
+    this.ldapModificationItem = ldapModificationItem;
   }
 
   /**
    * error if applicable
    * @return error
    */
-  public Throwable getError() {
+  public Exception getError() {
     return this.error;
   }
 
@@ -88,18 +50,13 @@ public class LdapModificationAttributeError {
    * error if applicable
    * @param error1
    */
-  public void setError(Throwable error1) {
+  public void setError(Exception error1) {
     this.error = error1;
   }
-
-  /**
-   * error code if applicable
-   */
-  private String errorCode;
   
   /**
    * exception
    */
-  private Throwable error;
+  private Exception error;
   
 }

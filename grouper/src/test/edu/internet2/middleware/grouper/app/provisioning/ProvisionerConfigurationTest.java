@@ -184,7 +184,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
 
     GcGrouperSyncLog gcGrouperSyncLog = new GcGrouperSyncLog();
-    gcGrouperSyncLog.setDescription("desc");
+    gcGrouperSyncLog.setDescriptionToSave("desc");
     gcGrouperSyncLog.setJobTookMillis(1232);
     gcGrouperSyncLog.setRecordsChanged(12);
     gcGrouperSyncLog.setRecordsProcessed(23);
@@ -212,7 +212,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
-    assertEquals("desc", grouperSyncLog.getDescription());
+    assertEquals("desc", grouperSyncLog.retrieveDescription());
     
     provisionerConfiguration.deleteConfig(false); // delete the config
     
@@ -424,7 +424,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
 
     GcGrouperSyncLog gcGrouperSyncLog = new GcGrouperSyncLog();
-    gcGrouperSyncLog.setDescription("desc");
+    gcGrouperSyncLog.setDescriptionToSave("desc");
     gcGrouperSyncLog.setJobTookMillis(1232);
     gcGrouperSyncLog.setRecordsChanged(12);
     gcGrouperSyncLog.setRecordsProcessed(23);
@@ -451,7 +451,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
-    assertEquals("desc", grouperSyncLog.getDescription());
+    assertEquals("desc", grouperSyncLog.retrieveDescription());
     
     provisionerConfiguration.deleteConfig(false); // delete the config
     

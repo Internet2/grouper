@@ -115,6 +115,11 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateExpressionCreateOnly;
   
   /**
+   * expression when translating a group or entity membership attribute
+   */
+  private String translateExpressionFromMembership;
+  
+  /**
    * if this attribute is used as the matching id
    */
   private boolean matchingId;
@@ -301,5 +306,19 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   
-  
+  /**
+   * @return expression when translating a group or entity membership attribute
+   */
+  public String getTranslateExpressionFromMembership() {
+    return translateExpressionFromMembership;
+  }
+
+  /**
+   * expression when translating a group or entity membership attribute
+   * @param translateExpressionFromMembership
+   */
+  public void setTranslateExpressionFromMembership(
+      String translateExpressionFromMembership) {
+    this.translateExpressionFromMembership = translateExpressionFromMembership;
+  }
 }

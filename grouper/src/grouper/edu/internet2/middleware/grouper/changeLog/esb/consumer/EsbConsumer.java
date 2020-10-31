@@ -886,7 +886,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       
       try {
         if (this.grouperProvisioningProcessingResult != null && this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
-          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescription(debugMapToString);
+          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescriptionToSave(debugMapToString);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setJobTookMillis((int)tookMillis);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setRecordsProcessed(GrouperUtil.length(allEsbEventContainers));
           this.grouperProvisioningProcessingResult.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(

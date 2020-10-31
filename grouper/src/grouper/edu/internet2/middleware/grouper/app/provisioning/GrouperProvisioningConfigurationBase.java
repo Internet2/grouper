@@ -417,44 +417,6 @@ public abstract class GrouperProvisioningConfigurationBase {
    * If users need to be resolved in the target before provisioning
    */
   private boolean hasTargetEntityLink = false;
-
-  /**
-   * userSearchAttributeName employeeID  attribute to filter on  required if userAttributes or hasTargetUserLink
-   */
-  private String userSearchAttributeName = null;
-
-  /**
-   * userSearchAttributeValueFormat ${subject.id}, ${targetEntity.dn}, ${targetEntity.attributes['uid']}
-   */
-  private String userSearchAttributeValueFormat = null;
-
-
-  /**
-   * value for the user search attribute name  required if userAttributes or hasTargetUserLink
-   * userAttributeReferredToByGroup  dn  in group memberships, this is the value that refers to the user 
-   * optional. show if groupMemberships and hasTargetUserLink
-   */
-  private String userAttributeReferredToByGroup = null;
-
-  /**
-   * for subject link, this is the subject api identifier that is needed to look up the target user
-   */
-  private String subjectApiAttributeForTargetUser = null;
-
-  /**
-   * in user attributes, this is the value that refers to the group. show if userAttributes and hasTargetGroupLink. defaults to dn
-   */
-  private String groupAttributeReferredToByUser = null;
-
-  /**
-   * ${targetEntity.attributes['dn']}  main identifier of the user on the target side  show = false
-   */
-  private String syncMemberToId2AttributeValueFormat = null;
-  
-  /**
-   * ${targetEntity.attributes['uid']} identifier of the user as referred to by the group
-   */
-  private String syncMemberToId3AttributeValueFormat = null;
   
   /**
    * subject sources to provision  optional, defaults to all except g:gsa, grouperExternal, g:isa, localEntities. comma separated list. checkboxes. 
@@ -523,35 +485,6 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setSubjectLinkMemberToId3(String subjectLinkMemberToId3) {
     this.subjectLinkMemberToId3 = subjectLinkMemberToId3;
   }
-
-  /**
-   * target attribute value that helps look up user, ${targetEntity.attributes['netId']} 
-   */
-  private String syncMemberFromId2AttributeValueFormat = null;
-  
-  /**
-   * ${subject.attributes['myLdapId']} subject attribute value that helps look up user
-   */
-  private String syncMemberFromId3AttributeValueFormat = null;
-  
-  /**
-   * group id that identifies a group
-   */
-  private String syncGroupToId2AttributeValueFormat = null;
-  
-  /**
-   * id from membership or use that refers to group
-   */
-  private String syncGroupToId3AttributeValueFormat = null;
-  
-  /**
-   * target attribute that looks up the group
-   */
-  private String syncGroupFromId2AttributeValueFormat = null;
- 
-  /**
-   */
-  private String syncGroupFromId3AttributeValueFormat = null;
   
   /**
    * attributes to query when retrieving users, e.g.
@@ -656,19 +589,14 @@ public abstract class GrouperProvisioningConfigurationBase {
    * if should create missing groups, default true
    */
   private boolean createMissingGroups = true;
-
-  /**
-   * attribute name of target group used to lookup group, gidNumber
-   */
-  private String groupSearchAttributeName = null;
   
   /**
-   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId
    */
   private String userSearchFilter = null;
   
   /**
-   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId
    * @return
    */
   public String getUserSearchFilter() {
@@ -676,7 +604,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
-   * search filter to look up entity if cannot just use the matchingId and userSearchAttributeName
+   * search filter to look up entity if cannot just use the matchingId
    * @param userSearchFilter
    */
   public void setUserSearchFilter(String userSearchFilter) {
@@ -786,14 +714,14 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
-   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId
    */
   private String groupSearchFilter = null;
   
   
   
   /**
-   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId
    * @return
    */
   public String getGroupSearchFilter() {
@@ -803,17 +731,12 @@ public abstract class GrouperProvisioningConfigurationBase {
 
 
   /**
-   * search filter to look up group if cannot just use the matchingId and groupSearchAttributeName
+   * search filter to look up group if cannot just use the matchingId
    * @param groupSearchFilter
    */
   public void setGroupSearchFilter(String groupSearchFilter) {
     this.groupSearchFilter = groupSearchFilter;
   }
-
-  /**
-   * EL scriptlet to get to the group attribute name, ${syncGroup.groupIdIndex}
-   */
-  private String groupSearchAttributeValueFormat = null;
   
   /**
    * true or false if groups in full sync should be deleted if in group all filter and not in grouper
@@ -916,12 +839,15 @@ public abstract class GrouperProvisioningConfigurationBase {
   
         {
           boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
+          String translateExpressionFromMembership = this.retrieveConfigString(objectType + "." + i + ".translateExpressionFromMembership", false);
           if (membershipAttribute) {
             if (foundMembershipAttribute) {
               throw new RuntimeException("Can only have one " + objectType + " membershipAttribute attribute or field! " + name + ", " + foundMembershipAttributeName);
             }
             foundMembershipAttribute = true;
             foundMembershipAttributeName = name;
+            
+            attributeConfig.setTranslateExpressionFromMembership(translateExpressionFromMembership);
           }
           attributeConfig.setMembershipAttribute(membershipAttribute);
         }
@@ -1054,21 +980,6 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
     }
     this.debugMap.put("subjectSourcesToProvision", GrouperUtil.join(this.subjectSourcesToProvision.iterator(), ','));
-    
-    this.userSearchAttributeName = this.retrieveConfigString("userSearchAttributeName", this.hasTargetEntityLink);
-    if (!StringUtils.isBlank(this.userSearchAttributeName)) {
-      this.debugMap.put("userSearchAttributeName", this.userSearchAttributeName);
-    }
-
-    this.userSearchAttributeValueFormat = this.retrieveConfigString("userSearchAttributeValueFormat", !StringUtils.isBlank(this.userSearchAttributeName));
-    if (!StringUtils.isBlank(this.userSearchAttributeValueFormat)) {
-      this.debugMap.put("userSearchAttributeValueFormat", this.userSearchAttributeValueFormat);
-    }
-
-    if (StringUtils.isBlank(this.userSearchAttributeName) != StringUtils.isBlank(this.userSearchAttributeValueFormat)) {
-      throw new RuntimeException("If you specify userSearchAttributeName then you must specify userSearchAttributeValueFormat and vise versa! '" 
-          + this.userSearchAttributeName + "', '" + this.userSearchAttributeValueFormat + "'");
-    }
 
     this.subjectLinkMemberFromId2 = this.retrieveConfigString("common.subjectLink.memberFromId2", false);
     this.subjectLinkMemberFromId3 = this.retrieveConfigString("common.subjectLink.memberFromId3", false);
@@ -1089,28 +1000,6 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
     this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
     
-    this.userAttributeReferredToByGroup = this.retrieveConfigString("userAttributeReferredToByGroup", this.hasTargetEntityLink);
-    
-    this.subjectApiAttributeForTargetUser = this.retrieveConfigString("subjectApiAttributeForTargetUser", this.hasSubjectLink);
-
-    this.groupAttributeReferredToByUser = this.retrieveConfigString("groupAttributeReferredToByUser", this.hasTargetGroupLink);
-    
-    this.syncMemberToId2AttributeValueFormat = this.retrieveConfigString("syncMemberToId2AttributeValueFormat", this.hasTargetEntityLink);
-
-    this.syncMemberToId3AttributeValueFormat = this.retrieveConfigString("syncMemberToId3AttributeValueFormat", this.hasTargetEntityLink);
-
-    this.syncMemberFromId2AttributeValueFormat = this.retrieveConfigString("syncMemberFromId2AttributeValueFormat", this.hasTargetEntityLink);
-
-    this.syncMemberFromId3AttributeValueFormat = this.retrieveConfigString("syncMemberFromId3AttributeValueFormat", this.hasSubjectLink);
-
-    this.syncGroupToId2AttributeValueFormat = this.retrieveConfigString("syncGroupToId2AttributeValueFormat", this.hasTargetGroupLink);
-
-    this.syncGroupToId3AttributeValueFormat = this.retrieveConfigString("syncGroupToId3AttributeValueFormat", this.hasTargetGroupLink);
-
-    this.syncGroupFromId2AttributeValueFormat = this.retrieveConfigString("syncGroupFromId2AttributeValueFormat", this.hasTargetGroupLink);
-
-    this.syncGroupFromId3AttributeValueFormat = this.retrieveConfigString("syncGroupFromId3AttributeValueFormat", false);
-
     this.userSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userSearchAttributes", false), ",");
     if (this.userSearchAttributes == null) {
       this.userSearchAttributes = new HashSet<String>();
@@ -1122,24 +1011,57 @@ public abstract class GrouperProvisioningConfigurationBase {
     }
     
     this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
-
+    if (this.userAttributesMultivalued == null) {
+      this.userAttributesMultivalued = new HashSet<String>();
+    }
+    
     this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
+    if (this.groupAttributesMultivalued == null) {
+      this.groupAttributesMultivalued = new HashSet<String>(); 
+    }
+    
+    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isSelect()) {
+        this.groupSearchAttributes.add(targetGroupAttributeName);
+      }
+      
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
+        this.groupAttributeNameForMemberships = targetGroupAttributeName;
+      }
+      
+      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMultiValued()) {
+        this.groupAttributesMultivalued.add(targetGroupAttributeName);
+      }
+    }
+    
+    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isSelect()) {
+        this.userSearchAttributes.add(targetEntityAttributeName);
+      }
+      
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
+        this.userAttributeNameForMemberships = targetEntityAttributeName;
+      }
+      
+      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMultiValued()) {
+        this.userAttributesMultivalued.add(targetEntityAttributeName);
+      }
+    }
     
     this.createMissingUsers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("createMissingUsers", false), false);
 
     this.createMissingGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("createMissingGroups", false), true);
 
-    this.groupSearchAttributeName = this.retrieveConfigString("groupSearchAttributeName", false);
-
-    this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
+      this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("groupAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or groupAttributeNameForMemberships");
+    }
     
-    this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
-
-    this.groupSearchAttributeValueFormat = this.retrieveConfigString("groupSearchAttributeValueFormat", false);
-    
-    if (StringUtils.isBlank(this.groupSearchAttributeName) != StringUtils.isBlank(this.groupSearchAttributeValueFormat)) {
-      throw new RuntimeException("If you specify groupSearchAttributeName then you must specify groupSearchAttributeValueFormat and vise versa! '" 
-          + this.groupSearchAttributeName + "', '" + this.groupSearchAttributeValueFormat + "'");
+    if (StringUtils.isEmpty(this.userAttributeNameForMemberships)) {
+      this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("userAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or userAttributeNameForMemberships");
     }
 
     this.deleteInTargetIfInTargetAndNotGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteInTargetIfInTargetAndNotGrouper", false), false);
@@ -1434,79 +1356,6 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setHasTargetEntityLink(boolean hasTargetUserLink) {
     this.hasTargetEntityLink = hasTargetUserLink;
   }
-
-  
-  public String getUserSearchAttributeName() {
-    return userSearchAttributeName;
-  }
-
-  
-  public void setUserSearchAttributeName(String userSearchAttributeName) {
-    this.userSearchAttributeName = userSearchAttributeName;
-  }
-
-  
-  public String getUserSearchAttributeValueFormat() {
-    return userSearchAttributeValueFormat;
-  }
-
-  
-  public void setUserSearchAttributeValueFormat(String userSearchAttributeValueFormat) {
-    this.userSearchAttributeValueFormat = userSearchAttributeValueFormat;
-  }
-
-  
-  public String getUserAttributeReferredToByGroup() {
-    return userAttributeReferredToByGroup;
-  }
-
-  
-  public void setUserAttributeReferredToByGroup(String userAttributeReferredToByGroup) {
-    this.userAttributeReferredToByGroup = userAttributeReferredToByGroup;
-  }
-
-  
-  public String getSubjectApiAttributeForTargetUser() {
-    return subjectApiAttributeForTargetUser;
-  }
-
-  
-  public void setSubjectApiAttributeForTargetUser(String subjectApiAttributeForTargetUser) {
-    this.subjectApiAttributeForTargetUser = subjectApiAttributeForTargetUser;
-  }
-
-  
-  public String getGroupAttributeReferredToByUser() {
-    return groupAttributeReferredToByUser;
-  }
-
-  
-  public void setGroupAttributeReferredToByUser(String groupAttributeReferredToByUser) {
-    this.groupAttributeReferredToByUser = groupAttributeReferredToByUser;
-  }
-
-  
-  public String getSyncMemberToId2AttributeValueFormat() {
-    return syncMemberToId2AttributeValueFormat;
-  }
-
-  
-  public void setSyncMemberToId2AttributeValueFormat(
-      String syncMemberToId2AttributeValueFormat) {
-    this.syncMemberToId2AttributeValueFormat = syncMemberToId2AttributeValueFormat;
-  }
-
-  
-  public String getSyncMemberToId3AttributeValueFormat() {
-    return syncMemberToId3AttributeValueFormat;
-  }
-
-  
-  public void setSyncMemberToId3AttributeValueFormat(
-      String syncMemberToId3AttributeValueFormat) {
-    this.syncMemberToId3AttributeValueFormat = syncMemberToId3AttributeValueFormat;
-  }
-
   
   public Set<String> getSubjectSourcesToProvision() {
     return subjectSourcesToProvision;
@@ -1516,73 +1365,6 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setSubjectSourcesToProvision(Set<String> subjectSourcesToProvision) {
     this.subjectSourcesToProvision = subjectSourcesToProvision;
   }
-
-  
-  public String getSyncMemberFromId2AttributeValueFormat() {
-    return syncMemberFromId2AttributeValueFormat;
-  }
-
-  
-  public void setSyncMemberFromId2AttributeValueFormat(
-      String syncMemberFromId2AttributeValueFormat) {
-    this.syncMemberFromId2AttributeValueFormat = syncMemberFromId2AttributeValueFormat;
-  }
-
-  
-  public String getSyncMemberFromId3AttributeValueFormat() {
-    return syncMemberFromId3AttributeValueFormat;
-  }
-
-  
-  public void setSyncMemberFromId3AttributeValueFormat(
-      String syncMemberFromId3AttributeValueFormat) {
-    this.syncMemberFromId3AttributeValueFormat = syncMemberFromId3AttributeValueFormat;
-  }
-
-  
-  public String getSyncGroupToId2AttributeValueFormat() {
-    return syncGroupToId2AttributeValueFormat;
-  }
-
-  
-  public void setSyncGroupToId2AttributeValueFormat(
-      String syncGroupToId2AttributeValueFormat) {
-    this.syncGroupToId2AttributeValueFormat = syncGroupToId2AttributeValueFormat;
-  }
-
-  
-  public String getSyncGroupToId3AttributeValueFormat() {
-    return syncGroupToId3AttributeValueFormat;
-  }
-
-  
-  public void setSyncGroupToId3AttributeValueFormat(
-      String syncGroupToId3AttributeValueFormat) {
-    this.syncGroupToId3AttributeValueFormat = syncGroupToId3AttributeValueFormat;
-  }
-
-  
-  public String getSyncGroupFromId2AttributeValueFormat() {
-    return syncGroupFromId2AttributeValueFormat;
-  }
-
-  
-  public void setSyncGroupFromId2AttributeValueFormat(
-      String syncGroupFromId2AttributeValueFormat) {
-    this.syncGroupFromId2AttributeValueFormat = syncGroupFromId2AttributeValueFormat;
-  }
-
-  
-  public String getSyncGroupFromId3AttributeValueFormat() {
-    return syncGroupFromId3AttributeValueFormat;
-  }
-
-  
-  public void setSyncGroupFromId3AttributeValueFormat(
-      String syncGroupFromId3AttributeValueFormat) {
-    this.syncGroupFromId3AttributeValueFormat = syncGroupFromId3AttributeValueFormat;
-  }
-
   
   public Set<String> getUserSearchAttributes() {
     return userSearchAttributes;
@@ -1642,27 +1424,6 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setCreateMissingGroups(boolean createMissingGroups) {
     this.createMissingGroups = createMissingGroups;
   }
-
-  
-  public String getGroupSearchAttributeName() {
-    return groupSearchAttributeName;
-  }
-
-  
-  public void setGroupSearchAttributeName(String groupSearchAttributeName) {
-    this.groupSearchAttributeName = groupSearchAttributeName;
-  }
-
-  
-  public String getGroupSearchAttributeValueFormat() {
-    return groupSearchAttributeValueFormat;
-  }
-
-  
-  public void setGroupSearchAttributeValueFormat(String groupSearchAttributeValueFormat) {
-    this.groupSearchAttributeValueFormat = groupSearchAttributeValueFormat;
-  }
-
   
   public boolean isDeleteInTargetIfInTargetAndNotGrouper() {
     return deleteInTargetIfInTargetAndNotGrouper;

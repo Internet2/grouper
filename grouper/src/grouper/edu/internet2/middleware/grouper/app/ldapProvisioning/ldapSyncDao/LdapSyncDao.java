@@ -255,8 +255,7 @@ public abstract class LdapSyncDao {
             
             LdapModificationAttributeError attributeError = new LdapModificationAttributeError();
             attributeError.setError(e2);
-            attributeError.setLdapAttribute(item.getAttribute());
-            attributeError.setLdapModificationType(item.getLdapModificationType());
+            attributeError.setLdapModificationItem(item);
             result.addAttributeError(attributeError);
           }
         } else {
@@ -272,8 +271,7 @@ public abstract class LdapSyncDao {
                 
                 LdapModificationAttributeError attributeError = new LdapModificationAttributeError();
                 attributeError.setError(e2);
-                attributeError.setLdapAttribute(newLdapModificationItem.getAttribute());
-                attributeError.setLdapModificationType(newLdapModificationItem.getLdapModificationType());
+                attributeError.setLdapModificationItem(newLdapModificationItem);
                 result.addAttributeError(attributeError);
               }
             }
