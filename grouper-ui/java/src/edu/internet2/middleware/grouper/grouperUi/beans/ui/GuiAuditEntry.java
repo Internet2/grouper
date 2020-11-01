@@ -988,6 +988,12 @@ public class GuiAuditEntry {
   
         case USDU_MEMBER_DELETE:
           return TextContainer.retrieveFromRequest().getText().get("audits_USDU_DELETE_MEMBER");
+          
+        case PROVISIONER_SYNC_RUN_GROUP:
+          this.setupGroup();
+          String message  = TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_GROUP");
+          message = message.replace("$$provisionerName$$", this.auditEntry.getString02());
+          return message;
         
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);

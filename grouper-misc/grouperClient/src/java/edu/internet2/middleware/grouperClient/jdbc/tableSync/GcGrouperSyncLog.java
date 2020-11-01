@@ -434,7 +434,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
    * retrieve description. based on the size, it will be retrieved from description or descriptionClob
    * @return
    */
-  public String retrieveDescription() {
+  public String getDescriptionOrDescriptionClob() {
     
     if (StringUtils.isNotBlank(description)) {
       return description;

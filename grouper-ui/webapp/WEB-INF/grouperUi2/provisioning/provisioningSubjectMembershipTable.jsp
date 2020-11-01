@@ -22,7 +22,8 @@
                   </c:if>
                 </ul>
 
-                <%@ include file="provisioningSubjectDetailsHelper.jsp" %>
+                <%@ include file="provisioningSubjectMembershipTableHelper.jsp" %>
 
               </div>
             </div>
+        

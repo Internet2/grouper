@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,40 @@ public class GuiGrouperProvisioningAttributeValue {
   }
   
   private GrouperProvisioningAttributeValue grouperProvisioningAttributeValue;
+  
+  private Timestamp lastTimeWorkWasDone;
+  
+  private boolean inTarget;
+  
+  private boolean provisionable;
+  
+  public Timestamp getLastTimeWorkWasDone() {
+    return lastTimeWorkWasDone;
+  }
+
+  public boolean isInTarget() {
+    return inTarget;
+  }
+  
+  
+  public void setLastTimeWorkWasDone(Timestamp lastTimeWorkWasDone) {
+    this.lastTimeWorkWasDone = lastTimeWorkWasDone;
+  }
+
+  
+  public void setInTarget(boolean inTarget) {
+    this.inTarget = inTarget;
+  }
+  
+  
+  public boolean isProvisionable() {
+    return provisionable;
+  }
+
+  
+  public void setProvisionable(boolean provisionable) {
+    this.provisionable = provisionable;
+  }
 
   public GrouperProvisioningAttributeValue getGrouperProvisioningAttributeValue() {
     return grouperProvisioningAttributeValue;
@@ -68,7 +103,8 @@ public class GuiGrouperProvisioningAttributeValue {
     List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
     
     for (GrouperProvisioningAttributeValue singleAttributeValue: attributeValues) {
-      guiGrouperProvisioningAttributeValues.add(new GuiGrouperProvisioningAttributeValue(singleAttributeValue));
+      GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(singleAttributeValue);
+      guiGrouperProvisioningAttributeValues.add(guiGrouperProvisioningAttributeValue);
     }
     
     return guiGrouperProvisioningAttributeValues;

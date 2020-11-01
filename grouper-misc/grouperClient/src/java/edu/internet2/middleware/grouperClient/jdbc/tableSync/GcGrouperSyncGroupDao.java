@@ -236,7 +236,7 @@ public class GcGrouperSyncGroupDao {
   }
 
   /**
-   * select grouper sync group by group id
+   * select grouper sync group by id
    * @param gcGrouperSyncGroupId
    * @return the group
    */
@@ -246,6 +246,36 @@ public class GcGrouperSyncGroupDao {
       gcGrouperSyncGroup = internal_groupRetrieveFromDbById(gcGrouperSyncGroupId);
     }
     return gcGrouperSyncGroup;
+  }
+  
+  /**
+   * select grouper sync groups by ids
+   * @param gcGrouperSyncGroupIds
+   * @return map of ids to gcGrouperSyncGroups
+   */
+  public Map<String, GcGrouperSyncGroup> groupRetrieveByIds(Collection<String> gcGrouperSyncGroupIds) {
+    
+    Map<String, GcGrouperSyncGroup> result = new HashMap<String, GcGrouperSyncGroup>();
+    
+    Set<String> groupIdsToGetFromDb = new HashSet<String>();
+    
+    // try from cache
+    for (String gcGrouperSyncGroupId : GrouperClientUtils.nonNull(gcGrouperSyncGroupIds)) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.internalCacheSyncGroupsById.get(gcGrouperSyncGroupId);
+      if (gcGrouperSyncGroup != null) {
+        result.put(gcGrouperSyncGroupId, gcGrouperSyncGroup);
+      } else {
+        groupIdsToGetFromDb.add(gcGrouperSyncGroupId);
+      }
+    }
+    
+    // or else get from db
+    if (groupIdsToGetFromDb.size() > 0) {
+      Map<String, GcGrouperSyncGroup> fromDb = internal_groupRetrieveFromDbByIds(groupIdsToGetFromDb);
+      result.putAll(fromDb);
+    }
+    
+    return result;
   }
 
   /**

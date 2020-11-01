@@ -13,14 +13,9 @@
                               >${textContainer.text['provisioningMoreActionsViewSettings'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.provisioningContainer.canWriteProvisioning}" >
+                        <c:if test="${grouperRequestContainer.provisioningContainer.canRunDaemon}" >
 	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['provisioningMoreActionsEditSettings'] }</a></li>
-                        </c:if>
-
-                        <c:if test="${grouperRequestContainer.provisioningContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Provisioning.runDaemon'); return false;"
-                              >${textContainer.text['provisioningMoreActionsRunDaemon'] }</a></li>
                         </c:if>
 
                       </ul>

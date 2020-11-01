@@ -19,19 +19,18 @@
       </ul>
     </div>
     <div class="row-fluid">
-      <div class="lead span9">${textContainer.text['provisioningGroupSettingsTitle'] }</div>
+      <div class="lead span9">${textContainer.text['provisioningGroupProvisioningTitle'] }</div>
       <div class="span3" id="grouperProvisioningGroupMoreActionsButtonContentsDivId">
         <%@ include file="provisioningGroupMoreActionsButtonContents.jsp"%>
       </div>
     </div>
+    
     <div class="row-fluid">
-      <div class="span9"> <p>${textContainer.text['provisioningGroupSettingsDescription'] }</p></div>
+      <div class="span9"> <p>${textContainer.text['provisioningGroupProvisioningDescription'] }</p></div>
     </div>
     
     <%@ include file="provisioningGroupProvisionersTableHelper.jsp"%>
     
-    <c:set var="ObjectType" value="Group" />
-    <%@ include file="provisioningSettingsView.jsp"%>
-    
   </div>
 </div>
+        
