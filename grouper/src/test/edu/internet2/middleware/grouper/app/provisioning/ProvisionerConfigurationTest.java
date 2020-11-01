@@ -212,7 +212,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
-    assertEquals("desc", grouperSyncLog.retrieveDescription());
+    assertEquals("desc", grouperSyncLog.getDescriptionOrDescriptionClob());
     
     provisionerConfiguration.deleteConfig(false); // delete the config
     
@@ -451,7 +451,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
-    assertEquals("desc", grouperSyncLog.retrieveDescription());
+    assertEquals("desc", grouperSyncLog.getDescriptionOrDescriptionClob());
     
     provisionerConfiguration.deleteConfig(false); // delete the config
     

@@ -65,5 +65,7 @@
     <property name="server" column="server"/>
     <property name="statusDb" column="status"/>
     <property name="syncTimestamp" column="sync_timestamp" type="timestamp"/>
+    <property name="descriptionClob" column="description_clob"/> 
+    <property name="descriptionBytes" column="description_bytes"/>
   </class>
 </hibernate-mapping>

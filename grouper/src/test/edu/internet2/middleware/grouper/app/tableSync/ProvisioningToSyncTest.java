@@ -457,7 +457,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId());
     assertEquals(1, logs.size());
-    assertEquals("hey", logs.get(0).retrieveDescription());
+    assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
     
 //    (Collection<String>)
     
@@ -941,7 +941,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
   
       gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog.getId());
-      assertEquals("def", gcGrouperSyncLog.retrieveDescription());
+      assertEquals("def", gcGrouperSyncLog.getDescriptionOrDescriptionClob());
   
       //try to store a delete
       gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
@@ -987,8 +987,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
       gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
   
-      assertEquals("mno", gcGrouperSyncLog1.retrieveDescription());
-      assertEquals("pqr", gcGrouperSyncLog2.retrieveDescription());
+      assertEquals("mno", gcGrouperSyncLog1.getDescriptionOrDescriptionClob());
+      assertEquals("pqr", gcGrouperSyncLog2.getDescriptionOrDescriptionClob());
   
       gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
       gcGrouperSyncLogs.add(gcGrouperSyncLog1);
@@ -1033,11 +1033,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog3.getId());
       gcGrouperSyncLog4 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog4.getId());
   
-      assertEquals("mno", gcGrouperSyncLog3.retrieveDescription());
-      assertEquals(randomLongDescription, gcGrouperSyncLog4.retrieveDescription());
+      assertEquals("mno", gcGrouperSyncLog3.getDescriptionOrDescriptionClob());
+      assertEquals(randomLongDescription, gcGrouperSyncLog4.getDescriptionOrDescriptionClob());
   
       gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncLog3.getGrouperSyncOwnerId()).get(0);
-      assertEquals("mno", gcGrouperSyncLog3.retrieveDescription());
+      assertEquals("mno", gcGrouperSyncLog3.getDescriptionOrDescriptionClob());
       
       gcGrouperSyncLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
       assertEquals(6, gcGrouperSyncLogs.size());
@@ -1224,7 +1224,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncJob1.getId());
       assertEquals(1, logs.size());
-      assertEquals("hey", logs.get(0).retrieveDescription());
+      assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
 
     }
 
@@ -1411,7 +1411,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId());
       assertEquals(1, logs.size());
-      assertEquals("hey", logs.get(0).retrieveDescription());
+      assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
       
   
     }
@@ -1653,7 +1653,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMembership1.getId());
     assertEquals(1, logs.size());
-    assertEquals("hey", logs.get(0).retrieveDescription());
+    assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
     
   
   }
