@@ -129,7 +129,7 @@ public class GrouperProvisioningTranslatorBase {
             Object result = runScript(expressionToUse, elVariableMap);
             
             grouperTargetMembership.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetMembership, grouperProvisioningConfigurationAttribute);
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetMembership, grouperProvisioningConfigurationAttribute, null);
 
           }
         }
@@ -143,7 +143,7 @@ public class GrouperProvisioningTranslatorBase {
               
               if (result != null) {
                 grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
-                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               }
             }
           }
@@ -158,7 +158,7 @@ public class GrouperProvisioningTranslatorBase {
               
               if (result != null) {
                 grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
-                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               }
             }
           }
@@ -248,7 +248,7 @@ public class GrouperProvisioningTranslatorBase {
         if (!StringUtils.isBlank(expressionToUse)) {
           Object result = runScript(expressionToUse, elVariableMap);
           grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
-          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
         }
       }
       
@@ -326,7 +326,7 @@ public class GrouperProvisioningTranslatorBase {
         if (!StringUtils.isBlank(expressionToUse)) {
           Object result = runScript(expressionToUse, elVariableMap);
           grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
-          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
         }
       }
       

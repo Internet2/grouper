@@ -166,6 +166,7 @@ public class ProvisioningSyncIntegration {
         gcGrouperSyncGroup.setProvisionable(true);
         gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
         groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);
+        provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
       }
       
     }
@@ -330,6 +331,8 @@ public class ProvisioningSyncIntegration {
         gcGrouperSyncMember.setProvisionable(true);
         gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
         memberUuidToSyncMember.put(memberIdToInsert, gcGrouperSyncMember);
+        provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+
       }
       
     }
@@ -476,6 +479,8 @@ public class ProvisioningSyncIntegration {
               (String)groupIdMemberIdToInsert.getKey(1));
         }
         groupIdMemberIdToSyncMembership.put(groupIdMemberIdToInsert, gcGrouperSyncMembership);
+        provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+
       }
       
     }

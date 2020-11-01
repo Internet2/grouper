@@ -261,13 +261,13 @@ public class GrouperProvisioningLinkLogic {
         
         this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
         
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroups(grouperTargetGroups, true, false, false);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
         this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
 
         // index
         this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
 
-        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperGroups(grouperTargetGroups);
+        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
         
         for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {
           grouperTargetGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
@@ -440,7 +440,7 @@ public class GrouperProvisioningLinkLogic {
         
         this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
         
-        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdOfGrouperEntities(grouperTargetEntities);
+        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
         
         for (ProvisioningEntity grouperTargetEntity : grouperTargetEntities) {
           grouperTargetEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
