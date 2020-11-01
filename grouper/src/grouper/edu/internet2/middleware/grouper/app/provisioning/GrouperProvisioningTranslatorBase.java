@@ -44,8 +44,27 @@ public class GrouperProvisioningTranslatorBase {
    * @return translated objects from grouper to target
    */
   public void translateGrouperToTarget() {
-    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects(), 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects(), false);
+    {
+      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups();
+      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, false, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningGroups(grouperTargetGroups);
+    }
+    
+    {
+      List<ProvisioningEntity> grouperProvisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities();
+      List<ProvisioningEntity> grouperTargetEntities = translateGrouperToTargetEntities(
+          grouperProvisioningEntities, false, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningEntities(grouperTargetEntities);
+    }    
+
+    {
+      List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships();
+      List<ProvisioningMembership> grouperTargetMemberships = translateGrouperToTargetMemberships(
+          grouperProvisioningMemberships, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
+    }    
+
+    
   }
 
   /**
@@ -56,39 +75,26 @@ public class GrouperProvisioningTranslatorBase {
    */
   public void translateGrouperToTargetIncludeDeletes() {
     // note, this wont do anything in a full sync since the includeDelete objects are not there
-    this.translateGrouperToTarget(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes(), 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes(), true);
-  }
-
-  /**
-   * @param targetGroups
-   * @param targetEntities
-   * @param targetMemberships
-   * @return translated objects from grouper to target
-   */
-  public void translateGrouperToTarget(GrouperProvisioningLists grouperList, GrouperProvisioningLists targetList, boolean includeDelete) {
-    
 
     {
-      List<ProvisioningGroup> grouperProvisioningGroups = grouperList.getProvisioningGroups();
-      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete, false);
-      targetList.setProvisioningGroups(grouperTargetGroups);
+      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningGroups();
+      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, true, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningGroups(grouperTargetGroups);
     }
     
     {
-      List<ProvisioningEntity> grouperProvisioningEntities = grouperList.getProvisioningEntities();
+      List<ProvisioningEntity> grouperProvisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningEntities();
       List<ProvisioningEntity> grouperTargetEntities = translateGrouperToTargetEntities(
-          grouperProvisioningEntities, includeDelete, false);
-      targetList.setProvisioningEntities(grouperTargetEntities);
+          grouperProvisioningEntities, true, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningEntities(grouperTargetEntities);
     }    
 
     {
-      List<ProvisioningMembership> grouperProvisioningMemberships = grouperList.getProvisioningMemberships();
+      List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningMemberships();
       List<ProvisioningMembership> grouperTargetMemberships = translateGrouperToTargetMemberships(
-          grouperProvisioningMemberships, includeDelete);
-      targetList.setProvisioningMemberships(grouperTargetMemberships);
+          grouperProvisioningMemberships, true);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningMemberships(grouperTargetMemberships);
     }    
-    
   }
 
   /**
@@ -222,7 +228,7 @@ public class GrouperProvisioningTranslatorBase {
           grouperTargetMembership.setProvisioningEntityId(grouperTargetEntity.getId());
           grouperTargetMembership.setProvisioningEntity(grouperTargetEntity);
         }
-      }
+      } 
 
       grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembership(grouperTargetMembership);
       if (includeDelete) {
@@ -477,6 +483,9 @@ public class GrouperProvisioningTranslatorBase {
         throw new RuntimeException("Must have groupMatchingIdField, groupMatchingIdAttribute, or groupMatchingIdExpression");
       }
       id = massageToString(id, 2);
+      if (!GrouperUtil.isBlank(id) && targetGroup.getProvisioningGroupWrapper() != null) {
+        targetGroup.getProvisioningGroupWrapper().setMatchingId(id);
+      }
       targetGroup.setMatchingId(id);
 
     }
@@ -545,7 +554,10 @@ public class GrouperProvisioningTranslatorBase {
       }
 
       id = massageToString(id, 2);
-      
+      if (!GrouperUtil.isBlank(id) && targetEntity.getProvisioningEntityWrapper() != null) {
+        targetEntity.getProvisioningEntityWrapper().setMatchingId(id);
+      }
+
       targetEntity.setMatchingId(id);
 
       
@@ -637,6 +649,10 @@ public class GrouperProvisioningTranslatorBase {
         throw new RuntimeException("Must have membershipMatchingIdField, membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
       id = massageToString(id, 2);
+      if (!GrouperUtil.isBlank(id) && targetMembership.getProvisioningMembershipWrapper() != null) {
+        targetMembership.getProvisioningMembershipWrapper().setMatchingId(id);
+      }
+
       targetMembership.setMatchingId(id);
 
     }

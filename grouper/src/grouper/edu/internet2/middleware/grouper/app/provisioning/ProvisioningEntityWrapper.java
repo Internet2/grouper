@@ -4,6 +4,70 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class ProvisioningEntityWrapper {
   
+  private Object matchingId = null;
+  
+  
+  public Object getMatchingId() {
+    return matchingId;
+  }
+
+
+
+  
+  public void setMatchingId(Object matchingId) {
+    this.matchingId = matchingId;
+  }
+
+  /**
+   * grouper member id
+   */
+  private String memberId;
+  
+  
+  
+  
+  public String getMemberId() {
+    return memberId;
+  }
+
+
+
+
+  
+  public void setMemberId(String memberId) {
+    this.memberId = memberId;
+  }
+
+
+  /**
+   * sync member id
+   */
+  private String syncMemberId;
+
+  
+  
+  /**
+   * sync member id
+   * @return
+   */
+  public String getSyncMemberId() {
+    return syncMemberId;
+  }
+
+
+
+
+  /**
+   * sync member id
+   * @param syncMemberId
+   */
+  public void setSyncMemberId(String syncMemberId) {
+    this.syncMemberId = syncMemberId;
+  }
+
+
+
+
   public ProvisioningEntityWrapper() {
     super();
   }
@@ -52,6 +116,9 @@ public class ProvisioningEntityWrapper {
   
   public void setGrouperProvisioningEntity(ProvisioningEntity grouperProvisioningEntity) {
     this.grouperProvisioningEntity = grouperProvisioningEntity;
+    if (this.grouperProvisioningEntity!=null) {
+      this.memberId = this.grouperProvisioningEntity.getId();
+    }
   }
 
   
@@ -92,6 +159,9 @@ public class ProvisioningEntityWrapper {
   
   public void setGcGrouperSyncMember(GcGrouperSyncMember gcGrouperSyncMember) {
     this.gcGrouperSyncMember = gcGrouperSyncMember;
+    if (this.gcGrouperSyncMember != null) {
+      this.syncMemberId = this.getGcGrouperSyncMember().getId();
+    }
   }
 
   /**

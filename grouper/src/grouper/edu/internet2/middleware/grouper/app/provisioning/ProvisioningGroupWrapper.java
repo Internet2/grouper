@@ -4,6 +4,58 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper {
   
+  private Object matchingId = null;
+  
+  
+  public Object getMatchingId() {
+    return matchingId;
+  }
+
+
+
+  
+  public void setMatchingId(Object matchingId) {
+    this.matchingId = matchingId;
+  }
+
+  private String groupId;
+  
+  
+  
+  
+  public String getGroupId() {
+    return groupId;
+  }
+
+
+
+
+  
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
+  }
+
+  private String syncGroupId;
+  
+  
+
+
+  
+  public String getSyncGroupId() {
+    return syncGroupId;
+  }
+
+
+
+
+  
+  public void setSyncGroupId(String syncGroupId) {
+    this.syncGroupId = syncGroupId;
+  }
+
+
+
+
   public ProvisioningGroupWrapper() {
     super();
   }
@@ -97,6 +149,10 @@ public class ProvisioningGroupWrapper {
   
   public void setGrouperProvisioningGroup(ProvisioningGroup grouperProvisioningGroup) {
     this.grouperProvisioningGroup = grouperProvisioningGroup;
+    if (this.grouperProvisioningGroup!=null) {
+      this.groupId = this.grouperProvisioningGroup.getId();
+    }
+
   }
 
   
@@ -137,6 +193,10 @@ public class ProvisioningGroupWrapper {
   
   public void setGcGrouperSyncGroup(GcGrouperSyncGroup gcGrouperSyncGroup) {
     this.gcGrouperSyncGroup = gcGrouperSyncGroup;
+    if (this.gcGrouperSyncGroup != null) {
+      this.syncGroupId = this.getGcGrouperSyncGroup().getId();
+    }
+
   }
   
   public String toString() {

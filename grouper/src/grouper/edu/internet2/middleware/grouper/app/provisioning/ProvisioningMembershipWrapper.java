@@ -1,10 +1,54 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper {
   
+  private MultiKey groupIdMemberId = null;
+  
+  private MultiKey syncGroupIdSyncMemberId = null;
+  
+  private Object matchingId = null;
+  
+  
+  public Object getMatchingId() {
+    return matchingId;
+  }
+
+
+
+  
+  public void setMatchingId(Object matchingId) {
+    this.matchingId = matchingId;
+  }
+
+
+
+  public MultiKey getGroupIdMemberId() {
+    return groupIdMemberId;
+  }
+
+
+  
+  public void setGroupIdMemberId(MultiKey groupIdMemberId) {
+    this.groupIdMemberId = groupIdMemberId;
+  }
+
+
+  
+  public MultiKey getSyncGroupIdSyncMemberId() {
+    return syncGroupIdSyncMemberId;
+  }
+
+
+  
+  public void setSyncGroupIdSyncMemberId(MultiKey syncGroupIdSyncMemberId) {
+    this.syncGroupIdSyncMemberId = syncGroupIdSyncMemberId;
+  }
+
+
   public ProvisioningMembershipWrapper() {
     super();
   }
@@ -96,6 +140,10 @@ public class ProvisioningMembershipWrapper {
   public void setGrouperProvisioningMembership(
       ProvisioningMembership grouperProvisioningMembership) {
     this.grouperProvisioningMembership = grouperProvisioningMembership;
+    if (this.grouperProvisioningMembership!=null) {
+      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+    }
+
   }
 
   
@@ -137,6 +185,9 @@ public class ProvisioningMembershipWrapper {
   
   public void setGcGrouperSyncMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
     this.gcGrouperSyncMembership = gcGrouperSyncMembership;
+    if (gcGrouperSyncMembership != null) {
+      this.syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId());
+    }
   }
 
 
