@@ -82,6 +82,96 @@ public class GrouperProvisioningData {
 
 
   /**
+   * extract list of non null target provisioning groups
+   * @return groups
+   */
+  public List<ProvisioningGroup> retrieveTargetProvisioningGroups() {
+    List<ProvisioningGroup> targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
+      ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      if (targetProvisioningGroup != null) {
+        targetProvisioningGroups.add(targetProvisioningGroup);
+      }
+    }
+    return targetProvisioningGroups;
+  }
+
+  /**
+   * extract list of non null target provisioning entities
+   * @return entities
+   */
+  public List<ProvisioningEntity> retrieveTargetProvisioningEntities() {
+    List<ProvisioningEntity> targetProvisioningEntities = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.provisioningEntityWrappers) {
+      ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      if (targetProvisioningEntity != null) {
+        targetProvisioningEntities.add(targetProvisioningEntity);
+      }
+    }
+    return targetProvisioningEntities;
+  }
+
+  /**
+   * extract list of non null target provisioning memberships
+   * @return memberships
+   */
+  public List<ProvisioningMembership> retrieveTargetProvisioningMemberships() {
+    List<ProvisioningMembership> targetProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
+      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+      if (targetProvisioningMembership != null) {
+        targetProvisioningMemberships.add(targetProvisioningMembership);
+      }
+    }
+    return targetProvisioningMemberships;
+  }
+
+  /**
+   * extract list of non null grouper target groups
+   * @return groups
+   */
+  public List<ProvisioningGroup> retrieveGrouperTargetGroups() {
+    List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      if (grouperTargetGroup != null) {
+        grouperTargetGroups.add(grouperTargetGroup);
+      }
+    }
+    return grouperTargetGroups;
+  }
+
+  /**
+   * extract list of non null grouper target entities
+   * @return groups
+   */
+  public List<ProvisioningEntity> retrieveGrouperTargetEntities() {
+    List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.provisioningEntityWrappers) {
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      if (grouperTargetEntity != null) {
+        grouperTargetEntities.add(grouperTargetEntity);
+      }
+    }
+    return grouperTargetEntities;
+  }
+
+  /**
+   * extract list of non null grouper target memberships
+   * @return groups
+   */
+  public List<ProvisioningMembership> retrieveGrouperTargetMemberships() {
+    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+      if (grouperTargetMembership != null) {
+        grouperTargetMemberships.add(grouperTargetMembership);
+      }
+    }
+    return grouperTargetMemberships;
+  }
+
+  /**
    * extract list of non null grouper provisioning groups
    * @return groups
    */

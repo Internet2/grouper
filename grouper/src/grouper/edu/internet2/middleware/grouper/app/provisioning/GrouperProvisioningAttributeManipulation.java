@@ -29,15 +29,6 @@ public class GrouperProvisioningAttributeManipulation {
     this.grouperProvisioner = grouperProvisioner;
   }
 
-  public void manipulateAttributes(GrouperProvisioningLists grouperProvisioningLists) {
-    
-    this.manipulateAttributesGroups(grouperProvisioningLists.getProvisioningGroups());
-    
-    this.manipulateAttributesEntities(grouperProvisioningLists.getProvisioningEntities());
-    
-    this.manipulateAttributesMemberships(grouperProvisioningLists.getProvisioningMemberships()); 
-  }
-
   public void manipulateAttributesGroups(List<ProvisioningGroup> provisioningGroups) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
@@ -131,15 +122,6 @@ public class GrouperProvisioningAttributeManipulation {
       }
     }
     provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), valueType.convert(currentValue));
-  }
-
-  public void filterForSelect(GrouperProvisioningLists grouperProvisioningLists) {
-    this.filterGroups(grouperProvisioningLists.getProvisioningGroups(), true, false, false);
-    
-    this.filterEntities(grouperProvisioningLists.getProvisioningEntities(), true, false, false);
-    
-    this.filterMemberships(grouperProvisioningLists.getProvisioningMemberships(), true, false, false); 
-
   }
 
   public void filterGroups(List<ProvisioningGroup> provisioningGroups, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {

@@ -141,23 +141,23 @@ public class GrouperProvisioningMatchingIdIndex {
 
   public void indexMatchingIdOfGrouperObjects() {
     this.indexMatchingIdOfGrouperGroups(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningGroups());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups());
     
     this.indexMatchingIdOfGrouperEntities(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningEntities());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities());
   
     this.indexMatchingIdOfGrouperMemberships(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningMemberships());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships());
 
-    // these might be empty for full provisioning and thats ok
-    this.indexMatchingIdOfGrouperGroups(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
-    
-    this.indexMatchingIdOfGrouperEntities(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
-  
-    this.indexMatchingIdOfGrouperMemberships(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
+//    // these might be empty for full provisioning and thats ok
+//    this.indexMatchingIdOfGrouperGroups(
+//        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
+//    
+//    this.indexMatchingIdOfGrouperEntities(
+//        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
+//  
+//    this.indexMatchingIdOfGrouperMemberships(
+//        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
   }
 
 
@@ -169,8 +169,8 @@ public class GrouperProvisioningMatchingIdIndex {
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningEntity targetProvisioningEntity : 
-      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
-          .getTargetProvisioningObjects().getProvisioningEntities())) {
+      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
+          .retrieveTargetProvisioningEntities())) {
       
       Object macthingId = targetProvisioningEntity.getMatchingId();
       if (macthingId == null) {
@@ -210,8 +210,8 @@ public class GrouperProvisioningMatchingIdIndex {
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningGroup targetProvisioningGroup : 
-      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
-          .getTargetProvisioningObjects().getProvisioningGroups())) {
+      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
+          .retrieveTargetProvisioningGroups())) {
       
       Object macthingId = targetProvisioningGroup.getMatchingId();
       if (macthingId == null) {
@@ -251,8 +251,8 @@ public class GrouperProvisioningMatchingIdIndex {
     // make sure we arent double dipping target provisioning matching ids
     Set<Object> targetProvisioningMatchingIds = new HashSet<Object>();
     for (ProvisioningMembership targetProvisioningMembership : 
-      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
-          .getTargetProvisioningObjects().getProvisioningMemberships())) {
+      GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData()
+          .retrieveTargetProvisioningMemberships())) {
       
       Object macthingId = targetProvisioningMembership.getMatchingId();
       if (macthingId == null) {

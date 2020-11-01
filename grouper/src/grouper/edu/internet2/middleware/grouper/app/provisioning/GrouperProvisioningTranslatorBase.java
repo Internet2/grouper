@@ -68,36 +68,6 @@ public class GrouperProvisioningTranslatorBase {
   }
 
   /**
-   * @param targetGroups
-   * @param targetEntities
-   * @param targetMemberships
-   * @return translated objects from grouper to target
-   */
-  public void translateGrouperToTargetIncludeDeletes() {
-    // note, this wont do anything in a full sync since the includeDelete objects are not there
-
-    {
-      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningGroups();
-      List<ProvisioningGroup> grouperTargetGroups = translateGrouperToTargetGroups(grouperProvisioningGroups, true, false);
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningGroups(grouperTargetGroups);
-    }
-    
-    {
-      List<ProvisioningEntity> grouperProvisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningEntities();
-      List<ProvisioningEntity> grouperTargetEntities = translateGrouperToTargetEntities(
-          grouperProvisioningEntities, true, false);
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningEntities(grouperTargetEntities);
-    }    
-
-    {
-      List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsIncludeDeletes().getProvisioningMemberships();
-      List<ProvisioningMembership> grouperTargetMemberships = translateGrouperToTargetMemberships(
-          grouperProvisioningMemberships, true);
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().setProvisioningMemberships(grouperTargetMemberships);
-    }    
-  }
-
-  /**
    * keep a reference to the membership wrapper so attributes can register with membership
    */
   private static ThreadLocal<ProvisioningMembershipWrapper> provisioningMembershipWrapperThreadLocal = new InheritableThreadLocal<ProvisioningMembershipWrapper>();
@@ -686,21 +656,15 @@ public class GrouperProvisioningTranslatorBase {
   }
 
   public void matchingIdTargetObjects() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships());
+    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships());
   }
   
   public void matchingIdGrouperObjects() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().getProvisioningMemberships());
-
-  }
-  public void matchingIdGrouperObjectsIncludeDeletes() {
-    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsIncludeDeletes().getProvisioningMemberships());
+    idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships());
 
   }
 
