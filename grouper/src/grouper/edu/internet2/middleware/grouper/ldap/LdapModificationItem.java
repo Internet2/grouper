@@ -15,6 +15,9 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * @author shilen
  */
@@ -58,5 +61,29 @@ public class LdapModificationItem {
    */
   public void setAttribute(LdapAttribute attribute) {
     this.attribute = attribute;
+  }
+  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof LdapModificationItem)) {
+      return false;
+    }
+    LdapModificationItem that = (LdapModificationItem) other;
+    
+    return new EqualsBuilder()
+        .append(this.ldapModificationType, that.ldapModificationType)
+        .append(this.getAttribute().getName(), that.getAttribute().getName())
+        .append(this.getAttribute().getValues(), that.getAttribute().getValues())
+        .isEquals();
+  }
+  
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append(this.ldapModificationType)
+      .append(this.getAttribute().getName())
+      .append(this.getAttribute().getValues())
+      .toHashCode();
   }
 }

@@ -18,7 +18,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
 
   private String ldapExternalSystemConfigId;
   private LdapSyncProvisioningType ldapProvisioningType;
-  private String allProvisionedValuesPrefix;  // TODO remove?
   private String userSearchBaseDn;
   private String userSearchFilter;
   private String userSearchAllFilter;
@@ -35,9 +34,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     if (!GrouperLoaderConfig.retrieveConfig().assertPropertyValueRequired("ldap." + ldapExternalSystemConfigId + ".url")) {
       throw new RuntimeException("Unable to find ldap." + ldapExternalSystemConfigId + ".url property.  Is ldapExternalSystemConfigId set correctly?");
     }
-    
-    this.allProvisionedValuesPrefix = this.retrieveConfigString("allProvisionedValuesPrefix", false);
-    
+        
     {
       String ldapProvisioningTypeString = this.retrieveConfigString("ldapProvisioningType", true);
       if (StringUtils.equalsIgnoreCase("groupMemberships", ldapProvisioningTypeString)) {
@@ -55,7 +52,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
-    this.groupSearchAllFilter = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupSearchAllFilter", false), "(&(objectclass=group)(gidNumber=*))");
+    this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
 
     {
       /*
@@ -90,16 +87,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   public void setLdapProvisioningType(LdapSyncProvisioningType ldapProvisioningType) {
     this.ldapProvisioningType = ldapProvisioningType;
   }
-  
-  public String getAllProvisionedValuesPrefix() {
-    return allProvisionedValuesPrefix;
-  }
-
-  
-  public void setAllProvisionedValuesPrefix(String allProvisionedValuesPrefix) {
-    this.allProvisionedValuesPrefix = allProvisionedValuesPrefix;
-  }
-
   
   public String getUserSearchBaseDn() {
     return userSearchBaseDn;

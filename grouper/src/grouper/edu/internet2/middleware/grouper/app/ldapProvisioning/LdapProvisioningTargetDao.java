@@ -3,9 +3,14 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
@@ -34,17 +39,17 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapModificationAttributeError;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
-
-// TODO exception handling per wiki
 
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
+  private static final Log LOG = GrouperUtil.getLog(LdapProvisioningTargetDao.class);
 
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
@@ -119,9 +124,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
     long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
 
     try {
-      ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
       
@@ -181,6 +186,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       return new TargetDaoInsertGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertGroup", startNanos));
     }
@@ -190,9 +202,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
     
     long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
 
     try {
-      ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest == null ? null : targetDaoDeleteGroupRequest.getTargetGroup();
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
       
@@ -205,6 +217,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
       return new TargetDaoDeleteGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
     }
@@ -221,11 +239,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
       
-      List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
+      Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
+      boolean hasRenameFailure = false;
+      
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
+        String fieldName = provisionObjectChange.getFieldName();
         ProvisioningObjectChangeAction action = provisionObjectChange.getProvisioningObjectChangeAction();
         Object newValue = provisionObjectChange.getNewValue();
         Object oldValue = provisionObjectChange.getOldValue();
@@ -244,7 +265,20 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           }
         }
         
-        if (action == ProvisioningObjectChangeAction.delete) {
+        if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
+          // this is a rename
+          try {
+            new LdapSyncDaoForLdap().move(ldapConfigId, (String)oldValue, (String)newValue);
+            provisionObjectChange.setProvisioned(true);
+          } catch (Exception e) {
+            provisionObjectChange.setProvisioned(false);
+            provisionObjectChange.setException(e);
+            targetGroup.setProvisioned(false);
+            hasRenameFailure = true;
+          }
+        } else if (attributeName == null) {
+          throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
+        } else if (action == ProvisioningObjectChangeAction.delete) {
           if (newValue != null) {
             throw new RuntimeException("Deleting value but there's a new value=" + newValue + ", attributeName=" + attributeName);
           }
@@ -252,20 +286,20 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           if (oldValue == null) {
             // delete the whole attribute
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName));
-            ldapModificationItems.add(item);
+            ldapModificationItems.put(item, provisionObjectChange);
           } else {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
-            ldapModificationItems.add(item);
+            ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
-            ldapModificationItems.add(item);
+            ldapModificationItems.put(item, provisionObjectChange);
           }
           
           if (newValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute(attributeName, newValue));
-            ldapModificationItems.add(item);
+            ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.insert) {
           if (oldValue != null) {
@@ -277,20 +311,50 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           }
           
           LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute(attributeName, newValue));
-          ldapModificationItems.add(item);
+          ldapModificationItems.put(item, provisionObjectChange);
         } else {
           throw new RuntimeException("Unexpected provisioningObjectChangeAction: " + action);
         }
       }
   
-      if (ldapModificationItems.size() > 0) {
-        new LdapSyncDaoForLdap().modify(ldapConfigId, targetGroup.getName(), ldapModificationItems); // TODO partial errors?
+      LdapModificationResult result = new LdapSyncDaoForLdap().modify(ldapConfigId, targetGroup.getName(), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+      
+      if (!hasRenameFailure) {
+        targetGroup.setProvisioned(true);  // assume true to start with
       }
       
-      targetGroup.setProvisioned(true);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(true);
+      if (result.isSuccess()) {
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+          if (provisioningObjectChange.getProvisioned() == null) {
+            provisioningObjectChange.setProvisioned(true);
+          }
+        }
+      } else {        
+        // need to see what actually failed
+        for (LdapModificationAttributeError attributeError : result.getAttributeErrors()) {
+          ProvisioningObjectChange provisionObjectChange = ldapModificationItems.get(attributeError.getLdapModificationItem());
+          if (provisionObjectChange == null) {
+            // strange?
+            targetGroup.setProvisioned(false);
+            LOG.warn("Couldn't find provisionObjectChange to add error for attribute: " + attributeError.getLdapModificationItem().getAttribute().getName());
+          } else {
+            provisionObjectChange.setProvisioned(false);
+            provisionObjectChange.setException(attributeError.getError());
+            
+            // this should go in the framework?
+            if (!provisionObjectChange.getAttributeName().equalsIgnoreCase(ldapSyncConfiguration.getGroupAttributeNameForMemberships())) {
+              targetGroup.setProvisioned(false);
+            }
+          }
+        }
+        
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+          if (provisioningObjectChange.getProvisioned() == null && provisioningObjectChange.getException() == null) {
+            provisioningObjectChange.setProvisioned(true);
+          }
+        }
       }
+      
       return new TargetDaoUpdateGroupResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
@@ -537,9 +601,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
     long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
 
     try {
-      ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
       
@@ -599,6 +663,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
     }
@@ -620,4 +691,38 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.getCanInsertEntity();
   }
 
+  /*
+  public static void main(String[] args) {
+    edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner grouperProvisioner = edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.retrieveProvisioner("testLdapProv2");
+    grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
+    grouperProvisioner.retrieveGrouperProvisioningConfiguration().setGroupAttributeNameForMemberships("member");
+    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    targetGroup.setName("cn=test4:test2,ou=Groups,dc=example,dc=edu");
+    
+    ProvisioningObjectChange provisioningObjectChange1 = new ProvisioningObjectChange();
+    provisioningObjectChange1.setAttributeName("member");
+    provisioningObjectChange1.setNewValue("sdfsdf");
+    provisioningObjectChange1.setProvisioningObjectChangeAction(ProvisioningObjectChangeAction.insert);
+    targetGroup.addInternal_objectChange(provisioningObjectChange1);
+
+    ProvisioningObjectChange provisioningObjectChange2 = new ProvisioningObjectChange();
+    provisioningObjectChange2.setAttributeName("member");
+    provisioningObjectChange2.setNewValue("uid=test.subject.2,ou=People,dc=example,dc=edu");
+    provisioningObjectChange2.setProvisioningObjectChangeAction(ProvisioningObjectChangeAction.insert);
+    targetGroup.addInternal_objectChange(provisioningObjectChange2);
+    
+    LdapProvisioningTargetDao dao = new LdapProvisioningTargetDao();
+    dao.setGrouperProvisioner(grouperProvisioner);
+    TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest = new TargetDaoUpdateGroupRequest();
+    targetDaoUpdateGroupRequest.setTargetGroup(targetGroup);;
+    dao.updateGroup(targetDaoUpdateGroupRequest);
+    
+    System.out.println("results:");
+    System.out.println("1: " + provisioningObjectChange1.getProvisioned() + " - " + (provisioningObjectChange1.getException() == null ? null : provisioningObjectChange1.getException().getMessage()));
+    System.out.println("2: " + provisioningObjectChange2.getProvisioned() + " - " + (provisioningObjectChange2.getException() == null ? null : provisioningObjectChange2.getException().getMessage()));
+    System.out.println("Target group result: " + targetGroup.getProvisioned());
+    System.out.println("results done");
+  }
+  */
 }

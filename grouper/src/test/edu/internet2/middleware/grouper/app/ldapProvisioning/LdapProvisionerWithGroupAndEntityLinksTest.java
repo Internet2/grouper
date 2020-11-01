@@ -238,14 +238,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
    */
   private void internal_testLdapProvisionerWithGroupAndEntityLinksFull_1() {
     
-    // TODO do these configs need to be dropped from grouper?  they are currently required
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userSearchAttributeName", "bogus");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userSearchAttributeValueFormat", "bogus");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.userAttributeReferredToByGroup", "bogus");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberToId2AttributeValueFormat", "bogus");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberToId3AttributeValueFormat", "bogus");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.syncMemberFromId2AttributeValueFormat", "bogus");
-
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.class", LdapSync.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.ldapExternalSystemConfigId", "personLdap");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.subjectSourcesToProvision", "personLdapSource");
@@ -272,6 +264,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     Subject banderson = SubjectFinder.findById("banderson", true);
     Subject kwhite = SubjectFinder.findById("kwhite", true);
     Subject whenderson = SubjectFinder.findById("whenderson", true);
+    Subject blopez = SubjectFinder.findById("blopez", true);
+    Subject hdavis = SubjectFinder.findById("hdavis", true);
+    Subject bwilliams466 = SubjectFinder.findById("bwilliams466", true);
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -318,6 +313,8 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
 
     // try update
     testGroup.deleteMember(banderson);
+    testGroup.addMember(blopez);
+    testGroup.addMember(hdavis);
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
@@ -329,10 +326,35 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
     assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
     assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
-    assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+    assertEquals(3, ldapEntry.getAttribute("description").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=blopez,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=hdavis,ou=People,dc=example,dc=edu"));
+    
+    // try rename and add member together
+    testGroup.addMember(bwilliams466);
+    testGroup.setExtension("testGroupRenamed");
+    testGroup.store();
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroupRenamed,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroupRenamed", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(4, ldapEntry.getAttribute("description").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=blopez,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=hdavis,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=bwilliams466,ou=People,dc=example,dc=edu"));
     
     // try delete, not configured to
     attributeValue.setDoProvision(false);

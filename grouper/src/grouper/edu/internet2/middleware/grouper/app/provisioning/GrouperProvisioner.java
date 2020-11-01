@@ -38,14 +38,35 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningAttributeManipulation.class.equals(this.grouperProvisioningAttributeManipulationClass())) {
       result.append(", AttributeManipulation: ").append(this.grouperProvisioningAttributeManipulationClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningBehavior() instanceof GrouperProvisioningBehavior)) {
+    if (!(this.retrieveGrouperProvisioningBehavior().getClass().equals(GrouperProvisioningBehavior.class))) {
       result.append(", Behavior: ").append(this.retrieveGrouperProvisioningBehavior().getClass().getName());
     }
     if (!GrouperProvisioningCompare.class.equals(this.grouperProvisioningCompareClass())) {
       result.append(", Compare: ").append(this.grouperProvisioningCompareClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningData() instanceof GrouperProvisioningData)) {
+    if (!(this.retrieveGrouperProvisioningData().getClass().equals(GrouperProvisioningData.class))) {
       result.append(", Data: ").append(this.retrieveGrouperProvisioningData().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataChanges().getClass().equals(GrouperProvisioningDataChanges.class))) {
+      result.append(", DataChanges: ").append(this.retrieveGrouperProvisioningDataChanges().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataGrouper().getClass().equals(GrouperProvisioningDataGrouper.class))) {
+      result.append(", DataGrouper: ").append(this.retrieveGrouperProvisioningDataGrouper().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().equals(GrouperProvisioningDataGrouperTarget.class))) {
+      result.append(", DataGrouperTarget: ").append(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().equals(GrouperProvisioningDataIncrementalInput.class))) {
+      result.append(", DataIncrementalInput: ").append(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataIndex().getClass().equals(GrouperProvisioningDataIndex.class))) {
+      result.append(", DataIndex: ").append(this.retrieveGrouperProvisioningDataIndex().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataSync().getClass().equals(GrouperProvisioningDataSync.class))) {
+      result.append(", DataSync: ").append(this.retrieveGrouperProvisioningDataSync().getClass().getName());
+    }
+    if (!(this.retrieveGrouperProvisioningDataTarget().getClass().equals(GrouperProvisioningDataTarget.class))) {
+      result.append(", DataTarget: ").append(this.retrieveGrouperProvisioningDataTarget().getClass().getName());
     }
     if (!GrouperProvisionerGrouperDao.class.equals(this.grouperDaoClass())) {
       result.append(", GrouperDao: ").append(this.grouperDaoClass().getName());
@@ -111,7 +132,22 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningObjectLog;
   }
 
-  private GrouperProvisioningData grouperProvisioningData = new GrouperProvisioningData();
+  private GrouperProvisioningData grouperProvisioningData;
+
+  private GrouperProvisioningDataGrouper grouperProvisioningDataGrouper;
+
+  private GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget;
+
+  private GrouperProvisioningDataSync grouperProvisioningDataSync;
+
+  private GrouperProvisioningDataTarget grouperProvisioningDataTarget;
+
+  private GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput ;
+
+  private GrouperProvisioningDataChanges grouperProvisioningDataChanges;
+
+  private GrouperProvisioningDataIndex grouperProvisioningDataIndex;
+
   
   public Map<String, Object> getDebugMap() {
     return debugMap;
@@ -542,15 +578,73 @@ public abstract class GrouperProvisioner {
   }
 
   
+  public GrouperProvisioningDataGrouper retrieveGrouperProvisioningDataGrouper() {
+    if (this.grouperProvisioningDataGrouper == null) {
+      this.grouperProvisioningDataGrouper = new GrouperProvisioningDataGrouper();
+      this.grouperProvisioningDataGrouper.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataGrouper;
+  }
+  
+  public GrouperProvisioningDataSync retrieveGrouperProvisioningDataSync() {
+    if (this.grouperProvisioningDataSync == null) {
+      this.grouperProvisioningDataSync = new GrouperProvisioningDataSync();
+      this.grouperProvisioningDataSync.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataSync;
+  }
+
   public GrouperProvisioningData retrieveGrouperProvisioningData() {
+    if (this.grouperProvisioningData == null) {
+      this.grouperProvisioningData = new GrouperProvisioningData();
+      this.grouperProvisioningData.setGrouperProvisioner(this);
+    }
     return grouperProvisioningData;
   }
 
-  
-  public void setGrouperProvisioningData(GrouperProvisioningData grouperProvisioningData) {
-    this.grouperProvisioningData = grouperProvisioningData;
+  public GrouperProvisioningDataGrouperTarget retrieveGrouperProvisioningDataGrouperTarget() {
+    if (this.grouperProvisioningDataGrouperTarget == null) {
+      this.grouperProvisioningDataGrouperTarget = new GrouperProvisioningDataGrouperTarget();
+      this.grouperProvisioningDataGrouperTarget.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataGrouperTarget;
   }
 
+  public GrouperProvisioningDataTarget retrieveGrouperProvisioningDataTarget() {
+    if (this.grouperProvisioningDataTarget == null) {
+      this.grouperProvisioningDataTarget = new GrouperProvisioningDataTarget();
+      this.grouperProvisioningDataTarget.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataTarget;
+  }
+
+  
+  public GrouperProvisioningDataIncrementalInput retrieveGrouperProvisioningDataIncrementalInput() {
+    if (this.grouperProvisioningDataIncrementalInput == null) {
+      this.grouperProvisioningDataIncrementalInput = new GrouperProvisioningDataIncrementalInput();
+      this.grouperProvisioningDataIncrementalInput.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataIncrementalInput;
+  }
+
+  
+  public GrouperProvisioningDataChanges retrieveGrouperProvisioningDataChanges() {
+    if (this.grouperProvisioningDataChanges == null) {
+      this.grouperProvisioningDataChanges = new GrouperProvisioningDataChanges();
+      this.grouperProvisioningDataChanges.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningDataChanges;
+  }
+
+  public GrouperProvisioningDataIndex retrieveGrouperProvisioningDataIndex() {
+    if (this.grouperProvisioningDataIndex == null) {
+      this.grouperProvisioningDataIndex = new GrouperProvisioningDataIndex();
+      this.grouperProvisioningDataIndex.setGrouperProvisioner(this);
+    }
+    return grouperProvisioningDataIndex;
+  }
+
+  
   
   private ProvisioningSyncResult provisioningSyncResult = null;
 
