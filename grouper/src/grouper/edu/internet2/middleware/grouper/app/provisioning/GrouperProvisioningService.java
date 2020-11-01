@@ -1359,7 +1359,13 @@ public class GrouperProvisioningService {
     
   }
   
-  
+  /**
+   * retrieve gc grouper sync logs
+   * @param provisionerId
+   * @param groupId
+   * @param queryOptions
+   * @return
+   */
   public static List<GcGrouperSyncLog> retrieveGcGrouperSyncLogs(String provisionerId, String groupId, QueryOptions queryOptions) {
     
     List<GcGrouperSyncLog> gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();

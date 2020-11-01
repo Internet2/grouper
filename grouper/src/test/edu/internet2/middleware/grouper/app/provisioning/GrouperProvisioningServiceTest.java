@@ -8,7 +8,9 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
@@ -31,6 +34,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
@@ -48,6 +52,125 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.class", "LdapProvisioner");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.box.class", "BoxProvisioner");
+    
+  }
+  
+  public void testRetrieveGcGrouperGroup() {
+    
+    //Given
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob");
+    gcGrouperSync.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.setLastFullSyncRun(new Timestamp(System.currentTimeMillis() - 100000));
+    gcGrouperSync.setLastIncrementalSyncRun(new Timestamp(System.currentTimeMillis() - 700000));
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
+    gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+    gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+    
+    //When
+    GcGrouperSyncGroup grouperSyncGroup = GrouperProvisioningService.retrieveGcGrouperGroup("myId", "myJob");
+    
+    //Then
+    assertNotNull(grouperSyncGroup);
+    
+  }
+  
+  public void testRetrieveGcGrouperSyncLogs() {
+    
+    //Given
+    GrouperSession.startRootSessionIfNotStarted();
+    
+    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    gcGrouperSync.setSyncEngine("temp");
+    gcGrouperSync.setProvisionerName("myJob");
+    gcGrouperSync.setUserCount(10);
+    gcGrouperSync.setGroupCount(20);
+    gcGrouperSync.setRecordsCount(30);
+    gcGrouperSync.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.setLastFullSyncRun(new Timestamp(System.currentTimeMillis() - 100000));
+    gcGrouperSync.setLastIncrementalSyncRun(new Timestamp(System.currentTimeMillis() - 700000));
+    gcGrouperSync.getGcGrouperSyncDao().store();
+
+    for (int i=0; i<=200; i++) {
+
+      GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
+      gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
+      gcGrouperSyncJob.setLastSyncIndex(135L);
+      gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+      gcGrouperSyncJob.setSyncType("testSyncType"+String.valueOf(i));
+      gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
+      gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+      gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+
+      GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+      gcGrouperSyncMember.setGrouperSync(gcGrouperSync);
+      gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
+      gcGrouperSyncMember.setMemberId("memId"+String.valueOf(i));
+      gcGrouperSyncMember.setSourceId("sourceId");
+      gcGrouperSyncMember.setSubjectId("subjectId");
+      gcGrouperSyncMember.setSubjectIdentifier("subjectIdentifier");
+      gcGrouperSyncMember.setInTargetDb("T");
+      gcGrouperSyncMember.setProvisionableDb("T");
+      gcGrouperSyncMember.setProvisionableEnd(new Timestamp(456L));
+      gcGrouperSyncMember.setProvisionableStart(new Timestamp(567L));
+      gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+
+
+      GcGrouperSyncLog gcGrouperSyncLog = new GcGrouperSyncLog();
+      gcGrouperSyncLog.setDescriptionToSave("desc");
+      gcGrouperSyncLog.setGrouperSync(gcGrouperSync);
+
+      gcGrouperSyncLog.setJobTookMillis(1223 +  i);
+      gcGrouperSyncLog.setRecordsChanged(12 + i);
+      gcGrouperSyncLog.setRecordsProcessed(23 + i);
+
+      if (i % 3 == 0) {
+        gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncMember.getId());
+      } else if (i % 2 == 0) {
+        gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncGroup.getId());
+      } else if (i % 2 == 1) {
+        gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncJob.getId());
+      } else {
+        System.out.println("Should never go here. i = "+i);
+      }
+
+      gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+    }
+
+    //When
+    List<GrouperSyncLogWithOwner> gcGrouperSyncLogs = GrouperProvisioningService.retrieveGcGrouperSyncLogs("myJob", new QueryOptions());
+
+    //Then
+    assertEquals(100, gcGrouperSyncLogs.size());
+    
+    Set<String> logTypes = new HashSet<String>();
+    logTypes.add("Job");
+    logTypes.add("Group");
+    logTypes.add("Member");
+    
+    for (GrouperSyncLogWithOwner grouperSyncLogWithOwner: gcGrouperSyncLogs) {
+      String logType = grouperSyncLogWithOwner.getLogType();
+      assertTrue(logTypes.contains(logType));
+      
+      if (logType.equals("Job")) {
+        assertNotNull(grouperSyncLogWithOwner.getGcGrouperSyncJob());
+      }
+      
+      if (logType.equals("Group")) {
+        assertNotNull(grouperSyncLogWithOwner.getGcGrouperSyncGroup());
+      }
+      
+      if (logType.equals("Member")) {
+        assertNotNull(grouperSyncLogWithOwner.getGcGrouperSyncMember());
+      }
+      
+    }
     
   }
   
