@@ -913,6 +913,7 @@ public class GrouperProvisioningLogic {
         
         if (provisioningGroupWrapper == null) {
           provisioningGroupWrapper = new ProvisioningGroupWrapper();
+          provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
           groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().add(provisioningGroupWrapper);
         }
@@ -933,6 +934,7 @@ public class GrouperProvisioningLogic {
         
         if (provisioningEntityWrapper == null) {
           provisioningEntityWrapper = new ProvisioningEntityWrapper();
+          provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
           memberUuidToProvisioningEntityWrapper.put(gcGrouperSyncMember.getMemberId(), provisioningEntityWrapper);
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
         }
@@ -977,6 +979,7 @@ public class GrouperProvisioningLogic {
           
           if (provisioningMembershipWrapper == null) {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+            provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
             groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().add(provisioningMembershipWrapper);
           }

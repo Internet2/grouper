@@ -206,16 +206,30 @@ public abstract class ProvisioningUpdatable {
    * @param value
    */
   public void addAttributeValueForMembership(String name, Object value) {
-    this.addAttributeValue(name, value);
     
     ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslatorBase.retrieveProvisioningMembershipWrapper();
     
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
     }
-    
+
+    if (!provisioningMembershipWrapper.isDelete()) {
+      this.addAttributeValue(name, value);
+    }
+
     // keep track of membership this attribute value represents
     ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+    
+    if (provisioningAttribute == null) {
+      // maybe this is a delete? 
+      if (this.attributes == null) {
+        this.attributes = new HashMap<String, ProvisioningAttribute>();
+      }
+      
+      provisioningAttribute = new ProvisioningAttribute();
+      this.attributes.put(name, provisioningAttribute);
+      provisioningAttribute.setName(name);
+    }
     
     Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
     
@@ -247,10 +261,13 @@ public abstract class ProvisioningUpdatable {
       provisioningAttribute = new ProvisioningAttribute();
       this.attributes.put(name, provisioningAttribute);
       provisioningAttribute.setName(name);
-      values = new HashSet<Object>();
-      provisioningAttribute.setValue(values);
     } else {
       values = (Set<Object>)provisioningAttribute.getValue();
+    }
+    
+    if (values == null) {
+      values = new HashSet<Object>();
+      provisioningAttribute.setValue(values);
     }
     
     values.add(value);
