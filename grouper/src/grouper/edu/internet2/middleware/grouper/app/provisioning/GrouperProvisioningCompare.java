@@ -382,7 +382,7 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       
-      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.isDelete() ? null : provisioningEntityWrapper.getGrouperTargetEntity();
       ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
       
       Object grouperMatchingId = grouperTargetEntity == null ? null : grouperTargetEntity.getMatchingId();
@@ -566,7 +566,7 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
           
-      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.isDelete() ? null : provisioningGroupWrapper.getGrouperTargetGroup();
       ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
       
       Object grouperMatchingId = grouperTargetGroup == null ? null : grouperTargetGroup.getMatchingId();
@@ -749,7 +749,7 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
       
-      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.isDelete() ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
       
       Object grouperMatchingId = grouperTargetMembership == null ? null : grouperTargetMembership.getMatchingId();

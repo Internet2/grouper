@@ -542,7 +542,7 @@ public class GrouperProvisionerGrouperSyncDao {
         if (valueToProvisioningMembershipWrapper != null) {
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getNewValue());
-            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
+            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
             gcGrouperSyncMembership.setErrorMessage(null);
             gcGrouperSyncMembership.setErrorTimestamp(null);
             gcGrouperSyncMembership.setInTarget(true);
@@ -550,7 +550,7 @@ public class GrouperProvisionerGrouperSyncDao {
             gcGrouperSyncMembership.setInTargetInsertOrExists(true);
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
             ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
-            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
+            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
             gcGrouperSyncMembership.setErrorMessage(null);
             gcGrouperSyncMembership.setErrorTimestamp(null);
             gcGrouperSyncMembership.setInTarget(false);

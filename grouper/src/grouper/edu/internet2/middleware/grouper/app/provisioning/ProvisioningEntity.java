@@ -155,7 +155,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "email", this.email);
     firstField = toStringAppendField(result, firstField, "name", this.name);
     firstField = toStringAppendField(result, firstField, "loginId", this.loginId);
-    firstField = toStringAppendField(result, firstField, "subjectId", this.loginId);
+    firstField = toStringAppendField(result, firstField, "subjectId", this.subjectId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     return result.append(")").toString();
   }

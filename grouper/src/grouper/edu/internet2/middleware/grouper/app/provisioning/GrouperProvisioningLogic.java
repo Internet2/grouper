@@ -885,6 +885,9 @@ public class GrouperProvisioningLogic {
     // put the sync objects in their respective wrapper objects
     assignSyncObjectsToWrappers();
 
+    // incrementals need to consult sync objects to know what to delete
+    calculateProvisioningDataToDelete(); 
+
     GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
     gcGrouperSync.setGroupCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningGroups()));
     gcGrouperSync.setUserCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningEntities()));
@@ -911,6 +914,7 @@ public class GrouperProvisioningLogic {
         if (provisioningGroupWrapper == null) {
           provisioningGroupWrapper = new ProvisioningGroupWrapper();
           groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().add(provisioningGroupWrapper);
         }
         provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
         
@@ -930,6 +934,7 @@ public class GrouperProvisioningLogic {
         if (provisioningEntityWrapper == null) {
           provisioningEntityWrapper = new ProvisioningEntityWrapper();
           memberUuidToProvisioningEntityWrapper.put(gcGrouperSyncMember.getMemberId(), provisioningEntityWrapper);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
         }
         provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
 
@@ -973,6 +978,7 @@ public class GrouperProvisioningLogic {
           if (provisioningMembershipWrapper == null) {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
             groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().add(provisioningMembershipWrapper);
           }
           
           provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
@@ -1019,11 +1025,11 @@ public class GrouperProvisioningLogic {
 
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();
 
+    assignSyncObjectsToWrappers();
+
     // incrementals need to consult sync objects to know what to delete
     calculateProvisioningDataToDelete(); 
     
-    assignSyncObjectsToWrappers();
-
   }
   
   protected void countInsertsUpdatesDeletes() {
@@ -1195,12 +1201,13 @@ public class GrouperProvisioningLogic {
         
         grouperProvisioningEntity = new ProvisioningEntity();
         grouperProvisioningEntity.setId(gcGrouperSyncMember.getMemberId());
-  
-        grouperProvisioningEntity.assignAttributeValue("subjectId", gcGrouperSyncMember.getSubjectId());
+        //TODO select from grouper dao again, the subject might not be provisionable but it might exist in subject source
+        grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-
+        provisioningEntityWrapper.setDelete(true);
+        
         memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       }
         
@@ -1319,8 +1326,6 @@ public class GrouperProvisioningLogic {
           throw new RuntimeException("Cant find provisioning entity: '" + memberId + "'");
         }
           
-        provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
-        provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         provisioningMembershipWrapper.setDelete(true);
         
