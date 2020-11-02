@@ -81,6 +81,39 @@ public class GrouperObjectTypesConfiguration {
     return result;
   }
   
+  private static boolean grouperObjectTypesAttributeValuesDifferent(GrouperObjectTypesAttributeValue one, 
+      GrouperObjectTypesAttributeValue two) {
+    
+    if (one == null && two == null) return false;
+    if (one == null || two == null) return true;
+    
+    if (!StringUtils.equals(one.getObjectTypeName(), two.getObjectTypeName())) {
+      return true;
+    }
+    
+    if (one.isDirectAssignment() != two.isDirectAssignment()) {
+      return true;
+    }
+    
+    if (!StringUtils.equals(one.getObjectTypeDataOwner(), two.getObjectTypeDataOwner())) {
+      return true;
+    }
+    
+    if (!StringUtils.equals(one.getObjectTypeMemberDescription(), two.getObjectTypeMemberDescription())) {
+      return true;
+    }
+    
+    if (!StringUtils.equals(one.getObjectTypeOwnerStemId(), two.getObjectTypeOwnerStemId())) {
+      return true;
+    }
+    
+    if (!StringUtils.equals(one.getObjectTypeServiceName(), two.getObjectTypeServiceName())) {
+      return true;
+    }
+    
+    return false;
+  }
+  
   /**
    * save or update type config for a given grouper object (group/stem)
    * @param grouperObjectTypesAttributeValue
@@ -98,6 +131,10 @@ public class GrouperObjectTypesConfiguration {
       } else {
         throw new RuntimeException("Only Groups and Folders can have types");
       }
+    } else {
+      GrouperObjectTypesAttributeValue existingGrouperObjectTypesAttributeValue = buildGrouperObjectTypeAttributeValue(attributeAssign);
+      boolean newValueDifferentFromOldValue = grouperObjectTypesAttributeValuesDifferent(grouperObjectTypesAttributeValue, existingGrouperObjectTypesAttributeValue);
+      if (!newValueDifferentFromOldValue) return;
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, true);
@@ -144,6 +181,145 @@ public class GrouperObjectTypesConfiguration {
           copyConfigFromParent(grouperObject, objectType);
         }
         
+        return null;
+        
+      }
+      
+    });
+    
+  }
+  
+  public static void fixGrouperObjectTypesAttributeValuesForChildrenOfDirectStem(final Stem stem) {
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<String> objectTypeNames = GrouperObjectTypesSettings.getObjectTypeNames();
+        
+        for (String objectTypeName: objectTypeNames) {
+          fixGrouperObjectTypesAttributeValuesForChildrenOfDirectStem(stem, objectTypeName);
+        }
+        
+        return null;
+        
+      }
+      
+    });
+    
+  }
+  
+  public static void fixGrouperObjectTypesAttributeValuesForChildrenOfDirectStem(Stem stem, String objectTypeName) {
+    
+    if (stem.isRootStem()) {
+      return;
+    }
+    
+    GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = getGrouperObjectTypesAttributeValue(stem, objectTypeName);
+    
+    if (grouperObjectTypesAttributeValue == null) return;
+    
+    {
+      
+      Set<GrouperObject> children = new HashSet<GrouperObject>();
+      
+      Set<Group> childGroups = stem.getChildGroups(Stem.Scope.SUB);
+      Set<Stem> childStems = stem.getChildStems(Stem.Scope.SUB);
+      
+      children.addAll(childGroups);
+      children.addAll(childStems);
+      
+      for (GrouperObject child: children) {
+        
+        GrouperObjectTypesAttributeValue childObbjectTypeAttributeValue = getGrouperObjectTypesAttributeValue(child, objectTypeName);
+        
+        if (childObbjectTypeAttributeValue != null && childObbjectTypeAttributeValue.isDirectAssignment()) {
+          continue;
+        }
+        
+        fixGrouperObjectTypeAttributeValueForIndirectGrouperObject(child, objectTypeName);
+        
+      }
+      
+    }
+    
+    
+  }
+  
+  public static void fixGrouperObjectTypeAttributeValueForIndirectGrouperObject(final GrouperObject grouperObject, String objectTypeName) {
+    
+    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) {
+      return;
+    }
+    
+    Stem parent = grouperObject.getParentStem();
+    
+    GrouperObjectTypesAttributeValue parentAttributeValue = null;
+    
+    while (parent != null) {
+      
+      parentAttributeValue = getGrouperObjectTypesAttributeValue(parent, objectTypeName);
+      
+      if (parentAttributeValue != null && parentAttributeValue.isDirectAssignment()) {
+        break;
+      } else {
+        parentAttributeValue = null;
+      }
+      
+      if (parent.isRootStem()) {
+        break;
+      }
+      
+      parent = parent.getParentStem();
+      
+    }
+    
+    if (parentAttributeValue == null) {
+      deleteAttributeAssign(grouperObject, objectTypeName); // orphan attribute value. delete it.
+    } else {
+      
+      GrouperObjectTypesAttributeValue attributeValue = getGrouperObjectTypesAttributeValue(grouperObject, objectTypeName);
+      
+      if (attributeValue != null && StringUtils.isNotBlank(attributeValue.getObjectTypeOwnerStemId()) &&
+          StringUtils.equals(attributeValue.getObjectTypeOwnerStemId(), parent.getId())) {
+        return; // correct owner; no need to make any changes
+      }
+      
+      if (attributeValue == null) {
+        GrouperObjectTypesAttributeValue childValueToSave = new GrouperObjectTypesAttributeValue();
+        childValueToSave.setDirectAssignment(false);
+        childValueToSave.setObjectTypeOwnerStemId(parent.getId());
+        childValueToSave.setObjectTypeDataOwner(parentAttributeValue.getObjectTypeDataOwner());
+        childValueToSave.setObjectTypeMemberDescription(parentAttributeValue.getObjectTypeMemberDescription());
+        childValueToSave.setObjectTypeName(objectTypeName);
+        childValueToSave.setObjectTypeServiceName(parentAttributeValue.getObjectTypeServiceName());
+        saveOrUpdateTypeAttributes(childValueToSave, grouperObject);
+      } else {
+        AttributeAssign attributeAssign = getAttributeAssign(grouperObject, objectTypeName);
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
+        attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), parent.getId());
+        
+        attributeAssign.saveOrUpdate();
+      }
+      
+      
+    }
+    
+  }
+  
+  public static void fixGrouperObjectTypesAttributeValueForIndirectGrouperObject(final GrouperObject grouperObject) {
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<String> objectTypeNames = GrouperObjectTypesSettings.getObjectTypeNames();
+        
+        for (String objectTypeName: objectTypeNames) {
+          fixGrouperObjectTypeAttributeValueForIndirectGrouperObject(grouperObject, objectTypeName);
+        }
         return null;
         
       }
