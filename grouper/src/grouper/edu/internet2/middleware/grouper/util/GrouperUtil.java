@@ -143,6 +143,12 @@ import net.sf.json.util.PropertyFilter;
  */
 public class GrouperUtil {
 
+  public static void setClear(Set<?> set) {
+    if (set != null) {
+      set.clear();
+    }
+  }
+  
   /**
    * in a finally block, take an exception and inject and throw the existing exception, or just throw the finally exception
    * @param tryException

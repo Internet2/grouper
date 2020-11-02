@@ -368,6 +368,13 @@ public class GrouperProvisioningCompare {
 
   protected void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
     
+    for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      if (grouperTargetEntity != null) {
+        GrouperUtil.setClear(grouperTargetEntity.getInternal_objectChanges());
+      }
+    }
+
     Map<Object, ProvisioningEntity> grouperMatchingIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
     Map<Object, ProvisioningEntity> targetMatchingIdToTargetEntity = new HashMap<Object, ProvisioningEntity>();
     
@@ -508,6 +515,11 @@ public class GrouperProvisioningCompare {
 
   public void addInternalObjectChangeForEntitiesToInsert(
       List<ProvisioningEntity> provisioningEntitiesToInsert) {
+    
+    for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(provisioningEntitiesToInsert)) {
+      GrouperUtil.setClear(provisioningEntity.getInternal_objectChanges());
+    }
+
     for (ProvisioningEntity entityToInsert : provisioningEntitiesToInsert) {
 
       if (entityToInsert.getId() != null && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().canEntityInsertField("id")) {
@@ -538,6 +550,13 @@ public class GrouperProvisioningCompare {
 
 
   protected void compareTargetGroups(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      if (grouperTargetGroup != null) {
+        GrouperUtil.setClear(grouperTargetGroup.getInternal_objectChanges());
+      }
+    }
     
     // groups insert
     Map<Object, ProvisioningGroup> grouperMatchingIdToTargetGroup = new HashMap<Object, ProvisioningGroup>();
@@ -681,6 +700,11 @@ public class GrouperProvisioningCompare {
 
   public void addInternalObjectChangeForGroupsToInsert(
       List<ProvisioningGroup> provisioningGroupsToInsert) {
+    
+    for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(provisioningGroupsToInsert)) {
+      GrouperUtil.setClear(provisioningGroup.getInternal_objectChanges());
+    }
+
     for (ProvisioningGroup groupToInsert: provisioningGroupsToInsert) {
       
       if (groupToInsert.getId() != null && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().canGroupInsertField("id")) {
@@ -711,6 +735,13 @@ public class GrouperProvisioningCompare {
 
   protected void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
     
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+      if (grouperTargetMembership != null) {
+        GrouperUtil.setClear(grouperTargetMembership.getInternal_objectChanges());
+      }
+    }
+
     Map<Object, ProvisioningMembership> grouperMatchingIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     Map<Object, ProvisioningMembership> targetMatchingIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     
