@@ -657,8 +657,8 @@ public class GrouperProvisioningTranslatorBase {
 
   public void matchingIdTargetObjects() {
     idTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
-    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities());
-    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships());
+    idTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities());
+    idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
   }
   
   public void matchingIdGrouperObjects() {

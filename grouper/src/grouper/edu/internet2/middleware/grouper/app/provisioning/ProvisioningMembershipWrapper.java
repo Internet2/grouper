@@ -142,8 +142,13 @@ public class ProvisioningMembershipWrapper {
     this.grouperProvisioningMembership = grouperProvisioningMembership;
     if (this.grouperProvisioningMembership!=null) {
       this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+      if (this != this.grouperProvisioningMembership.getProvisioningMembershipWrapper()) {
+        if (this.grouperProvisioningMembership.getProvisioningMembershipWrapper() != null) {
+          this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperProvisioningMembership.getProvisioningMembershipWrapper());
+        }
+        this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
+      }
     }
-
   }
 
   
@@ -155,6 +160,12 @@ public class ProvisioningMembershipWrapper {
   public void setTargetProvisioningMembership(
       ProvisioningMembership targetProvisioningMembership) {
     this.targetProvisioningMembership = targetProvisioningMembership;
+    if (this.targetProvisioningMembership != null && this != this.targetProvisioningMembership.getProvisioningMembershipWrapper()) {
+      if (this.targetProvisioningMembership.getProvisioningMembershipWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.targetProvisioningMembership.getProvisioningMembershipWrapper());
+      }
+      this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
+    }
   }
 
   
@@ -165,6 +176,12 @@ public class ProvisioningMembershipWrapper {
   
   public void setGrouperTargetMembership(ProvisioningMembership grouperTargetMembership) {
     this.grouperTargetMembership = grouperTargetMembership;
+    if (this.grouperTargetMembership != null && this != this.grouperTargetMembership.getProvisioningMembershipWrapper()) {
+      if (this.grouperTargetMembership.getProvisioningMembershipWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperTargetMembership.getProvisioningMembershipWrapper());
+      }
+      this.grouperTargetMembership.setProvisioningMembershipWrapper(this);
+    }
   }
 
   

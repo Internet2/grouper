@@ -151,6 +151,12 @@ public class ProvisioningGroupWrapper {
     this.grouperProvisioningGroup = grouperProvisioningGroup;
     if (this.grouperProvisioningGroup!=null) {
       this.groupId = this.grouperProvisioningGroup.getId();
+      if (this != this.grouperProvisioningGroup.getProvisioningGroupWrapper()) {
+        if (this.grouperProvisioningGroup.getProvisioningGroupWrapper() != null) {
+          this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.grouperProvisioningGroup.getProvisioningGroupWrapper());
+        }
+        this.grouperProvisioningGroup.setProvisioningGroupWrapper(this);
+      }
     }
 
   }
@@ -163,6 +169,12 @@ public class ProvisioningGroupWrapper {
   
   public void setTargetProvisioningGroup(ProvisioningGroup targetProvisioningGroup) {
     this.targetProvisioningGroup = targetProvisioningGroup;
+    if (this.targetProvisioningGroup != null && this != this.targetProvisioningGroup.getProvisioningGroupWrapper()) {
+      if (this.targetProvisioningGroup.getProvisioningGroupWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.targetProvisioningGroup.getProvisioningGroupWrapper());
+      }
+      this.targetProvisioningGroup.setProvisioningGroupWrapper(this);
+    }
   }
 
   
@@ -173,6 +185,12 @@ public class ProvisioningGroupWrapper {
   
   public void setGrouperTargetGroup(ProvisioningGroup grouperTargetGroup) {
     this.grouperTargetGroup = grouperTargetGroup;
+    if (this.grouperTargetGroup != null && this != this.grouperTargetGroup.getProvisioningGroupWrapper()) {
+      if (this.grouperTargetGroup.getProvisioningGroupWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.grouperTargetGroup.getProvisioningGroupWrapper());
+      }
+      this.grouperTargetGroup.setProvisioningGroupWrapper(this);
+    }
   }
 
   

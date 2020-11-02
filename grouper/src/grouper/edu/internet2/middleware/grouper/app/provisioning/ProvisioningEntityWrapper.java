@@ -118,6 +118,12 @@ public class ProvisioningEntityWrapper {
     this.grouperProvisioningEntity = grouperProvisioningEntity;
     if (this.grouperProvisioningEntity!=null) {
       this.memberId = this.grouperProvisioningEntity.getId();
+      if (this != this.grouperProvisioningEntity.getProvisioningEntityWrapper()) {
+        if (this.grouperProvisioningEntity.getProvisioningEntityWrapper() != null) {
+          this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperProvisioningEntity.getProvisioningEntityWrapper());
+        }
+        this.grouperProvisioningEntity.setProvisioningEntityWrapper(this);
+      }
     }
   }
 
@@ -129,6 +135,12 @@ public class ProvisioningEntityWrapper {
   
   public void setTargetProvisioningEntity(ProvisioningEntity targetProvisioningEntity) {
     this.targetProvisioningEntity = targetProvisioningEntity;
+    if (this.targetProvisioningEntity != null && this != this.targetProvisioningEntity.getProvisioningEntityWrapper()) {
+      if (this.targetProvisioningEntity.getProvisioningEntityWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.targetProvisioningEntity.getProvisioningEntityWrapper());
+      }
+      this.targetProvisioningEntity.setProvisioningEntityWrapper(this);
+    }
   }
 
   
@@ -139,6 +151,12 @@ public class ProvisioningEntityWrapper {
   
   public void setGrouperTargetEntity(ProvisioningEntity grouperTargetEntity) {
     this.grouperTargetEntity = grouperTargetEntity;
+    if (this.grouperTargetEntity != null && this != this.grouperTargetEntity.getProvisioningEntityWrapper()) {
+      if (this.grouperTargetEntity.getProvisioningEntityWrapper() != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperTargetEntity.getProvisioningEntityWrapper());
+      }
+      this.grouperTargetEntity.setProvisioningEntityWrapper(this);
+    }
   }
 
   

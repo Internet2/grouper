@@ -419,7 +419,6 @@ public class GrouperProvisionerGrouperDao {
       provisioningGroupWrappers.add(provisioningGroupWrapper);
 
       provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroup);
-      provisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
       groupUuidToProvisioningGroupWrapper.put(provisioningGroup.getId(), provisioningGroupWrapper);
     }
     
@@ -435,7 +434,6 @@ public class GrouperProvisionerGrouperDao {
       provisioningEntityWrappers.add(provisioningEntityWrapper);
       
       provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntity);
-      provisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
       memberUuidToProvisioningEntityWrapper.put(provisioningEntity.getId(), provisioningEntityWrapper);
     }
 
@@ -451,7 +449,6 @@ public class GrouperProvisionerGrouperDao {
       provisioningMembershipWrappers.add(provisioningMembershipWrapper);
       
       provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-      provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
       groupUuidMemberUuidToProvisioningMembershipWrapper.put(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()), 
           provisioningMembershipWrapper);
     }
@@ -490,7 +487,6 @@ public class GrouperProvisionerGrouperDao {
           
           // all the data is in the membership query
           provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningMembership.getProvisioningGroup());
-          provisioningMembership.getProvisioningGroup().setProvisioningGroupWrapper(provisioningGroupWrapper);
 //          if (grouperProvisioningObjects.getProvisioningGroups() == null) {
 //            grouperProvisioningObjects.setProvisioningGroups(new ArrayList<ProvisioningGroup>());
 //          }
@@ -525,7 +521,6 @@ public class GrouperProvisionerGrouperDao {
 
           // all the data is in the membership query
           provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningMembership.getProvisioningEntity());
-          provisioningMembership.getProvisioningEntity().setProvisioningEntityWrapper(provisioningEntityWrapper);
 //          if (grouperProvisioningObjects.getProvisioningEntities() == null) {
 //            grouperProvisioningObjects.setProvisioningEntities(new ArrayList<ProvisioningEntity>());
 //          }

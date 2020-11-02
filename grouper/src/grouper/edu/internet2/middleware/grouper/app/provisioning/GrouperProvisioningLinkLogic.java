@@ -294,7 +294,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateGroupLinkFull() {
     updateGroupLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
   }
 
   public void updateGroupLinkIncremental() {
@@ -331,7 +331,7 @@ public class GrouperProvisioningLinkLogic {
 
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper()).values());
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
   }
 
   /**

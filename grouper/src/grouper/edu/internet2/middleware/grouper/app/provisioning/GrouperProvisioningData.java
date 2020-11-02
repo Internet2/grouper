@@ -133,7 +133,7 @@ public class GrouperProvisioningData {
   public List<ProvisioningGroup> retrieveGrouperTargetGroups() {
     List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
     for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
-      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
       if (grouperTargetGroup != null) {
         grouperTargetGroups.add(grouperTargetGroup);
       }
@@ -148,7 +148,7 @@ public class GrouperProvisioningData {
   public List<ProvisioningEntity> retrieveGrouperTargetEntities() {
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.provisioningEntityWrappers) {
-      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
       if (grouperTargetEntity != null) {
         grouperTargetEntities.add(grouperTargetEntity);
       }
@@ -163,7 +163,7 @@ public class GrouperProvisioningData {
   public List<ProvisioningMembership> retrieveGrouperTargetMemberships() {
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
-      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
       if (grouperTargetMembership != null) {
         grouperTargetMemberships.add(grouperTargetMembership);
       }

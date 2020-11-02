@@ -522,7 +522,6 @@ public class GrouperProvisioningLogic {
       
       // not sure why it wouldnt match or exist...
       provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
-      targetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
     }
     
   }
@@ -621,7 +620,6 @@ public class GrouperProvisioningLogic {
       
       // not sure why it wouldnt match or exist...
       provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
-      targetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
 
     }
 
@@ -815,7 +813,6 @@ public class GrouperProvisioningLogic {
       provisioningGroupWrappers.add(provisioningGroupWrapper);
 
       provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
-      targetProvisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
     }
 
     
@@ -828,7 +825,6 @@ public class GrouperProvisioningLogic {
       provisioningEntityWrappers.add(provisioningEntityWrapper);
 
       provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
-      targetProvisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
     }
     
     Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
@@ -840,7 +836,6 @@ public class GrouperProvisioningLogic {
       provisioningMembershipWrappers.add(provisioningMembershipWrapper);
 
       provisioningMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
-      targetProvisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
     }
     
   }
@@ -1203,8 +1198,6 @@ public class GrouperProvisioningLogic {
         grouperProvisioningEntity.assignAttributeValue("subjectId", gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
-        grouperProvisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
-
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
 
         memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
@@ -1248,7 +1241,6 @@ public class GrouperProvisioningLogic {
         grouperProvisioningGroup.setName(gcGrouperSyncGroup.getGroupName());
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
         
-        grouperProvisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
         provisioningGroupWrapper.setDelete(true);
         
@@ -1328,7 +1320,6 @@ public class GrouperProvisioningLogic {
           
         provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
-        provisioningMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         provisioningMembershipWrapper.setDelete(true);
         

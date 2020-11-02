@@ -78,9 +78,6 @@ public class GrouperProvisioningMatchingIdIndex {
         grouperWrapper.setTargetProvisioningGroup(targetWrapper.getTargetProvisioningGroup());
         grouperWrapper.setTargetNativeGroup(targetWrapper.getTargetNativeGroup());
         
-        // remove from list of wrappers
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(targetWrapper);
-        
         continue;
       }
       matchingIds.add(matchingId);
@@ -152,9 +149,6 @@ public class GrouperProvisioningMatchingIdIndex {
         grouperWrapper.setTargetProvisioningMembership(targetWrapper.getTargetProvisioningMembership());
         grouperWrapper.setTargetNativeMembership(targetWrapper.getTargetNativeMembership());
         
-        // remove from list of wrappers
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(targetWrapper);
-        
         continue;
 
       }
@@ -225,9 +219,6 @@ public class GrouperProvisioningMatchingIdIndex {
         
         grouperWrapper.setTargetProvisioningEntity(targetWrapper.getTargetProvisioningEntity());
         grouperWrapper.setTargetNativeEntity(targetWrapper.getTargetNativeEntity());
-        
-        // remove from list of wrappers
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(targetWrapper);
         
         continue;
 
