@@ -21,7 +21,7 @@ public class LdapProvisionerTestUtils {
 
   public static void stopAndRemoveLdapContainer() {
 
-    String dockerProcesses = new CommandLineExec().assignCommand(getDockerPath() + " ps -a")
+    String dockerProcesses = new CommandLineExec().assignCommand(getDockerPath() + " ps")
         .assignErrorOnNonZero(true).execute().getStdout().getAllLines();
     
     if (dockerProcesses.contains("openldap-dinkel-grouper")) {
@@ -46,7 +46,10 @@ public class LdapProvisionerTestUtils {
     } else {
       grouperMiscHome = grouperMiscHome + File.separator + ".." + File.separator + "grouper-misc";
     }
-    
+
+    // binds need a full path
+    grouperMiscHome = new File(grouperMiscHome).getAbsolutePath();
+
     if (!dockerImages.contains("openldap-dinkel-grouper")) {
       
       new CommandLineExec().assignCommand(getDockerPath() + " build -t openldap-dinkel-grouper '"
