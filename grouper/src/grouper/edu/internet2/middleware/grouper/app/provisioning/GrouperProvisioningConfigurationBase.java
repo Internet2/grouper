@@ -611,6 +611,23 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.userSearchFilter = userSearchFilter;
   }
 
+  private String userSearchAllFilter;
+
+  /**
+   * search filter to look up all entities
+   * @return
+   */
+  public String getUserSearchAllFilter() {
+    return userSearchAllFilter;
+  }
+
+  /**
+   * search filter to look up all entities
+   * @param userSearchAllFilter
+   */
+  public void setUserSearchAllFilter(String userSearchAllFilter) {
+    this.userSearchAllFilter = userSearchAllFilter;
+  }
   
   
   @Override
@@ -736,6 +753,24 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   public void setGroupSearchFilter(String groupSearchFilter) {
     this.groupSearchFilter = groupSearchFilter;
+  }
+  
+  private String groupSearchAllFilter;
+
+  /**
+   * search filter to look up all groups
+   * @return
+   */
+  public String getGroupSearchAllFilter() {
+    return groupSearchAllFilter;
+  }
+
+  /**
+   * search filter to look up all groups
+   * @param groupSearchAllFilter
+   */
+  public void setGroupSearchAllFilter(String groupSearchAllFilter) {
+    this.groupSearchAllFilter = groupSearchAllFilter;
   }
   
   /**
@@ -999,6 +1034,11 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", false), 20);
     this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
     this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
+    
+    this.userSearchFilter = this.retrieveConfigString("userSearchFilter", false);
+    this.userSearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
+    this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
+    this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
     this.userSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userSearchAttributes", false), ",");
     if (this.userSearchAttributes == null) {

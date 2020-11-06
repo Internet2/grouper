@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * an instance of this class focuses on the configuration for ldap sync
@@ -19,12 +18,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private String ldapExternalSystemConfigId;
   private LdapSyncProvisioningType ldapProvisioningType;
   private String userSearchBaseDn;
-  private String userSearchFilter;
-  private String userSearchAllFilter;
-  
   private String groupSearchBaseDn;
-  private String groupSearchFilter;
-  private String groupSearchAllFilter;
   private LdapSyncGroupDnType groupDnType; // TODO remove?
   
   @Override
@@ -47,12 +41,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     }
     
     this.userSearchBaseDn = this.retrieveConfigString("userSearchBaseDn", false);
-    this.userSearchFilter = this.retrieveConfigString("userSearchFilter", false);
-    this.userSearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
-    
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
-    this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
-    this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
 
     {
       /*
@@ -96,26 +85,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   public void setUserSearchBaseDn(String userSearchBaseDn) {
     this.userSearchBaseDn = userSearchBaseDn;
   }
-
-  
-  public String getUserSearchFilter() {
-    return userSearchFilter;
-  }
-
-  
-  public void setUserSearchFilter(String userSearchFilter) {
-    this.userSearchFilter = userSearchFilter;
-  }
-
-  
-  public String getUserSearchAllFilter() {
-    return userSearchAllFilter;
-  }
-
-  
-  public void setUserSearchAllFilter(String userSearchAllFilter) {
-    this.userSearchAllFilter = userSearchAllFilter;
-  }
   
   public String getGroupSearchBaseDn() {
     return groupSearchBaseDn;
@@ -125,27 +94,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   public void setGroupSearchBaseDn(String groupSearchBaseDn) {
     this.groupSearchBaseDn = groupSearchBaseDn;
   }
-
-  
-  public String getGroupSearchFilter() {
-    return groupSearchFilter;
-  }
-
-  
-  public void setGroupSearchFilter(String groupSearchFilter) {
-    this.groupSearchFilter = groupSearchFilter;
-  }
-
-  
-  public String getGroupSearchAllFilter() {
-    return groupSearchAllFilter;
-  }
-
-  
-  public void setGroupSearchAllFilter(String groupSearchAllFilter) {
-    this.groupSearchAllFilter = groupSearchAllFilter;
-  }
-
   
   public LdapSyncGroupDnType getGroupDnType() {
     return groupDnType;
