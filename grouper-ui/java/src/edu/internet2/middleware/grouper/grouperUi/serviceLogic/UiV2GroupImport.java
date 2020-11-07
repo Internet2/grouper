@@ -80,6 +80,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -714,10 +716,10 @@ public class UiV2GroupImport {
         GrouperSession.stopQuietly(grouperSession);
       }
       
-      // TODO should be GrouperCallable
-      Runnable runnable = new Runnable() {
-        
-        public void run() {
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("groupImportMembers") {
+
+        @Override
+        public Void callLogic() {
           try {
             UiV2GroupImport.this.groupImportSubmitHelper(loggedInSubject, groupImportContainer, groups, subjectSet, 
                 listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName[0], (List<CSVRecord>)csvEntriesObject[0]);
@@ -729,27 +731,27 @@ public class UiV2GroupImport {
             // we done
             groupImportContainer.getProgressBean().setComplete(true);
           }
+          return null;
         }
-      };
-      
-      Thread thread = new Thread(runnable);
+      };      
       
       // see if running in thread
       boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.import.useThread");
       debugMap.put("useThreads", useThreads);
 
       if (useThreads) {
-        thread.start();
+        
+        GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
         
         Integer waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.import.progressStartsInSeconds");
         debugMap.put("waitForCompleteForSeconds", waitForCompleteForSeconds);
 
-        GrouperUtil.threadJoin(thread, waitForCompleteForSeconds * 1000);
+        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
         
-        debugMap.put("threadAlive", thread.isAlive());
+        debugMap.put("threadAlive", !grouperFuture.isDone());
 
       } else {
-        runnable.run();
+        grouperCallable.callLogic();
       }
   
       groupImportReportStatusHelper(sessionId, uniqueImportId);

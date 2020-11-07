@@ -12002,12 +12002,12 @@ public class GrouperUtil {
   }
 
   /**
-   * 
+   * you should probably use the GrouperCallable method, not this one
    * @param executorService
    * @param callable
    * @return the future
    */
-  public static GrouperFuture executorServiceSubmit(ExecutorService executorService, Callable callable) {
+  public static <T> GrouperFuture<T> executorServiceSubmit(ExecutorService executorService, Callable<T> callable) {
     Future future = executorService.submit(callable);
     GrouperFuture grouperFuture = new GrouperFuture(future, callable);
     return grouperFuture;

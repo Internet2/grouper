@@ -115,6 +115,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -2229,9 +2231,10 @@ public class UiV2Stem {
       
       final GrouperSession GROUPER_SESSION = grouperSession;
       final Map<String, String> TEXT_CONTAINER_MAP = TextContainer.retrieveFromRequest().getText();
-      Thread thread = new Thread(new Runnable() {
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("stemDelete") {
 
-        public void run() {
+        @Override
+        public Void callLogic() {
           
           //propagate the grouper session...  note, dont do an inverse of control, not
           //sure if grouper session is thread safe...
@@ -2248,13 +2251,14 @@ public class UiV2Stem {
             RUNTIME_EXCEPTION[0] = re;
             GrouperSession.stopQuietly(grouperSession);
           }
+          return null;
         }
         
-      });
+      };
 
-      thread.start();
+      GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
 
-      GrouperUtil.threadJoin(thread, 60 * 1000);
+      GrouperFuture.waitForJob(grouperFuture, 60);
 
       if (RUNTIME_EXCEPTION[0] != null) {
         throw RUNTIME_EXCEPTION[0];
