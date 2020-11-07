@@ -51,6 +51,11 @@ public class GrouperObjectTypesJob extends OtherJobBase {
     return null;
   }
   
+  
+  public static void main(String[] args) {
+    runDaemonStandalone();
+  }
+  
   /**
    * run standalone
    */
@@ -86,11 +91,13 @@ public class GrouperObjectTypesJob extends OtherJobBase {
     
     
     for (Stem stem: stems) {
-      List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
+      // List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
       
-      for (GrouperObjectTypesAttributeValue attributeValue: attributeValues) {
-        GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);        
-      }
+//      for (GrouperObjectTypesAttributeValue attributeValue: attributeValues) {
+//        GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);        
+//      }
+      
+      GrouperObjectTypesConfiguration.fixGrouperObjectTypesAttributeValuesForChildrenOfDirectStem(stem);
       
     }
     
@@ -117,7 +124,8 @@ public class GrouperObjectTypesJob extends OtherJobBase {
     indirectGrouperObjects.addAll(groups);
     
     for (GrouperObject grouperObject: indirectGrouperObjects) {
-     GrouperObjectTypesConfiguration.copyConfigFromParent(grouperObject);
+     //GrouperObjectTypesConfiguration.copyConfigFromParent(grouperObject);
+      GrouperObjectTypesConfiguration.fixGrouperObjectTypesAttributeValueForIndirectGrouperObject(grouperObject);
     }
     
   }
