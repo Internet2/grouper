@@ -1958,6 +1958,9 @@ public class SubjectUtils {
     try {
       return file.getCanonicalPath();
     } catch (IOException ioe) {
+      if (file != null) {
+        return file.toString();
+      }
       throw new RuntimeException(ioe);
     }
   }
