@@ -13584,7 +13584,7 @@ public class GrouperInstaller {
     return tomcatFile;
   }
   
-  public static final String TOMEE_VERSION = "7.0.8";
+  public static final String TOMEE_VERSION = "7.0.9";
   
   /**
    * 
