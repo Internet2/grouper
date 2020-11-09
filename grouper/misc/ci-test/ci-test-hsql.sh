@@ -177,6 +177,12 @@ exit_code=$?
 
 echo $(date) "CI test finished (exit code $exit_code)" >>$TESTLOG
 
+echo "GROUPER TESTS" > $SUMMARYLOG
+echo "=============" >> $SUMMARYLOG
+
+tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
+summary_code=$?
+
 
 # Run pspng as a separate set of tests
 $MVN -f grouper-misc/grouper-pspng dependency:copy-dependencies >>$BUILDLOG 2>&1
@@ -187,6 +193,8 @@ if [ $exit_code -ne 0 ]; then
 fi
 
 CP=$(compgen -G "grouper-misc/grouper-pspng/target/grouper-pspng-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/;s/:$//'):$CP
+CP=$CP:"grouper-misc/grouper-pspng/target/dependency/*"
+echo $CP
 
 echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
 echo "CP=$CP" >>$TESTLOG 2>&1
@@ -202,6 +210,12 @@ exit_code=$?
 
 echo $(date) "CI test (PSPNG) finished (exit code $exit_code)" >>$TESTLOG
 
+echo "PSPNG TESTS" >> $SUMMARYLOG
+echo "===========" >> $SUMMARYLOG
+
+tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
+pspng_summary_code=$?
+
 
 GROUPER_ATTACH=
 if [ -n grouper/logs/grouper_error.log]; then
@@ -213,10 +227,8 @@ kill %1 >>$TESTLOG 2>&1
 
 #DEBUG
 
-tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >$SUMMARYLOG 2>>$TESTLOG
-summary_code=$?
-if [ $summary_code -ne 0 -o -z $SUMMARYLOG ]; then
-  echo "DEBUG: summary_code=$summary_code" >>$TESTLOG 2>&1
+if [ $summary_code -ne 0 -o $pspng_summary_code -ne 0 -o -z $SUMMARYLOG ]; then
+  echo "DEBUG: summary_code=$summary_code; pspng_summary_code=$pspng_summary_code" >>$TESTLOG 2>&1
   ls -alFd $SUMMARYLOG >>$TESTLOG 2>&1
   echo "CI completed tests (summary failed)" | mailx -s "CI test results" -a $TESTLOG -a $BUILDLOG $GROUPER_ATTACH $COMMITTER_EMAILS 2>&1
   exit $exit_code
