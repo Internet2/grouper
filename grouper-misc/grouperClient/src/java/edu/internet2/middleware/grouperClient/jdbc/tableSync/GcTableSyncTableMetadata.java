@@ -339,7 +339,7 @@ public class GcTableSyncTableMetadata {
         
       });
     } catch (Exception e) {
-      LOG.error("Error finding metadata for '" + tableName + "' in database: '" + theConnectionName + "'");
+      LOG.error("Error finding metadata for '" + tableName + "' in database: '" + theConnectionName + "'", e);
     }
 
     if (gcTableSyncColumnMetadatas.size() == 0) {
