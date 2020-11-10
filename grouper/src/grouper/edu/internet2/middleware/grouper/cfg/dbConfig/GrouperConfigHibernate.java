@@ -700,8 +700,9 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     
     if (hasValue && !StringUtils.isBlank(value)) {
       try {
-        Morph.decrypt(value);
-        return true;
+        if (StringUtils.isNotBlank(Morph.decrypt(value))) {
+          return true;
+        }
       } catch (Exception e) {
         // ignore
       }
