@@ -934,6 +934,8 @@ public class GcGrouperSyncMembershipDao {
 
     Set<MultiKey> syncGroupIdsSyncMemberIds = new HashSet<MultiKey>();
     
+    Map<MultiKey, MultiKey> syncGroupSyncMemberToGroupMemberIds = new HashMap<MultiKey, MultiKey>();
+    
     // go through and each and see if we have them
     for (MultiKey groupIdAndMemberId : groupIdsAndMemberIds) {
       String groupId = (String)groupIdAndMemberId.getKey(0);
@@ -945,13 +947,37 @@ public class GcGrouperSyncMembershipDao {
           || gcGrouperSyncGroup.getId() == null || gcGrouperSyncMember.getId() == null) {
         continue;
       }
-      syncGroupIdsSyncMemberIds.add(new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId()));
+      MultiKey groupSyncIdMemberSyncId = new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
+      syncGroupIdsSyncMemberIds.add(groupSyncIdMemberSyncId);
+      syncGroupSyncMemberToGroupMemberIds.put(groupSyncIdMemberSyncId, groupIdAndMemberId);
     }
 
-    // batch these
-    Map<MultiKey, GcGrouperSyncMembership> results = this.internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(syncGroupIdsSyncMemberIds);
-
+    Map<MultiKey, GcGrouperSyncMembership> results = new HashMap<MultiKey, GcGrouperSyncMembership>();
+    
+    Set<MultiKey> syncGroupIdsSyncMemberIdsToGetFromDb = new HashSet<MultiKey>();
+    
+    // try from cache
+    for (MultiKey syncGroupIdSyncMemberId : GrouperClientUtils.nonNull(syncGroupIdsSyncMemberIds)) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = this.internalCacheSyncMemberships.get(syncGroupIdSyncMemberId);
+      if (gcGrouperSyncMembership != null) {
+        MultiKey groupIdMemberId = syncGroupSyncMemberToGroupMemberIds.get(syncGroupIdSyncMemberId);
+        results.put(groupIdMemberId, gcGrouperSyncMembership);
+      } else {
+        syncGroupIdsSyncMemberIdsToGetFromDb.add(syncGroupIdSyncMemberId);
+      }
+    }
+    
+    // or else get from db
+    if (syncGroupIdsSyncMemberIdsToGetFromDb.size() > 0) {
+      Map<MultiKey, GcGrouperSyncMembership> syncGroupIdSyncMemberIdToMembershipFromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(syncGroupIdsSyncMemberIdsToGetFromDb);
+      for (MultiKey syncGroupIdSyncMemberId : (GrouperClientUtils.nonNull(syncGroupIdSyncMemberIdToMembershipFromDb).keySet())) {
+        MultiKey groupIdMemberId = syncGroupSyncMemberToGroupMemberIds.get(syncGroupIdSyncMemberId);
+        results.put(groupIdMemberId, syncGroupIdSyncMemberIdToMembershipFromDb.get(syncGroupIdSyncMemberId));
+      }
+    }
+    
     return results;
+
   }
 
   public List<GcGrouperSyncMembership> membershipRetrieveByGroupIds(Set<String> groupIdsToRetrieveMemberships) {

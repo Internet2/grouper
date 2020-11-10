@@ -368,7 +368,9 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncMemberships(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
+      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, List<GcGrouperSyncMember> initialGcGrouperSyncMembers,
+      List<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, 
+      ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
   
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -381,10 +383,27 @@ public class ProvisioningSyncIntegration {
   
     initialGcGrouperSyncMemberships = GrouperUtil.nonNull(initialGcGrouperSyncMemberships);
 
+    Map<String, GcGrouperSyncGroup> groupSyncIdToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(initialGcGrouperSyncGroups)) {
+      groupSyncIdToSyncGroup.put(gcGrouperSyncGroup.getId(), gcGrouperSyncGroup);
+    }
+    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = new HashMap<String, GcGrouperSyncMember>();
+    for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(initialGcGrouperSyncMembers)) {
+      memberSyncIdToSyncMember.put(gcGrouperSyncMember.getId(), gcGrouperSyncMember);
+    }
+
     Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
     
-    groupIdMemberIdToSyncMembership = GrouperUtil.nonNull(groupIdMemberIdToSyncMembership);
-    
+    for (GcGrouperSyncMembership gcGrouperSyncMembership : initialGcGrouperSyncMemberships) {
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = groupSyncIdToSyncGroup.get(gcGrouperSyncMembership.getGrouperSyncGroupId());
+      GcGrouperSyncMember gcGrouperSyncMember = memberSyncIdToSyncMember.get(gcGrouperSyncMembership.getGrouperSyncMemberId());
+      if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
+        groupIdMemberIdToSyncMembership.put(
+            new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getMemberId()), gcGrouperSyncMembership);
+      }
+    }
+
     int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
         "grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7);
   
@@ -402,24 +421,20 @@ public class ProvisioningSyncIntegration {
     
     // lets remove ones that dont need to be there
     if (GrouperUtil.length(groupIdMemberIdToSyncMembership) > 0) {
-      
-      // make an array list so we can remove from the map without exception
-      List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>(groupIdMemberIdToSyncMembership.values());
-      
-      for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMemberships) {
+      Set<MultiKey> groupIdMemberIds = new HashSet<MultiKey>(groupIdMemberIdToSyncMembership.keySet());
+      for (MultiKey groupIdMemberId : groupIdMemberIds) {
+
+        GcGrouperSyncMembership gcGrouperSyncMembership = groupIdMemberIdToSyncMembership.get(groupIdMemberId);
+
+        GcGrouperSyncGroup gcGrouperSyncGroup = groupSyncIdToSyncGroup.get(gcGrouperSyncMembership.getGrouperSyncGroupId());
         
-        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncMembership.getGrouperSyncGroupId());
-        
-        GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMembership.getGrouperSyncMemberId());
+        GcGrouperSyncMember gcGrouperSyncMember = memberSyncIdToSyncMember.get(gcGrouperSyncMembership.getGrouperSyncMemberId());
         
         // not sure why this would happen, i guess if a group aged out and this is already removed????
         if (gcGrouperSyncGroup == null || gcGrouperSyncMember == null) {
           continue;
         }
 
-        MultiKey groupIdMemberId = new MultiKey(
-            gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getMemberId());
-        
         ProvisioningMembershipWrapper provisioningMembershipWrapper = groupIdMemberIdToProvisioningMembershipWrapper.get(groupIdMemberId);
   
         ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGrouperProvisioningMembership();
