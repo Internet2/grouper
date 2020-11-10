@@ -44,10 +44,13 @@ public class GrouperProvisionerGrouperSyncDao {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.grouperProvisioner.setProvisioningSyncResult(provisioningSyncResult);
     ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(), 
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper());
     ProvisioningSyncIntegration.fullSyncMembers(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper());
     ProvisioningSyncIntegration.fullSyncMemberships(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMemberships(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper());
 
 //    //do we really need to do this now?  maybe just do this at end?
@@ -550,11 +553,14 @@ public class GrouperProvisionerGrouperSyncDao {
             gcGrouperSyncMembership.setInTargetInsertOrExists(true);
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
             ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
-            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-            gcGrouperSyncMembership.setErrorMessage(null);
-            gcGrouperSyncMembership.setErrorTimestamp(null);
-            gcGrouperSyncMembership.setInTarget(false);
-            gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+            // if there is a default untracked value, this might be null
+            if (provisioningMembershipWrapper != null) {
+              GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+              gcGrouperSyncMembership.setErrorMessage(null);
+              gcGrouperSyncMembership.setErrorTimestamp(null);
+              gcGrouperSyncMembership.setInTarget(false);
+              gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+            }
           }
         }
         

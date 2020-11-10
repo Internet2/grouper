@@ -321,4 +321,26 @@ public class GrouperProvisioningConfigurationAttribute {
       String translateExpressionFromMembership) {
     this.translateExpressionFromMembership = translateExpressionFromMembership;
   }
+
+  /**
+   * default value if there is not a value
+   */
+  private String defaultValue;
+  
+  /**
+   * default value if there is not a value
+   * @return
+   */
+  public String getDefaultValue() {
+    return defaultValue;
+  }
+
+  /**
+   * default value if there is not a value
+   * @param defaultValue1
+   */
+  public void setDefaultValue(String defaultValue1) {
+    this.defaultValue = defaultValue1;
+    
+  }
 }

@@ -194,6 +194,16 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
+  manipulateGrouperTargetAttributes {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+
+    }
+  }, 
   translateGrouperGroupsEntitiesToTarget {
 
     @Override
@@ -265,7 +275,7 @@ public enum GrouperProvisioningObjectLogType {
 
       
     }
-  }, 
+  },
   matchingIdGrouperObjects {
 
     @Override
@@ -276,6 +286,20 @@ public enum GrouperProvisioningObjectLogType {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "entities");
 
     }
+  }, 
+  
+  logIncomingData {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data", "(with recalc from target)",     
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data", "(without recalc from target)",     
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc());
+      
+    }
+    
   };
 
   abstract void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage);
@@ -340,6 +364,49 @@ public enum GrouperProvisioningObjectLogType {
     }
   }
 
+  private static void appendIncomingData(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
+      String type, GrouperIncrementalDataToProcess grouperIncrementalDataToProcess) {
+    if (logMessage.charAt(logMessage.length()-1) != '\n') {
+      logMessage.append("\n");
+    }
+    logMessage.append(label).append(" ").append(type).append(":\n");
+    if (grouperIncrementalDataToProcess != null) {
+      appendList(logMessage, "groupUuidsForGroupOnly", grouperIncrementalDataToProcess.getGroupUuidsForGroupOnly());
+      appendList(logMessage, "groupUuidsForGroupMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync());
+      appendList(logMessage, "memberUuidsForEntityOnly", grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly());
+      appendList(logMessage, "memberUuidsForEntityMembershipSync", grouperIncrementalDataToProcess.getMemberUuidsForEntityMembershipSync());
+      appendList(logMessage, "groupUuidsMemberUuidsFieldIdsForMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
+    }
+  }
+  private static void appendList(StringBuilder logMessage, String label, Collection<?> someList) {
+    if (GrouperUtil.length(someList) > 0) {
+      logMessage.append(" - ").append(label).append(" (").append(GrouperUtil.length(someList)).append("): ");
+      int count = 0;
+      for (Object item : someList) {
+        if (count > 0) {
+          logMessage.append(", ");
+        }
+        if (item instanceof String) {
+          logMessage.append(item);
+        } else if (item instanceof MultiKey) {
+          MultiKey itemMultiKey = (MultiKey)item;
+          logMessage.append("[");
+          for (int i=0;i<itemMultiKey.size();i++) {
+            if (i>0) {
+              logMessage.append(",");
+            }
+            logMessage.append(itemMultiKey.getKey(i));
+          }
+          logMessage.append("]");
+        }
+        count++;
+        if (count > 5) {
+          break;
+        }
+      }
+      logMessage.append("\n");
+    }
+  }
   private static void appendProvisioningObjectsOfType(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
       List beans, String type) {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label,

@@ -867,7 +867,13 @@ public class GcGrouperSyncMembershipDao {
       gcGrouperSyncMembership.storePrepare();
     }
   
-    int changes = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeBatchToDatabase(gcGrouperSyncMembershipsList, batchSize);
+    int changes = -1;
+    
+    try {
+      changes = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeBatchToDatabase(gcGrouperSyncMembershipsList, batchSize);
+    } catch (RuntimeException re) {
+      throw re;
+    }
     
     for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperClientUtils.nonNull(gcGrouperSyncMemberships)) {
       this.internal_membershipCacheAdd(gcGrouperSyncMembership);

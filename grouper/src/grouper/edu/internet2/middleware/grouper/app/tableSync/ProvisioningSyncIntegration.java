@@ -36,7 +36,7 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncGroups(ProvisioningSyncResult provisioningSyncGroupResult, GcGrouperSync gcGrouperSync,
-      Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper) {
+      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper) {
 
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -49,13 +49,10 @@ public class ProvisioningSyncIntegration {
 
     Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
 
-    groupUuidToProvisioningGroupWrapper = GrouperUtil.nonNull(groupUuidToProvisioningGroupWrapper);
+    initialGcGrouperSyncGroups = GrouperUtil.nonNull(initialGcGrouperSyncGroups);
 
-    for (ProvisioningGroupWrapper provisioningGroupWrapper : groupUuidToProvisioningGroupWrapper.values()) {
-      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
-      if (gcGrouperSyncGroup != null) {
-        groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
-      }
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : initialGcGrouperSyncGroups) {
+      groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
     }
 
     int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
@@ -209,7 +206,7 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncMembers(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper) {
+      List<GcGrouperSyncMember> initialGcGrouperSyncMembers, Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper) {
   
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -220,15 +217,12 @@ public class ProvisioningSyncIntegration {
         + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
   
-    memberUuidToProvisioningEntityWrapper = GrouperUtil.nonNull(memberUuidToProvisioningEntityWrapper);
+    initialGcGrouperSyncMembers = GrouperUtil.nonNull(initialGcGrouperSyncMembers);
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
-    for (ProvisioningEntityWrapper provisioningEntityWrapper : memberUuidToProvisioningEntityWrapper.values()) {
-      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
-      if (gcGrouperSyncMember != null) {
-        memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
-      }
+    for (GcGrouperSyncMember gcGrouperSyncMember : initialGcGrouperSyncMembers) {
+      memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
     }
 
     int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
@@ -248,7 +242,6 @@ public class ProvisioningSyncIntegration {
     
     Set<String> memberIdsWithChangedSubjectIds = new HashSet<String>();
     provisioningSyncResult.setMemberIdsWithChangedSubjectIds(memberIdsWithChangedSubjectIds);
-  
   
     // lets remove ones that dont need to be there
     if (GrouperUtil.length(memberUuidToSyncMember) > 0) {
@@ -375,7 +368,7 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncMemberships(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
+      List<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
   
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -386,7 +379,7 @@ public class ProvisioningSyncIntegration {
         + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
   
-    groupIdMemberIdToProvisioningMembershipWrapper = GrouperUtil.nonNull(groupIdMemberIdToProvisioningMembershipWrapper);
+    initialGcGrouperSyncMemberships = GrouperUtil.nonNull(initialGcGrouperSyncMemberships);
 
     Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
     

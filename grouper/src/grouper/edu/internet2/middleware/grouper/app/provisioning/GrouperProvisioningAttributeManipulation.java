@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 
@@ -86,13 +88,195 @@ public class GrouperProvisioningAttributeManipulation {
     }
   }
 
+  /**
+   * @param provisioningGroups
+   * @param attribute null for all or an attribute name for a specific one
+   */
+  public void assignDefaultsForGroups(List<ProvisioningGroup> provisioningGroups, GrouperProvisioningConfigurationAttribute attribute) {
+    
+    Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig();
+
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeId = groupFieldNameToConfig.get("id");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeDisplayName = groupFieldNameToConfig.get("displayName");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeName = groupFieldNameToConfig.get("name");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeIdIndex = groupFieldNameToConfig.get("idIndex");
+
+    int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
+    
+    for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeId) {
+        provisioningGroup.setId((String)assignDefaultField(provisioningGroup.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
+      }
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeDisplayName) {
+        provisioningGroup.setDisplayName((String)assignDefaultField(provisioningGroup.getDisplayName(), grouperProvisioningConfigurationAttributeDisplayName,  assignDefaultFieldsAndAttributesCount));
+      }
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeName) {
+        provisioningGroup.setName((String)assignDefaultField(provisioningGroup.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
+      }
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeIdIndex) {
+        provisioningGroup.setIdIndex(GrouperUtil.longObjectValue(assignDefaultField(provisioningGroup.getIdIndex(), grouperProvisioningConfigurationAttributeIdIndex, assignDefaultFieldsAndAttributesCount), true));
+      }
+      
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
+        if (attribute == null || attribute == grouperProvisioningConfigurationAttribute) {
+          assignDefault(provisioningGroup, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+        }
+      }
+    }
+    if (assignDefaultFieldsAndAttributesCount[0] > 0) {
+      assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
+    }
+  }
+
+  /**
+   * @param provisioningEntities
+   * @param attribute null for all or an attribute name for a specific one
+   */
+  public void assignDefaultsForEntities(List<ProvisioningEntity> provisioningEntities, GrouperProvisioningConfigurationAttribute attribute) {
+    
+    Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig();
+    
+    int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
+    
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeId = entityFieldNameToConfig.get("id");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeLoginId = entityFieldNameToConfig.get("loginId");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeName = entityFieldNameToConfig.get("name");
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeEmail = entityFieldNameToConfig.get("email");
+
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeId) {
+        provisioningEntity.setId((String)assignDefaultField(provisioningEntity.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
+      }
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeLoginId) {
+        provisioningEntity.setLoginId((String)assignDefaultField(provisioningEntity.getLoginId(), grouperProvisioningConfigurationAttributeLoginId,  assignDefaultFieldsAndAttributesCount));
+      }
+      
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeName) {
+        provisioningEntity.setName((String)assignDefaultField(provisioningEntity.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
+      }
+
+      if (attribute == null || attribute == grouperProvisioningConfigurationAttributeEmail) {
+        provisioningEntity.setEmail((String)assignDefaultField(provisioningEntity.getEmail(), grouperProvisioningConfigurationAttributeEmail, assignDefaultFieldsAndAttributesCount));
+      }
+
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
+        if (attribute == null || attribute == grouperProvisioningConfigurationAttribute) {
+          assignDefault(provisioningEntity, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+        }
+      }
+    }
+    if (assignDefaultFieldsAndAttributesCount[0] > 0) {
+      assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
+    }
+  }
+
+  public void assignDefaultsForMemberships(List<ProvisioningMembership> provisioningMemberships) {
+    
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig();
+    
+    int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
+    
+    for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
+      
+      provisioningMembership.setId((String)assignDefaultField(provisioningMembership.getId(), membershipFieldNameToConfig.get("id"),  assignDefaultFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningEntityId((String)assignDefaultField(provisioningMembership.getProvisioningEntityId(), membershipFieldNameToConfig.get("provisioningEntityId"),  assignDefaultFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningGroupId((String)assignDefaultField(provisioningMembership.getProvisioningGroupId(), membershipFieldNameToConfig.get("provisioningGroupId"),  assignDefaultFieldsAndAttributesCount));
+
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
+        assignDefault(provisioningMembership, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+      }
+    }
+    if (assignDefaultFieldsAndAttributesCount[0] > 0) {
+      assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
+    }
+  }
+
+  /**
+   * 
+   * @param currentValue
+   * @param grouperProvisioningConfigurationAttribute
+   * @param assignDefaultFieldsAndAttributesCount
+   * @return return the current or new field
+   */
+  public Object assignDefaultField(Object currentValue, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+      int[] assignDefaultFieldsAndAttributesCount) {
+
+    if (grouperProvisioningConfigurationAttribute != null) {
+
+      // set a default value if blank and is a grouper object
+      if (currentValue == null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+        assignDefaultFieldsAndAttributesCount[0]++;
+        return grouperProvisioningConfigurationAttribute.getDefaultValue();
+      }
+    }
+
+    return currentValue;
+  }
+
+  public void assignDefault(ProvisioningUpdatable provisioningUpdatable,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
+
+    if (grouperProvisioningConfigurationAttribute == null || StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+      return;
+    }
+
+    Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
+    
+    // scalar
+    if (!grouperProvisioningConfigurationAttribute.isMultiValued()) {
+      if (currentValue == null) {
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), grouperProvisioningConfigurationAttribute.getDefaultValue());
+        count[0]++;
+      }
+      return;
+    }
+
+    if (currentValue == null) {
+      count[0]++;
+      provisioningUpdatable.addAttributeValue(grouperProvisioningConfigurationAttribute.getName(), grouperProvisioningConfigurationAttribute.getDefaultValue());
+      return;
+    }
+    if (currentValue instanceof Collection) {
+      Collection currentValueCollection = (Collection)currentValue;
+      if (currentValueCollection.size() == 0) {
+        currentValueCollection.add(grouperProvisioningConfigurationAttribute.getDefaultValue());
+        count[0]++;
+      }
+      return;
+    }
+    if (currentValue != null && currentValue.getClass().isArray()) {
+      if (Array.getLength(currentValue) == 0) {
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), new Object[] {grouperProvisioningConfigurationAttribute.getDefaultValue()});
+        count[0]++;
+      }
+      return;
+    }
+    throw new RuntimeException("Not expecting attribute type: " + currentValue.getClass());
+  }
+
   public void manipulateValue(ProvisioningUpdatable provisioningUpdatable,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
 
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return;
+    }
+
     Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
     Object originalValue = currentValue;
-    
-    if (grouperProvisioningConfigurationAttribute == null || currentValue == null) {
+
+    if (currentValue == null) {
       return;
     }
     GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();

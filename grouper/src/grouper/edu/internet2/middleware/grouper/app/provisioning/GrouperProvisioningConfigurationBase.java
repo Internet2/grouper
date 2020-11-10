@@ -910,6 +910,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
+          attributeConfig.setDefaultValue(defaultValue);
+        }
+        
+        {
           String translateExpression = this.retrieveConfigString(objectType + "."+i+".translateExpression" , false);
           attributeConfig.setTranslateExpression(translateExpression);
         }

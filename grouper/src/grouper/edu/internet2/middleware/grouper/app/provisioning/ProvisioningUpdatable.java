@@ -585,4 +585,22 @@ public abstract class ProvisioningUpdatable {
     
   }
 
+  /**
+   * 
+   * @param groupMembershipAttribute
+   */
+  public void clearAttribute(String name) {
+    
+    if (this.attributes != null) {
+    
+      ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+      
+      if (provisioningAttribute != null) {
+        Collection collection = (Collection)provisioningAttribute.getValue();
+        collection.clear();
+      }
+    }
+    
+  }
+
 }

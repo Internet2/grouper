@@ -74,6 +74,7 @@ public class GrouperProvisioningLogic {
 
     try {
       debugMap.put("state", "targetAttributeManipulation");
+      // do not assign defaults to target
       // filter groups and manipulate attributes and types
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(
           this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), true, false, false);
@@ -91,7 +92,6 @@ public class GrouperProvisioningLogic {
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.targetAttributeManipulation);
     }
-    
 
     try {
       debugMap.put("state", "matchingIdTargetObjects");
@@ -109,7 +109,6 @@ public class GrouperProvisioningLogic {
     }
 
     try {
-  
       debugMap.put("state", "translateGrouperGroupsEntitiesToTarget");
 
       {
@@ -129,6 +128,21 @@ public class GrouperProvisioningLogic {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperGroupsEntitiesToTarget);
     }
 
+    try {
+      debugMap.put("state", "manipulateGrouperTargetAttributes");
+      List<ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups();
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
+  
+      List<ProvisioningEntity> grouperTargetEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetEntities();
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForEntities(grouperTargetEntities, null);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(grouperTargetEntities, true, false, false);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(grouperTargetEntities);
+    } finally {
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetAttributes);
+    }
+    
     try {
       debugMap.put("state", "matchingIdGrouperGroupsEntities");
       this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(
@@ -169,7 +183,6 @@ public class GrouperProvisioningLogic {
     try {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
-
       {
         List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships();
         List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
@@ -280,6 +293,12 @@ public class GrouperProvisioningLogic {
   public void provisionIncremental() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+
+    try {
+      debugMap.put("state", "logIncomingData");
+    } finally {
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingData);
+    }
 
     try {
       debugMap.put("state", "retrieveIncrementalDataFromGrouper");
@@ -431,6 +450,7 @@ public class GrouperProvisioningLogic {
       
     //do we have missing groups?
     List<ProvisioningGroup> missingGroups = new ArrayList<ProvisioningGroup>();
+    List<ProvisioningGroupWrapper> missingGroupWrappers = new ArrayList<ProvisioningGroupWrapper>();
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       
@@ -454,6 +474,7 @@ public class GrouperProvisioningLogic {
       }
       
       missingGroups.add(provisioningGroup);
+      missingGroupWrappers.add(provisioningGroupWrapper);
     }
 
     if (GrouperUtil.length(missingGroups) == 0) {
@@ -470,7 +491,10 @@ public class GrouperProvisioningLogic {
 
     List<ProvisioningGroup> grouperTargetGroupsToInsert = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetGroups(missingGroups, false, true);
 
+    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroupsToInsert, null);
+    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroupsToInsert, false, true, false);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroupsToInsert);
+
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroupsToInsert);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
 
@@ -497,7 +521,7 @@ public class GrouperProvisioningLogic {
     
     //retrieve so we have a copy
     TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
-        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, false));
+        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
     
     List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
 
@@ -524,7 +548,7 @@ public class GrouperProvisioningLogic {
       // not sure why it wouldnt match or exist...
       provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
     }
-    
+
   }
 
   public void createMissingEntitiesFull() {
