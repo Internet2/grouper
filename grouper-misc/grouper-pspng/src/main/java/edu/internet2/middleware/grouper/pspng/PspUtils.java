@@ -198,8 +198,6 @@ public class PspUtils {
         AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
         String attributeName = attributeDefName.getName();
         
-        System.out.println("getStemAttributes: " + aStem.getName() + ": " + attrcount++);
-
         Set<AttributeAssignValue> attributeAssignValues = attributeAssign.getValueDelegate().getAttributeAssignValues();
         
         List<String> attributeValues = new ArrayList<String>();
@@ -257,7 +255,6 @@ public class PspUtils {
       AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
       String attributeName = attributeDefName.getName();
       
-      System.out.println("getGroupAttributes: " + group.getName() + ": " + attrcount++);
       Set<AttributeAssignValue> attributeAssignValues = attributeAssign.getValueDelegate().getAttributeAssignValues();
       
       List<String> attributeValues = new ArrayList<String>();
