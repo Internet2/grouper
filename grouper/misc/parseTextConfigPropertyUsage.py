@@ -57,7 +57,8 @@ configRefs = dict()
 
 # Given a directory, find all Java code that looks like a string
 def searchJavaDir(dirname):
-    pattern = re.compile('"(\w+)')
+    # pattern = re.compile('"(\w+)')
+    pattern = re.compile('(GrouperUiUtils\.message|contentKeys\.get|getText\(\)\.get)\("([\w.-]+)"\)')
     patternComment = re.compile('^\s*//')
 
     files = glob.glob('%s/**/*.java' % dirname, recursive=True)
@@ -73,14 +74,15 @@ def searchJavaDir(dirname):
             matches = re.findall(pattern, line)
             if len(matches) > 0:
                 for match in matches:
-                    propRef = PropertyReference(file=file, linenum=lnum, propertyName=match)
+                    propRef = PropertyReference(file=file, linenum=lnum, propertyName=match[1])
                     if propRef.propertyName not in configRefs:
                         configRefs[propRef.propertyName] = list()
                     configRefs[propRef.propertyName].append(propRef)
 
 
 def searchJspDir(dirname):
-    pattern = re.compile('["\'](\w+)')
+    # pattern = re.compile('["\'](\w+)')
+    pattern = re.compile('textContainer.text\[[\'"]([\w.-]+)')
 
     files = glob.glob('%s/**/*.jsp' % dirname, recursive=True)
     for file in files:
@@ -101,9 +103,11 @@ def searchJspDir(dirname):
 # load properties from the specified base properties file
 def importProperties(file):
     pattern = re.compile('^([^\s=]+)')
-    patternComment = re.compile('\s*#')
+    patternComment = re.compile('^\s*#')
     ret = list()
+    line_num = 1
     for line in open(file, 'r'):
+        line_num += 1
         if re.search(patternComment, line):
             continue
         match = re.search(pattern, line)
@@ -129,9 +133,26 @@ baseFile = 'grouper/conf/grouperText/grouper.textNg.en.us.base.properties'
 print("Base file: %s" % baseFile)
 props = importProperties(baseDir + os.path.sep + baseFile)
 unused = list(set(props) - set(configRefs.keys()))
+extra = list(set(configRefs.keys()) - set(props))
 
 unused.sort()
+extra.sort()
 
-print("\nUnused (in base file but not referenced):\n----------------\n%s\n" % "\n".join(unused))
+print("\n\nMissing (fetched properties not in base file):\n\t%s" % "\n\t".join(extra))
+
+print("Total Missing references (out of %d total): %d" % (len(props), len(extra)))
+
+for key in extra:
+    print("\nMissing key: %s" % key)
+    for ref in configRefs[key]:
+        print("\t%s:%d" % (ref.file, ref.linenum))
+
+
+print("\n\nUnused (in base file but not referenced):\n----------------\n%s\n" % "\n".join(unused))
 
 print("Total unused properties (out of %d total): %d" % (len(props), len(unused)))
+
+
+# Uncomment below to debug where a specific property is used
+#for ref in configRefs["grouper"]:
+#    print("%s:%d" % (ref.file, ref.linenum))

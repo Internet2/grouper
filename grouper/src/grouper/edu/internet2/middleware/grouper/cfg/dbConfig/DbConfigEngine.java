@@ -92,6 +92,9 @@ public class DbConfigEngine {
       }
       
       valueString = valueString == null ? null : StringUtils.trim(valueString);
+      if (StringUtils.isBlank(valueString)) {
+        valueString = null;
+      }
   
       String propertyNameToUse = (isExpressionLanguage && !propertyNameString.endsWith(".elConfig")) ? (propertyNameString + ".elConfig") : propertyNameString;
       
@@ -119,10 +122,11 @@ public class DbConfigEngine {
       boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
       
       boolean isAlreadyEncrypted = false;
-      if (!StringUtils.isBlank(valueString)) {
+      if (StringUtils.isNotBlank(valueString)) {
         try {
-          Morph.decrypt(valueString);
-          isAlreadyEncrypted = true;
+          if (StringUtils.isNotBlank(Morph.decrypt(valueString))) {
+            isAlreadyEncrypted = true;
+          }
         } catch (Exception e) {
           // ignore
         }

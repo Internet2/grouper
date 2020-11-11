@@ -25,8 +25,8 @@ print("Started: %s" % datetime.datetime.now())
 # subclasses of ConfigPropertiesCascadeBase. Not an exhaustive list, but the subset of configs that
 # are actually referenced in Java code with retrieveConfig()
 classBasePropertyMap = {
-    'ConfigPropertiesOriginalHasHierarchy': 'grouper-misc/grouperClient/src/testSource/testCascadeConfig-example2.properties',
-    'ConfigPropertiesOverrideHasHierarchy': 'grouper-misc/grouperClient/src/testSource/testCascadeConfig-example.properties',
+    'ConfigPropertiesOriginalHasHierarchy': 'grouper-misc/grouperClient/src/test/resources/testCascadeConfig-example2.properties',
+    'ConfigPropertiesOverrideHasHierarchy': 'grouper-misc/grouperClient/src/test/resources/testCascadeConfig-example.properties',
     'GrouperActivemqConfig': 'grouper-misc/grouperActivemq/conf/grouper.activemq.base.properties',
     'GrouperClientConfig': 'grouper-misc/grouperClient/conf/grouper.client.base.properties',
     'GrouperConfig': 'grouper/conf/grouper.base.properties',
