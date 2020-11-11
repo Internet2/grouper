@@ -3,9 +3,13 @@ package edu.internet2.middleware.grouperBox;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
+import com.box.sdk.BoxAPIConnection;
+import com.box.sdk.BoxAPIException;
+import com.box.sdk.BoxGroup;
 import com.box.sdk.BoxGroupMembership;
+import com.box.sdk.BoxUser;
+import com.box.sdk.BoxGroupMembership.Role;
 import com.box.sdk.BoxUser.Status;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
@@ -26,6 +30,10 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
@@ -33,6 +41,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
 
@@ -44,11 +53,17 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       //boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false : targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
       
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
-      Map<String, GrouperBoxGroup> grouperBoxGroups = GrouperBoxCommands.retrieveBoxGroups();
-      for (String groupName : grouperBoxGroups.keySet()) {
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      Iterable<BoxGroup.Info> groups = BoxGroup.getAllGroups(boxAPIConnection);
+      
+      for (BoxGroup.Info boxGroupInfo : groups) {
         ProvisioningGroup targetGroup = new ProvisioningGroup();
-        targetGroup.setName(groupName);        
+        targetGroup.setName(boxGroupInfo.getName());
+        targetGroup.setId(boxGroupInfo.getID());
         results.add(targetGroup);
       }
   
@@ -66,21 +81,25 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       //boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllEntitiesRequest == null ? false : targetDaoRetrieveAllEntitiesRequest.isIncludeAllMembershipsIfApplicable();
       
-      List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
-      Map<String, GrouperBoxUser> grouperBoxUsers = GrouperBoxCommands.retrieveBoxUsers();
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      for (String loginId : grouperBoxUsers.keySet()) {
-        GrouperBoxUser grouperBoxUser = grouperBoxUsers.get(loginId);
+      List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      Iterable<BoxUser.Info> users = BoxUser.getAllEnterpriseUsers(boxAPIConnection);
+
+      for (BoxUser.Info boxUserInfo : users) {
         ProvisioningEntity targetEntity = new ProvisioningEntity();
-        targetEntity.setLoginId(loginId);
+        targetEntity.setId(boxUserInfo.getID());
+        targetEntity.setLoginId(boxUserInfo.getLogin());
                 
-        Status boxStatus = grouperBoxUser.getBoxUserInfo().getStatus();
+        Status boxStatus = boxUserInfo.getStatus();
         if (boxStatus != null) {
           String statusString = boxStatus.name();
           targetEntity.addAttributeValue("boxStatus", statusString);
         }
         
-        targetEntity.addAttributeValue("isBoxSyncEnabled", grouperBoxUser.getBoxUserInfo().getIsSyncEnabled());
+        targetEntity.addAttributeValue("isBoxSyncEnabled", boxUserInfo.getIsSyncEnabled());
                 
         results.add(targetEntity);
       }
@@ -97,7 +116,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
 
     try {
-      GrouperBoxCommands.createBoxGroup(targetGroup.getName(), false);
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      BoxGroup.createGroup(boxAPIConnection, targetGroup.getName(), null, null, null, boxConfiguration.getInvitabilityLevel(), boxConfiguration.getMemberViewabilityLevel());
       
       targetGroup.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
@@ -124,7 +146,24 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
 
     try {
-      GrouperBoxCommands.deleteBoxGroup(GrouperBoxCommands.retrieveBoxGroups().get(targetGroup.getName()), false);
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      
+      BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetGroup);
+      
+      if (boxGroup != null) {
+        try {
+          boxGroup.delete();        
+        } catch (BoxAPIException boxAPIException) {
+          if (boxAPIException.getResponseCode() == 404) {
+            // ok, didn't exist
+          } else {
+            throw boxAPIException;
+          }
+        }
+      }
+      
       targetGroup.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
@@ -148,15 +187,21 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
 
     try {
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+
       String newStatusString = targetEntity.retrieveAttributeValueString("boxStatus");
       Status newStatus = GrouperClientUtils.isBlank(newStatusString) ? null : Status.valueOf(newStatusString.toUpperCase());
       boolean newIsBoxSyncEnabled = targetEntity.retrieveAttributeValueBoolean("isBoxSyncEnabled");
-            
-      GrouperBoxUser grouperBoxUser = GrouperBoxCommands.retrieveBoxUser(targetEntity.getLoginId());
-      grouperBoxUser.getBoxUserInfo().setStatus(newStatus);
-      grouperBoxUser.getBoxUserInfo().setIsSyncEnabled(newIsBoxSyncEnabled);
+      
+      BoxUser boxUser = getBoxUser(boxAPIConnection, targetEntity);
+      BoxUser.Info boxUserInfo = boxUser.getInfo();
+      
+      boxUserInfo.setStatus(newStatus);
+      boxUserInfo.setIsSyncEnabled(newIsBoxSyncEnabled);
 
-      GrouperBoxCommands.updateBoxUser(grouperBoxUser, false);
+      boxUser.updateInfo(boxUserInfo);
       
       targetEntity.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -179,16 +224,27 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
-    try {      
-      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
-      Collection<BoxGroupMembership.Info> boxGroupMemberships = GrouperBoxCommands.retrieveMembershipsForBoxGroup(GrouperBoxCommands.retrieveBoxGroups().get(targetGroup.getName()));
+    try {
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      for (BoxGroupMembership.Info groupBoxMembership : boxGroupMemberships) {
-        String loginId = groupBoxMembership.getUser().getLogin();
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+
+      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+      
+      BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetGroup);
+      if (boxGroup == null) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(results);
+      }
+      
+      Collection<BoxGroupMembership.Info> boxGroupMemberships = boxGroup.getMemberships();
+
+      for (BoxGroupMembership.Info boxGroupMembership : boxGroupMemberships) {
+        String loginId = boxGroupMembership.getUser().getLogin();
         ProvisioningEntity targetEntity = new ProvisioningEntity();
         targetEntity.setLoginId(loginId);
         
         ProvisioningMembership targetMembership = new ProvisioningMembership();
+        targetMembership.setId(boxGroupMembership.getID());
         targetMembership.setProvisioningGroup(targetGroup);
         targetMembership.setProvisioningEntity(targetEntity);
     
@@ -207,13 +263,34 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
 
     try {
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+
       ProvisioningGroup targetGroup = targetMembership.getProvisioningGroup();
       ProvisioningEntity targetEntity = targetMembership.getProvisioningEntity();
-
-      GrouperBoxUser grouperBoxUser = GrouperBoxCommands.retrieveBoxUser(targetEntity.getLoginId());
-      GrouperBoxGroup grouperBoxGroup = GrouperBoxCommands.retrieveBoxGroups().get(targetGroup.getName());
       
-      GrouperBoxCommands.assignUserToBoxGroup(grouperBoxUser, grouperBoxGroup, false);
+      BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetGroup);
+      BoxUser boxUser = getBoxUser(boxAPIConnection, targetEntity);
+      
+      if (boxGroup == null) {
+        throw new RuntimeException("Cannot find box group: " + targetGroup.getName());
+      }
+      
+      if (boxUser == null) {
+        throw new RuntimeException("Cannot find box user: " + targetEntity.getName());
+      }
+      
+      try {
+        boxGroup.addMembership(boxUser);
+      } catch (BoxAPIException e) {
+        //already exists
+        if (e.getResponseCode() == 409) {
+          // ok
+        } else {
+          throw e;
+        }
+      }
       
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
@@ -238,13 +315,54 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest.getTargetMembership();
 
     try {
-      ProvisioningGroup targetGroup = targetMembership.getProvisioningGroup();
-      ProvisioningEntity targetEntity = targetMembership.getProvisioningEntity();
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      GrouperBoxUser grouperBoxUser = GrouperBoxCommands.retrieveBoxUser(targetEntity.getLoginId());
-      GrouperBoxGroup grouperBoxGroup = GrouperBoxCommands.retrieveBoxGroups().get(targetGroup.getName());
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+
+      if (!StringUtils.isEmpty(targetMembership.getId())) {
+        BoxGroupMembership membership = new BoxGroupMembership(boxAPIConnection, targetMembership.getId());
+        try {
+          membership.delete();        
+        } catch (BoxAPIException e) {
+          if (e.getResponseCode() == 404) {
+            // ok, didn't exist
+          } else {
+            throw e;
+          }
+        }
+      } else {
       
-      GrouperBoxCommands.removeUserFromBoxGroup(grouperBoxUser, grouperBoxGroup, false);
+        ProvisioningGroup targetGroup = targetMembership.getProvisioningGroup();
+        ProvisioningEntity targetEntity = targetMembership.getProvisioningEntity();
+        
+        BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetGroup);
+        BoxUser boxUser = getBoxUser(boxAPIConnection, targetEntity);
+
+        if (boxGroup == null) {
+          throw new RuntimeException("Cannot find box group: " + targetGroup.getName());
+        }
+        
+        if (boxUser == null) {
+          throw new RuntimeException("Cannot find box user: " + targetEntity.getName());
+        }
+        
+        BoxUser.Info boxUserInfo = boxUser.getInfo();
+        
+        try {
+          for (BoxGroupMembership.Info boxGroupMembershipInfo : boxGroup.getMemberships()) {
+            if (boxGroupMembershipInfo.getRole() == Role.MEMBER && GrouperClientUtils.equals(boxUserInfo.getLogin(), boxGroupMembershipInfo.getUser().getLogin())) {
+              boxGroupMembershipInfo.getResource().delete();
+            }                  
+          }        
+        } catch (BoxAPIException e) {
+          //didnt exist
+          if (e.getResponseCode() == 404) {
+            // ok
+          } else {
+            throw e;
+          }
+        }
+      }
       
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
@@ -265,6 +383,96 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   @Override
+  public TargetDaoRetrieveGroupResponse retrieveGroup(TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
+    
+    long startNanos = System.nanoTime();
+
+    try {      
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetDaoRetrieveGroupRequest.getTargetGroup());
+      BoxGroup.Info boxGroupInfo = boxGroup.getInfo();
+      
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.setName(boxGroupInfo.getName());
+      targetGroup.setId(boxGroupInfo.getID());
+  
+      return new TargetDaoRetrieveGroupResponse(targetGroup);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveGroup", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoRetrieveEntityResponse retrieveEntity(TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest) {
+    
+    long startNanos = System.nanoTime();
+
+    try {      
+      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
+      BoxUser boxUser = getBoxUser(boxAPIConnection, targetDaoRetrieveEntityRequest.getTargetEntity());
+      BoxUser.Info boxUserInfo = boxUser.getInfo();
+      
+      ProvisioningEntity targetEntity = new ProvisioningEntity();
+      targetEntity.setId(boxUserInfo.getID());
+      targetEntity.setLoginId(boxUserInfo.getLogin());
+              
+      Status boxStatus = boxUserInfo.getStatus();
+      if (boxStatus != null) {
+        String statusString = boxStatus.name();
+        targetEntity.addAttributeValue("boxStatus", statusString);
+      }
+      
+      targetEntity.addAttributeValue("isBoxSyncEnabled", boxUserInfo.getIsSyncEnabled());
+  
+      return new TargetDaoRetrieveEntityResponse(targetEntity);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
+    }
+  }
+  
+  private BoxGroup getBoxGroup(BoxAPIConnection boxAPIConnection, ProvisioningGroup targetGroup) {
+    BoxGroup boxGroup = null;
+    
+    if (!StringUtils.isEmpty(targetGroup.getId())) {
+      boxGroup = new BoxGroup(boxAPIConnection, targetGroup.getId());
+    } else {
+      // find using the group name
+      Iterable<BoxGroup.Info> groupsIterator = BoxGroup.getAllGroupsByName(boxAPIConnection, targetGroup.getName());
+      for (BoxGroup.Info boxGroupInfo : groupsIterator) {
+        if (targetGroup.getName().equals(boxGroupInfo.getName())) {
+          boxGroup = boxGroupInfo.getResource();
+          break;
+        }
+      }
+    }
+    
+    return boxGroup;
+  }
+  
+  private BoxUser getBoxUser(BoxAPIConnection boxAPIConnection, ProvisioningEntity targetEntity) {
+    BoxUser boxUser = null;
+    
+    if (!StringUtils.isEmpty(targetEntity.getId())) {
+      boxUser = new BoxUser(boxAPIConnection, targetEntity.getId());
+    } else {
+      // find using the login id
+      Iterable<BoxUser.Info> usersIterator = BoxUser.getAllEnterpriseUsers(boxAPIConnection, targetEntity.getLoginId());
+      for (BoxUser.Info boxUserInfo : usersIterator) {
+        if (targetEntity.getLoginId().equals(boxUserInfo.getLogin())) {
+          boxUser = boxUserInfo.getResource();
+          break;
+        }
+      }
+    }
+    
+    return boxUser;
+  }
+  
+  @Override
   public void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
@@ -274,5 +482,7 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
   }
 }
