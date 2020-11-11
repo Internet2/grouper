@@ -206,7 +206,10 @@ public class GrouperProvisioningLogic {
 
     this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
     this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
-    this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+    this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
     
     try {
       debugMap.put("state", "compareTargetObjects");
@@ -1009,6 +1012,10 @@ public class GrouperProvisioningLogic {
           }
           
           provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+          
+          MultiKey syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId());
+          provisioningMembershipWrapper.setSyncGroupIdSyncMemberId(syncGroupIdSyncMemberId);
+          grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper.put(syncGroupIdSyncMemberId, provisioningMembershipWrapper);
         }
         if (syncMembershipReferenceMissing > 0) {
           this.getGrouperProvisioner().getDebugMap().put("syncMembershipReferenceMissing", syncMembershipReferenceMissing);

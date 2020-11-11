@@ -6380,7 +6380,7 @@ public class GrouperUtil {
    */
   public static String stringValue(Object input) {
     //this isnt needed
-    if (input == null) {
+    if (input == null || input instanceof String) {
       return (String) input;
     }
 
@@ -7043,6 +7043,17 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * remove whitespace from string
+   * @return new string
+   */
+  public static String whitespaceRemove(String input) {
+    if (input == null) {
+      return input;
+    }
+    return input.replaceAll("\\s","");
+  }
+  
   /**
    * save a string into a file, file does not have to exist
    *

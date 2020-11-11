@@ -2599,6 +2599,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdl2_5_38.adjustGrouperSyncMembershipIndex(database, ddlVersionBean);
 
+      GrouperDdl2_5_38.addSyncMembershipView(database, ddlVersionBean);
 
     }
   },
@@ -3391,6 +3392,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v", false);
         
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sync_membership_v", false);
   }
 
   /**
@@ -10981,6 +10983,8 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdl2_5_30.createViewRecentMembershipsV(ddlVersionBean);
       GrouperDdl2_5_30.createViewRecentMemLoadV(ddlVersionBean);
+
+      GrouperDdl2_5_38.addSyncMembershipView(database, ddlVersionBean);
 
     }
     

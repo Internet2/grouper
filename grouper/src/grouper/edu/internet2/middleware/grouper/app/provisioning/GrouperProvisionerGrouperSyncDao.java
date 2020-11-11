@@ -775,36 +775,288 @@ public class GrouperProvisionerGrouperSyncDao {
 
   /**
    * go through what was selected from full and keep track of whats there and what isnt there
-   * @param values
+   * @param provisioningMembershipWrappers
    */
   public void processResultsSelectMembershipsFull(
-      Collection<ProvisioningMembershipWrapper> values) {
-    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(values)) {
-      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
-      
-      boolean exists = targetProvisioningMembership != null;
-      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      Collection<ProvisioningGroupWrapper> provisioningGroupWrappers,
+      Collection<ProvisioningEntityWrapper> provisioningEntityWrappers,
+      Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) {
+    
+    GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType = this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+            .getGrouperProvisioningBehaviorMembershipType();
+    if (grouperProvisioningBehaviorMembershipType == null) {
+      grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.membershipObjects;
+    }
+    switch (grouperProvisioningBehaviorMembershipType) {
+      case groupAttributes:
+        
+      {
+          String groupAttributeNameForMemberships = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
+          
+          // get the attribute that holds members
+          GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+              this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(groupAttributeNameForMemberships);
+          String translateExpressionFromMembership = grouperProvisioningConfigurationAttribute == null ? null 
+              : grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership();
+          
+          // see how members are mapped to that attribute
+          boolean subjectId = false;
+          if (!StringUtils.isBlank(translateExpressionFromMembership)) {
+            translateExpressionFromMembership = GrouperUtil.whitespaceRemove(translateExpressionFromMembership);
+            if (StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningEntity.getSubjectId()}")
+                || StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningEntity.subjectId}")) {
+              
+              subjectId = true;
+              
+            } else {
+              this.grouperProvisioner.getDebugMap().put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
+            }
+  
+            // if we know how to unmap
+            if (subjectId) {
+              
+              Map<MultiKey, ProvisioningMembershipWrapper> syncGroupIdSyncMemberIdToMembershipWrappersProcessed 
+                = new HashMap<MultiKey, ProvisioningMembershipWrapper>(
+                    this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper());
+              
+              Map<String, GcGrouperSyncMember> provisioningAttributeToMember = new HashMap<String, GcGrouperSyncMember>();
+              
+              for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
+                GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+                if (gcGrouperSyncMember != null) {
+                  if (subjectId) {
+                    provisioningAttributeToMember.put(gcGrouperSyncMember.getSubjectId(), gcGrouperSyncMember);
+                  }
+                }
+              }
+              
+              Timestamp now = new Timestamp(System.currentTimeMillis());
+              
+              for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
+                
+                GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+                if (gcGrouperSyncGroup == null) {
+                  continue;
+                }
+                
+                ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+                if (targetProvisioningGroup == null) {
+                  continue;
+                }
+                  
+                Set<?> membershipAttributes = targetProvisioningGroup.retrieveAttributeValueSet(groupAttributeNameForMemberships);
+                
+                for (Object object : GrouperUtil.nonNull(membershipAttributes)) {
+                  String attributeValueString = GrouperUtil.stringValue(object);
+                  GcGrouperSyncMember gcGrouperSyncMember = provisioningAttributeToMember.get(attributeValueString);
+                  if (gcGrouperSyncMember == null) {
+                    continue;
+                  }
+                  
+                  MultiKey syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
+                  
+                  ProvisioningMembershipWrapper provisioningMembershipWrapper = syncGroupIdSyncMemberIdToMembershipWrappersProcessed.get(syncGroupIdSyncMemberId);
+                  if (provisioningMembershipWrapper == null) {
+                    continue;
+                  }
+                  
+                  syncGroupIdSyncMemberIdToMembershipWrappersProcessed.remove(syncGroupIdSyncMemberId);
+                  
+                  GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+                  
+                  if (gcGrouperSyncMembership == null) {
+                    continue;
+                  }
+                  
+                  // ok, this is in the target :)
+                  if (!gcGrouperSyncMembership.isInTarget()) {
+                    gcGrouperSyncMembership.setInTarget(true);
+                    gcGrouperSyncMembership.setInTargetStart(now);
+                    // its not an insert
+                    gcGrouperSyncMembership.setInTargetInsertOrExists(false);
+                  }
+                }
+                  
+              }
+              
+              // remaining ones are not in target
+              for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed.values()) {
+                GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+                
+                if (gcGrouperSyncMembership == null) {
+                  continue;
+                }
+                
+                // ok, this is not in the target :)
+                if (gcGrouperSyncMembership.isInTarget()) {
+                  gcGrouperSyncMembership.setInTarget(false);
+                  gcGrouperSyncMembership.setInTargetEnd(now);
+                }
+                
+              }
+              
+            }
+            
+          }
+      }        
+        
+        break;
+      case entityAttributes:
+      {
+        String entityAttributeNameForMemberships = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getUserAttributeNameForMemberships();
+        
+        // get the attribute that holds members
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(entityAttributeNameForMemberships);
+        String translateExpressionFromMembership = grouperProvisioningConfigurationAttribute == null ? null 
+            : grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership();
+        
+        // see how members are mapped to that attribute
+        boolean groupName = false;
+        boolean groupIdIndex = false;
 
-      if (gcGrouperSyncMembership == null) {
-        continue;
-      }
-
-      if (exists != gcGrouperSyncMembership.isInTarget()) {
-
-        Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
-        gcGrouperSyncMembership.setInTarget(exists);
-        if (exists) {
-          gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
-          if (StringUtils.isBlank(gcGrouperSyncMembership.getInTargetInsertOrExistsDb())) {
-            gcGrouperSyncMembership.setInTargetInsertOrExists(false);
+        if (!StringUtils.isBlank(translateExpressionFromMembership)) {
+          translateExpressionFromMembership = GrouperUtil.whitespaceRemove(translateExpressionFromMembership);
+          if (StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningGroup.getName()}")
+              || StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningGroup.name}")) {
+            
+            groupName = true;
+            
+          } else if (StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningGroup.getIdIndex()}")
+                || StringUtils.equals(translateExpressionFromMembership, "${grouperProvisioningGroup.idIndex}")) {
+              
+            groupIdIndex = true;
+              
+          } else {
+            this.grouperProvisioner.getDebugMap().put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
           }
 
-        } else {
-          gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+          // if we know how to unmap
+          if (groupName || groupIdIndex) {
+            
+            Map<MultiKey, ProvisioningMembershipWrapper> syncGroupIdSyncMemberIdToMembershipWrappersProcessed 
+              = new HashMap<MultiKey, ProvisioningMembershipWrapper>(
+                  this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper());
+            
+            Map<String, GcGrouperSyncGroup> provisioningAttributeToGroup = new HashMap<String, GcGrouperSyncGroup>();
+            
+            for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
+              GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+              if (gcGrouperSyncGroup != null) {
+                if (groupName) {
+                  provisioningAttributeToGroup.put(gcGrouperSyncGroup.getGroupName(), gcGrouperSyncGroup);
+                } else if (groupIdIndex) {
+                  provisioningAttributeToGroup.put(gcGrouperSyncGroup.getGroupIdIndex().toString(), gcGrouperSyncGroup);
+                }
+              }
+            }
+            
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            
+            for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
+              
+              GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+              if (gcGrouperSyncMember == null) {
+                continue;
+              }
+              
+              ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+              if (targetProvisioningEntity == null) {
+                continue;
+              }
+                
+              Set<?> membershipAttributes = targetProvisioningEntity.retrieveAttributeValueSet(entityAttributeNameForMemberships);
+              
+              for (Object object : GrouperUtil.nonNull(membershipAttributes)) {
+                String attributeValueString = GrouperUtil.stringValue(object);
+                GcGrouperSyncGroup gcGrouperSyncGroup = provisioningAttributeToGroup.get(attributeValueString);
+                if (gcGrouperSyncGroup == null) {
+                  continue;
+                }
+                
+                MultiKey syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
+                
+                ProvisioningMembershipWrapper provisioningMembershipWrapper = syncGroupIdSyncMemberIdToMembershipWrappersProcessed.get(syncGroupIdSyncMemberId);
+                if (provisioningMembershipWrapper == null) {
+                  continue;
+                }
+                
+                syncGroupIdSyncMemberIdToMembershipWrappersProcessed.remove(syncGroupIdSyncMemberId);
+                
+                GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+                
+                if (gcGrouperSyncMembership == null) {
+                  continue;
+                }
+                
+                // ok, this is in the target :)
+                if (!gcGrouperSyncMembership.isInTarget()) {
+                  gcGrouperSyncMembership.setInTarget(true);
+                  gcGrouperSyncMembership.setInTargetStart(now);
+                  // its not an insert
+                  gcGrouperSyncMembership.setInTargetInsertOrExists(false);
+                }
+              }
+                
+            }
+            
+            // remaining ones are not in target
+            for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed.values()) {
+              GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+              
+              if (gcGrouperSyncMembership == null) {
+                continue;
+              }
+              
+              // ok, this is not in the target :)
+              if (gcGrouperSyncMembership.isInTarget()) {
+                gcGrouperSyncMembership.setInTarget(false);
+                gcGrouperSyncMembership.setInTargetEnd(now);
+              }
+              
+            }
+            
+          }
+          
         }
       }
-      
-    }    
+        break;
+        
+      case membershipObjects:
+        
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+          ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+          
+          boolean exists = targetProvisioningMembership != null;
+          GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
+          if (gcGrouperSyncMembership == null) {
+            continue;
+          }
+
+          if (exists != gcGrouperSyncMembership.isInTarget()) {
+
+            Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+            gcGrouperSyncMembership.setInTarget(exists);
+            if (exists) {
+              gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
+              if (StringUtils.isBlank(gcGrouperSyncMembership.getInTargetInsertOrExistsDb())) {
+                gcGrouperSyncMembership.setInTargetInsertOrExists(false);
+              }
+
+            } else {
+              gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+            }
+          }
+          
+        }    
+
+        break;
+        
+      default:
+        throw new RuntimeException("Not expecting: " + grouperProvisioningBehaviorMembershipType);
+    }
+    
     
   }
 

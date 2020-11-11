@@ -106,20 +106,23 @@ public class ProvisioningSyncIntegration {
               groupIdsWithChangedIdIndexes.add(gcGrouperSyncGroup.getGroupId());
             }
           }
-          
+
           // see if not provisionable
-          if (!gcGrouperSyncGroup.isProvisionable() && grouperProvisioningGroup != null) {
+          if (!gcGrouperSyncGroup.isProvisionable() && grouperProvisioningGroup != null
+              && (provisioningGroupWrapper == null || !provisioningGroupWrapper.isDelete())) {
             gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncGroup.setProvisionableEnd(null);
             gcGrouperSyncGroup.setProvisionable(true);
           }
-          if (gcGrouperSyncGroup.isProvisionable() && grouperProvisioningGroup == null) {
+          if (gcGrouperSyncGroup.isProvisionable() && grouperProvisioningGroup == null
+              && (provisioningGroupWrapper == null || provisioningGroupWrapper.isDelete())) {
             gcGrouperSyncGroup.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncGroup.setProvisionable(false);
           }
 
           // see if not provisionable
-          if (!gcGrouperSyncGroup.isInTarget() && grouperProvisioningGroup != null) {
+          if (!gcGrouperSyncGroup.isInTarget() && grouperProvisioningGroup != null 
+              && (provisioningGroupWrapper== null || !provisioningGroupWrapper.isDelete())) {
             groupIdsToInsert.add(gcGrouperSyncGroup.getGroupId());
           }
             
@@ -266,20 +269,23 @@ public class ProvisioningSyncIntegration {
             }
           }
           
-          
+
           // see if not provisionable
-          if (!gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity != null) {
+          if (!gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity != null
+              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.isDelete())) {
             gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncMember.setProvisionableEnd(null);
             gcGrouperSyncMember.setProvisionable(true);
           }
-          if (gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity == null) {
+          if (gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity == null
+              && (provisioningEntityWrapper == null || provisioningEntityWrapper.isDelete())) {
             gcGrouperSyncMember.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncMember.setProvisionable(false);
           }
   
           // see if not provisionable
-          if (!gcGrouperSyncMember.isInTarget() && grouperProvisioningEntity != null) {
+          if (!gcGrouperSyncMember.isInTarget() && grouperProvisioningEntity != null
+              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.isDelete())) {
             memberIdsToInsert.add(gcGrouperSyncMember.getMemberId());
           }
             
@@ -441,11 +447,24 @@ public class ProvisioningSyncIntegration {
   
         // keep it
         boolean membershipProvisionable = gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncMember.isProvisionable();
-        
+                
+        if (!membershipProvisionable && grouperProvisioningMembership != null
+            && (provisioningMembershipWrapper == null || !provisioningMembershipWrapper.isDelete())) {
+          gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
+          gcGrouperSyncMember.setProvisionableEnd(null);
+          gcGrouperSyncMember.setProvisionable(true);
+        }
+        if (membershipProvisionable && grouperProvisioningMembership == null
+            && (provisioningMembershipWrapper == null || provisioningMembershipWrapper.isDelete())) {
+          gcGrouperSyncMember.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
+          gcGrouperSyncMember.setProvisionable(false);
+        }
+
         if (grouperProvisioningMembership != null || membershipProvisionable || gcGrouperSyncMembership.isInTarget()) {
   
           // see if not provisionable
-          if (!gcGrouperSyncMembership.isInTarget() && grouperProvisioningMembership != null) {
+          if (!gcGrouperSyncMembership.isInTarget() && grouperProvisioningMembership != null
+              && (provisioningMembershipWrapper == null || provisioningMembershipWrapper.isDelete())) {
             groupIdMemberIdsToInsert.add(groupIdMemberId);
           }
             
