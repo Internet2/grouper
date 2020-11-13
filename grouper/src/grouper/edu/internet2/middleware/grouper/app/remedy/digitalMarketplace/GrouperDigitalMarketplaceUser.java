@@ -5,10 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.json.JSONObject;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceCommands;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceMembership;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceUser;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -24,13 +22,13 @@ public class GrouperDigitalMarketplaceUser {
   /**
    * json for this user
    */
-  private JSONObject jsonObject;
+  private JsonNode jsonObject;
   
   /**
    * json for this user
    * @return the json
    */
-  public JSONObject getJsonObject() {
+  public JsonNode getJsonObject() {
     return this.jsonObject;
   }
   
@@ -38,7 +36,7 @@ public class GrouperDigitalMarketplaceUser {
    * json for this user
    * @param jsonObject1 the json to set
    */
-  public void setJsonObject(JSONObject jsonObject1) {
+  public void setJsonObject(JsonNode jsonObject1) {
     this.jsonObject = jsonObject1;
   }
 
@@ -186,5 +184,5 @@ public class GrouperDigitalMarketplaceUser {
     }
     return result.toString();
   }
-  
+
 }

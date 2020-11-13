@@ -110,6 +110,10 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -1742,6 +1746,163 @@ public class GrouperUtil {
     }
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
+
+
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static String jsonJacksonGetString(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetString(jsonNode, fieldName, null);
+  }
+  
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static String jsonJacksonGetString(JsonNode jsonNode, String fieldName, String defaultString) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultString != null) {
+            return fieldNode.asText(defaultString);
+          }
+          return fieldNode.asText();
+        }
+      }
+    }
+    return defaultString;
+  }
+
+  /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBoolean(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetBoolean(jsonNode, fieldName, null);
+  }
+  
+  /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @param defaultBoolean if null use this value
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBoolean(JsonNode jsonNode, String fieldName, Boolean defaultBoolean) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultBoolean != null) {
+            return fieldNode.asBoolean(defaultBoolean);
+          }
+          return fieldNode.asBoolean();
+        }
+      }
+    }
+    return defaultBoolean;
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Long jsonJacksonGetLong(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetLong(jsonNode, fieldName, null);
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Long jsonJacksonGetLong(JsonNode jsonNode, String fieldName, Long defaultLong) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultLong != null) {
+            return fieldNode.asLong(defaultLong);
+          }
+          return fieldNode.asLong();
+        }
+      }
+    }
+    return defaultLong;
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Integer jsonJacksonGetInteger(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetInteger(jsonNode, fieldName, null);
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Integer jsonJacksonGetInteger(JsonNode jsonNode, String fieldName, Integer defaultInteger) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultInteger != null) {
+            return fieldNode.asInt(defaultInteger);
+          }
+          return fieldNode.asInt();
+        }
+      }
+    }
+    return defaultInteger;
+  }
+
+  public static JsonNode jsonJacksonNode(String json) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      //read JSON like DOM Parser
+      JsonNode rootNode = objectMapper.readTree(json);
+      return rootNode;
+    } catch (Exception e) {
+      injectInException(e, "Error in json '" + abbreviate(json, 4000) + "'");
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String jsonJacksonToString(JsonNode jsonNode) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(jsonNode);
+      return json;
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  
+  
   /**
    * convert an object to json without wrapping it with the simple class name.
    * @param object
