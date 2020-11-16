@@ -2339,6 +2339,6 @@ CREATE VIEW grouper_sync_membership_v ( G_GROUP_NAME, G_GROUP_ID_INDEX, U_SOURCE
 SET DATABASE TRANSACTION CONTROL MVCC;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 35, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
-to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V35, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 36, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
+to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V36, ');
 commit;
