@@ -4,6 +4,7 @@ import java.io.File;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -13,6 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class LdapProvisionerTestUtils {
   
   public static void main(String args[]) throws Exception {
+    GrouperStartup.startup();
     stopAndRemoveLdapContainer();
     startLdapContainer();
   }

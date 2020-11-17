@@ -124,6 +124,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoDeleteGroupResponse deleteGroup(
       TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
     
+    if (targetDaoDeleteGroupRequest.getTargetGroup() == null) {
+      return new TargetDaoDeleteGroupResponse();
+    }
+
     ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)) {
       try {
@@ -156,6 +160,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
+
+    if (targetGroup == null) {
+      return new TargetDaoInsertGroupResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroup(), false)) {
       try {
         TargetDaoInsertGroupResponse targetDaoInsertGroupResponse = this.wrappedDao.insertGroup(targetDaoInsertGroupRequest);
@@ -248,6 +257,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoUpdateGroupsResponse updateGroups(
       TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequest) {
+    
+    if (GrouperUtil.length(targetDaoUpdateGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoUpdateGroupsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroups(), false)) {
       try {
         TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = this.wrappedDao.updateGroups(targetDaoUpdateGroupsRequest);
@@ -285,6 +299,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoDeleteMembershipsResponse deleteMemberships(
       TargetDaoDeleteMembershipsRequest targetDaoDeleteMembershipsRequest) {
+
+    if (GrouperUtil.length(targetDaoDeleteMembershipsRequest.getTargetMemberships()) == 0) {
+      return new TargetDaoDeleteMembershipsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMemberships(), false)) {
       try {
         TargetDaoDeleteMembershipsResponse targetDaoDeleteMembershipsResponse = this.wrappedDao.deleteMemberships(targetDaoDeleteMembershipsRequest);
@@ -406,6 +425,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveGroupsResponse retrieveGroups(
       TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
     
+    if (GrouperUtil.length(targetDaoRetrieveGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoRetrieveGroupsResponse();
+    }
+
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
       provisioningGroup.assignSearchFilter();
     }
@@ -474,6 +497,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(
       TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
+    
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoRetrieveMembershipsByGroupsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
       return this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
     }
@@ -498,6 +526,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(
       TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+    
+    if (targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup() == null) {
+      return new TargetDaoRetrieveMembershipsByGroupResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
       return this.wrappedDao.retrieveMembershipsByGroup(targetDaoRetrieveMembershipsByGroupRequest);
     }
@@ -519,6 +552,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
       TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequest) {
+    
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()) == 0) {
+      return new TargetDaoRetrieveMembershipsByEntitiesResponse();
+    }
+   
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
       return this.wrappedDao.retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
     }
@@ -543,6 +581,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(
       TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
+    
+    if (targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity() == null) {
+      return new TargetDaoRetrieveMembershipsByEntityResponse();
+    }
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
       return this.wrappedDao.retrieveMembershipsByEntity(targetDaoRetrieveMembershipsByEntityRequest);
     }
@@ -565,6 +608,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership(
       TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest) {
 
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest.getTargetGroupsMembersMemberships()) == 0) {
+      return new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse();
+    }
+    
     if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getMembershipsRetrieve(), false)) {
       if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
         return this.wrappedDao.retrieveMembershipsByTargetGroupEntityMembership(targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest);
@@ -590,6 +637,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(
       TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
+    
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsRequest.getTargetMemberships()) == 0) {
+      return new TargetDaoRetrieveMembershipsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
       return this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
     }
@@ -615,6 +667,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(
       TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
     
+    if (GrouperUtil.length(targetDaoRetrieveEntitiesRequest.getTargetEntities()) == 0) {
+      return new TargetDaoRetrieveEntitiesResponse();
+    }
+
     for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
       provisioningEntity.assignSearchFilter();
     }
@@ -645,6 +701,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveGroupResponse retrieveGroup(
       TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
     
+    if (targetDaoRetrieveGroupRequest.getTargetGroup() == null) {
+      return new TargetDaoRetrieveGroupResponse();
+    }
+
     targetDaoRetrieveGroupRequest.getTargetGroup().assignSearchFilter();
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
@@ -669,6 +729,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveEntityResponse retrieveEntity(
       TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest) {
     
+    if (targetDaoRetrieveEntityRequest.getTargetEntity() == null) {
+      return new TargetDaoRetrieveEntityResponse();
+    }
+
     targetDaoRetrieveEntityRequest.getTargetEntity().assignSearchFilter();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
@@ -692,6 +756,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveMembershipResponse retrieveMembership(
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest) {
+    
+    if (targetDaoRetrieveMembershipRequest.getTargetMembership() == null) {
+      return new TargetDaoRetrieveMembershipResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
       return this.wrappedDao.retrieveMembership(targetDaoRetrieveMembershipRequest);
     }
@@ -713,6 +782,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoUpdateGroupResponse updateGroup(
       TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
     ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
+    
+    if (targetGroup == null) {
+      return new TargetDaoUpdateGroupResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroup(), false)) {
       try {
         TargetDaoUpdateGroupResponse targetDaoUpdateGroupResponse = this.wrappedDao.updateGroup(targetDaoUpdateGroupRequest);
@@ -744,6 +818,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoInsertGroupsResponse insertGroups(
       TargetDaoInsertGroupsRequest targetDaoInsertGroupsRequest) {
+    
+    if (GrouperUtil.length(targetDaoInsertGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoInsertGroupsResponse();
+    }
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroups(), false)) {
       try {
         TargetDaoInsertGroupsResponse targetDaoInsertGroupsResponse = this.wrappedDao.insertGroups(targetDaoInsertGroupsRequest);
@@ -782,6 +861,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoDeleteEntityResponse deleteEntity(
       TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
     
+    if (targetDaoDeleteEntityRequest.getTargetEntity() == null) {
+      return new TargetDaoDeleteEntityResponse();
+    }
+
     ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)) {
       try {
@@ -815,6 +898,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoDeleteEntitiesResponse deleteEntities(
       TargetDaoDeleteEntitiesRequest targetDaoDeleteEntitiesRequest) {
+
+    if (GrouperUtil.length(targetDaoDeleteEntitiesRequest.getTargetEntities()) == 0) {
+      return new TargetDaoDeleteEntitiesResponse();
+    }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)) {
       try {
@@ -853,7 +940,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoInsertEntityResponse insertEntity(
       TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+
     ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    if (targetEntity == null) {
+      return new TargetDaoInsertEntityResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntity(), false)) {
       try {
         TargetDaoInsertEntityResponse targetDaoInsertEntityResponse = this.wrappedDao.insertEntity(targetDaoInsertEntityRequest);
@@ -885,6 +978,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoInsertEntitiesResponse insertEntities(
       TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
+
+    if (GrouperUtil.length(targetDaoInsertEntitiesRequest.getTargetEntityInserts()) == 0) {
+      return new TargetDaoInsertEntitiesResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntities(), false)) {
       try {
         TargetDaoInsertEntitiesResponse targetDaoInsertEntitiesResponse = this.wrappedDao.insertEntities(targetDaoInsertEntitiesRequest);
@@ -923,6 +1021,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoUpdateEntityResponse updateEntity(
       TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
     ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+    
+    if (targetEntity == null) {
+      return new TargetDaoUpdateEntityResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntity(), false)) {
       try {
         TargetDaoUpdateEntityResponse targetDaoUpdateEntityResponse = this.wrappedDao.updateEntity(targetDaoUpdateEntityRequest);
@@ -954,6 +1057,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoUpdateEntitiesResponse updateEntities(
       TargetDaoUpdateEntitiesRequest targetDaoUpdateEntitiesRequest) {
+    
+    if (GrouperUtil.length(targetDaoUpdateEntitiesRequest.getTargetEntities()) == 0) {
+      return new TargetDaoUpdateEntitiesResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntities(), false)) {
       try {
         TargetDaoUpdateEntitiesResponse targetDaoUpdateEntitiesResponse = this.wrappedDao.updateEntities(targetDaoUpdateEntitiesRequest);
@@ -992,6 +1100,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoDeleteMembershipResponse deleteMembership(
       TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
     ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest.getTargetMembership();
+    
+    if (targetMembership == null) {
+      return new TargetDaoDeleteMembershipResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMembership(), false)) {
       try {
         TargetDaoDeleteMembershipResponse targetDaoDeleteMembershipResponse = this.wrappedDao.deleteMembership(targetDaoDeleteMembershipRequest);
@@ -1024,6 +1137,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoDeleteGroupsResponse deleteGroups(
       TargetDaoDeleteGroupsRequest targetDaoDeleteGroupsRequest) {
+
+    if (GrouperUtil.length(targetDaoDeleteGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoDeleteGroupsResponse();
+    }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)) {
       try {
@@ -1064,6 +1181,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoInsertMembershipResponse insertMembership(
       TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
     ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
+    
+    if (targetMembership == null) {
+      return new TargetDaoInsertMembershipResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMembership(), false)) {
       try {
         TargetDaoInsertMembershipResponse targetDaoInsertMembershipResponse = this.wrappedDao.insertMembership(targetDaoInsertMembershipRequest);
@@ -1095,6 +1217,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoInsertMembershipsResponse insertMemberships(
       TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequest) {
+    
+    if (GrouperUtil.length(targetDaoInsertMembershipsRequest.getTargetMemberships()) == 0) {
+      return new TargetDaoInsertMembershipsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false)) {
       try {
         TargetDaoInsertMembershipsResponse targetDaoInsertMembershipsResponse = this.wrappedDao.insertMemberships(targetDaoInsertMembershipsRequest);
@@ -1133,6 +1260,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoUpdateMembershipResponse updateMembership(
       TargetDaoUpdateMembershipRequest targetDaoUpdateMembershipRequest) {
     ProvisioningMembership targetMembership = targetDaoUpdateMembershipRequest.getTargetMembership();
+    
+    if (targetMembership == null) {
+      return new TargetDaoUpdateMembershipResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMembership(), false)) {
       try {
         TargetDaoUpdateMembershipResponse targetDaoUpdateMembershipResponse = this.wrappedDao.updateMembership(targetDaoUpdateMembershipRequest);
@@ -1163,6 +1295,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoUpdateMembershipsResponse updateMemberships(
       TargetDaoUpdateMembershipsRequest targetDaoUpdateMembershipsRequest) {
+    
+    if (GrouperUtil.length(targetDaoUpdateMembershipsRequest.getTargetMemberships()) == 0) {
+      return new TargetDaoUpdateMembershipsResponse();
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMemberships(), false)) {
       try {
         TargetDaoUpdateMembershipsResponse targetDaoUpdateMembershipsResponse = this.wrappedDao.updateMemberships(targetDaoUpdateMembershipsRequest);

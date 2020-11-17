@@ -1,6 +1,6 @@
 docker run -d -p 389:389 --mount type=bind,source=/Users/mchyzer/git/grouper_v2_5/grouper-misc/grouper-pspng/pspng-docker-tests/docker-compose/ldap-seed-data,target=/etc/ldap/prepopulate -e SLAPD_PASSWORD=secret -e SLAPD_CONFIG_PASSWORD=secret -e SLAPD_DOMAIN=example.edu openldap-dinkel-grouper
 
-configId: testLdap
+configId: personLdap
 url: ldap://localhost:389
 user: cn=admin,dc=example,dc=edu
 pass: secret
@@ -11,7 +11,7 @@ subjectApi.source.testLdapSource.id = testLdapSource
 subjectApi.source.testLdapSource.name = testLdapSource
 subjectApi.source.testLdapSource.types = person
 subjectApi.source.testLdapSource.adapterClass = edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter
-subjectApi.source.testLdapSource.param.ldapServerId.value = testLdap
+subjectApi.source.testLdapSource.param.ldapServerId.value = personLdap
 subjectApi.source.testLdapSource.param.SubjectID_AttributeType.value = uid
 subjectApi.source.testLdapSource.param.SubjectID_formatToLowerCase.value = false
 subjectApi.source.testLdapSource.param.Name_AttributeType.value = cn
