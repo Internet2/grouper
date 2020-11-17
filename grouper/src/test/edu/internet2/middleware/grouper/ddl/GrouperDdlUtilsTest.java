@@ -322,6 +322,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
     GrouperDdlUtils.autoDdl2_5orAbove = null;
+    
+    // drop everything
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+  
+    
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
   }
 
   /**

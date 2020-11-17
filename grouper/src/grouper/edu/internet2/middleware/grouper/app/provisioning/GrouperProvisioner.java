@@ -387,7 +387,7 @@ public abstract class GrouperProvisioner {
   public GrouperProvisioningOutput provision(GrouperProvisioningType grouperProvisioningType1) {
     
     if (this.done) {
-      throw new RuntimeException("Dont re-use instances of this class: " + GcTableSync.class.getName());
+      throw new RuntimeException("Dont re-use instances of this class: " + GrouperProvisioner.class.getName());
     }
 
     this.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(grouperProvisioningType1);
