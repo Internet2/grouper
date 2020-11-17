@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -11,6 +13,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomStringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -172,7 +175,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
 
     GcGrouperSyncLog gcGrouperSyncLog = new GcGrouperSyncLog();
-    gcGrouperSyncLog.description = "desc";
+    gcGrouperSyncLog.setDescriptionToSave("desc");
     gcGrouperSyncLog.jobTookMillis = 1223;
     gcGrouperSyncLog.recordsChanged = 12;
     gcGrouperSyncLog.recordsProcessed = 23;
@@ -182,7 +185,8 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
     System.out.println(gcGrouperSyncLog);
     
-    gcGrouperSyncLog.setDescription("desc2");
+    String longDescription = RandomStringUtils.random(4500, true, true);
+    gcGrouperSyncLog.setDescriptionToSave(longDescription);
     gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
 
     System.out.println("updated");
@@ -384,6 +388,81 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
   
   /**
+   * description of last sync when it's too large to store in description field
+   */
+  private String descriptionClob;
+  
+  /**
+   * description of last sync when it's too large to store in description field
+   * @return descriptionClob
+   */
+  public String getDescriptionClob() {
+    return descriptionClob;
+  }
+
+  /**
+   * description of last sync when it's too large to store in description field
+   * @param descriptionClob
+   */
+  public void setDescriptionClob(String descriptionClob) {
+    this.descriptionClob = descriptionClob;
+  }
+  
+  /**
+   * size of description/descriptionClob in bytes
+   */
+  private Long descriptionBytes;
+  
+  /**
+   * size of description/descriptionClob in bytes
+   * @return  descriptionBytes
+   */
+  public Long getDescriptionBytes() {
+    return descriptionBytes;
+  }
+  
+  /**
+   * size of description/descriptionClob in bytes
+   * @param descriptionBytes
+   */
+  public void setDescriptionBytes(Long descriptionBytes) {
+    this.descriptionBytes = descriptionBytes;
+  }
+
+  
+  /**
+   * retrieve description. based on the size, it will be retrieved from description or descriptionClob
+   * @return
+   */
+  public String getDescriptionOrDescriptionClob() {
+    
+    if (StringUtils.isNotBlank(description)) {
+      return description;
+    }
+    
+    return descriptionClob;
+    
+  }
+  
+  /**
+   * set description to save. based on the size, it will be saved in description or descriptionClob
+   * @param description
+   */
+  public void setDescriptionToSave(String description) {
+    int lengthAscii = GrouperClientUtils.lengthAscii(description);
+    if (GrouperClientUtils.lengthAscii(description) <= 3000) {
+      this.description = description;
+      this.descriptionClob = null;
+    } else {
+      this.descriptionClob = description;
+      this.description = null;
+    }
+    this.descriptionBytes = new Long(lengthAscii);
+  }
+  
+  
+  
+  /**
    * how many records were processed the last time this sync ran
    */
   private Integer recordsProcessed;
@@ -523,8 +602,6 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     }
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
     this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
-    //abbrev this to below 4k in case of special chars
-    this.description = GrouperClientUtils.abbreviate(this.description, 3700);
   }
 
   /**

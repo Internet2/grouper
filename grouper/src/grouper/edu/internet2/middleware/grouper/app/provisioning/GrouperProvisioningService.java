@@ -15,6 +15,8 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,8 +41,12 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -48,7 +54,10 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -1044,17 +1053,230 @@ public class GrouperProvisioningService {
   }
   
   /**
+   * retrieve recent activity for all the groups for a given provisioner name
+   * @param provisionerName
+   * @return
+   */
+  public static List<GcGrouperSyncGroup> retrieveRecentActivityForGroup(String provisionerName) {
+
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerName);
+    
+    if (gcGrouperSync == null) {
+      return gcGrouperSyncGroups;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetStart"));
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncGroup where grouperSyncId = :theGrouperSyncId and inTargetStart is not null")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .list(GcGrouperSyncGroup.class);
+    
+    gcGrouperSyncGroups.addAll(gcGrouperSyncGroupsInTargetStart);
+    
+    queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetEnd"));
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetEnd = HibernateSession.byHqlStatic().options(queryOptions)
+        .createQuery("from GcGrouperSyncGroup where grouperSyncId = :theGrouperSyncId and inTargetEnd is not null")
+        .setString("theGrouperSyncId", gcGrouperSync.getId())
+        .list(GcGrouperSyncGroup.class);
+    
+    gcGrouperSyncGroups.addAll(gcGrouperSyncGroupsInTargetEnd);
+    
+    // remove duplicates
+    Set<String> grouperSyncGroupIds = new HashSet<String>();
+    List<GcGrouperSyncGroup> uniqueGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    
+    for (GcGrouperSyncGroup gcGrouperSyncGroup: gcGrouperSyncGroups) {
+      if (!grouperSyncGroupIds.contains(gcGrouperSyncGroup.getId())) {
+        uniqueGrouperSyncGroups.add(gcGrouperSyncGroup);
+        grouperSyncGroupIds.add(gcGrouperSyncGroup.getId());
+      }
+    }
+    
+    
+    Collections.sort(uniqueGrouperSyncGroups, new Comparator<GcGrouperSyncGroup>() {
+
+      @Override
+      public int compare(GcGrouperSyncGroup o1, GcGrouperSyncGroup o2) {
+        
+        long o1TimestampLong = o1.getInTargetStart() == null ? o1.getInTargetEnd().getTime()
+            : (o1.getInTargetEnd() == null ? o1.getInTargetStart().getTime(): Math.max(o1.getInTargetStart().getTime(), o1.getInTargetEnd().getTime()));
+        
+        long o2TimestampLong = o2.getInTargetStart() == null ? o2.getInTargetEnd().getTime()
+            : (o2.getInTargetEnd() == null ? o2.getInTargetStart().getTime(): Math.max(o2.getInTargetStart().getTime(), o2.getInTargetEnd().getTime()));
+        
+        if (o2TimestampLong == o1TimestampLong) return 0;
+        if (o2TimestampLong > o1TimestampLong) return 1;
+        return -1;
+      }
+      
+    });
+    
+    return uniqueGrouperSyncGroups;
+    
+  }
+  
+  /**
+   * retrieve recent activity for all the members for a given provisioner name
+   * @param provisionerName
+   * @return
+   */
+  public static List<GcGrouperSyncMember> retrieveRecentActivityForMember(String provisionerName) {
+
+    List<GcGrouperSyncMember> gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerName);
+    
+    if (gcGrouperSync == null) {
+      return gcGrouperSyncMembers;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetStart"));
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMembersInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncMember where grouperSyncId = :theGrouperSyncId and inTargetStart is not null")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .list(GcGrouperSyncMember.class);
+    
+    gcGrouperSyncMembers.addAll(gcGrouperSyncMembersInTargetStart);
+    
+    queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetEnd"));
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMembersInTargetEnd = HibernateSession.byHqlStatic().options(queryOptions)
+        .createQuery("from GcGrouperSyncMember where grouperSyncId = :theGrouperSyncId and inTargetEnd is not null")
+        .setString("theGrouperSyncId", gcGrouperSync.getId())
+        .list(GcGrouperSyncMember.class);
+    
+    gcGrouperSyncMembers.addAll(gcGrouperSyncMembersInTargetEnd);
+    
+    // remove duplicates
+    Set<String> grouperSyncMemberIds = new HashSet<String>();
+    List<GcGrouperSyncMember> uniqueGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+    
+    for (GcGrouperSyncMember gcGrouperSyncMember: gcGrouperSyncMembers) {
+      if (!grouperSyncMemberIds.contains(gcGrouperSyncMember.getId())) {
+        uniqueGrouperSyncMembers.add(gcGrouperSyncMember);
+        grouperSyncMemberIds.add(gcGrouperSyncMember.getId());
+      }
+    }
+    
+    
+    Collections.sort(uniqueGrouperSyncMembers, new Comparator<GcGrouperSyncMember>() {
+
+      @Override
+      public int compare(GcGrouperSyncMember o1, GcGrouperSyncMember o2) {
+        
+        long o1TimestampLong = o1.getInTargetStart() == null ? o1.getInTargetEnd().getTime()
+            : (o1.getInTargetEnd() == null ? o1.getInTargetStart().getTime(): Math.max(o1.getInTargetStart().getTime(), o1.getInTargetEnd().getTime()));
+        
+        long o2TimestampLong = o2.getInTargetStart() == null ? o2.getInTargetEnd().getTime()
+            : (o2.getInTargetEnd() == null ? o2.getInTargetStart().getTime(): Math.max(o2.getInTargetStart().getTime(), o2.getInTargetEnd().getTime()));
+        
+        if (o2TimestampLong == o1TimestampLong) return 0;
+        if (o2TimestampLong > o1TimestampLong) return 1;
+        return -1;
+      }
+      
+    });
+    
+    return uniqueGrouperSyncMembers;
+    
+  }
+  
+  /**
+   * retrieve recent activity for all the memberships for a given provisioner name
+   * @param provisionerName
+   * @return
+   */
+  public static List<GcGrouperSyncMembership> retrieveRecentActivityForMembership(String provisionerName) {
+
+    List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerName);
+    
+    if (gcGrouperSync == null) {
+      return gcGrouperSyncMemberships;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetStart"));
+    
+    List<GcGrouperSyncMembership> gcGrouperSyncMembershipsInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncMembership where grouperSyncId = :theGrouperSyncId and inTargetStart is not null")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .list(GcGrouperSyncMembership.class);
+    
+    gcGrouperSyncMemberships.addAll(gcGrouperSyncMembershipsInTargetStart);
+    
+    queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(200, 1, false));
+    queryOptions.sort(QuerySort.desc("inTargetEnd"));
+    
+    List<GcGrouperSyncMembership> gcGrouperSyncMembershipsInTargetEnd = HibernateSession.byHqlStatic().options(queryOptions)
+        .createQuery("from GcGrouperSyncMembership where grouperSyncId = :theGrouperSyncId and inTargetEnd is not null")
+        .setString("theGrouperSyncId", gcGrouperSync.getId())
+        .list(GcGrouperSyncMembership.class);
+    
+    gcGrouperSyncMemberships.addAll(gcGrouperSyncMembershipsInTargetEnd);
+    
+    // remove duplicates
+    Set<String> grouperSyncMembershipIds = new HashSet<String>();
+    List<GcGrouperSyncMembership> uniqueGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    
+    for (GcGrouperSyncMembership gcGrouperSyncMembership: gcGrouperSyncMemberships) {
+      if (!grouperSyncMembershipIds.contains(gcGrouperSyncMembership.getId())) {
+        uniqueGrouperSyncMemberships.add(gcGrouperSyncMembership);
+        grouperSyncMembershipIds.add(gcGrouperSyncMembership.getId());
+      }
+    }
+    
+    
+    Collections.sort(uniqueGrouperSyncMemberships, new Comparator<GcGrouperSyncMembership>() {
+
+      @Override
+      public int compare(GcGrouperSyncMembership o1, GcGrouperSyncMembership o2) {
+        
+        long o1TimestampLong = o1.getInTargetStart() == null ? o1.getInTargetEnd().getTime()
+            : (o1.getInTargetEnd() == null ? o1.getInTargetStart().getTime(): Math.max(o1.getInTargetStart().getTime(), o1.getInTargetEnd().getTime()));
+        
+        long o2TimestampLong = o2.getInTargetStart() == null ? o2.getInTargetEnd().getTime()
+            : (o2.getInTargetEnd() == null ? o2.getInTargetStart().getTime(): Math.max(o2.getInTargetStart().getTime(), o2.getInTargetEnd().getTime()));
+        
+        if (o2TimestampLong == o1TimestampLong) return 0;
+        if (o2TimestampLong > o1TimestampLong) return 1;
+        return -1;
+      }
+      
+    });
+    
+    return uniqueGrouperSyncMemberships;
+    
+  }
+  
+  /**
    * get gc grouper sync members for a given member id
    * @param memberId
    * @return
    */
   public static List<GcGrouperSyncMember> retrieveGcGrouperSyncMembers(String memberId) {
     
-    String grouperSyncMemberQuery = "select * from grouper_sync_member gsm " + 
-        "where gsm.provisionable = 'T' " +
-        "and gsm.member_id = ?";
+    String grouperSyncMemberQuery = "select gsm.* from grouper_sync_member gsm " + 
+        "where " +
+        " gsm.member_id = ? order by grouper_sync_id";
     
-    String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
+    String grouperSyncQuery = "select gs.* from grouper_sync gs where id = ? ";
     
     List<GcGrouperSyncMember> grouperSyncMembers = new GcDbAccess().sql(grouperSyncMemberQuery)
         .addBindVar(memberId)
@@ -1077,6 +1299,25 @@ public class GrouperProvisioningService {
   }
   
   /**
+   * retrieve grouper sync group
+   * @param groupId
+   * @param provsionerName
+   * @return
+   */
+  public static GcGrouperSyncGroup retrieveGcGrouperGroup(String groupId, String provsionerName) {
+    
+    String sql = "select gsg.* from grouper_sync_group gsg, grouper_sync gs where"
+        + " gsg.grouper_sync_id = gs.id and gs.provisioner_name = ? and gsg.group_id = ? ";
+    
+    GcGrouperSyncGroup grouperSyncGroup = new GcDbAccess().sql(sql)
+        .addBindVar(provsionerName)
+        .addBindVar(groupId)
+        .select(GcGrouperSyncGroup.class);
+    
+    return grouperSyncGroup;
+  }
+  
+  /**
    * get gc grouper sync memberships for a given member id and group id
    * @param memberId
    * @param groupId
@@ -1088,7 +1329,7 @@ public class GrouperProvisioningService {
         "where gsm.grouper_sync_group_id =  gsg.id " + 
         " and gsm.grouper_sync_member_id = gsmem.id "
         + " and gsmem.member_id = ? " +
-        " and gsg.group_id = ? ";
+        " and gsg.group_id = ? order by gsm.grouper_sync_id";
     
     String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
     
@@ -1103,12 +1344,173 @@ public class GrouperProvisioningService {
       GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
       .addBindVar(grouperSyncId)
       .select(GcGrouperSync.class);
-      
       grouperSyncMembership.setGrouperSync(gcGrouperSync);
+      
+      GcGrouperSyncMember grouperSyncMember = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncMemberDao().memberRetrieveById(grouperSyncMembership.getGrouperSyncMemberId());
+      grouperSyncMembership.setGrouperSyncMember(grouperSyncMember);
+      
+      GcGrouperSyncGroup grouperSyncGroup = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncGroupDao().groupRetrieveById(grouperSyncMembership.getGrouperSyncGroupId());
+      grouperSyncMembership.setGrouperSyncGroup(grouperSyncGroup);
     }
     
     return grouperSyncMemberships;
     
+  }
+  
+  /**
+   * retrieve gc grouper sync logs
+   * @param provisionerId
+   * @param groupId
+   * @param queryOptions
+   * @return
+   */
+  public static List<GcGrouperSyncLog> retrieveGcGrouperSyncLogs(String provisionerId, String groupId, QueryOptions queryOptions) {
+    
+    List<GcGrouperSyncLog> gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerId);
+    
+    if (gcGrouperSync == null) {
+      return gcGrouperSyncLogs;
+    }
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(groupId);
+    
+    if (gcGrouperSyncGroup == null) {
+      return gcGrouperSyncLogs;
+    }
+    
+    if (queryOptions.getQueryPaging() == null) {
+      queryOptions.paging(QueryPaging.page(100, 1, false));
+    }
+    
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sort(QuerySort.desc("lastUpdated"));
+    }
+    
+    gcGrouperSyncLogs = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncLog where grouperSyncId = :theGrouperSyncId and grouperSyncOwnerId = :theGrouperSyncOwnerId")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .setString("theGrouperSyncOwnerId", gcGrouperSyncGroup.getId())
+      .list(GcGrouperSyncLog.class);
+    
+    
+    return gcGrouperSyncLogs;
+  }
+  
+  /**
+   * retrieve gc grouper sync jobs for a provisioner id
+   * @param provisionerId
+   * @return
+   */
+  public static List<GcGrouperSyncJob> retrieveGcGroupSyncJobs(String provisionerId) {
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerId);
+    
+    if (gcGrouperSync == null) {
+      return new ArrayList<GcGrouperSyncJob>();
+    }
+    
+    return gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+  }
+  
+  /**
+   * retrieve gc grouper sync logs for a provisioner id
+   * @param provisionerId
+   * @param queryOptions
+   * @return
+   */
+  public static List<GrouperSyncLogWithOwner> retrieveGcGrouperSyncLogs(String provisionerId, QueryOptions queryOptions) {
+
+    List<GrouperSyncLogWithOwner> grouperSyncLogsWithOwner = new ArrayList<GrouperSyncLogWithOwner>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerId);
+    
+    if (gcGrouperSync == null) {
+      return grouperSyncLogsWithOwner;
+    }
+    
+    if (queryOptions.getQueryPaging() == null) {
+      queryOptions.paging(QueryPaging.page(100, 1, false));
+    }
+    
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sort(QuerySort.desc("lastUpdated"));
+    }
+    
+    List<GcGrouperSyncLog> gcGrouperSyncLogs = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncLog where grouperSyncId = :theGrouperSyncId")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .list(GcGrouperSyncLog.class);
+    
+    Set<String> ownerIds = new HashSet<String>();
+    
+    for (GcGrouperSyncLog gcGrouperSyncLog: gcGrouperSyncLogs) {
+
+      if (StringUtils.isNotBlank(gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+        ownerIds.add(gcGrouperSyncLog.getGrouperSyncOwnerId());
+      }
+    }
+    
+    Map<String, GcGrouperSyncJob> gcGrouperSyncJobs = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveByIds(ownerIds);
+    Map<String, GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByIds(ownerIds);
+    Map<String, GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByIds(ownerIds);
+    
+    
+    for (GcGrouperSyncLog gcGrouperSyncLog: gcGrouperSyncLogs) {
+      
+      GrouperSyncLogWithOwner grouperSyncLogWithOwner = new GrouperSyncLogWithOwner();
+      grouperSyncLogsWithOwner.add(grouperSyncLogWithOwner);
+      
+      grouperSyncLogWithOwner.setGcGrouperSyncLog(gcGrouperSyncLog);
+      
+      if (StringUtils.isNotBlank(gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+        if (gcGrouperSyncJobs.containsKey(gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+          GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSyncJobs.get(gcGrouperSyncLog.getGrouperSyncOwnerId());
+          grouperSyncLogWithOwner.setGcGrouperSyncJob(gcGrouperSyncJob);
+          
+          String logType = GrouperTextContainer.textOrNull("provisionerLogsTypeOfLogJob");
+          if (StringUtils.isBlank(logType)) {
+            logType = "Job";
+          }
+          
+          grouperSyncLogWithOwner.setLogType(logType);
+          continue;
+        }
+        
+        if (gcGrouperSyncGroups.containsKey(gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+          GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSyncGroups.get(gcGrouperSyncLog.getGrouperSyncOwnerId());
+          grouperSyncLogWithOwner.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+          
+          String logType = GrouperTextContainer.textOrNull("provisionerLogsTypeOfLogGroup");
+          if (StringUtils.isBlank(logType)) {
+            logType = "Group";
+          }
+          
+          grouperSyncLogWithOwner.setLogType(logType);
+          continue;
+        }
+        
+        if (gcGrouperSyncMembers.containsKey(gcGrouperSyncLog.getGrouperSyncOwnerId())) {
+          GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSyncMembers.get(gcGrouperSyncLog.getGrouperSyncOwnerId());
+          grouperSyncLogWithOwner.setGcGrouperSyncMember(gcGrouperSyncMember);
+          
+          String logType = GrouperTextContainer.textOrNull("provisionerLogsTypeOfLogMember");
+          if (StringUtils.isBlank(logType)) {
+            logType = "Member";
+          }
+          
+          grouperSyncLogWithOwner.setLogType(logType);
+          continue;
+        }
+        
+      }
+      
+    }
+    
+    return grouperSyncLogsWithOwner;
   }
   
   private static boolean isTargetEditableForStem(GrouperProvisioningTarget target, Stem stem) {

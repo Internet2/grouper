@@ -191,6 +191,14 @@ public class GcGrouperSyncHeartbeat {
   }
 
   /**
+   * add a logic to run periodically
+   * @param heartbeatLogic
+   */
+  public void insertHeartbeatLogic(Runnable heartbeatLogic) {
+    this.heartbeatLogics.add(0, heartbeatLogic);
+  }
+
+  /**
    * if this thread is started
    */
   private boolean started = false;

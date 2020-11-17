@@ -6,8 +6,6 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-
 public class CommandLineExec {
 
   private String command;

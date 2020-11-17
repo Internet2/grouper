@@ -155,6 +155,48 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * common label of repeated configs that should be in a repeated block
+   */
+  private String repeatGroup;
+  
+  /**
+   * common label of repeated configs that should be in a repeated block
+   * @return
+   */
+  public String getRepeatGroup() {
+    return repeatGroup;
+  }
+
+  /**
+   * common label of repeated configs that should be in a repeated block
+   * @param repeatGroup
+   */
+  public void setRepeatGroup(String repeatGroup) {
+    this.repeatGroup = repeatGroup;
+  }
+  
+  /**
+   * how many times a property should be repeated
+   */
+  private int repeatCount;
+  
+  /**
+   * how many times a property should be repeated
+   * @return
+   */
+  public int getRepeatCount() {
+    return repeatCount;
+  }
+
+  /**
+   * how many times a property should be repeated
+   * @param repeatCount
+   */
+  public void setRepeatCount(int repeatCount) {
+    this.repeatCount = repeatCount;
+  }
+
+  /**
    * put a label to group items together.  if blank then all in default subsection
    */
   private String subSection;
@@ -251,6 +293,41 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * replace $i$ with repeat index
+   * @param repeatIndex
+   * @return
+   */
+  public ConfigItemMetadata clone(int repeatIndex) {
+    
+    ConfigItemMetadata copy = new ConfigItemMetadata();
+    copy.regex = GrouperUtil.replace(this.regex, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.checkboxValuesFromClass = GrouperUtil.replace(this.checkboxValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.mustExtendClass = GrouperUtil.replace(this.mustExtendClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.mustImplementInterface = GrouperUtil.replace(this.mustImplementInterface, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleValue = GrouperUtil.replace(this.sampleValue, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.optionValuesFromClass = GrouperUtil.replace(this.optionValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.showEl = GrouperUtil.replace(this.showEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
+    
+//    copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
+    
+    copy.multiple = this.multiple;
+    copy.required = this.required;
+    copy.readOnly = this.readOnly;
+    copy.requiresRestart = this.requiresRestart;
+    copy.sensitive = this.sensitive;
+    copy.valueType = this.valueType;
+    copy.formElement = this.formElement;
+    copy.optionValues = this.optionValues;
+//    copy.repeatCount = this.repeatCount;
+    
+    return copy;
+  }
+  
+  /**
    * 
    */
   public void processMetadata() {
@@ -272,6 +349,8 @@ public class ConfigItemMetadata {
     this.optionValuesFromClass = null;
     this.checkboxValuesFromClass = null;
     this.readOnly = false;
+    this.repeatGroup = null;
+    this.repeatCount = 0;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -280,6 +359,16 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("multiple")) {
         this.multiple = jsonObject.getBoolean("multiple");
         jsonObject.remove("multiple");
+      }
+      
+      if (jsonObject.containsKey("repeatGroup")) {
+        this.repeatGroup = jsonObject.getString("repeatGroup");
+        jsonObject.remove("repeatGroup");
+      }
+      
+      if (jsonObject.containsKey("repeatCount")) {
+        this.repeatCount = jsonObject.getInt("repeatCount");
+        jsonObject.remove("repeatCount");
       }
       
       if (jsonObject.containsKey("mustExtendClass")) {

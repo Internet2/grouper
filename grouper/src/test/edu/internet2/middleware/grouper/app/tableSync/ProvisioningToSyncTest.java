@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.tableSync;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomStringUtils;
 import junit.textui.TestRunner;
 
 
@@ -450,12 +452,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertEquals(0, existingLogs);
     
     GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateLog(gcGrouperSyncGroup1);
-    gcGrouperSyncLog.setDescription("hey");
+    gcGrouperSyncLog.setDescriptionToSave("hey");
     assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
     
     List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncGroup1.getId());
     assertEquals(1, logs.size());
-    assertEquals("hey", logs.get(0).getDescription());
+    assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
     
 //    (Collection<String>)
     
@@ -601,16 +603,18 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertTrue(groups.contains(testGroup3));
     assertTrue(groups.contains(testGroup4));
     
-    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    //TODO move to new method
+    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult(); //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
     
-    Map<String, Group> groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    Map<String, Group> groupIdToGroup = new HashMap<String, Group>(); // provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(3, groupIdToGroup.size());
     assertTrue(groupIdToGroup.containsKey(testGroup1.getId()));
     assertTrue(groupIdToGroup.containsKey(testGroup3.getId()));
     assertTrue(groupIdToGroup.containsKey(testGroup4.getId()));
 
-    Map<String, Group> groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //TODO
+    Map<String, Group> groupIdToGcGrouperSyncGroup = new HashMap<String, Group>();//provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(3, groupIdToGcGrouperSyncGroup.size());
     assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup1.getId()));
@@ -662,13 +666,15 @@ public class ProvisioningToSyncTest extends GrouperTest {
     groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
     assertEquals(0, GrouperUtil.length(groups));
 
-    provisioningSyncResult = new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    // TODO
+    //provisioningSyncResult = null; //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
     
-    groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(0, groupIdToGroup.size());
 
-    groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+    //TODO 
+    //groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
 
     assertEquals(0, groupIdToGcGrouperSyncGroup.size());
 
@@ -799,7 +805,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GrouperProvisioningJob.runDaemonStandalone();
       
       // create the sync stuff
-      new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+      //TODO
+      //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
             
       
       GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");
@@ -930,11 +937,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       assertEquals("abc", gcGrouperSyncLog.getGrouperSyncOwnerId());
   
       //try to store an update
-      gcGrouperSyncLog.setDescription("def");
+      gcGrouperSyncLog.setDescriptionToSave("def");
       gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
   
       gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog.getId());
-      assertEquals("def", gcGrouperSyncLog.getDescription());
+      assertEquals("def", gcGrouperSyncLog.getDescriptionOrDescriptionClob());
   
       //try to store a delete
       gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
@@ -968,8 +975,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       assertEquals("def", gcGrouperSyncLog2.getGrouperSyncOwnerId());
   
       //try to store an update
-      gcGrouperSyncLog1.setDescription("mno");
-      gcGrouperSyncLog2.setDescription("pqr");
+      gcGrouperSyncLog1.setDescriptionToSave("mno");
+      gcGrouperSyncLog2.setDescriptionToSave("pqr");
   
       gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
       gcGrouperSyncLogs.add(gcGrouperSyncLog1);
@@ -980,8 +987,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog1 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog1.getId());
       gcGrouperSyncLog2 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog2.getId());
   
-      assertEquals("mno", gcGrouperSyncLog1.getDescription());
-      assertEquals("pqr", gcGrouperSyncLog2.getDescription());
+      assertEquals("mno", gcGrouperSyncLog1.getDescriptionOrDescriptionClob());
+      assertEquals("pqr", gcGrouperSyncLog2.getDescriptionOrDescriptionClob());
   
       gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
       gcGrouperSyncLogs.add(gcGrouperSyncLog1);
@@ -1013,8 +1020,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       GcGrouperSyncLog gcGrouperSyncGroup6 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("vwx");
   
       //try to store an update
-      gcGrouperSyncLog3.setDescription("mno");
-      gcGrouperSyncLog4.setDescription("pqr");
+      gcGrouperSyncLog3.setDescriptionToSave("mno");
+      
+      String randomLongDescription = RandomStringUtils.random(4500, true, true);
+      
+      gcGrouperSyncLog4.setDescriptionToSave(randomLongDescription);
   
       changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
   
@@ -1023,11 +1033,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog3.getId());
       gcGrouperSyncLog4 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncLog4.getId());
   
-      assertEquals("mno", gcGrouperSyncLog3.getDescription());
-      assertEquals("pqr", gcGrouperSyncLog4.getDescription());
+      assertEquals("mno", gcGrouperSyncLog3.getDescriptionOrDescriptionClob());
+      assertEquals(randomLongDescription, gcGrouperSyncLog4.getDescriptionOrDescriptionClob());
   
       gcGrouperSyncLog3 = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncLog3.getGrouperSyncOwnerId()).get(0);
-      assertEquals("mno", gcGrouperSyncLog3.getDescription());
+      assertEquals("mno", gcGrouperSyncLog3.getDescriptionOrDescriptionClob());
       
       gcGrouperSyncLogs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
       assertEquals(6, gcGrouperSyncLogs.size());
@@ -1209,12 +1219,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
       gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
 
       GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId(gcGrouperSyncJob1.getId());
-      gcGrouperSyncLog.setDescription("hey");
+      gcGrouperSyncLog.setDescriptionToSave("hey");
       assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncJob1.getId());
       assertEquals(1, logs.size());
-      assertEquals("hey", logs.get(0).getDescription());
+      assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
 
     }
 
@@ -1396,12 +1406,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
       assertEquals(0, existingLogs);
       
       GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncMemberDao().memberCreateLog(gcGrouperSyncMember1);
-      gcGrouperSyncLog.setDescription("hey");
+      gcGrouperSyncLog.setDescriptionToSave("hey");
       assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       
       List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMember1.getId());
       assertEquals(1, logs.size());
-      assertEquals("hey", logs.get(0).getDescription());
+      assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
       
   
     }
@@ -1638,12 +1648,12 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertEquals(0, existingLogs);
     
     GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipCreateLog(gcGrouperSyncMembership1);
-    gcGrouperSyncLog.setDescription("hey");
+    gcGrouperSyncLog.setDescriptionToSave("hey");
     assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
     
     List<GcGrouperSyncLog> logs = gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbByOwnerId(gcGrouperSyncMembership1.getId());
     assertEquals(1, logs.size());
-    assertEquals("hey", logs.get(0).getDescription());
+    assertEquals("hey", logs.get(0).getDescriptionOrDescriptionClob());
     
   
   }
@@ -1707,7 +1717,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GrouperProvisioningJob.runDaemonStandalone();
     
     // create the sync stuff
-    new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+    // TODO
+    //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
           
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.testTarget.databaseFrom", "grouper");

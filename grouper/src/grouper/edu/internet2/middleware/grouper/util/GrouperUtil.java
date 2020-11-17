@@ -94,6 +94,7 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl2.Script;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -145,6 +146,31 @@ import net.sf.json.util.PropertyFilter;
  *
  */
 public class GrouperUtil {
+
+  public static void setClear(Set<?> set) {
+    if (set != null) {
+      set.clear();
+    }
+  }
+  
+  /**
+   * in a finally block, take an exception and inject and throw the existing exception, or just throw the finally exception
+   * @param tryException
+   * @param finallyException
+   */
+  public static void exceptionFinallyInjectOrThrow(Exception tryException,
+      Exception finallyException) {
+    if (tryException != null) {
+      GrouperUtil.injectInException(tryException, "\n\n####FINALLY EXCEPTION START####\n\n" + GrouperUtil.getFullStackTrace(finallyException) + "\n\n####FINALLY EXCEPTION END####\n\n");
+    } else {
+      tryException = finallyException;
+    }
+    if (tryException instanceof RuntimeException) {
+      throw (RuntimeException)tryException;
+    }
+    throw new RuntimeException(tryException);
+  }
+
 
   /**
    * take out accented chars with
@@ -2185,7 +2211,7 @@ public class GrouperUtil {
    * need to abbreviate when back
    * @param result is where to append to
    */
-  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result, boolean newLines) {
 
     try {
       if (object == null) {
@@ -2199,7 +2225,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(Array.get(object, i), maxChars)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2216,7 +2242,7 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(collectionObject, maxChars)).append("\n");
+                toStringForLog(collectionObject, maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2340,7 +2366,19 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
+    return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, boolean newLines) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result, newLines);
     return result.toString();
   }
 
@@ -2353,7 +2391,7 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object, int maxChars) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
     String resultString = result.toString();
     if (maxChars != -1) {
       return abbreviate(resultString, maxChars);
@@ -3128,6 +3166,19 @@ public class GrouperUtil {
     }
     // simple non array non collection object
     return 1;
+  }
+
+  /**
+   * is array or collection
+   *
+   * @param arrayOrCollection
+   * @return true or false
+   */
+  public static boolean isArrayOrCollection(Object arrayOrCollection) {
+    if (arrayOrCollection == null) {
+      return false;
+    }
+    return (arrayOrCollection.getClass().isArray() || arrayOrCollection instanceof Collection);
   }
 
   /**
@@ -5377,7 +5428,7 @@ public class GrouperUtil {
    */
   public static Method getter(Class theClass, String fieldName, boolean callOnSupers,
       boolean throwExceptionIfNotFound) {
-    String getterName = getterNameFromPropertyName(fieldName);
+    String getterName = getterNameFromPropertyName(theClass, fieldName);
     return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
   }
 
@@ -5420,7 +5471,19 @@ public class GrouperUtil {
    * @param propertyName
    * @return the getter
    */
-  public static String getterNameFromPropertyName(String propertyName) {
+  public static String getterNameFromPropertyName(Class theClass, String propertyName) {
+    
+    Set<Field> fields = fields(theClass, null, null, false);
+    for (Field field : nonNull(fields)) {
+      if (propertyName.equals(field.getName())) {
+        if (boolean.class.equals(field.getType())) {
+          return "is" + capitalize(propertyName);
+        }
+        break;
+      }
+    }
+    
+    
     return "get" + capitalize(propertyName);
   }
 
@@ -6478,7 +6541,7 @@ public class GrouperUtil {
    */
   public static String stringValue(Object input) {
     //this isnt needed
-    if (input == null) {
+    if (input == null || input instanceof String) {
       return (String) input;
     }
 
@@ -7141,6 +7204,17 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * remove whitespace from string
+   * @return new string
+   */
+  public static String whitespaceRemove(String input) {
+    if (input == null) {
+      return input;
+    }
+    return input.replaceAll("\\s","");
+  }
+  
   /**
    * save a string into a file, file does not have to exist
    *
@@ -9754,6 +9828,124 @@ public class GrouperUtil {
         keysSet.add("grouperUtil");
         StringBuilder logMessage = new StringBuilder();
         logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
+    }
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the object
+   */
+  @SuppressWarnings("unchecked")
+  public static Object substituteExpressionLanguageScript(String script,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    variableMap = nonNull(variableMap);
+    if (!jexlEnginesInitialized) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+    
+    if (isBlank(script)) {
+      return null;
+    }
+    String overallResult = null;
+    Exception exception = null;
+    try {
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
+
+      int index = 0;
+
+      for (String key: variableMap.keySet()) {
+        jc.set(key, variableMap.get(key));
+      }
+
+      //allow utility methods
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
+
+      script = script.trim();
+      if (!script.startsWith("${") || !script.endsWith("}")) {
+        throw new RuntimeException("Script must be ${script}: '" + script + "'");
+      }
+      // take out ${  and  }
+      script = script.substring(2, script.length()-1);
+
+      Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+
+      //this is the result of the evaluation
+      Object o = null;
+
+      try {
+        o = e.execute(jc);
+      } catch (JexlException je) {
+        //exception-scrape to see if missing variable
+        if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          //clean up the message a little bit
+          // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+          String message = je.getMessage();
+          //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+          Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+          Matcher exceptionMatcher = exceptionPattern.matcher(message);
+          if (exceptionMatcher.matches()) {
+            //message = "'" + exceptionMatcher.group(1);
+            message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+          }
+          throw new ExpressionLanguageMissingVariableException(message, je);
+        }
+        throw je;
+      }
+
+      if (o instanceof RuntimeException) {
+        throw (RuntimeException)o;
+      }
+
+      return o;
+    } catch (HookVeto hv) {
+      exception = hv;
+      throw hv;
+    } catch (Exception e) {
+      exception = e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
+      throw new RuntimeException("Error substituting string: '" + script + "'", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(script).append("', and with env vars: ");
         String[] keys = keysSet.toArray(new String[]{});
         for (int i=0;i<keys.length;i++) {
           logMessage.append(keys[i]);

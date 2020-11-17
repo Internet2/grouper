@@ -55,6 +55,26 @@ public class ProvisioningMessage {
   
   public ProvisioningMessage() {
   }
+  
+  /**
+   * if the message should trigger a read only sync and then the results will be in log
+   */
+  private Boolean readOnly;
+  
+  /**
+   * @return if the message should trigger a read only sync and then the results will be in log
+   */
+  public Boolean getReadOnly() {
+    return readOnly;
+  }
+
+  /**
+   * if the message should trigger a read only sync and then the results will be in log
+   * @param readOnly
+   */
+  public void setReadOnly(Boolean readOnly) {
+    this.readOnly = readOnly;
+  }
 
   /**
    * blocking will do a proper sync and block other jobs (e.g. change log consumer).

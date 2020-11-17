@@ -478,7 +478,17 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     // setup heartbeat thread
     GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
     gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
-    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+    gcGrouperSyncHeartbeat.addHeartbeatLogic(provisioningHeartbeatLogic());
+    this.grouperProvisioningProcessingResult.setGcGrouperSyncHeartbeat(gcGrouperSyncHeartbeat);
+    if (!gcGrouperSyncHeartbeat.isStarted()) {
+      gcGrouperSyncHeartbeat.runHeartbeatThread();
+    }
+    
+    return grouperProvisioningProcessingResult;
+  }
+
+  public Runnable provisioningHeartbeatLogic() {
+    return new Runnable() {
 
       @Override
       public void run() {
@@ -491,13 +501,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         }
       }
       
-    });
-    this.grouperProvisioningProcessingResult.setGcGrouperSyncHeartbeat(gcGrouperSyncHeartbeat);
-    if (!gcGrouperSyncHeartbeat.isStarted()) {
-      gcGrouperSyncHeartbeat.runHeartbeatThread();
-    }
-    
-    return grouperProvisioningProcessingResult;
+    };
   }
 
   /**
@@ -882,7 +886,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       
       try {
         if (this.grouperProvisioningProcessingResult != null && this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
-          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescription(debugMapToString);
+          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescriptionToSave(debugMapToString);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setJobTookMillis((int)tookMillis);
           this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setRecordsProcessed(GrouperUtil.length(allEsbEventContainers));
           this.grouperProvisioningProcessingResult.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(

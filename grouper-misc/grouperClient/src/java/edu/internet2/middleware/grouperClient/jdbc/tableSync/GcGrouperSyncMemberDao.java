@@ -247,6 +247,36 @@ public class GcGrouperSyncMemberDao {
     }
     return gcGrouperSyncMember;
   }
+  
+  /**
+   * select grouper sync members by ids
+   * @param gcGrouperSyncMemberIds
+   * @return map of ids to gcGrouperSyncMembers
+   */
+  public Map<String, GcGrouperSyncMember> memberRetrieveByIds(Collection<String> gcGrouperSyncMemberIds) {
+    
+    Map<String, GcGrouperSyncMember> result = new HashMap<String, GcGrouperSyncMember>();
+    
+    Set<String> memberIdsToGetFromDb = new HashSet<String>();
+    
+    // try from cache
+    for (String gcGrouperSyncMemberId : GrouperClientUtils.nonNull(gcGrouperSyncMemberIds)) {
+      GcGrouperSyncMember gcGrouperSyncMember = this.internalCacheSyncMembersById.get(gcGrouperSyncMemberId);
+      if (gcGrouperSyncMember != null) {
+        result.put(gcGrouperSyncMemberId, gcGrouperSyncMember);
+      } else {
+        memberIdsToGetFromDb.add(gcGrouperSyncMemberId);
+      }
+    }
+    
+    // or else get from db
+    if (memberIdsToGetFromDb.size() > 0) {
+      Map<String, GcGrouperSyncMember> fromDb = internal_memberRetrieveFromDbByIds(memberIdsToGetFromDb);
+      result.putAll(fromDb);
+    }
+    
+    return result;
+  }
 
   /**
    * select grouper sync member by member id.  Note: this doesnt store to db yet, you do that at the end

@@ -187,6 +187,78 @@ public class GcGrouperSyncJobDao {
     }
     return gcGrouperSyncJob;
   }
+  
+  /**
+   * select grouper sync job by job ids
+   * @param gcGrouperSyncJobId
+   * @return map of jobIds to gcGrouperSyncJobs
+   */
+  public Map<String, GcGrouperSyncJob> jobRetrieveByIds(Collection<String> gcGrouperSyncJobIds) {
+    
+    Map<String, GcGrouperSyncJob> result = new HashMap<String, GcGrouperSyncJob>();
+    
+    Set<String> jobIdsToGetFromDb = new HashSet<String>();
+    
+    // try from cache
+    for (String gcGrouperSyncJobId : GrouperClientUtils.nonNull(gcGrouperSyncJobIds)) {
+      GcGrouperSyncJob gcGrouperSyncJob = this.internalCacheSyncJobsById.get(gcGrouperSyncJobId);
+      if (gcGrouperSyncJob != null) {
+        result.put(gcGrouperSyncJobId, gcGrouperSyncJob);
+      } else {
+        jobIdsToGetFromDb.add(gcGrouperSyncJobId);
+      }
+    }
+    
+    // or else get from db
+    if (jobIdsToGetFromDb.size() > 0) {
+      Map<String, GcGrouperSyncJob> fromDb = internal_jobRetrieveFromDbByIds(jobIdsToGetFromDb);
+      result.putAll(fromDb);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * select grouper sync job by jobIds
+   * @param gcGrouperSyncJobIds
+   * @return the jobId to syncGroup map
+   */
+  public Map<String, GcGrouperSyncJob> internal_jobRetrieveFromDbByIds(Collection<String> gcGrouperSyncJobIds) {
+    
+    Map<String, GcGrouperSyncJob> result = new HashMap<String, GcGrouperSyncJob>();
+    
+    if (GrouperClientUtils.length(gcGrouperSyncJobIds) == 0) {
+      return result;
+    }
+    
+    List<String> jobIdsList = new ArrayList<String>(gcGrouperSyncJobIds);
+    
+    int batchSize = this.getGcGrouperSync().maxBindVarsInSelect();
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(jobIdsList, batchSize);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfJobIds = GrouperClientUtils.batchList(jobIdsList, batchSize, batchIndex);
+      
+      String sql = "select * from grouper_sync_job where grouper_sync_id = ? and id in ( " 
+          + GrouperClientUtils.appendQuestions(batchOfJobIds.size()) + ")";
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+          .sql(sql).addBindVar(this.getGcGrouperSync().getId());
+      for (String jobId : batchOfJobIds) {
+        gcDbAccess.addBindVar(jobId);
+      }
+      
+      List<GcGrouperSyncJob> gcGrouperSyncJobs = gcDbAccess.selectList(GcGrouperSyncJob.class);
+      
+      for (GcGrouperSyncJob gcGrouperSyncJob : GrouperClientUtils.nonNull(gcGrouperSyncJobs)) {
+        result.put(gcGrouperSyncJob.getId(), gcGrouperSyncJob);
+        gcGrouperSyncJob.setGrouperSync(this.getGcGrouperSync());
+        this.internal_jobCacheAdd(gcGrouperSyncJob);
+      }
+      
+    }
+    return result;
+  }
 
   /**
    * select grouper sync group by group id.  Note: this doesnt store to db yet, you do that at the end

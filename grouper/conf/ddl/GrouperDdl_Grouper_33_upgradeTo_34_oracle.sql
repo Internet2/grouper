@@ -121,3 +121,6 @@ COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if
 COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
 
 COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';
+
+update grouper_ddl set last_updated = to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substr((to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V34, ' || history), 1, 3500), db_version = 34 where object_name = 'Grouper';
+commit;

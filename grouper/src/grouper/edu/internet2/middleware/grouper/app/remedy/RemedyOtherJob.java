@@ -6,7 +6,10 @@ package edu.internet2.middleware.grouper.app.remedy;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+<<<<<<< HEAD
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+=======
+>>>>>>> GRP-2881_simple_new_LDAP_provisioner
 
 
 /**

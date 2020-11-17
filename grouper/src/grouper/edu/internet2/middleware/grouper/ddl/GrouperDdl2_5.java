@@ -1219,7 +1219,7 @@ public class GrouperDdl2_5 {
       final String tableName = "grouper_sync_membership";
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-          "grouper_sync_mship_gr_idx", true, "grouper_sync_group_id", "grouper_sync_member_id");
+          "grouper_sync_mship_gr_idx", true, "grouper_sync_id", "grouper_sync_group_id", "grouper_sync_member_id");
     
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_mship_me_idx", false, "grouper_sync_member_id", "last_updated");

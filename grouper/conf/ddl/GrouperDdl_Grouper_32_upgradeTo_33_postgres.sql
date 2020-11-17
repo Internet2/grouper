@@ -245,3 +245,6 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.group_name IS 'group_name: group 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_source_id: subject source of subject in recent membership';
 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
+
+update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V33, ' || history) from 1 for 3500), db_version = 33 where object_name = 'Grouper';
+commit;

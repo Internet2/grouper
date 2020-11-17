@@ -269,3 +269,6 @@ CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, D
 
 ALTER TABLE grouper_message ALTER COLUMN from_member_id VARCHAR(40);
 
+update grouper_ddl set last_updated = to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), history = substring((to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V' || db_version || ' to V32, ' || history) from 1 for 3500), db_version = 32 where object_name = 'Grouper';
+
+commit;

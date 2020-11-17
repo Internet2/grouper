@@ -283,6 +283,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public static final String SQL_SYNC_ENGINE = "sqlTableSync";
 
   /**
+   * use this for provisioning
+   */
+  public static final String PROVISIONING = "provisioning";
+
+  /**
    * 
    */
   private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSync.class);
