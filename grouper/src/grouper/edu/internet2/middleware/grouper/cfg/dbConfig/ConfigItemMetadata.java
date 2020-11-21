@@ -195,6 +195,21 @@ public class ConfigItemMetadata {
   public void setRepeatCount(int repeatCount) {
     this.repeatCount = repeatCount;
   }
+  
+  /**
+   * repeat group index - 0 based. only applicable for repeat groups
+   */
+  private int repeatGroupIndex;
+  
+  
+  public int getRepeatGroupIndex() {
+    return repeatGroupIndex;
+  }
+
+  
+  public void setRepeatGroupIndex(int repeatGroupIndex) {
+    this.repeatGroupIndex = repeatGroupIndex;
+  }
 
   /**
    * put a label to group items together.  if blank then all in default subsection

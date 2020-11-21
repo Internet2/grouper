@@ -52,6 +52,10 @@
 			  			
 			  			<c:forEach items="${subSection.attributesValues}" var="attribute">
 			  				
+			  				<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+				               	property="index"
+				               	value="${attribute.repeatGroupIndex}" />
+				               	
 			  				<grouper:configFormElement 
 			  					formElementType="${attribute.formElement}" 
 			  					configId="${attribute.configSuffix}" 

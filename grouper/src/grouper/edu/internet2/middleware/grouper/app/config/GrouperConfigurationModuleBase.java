@@ -572,6 +572,7 @@ public abstract class GrouperConfigurationModuleBase {
     
     GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = new GrouperConfigurationModuleAttribute();
     grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
+    grouperConfigModuleAttribute.setRepeatGroupIndex(configItemMetadata.getRepeatGroupIndex());
     
     grouperConfigModuleAttribute.setFullPropertyName(propertyName);
     grouperConfigModuleAttribute.setGrouperConfigModule(this);

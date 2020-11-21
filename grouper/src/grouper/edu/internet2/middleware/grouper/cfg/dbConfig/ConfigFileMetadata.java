@@ -411,6 +411,7 @@ public class ConfigFileMetadata {
         for (int i=0; i<repeatCount; i++) {
           for (ConfigItemMetadata configMetadata: metadataItemsBelongingToSameRepeatGroup) {
             ConfigItemMetadata copy = configMetadata.clone(i);
+            copy.setRepeatGroupIndex(i);
             expandedConfigItemMetadataListPerSection.add(copy);
           }
         }

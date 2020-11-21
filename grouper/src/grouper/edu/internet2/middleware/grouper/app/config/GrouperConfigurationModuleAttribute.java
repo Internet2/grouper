@@ -79,6 +79,10 @@ public class GrouperConfigurationModuleAttribute {
    */
   private List<MultiKey> checkboxAttributes;
 
+  /**
+   * if this is a repeat group; this is a 0 based index.
+   */
+  private int repeatGroupIndex = -1;
   
   
   public GrouperConfigurationModuleBase getGrouperConfigModule() {
@@ -215,7 +219,18 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getLabel() {
-    String label = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
+    
+    String key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label";
+    
+    String label = GrouperTextContainer.textOrNull(key);
+    
+    if (StringUtils.isBlank(label)) {      
+      if (this.getConfigSuffix().matches(".*[0-9].*")) {
+        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".label";
+        label = GrouperTextContainer.textOrNull(key);
+      } 
+    }
+    
     if (StringUtils.isBlank(label)) {
       return this.getConfigSuffix();
     }
@@ -289,6 +304,16 @@ public class GrouperConfigurationModuleAttribute {
   
   public void setCheckboxAttributes(List<MultiKey> checkboxAttributes) {
     this.checkboxAttributes = checkboxAttributes;
+  }
+  
+  
+  public int getRepeatGroupIndex() {
+    return repeatGroupIndex;
+  }
+
+  
+  public void setRepeatGroupIndex(int repeatGroupIndex) {
+    this.repeatGroupIndex = repeatGroupIndex;
   }
 
   /**

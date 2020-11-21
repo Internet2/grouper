@@ -61,6 +61,11 @@ public class ProvisionerConfigurationContainer {
   private List<GcGrouperSyncMembership> activityForMembership;
   
   /**
+   * current grouped config index we are looping through
+   */
+  private int index;
+  
+  /**
    * 
    * @return all configured provisioning configurations
    */
@@ -215,5 +220,17 @@ public class ProvisionerConfigurationContainer {
   public void setActivityForMembership(List<GcGrouperSyncMembership> activityForMembership) {
     this.activityForMembership = activityForMembership;
   }
+
+  
+  public int getIndex() {
+    return index;
+  }
+
+  
+  public void setIndex(int index) {
+    this.index = index;
+  }
+  
+  
   
 }
