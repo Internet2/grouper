@@ -10,6 +10,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisioningConfigurationAttribute {
 
+  /**
+   * groups, entities, or memberships
+   */
+  private GrouperProvisioningConfigurationAttributeType grouperProvisioningConfigurationAttributeType;
+  
+  /**
+   * groups, entities, or memberships
+   * @return
+   */
+  public GrouperProvisioningConfigurationAttributeType getGrouperProvisioningConfigurationAttributeType() {
+    return grouperProvisioningConfigurationAttributeType;
+  }
+
+  /**
+   * groups, entities, or memberships
+   * @param grouperProvisioningConfigurationAttributeType
+   */
+  public void setGrouperProvisioningConfigurationAttributeType(
+      GrouperProvisioningConfigurationAttributeType grouperProvisioningConfigurationAttributeType) {
+    this.grouperProvisioningConfigurationAttributeType = grouperProvisioningConfigurationAttributeType;
+  }
+
   public GrouperProvisioningConfigurationAttribute() {
   }
 
@@ -46,6 +68,36 @@ public class GrouperProvisioningConfigurationAttribute {
     }
     
     return result.toString();
+  }
+
+  /**
+   * 
+   */
+  private String translateFromMemberSyncField;
+  
+  /**
+   * 
+   */
+  private String translateFromGroupSyncField;
+  
+  
+  public String getTranslateFromMemberSyncField() {
+    return translateFromMemberSyncField;
+  }
+
+  
+  public void setTranslateFromMemberSyncField(String translateFromMemberSyncField) {
+    this.translateFromMemberSyncField = translateFromMemberSyncField;
+  }
+
+  
+  public String getTranslateFromGroupSyncField() {
+    return translateFromGroupSyncField;
+  }
+
+  
+  public void setTranslateFromGroupSyncField(String translateFromGroupSyncField) {
+    this.translateFromGroupSyncField = translateFromGroupSyncField;
   }
 
   /**
