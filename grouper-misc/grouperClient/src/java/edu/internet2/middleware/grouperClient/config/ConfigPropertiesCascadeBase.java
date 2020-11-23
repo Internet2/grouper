@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -183,7 +185,7 @@ public abstract class ConfigPropertiesCascadeBase {
   @SuppressWarnings("unchecked")
   public Set<String> propertyNames() {    
     
-    Set<String> result = new LinkedHashSet<String>();
+    Set<String> result = new TreeSet<String>();
     result.addAll((Set<String>)(Object)this.propertiesHelper(false).keySet());
     return result;
   }
@@ -1557,7 +1559,7 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the keys.  if none, will return the empty set, not null set
    */
   public Map<String, String> propertiesMap(Pattern pattern) {
-    Map<String, String> result = new LinkedHashMap<String, String>();
+    Map<String, String> result = new TreeMap<String, String>();
     for (String key: propertyNames()) {
       if (pattern.matcher(key).matches()) {
         result.put(key, propertyValueString(key));
