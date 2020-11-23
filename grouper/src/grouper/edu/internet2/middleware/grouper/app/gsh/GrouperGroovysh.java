@@ -104,6 +104,18 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script) {
+    return runScript(script, false);
+  }
+
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   */
+  public static GrouperGroovyResult runScript(String script, boolean lightWeight) {
     
     GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
     
@@ -126,7 +138,7 @@ public class GrouperGroovysh extends Groovysh {
       boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
       shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
       StringBuilder body = new StringBuilder(script);
-      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'\n");
+      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName(lightWeight ? "groovysh_lightWeight.profile" : "groovysh.profile").getAbsolutePath() + "'\n");
       body.append("\n:exit");
       int code = shell.run(body.toString());
       grouperGroovyResult.setResultCode(code);

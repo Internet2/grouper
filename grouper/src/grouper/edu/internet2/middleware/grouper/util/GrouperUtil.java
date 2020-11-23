@@ -119,6 +119,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -146,6 +147,31 @@ import net.sf.json.util.PropertyFilter;
  *
  */
 public class GrouperUtil {
+
+  /**
+   * run a GSH script
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the script
+   */
+  public static String gshRunScript(String script, boolean lightWeight) {
+    try {
+      GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+      String output = grouperGroovyResult.getOutString();
+  
+      // [32mGroovy Shell[m (2.5.0-beta-2, JVM: 1.8.0_161)
+      output = GrouperUtil.replace(output, "[32mGroovy Shell[m ", "");
+      
+      // Type '[1m:help[m' or '[1m:h[m' for help.
+      output = GrouperUtil.replace(output, "[1m", "");
+      output = GrouperUtil.replace(output, "[m", "");
+      return output;
+    } catch (RuntimeException re) {
+      injectInException(re, "Script: '" + script + "', ");
+      throw re;
+    }
+  }
 
   public static void setClear(Set<?> set) {
     if (set != null) {
