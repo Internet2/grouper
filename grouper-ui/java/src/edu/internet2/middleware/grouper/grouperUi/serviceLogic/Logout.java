@@ -152,7 +152,7 @@ public class Logout {
         guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '../../logout.do'"));
       } else {
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + logoutRedirect + "'"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUtil.escapeSingleQuotes(logoutRedirect) + "'"));
         return false;
       }
     }
