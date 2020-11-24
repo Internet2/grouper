@@ -477,7 +477,7 @@ public class GoogleGrouperConnector {
     }
 
     public void deleteGooGroup(PITGroup group) throws IOException {
-        deleteGooGroupByName(group.getName(), group.getId());
+        deleteGooGroupByName(group.getName(), group.getSourceId());
     }
     
     public void deleteGooGroupByName(String groupName) throws IOException {
