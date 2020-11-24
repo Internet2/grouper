@@ -398,7 +398,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                     groupName = PITGroupFinder.findBySourceId(ownerId, true).iterator().next().getName();
                 }
                 try {
-                    connector.deleteGooGroupByName(groupName);
+                    connector.deleteGooGroupByName(groupName, ownerId);
                 } catch (IOException e) {
                     LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group add: {}", new Object[] {consumerName, toString(changeLogEntry), e});
                 }
@@ -511,6 +511,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
         LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Processing group update.", consumerName, toString(changeLogEntry));
 
+        final String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id);
         final String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name);
         final String propertyChanged = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyChanged);
         final String propertyOldValue = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.propertyOldValue);
@@ -529,8 +530,8 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
             //Group moves are a bit different than just a property change, let's take care of it now.
             if (propertyChanged.equalsIgnoreCase("name")) {
-                String oldAddress = connector.getAddressFormatter().qualifyGroupAddress(propertyOldValue);
-                String newAddress = connector.getAddressFormatter().qualifyGroupAddress(propertyNewValue);
+                String oldAddress = connector.getAddressFormatter().qualifyGroupAddress(propertyOldValue, groupId);
+                String newAddress = connector.getAddressFormatter().qualifyGroupAddress(propertyNewValue, groupId);
 
                 group = connector.fetchGooGroup(oldAddress);
 
@@ -551,7 +552,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 return;
             }
 
-            group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName));
+            group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName, groupId));
 
             if (propertyChanged.equalsIgnoreCase("displayExtension")) {
                 group.setName(propertyNewValue);
@@ -564,7 +565,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                         new Object[] {consumerName, toString(changeLogEntry), propertyChanged});
             }
 
-            GoogleCacheManager.googleGroups().put(connector.updateGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName), group));
+            GoogleCacheManager.googleGroups().put(connector.updateGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName, groupId), group));
 
         } catch (IOException e) {
             LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing group update.", consumerName, toString(changeLogEntry));
@@ -582,6 +583,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Processing membership add.", consumerName,
                 toString(changeLogEntry));
 
+        final String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
         final String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
         final String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId);
         final edu.internet2.middleware.grouper.Group grouperGroup = connector.fetchGrouperGroup(groupName);
@@ -599,10 +601,10 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         final SubjectType subjectType = lookupSubject.getType();
 
         try {
-            Group group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName));
+            Group group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName, groupId));
             if (group == null) {
                 connector.createGooGroupIfNecessary(grouperGroup);
-                group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName));
+                group = connector.fetchGooGroup(connector.getAddressFormatter().qualifyGroupAddress(groupName, groupId));
             }
 
             //For nested groups, ChangeLogEvents fire when the group is added, and also for each indirect user added,
@@ -662,7 +664,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 if (role != null && !role.equalsIgnoreCase("NONE")) {
                     connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
-                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
+                    connector.removeGooMembership(grouperGroup.getName(), grouperGroup.getId(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing membership delete: {}", new Object[]{consumerName,
@@ -697,7 +699,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 if (role != null && !role.equalsIgnoreCase("NONE")) {
                     connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
-                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
+                    connector.removeGooMembership(grouperGroup.getName(), grouperGroup.getId(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing privilege add: {}", new Object[]{consumerName,
@@ -738,7 +740,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 if (role != null && !role.equalsIgnoreCase("NONE")) {
                     connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
-                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
+                    connector.removeGooMembership(grouperGroup.getName(), grouperGroup.getId(), member.getSubject());
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing privilege update: {}", new Object[]{consumerName,
@@ -779,7 +781,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
                 if (role != null && !role.equalsIgnoreCase("NONE")) {
                     connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 } else {
-                    connector.removeGooMembership(grouperGroup.getName(), member.getSubject());
+                    connector.removeGooMembership(grouperGroup.getName(), grouperGroup.getId(), member.getSubject());
                 }
 
             } catch (IOException e) {

@@ -331,7 +331,7 @@ public class GoogleGrouperConnector {
     }
 
     public void createGooGroupIfNecessary(edu.internet2.middleware.grouper.Group grouperGroup) throws IOException {
-        final String groupKey = addressFormatter.qualifyGroupAddress(grouperGroup.getName());
+        final String groupKey = addressFormatter.qualifyGroupAddress(grouperGroup.getName(), grouperGroup.getId());
 
         Group googleGroup = fetchGooGroup(groupKey);
         recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
@@ -473,15 +473,19 @@ public class GoogleGrouperConnector {
     }
 
     public void deleteGooGroup(edu.internet2.middleware.grouper.Group group) throws IOException {
-        deleteGooGroupByName(group.getName());
+        deleteGooGroupByName(group.getName(), group.getId());
     }
 
     public void deleteGooGroup(PITGroup group) throws IOException {
-        deleteGooGroupByName(group.getName());
+        deleteGooGroupByName(group.getName(), group.getId());
+    }
+    
+    public void deleteGooGroupByName(String groupName) throws IOException {
+      deleteGooGroupByName(groupName, null);
     }
 
-    public void deleteGooGroupByName(String groupName) throws IOException {
-        final String groupKey = addressFormatter.qualifyGroupAddress(groupName);
+    public void deleteGooGroupByName(String groupName, String groupId) throws IOException {
+        final String groupKey = addressFormatter.qualifyGroupAddress(groupName, groupId);
         deleteGooGroupByEmail(groupKey);
 
         grouperGroups.remove(groupName);
@@ -634,9 +638,12 @@ public class GoogleGrouperConnector {
         }
     }
 
-
     public void removeGooMembership(String groupName, Subject subject) throws IOException {
-        final String groupKey = addressFormatter.qualifyGroupAddress(groupName);
+      removeGooMembership(groupName, null, subject);
+    }
+
+    public void removeGooMembership(String groupName, String groupId, Subject subject) throws IOException {
+        final String groupKey = addressFormatter.qualifyGroupAddress(groupName, groupId);
         final String userKey = addressFormatter.qualifySubjectAddress(subject);
 
         recentlyManipulatedObjectsList.delayIfNeeded(userKey);
@@ -694,7 +701,7 @@ public class GoogleGrouperConnector {
             }
         }
 
-        Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
+        Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName(), group.getId()));
         if (user != null && gooGroup != null && StringUtils.isEmpty(role)) {
             LOG.debug("Google Apps Consumer '{}' - Create user {} in {} as {}.", new Object[] {consumerName, user, gooGroup.getId(), role});
             createGooMember(gooGroup, user, role);
@@ -713,7 +720,7 @@ public class GoogleGrouperConnector {
             }
         }
 
-        Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
+        Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName(), group.getId()));
         if (gooGroup == null) {
             LOG.debug("Google Apps Consumer '{}' - No group found, existing: {}", consumerName, group.getName());
 
