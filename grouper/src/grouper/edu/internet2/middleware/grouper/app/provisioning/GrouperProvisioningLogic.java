@@ -61,6 +61,8 @@ public class GrouperProvisioningLogic {
   public void provisionFull() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
+    this.getGrouperProvisioner().getGcGrouperSyncJob().setLastSyncStart(startTimestamp);
 
     try {
       debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
@@ -246,6 +248,7 @@ public class GrouperProvisioningLogic {
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
       GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+      gcGrouperSync.setLastFullSyncStart(startTimestamp);
       gcGrouperSync.setLastFullSyncRun(nowTimestamp);
 
       GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
@@ -256,14 +259,13 @@ public class GrouperProvisioningLogic {
         gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
       }
       gcGrouperSyncJob.setPercentComplete(100);
-      
+
       // do this in the right spot, after assigning correct sync info about sync
       int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
       this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
   
       this.grouperProvisioner.getDebugMap().put("syncObjectStoreCount", objectStoreCount);
     }
-    
 
     // TODO flesh this out, resolve subjects, linked cached data, etc, try individually again
 //    this.getGrouperProvisioner().retrieveTargetDao().resolveErrors();

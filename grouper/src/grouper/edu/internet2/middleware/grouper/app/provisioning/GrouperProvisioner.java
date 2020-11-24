@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartb
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 

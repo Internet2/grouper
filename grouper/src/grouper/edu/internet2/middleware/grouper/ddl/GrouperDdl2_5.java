@@ -560,9 +560,19 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_incremental_sync_run", 
           Types.TIMESTAMP, null, false, false);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_sync_start", 
+            Types.TIMESTAMP, null, false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_sync_run", 
           Types.TIMESTAMP, null, false, false);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_metadata_sync_start", 
+            Types.TIMESTAMP, null, false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_full_metadata_sync_run", 
           Types.TIMESTAMP, null, false, false);
     
@@ -588,7 +598,12 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncJobTable, "last_sync_index", 
           Types.BIGINT, "15", false, false);
-    
+      
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncJobTable, "last_sync_start", 
+            Types.TIMESTAMP, null, false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncJobTable, "last_sync_timestamp", 
           Types.TIMESTAMP, null, false, false);
     
@@ -657,9 +672,19 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_updated", 
           Types.TIMESTAMP, "10", false, true);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_sync_start", 
+            Types.TIMESTAMP, "10", false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_sync", 
           Types.TIMESTAMP, "10", false, false);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_metadata_sync_start", 
+            Types.TIMESTAMP, "10", false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_metadata_sync", 
           Types.TIMESTAMP, "10", false, false);
     
@@ -737,9 +762,19 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_updated", 
           Types.TIMESTAMP, "10", false, true);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_sync_start", 
+            Types.TIMESTAMP, "10", false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_sync", 
           Types.TIMESTAMP, "10", false, false);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_metadata_sync_start", 
+            Types.TIMESTAMP, "10", false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_user_metadata_sync", 
           Types.TIMESTAMP, "10", false, false);
     
@@ -827,6 +862,10 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "status", Types.VARCHAR, "20", false, false);
     
+      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "sync_timestamp_start", Types.TIMESTAMP, "10", false, false);
+      }
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "sync_timestamp", Types.TIMESTAMP, "10", false, false);
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "description", Types.VARCHAR, "4000", false, false);

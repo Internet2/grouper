@@ -6,9 +6,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -210,7 +208,9 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   gcGrouperSync.incrementalIndex = this.incrementalIndex;
   gcGrouperSync.incrementalTimestamp = this.incrementalTimestamp;
   gcGrouperSync.lastFullMetadataSyncRun = this.lastFullMetadataSyncRun;
+  gcGrouperSync.lastFullMetadataSyncStart = this.lastFullMetadataSyncStart;
   gcGrouperSync.lastFullSyncRun = this.lastFullSyncRun;
+  gcGrouperSync.lastFullSyncStart = this.lastFullSyncStart;
   gcGrouperSync.lastIncrementalSyncRun = this.lastIncrementalSyncRun;
   //lastUpdated  DONT CLONE
 
@@ -249,7 +249,9 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
       .append(this.incrementalIndex, other.incrementalIndex)
       .append(this.incrementalTimestamp, other.incrementalTimestamp)
       .append(this.lastFullMetadataSyncRun, other.lastFullMetadataSyncRun)
+      .append(this.lastFullMetadataSyncStart, other.lastFullMetadataSyncStart)
       .append(this.lastFullSyncRun, other.lastFullSyncRun)
+      .append(this.lastFullSyncStart, other.lastFullSyncStart)
       .append(this.lastIncrementalSyncRun, other.lastIncrementalSyncRun)
       //lastUpdated  DONT EQUALS
 
@@ -325,14 +327,35 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   }
 
   /**
-   * when last full sync ran
+   * when last full sync started
+   */
+  private Timestamp lastFullSyncStart;
+
+  /**
+   * when last full sync started
+   * @return
+   */
+  public Timestamp getLastFullSyncStart() {
+    return lastFullSyncStart;
+  }
+
+  /**
+   * when last full sync started
+   * @param lastFullSyncStart
+   */
+  public void setLastFullSyncStart(Timestamp lastFullSyncStart) {
+    this.lastFullSyncStart = lastFullSyncStart;
+  }
+
+  /**
+   * when last full sync ran (end)
    */
   private Timestamp lastFullSyncRun;
   
   
   
   /**
-   * when last full sync ran
+   * when last full sync ran (end)
    * @return when
    */
   public Timestamp getLastFullSyncRun() {
@@ -340,7 +363,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   }
 
   /**
-   * when last full sync ran
+   * when last full sync ran (end)
    * @param lastFullSyncRun1
    */
   public void setLastFullSyncRun(Timestamp lastFullSyncRun1) {
@@ -352,7 +375,28 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    */
   private Timestamp lastFullMetadataSyncRun;
   
+
+  /**
+   * when last full metadata sync started.  this needs to run when groups get renamed
+   */
+  private Timestamp lastFullMetadataSyncStart;
   
+  /**
+   * when last full metadata sync started.  this needs to run when groups get renamed
+   * @return
+   */
+  public Timestamp getLastFullMetadataSyncStart() {
+    return lastFullMetadataSyncStart;
+  }
+
+  /**
+   * when last full metadata sync started.  this needs to run when groups get renamed
+   * @param lastFullMetadataSyncStart
+   */
+  public void setLastFullMetadataSyncStart(Timestamp lastFullMetadataSyncStart) {
+    this.lastFullMetadataSyncStart = lastFullMetadataSyncStart;
+  }
+
   /**
    * when last full metadata sync ran.  this needs to run when groups get renamed
    * @return when

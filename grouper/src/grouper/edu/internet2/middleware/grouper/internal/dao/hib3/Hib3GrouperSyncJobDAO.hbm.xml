@@ -62,6 +62,7 @@
     <property name="heartbeat" column="heartbeat" type="timestamp"/>
     <property name="jobStateDb" column="job_state"/>
     <property name="lastSyncIndex" column="last_sync_index"/>
+    <property name="lastSyncStart" column="last_sync_start" type="timestamp"/>
     <property name="lastSyncTimestamp" column="last_sync_timestamp" type="timestamp"/>
     <property name="lastTimeWorkWasDone" column="last_time_work_was_done" type="timestamp"/>
     <property name="percentComplete" column="percent_complete"/>

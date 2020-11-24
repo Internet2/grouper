@@ -64,6 +64,7 @@
     <property name="recordsProcessed" column="records_processed"/>
     <property name="server" column="server"/>
     <property name="statusDb" column="status"/>
+    <property name="syncTimestampStart" column="sync_timestamp_start" type="timestamp"/>
     <property name="syncTimestamp" column="sync_timestamp" type="timestamp"/>
     <property name="descriptionClob" column="description_clob"/> 
     <property name="descriptionBytes" column="description_bytes"/>

@@ -81,6 +81,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSyncJob.jobStateDb = this.jobStateDb;
     gcGrouperSyncJob.lastSyncIndex = this.lastSyncIndex;
     gcGrouperSyncJob.lastSyncTimestamp = this.lastSyncTimestamp;
+    gcGrouperSyncJob.lastSyncStart = this.lastSyncStart;
     gcGrouperSyncJob.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
     //lastUpdated  DONT CLONE
   
@@ -124,6 +125,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
       .append(this.id, other.id)
       .append(this.jobStateDb, other.jobStateDb)
       .append(this.lastSyncIndex, other.lastSyncIndex)
+      .append(this.lastSyncStart, other.lastSyncStart)
       .append(this.lastSyncTimestamp, other.lastSyncTimestamp)
       .append(this.lastTimeWorkWasDone, other.lastTimeWorkWasDone)
       //lastUpdated  DONT EQUALS
@@ -530,7 +532,28 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   /**
-   * when last record processed if timestamp and not integer
+   * when last sync started
+   */
+  private Timestamp lastSyncStart;
+
+  /**
+   * when last sync started
+   * @return
+   */
+  public Timestamp getLastSyncStart() {
+    return lastSyncStart;
+  }
+
+  /**
+   * when last sync started
+   * @param lastSyncStart
+   */
+  public void setLastSyncStart(Timestamp lastSyncStart) {
+    this.lastSyncStart = lastSyncStart;
+  }
+
+  /**
+   * when last record processed if timestamp and not integer, or when last sync ended
    */
   private Timestamp lastSyncTimestamp;
   

@@ -15,7 +15,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -77,7 +76,9 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
     //lastUpdated  DONT CLONE
 
+    gcGrouperSyncMember.lastUserMetadataSyncStart = this.lastUserMetadataSyncStart;
     gcGrouperSyncMember.lastUserMetadataSync = this.lastUserMetadataSync;
+    gcGrouperSyncMember.lastUserSyncStart = this.lastUserSyncStart;
     gcGrouperSyncMember.lastUserSync = this.lastUserSync;
     gcGrouperSyncMember.memberFromId2 = this.memberFromId2;
     gcGrouperSyncMember.memberFromId3 = this.memberFromId3;
@@ -128,7 +129,9 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
         //lastUpdated  DONT EQUALS
 
         .append(this.lastUserMetadataSync, other.lastUserMetadataSync)
+        .append(this.lastUserMetadataSyncStart, other.lastUserMetadataSyncStart)
         .append(this.lastUserSync, other.lastUserSync)
+        .append(this.lastUserSyncStart, other.lastUserSyncStart)
         .append(this.memberFromId2, other.memberFromId2)
         .append(this.memberFromId3, other.memberFromId3)
         .append(this.memberId, other.memberId)
@@ -152,6 +155,27 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   private Timestamp lastUserSync;
   
   /**
+   * when this user was last synced started, includes metadata and memberships
+   */
+  private Timestamp lastUserSyncStart;
+  
+  /**
+   * when this user was last synced started, includes metadata and memberships
+   * @return
+   */
+  public Timestamp getLastUserSyncStart() {
+    return lastUserSyncStart;
+  }
+
+  /**
+   * when this user was last synced started, includes metadata and memberships
+   * @param lastUserSyncStart
+   */
+  public void setLastUserSyncStart(Timestamp lastUserSyncStart) {
+    this.lastUserSyncStart = lastUserSyncStart;
+  }
+
+  /**
    * when this user was last synced, includes metadata and memberships
    * @return when
    */
@@ -172,6 +196,27 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    */
   private Timestamp lastUserMetadataSync;
   
+  /**
+   * when this users name and description and metadata was synced (Started)
+   */
+  private Timestamp lastUserMetadataSyncStart;
+  
+  /**
+   * when this users name and description and metadata was synced (Started)
+   * @return
+   */
+  public Timestamp getLastUserMetadataSyncStart() {
+    return lastUserMetadataSyncStart;
+  }
+
+  /**
+   * when this users name and description and metadata was synced (Started)
+   * @param lastUserMetadataSyncStart
+   */
+  public void setLastUserMetadataSyncStart(Timestamp lastUserMetadataSyncStart) {
+    this.lastUserMetadataSyncStart = lastUserMetadataSyncStart;
+  }
+
   /**
    * when this users name and description and metadata was synced
    * @return when
