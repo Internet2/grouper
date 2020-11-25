@@ -22,6 +22,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
+    provisionerConfigClassNames.add("edu.internet2.middleware.grouper.azure.AzureProvisionerConfiguration");
   }
   
   /**

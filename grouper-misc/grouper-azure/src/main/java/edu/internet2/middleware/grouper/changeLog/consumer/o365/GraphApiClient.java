@@ -1,9 +1,10 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.o365;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.azure.AzureGroupType;
+import edu.internet2.middleware.grouper.azure.AzureVisibility;
+import edu.internet2.middleware.grouper.azure.model.*;
 import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogConsumer;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.*;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group.Visibility;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -31,12 +32,12 @@ public class GraphApiClient {
     String token = null;
     private final OkHttpClient graphApiHttpClient;
     private final OkHttpClient graphTokenHttpClient;
-    private final Office365ChangeLogConsumer.AzureGroupType azureGroupType;
-    private final Visibility visibility;
+    private final AzureGroupType azureGroupType;
+    private final AzureVisibility visibility;
 
     public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope,
-                          Office365ChangeLogConsumer.AzureGroupType azureGroupType,
-                          Visibility visibility,
+                          AzureGroupType azureGroupType,
+                          AzureVisibility visibility,
                           String proxyType, String proxyHost, Integer proxyPort) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -178,7 +179,7 @@ public class GraphApiClient {
         throw new IOException("Retry failed for: " + call.request().url());
     }
 
-    public retrofit2.Response addGroup(String displayName, String mailNickname, String description) {
+    public edu.internet2.middleware.grouper.azure.model.Group addGroup(String displayName, String mailNickname, String description) {
         logger.debug("Creating group " + displayName + ", group type: " + this.azureGroupType.name());
         boolean securityEnabled;
         Collection<String> groupTypes = new ArrayList<>();
@@ -198,8 +199,8 @@ public class GraphApiClient {
                 throw new IllegalStateException("Unexpected value: " + this.azureGroupType);
         }
         try {
-            return invoke(this.service.createGroup(
-                    new edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group(
+            edu.internet2.middleware.grouper.azure.model.Group group = invoke(this.service.createGroup(
+                    new edu.internet2.middleware.grouper.azure.model.Group(
                             null,
                             displayName,
                             false,
@@ -209,7 +210,10 @@ public class GraphApiClient {
                             description,
                             visibility
                     )
-            ));
+            )).body();
+
+            logger.debug("Created group: id = " + (group == null ? "null" : group.id));
+            return group;
 
         } catch (IOException e) {
             logger.error(e);
@@ -280,4 +284,24 @@ public void removeGroup(String groupId) {
     public void removeUserFromGroupInMS(String groupId, String userId) throws IOException {
         invoke(this.service.removeGroupMember(groupId, userId));
     }
+
+    public List<edu.internet2.middleware.grouper.azure.model.Group> getGroups() throws IOException {
+        GroupsOdata groupContainer = invoke(this.service.getGroups(Collections.emptyMap())).body();
+        return groupContainer.groups;
+    }
+
+    public List<MemberUser> getGroupMembers(String groupId) throws IOException {
+        Members azureGroupMembers = invoke(this.service.getGroupMembers(groupId)).body();
+        return azureGroupMembers.users;
+    }
+
+    public edu.internet2.middleware.grouper.azure.model.Group retrieveGroup(String groupId) throws IOException {
+        return invoke(this.service.getGroup(groupId)).body();
+    }
+
+    public List<User> getAllUsers() throws IOException {
+        UsersOdata usersOdata = invoke(this.service.getUsers()).body();
+        return usersOdata.users;
+    }
+
 }

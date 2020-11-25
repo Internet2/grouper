@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
+package edu.internet2.middleware.grouper.azure.model;
 
 
 import com.google.gson.annotations.SerializedName;

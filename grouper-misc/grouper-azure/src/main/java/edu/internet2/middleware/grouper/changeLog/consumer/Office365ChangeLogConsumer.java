@@ -6,12 +6,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.azure.AzureGroupType;
+import edu.internet2.middleware.grouper.azure.AzureVisibility;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group.Visibility;
-import edu.internet2.middleware.grouper.changeLog.consumer.o365.model.User;
+import edu.internet2.middleware.grouper.azure.model.User;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValueQuery;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValueView;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
@@ -48,8 +49,6 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 
     private GrouperSession grouperSession;
 
-    public enum AzureGroupType {Security, Unified, MailEnabled, MailEnabledSecurity}
-
     public void initialize(ChangeLogProcessorMetadata changeLogProcessorMetadata) {
         String name = changeLogProcessorMetadata.getConsumerName();
         GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
@@ -75,7 +74,7 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
             logger.error("consumer " + this.getConsumerName() + ": Invalid option for property " + CONFIG_PREFIX + name + ".groupType: " + groupTypeString + " - reverting to type " + groupType.name());
         }
 
-        Visibility visibility = null;
+        AzureVisibility visibility = null;
         String visibilityString = config.propertyValueString(CONFIG_PREFIX + name + ".visibility");
         if (visibilityString != null) {
             if (groupType == AzureGroupType.Unified) {
@@ -85,11 +84,11 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
                     // so existing configs don't break
                     if ("Hiddenmembership".equals(visibilityString)) {
                         visibilityString = "HiddenMembership";
-                        logger.warn("For " + CONFIG_PREFIX + name + ".visibility, legacy valueHiddenmembership was remapped to HiddenMembership");
+                        logger.warn("For " + CONFIG_PREFIX + name + ".visibility, legacy value Hiddenmembership was remapped to HiddenMembership");
                     }
-                    visibility = Visibility.valueOf(visibilityString);
+                    visibility = AzureVisibility.valueOf(visibilityString);
                 } catch (IllegalArgumentException e) {
-                    visibility = Visibility.Public;
+                    visibility = AzureVisibility.Public;
                     logger.error("consumer " + this.getConsumerName() + ": Invalid option for property " + CONFIG_PREFIX + name + ".visibility: " + visibilityString + " - reverting to type " + visibility.name());
                 }
             } else {
@@ -242,7 +241,7 @@ Response
         String description = evaluateGroupJexlExpression(group, this.descriptionJexl, group.getId());
         logger.debug("consumer " + this.getConsumerName() + ": calculated description as " + description);
 
-        retrofit2.Response response = apiClient.addGroup(
+        edu.internet2.middleware.grouper.azure.model.Group azureGroup = apiClient.addGroup(
                         displayName,
                         mailNickname,
                         description
@@ -251,7 +250,7 @@ Response
         // todo capture exception
         AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GROUP_ID_ATTRIBUTE_NAME, false);
         group.getAttributeDelegate().assignAttribute(attributeDefName);
-        group.getAttributeValueDelegate().assignValue(GROUP_ID_ATTRIBUTE_NAME, ((edu.internet2.middleware.grouper.changeLog.consumer.o365.model.Group) response.body()).id);
+        group.getAttributeValueDelegate().assignValue(GROUP_ID_ATTRIBUTE_NAME, azureGroup.id);
     }
 
     // TODO: find out how to induce and implement (if necessary)
