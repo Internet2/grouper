@@ -138,7 +138,15 @@ public class GrouperGroovysh extends Groovysh {
       boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
       shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
       StringBuilder body = new StringBuilder(script);
-      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName(lightWeight ? "groovysh_lightWeight.profile" : "groovysh.profile").getAbsolutePath() + "'\n");
+      String profile = "groovysh.profile";
+      if (lightWeight) {
+        if (script.contains("gshFileLoad")) {
+          profile = "groovysh_lightWeightWithFile.profile";
+        } else {
+          profile = "groovysh_lightWeight.profile";
+        }
+      }
+      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName(profile).getAbsolutePath() + "'\n");
       body.append("\n:exit");
       int code = shell.run(body.toString());
       grouperGroovyResult.setResultCode(code);
