@@ -65,9 +65,9 @@
                          	
                          	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
 
-							<c:if test="${grouperRequestContainer.provisioningContainer.canRunDaemon}">          
+							<%-- <c:if test="${grouperRequestContainer.provisioningContainer.canRunDaemon}">          
                          	  <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.runGroupSync&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsRunGroupSync'] }</a></li>
-                         	</c:if>                  	
+                         	</c:if>      --%>             	
                          </ul>
                        </div>
                  </td>

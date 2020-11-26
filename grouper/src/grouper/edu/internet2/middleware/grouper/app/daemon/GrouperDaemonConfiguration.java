@@ -26,6 +26,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
   public final static Set<String> grouperDaemonConfigClassNames = new LinkedHashSet<String>();
   
   static {
+    
     grouperDaemonConfigClassNames.add(GrouperDaemonBuiltInMessagingConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogConsumerConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogEsbConfiguration.class.getName());
@@ -59,6 +60,9 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWsMessagingBridgeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonReportConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
+    
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobProvisioningFullSyncConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonProvisioningIncrementalSyncConfiguration.class.getName());
     
   }
 

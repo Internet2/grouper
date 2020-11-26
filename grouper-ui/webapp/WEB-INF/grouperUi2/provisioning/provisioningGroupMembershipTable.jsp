@@ -26,6 +26,13 @@
      <%--  <div class="span9"> <p>${textContainer.text['provisioningMembershipProvisioningDescription'] }</p></div> --%>
     </div>
     
+    <div class="row-fluid">
+    	<div class="span9">
+    		${textContainer.text['provisioningMembershipProvisioningSubjectFor']}
+    		${grouperRequestContainer.subjectContainer.guiSubject.shortLink}
+    	</div>
+    </div>
+    
     <%@ include file="provisioningGroupMembershipTableHelper.jsp"%>
     
   </div>
