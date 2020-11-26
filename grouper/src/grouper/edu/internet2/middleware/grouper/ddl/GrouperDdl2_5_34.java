@@ -161,7 +161,22 @@ public class GrouperDdl2_5_34 {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_CONFIG_VALUE_BYTES, Types.BIGINT, "12", false, false, null);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_PREV_CONFIG_VALUE,
+        Types.VARCHAR, "4000", false, false);
+
+    if (GrouperDdlUtils.isPostgres()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_PREV_CONFIG_VALUE_CLOB, Types.VARCHAR, "10000000", false, false, null);
+    }
+    
+    if (GrouperDdlUtils.isMysql()) {
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_pit_config ADD COLUMN prev_config_value_clob mediumtext;\n");
+    } 
+    
+    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_PREV_CONFIG_VALUE_CLOB, Types.CLOB, "10000000", false, false, null);
+    }
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_SOURCE_ID, Types.VARCHAR, "40", false, true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_CONTEXT_ID, Types.VARCHAR, "40", false, false);
     
@@ -241,6 +256,23 @@ public class GrouperDdl2_5_34 {
     
   }
   
+  static void addGrouperFileIndex(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v2_5_34_addConfigurationIndexes", true)) {
+      return;
+    }
+
+    Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+        GrouperFile.TABLE_GROUPER_FILE);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFileTable.getName(), 
+        "grpfile_unique_idx", true, 
+        GrouperFile.COLUMN_FILE_PATH);
+  }
   
   static void addGrouperPitConfigComments(Database database, DdlVersionBean ddlVersionBean) {
     

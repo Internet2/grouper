@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.ddl;
 
+import java.sql.Types;
+
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
@@ -15,10 +17,10 @@ public class GrouperDdl2_5_38 {
   /**
    * if building to this version at least
    */
-  private static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
+  public static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToThisVersionAtLeast = GrouperDdl.V36.getVersion() <= buildingToVersion;
+    boolean buildingToThisVersionAtLeast = GrouperDdl.V35.getVersion() <= buildingToVersion;
 
     return buildingToThisVersionAtLeast;
   }
@@ -41,11 +43,129 @@ public class GrouperDdl2_5_38 {
   private static boolean buildingToPreviousVersion(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToPreviousVersion = GrouperDdl.V36.getVersion() > buildingToVersion;
+    boolean buildingToPreviousVersion = GrouperDdl.V35.getVersion() > buildingToVersion;
 
     return buildingToPreviousVersion;
   }
 
+  static void addGrouperSyncLogColumns(Database database, DdlVersionBean ddlVersionBean) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_5_38_addGrouperSyncLogColumns", true)) {
+      return;
+    }
+
+    Table syncLogTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_log", true);
+    
+    if (GrouperDdlUtils.isPostgres()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "description_clob", Types.VARCHAR, "10000000", false, false, null);
+    }
+    
+    if (GrouperDdlUtils.isMysql()) {
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_sync_log ADD COLUMN description_clob mediumtext;\n");
+    } 
+    
+    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "description_clob", Types.CLOB, "10000000", false, false, null);
+    }
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "description_bytes", Types.BIGINT, "12", false, false, null);
+    
+  }
+  
+  /**
+   * 
+   */
+  static void addGrouperSyncLogComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_5_38_addGrouperSyncLogComments", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync", "last_full_sync_start", "start time of last successful full sync");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync", "last_full_metadata_sync_start", "start time of last successful full metadata sync");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_job", "last_sync_start", "start time of this job");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_log", "description_clob", "description for large data");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_log", "description_bytes", "size of description in bytes");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_log", "sync_timestamp_start", "start of sync operation for log");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "last_group_sync_start", "start of last successful group sync");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "last_group_metadata_sync_start", "start of last successful group metadata sync");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "last_user_sync_start", "start of last successful user sync");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "last_user_metadata_sync_start", "start of last successful user metadata sync");
+
+  }
+  
+  
+  public static void addGrouperSyncStartColumns(Database database,
+      DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    // if building from scratch its already got it
+    if(buildingFromScratch(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v2_5_38_addGrouperSyncStartColumns", true)) {
+      return;
+    }
+
+    {
+      Table grouperSyncTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync", true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncTable, "last_full_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncTable, "last_full_metadata_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+    }
+    
+    {
+      Table grouperSyncJobTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_job", true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncJobTable, "last_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+    }
+
+    {
+      Table grouperSyncGroupTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_group", true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_metadata_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+    }
+
+    {
+      Table grouperSyncMemberTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_member", true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "last_user_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "last_user_metadata_sync_start", 
+          Types.TIMESTAMP, null, false, false);
+    }
+
+    {
+      Table grouperSyncLogTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_log", true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncLogTable, "sync_timestamp_start", 
+          Types.TIMESTAMP, null, false, false);
+    }
+
+  }
+  
   public static void adjustGrouperSyncMembershipIndex(Database database,
       DdlVersionBean ddlVersionBean) {
     
@@ -118,7 +238,9 @@ public class GrouperDdl2_5_38 {
             "U_PROVISIONABLE_START",
             "U_PROVISIONABLE_END",
             "U_LAST_UPDATED",
+            "U_LAST_USER_SYNC_START",
             "U_LAST_USER_SYNC",
+            "U_LAST_USER_META_SYNC_START",
             "U_LAST_USER_METADATA_SYNC",
             "U_MEMBER_FROM_ID2",
             "U_MEMBER_FROM_ID3",
@@ -138,7 +260,9 @@ public class GrouperDdl2_5_38 {
             "G_PROVISIONABLE_START",
             "G_PROVISIONABLE_END",
             "G_LAST_UPDATED",
+            "G_LAST_GROUP_SYNC_START",
             "G_LAST_GROUP_SYNC",
+            "G_LAST_GROUP_META_SYNC_START",
             "G_LAST_GROUP_METADATA_SYNC",
             "G_GROUP_FROM_ID2",
             "G_GROUP_FROM_ID3",
@@ -178,7 +302,9 @@ public class GrouperDdl2_5_38 {
             "U_PROVISIONABLE_START: when this entity started being provisionable",
             "U_PROVISIONABLE_END: when this entity stopped being provisionable",
             "U_LAST_UPDATED: when the sync member was last updated",
+            "U_LAST_USER_SYNC_START: when the user was last overall sync started",
             "U_LAST_USER_SYNC: when the user was last overall synced",
+            "U_LAST_USER_META_SYNC_START: when the metadata was sync started",
             "U_LAST_USER_METADATA_SYNC: when the metadata was last synced",
             "U_MEMBER_FROM_ID2: link data from id2",
             "U_MEMBER_FROM_ID3: link data from id3",
@@ -198,7 +324,9 @@ public class GrouperDdl2_5_38 {
             "G_PROVISIONABLE_START: when this group started being provisionable",
             "G_PROVISIONABLE_END: when this group stopped being provisionable",
             "G_LAST_UPDATED: when the sync group was last updated",
+            "G_LAST_GROUP_SYNC_START: when the group was sync started",
             "G_LAST_GROUP_SYNC: when the group was last synced",
+            "G_LAST_GROUP_META_SYNC_START: when the metadata sync started",
             "G_LAST_GROUP_METADATA_SYNC: when the metadata was last synced",
             "G_GROUP_FROM_ID2: link data from id2",
             "G_GROUP_FROM_ID3: link data from id3",
@@ -216,13 +344,13 @@ public class GrouperDdl2_5_38 {
             + "U.MEMBER_ID as U_MEMBER_ID, U.IN_TARGET as U_IN_TARGET, "
             + "U.IN_TARGET_INSERT_OR_EXISTS as U_IN_TARGET_INSERT_OR_EXISTS, U.IN_TARGET_START as U_IN_TARGET_START, U.IN_TARGET_END as U_IN_TARGET_END, "
             + "U.PROVISIONABLE as U_PROVISIONABLE, U.PROVISIONABLE_START as U_PROVISIONABLE_START, U.PROVISIONABLE_END as U_PROVISIONABLE_END, U.LAST_UPDATED as U_LAST_UPDATED, "
-            + "U.LAST_USER_SYNC as U_LAST_USER_SYNC, U.LAST_USER_METADATA_SYNC as U_LAST_USER_METADATA_SYNC, U.MEMBER_FROM_ID2 as U_MEMBER_FROM_ID2, U.MEMBER_FROM_ID3 as U_MEMBER_FROM_ID3, "
+            + "U.LAST_USER_SYNC_START as U_LAST_USER_SYNC_START, U.LAST_USER_SYNC as U_LAST_USER_SYNC, U.LAST_USER_METADATA_SYNC_START as U_LAST_USER_META_SYNC_START, U.LAST_USER_METADATA_SYNC as U_LAST_USER_METADATA_SYNC, U.MEMBER_FROM_ID2 as U_MEMBER_FROM_ID2, U.MEMBER_FROM_ID3 as U_MEMBER_FROM_ID3, "
             + "U.MEMBER_TO_ID2 as U_MEMBER_TO_ID2, U.MEMBER_TO_ID3 as U_MEMBER_TO_ID3, U.METADATA_UPDATED as U_METADATA_UPDATED, U.LAST_TIME_WORK_WAS_DONE as U_LAST_TIME_WORK_WAS_DONE, "
             + "U.ERROR_MESSAGE as U_ERROR_MESSAGE, U.ERROR_TIMESTAMP as U_ERROR_TIMESTAMP, G.ID as G_ID, G.GROUP_ID as G_GROUP_ID, "
             + "G.PROVISIONABLE as G_PROVISIONABLE, G.IN_TARGET as G_IN_TARGET, "
             + "G.IN_TARGET_INSERT_OR_EXISTS as G_IN_TARGET_INSERT_OR_EXISTS, G.IN_TARGET_START as G_IN_TARGET_START, G.IN_TARGET_END as G_IN_TARGET_END, "
             + "G.PROVISIONABLE_START as G_PROVISIONABLE_START, G.PROVISIONABLE_END as G_PROVISIONABLE_END, G.LAST_UPDATED as G_LAST_UPDATED, "
-            + "G.LAST_GROUP_SYNC as G_LAST_GROUP_SYNC, G.LAST_GROUP_METADATA_SYNC as G_LAST_GROUP_METADATA_SYNC, G.GROUP_FROM_ID2 as G_GROUP_FROM_ID2, "
+            + "G.LAST_GROUP_SYNC_START as G_LAST_GROUP_SYNC_START, G.LAST_GROUP_SYNC as G_LAST_GROUP_SYNC, G.LAST_GROUP_METADATA_SYNC_START as G_LAST_GROUP_META_SYNC_START, G.LAST_GROUP_METADATA_SYNC as G_LAST_GROUP_METADATA_SYNC, G.GROUP_FROM_ID2 as G_GROUP_FROM_ID2, "
             + "G.GROUP_FROM_ID3 as G_GROUP_FROM_ID3, G.GROUP_TO_ID2 as G_GROUP_TO_ID2, G.GROUP_TO_ID3 as G_GROUP_TO_ID3, G.METADATA_UPDATED as G_METADATA_UPDATED, "
             + "G.ERROR_MESSAGE as G_ERROR_MESSAGE, G.ERROR_TIMESTAMP as G_ERROR_TIMESTAMP, G.LAST_TIME_WORK_WAS_DONE as G_LAST_TIME_WORK_WAS_DONE  "
             + "from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, "

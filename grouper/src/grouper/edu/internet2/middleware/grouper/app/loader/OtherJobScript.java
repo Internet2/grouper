@@ -87,6 +87,7 @@ public class OtherJobScript extends OtherJobBase {
       if (!StringUtils.isBlank(fileName) && !StringUtils.isBlank(scriptSource)) {
         throw new RuntimeException("You must provide only one of \"otherJob." + jobName + ".fileName\" or \"otherJob." + jobName + ".scriptSource\"!!!");
       }
+      boolean lightWeight = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".lightWeight", false);
   
       File file = null;
       String output = "scriptType: " + scriptType + "\n";
@@ -129,16 +130,7 @@ public class OtherJobScript extends OtherJobBase {
           scriptSource = GrouperUtil.readFileIntoString(file);
         }
         
-        GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptSource);
-        output += grouperGroovyResult.getOutString();
-  
-        // [32mGroovy Shell[m (2.5.0-beta-2, JVM: 1.8.0_161)
-        output = GrouperUtil.replace(output, "[32mGroovy Shell[m ", "");
-        
-        // Type '[1m:help[m' or '[1m:h[m' for help.
-        output = GrouperUtil.replace(output, "[1m", "");
-        output = GrouperUtil.replace(output, "[m", "");
-  
+        output += GrouperUtil.gshRunScript(scriptSource, lightWeight);  
         
       } else {
         throw new RuntimeException("Not expecting script type: '" + scriptType + "', expecting sql or gsh");

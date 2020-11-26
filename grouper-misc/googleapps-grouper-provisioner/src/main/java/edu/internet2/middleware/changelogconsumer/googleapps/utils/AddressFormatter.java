@@ -53,8 +53,16 @@ public class AddressFormatter {
     }
 
     public String qualifyGroupAddress(String group) {
+      return qualifyGroupAddress(group, null);
+    }
+    
+    public String qualifyGroupAddress(String group, String groupId) {
         final JexlContext context = new MapContext();
         context.set("groupPath", group);
+        
+        if (groupId != null) {
+          context.set("groupId", groupId);
+        }
 
         final String mailbox = groupIdentifierExp.evaluate(context).toString();
 

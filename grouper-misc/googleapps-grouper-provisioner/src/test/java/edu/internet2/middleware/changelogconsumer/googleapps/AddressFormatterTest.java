@@ -70,7 +70,7 @@ public class AddressFormatterTest {
                 .setDomain("test.edu");
 
         String expected = "crs-abc1-abc2-test@test.edu";
-        String result = addressFormatter.qualifyGroupAddress("abc1:abc2");
+        String result = addressFormatter.qualifyGroupAddress("abc1:abc2", null);
         assertEquals(expected, result);
     }
 
@@ -82,7 +82,7 @@ public class AddressFormatterTest {
                     .setDomain("test.edu");
 
         String expected = "crs-abc2-test@test.edu";
-        String result = addressFormatter.qualifyGroupAddress("abc1:abc2");
+        String result = addressFormatter.qualifyGroupAddress("abc1:abc2", null);
         assertEquals(expected, result);
     }
 

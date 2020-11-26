@@ -989,7 +989,7 @@ public class CustomUiEngine {
           
           if (!StringUtils.isBlank(script)) {
             
-            String shouldDisplayString = CustomUiUtil.substituteExpressionLanguage(script, this.group, null, null, subject, userQueryVariables);
+            String shouldDisplayString = CustomUiUtil.substituteExpressionLanguage(script, this.group, null, null, subject, substituteMap);
             
             shouldDisplay = GrouperUtil.booleanValue(shouldDisplayString);
           }

@@ -10,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 /**
  * @author shilen
@@ -157,9 +159,16 @@ public class GrouperProvisioningTranslatorBase {
           String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
           if (!StringUtils.isEmpty(groupMembershipAttribute)) {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(groupMembershipAttribute);
-            if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
-              Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+            if (grouperProvisioningConfigurationAttribute != null) {
               
+              Object result = null;
+              
+              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
+                result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+              } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+                result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), 
+                    grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
+              }
               if (result != null) {
                 grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
                 this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
@@ -172,9 +181,17 @@ public class GrouperProvisioningTranslatorBase {
           String userMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getUserAttributeNameForMemberships();
           if (!StringUtils.isEmpty(userMembershipAttribute)) {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(userMembershipAttribute);
-            if (grouperProvisioningConfigurationAttribute != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
-              Object result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+
+            if (grouperProvisioningConfigurationAttribute != null) {
               
+              Object result = null;
+              
+              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership())) {
+                result = runScript(grouperProvisioningConfigurationAttribute.getTranslateExpressionFromMembership(), elVariableMap);
+              } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
+                result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), 
+                    grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
+              }
               if (result != null) {
                 grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
                 this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
@@ -186,13 +203,16 @@ public class GrouperProvisioningTranslatorBase {
         // field configurations
         grouperTargetMembership.setId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("id"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("id"), 
+            provisioningGroupWrapper.getGcGrouperSyncGroup(), provisioningEntityWrapper.getGcGrouperSyncMember())));
         grouperTargetMembership.setProvisioningEntityId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getProvisioningEntityId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("provisioningEntityId"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("provisioningEntityId"), 
+            provisioningGroupWrapper.getGcGrouperSyncGroup(), provisioningEntityWrapper.getGcGrouperSyncMember())));
         grouperTargetMembership.setProvisioningGroupId(GrouperUtil.stringValue(fieldTranslation( 
             grouperTargetMembership.getProvisioningGroupId(), elVariableMap, false, 
-            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("provisioningGroupId"))));
+            this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().get("provisioningGroupId"), 
+            provisioningGroupWrapper.getGcGrouperSyncGroup(), provisioningEntityWrapper.getGcGrouperSyncMember())));
 
         for (String script: scripts) {
 
@@ -268,7 +288,8 @@ public class GrouperProvisioningTranslatorBase {
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
       elVariableMap.put("grouperProvisioningEntity", grouperProvisioningEntity);
       elVariableMap.put("provisioningEntityWrapper", grouperProvisioningEntity.getProvisioningEntityWrapper());
-      elVariableMap.put("gcGrouperSyncMember", grouperProvisioningEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember());
+      GcGrouperSyncMember gcGrouperSyncMember = grouperProvisioningEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
+      elVariableMap.put("gcGrouperSyncMember", gcGrouperSyncMember);
       elVariableMap.put("grouperTargetEntity", grouperTargetEntity);
 
       // attribute translations
@@ -283,26 +304,33 @@ public class GrouperProvisioningTranslatorBase {
         } else if (hasExpression) {
           expressionToUse = expression;
         }
-        if (!StringUtils.isBlank(expressionToUse)) {
-          Object result = runScript(expressionToUse, elVariableMap);
+        Object result = null;
+        if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+          if (!StringUtils.isBlank(expressionToUse)) {
+            result = runScript(expressionToUse, elVariableMap);
+          } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+            result = translateFromMemberSyncField(gcGrouperSyncMember, 
+                grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
+          }
           grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
           this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
+        
         }
       }
       
       // field configurations
       grouperTargetEntity.setId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("id"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("id"), null, gcGrouperSyncMember)));
       grouperTargetEntity.setName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("name"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("name"), null, gcGrouperSyncMember)));
       grouperTargetEntity.setEmail(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getEmail(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("email"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("email"), null, gcGrouperSyncMember)));
       grouperTargetEntity.setLoginId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetEntity.getLoginId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("loginId"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().get("loginId"), null, gcGrouperSyncMember)));
 
       for (String script: scripts) {
                
@@ -347,7 +375,8 @@ public class GrouperProvisioningTranslatorBase {
       elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
       elVariableMap.put("provisioningGroupWrapper", grouperProvisioningGroup.getProvisioningGroupWrapper());
       elVariableMap.put("grouperTargetGroup", grouperTargetGroup);
-      elVariableMap.put("gcGrouperSyncGroup", grouperProvisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup());
+      GcGrouperSyncGroup gcGrouperSyncGroup = grouperProvisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+      elVariableMap.put("gcGrouperSyncGroup", gcGrouperSyncGroup);
 
       // attribute translations
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
@@ -361,8 +390,13 @@ public class GrouperProvisioningTranslatorBase {
         } else if (hasExpression) {
           expressionToUse = expression;
         }
-        if (!StringUtils.isBlank(expressionToUse)) {
-          Object result = runScript(expressionToUse, elVariableMap);
+        Object result = null;
+        if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
+          if (!StringUtils.isBlank(expressionToUse)) {
+            result = runScript(expressionToUse, elVariableMap);
+          } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
+            result = translateFromGroupSyncField(gcGrouperSyncGroup, grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
+          }
           grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
           this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
         }
@@ -371,16 +405,16 @@ public class GrouperProvisioningTranslatorBase {
       // field configurations
       grouperTargetGroup.setId(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getId(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("id"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("id"), gcGrouperSyncGroup, null)));
       grouperTargetGroup.setName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("name"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("name"), gcGrouperSyncGroup, null)));
       grouperTargetGroup.setIdIndex(GrouperUtil.longObjectValue(fieldTranslation( 
           grouperTargetGroup.getIdIndex(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("idIndex")), true));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("idIndex"), gcGrouperSyncGroup, null), true));
       grouperTargetGroup.setDisplayName(GrouperUtil.stringValue(fieldTranslation( 
           grouperTargetGroup.getDisplayName(), elVariableMap, forCreate, 
-          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("displayName"))));
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().get("displayName"), gcGrouperSyncGroup, null)));
       
       
       for (String script: scripts) {
@@ -406,8 +440,74 @@ public class GrouperProvisioningTranslatorBase {
     return grouperTargetGroups;
   }
 
+  /**
+   * translate from gc grouper sync group and field name to the value
+   * @param gcGrouperSyncGroup
+   * @param field
+   * @return the value
+   */
+  public static Object translateFromGroupSyncField(GcGrouperSyncGroup gcGrouperSyncGroup, String field) {
+    
+    if (StringUtils.equals("groupId", field)) {
+      return gcGrouperSyncGroup.getGroupId();
+    }
+    if (StringUtils.equals("groupIdIndex", field)) {
+      return gcGrouperSyncGroup.getGroupIdIndex();
+    }
+    if (StringUtils.equals("groupName", field)) {
+      return gcGrouperSyncGroup.getGroupName();
+    }
+    if (StringUtils.equals("groupFromId2", field)) {
+      return gcGrouperSyncGroup.getGroupFromId2();
+    }
+    if (StringUtils.equals("groupFromId3", field)) {
+      return gcGrouperSyncGroup.getGroupFromId3();
+    }
+    if (StringUtils.equals("groupToId2", field)) {
+      return gcGrouperSyncGroup.getGroupToId2();
+    }
+    if (StringUtils.equals("groupToId3", field)) {
+      return gcGrouperSyncGroup.getGroupToId3();
+    }
+    throw new RuntimeException("Not expecting groupSyncField: '" + field + "'");
+  }
+  
+
+  /**
+   * translate from gc grouper sync member and field name to the value
+   * @param gcGrouperSyncMember
+   * @param field
+   * @return the value
+   */
+  public static Object translateFromMemberSyncField(GcGrouperSyncMember gcGrouperSyncMember, String field) {
+    
+    if (StringUtils.equals("memberId", field)) {
+      return gcGrouperSyncMember.getMemberId();
+    }
+    if (StringUtils.equals("subjectId", field)) {
+      return gcGrouperSyncMember.getSubjectId();
+    }
+    if (StringUtils.equals("subjectIdentifier", field)) {
+      return gcGrouperSyncMember.getSubjectIdentifier();
+    }
+    if (StringUtils.equals("memberFromId2", field)) {
+      return gcGrouperSyncMember.getMemberFromId2();
+    }
+    if (StringUtils.equals("memberFromId3", field)) {
+      return gcGrouperSyncMember.getMemberFromId3();
+    }
+    if (StringUtils.equals("memberToId2", field)) {
+      return gcGrouperSyncMember.getMemberToId2();
+    }
+    if (StringUtils.equals("memberToId3", field)) {
+      return gcGrouperSyncMember.getMemberToId3();
+    }
+    throw new RuntimeException("Not expecting memberSyncField: '" + field + "'");
+  }
+  
   public Object fieldTranslation(Object currentValue, Map<String, Object> elVariableMap, boolean forCreate,
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, 
+      GcGrouperSyncGroup gcGrouperSyncGroup, GcGrouperSyncMember gcGrouperSyncMember) {
     if (grouperProvisioningConfigurationAttribute == null) {
       return currentValue;
     }
@@ -421,8 +521,23 @@ public class GrouperProvisioningTranslatorBase {
     } else if (hasExpression) {
       expressionToUse = expression;
     }
+
+    Object result = null;
+    boolean translate = false;
     if (!StringUtils.isBlank(expressionToUse)) {
-      Object result = runScript(expressionToUse, elVariableMap);
+      result = runScript(expressionToUse, elVariableMap);
+      translate = true;
+    } else if (gcGrouperSyncGroup != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
+      result = translateFromGroupSyncField(gcGrouperSyncGroup, 
+          grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
+      translate = true;
+    } else if (gcGrouperSyncMember != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+      result = translateFromMemberSyncField(gcGrouperSyncMember, 
+          grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
+      translate = true;
+    }
+    
+    if (translate) {
       return result;
     }
     return currentValue;

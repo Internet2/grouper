@@ -2568,25 +2568,11 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_5_34.addGrouperPitConfigComments(database, ddlVersionBean);
       
       GrouperDdl2_5_34.addGrouperFileTable(database, ddlVersionBean);
+      GrouperDdl2_5_34.addGrouperFileIndex(ddlVersionBean, database);
       GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
     }
   },
   V35 {
-
-    @Override
-    public String getGrouperVersion() {
-      return "2.5.35";
-    }
-
-    @Override
-    public void updateVersionFromPrevious(Database database,
-        DdlVersionBean ddlVersionBean) {
-      
-      GrouperDdl2_5_35.addGrouperSyncLogColumns(database, ddlVersionBean);
-      GrouperDdl2_5_35.addGrouperSyncLogComments(database, ddlVersionBean);
-    }
-  },
-  V36 {
 
     @Override
     public String getGrouperVersion() {
@@ -2596,11 +2582,28 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_5_38.addGrouperSyncLogColumns(database, ddlVersionBean);
+      GrouperDdl2_5_38.addGrouperSyncLogComments(database, ddlVersionBean);
 
+      GrouperDdl2_5_38.addGrouperSyncStartColumns(database, ddlVersionBean);
+      
       GrouperDdl2_5_38.adjustGrouperSyncMembershipIndex(database, ddlVersionBean);
 
       GrouperDdl2_5_38.addSyncMembershipView(database, ddlVersionBean);
+    }
+  },
+  V36 {
 
+    @Override
+    public String getGrouperVersion() {
+      return null;
+    }
+
+    @Override
+    public void updateVersionFromPrevious(Database database,
+        DdlVersionBean ddlVersionBean) {
+      
     }
   },
   V37 {

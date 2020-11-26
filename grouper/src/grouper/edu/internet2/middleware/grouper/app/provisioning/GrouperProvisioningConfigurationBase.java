@@ -853,6 +853,16 @@ public abstract class GrouperProvisioningConfigurationBase {
   
         GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
   
+        if (StringUtils.equals("targetGroupAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        } else if (StringUtils.equals("targetMembershipAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
+        } else {
+          throw new RuntimeException("Cnat find object type: " + objectType);
+        }
+        
         String name = this.retrieveConfigString(objectType + "."+i+".name" , false);
         if (StringUtils.isBlank(name)) {
           break;
@@ -922,6 +932,16 @@ public abstract class GrouperProvisioningConfigurationBase {
         {
           String translateExpressionCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateExpressionCreateOnly" , false);
           attributeConfig.setTranslateExpressionCreateOnly(translateExpressionCreateOnly);
+        }
+        
+        {
+          String translateFromGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromGroupSyncField" , false);
+          attributeConfig.setTranslateFromGroupSyncField(translateFromGroupSyncField);
+        }
+        
+        {
+          String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);
+          attributeConfig.setTranslateFromMemberSyncField(translateFromMemberSyncField);
         }
         
         {
@@ -1339,6 +1359,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       
       this.configureSpecificSettings();
     
+      //validate
+      this.validate();
+      
     
     } catch (RuntimeException re) {
       if (this.grouperProvisioner != null && this.grouperProvisioner.getGcGrouperSyncLog() != null) {
@@ -1357,6 +1380,87 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   
   
+  public void validate() {
+    
+    Set<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new HashSet<GrouperProvisioningConfigurationAttribute>();
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetGroupFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetGroupAttributeNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetEntityFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetEntityAttributeNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetMembershipFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(this.getTargetMembershipAttributeNameToConfig()).values());
+
+    boolean hasGroupMatchingId = false;
+    boolean hasMemberMatchingId = false;
+    boolean hasMembershipMatchingId = false;
+
+    boolean hasGroupMembershipId = false;
+    boolean hasMemberMembershipId = false;
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
+      //validate the matching attributes come from gcSync objects
+      
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        
+        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
+            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+
+          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
+              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
+              + "' is a matching ID but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
+          hasMemberMatchingId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
+          hasGroupMatchingId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.membership) {
+          hasMembershipMatchingId = true;
+        }
+        
+      }
+      
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        
+        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
+            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+
+          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
+              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
+              + "' is a membership attribute but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
+        }
+
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
+          hasMemberMembershipId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
+          hasGroupMembershipId = true;
+        }
+        
+      }
+      
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      if (!hasGroupMatchingId) {
+        throw new RuntimeException("You are provisioning groupAttributes but you do you not have a group field or attribute marked as matchingId.  Identify a group field or attribute as matchingId!");
+      }
+      if (!hasGroupMembershipId) {
+        throw new RuntimeException("You are provisioning groupAttributes but you do you not have a group attribute marked as membership attribute.  Identify a group attribute as membership attribute!!");
+      }
+    } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      if (!hasMemberMatchingId) {
+        throw new RuntimeException("You are provisioning entityAttributes but you do you not have an entity field or attribute marked as matchingId.  Identify an entity field or attribute as matchingId!");
+      }
+      if (!hasMemberMembershipId) {
+        throw new RuntimeException("You are provisioning entityAttributes but you do you not have an entity attribute marked as membership attribute.  Identify an entity attribute as membership attribute!!");
+      }
+    }
+    
+  }
+
   public boolean isConfigured() {
     return configured;
   }

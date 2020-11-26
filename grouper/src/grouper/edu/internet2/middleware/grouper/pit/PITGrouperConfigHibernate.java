@@ -34,6 +34,12 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
   
   /** value when it's too big for config_value */
   public static final String COLUMN_CONFIG_VALUE_CLOB = "config_value_clob";
+
+  /** value of the property */
+  public static final String COLUMN_PREV_CONFIG_VALUE = "prev_config_value";
+  
+  /** value when it's too big for config_value */
+  public static final String COLUMN_PREV_CONFIG_VALUE_CLOB = "prev_config_value_clob";
   
   /** size of the config value */
   public static final String COLUMN_CONFIG_VALUE_BYTES = "config_value_bytes";
@@ -92,6 +98,12 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
 
   /** constant for field name for: configValue */
   public static final String FIELD_CONFIG_VALUE = "configValue";
+
+  /** constant for field name for: prevConfigValue */
+  public static final String FIELD_PREV_CONFIG_VALUE = "prevConfigValue";
+
+  /** constant for field name for: prevConfigValueClob */
+  public static final String FIELD_PREV_CONFIG_VALUE_CLOB = "prevConfigValueClob";
 
   /** constant for field name for: configValueClob */
   public static final String FIELD_CONFIG_VALUE_CLOB = "configValueClob";
@@ -557,7 +569,7 @@ public class PITGrouperConfigHibernate extends GrouperPIT implements Hib3Grouper
       FIELD_CONFIG_COMMENT, FIELD_CONFIG_ENCRYPTED, FIELD_CONFIG_FILE_HIERARCHY, FIELD_CONFIG_FILE_NAME, 
       FIELD_CONFIG_KEY, FIELD_CONFIG_SEQUENCE, FIELD_CONFIG_VALUE, FIELD_CONFIG_VALUE_CLOB, FIELD_CONFIG_VALUE_BYTES, 
       FIELD_CONFIG_VERSION_INDEX, FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, 
-      FIELD_LAST_UPDATED_DB, FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB, FIELD_SOURCE_ID);
+      FIELD_LAST_UPDATED_DB, FIELD_ACTIVE_DB, FIELD_START_TIME_DB, FIELD_END_TIME_DB, FIELD_PREV_CONFIG_VALUE, FIELD_PREV_CONFIG_VALUE_CLOB, FIELD_SOURCE_ID);
   
   
   @Override

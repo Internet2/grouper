@@ -70,7 +70,9 @@
     <property name="inTargetEnd" column="in_target_End" type="timestamp"/>
     <property name="inTargetInsertOrExistsDb" column="in_target_insert_or_exists"/>
     <property name="inTargetStart" column="in_target_start" type="timestamp"/>
+    <property name="lastUserMetadataSyncStart" column="last_user_metadata_sync_start" type="timestamp"/>
     <property name="lastUserMetadataSync" column="last_user_metadata_sync" type="timestamp"/>
+    <property name="lastUserSyncStart" column="last_user_sync_start" type="timestamp"/>
     <property name="lastUserSync" column="last_user_sync" type="timestamp"/>
     <property name="metadataUpdated" column="metadata_updated" type="timestamp"/>
     <property name="provisionableDb" column="provisionable"/>

@@ -83,6 +83,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSyncLog.recordsProcessed = this.recordsProcessed;
     gcGrouperSyncLog.server = this.server;
     gcGrouperSyncLog.statusDb = this.statusDb;
+    gcGrouperSyncLog.syncTimestampStart = this.syncTimestampStart;
     gcGrouperSyncLog.syncTimestamp = this.syncTimestamp;
 
     return gcGrouperSyncLog;
@@ -123,6 +124,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
       .append(this.recordsProcessed, other.recordsProcessed)
       .append(this.server, other.server)
       .append(this.statusDb, other.statusDb)
+      .append(this.syncTimestampStart, other.syncTimestampStart)
       .append(this.syncTimestamp, other.syncTimestamp)
         .isEquals();
 
@@ -344,13 +346,34 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   /**
-   * when the last sync started
+   * when the last sync ended
    */
   private Timestamp syncTimestamp;
+
+  /**
+   * when the last sync started
+   */
+  private Timestamp syncTimestampStart;
 
 
   /**
    * when the last sync started
+   * @return
+   */
+  public Timestamp getSyncTimestampStart() {
+    return syncTimestampStart;
+  }
+
+  /**
+   * when the last sync started
+   * @param syncTimestampStart1
+   */
+  public void setSyncTimestampStart(Timestamp syncTimestampStart1) {
+    this.syncTimestampStart = syncTimestampStart1;
+  }
+
+  /**
+   * when the last sync ended
    * @return timestamp
    */
   public Timestamp getSyncTimestamp() {
@@ -358,7 +381,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   /**
-   * when the last sync started
+   * when the last sync ended
    * @param syncTimestamp1
    */
   public void setSyncTimestamp(Timestamp syncTimestamp1) {

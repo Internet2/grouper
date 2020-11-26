@@ -725,7 +725,11 @@ public class ConfigDatabaseLogic {
             value = Morph.decrypt(value);
           } catch (RuntimeException re) {
             GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
-            throw re;
+            if (GrouperHibernateConfigClient.retrieveConfig().propertyValueBoolean("grouper.ignoreMorphErrorsOnStartup", false)) {
+              LOG.error("Error decrypting", re);
+            } else {
+              throw re;
+            }
           }
         }
         

@@ -269,6 +269,12 @@ private static boolean handleSpecialCase(String[] args) {
       args = ArrayUtils.remove(args, 0);
     }
     
+    boolean lightweightProfile = false;
+    if (args != null && args.length > 0 && args[0].equalsIgnoreCase("-lightWeightProfile")) {
+      lightweightProfile = true;
+      args = ArrayUtils.remove(args, 0);
+    }
+    
     if (forceLegacyGsh || GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
@@ -276,8 +282,16 @@ private static boolean handleSpecialCase(String[] args) {
       TerminalFactory.registerFlavor(TerminalFactory.Flavor.WINDOWS, WindowsTerminal.class);
       
       StringBuilder body = new StringBuilder();
-      body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
       
+      if (lightweightProfile) {
+        if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check") && !args[0].equals("-runarg")) {
+          body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh_lightWeightWithFile.profile").getAbsolutePath() + "'");
+        } else {
+          body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh_lightWeight.profile").getAbsolutePath() + "'");
+        }
+      } else {
+        body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
+      }
       if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
         
         if (args[0].equals("-main")) {

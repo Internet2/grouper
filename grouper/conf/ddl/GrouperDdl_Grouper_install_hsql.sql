@@ -1229,39 +1229,6 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
-CREATE TABLE grouper_pit_config
-(
-    id VARCHAR(40) NOT NULL,
-    source_id VARCHAR(40) NOT NULL,
-    config_file_name VARCHAR(100) NOT NULL,
-    config_key VARCHAR(400) NOT NULL,
-    config_value VARCHAR(4000),
-    config_comment VARCHAR(4000),
-    config_file_hierarchy VARCHAR(50) NOT NULL,
-    config_encrypted VARCHAR(1) NOT NULL,
-    config_sequence BIGINT NOT NULL,
-    config_version_index BIGINT,
-    last_updated BIGINT NOT NULL,
-    config_value_clob CLOB,
-    config_value_bytes BIGINT,
-    prev_config_value VARCHAR(4000),
-    prev_config_value_clob CLOB,
-    active VARCHAR(1) NOT NULL,
-    start_time BIGINT NOT NULL,
-    end_time BIGINT,
-    context_id VARCHAR(40),
-    hibernate_version_number BIGINT NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
-
-CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
-
-CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
-
-CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
-
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR(40) NOT NULL,
@@ -1649,7 +1616,9 @@ CREATE TABLE grouper_sync
     incremental_index BIGINT,
     incremental_timestamp TIMESTAMP,
     last_incremental_sync_run TIMESTAMP,
+    last_full_sync_start TIMESTAMP,
     last_full_sync_run TIMESTAMP,
+    last_full_metadata_sync_start TIMESTAMP,
     last_full_metadata_sync_run TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
@@ -1666,6 +1635,7 @@ CREATE TABLE grouper_sync_job
     sync_type VARCHAR(50) NOT NULL,
     job_state VARCHAR(50),
     last_sync_index BIGINT,
+    last_sync_start TIMESTAMP,
     last_sync_timestamp TIMESTAMP,
     last_time_work_was_done TIMESTAMP,
     heartbeat TIMESTAMP,
@@ -1694,7 +1664,9 @@ CREATE TABLE grouper_sync_group
     provisionable_start TIMESTAMP,
     provisionable_end TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
+    last_group_sync_start TIMESTAMP,
     last_group_sync TIMESTAMP,
+    last_group_metadata_sync_start TIMESTAMP,
     last_group_metadata_sync TIMESTAMP,
     group_from_id2 VARCHAR(4000),
     group_from_id3 VARCHAR(4000),
@@ -1739,7 +1711,9 @@ CREATE TABLE grouper_sync_member
     provisionable_start TIMESTAMP,
     provisionable_end TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
+    last_user_sync_start TIMESTAMP,
     last_user_sync TIMESTAMP,
+    last_user_metadata_sync_start TIMESTAMP,
     last_user_metadata_sync TIMESTAMP,
     member_from_id2 VARCHAR(4000),
     member_from_id3 VARCHAR(4000),
@@ -1807,6 +1781,7 @@ CREATE TABLE grouper_sync_log
     grouper_sync_owner_id VARCHAR(40),
     grouper_sync_id VARCHAR(40),
     status VARCHAR(20),
+    sync_timestamp_start TIMESTAMP,
     sync_timestamp TIMESTAMP,
     description VARCHAR(4000),
     records_processed INTEGER,
@@ -1860,6 +1835,40 @@ CREATE TABLE grouper_recent_mships_conf
     PRIMARY KEY (group_uuid_to)
 );
 
+CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
+
+CREATE TABLE grouper_pit_config
+(
+    id VARCHAR(40) NOT NULL,
+    config_file_name VARCHAR(100) NOT NULL,
+    config_key VARCHAR(400) NOT NULL,
+    config_value VARCHAR(4000),
+    config_comment VARCHAR(4000),
+    config_file_hierarchy VARCHAR(50) NOT NULL,
+    config_encrypted VARCHAR(1) NOT NULL,
+    config_sequence BIGINT NOT NULL,
+    config_version_index BIGINT,
+    last_updated BIGINT NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    config_value_clob CLOB,
+    config_value_bytes BIGINT,
+    prev_config_value VARCHAR(4000),
+    prev_config_value_clob CLOB,
+    source_id VARCHAR(40) NOT NULL,
+    context_id VARCHAR(40),
+    active VARCHAR(1) NOT NULL,
+    start_time BIGINT NOT NULL,
+    end_time BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
+
+CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
+
+CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
+
+CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
 
 CREATE TABLE grouper_file
 (
@@ -1870,15 +1879,13 @@ CREATE TABLE grouper_file
     hibernate_version_number BIGINT NOT NULL,
     context_id VARCHAR(40),
     file_contents_varchar VARCHAR(4000),
-    file_contents_clob CLOB,
     file_contents_bytes BIGINT,
+    file_contents_clob CLOB,
     PRIMARY KEY (id)
 );
 
 CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path);
 
-
-CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2208,6 +2215,8 @@ CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, 
 
 CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, ROLE_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.id as role_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and type_of_group = 'role' ;
 
+CREATE VIEW grouper_sync_membership_v (G_GROUP_NAME, G_GROUP_ID_INDEX, U_SOURCE_ID, U_SUBJECT_ID, U_SUBJECT_IDENTIFIER, M_IN_TARGET, M_ID, M_IN_TARGET_INSERT_OR_EXISTS, M_IN_TARGET_START, M_IN_TARGET_END, M_LAST_UPDATED, M_MEMBERSHIP_ID, M_MEMBERSHIP_ID2, M_METADATA_UPDATED, M_ERROR_MESSAGE, M_ERROR_TIMESTAMP, S_ID, S_SYNC_ENGINE, S_PROVISIONER_NAME, U_ID, U_MEMBER_ID, U_IN_TARGET, U_IN_TARGET_INSERT_OR_EXISTS, U_IN_TARGET_START, U_IN_TARGET_END, U_PROVISIONABLE, U_PROVISIONABLE_START, U_PROVISIONABLE_END, U_LAST_UPDATED, U_LAST_USER_SYNC_START, U_LAST_USER_SYNC, U_LAST_USER_META_SYNC_START, U_LAST_USER_METADATA_SYNC, U_MEMBER_FROM_ID2, U_MEMBER_FROM_ID3, U_MEMBER_TO_ID2, U_MEMBER_TO_ID3, U_METADATA_UPDATED, U_LAST_TIME_WORK_WAS_DONE, U_ERROR_MESSAGE, U_ERROR_TIMESTAMP, G_ID, G_GROUP_ID, G_PROVISIONABLE, G_IN_TARGET, G_IN_TARGET_INSERT_OR_EXISTS, G_IN_TARGET_START, G_IN_TARGET_END, G_PROVISIONABLE_START, G_PROVISIONABLE_END, G_LAST_UPDATED, G_LAST_GROUP_SYNC_START, G_LAST_GROUP_SYNC, G_LAST_GROUP_META_SYNC_START, G_LAST_GROUP_METADATA_SYNC, G_GROUP_FROM_ID2, G_GROUP_FROM_ID3, G_GROUP_TO_ID2, G_GROUP_TO_ID3, G_METADATA_UPDATED, G_ERROR_MESSAGE, G_ERROR_TIMESTAMP, G_LAST_TIME_WORK_WAS_DONE) AS select G.GROUP_NAME as G_GROUP_NAME, G.GROUP_ID_INDEX as G_GROUP_ID_INDEX, U.SOURCE_ID as U_SOURCE_ID, U.SUBJECT_ID as U_SUBJECT_ID, U.SUBJECT_IDENTIFIER as U_SUBJECT_IDENTIFIER, M.IN_TARGET as M_IN_TARGET, M.ID as M_ID, M.IN_TARGET_INSERT_OR_EXISTS as M_IN_TARGET_INSERT_OR_EXISTS, M.IN_TARGET_START as M_IN_TARGET_START, M.IN_TARGET_END as M_IN_TARGET_END, M.LAST_UPDATED as M_LAST_UPDATED, M.MEMBERSHIP_ID as M_MEMBERSHIP_ID, M.MEMBERSHIP_ID2 as M_MEMBERSHIP_ID2, M.METADATA_UPDATED as M_METADATA_UPDATED, M.ERROR_MESSAGE as M_ERROR_MESSAGE, M.ERROR_TIMESTAMP as M_ERROR_TIMESTAMP, S.ID as S_ID, S.SYNC_ENGINE as S_SYNC_ENGINE, S.PROVISIONER_NAME as S_PROVISIONER_NAME, U.ID as U_ID, U.MEMBER_ID as U_MEMBER_ID, U.IN_TARGET as U_IN_TARGET, U.IN_TARGET_INSERT_OR_EXISTS as U_IN_TARGET_INSERT_OR_EXISTS, U.IN_TARGET_START as U_IN_TARGET_START, U.IN_TARGET_END as U_IN_TARGET_END, U.PROVISIONABLE as U_PROVISIONABLE, U.PROVISIONABLE_START as U_PROVISIONABLE_START, U.PROVISIONABLE_END as U_PROVISIONABLE_END, U.LAST_UPDATED as U_LAST_UPDATED, U.LAST_USER_SYNC_START as U_LAST_USER_SYNC_START, U.LAST_USER_SYNC as U_LAST_USER_SYNC, U.LAST_USER_METADATA_SYNC_START as U_LAST_USER_META_SYNC_START, U.LAST_USER_METADATA_SYNC as U_LAST_USER_METADATA_SYNC, U.MEMBER_FROM_ID2 as U_MEMBER_FROM_ID2, U.MEMBER_FROM_ID3 as U_MEMBER_FROM_ID3, U.MEMBER_TO_ID2 as U_MEMBER_TO_ID2, U.MEMBER_TO_ID3 as U_MEMBER_TO_ID3, U.METADATA_UPDATED as U_METADATA_UPDATED, U.LAST_TIME_WORK_WAS_DONE as U_LAST_TIME_WORK_WAS_DONE, U.ERROR_MESSAGE as U_ERROR_MESSAGE, U.ERROR_TIMESTAMP as U_ERROR_TIMESTAMP, G.ID as G_ID, G.GROUP_ID as G_GROUP_ID, G.PROVISIONABLE as G_PROVISIONABLE, G.IN_TARGET as G_IN_TARGET, G.IN_TARGET_INSERT_OR_EXISTS as G_IN_TARGET_INSERT_OR_EXISTS, G.IN_TARGET_START as G_IN_TARGET_START, G.IN_TARGET_END as G_IN_TARGET_END, G.PROVISIONABLE_START as G_PROVISIONABLE_START, G.PROVISIONABLE_END as G_PROVISIONABLE_END, G.LAST_UPDATED as G_LAST_UPDATED, G.LAST_GROUP_SYNC_START as G_LAST_GROUP_SYNC_START, G.LAST_GROUP_SYNC as G_LAST_GROUP_SYNC, G.LAST_GROUP_METADATA_SYNC_START as G_LAST_GROUP_META_SYNC_START, G.LAST_GROUP_METADATA_SYNC as G_LAST_GROUP_METADATA_SYNC, G.GROUP_FROM_ID2 as G_GROUP_FROM_ID2, G.GROUP_FROM_ID3 as G_GROUP_FROM_ID3, G.GROUP_TO_ID2 as G_GROUP_TO_ID2, G.GROUP_TO_ID3 as G_GROUP_TO_ID3, G.METADATA_UPDATED as G_METADATA_UPDATED, G.ERROR_MESSAGE as G_ERROR_MESSAGE, G.ERROR_TIMESTAMP as G_ERROR_TIMESTAMP, G.LAST_TIME_WORK_WAS_DONE as G_LAST_TIME_WORK_WAS_DONE  from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
+
 CREATE VIEW grouper_audit_entry_v (created_on, audit_category, action_name, logged_in_subject_id, act_as_subject_id, label_string01, string01, label_string02, string02, label_string03, string03, label_string04, string04, label_string05, string05, label_string06, string06, label_string07, string07, label_string08, string08, label_int01, int01, label_int02, int02, label_int03, int03, label_int04, int04, label_int05, int05, context_id, grouper_engine, description, logged_in_source_id, act_as_source_id, logged_in_member_id, act_as_member_id, audit_type_id, user_ip_address, server_host, audit_entry_last_updated, audit_entry_id, grouper_version, env_name) AS select gae.created_on, gat.audit_category, gat.action_name, (select gm.subject_id from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_subject_id, (select gm.subject_id from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_subject_id, gat.label_string01, gae.string01, gat.label_string02, gae.string02, gat.label_string03, gae.string03, gat.label_string04, gae.string04, gat.label_string05, gae.string05, gat.label_string06, gae.string06, gat.label_string07, gae.string07, gat.label_string08, gae.string08, gat.label_int01, gae.int01, gat.label_int02, gae.int02, gat.label_int03, gae.int03, gat.label_int04, gae.int04, gat.label_int05, gae.int05, gae.context_id, gae.grouper_engine, gae.description, (select gm.subject_source from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_source_id, (select gm.subject_source from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_source_id, gae.logged_in_member_id, gae.act_as_member_id, gat.id as audit_type_id, gae.user_ip_address, gae.server_host, gae.last_updated, gae.id as audit_entry_id, gae.grouper_version, gae.env_name from grouper_audit_type gat, grouper_audit_entry gae where gat.id = gae.audit_type_id ;
 
 CREATE VIEW grouper_change_log_entry_v (created_on, change_log_category, action_name, sequence_number, label_string01, string01, label_string02, string02, label_string03, string03, label_string04, string04, label_string05, string05, label_string06, string06, label_string07, string07, label_string08, string08, label_string09, string09, label_string10, string10, label_string11, string11, label_string12, string12, context_id, change_log_type_id) AS SELECT gcle.created_on, gclt.change_log_category, gclt.action_name, gcle.sequence_number,        gclt.label_string01, gcle.string01, gclt.label_string02, gcle.string02,        gclt.label_string03, gcle.string03, gclt.label_string04, gcle.string04,        gclt.label_string05, gcle.string05, gclt.label_string06, gcle.string06,        gclt.label_string07, gcle.string07, gclt.label_string08, gcle.string08,        gclt.label_string09, gcle.string09, gclt.label_string10, gcle.string10,        gclt.label_string11, gcle.string11, gclt.label_string12, gcle.string12,        gcle.context_id, gcle.change_log_type_id   FROM grouper_change_log_type gclt, grouper_change_log_entry gcle  WHERE gclt.id = gcle.change_log_type_id;
@@ -2334,11 +2343,10 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
-CREATE VIEW grouper_sync_membership_v ( G_GROUP_NAME, G_GROUP_ID_INDEX, U_SOURCE_ID, U_SUBJECT_ID, U_SUBJECT_IDENTIFIER, M_IN_TARGET, M_ID, M_IN_TARGET_INSERT_OR_EXISTS, M_IN_TARGET_START, M_IN_TARGET_END, M_LAST_UPDATED, M_MEMBERSHIP_ID, M_MEMBERSHIP_ID2, M_METADATA_UPDATED, M_ERROR_MESSAGE, M_ERROR_TIMESTAMP, S_ID, S_SYNC_ENGINE, S_PROVISIONER_NAME, U_ID, U_MEMBER_ID, U_IN_TARGET, U_IN_TARGET_INSERT_OR_EXISTS, U_IN_TARGET_START, U_IN_TARGET_END, U_PROVISIONABLE, U_PROVISIONABLE_START, U_PROVISIONABLE_END, U_LAST_UPDATED, U_LAST_USER_SYNC, U_LAST_USER_METADATA_SYNC, U_MEMBER_FROM_ID2, U_MEMBER_FROM_ID3, U_MEMBER_TO_ID2, U_MEMBER_TO_ID3, U_METADATA_UPDATED, U_LAST_TIME_WORK_WAS_DONE, U_ERROR_MESSAGE, U_ERROR_TIMESTAMP, G_ID, G_GROUP_ID, G_PROVISIONABLE, G_IN_TARGET, G_IN_TARGET_INSERT_OR_EXISTS, G_IN_TARGET_START, G_IN_TARGET_END, G_PROVISIONABLE_START, G_PROVISIONABLE_END, G_LAST_UPDATED, G_LAST_GROUP_SYNC, G_LAST_GROUP_METADATA_SYNC, G_GROUP_FROM_ID2, G_GROUP_FROM_ID3, G_GROUP_TO_ID2, G_GROUP_TO_ID3, G_METADATA_UPDATED, G_ERROR_MESSAGE, G_ERROR_TIMESTAMP, G_LAST_TIME_WORK_WAS_DONE ) as select G.GROUP_NAME as G_GROUP_NAME, G.GROUP_ID_INDEX as G_GROUP_ID_INDEX, U.SOURCE_ID as U_SOURCE_ID, U.SUBJECT_ID as U_SUBJECT_ID, U.SUBJECT_IDENTIFIER as U_SUBJECT_IDENTIFIER, M.IN_TARGET as M_IN_TARGET, M.ID as M_ID, M.IN_TARGET_INSERT_OR_EXISTS as M_IN_TARGET_INSERT_OR_EXISTS, M.IN_TARGET_START as M_IN_TARGET_START, M.IN_TARGET_END as M_IN_TARGET_END, M.LAST_UPDATED as M_LAST_UPDATED, M.MEMBERSHIP_ID as M_MEMBERSHIP_ID, M.MEMBERSHIP_ID2 as M_MEMBERSHIP_ID2, M.METADATA_UPDATED as M_METADATA_UPDATED, M.ERROR_MESSAGE as M_ERROR_MESSAGE, M.ERROR_TIMESTAMP as M_ERROR_TIMESTAMP, S.ID as S_ID, S.SYNC_ENGINE as S_SYNC_ENGINE, S.PROVISIONER_NAME as S_PROVISIONER_NAME, U.ID as U_ID, U.MEMBER_ID as U_MEMBER_ID, U.IN_TARGET as U_IN_TARGET, U.IN_TARGET_INSERT_OR_EXISTS as U_IN_TARGET_INSERT_OR_EXISTS, U.IN_TARGET_START as U_IN_TARGET_START, U.IN_TARGET_END as U_IN_TARGET_END, U.PROVISIONABLE as U_PROVISIONABLE, U.PROVISIONABLE_START as U_PROVISIONABLE_START, U.PROVISIONABLE_END as U_PROVISIONABLE_END, U.LAST_UPDATED as U_LAST_UPDATED, U.LAST_USER_SYNC as U_LAST_USER_SYNC, U.LAST_USER_METADATA_SYNC as U_LAST_USER_METADATA_SYNC, U.MEMBER_FROM_ID2 as U_MEMBER_FROM_ID2, U.MEMBER_FROM_ID3 as U_MEMBER_FROM_ID3, U.MEMBER_TO_ID2 as U_MEMBER_TO_ID2, U.MEMBER_TO_ID3 as U_MEMBER_TO_ID3, U.METADATA_UPDATED as U_METADATA_UPDATED, U.LAST_TIME_WORK_WAS_DONE as U_LAST_TIME_WORK_WAS_DONE, U.ERROR_MESSAGE as U_ERROR_MESSAGE, U.ERROR_TIMESTAMP as U_ERROR_TIMESTAMP, G.ID as G_ID, G.GROUP_ID as G_GROUP_ID, G.PROVISIONABLE as G_PROVISIONABLE, G.IN_TARGET as G_IN_TARGET, G.IN_TARGET_INSERT_OR_EXISTS as G_IN_TARGET_INSERT_OR_EXISTS, G.IN_TARGET_START as G_IN_TARGET_START, G.IN_TARGET_END as G_IN_TARGET_END, G.PROVISIONABLE_START as G_PROVISIONABLE_START, G.PROVISIONABLE_END as G_PROVISIONABLE_END, G.LAST_UPDATED as G_LAST_UPDATED, G.LAST_GROUP_SYNC as G_LAST_GROUP_SYNC, G.LAST_GROUP_METADATA_SYNC as G_LAST_GROUP_METADATA_SYNC, G.GROUP_FROM_ID2 as G_GROUP_FROM_ID2, G.GROUP_FROM_ID3 as G_GROUP_FROM_ID3, G.GROUP_TO_ID2 as G_GROUP_TO_ID2, G.GROUP_TO_ID3 as G_GROUP_TO_ID3, G.METADATA_UPDATED as G_METADATA_UPDATED, G.ERROR_MESSAGE as G_ERROR_MESSAGE, G.ERROR_TIMESTAMP as G_ERROR_TIMESTAMP, G.LAST_TIME_WORK_WAS_DONE as G_LAST_TIME_WORK_WAS_DONE  from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
 
 SET DATABASE TRANSACTION CONTROL MVCC;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 36, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
-to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V36, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 35, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
+to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V35, ');
 commit;

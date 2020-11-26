@@ -83,7 +83,9 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     gcGrouperSyncGroup.inTargetInsertOrExistsDb = this.inTargetInsertOrExistsDb;
     gcGrouperSyncGroup.inTargetStart = this.inTargetStart;
     gcGrouperSyncGroup.lastGroupMetadataSync = this.lastGroupMetadataSync;
+    gcGrouperSyncGroup.lastGroupMetadataSyncStart = this.lastGroupMetadataSyncStart;
     gcGrouperSyncGroup.lastGroupSync = this.lastGroupSync;
+    gcGrouperSyncGroup.lastGroupSyncStart = this.lastGroupSyncStart;
     gcGrouperSyncGroup.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
     //lastUpdated  DONT CLONE
   
@@ -135,7 +137,9 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       .append(this.inTargetInsertOrExistsDb, other.inTargetInsertOrExistsDb)
       .append(this.inTargetStart, other.inTargetStart)
       .append(this.lastGroupMetadataSync, other.lastGroupMetadataSync)
+      .append(this.lastGroupMetadataSyncStart, other.lastGroupMetadataSyncStart)
       .append(this.lastGroupSync, other.lastGroupSync)
+      .append(this.lastGroupSyncStart, other.lastGroupSyncStart)
       .append(this.lastTimeWorkWasDone, other.lastTimeWorkWasDone)
       //lastUpdated  DONT EQUALS
 
@@ -153,7 +157,27 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   private Timestamp lastGroupSync;
   
+  /**
+   * when this group was last sync start
+   */
+  private Timestamp lastGroupSyncStart;
   
+  /**
+   * when this group was last sync start
+   * @return
+   */
+  public Timestamp getLastGroupSyncStart() {
+    return lastGroupSyncStart;
+  }
+
+  /**
+   * when this group was last sync start
+   * @param lastGroupSyncStart
+   */
+  public void setLastGroupSyncStart(Timestamp lastGroupSyncStart) {
+    this.lastGroupSyncStart = lastGroupSyncStart;
+  }
+
   public Timestamp getLastGroupSync() {
     return this.lastGroupSync;
   }
@@ -165,6 +189,28 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   public void setLastGroupSync(Timestamp lastGroupSync1) {
     this.lastGroupSync = lastGroupSync1;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   */
+  private Timestamp lastGroupMetadataSyncStart;
+  
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   * @return
+   */
+  public Timestamp getLastGroupMetadataSyncStart() {
+    return lastGroupMetadataSyncStart;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   * @param lastGroupMetadataSyncStart
+   */
+  public void setLastGroupMetadataSyncStart(Timestamp lastGroupMetadataSyncStart) {
+    this.lastGroupMetadataSyncStart = lastGroupMetadataSyncStart;
   }
 
   /**
