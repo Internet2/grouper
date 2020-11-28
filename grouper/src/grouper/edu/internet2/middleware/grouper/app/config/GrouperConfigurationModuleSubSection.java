@@ -85,5 +85,17 @@ public class GrouperConfigurationModuleSubSection {
   public Collection<GrouperConfigurationModuleAttribute> getAttributesValues() {
     return this.getAttributes().values();
   }
+  
+  /**
+   * only show when at least one of the attributes is show in this subsection
+   * @return
+   */
+  public boolean isShow() {
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute:  this.getAttributesValues()) {
+      if (grouperConfigModuleAttribute.isShow()) return true;
+    }
+    return false;
+  }
 
 }

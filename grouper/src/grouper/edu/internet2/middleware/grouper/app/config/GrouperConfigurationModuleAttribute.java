@@ -242,7 +242,18 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getDescription() {
-    String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
+    
+    String key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description";
+    
+    String description = GrouperTextContainer.textOrNull(key);
+    
+    if (StringUtils.isBlank(description)) {      
+      if (this.getConfigSuffix().matches(".*[0-9].*")) {
+        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".description";
+        description = GrouperTextContainer.textOrNull(key);
+      } 
+    }
+    
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
     }

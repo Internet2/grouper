@@ -7,6 +7,10 @@
        <table class="table table-hover table-bordered table-striped table-condensed data-table">
          <thead>        
            <tr>
+           	
+           	 <th>${textContainer.text['provisionerActivityTableHeaderGroupName']}</th>
+           	 <th>${textContainer.text['provisionerActivityTableHeaderSubjectId']}</th>
+           	 <th>${textContainer.text['provisionerActivityTableHeaderSubjectIdentifier']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderInTarget']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderInTargetInsertOrExists']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderInTargetStart']}</th>
@@ -22,8 +26,21 @@
            <tbody>
              <c:set var="i" value="0" />
              <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.activityForMembership}" var="grouperSyncMembership">
-             
+             	
                <tr>
+               		
+                  <td style="white-space: nowrap;">
+                	${grouperSyncMembership.grouperSyncGroup.groupName}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
+                	${grouperSyncMembership.grouperSyncMember.subjectId}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
+                	${grouperSyncMembership.grouperSyncMember.subjectIdentifier}
+                  </td>
+               		
                   <td style="white-space: nowrap;">
 	                  <c:choose>
 	                    <c:when test="${grouperSyncMembership.inTarget}">

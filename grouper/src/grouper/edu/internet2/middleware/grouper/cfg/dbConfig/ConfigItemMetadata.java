@@ -326,7 +326,7 @@ public class ConfigItemMetadata {
     copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
-    
+    copy.comment = GrouperUtil.replace(this.comment, "$i$", GrouperUtil.stringValue(repeatIndex));
 //    copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
     
     copy.multiple = this.multiple;

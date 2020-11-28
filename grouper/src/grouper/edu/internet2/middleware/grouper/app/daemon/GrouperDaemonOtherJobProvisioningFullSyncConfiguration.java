@@ -19,9 +19,17 @@ public class GrouperDaemonOtherJobProvisioningFullSyncConfiguration extends Grou
     return "^(otherJob)\\.([^.]+)\\.(.+)$";
   }
 
+//  @Override
+//  public String getConfigItemPrefix() {
+//    return "otherJob.grouperProvisioningFullSyncDaemon.";
+//  }
+  
   @Override
   public String getConfigItemPrefix() {
-    return "otherJob.grouperProvisioningFullSyncDaemon.";
+    if (StringUtils.isBlank(this.getConfigId())) {
+      throw new RuntimeException("Must have configId!");
+    }
+    return "otherJob." + this.getConfigId() + ".";
   }
 
   @Override

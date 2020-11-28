@@ -121,6 +121,12 @@ public class DbConfigEngine {
   
       boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
       
+      boolean makeChange = true;
+      if (isPassword && StringUtils.equals(valueString, GrouperConfigHibernate.ESCAPED_PASSWORD)) {
+        added[0] = null;
+        makeChange = false;
+      }
+      
       boolean isAlreadyEncrypted = false;
       if (StringUtils.isNotBlank(valueString)) {
         try {
@@ -138,36 +144,38 @@ public class DbConfigEngine {
         }
       }
   
-      // see if we are creating a new one
-      if (grouperConfigHibernate == null) {
-        grouperConfigHibernate = new GrouperConfigHibernate();
-        added[0] = true;
-      } else {
-        
-        String value = grouperConfigHibernate.retrieveValue();
-        
-        if (StringUtils.equals(valueString, value)) {
-          added[0] = null;
+      if (makeChange) {
+        // see if we are creating a new one
+        if (grouperConfigHibernate == null) {
+          grouperConfigHibernate = new GrouperConfigHibernate();
+          added[0] = true;
         } else {
-          added[0] = false;
+          
+          String value = grouperConfigHibernate.retrieveValue();
+          
+          if (StringUtils.equals(valueString, value)) {
+            added[0] = null;
+          } else {
+            added[0] = false;
+          }
         }
-      }
-  
-      grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
-      grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
-      grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
-      // this will switch to or from .elConfig
-      grouperConfigHibernate.setConfigKey(propertyNameToUse);
-      
-  //    grouperConfigHibernate.setConfigComment(comment);
-      
-      grouperConfigHibernate.setValueToSave(valueString);
-      if (added[0] != null) {
-        grouperConfigHibernate.saveOrUpdate(added[0]);
-        if (clearCache) {
-          // get the latest and greatest
-          ConfigPropertiesCascadeBase.clearCache();
-        }
+    
+        grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
+        grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
+        grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
+        // this will switch to or from .elConfig
+        grouperConfigHibernate.setConfigKey(propertyNameToUse);
+        
+    //    grouperConfigHibernate.setConfigComment(comment);
+        
+        grouperConfigHibernate.setValueToSave(valueString);
+        if (added[0] != null) {
+          grouperConfigHibernate.saveOrUpdate(added[0]);
+          if (clearCache) {
+            // get the latest and greatest
+            ConfigPropertiesCascadeBase.clearCache();
+          }
+        } 
       }
       
       if (added[0] == null) {

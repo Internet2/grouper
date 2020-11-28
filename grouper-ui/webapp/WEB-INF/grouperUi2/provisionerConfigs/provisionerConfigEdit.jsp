@@ -40,7 +40,7 @@
                	
                	<c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
 			  		<tbody>
-			  			<c:if test="${!grouper:isBlank(subSection.label)}">
+			  			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
 				  			<tr>
 				  				<th colspan="3">
 				  					<h4>${subSection.title}</h4>

@@ -1242,6 +1242,28 @@ public class GrouperProvisioningService {
       }
     }
     
+    List<String> grouperSyncGroupIds = new ArrayList<String>();
+    List<String> grouperSyncMemberIds = new ArrayList<String>();
+    
+    for (GcGrouperSyncMembership gcGrouperSyncMembership: uniqueGrouperSyncMemberships) {
+      grouperSyncGroupIds.add(gcGrouperSyncMembership.getGrouperSyncGroupId());
+      grouperSyncMemberIds.add(gcGrouperSyncMembership.getGrouperSyncMemberId());
+    }
+    
+    Map<String, GcGrouperSyncGroup> idToGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByIds(grouperSyncGroupIds);
+    Map<String, GcGrouperSyncMember> idToMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByIds(grouperSyncMemberIds);
+    
+    for (GcGrouperSyncMembership gcGrouperSyncMembership: uniqueGrouperSyncMemberships) {
+      
+      if (idToGroup.containsKey(gcGrouperSyncMembership.getGrouperSyncGroupId())) {
+        gcGrouperSyncMembership.setGrouperSyncGroup(idToGroup.get(gcGrouperSyncMembership.getGrouperSyncGroupId()));        
+      }
+      
+      if (idToMember.containsKey(gcGrouperSyncMembership.getGrouperSyncMemberId())) {
+        gcGrouperSyncMembership.setGrouperSyncMember(idToMember.get(gcGrouperSyncMembership.getGrouperSyncMemberId()));        
+      }
+      
+    }
     
     Collections.sort(uniqueGrouperSyncMemberships, new Comparator<GcGrouperSyncMembership>() {
 

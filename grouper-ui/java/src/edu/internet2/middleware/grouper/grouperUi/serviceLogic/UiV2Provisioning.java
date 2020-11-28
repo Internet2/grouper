@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
@@ -496,8 +497,19 @@ public class UiV2Provisioning {
             return null;
           }
           
-          GcGrouperSyncMembership gcGrouperSyncMembership = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName).getGcGrouperSyncMembershipDao().membershipRetrieveById(groupSyncMembershipId);
+          GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName);
+          GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(groupSyncMembershipId);
           provisioningContainer.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+          
+          if (gcGrouperSyncMembership != null) {
+            
+            GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncMembership.getGrouperSyncGroupId());
+            gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
+            
+            GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMembership.getGrouperSyncMemberId());
+            gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+          }
+          
           
           addProvisioningBreadcrumbs(new GuiGroup(GROUP), null, null, null, null);
           

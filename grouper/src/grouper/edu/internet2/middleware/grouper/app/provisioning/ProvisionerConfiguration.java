@@ -52,6 +52,8 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     super.deleteConfig(fromUi);
     GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, this.getConfigId());
     
+    if (grouperSync == null) return;
+    
     {
       List<GcGrouperSyncGroup> grouperSyncGroups = grouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
       grouperSync.getGcGrouperSyncGroupDao().groupDelete(grouperSyncGroups, true, true);
