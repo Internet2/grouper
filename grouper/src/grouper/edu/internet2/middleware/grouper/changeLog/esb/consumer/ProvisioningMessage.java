@@ -17,6 +17,21 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 public class ProvisioningMessage {
 
   /**
+   * when this message was created
+   */
+  private long millisSince1970 = System.currentTimeMillis();
+  
+  
+  public long getMillisSince1970() {
+    return millisSince1970;
+  }
+
+  
+  public void setMillisSince1970(long millisSince1970) {
+    this.millisSince1970 = millisSince1970;
+  }
+
+  /**
    * 
    * @param args
    */
@@ -36,20 +51,20 @@ public class ProvisioningMessage {
 
     
     String message = provisioningMessage.toJson();
-
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        GrouperMessagingEngine.send(
-            new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-              .assignQueueType(GrouperMessageQueueType.queue)
-              .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
-              .assignAutocreateObjects(true)
-              .addMessageBody(message));
-        return null;
-      }
-    });
+    System.out.println(message);
+//    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+//      
+//      @Override
+//      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+//        GrouperMessagingEngine.send(
+//            new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+//              .assignQueueType(GrouperMessageQueueType.queue)
+//              .assignQueueOrTopicName("grouperProvisioningControl_myPspngProvisioner")
+//              .assignAutocreateObjects(true)
+//              .addMessageBody(message));
+//        return null;
+//      }
+//    });
     
   }
   
@@ -224,6 +239,31 @@ public class ProvisioningMessage {
   public static ProvisioningMessage fromJson(String json) {
     ProvisioningMessage provisioningMessage = GrouperUtil.jsonConvertFrom(json, ProvisioningMessage.class);
     return provisioningMessage;
+  }
+
+  /**
+   * 
+   * @param targetName
+   */
+  public void send(final String targetName) {
+    String message = this.toJson();
+    
+    //TODO we only need to send messages if there is an incremental provisioning job...
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+     @Override
+     public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+      
+        GrouperMessagingEngine.send(
+             new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+              .assignQueueType(GrouperMessageQueueType.queue)
+              .assignQueueOrTopicName("grouperProvisioningControl_"+ targetName)
+              .assignAutocreateObjects(true)
+              .addMessageBody(message));
+        return null;
+     }
+    });
+    
   }
   
 }

@@ -100,8 +100,21 @@ public abstract class EsbListenerBase {
    * @param grouperProvisioningProcessingResult
    * @param consumerName
    * @return true if ok, false if not
+   * @deprecated use {@link #dispatchEventList(List)}
    */
+  @Deprecated
   public ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers, GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
+    return this.dispatchEventList(esbEventContainers);
+  }
+
+  /**
+   * implement this instead of dispatchEvent if you want objects instead of json string
+   * @param esbEventContainers
+   * @param grouperProvisioningProcessingResult
+   * @param consumerName
+   * @return true if ok, false if not
+   */
+  public ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers) {
 
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(-1L);

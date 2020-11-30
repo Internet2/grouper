@@ -32,8 +32,7 @@ public abstract class ProvisioningSyncConsumer extends EsbListenerBase {
   }
 
   @Override
-  public abstract ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers, 
-      GrouperProvisioningProcessingResult grouperProvisioningProcessingResult);
+  public abstract ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers);
 
   
 

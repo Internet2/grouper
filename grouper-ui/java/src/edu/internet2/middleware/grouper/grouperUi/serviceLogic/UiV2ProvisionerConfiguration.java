@@ -954,23 +954,7 @@ public class UiV2ProvisionerConfiguration {
       provisioningMessage.setFullSync(true);
       provisioningMessage.setBlocking(BooleanUtils.toBoolean(synchronous));
       provisioningMessage.setReadOnly(BooleanUtils.toBoolean(readOnly));
-      
-      String message = provisioningMessage.toJson();  
-      
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-       @Override
-       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-          GrouperMessagingEngine.send(
-               new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-                .assignQueueType(GrouperMessageQueueType.queue)
-                .assignQueueOrTopicName("grouperProvisioningControl_"+provisionerConfigId)
-                .assignAutocreateObjects(true)
-                .addMessageBody(message));
-          return null;
-       }
-      });
+      provisioningMessage.send(provisionerConfigId);
       
       AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN, "provisionerName", provisionerConfigId);
       auditEntry.setDescription("Ran provisioner sync for "+provisionerConfigId);

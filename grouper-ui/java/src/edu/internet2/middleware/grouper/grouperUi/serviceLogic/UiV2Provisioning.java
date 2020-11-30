@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -57,9 +56,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2Provisioning {
@@ -1500,22 +1496,7 @@ public class UiV2Provisioning {
       ProvisioningMessage provisioningMessage = new ProvisioningMessage();
       provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
       provisioningMessage.setBlocking(true);
-      String message = provisioningMessage.toJson();  
-      
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-       @Override
-       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-          GrouperMessagingEngine.send(
-               new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-                .assignQueueType(GrouperMessageQueueType.queue)
-                .assignQueueOrTopicName("grouperProvisioningControl_"+targetName)
-                .assignAutocreateObjects(true)
-                .addMessageBody(message));
-          return null;
-       }
-      });
+      provisioningMessage.send(targetName);
       
       AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId", group.getId(), "provisionerName", targetName);
       auditEntry.setDescription("Ran provisioner sync for "+targetName+" on group " + group.getName());

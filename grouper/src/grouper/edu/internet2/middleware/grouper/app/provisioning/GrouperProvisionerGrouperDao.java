@@ -669,32 +669,33 @@ public class GrouperProvisionerGrouperDao {
 
   
   public void retrieveGrouperDataIncremental() {
-    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
-
-    GrouperProvisioningLists grouperProvisioningObjects = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
-    
-    {
-      long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupOnly()));
-      debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
-      debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
-    }
-    {
-      long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityOnly()));
-      debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
-      debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
-    }
-    {
-      long start = System.currentTimeMillis();
-      grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(false, 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityMembershipSync(),
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()));
-      debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
-      debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
-    }
+    // TODO
+//    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+//
+//    GrouperProvisioningLists grouperProvisioningObjects = 
+//        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
+//    
+//    {
+//      long start = System.currentTimeMillis();
+//      grouperProvisioningObjects.setProvisioningGroups(retrieveGroups(false, grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupOnly()));
+//      debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
+//      debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
+//    }
+//    {
+//      long start = System.currentTimeMillis();
+//      grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(false, grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityOnly()));
+//      debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
+//      debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
+//    }
+//    {
+//      long start = System.currentTimeMillis();
+//      grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(false, 
+//          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsForGroupMembershipSync(),
+//          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getMemberUuidsForEntityMembershipSync(),
+//          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()));
+//      debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
+//      debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
+//    }
     
   }
 

@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-
 /**
  * 
  * @author mchyzer-local
@@ -29,7 +27,7 @@ public class GrouperIncrementalDataToProcess {
    * get the group objects and the memberships for these.
    * note, these are also included in groupUuidsForGroupOnly
    */
-  private Set<String> groupUuidsForGroupMembershipSync = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = new TreeSet<GrouperIncrementalDataItem>();
   
   
   /**
@@ -37,7 +35,7 @@ public class GrouperIncrementalDataToProcess {
    * note, these are also included in groupUuidsForGroupOnly
    * @return
    */
-  public Set<String> getGroupUuidsForGroupMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupMembershipSync() {
     return groupUuidsForGroupMembershipSync;
   }
 
@@ -48,7 +46,7 @@ public class GrouperIncrementalDataToProcess {
    * @param groupUuidsForGroupMembershipSync
    */
   public void setGroupUuidsForGroupMembershipSync(
-      Set<String> groupUuidsForGroupMembershipSync) {
+      Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync) {
     this.groupUuidsForGroupMembershipSync = groupUuidsForGroupMembershipSync;
   }
 
@@ -58,14 +56,14 @@ public class GrouperIncrementalDataToProcess {
    * get the entity objects and the memberships for these.
    * note, these are also included in memberUuidsForEntityOnly
    */
-  private Set<String> memberUuidsForEntityMembershipSync = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync = new TreeSet<GrouperIncrementalDataItem>();
 
   /**
    * get the entity objects and the memberships for these.
    * note, these are also included in memberUuidsForEntityOnly
    * @return the uuids
    */
-  public Set<String> getMemberUuidsForEntityMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getMemberUuidsForEntityMembershipSync() {
     return memberUuidsForEntityMembershipSync;
   }
 
@@ -76,7 +74,7 @@ public class GrouperIncrementalDataToProcess {
    * @param memberUuidsForEntityMembershipSync
    */
   public void setMemberUuidsForEntityMembershipSync(
-      Set<String> memberUuidsForEntityMembershipSync) {
+      Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync) {
     this.memberUuidsForEntityMembershipSync = memberUuidsForEntityMembershipSync;
   }
 
@@ -86,7 +84,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the group objects.
    * these are for group metadata or referenced in a membership
    */
-  private Set<String> groupUuidsForGroupOnly = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = new TreeSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.
@@ -94,7 +92,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for group metadata or referenced in a membership
    * @return
    */
-  public Set<String> getGroupUuidsForGroupOnly() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupOnly() {
     return groupUuidsForGroupOnly;
   }
 
@@ -105,7 +103,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for group metadata or referenced in a membership
    * @param groupUuidsForGroupOnly
    */
-  public void setGroupUuidsForGroupOnly(Set<String> groupUuidsForGroupOnly) {
+  public void setGroupUuidsForGroupOnly(Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly) {
     this.groupUuidsForGroupOnly = groupUuidsForGroupOnly;
   }
 
@@ -115,7 +113,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the entity objects.
    * these are for entity metadata or referenced in a membership
    */
-  private Set<String> memberUuidsForEntityOnly = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly = new TreeSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.  
@@ -123,7 +121,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for entity metadata or referenced in a membership
    * @return
    */
-  public Set<String> getMemberUuidsForEntityOnly() {
+  public Set<GrouperIncrementalDataItem> getMemberUuidsForEntityOnly() {
     return memberUuidsForEntityOnly;
   }
 
@@ -134,7 +132,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for entity metadata or referenced in a membership
    * @param memberUuidsForEntityOnly
    */
-  public void setMemberUuidsForEntityOnly(Set<String> memberUuidsForEntityOnly) {
+  public void setMemberUuidsForEntityOnly(Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly) {
     this.memberUuidsForEntityOnly = memberUuidsForEntityOnly;
   }
 
@@ -143,13 +141,13 @@ public class GrouperIncrementalDataToProcess {
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    */
-  private Set<MultiKey> groupUuidsMemberUuidsFieldIdsForMembershipSync = new HashSet<MultiKey>();
+  private Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsFieldIdsForMembershipSync = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    * @return
    */
-  public Set<MultiKey> getGroupUuidsMemberUuidsFieldIdsForMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsMemberUuidsFieldIdsForMembershipSync() {
     return groupUuidsMemberUuidsFieldIdsForMembershipSync;
   }
 
@@ -159,7 +157,7 @@ public class GrouperIncrementalDataToProcess {
    * @param groupUuidsMemberUuidsForMembershipSync
    */
   public void setGroupUuidsMemberUuidsFieldIdsForMembershipSync(
-      Set<MultiKey> groupUuidsMemberUuidsForMembershipSync) {
+      Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsForMembershipSync) {
     this.groupUuidsMemberUuidsFieldIdsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
   }
 

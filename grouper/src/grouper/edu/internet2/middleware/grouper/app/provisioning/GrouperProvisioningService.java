@@ -12,7 +12,6 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -92,119 +92,119 @@ public class GrouperProvisioningService {
     
   }
 
-  /**
-   * 
-   * @param gcGrouperSync
-   * @param groupIds
-   * @return the map of group id to group sync for use later on
-   */
-  public static GrouperProvisioningProcessingResult processProvisioningMetadataForGroupIds(GcGrouperSync gcGrouperSync, Collection<String> groupIds) {
-    
-    GrouperProvisioningProcessingResult grouperProvisioningProcessingResult = new GrouperProvisioningProcessingResult();
-    
-    grouperProvisioningProcessingResult.setGcGrouperSync(gcGrouperSync);
-    
-    if (GrouperUtil.length(groupIds) == 0) {
-      return grouperProvisioningProcessingResult;
-    }
-    
-    // get the provisioned groups from these group ids
-    Map<String, Group> groupIdToProvisionedGroupMap = GrouperProvisioningService.findAllGroupsForTargetAndGroupIds(gcGrouperSync.getProvisionerName(), groupIds);
-    grouperProvisioningProcessingResult.setGroupIdGroupMap(groupIdToProvisionedGroupMap);
-    
-    Map<String, GcGrouperSyncGroup> groupIdToGroupSyncMap = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
-    grouperProvisioningProcessingResult.setGroupIdToGcGrouperSyncGroupMap(groupIdToGroupSyncMap);
-    
-    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToUpdate = new ArrayList<GcGrouperSyncGroup>();
-    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToInsert = new ArrayList<GcGrouperSyncGroup>();
-    
-    List<String> groupIdsToAddToTarget = new ArrayList<String>();
-    grouperProvisioningProcessingResult.setGroupIdsToAddToTarget(groupIdsToAddToTarget);
-
-    List<String> groupIdsToRemoveFromTarget = new ArrayList<String>();
-    grouperProvisioningProcessingResult.setGroupIdsToRemoveFromTarget(groupIdsToRemoveFromTarget);
-
-    for (String groupId : groupIdToGroupSyncMap.keySet()) {
-      
-      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
-
-      Group group = groupIdToProvisionedGroupMap.get(groupId);
-      if (group == null) {
-        //the group is not supposed to be provisioned
-        
-        // its in target and shouldnt be
-        if (gcGrouperSyncGroup.isInTarget()) {
-          groupIdsToRemoveFromTarget.add(groupId);
-        }
-        
-        //it should not be provisioned
-        if (gcGrouperSyncGroup.isProvisionable()) {
-          gcGrouperSyncGroup.setProvisionable(false);
-          gcGrouperSyncGroup.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
-          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
-        }
-      } else {
-        
-        // the group should be provisionable
-        // its not in target and should be
-        if (!gcGrouperSyncGroup.isInTarget()) {
-          groupIdsToAddToTarget.add(groupId);
-        }
-        
-        boolean needsUpdate = false;
-        
-        // update some metadata
-        if (!StringUtils.equals(group.getName(), gcGrouperSyncGroup.getGroupName())) {
-          gcGrouperSyncGroup.setGroupName(group.getName());
-          needsUpdate = true;
-        }
-        // update some metadata
-        if (!GrouperUtil.equals(group.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex())) {
-          gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
-          needsUpdate = true;
-        }
-        
-        //it is not be provisioned, but should be
-        if (!gcGrouperSyncGroup.isProvisionable()) {
-          gcGrouperSyncGroup.setProvisionable(true);
-          gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
-          gcGrouperSyncGroup.setProvisionableEnd(null);
-          needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
-        }
-      }
-    }
-    
-    // find the ones where tracking objects dont exist
-    for (String groupId : groupIdToProvisionedGroupMap.keySet()) {
-
-      Group group = groupIdToProvisionedGroupMap.get(groupId);
-
-      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
-
-      // these are not tracked... start tracking them
-      if (gcGrouperSyncGroup == null) {
-    
-        // this is not provisionable or in target
-        gcGrouperSyncGroup = new GcGrouperSyncGroup();
-        gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
-        gcGrouperSyncGroup.setGroupId(groupId);
-        gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
-        gcGrouperSyncGroup.setGroupName(group.getName());
-        gcGrouperSyncGroup.setProvisionable(true);
-        gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
-        groupIdToGroupSyncMap.put(groupId, gcGrouperSyncGroup);
-        gcGrouperSyncGroupsToInsert.add(gcGrouperSyncGroup);
-        groupIdsToAddToTarget.add(groupId);
-      }
-      
-    }
-    
-    return grouperProvisioningProcessingResult;
-  }
+//  /**
+//   * 
+//   * @param gcGrouperSync
+//   * @param groupIds
+//   * @return the map of group id to group sync for use later on
+//   */
+//  public static GrouperProvisioningProcessingResult processProvisioningMetadataForGroupIds(GcGrouperSync gcGrouperSync, Collection<String> groupIds) {
+//    
+//    GrouperProvisioningProcessingResult grouperProvisioningProcessingResult = new GrouperProvisioningProcessingResult();
+//    
+//    grouperProvisioningProcessingResult.setGcGrouperSync(gcGrouperSync);
+//    
+//    if (GrouperUtil.length(groupIds) == 0) {
+//      return grouperProvisioningProcessingResult;
+//    }
+//    
+//    // get the provisioned groups from these group ids
+//    Map<String, Group> groupIdToProvisionedGroupMap = GrouperProvisioningService.findAllGroupsForTargetAndGroupIds(gcGrouperSync.getProvisionerName(), groupIds);
+//    grouperProvisioningProcessingResult.setGroupIdGroupMap(groupIdToProvisionedGroupMap);
+//    
+//    Map<String, GcGrouperSyncGroup> groupIdToGroupSyncMap = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
+//    grouperProvisioningProcessingResult.setGroupIdToGcGrouperSyncGroupMap(groupIdToGroupSyncMap);
+//    
+//    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToUpdate = new ArrayList<GcGrouperSyncGroup>();
+//    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToInsert = new ArrayList<GcGrouperSyncGroup>();
+//    
+//    List<String> groupIdsToAddToTarget = new ArrayList<String>();
+//    grouperProvisioningProcessingResult.setGroupIdsToAddToTarget(groupIdsToAddToTarget);
+//
+//    List<String> groupIdsToRemoveFromTarget = new ArrayList<String>();
+//    grouperProvisioningProcessingResult.setGroupIdsToRemoveFromTarget(groupIdsToRemoveFromTarget);
+//
+//    for (String groupId : groupIdToGroupSyncMap.keySet()) {
+//      
+//      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
+//
+//      Group group = groupIdToProvisionedGroupMap.get(groupId);
+//      if (group == null) {
+//        //the group is not supposed to be provisioned
+//        
+//        // its in target and shouldnt be
+//        if (gcGrouperSyncGroup.isInTarget()) {
+//          groupIdsToRemoveFromTarget.add(groupId);
+//        }
+//        
+//        //it should not be provisioned
+//        if (gcGrouperSyncGroup.isProvisionable()) {
+//          gcGrouperSyncGroup.setProvisionable(false);
+//          gcGrouperSyncGroup.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
+//          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
+//        }
+//      } else {
+//        
+//        // the group should be provisionable
+//        // its not in target and should be
+//        if (!gcGrouperSyncGroup.isInTarget()) {
+//          groupIdsToAddToTarget.add(groupId);
+//        }
+//        
+//        boolean needsUpdate = false;
+//        
+//        // update some metadata
+//        if (!StringUtils.equals(group.getName(), gcGrouperSyncGroup.getGroupName())) {
+//          gcGrouperSyncGroup.setGroupName(group.getName());
+//          needsUpdate = true;
+//        }
+//        // update some metadata
+//        if (!GrouperUtil.equals(group.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex())) {
+//          gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
+//          needsUpdate = true;
+//        }
+//        
+//        //it is not be provisioned, but should be
+//        if (!gcGrouperSyncGroup.isProvisionable()) {
+//          gcGrouperSyncGroup.setProvisionable(true);
+//          gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
+//          gcGrouperSyncGroup.setProvisionableEnd(null);
+//          needsUpdate = true;
+//        }
+//
+//        if (needsUpdate) {
+//          gcGrouperSyncGroupsToUpdate.add(gcGrouperSyncGroup);
+//        }
+//      }
+//    }
+//    
+//    // find the ones where tracking objects dont exist
+//    for (String groupId : groupIdToProvisionedGroupMap.keySet()) {
+//
+//      Group group = groupIdToProvisionedGroupMap.get(groupId);
+//
+//      GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToGroupSyncMap.get(groupId);
+//
+//      // these are not tracked... start tracking them
+//      if (gcGrouperSyncGroup == null) {
+//    
+//        // this is not provisionable or in target
+//        gcGrouperSyncGroup = new GcGrouperSyncGroup();
+//        gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
+//        gcGrouperSyncGroup.setGroupId(groupId);
+//        gcGrouperSyncGroup.setGroupIdIndex(group.getIdIndex());
+//        gcGrouperSyncGroup.setGroupName(group.getName());
+//        gcGrouperSyncGroup.setProvisionable(true);
+//        gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
+//        groupIdToGroupSyncMap.put(groupId, gcGrouperSyncGroup);
+//        gcGrouperSyncGroupsToInsert.add(gcGrouperSyncGroup);
+//        groupIdsToAddToTarget.add(groupId);
+//      }
+//      
+//    }
+//    
+//    return grouperProvisioningProcessingResult;
+//  }
   
   /**
    * find all groups provisionable in target
@@ -576,6 +576,17 @@ public class GrouperProvisioningService {
     }
     
     attributeAssign.saveOrUpdate();
+    
+    // tell the provisioner to full group sync this group
+    if (grouperObject instanceof Group) {
+
+      Group group =(Group)grouperObject;
+      ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+      provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
+      provisioningMessage.setBlocking(true);
+      provisioningMessage.send(grouperProvisioningAttributeValue.getTargetName());
+       
+    }
     
     if (grouperObject instanceof Stem && grouperProvisioningAttributeValue.isDirectAssignment()) {
       // delete all the existing attributes on children where the current stem is the owner stem

@@ -19,51 +19,25 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
-import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache.ExpirableCacheUnit;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -86,8 +60,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 //    RegistryReset._addSubjects(i, i+1);
 //    Subject subject = SubjectFinder.findById("test.subject." + i, true);
 //    group.addMember(subject);
-    
-    System.out.println(provisioningMessageQueueHasMessages("myPspngProvisioner"));
     
   }
   
@@ -219,65 +191,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
   }
 
   /**
-   * filter events that happened after the last full sync
-   * @param esbEventContainers
-   * @param gcGrouperSync
-   */
-  private void filterByProvisioningFullSync(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
-
-    if (esbEventContainers.size() == 0) {
-      return;
-    }
-    
-    long firstChangeLogMicrosSince1970 = esbEventContainers.get(0).getEsbEvent().getCreatedOnMicros();
-
-    // check for full sync
-    Timestamp lastFullSync = gcGrouperSync.getLastFullSyncRun();
-//    Timestamp lastFullMetadataSync = gcGrouperSync.getLastFullMetadataSyncRun();
-    
-    // last full sync happened before these records
-    long lastFullSyncMicros1970 = lastFullSync == null ? -1 : (1000*lastFullSync.getTime());
-//    long lastFullSyncMetadataMicros1970 = lastFullMetadataSync == null ? -1 : (1000*lastFullMetadataSync.getTime());
-
-    // see if any applicable
-    if (lastFullSyncMicros1970 < firstChangeLogMicrosSince1970) {
-      return;
-    }
-
-    Iterator<EsbEventContainer> iterator = esbEventContainers.iterator();
-    
-    Integer skippedEventsDueToFullSync = GrouperUtil.defaultIfNull((Integer)debugMapOverall.get("skippedEventsDueToFullSync"), 0);
-
-    while (iterator.hasNext()) {
-      EsbEventContainer esbEventContainer = iterator.next();
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-      EsbEvent event = esbEventContainer.getEsbEvent();
-
-//      boolean groupMetadataEvent = esbEventContainer.getEsbEventType() == EsbEventType.GROUP_ADD
-//          || esbEventContainer.getEsbEventType() == EsbEventType.GROUP_ADD
-//      
-      // we can skip anything that happened before the last full sync started
-      if (event.getCreatedOnMicros() < lastFullSyncMicros1970) {
-
-        Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
-
-        debugMapForEvent.put("skippingEventBeforeLastFullSync", lastFullSync);
-        skippedEventsDueToFullSync++;
-        iterator.remove();
-      }
-
-    }
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-
-    logIntegerIfNotZero(debugMapOverall, "skippedEventsDueToFullSync", skippedEventsDueToFullSync);
-    this.internal_esbConsumerTestingData.skippedEventsDueToFullSync = skippedEventsDueToFullSync;
-  }
-
-  /**
    * filter events that dont match a certain EL
    * @param esbEventContainers
    * @param gcGrouperSync
@@ -380,43 +293,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
   }
 
   /**
-   * cache of queues with messages, get with the method
-   */
-  private static ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessages = null;
-
-  /**
-   * get the cache of queues with messages
-   * @return the cache
-   */
-  private static ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessages() {
-    if (provisioningMessageQueuesWithMessages == null) {
-      int secondsToCache = GrouperLoaderConfig.retrieveConfig().propertyValueInt("provisioningMessagesCheckCacheSeconds", 15);
-      provisioningMessageQueuesWithMessages = new ExpirableCache<Boolean, Set<String>>(ExpirableCacheUnit.SECOND, secondsToCache);
-    }
-    return provisioningMessageQueuesWithMessages;
-  }
-
-  /**
-   * see if queue has messages
-   * @param provisionerName
-   * @return true if has messages
-   */
-  private static boolean provisioningMessageQueueHasMessages(String provisionerName) {
-    ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessagesCache = provisioningMessageQueuesWithMessages();
-    Set<String> provisioningQueuesWithMessages = provisioningMessageQueuesWithMessagesCache.get(Boolean.TRUE);
-    if (provisioningQueuesWithMessages == null) {
-      synchronized (provisioningMessageQueuesWithMessagesCache) {
-        provisioningQueuesWithMessages = provisioningMessageQueuesWithMessagesCache.get(Boolean.TRUE);
-        if (provisioningQueuesWithMessages == null) {
-          provisioningQueuesWithMessages = GrouperDAOFactory.getFactory().getMessage().queuesWithMessagesByPrefix("grouperProvisioningControl_");
-          provisioningMessageQueuesWithMessagesCache.put(Boolean.TRUE, provisioningQueuesWithMessages);
-        }
-      }
-    }
-    return provisioningQueuesWithMessages.contains("grouperProvisioningControl_" + provisionerName);
-  }
-  
-  /**
    * 
    * @param changeLogEntryList
    * @return
@@ -449,44 +325,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     return result;
   }
 
-  /**
-   * 
-   * @param esbEventContainersToProcess
-   * @param gcGrouperSync
-   */
-  private GrouperProvisioningProcessingResult processProvisioningMetadata(List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, GcGrouperSyncJob gcGrouperSyncJob) {
-    
-    // get group ids which need to be analyzed
-    Set<String> groupIds = groupIdsToQueryProvisioningAttributes(esbEventContainersToProcess);
-    
-    this.grouperProvisioningProcessingResult =
-        GrouperProvisioningService.processProvisioningMetadataForGroupIds(gcGrouperSync, groupIds);
-    
-    grouperProvisioningProcessingResult.setGcGrouperSyncJob(gcGrouperSyncJob);
-    
-    grouperProvisioningProcessingResult.setGcGrouperSyncLog(gcGrouperSync.getGcGrouperSyncJobDao().jobCreateLog(gcGrouperSyncJob));
-
-    grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(null);
-    
-    logIntegerIfNotZero(debugMapOverall, "groupIdCountToAddToTarget", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget()));
-    this.internal_esbConsumerTestingData.groupIdCountToAddToTarget = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget());
-    logIntegerIfNotZero(debugMapOverall, "groupIdCountToRemoveFromTarget", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget()));
-    this.internal_esbConsumerTestingData.groupIdCountToRemoveFromTarget = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget());
-    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncGroupsCountInitial", GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap()));
-    this.internal_esbConsumerTestingData.gcGrouperSyncGroupsCountInitial = GrouperUtil.length(grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap());
-    
-    // setup heartbeat thread
-    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
-    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
-    gcGrouperSyncHeartbeat.addHeartbeatLogic(provisioningHeartbeatLogic());
-    this.grouperProvisioningProcessingResult.setGcGrouperSyncHeartbeat(gcGrouperSyncHeartbeat);
-    if (!gcGrouperSyncHeartbeat.isStarted()) {
-      gcGrouperSyncHeartbeat.runHeartbeatThread();
-    }
-    
-    return grouperProvisioningProcessingResult;
-  }
-
   public Runnable provisioningHeartbeatLogic() {
     return new Runnable() {
 
@@ -502,66 +340,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       }
       
     };
-  }
-
-  /**
-   * take out events that will be handled by provisioning metadata changes (i.e. group full sync)
-   * @param esbEventContainersToProcess
-   * @param grouperProvisioningProcessingResult
-   */
-  private void filterEventsCapturedByProvisioningMetadata(
-      List<EsbEventContainer> esbEventContainersToProcess, GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
-    if (grouperProvisioningProcessingResult == null || GrouperUtil.length(esbEventContainersToProcess) == 0) {
-      return;
-    }
-    Set<String> groupIdsToIgnore = new HashSet<String>();
-    
-    groupIdsToIgnore.addAll(GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToAddToTarget()));
-    groupIdsToIgnore.addAll(GrouperUtil.nonNull(grouperProvisioningProcessingResult.getGroupIdsToRemoveFromTarget()));
-    
-    if (GrouperUtil.length(groupIdsToIgnore) > 0) {
-      
-      int eventsFilteredByGroupEvents = 0;
-      
-      Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
-      while (iterator.hasNext()) {
-        
-        EsbEventContainer esbEventContainer = iterator.next();
-
-        // for logging
-        debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-        String groupId = esbEventContainer.getEsbEvent().getGroupId();
-
-        if (!StringUtils.isBlank(groupId)  && groupIdsToIgnore.contains(groupId)) {
-          esbEventContainer.getDebugMapForEvent().put("removeEventSinceProvisioningChangeOnGroup", groupId);
-          iterator.remove();
-          eventsFilteredByGroupEvents++;
-        }
-        
-      }
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", null);
-
-      logIntegerIfNotZero(debugMapOverall, "eventsFilteredByGroupEvents", eventsFilteredByGroupEvents);
-      this.internal_esbConsumerTestingData.eventsFilteredByGroupEvents = eventsFilteredByGroupEvents;
-
-    }
-    
-  }
-  
-  /**
-   * 
-   */
-  private GrouperProvisioningProcessingResult grouperProvisioningProcessingResult = null;
-  
-  /**
-   * 
-   * @return
-   */
-  public GrouperProvisioningProcessingResult getGrouperProvisioningProcessingResult() {
-    return grouperProvisioningProcessingResult;
   }
 
   /**
@@ -618,27 +396,10 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     public int changeLogEntryListSize;
     public int convertAllChangeLogEventsToEsbEventsSize;
     public int filterInvalidEventTypesSize;
-    public String provisionerTarget;
-    public String provisionerJobSyncType;
-    public int skippedEventsDueToFullSync;
-    public int groupIdCountToAddToTarget;
-    public int groupIdCountToRemoveFromTarget;
-    public int gcGrouperSyncGroupsCountInitial;
-    public int eventsFilteredByGroupEvents;
-    public int eventsWithAddedSubjectAttributes;
     public int skippedEventsDueToExpressionLanguageCount;
     public List<EsbEventContainer> skippedEventsDueToExpressionLanguage;
-    public int gcGrouperSyncGroupGroupIdsToRetrieveCount;
-    public int eventsFilteredByNotProvisionable;
-    public int eventsFilteredNotTrackedAtAll;
-    public int filterByNotProvisionablePreSize;
-    public int filterByNotProvisionablePostSize;
-    public int eventsFilteredNotTrackedOrProvisionable;
-    public int gcGrouperSyncGroupsRetrievedByEventsSize;
-    public int messageCountForProvisioner;
-    public int messageProcessedCountForProvisioner;
-    public int messageNotProcessedCountForProvisioner;
-      
+    public int eventsWithAddedSubjectAttributes;
+
 
   }
 
@@ -677,8 +438,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     this.debugConsumer = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
         + ".publisher.debug", false);
 
-    this.grouperProvisioningProcessingResult = null;
-    
     // all containers for logging or whatever
     List<EsbEventContainer> allEsbEventContainers = new ArrayList<EsbEventContainer>();
 
@@ -701,61 +460,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       this.debugMapOverall.put("state", "filterInvalidEventTypes");
       this.filterInvalidEventTypes(esbEventContainersToProcess);
 
-      // lets see if we want to filter by provisioner target
-      String filterByProvisionerTarget = GrouperLoaderConfig.retrieveConfig()
-          .propertyValueString("changeLog.consumer." + consumerName + ".provisionerTarget");
-      String filterByProvisionerJobSyncType = GrouperLoaderConfig.retrieveConfig()
-          .propertyValueString("changeLog.consumer." + consumerName + ".provisionerJobSyncType");
-
-      GcGrouperSync gcGrouperSync = null;
-      GcGrouperSyncJob gcGrouperSyncJob = null;
-      
-      if (!StringUtils.isBlank(filterByProvisionerTarget)) {
-
-        this.internal_esbConsumerTestingData.provisionerTarget = filterByProvisionerTarget;
-        this.internal_esbConsumerTestingData.provisionerJobSyncType = filterByProvisionerJobSyncType;
         
-        logObjectIfNotNull(debugMapOverall, "filterByProvisionerTarget", filterByProvisionerTarget);
-
-        if (StringUtils.isBlank(filterByProvisionerJobSyncType)) {
-          throw new RuntimeException("Cant have a provisioner target and not: changeLog.consumer." + consumerName + ".provisionerJobSyncType");
-        }
-        
-        if (!sendCreatedOnMicros) {
-          throw new RuntimeException("Must send createdOnMicros for provisioning target!");
-        }
-
-        {
-          long startNanoTime = System.nanoTime();
-          // ######### STEP 3: wait for other jobs, and start thread
-          this.debugMapOverall.put("state", "waitForRelatedJobsToFinishThenRun");
-          gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, filterByProvisionerTarget);
-          gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType(filterByProvisionerJobSyncType);
-          gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(false);
-          int tookMillis = (int)((System.nanoTime()-startNanoTime) / 1000000);
-          if (tookMillis > 10) {
-            debugMapOverall.put("waitingForRelatedJobsMillis", tookMillis);
-          }
-        }
-        
-        // ######### STEP 4: check messages and create events
-        this.debugMapOverall.put("state", "checkMessagesAndCreateEvents");
-        this.checkMessagesAndCreateEvents(esbEventContainersToProcess, gcGrouperSync, sendCreatedOnMicros);
-        
-        // ######### STEP 5: see if we can skip some based on full sync, group sync
-        this.debugMapOverall.put("state", "filterByProvisioningFullSync");
-        this.filterByProvisioningFullSync(esbEventContainersToProcess, gcGrouperSync);
-
-        // ######### STEP 6: update provisioning metadata based on attribute changes TODO consider messages
-        this.debugMapOverall.put("state", "processProvisioningMetadata");
-        this.grouperProvisioningProcessingResult = this.processProvisioningMetadata(esbEventContainersToProcess, gcGrouperSync, gcGrouperSyncJob);
-        
-        // ######### STEP 7: filter out events that are captured in provisioning metadata changes
-        this.debugMapOverall.put("state", "filterEventsCapturedByProvisioningMetadata");
-        this.filterEventsCapturedByProvisioningMetadata(esbEventContainersToProcess, this.grouperProvisioningProcessingResult);
-        
-      }
-
       // ######### STEP 8: add in subject attributes
       this.debugMapOverall.put("state", "addSubjectAttributes");
       this.addSubjectAttributes(esbEventContainersToProcess);
@@ -764,43 +469,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       this.debugMapOverall.put("state", "filterByExpressionLanguage");
       this.filterByExpressionLanguage(esbEventContainersToProcess);
 
-      if (!StringUtils.isBlank(filterByProvisionerTarget)) {
-        
-        // ######### STEP 10: retrieve and create group sync objects
-        this.debugMapOverall.put("state", "retrieveProvisioningGroupSyncObjects");
-        this.retrieveAndCreateProvisioningGroupSyncObjects(esbEventContainersToProcess, gcGrouperSync);
-        
-        // ######### STEP 11: filter if not provisionable
-        this.debugMapOverall.put("state", "filterByNotProvisionable");
-        this.filterByNotProvisionable(esbEventContainersToProcess);
-        
-        // ######### STEP 12: convert events to full or group sync and filter TODO do this
-
-
-        // ######### STEP 11: filter by group sync
-        this.debugMapOverall.put("state", "filterByProvisioningGroupSync");
-        this.filterByProvisioningGroupSync(esbEventContainersToProcess, gcGrouperSync);
-
-        // ######### STEP 12: retrieve member sync objects
-        this.debugMapOverall.put("state", "setupProvisioningMemberSyncObjects");
-        this.retrieveProvisioningMemberSyncObjects(esbEventContainersToProcess, gcGrouperSync);
-
-//        // ######### STEP 13: retrieve membership sync objects
-//        this.debugMapOverall.put("state", "retrieveProvisioningMembershipSyncObjects");
-//        this.retrieveProvisioningMembershipSyncObjects(esbEventContainersToProcess, gcGrouperSync);
-
-//        // ######### STEP 14: filter by membership sync objects
-//        this.debugMapOverall.put("state", "filterByProvisioningMembershipSyncObjects");
-//        this.filterByProvisioningMembershipSyncObjects(esbEventContainersToProcess, gcGrouperSync);
-
-      }
-
       // ######### STEP 15: setup routing key
       this.debugMapOverall.put("state", "setupRoutingKeys");
       this.setupRoutingKeys(esbEventContainersToProcess);
-      
-      // ######### STEP 16: fill in more data, e.g. membership update
-      this.fillInMoreData(esbEventContainersToProcess);
       
       // ######### STEP 17: send to the publisher
       this.debugMapOverall.put("state", "sendToPublisher");
@@ -816,16 +487,13 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
       if (GrouperUtil.length(esbEventContainersToProcess) > 0) {
         long lastEventSequenceToProcess = esbEventContainersToProcess.get(esbEventContainersToProcess.size()-1).getSequenceNumber();
-        ProvisioningSyncConsumerResult provisioningSyncConsumerResult = this.esbPublisherBase.dispatchEventList(esbEventContainersToProcess, this.grouperProvisioningProcessingResult);
+        ProvisioningSyncConsumerResult provisioningSyncConsumerResult = this.esbPublisherBase.dispatchEventList(esbEventContainersToProcess);
         currentId = GrouperUtil.defaultIfNull(provisioningSyncConsumerResult.getLastProcessedSequenceNumber(), -1L);
 
         // if we processed all the records available, then we processed them all
         if (currentId == lastEventSequenceToProcess) {
           currentId = lastEventSequenceOverall;
         }
-        
-        // ######### STEP 17: acknowledge messages
-        this.acknowledgeMessagesProcessed(esbEventContainersToProcess, gcGrouperSync, currentId);
         
       } else {
         
@@ -836,18 +504,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       
       this.debugMapOverall.put("state", "done");
       
-      if (grouperProvisioningProcessingResult != null && grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null){
-        if (currentId == lastEventSequenceOverall) {
-          grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.SUCCESS);        
-        } else {
-          grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);        
-        }
-      }
 
     } catch (RuntimeException re) {
-      if (grouperProvisioningProcessingResult != null && grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
-        grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);        
-      }
       hasError = true;
       debugMapOverall.put("exception", GrouperUtil.getFullStackTrace(re));
       
@@ -859,23 +517,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       
     } finally {
 
-      if (this.grouperProvisioningProcessingResult != null) {
-        GcGrouperSyncHeartbeat.endAndWaitForThread(this.grouperProvisioningProcessingResult.getGcGrouperSyncHeartbeat());
-
-        synchronized (this) {
-          try {
-            if (this.grouperProvisioningProcessingResult.getGcGrouperSyncJob() != null) {
-              this.grouperProvisioningProcessingResult.getGcGrouperSyncJob().assignHeartbeatAndEndJob();
-            }
-          } catch (RuntimeException re2) {
-            if (this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
-              this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);
-            }
-            this.debugMapOverall.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
-          }
-        }
-      }
-
       long tookMillis = (System.nanoTime() - startNanos) / 1000000;
       debugMapOverall.put("tookMillis", tookMillis);
       String debugMapToString = GrouperUtil.mapToString(debugMapOverall);
@@ -884,19 +525,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage(debugMapToString);
       }
       
-      try {
-        if (this.grouperProvisioningProcessingResult != null && this.grouperProvisioningProcessingResult.getGcGrouperSyncLog() != null) {
-          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setDescriptionToSave(debugMapToString);
-          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setJobTookMillis((int)tookMillis);
-          this.grouperProvisioningProcessingResult.getGcGrouperSyncLog().setRecordsProcessed(GrouperUtil.length(allEsbEventContainers));
-          this.grouperProvisioningProcessingResult.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(
-              this.grouperProvisioningProcessingResult.getGcGrouperSyncLog());
-        }
-      } catch (RuntimeException re3) {
-        debugMapOverall.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
-        debugMapToString = GrouperUtil.mapToString(debugMapOverall);
-      }
-
       this.debugMapOverall.put("finalLog", true);
 
       if (LOG.isDebugEnabled() || hasError) {
@@ -951,340 +579,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     return currentId;
   }
 
-  /**
-   * acknowledgeMessages processed
-   * @param esbEventContainersToProcess
-   * @param gcGrouperSync
-   * @param lastProcessedSequenceNumber
-   */
-  private void acknowledgeMessagesProcessed(
-      List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, long lastProcessedSequenceNumber) {
-    int messageProcessedCountForProvisioner = 0;
-    int messageNotProcessedCountForProvisioner = 0;
-    
-    Set<GrouperMessage> messagesNotProcessed = new HashSet<GrouperMessage>();
-    Set<GrouperMessage> messagesProcessed = new HashSet<GrouperMessage>();
-    
-    OUTER: for (GrouperMessage grouperMessage : this.grouperMessageToSequenceNumbers.keySet()) {
-      
-      Set<Long> messageSequenceNumbers = this.grouperMessageToSequenceNumbers.get(grouperMessage);
-      for (Long messageSequenceNumber : messageSequenceNumbers) {
-        
-        // hmmm, didnt get done
-        if (messageSequenceNumber > lastProcessedSequenceNumber) {
-          messagesNotProcessed.add(grouperMessage);
-          continue OUTER;
-        }
-      }
-      messagesNotProcessed.add(grouperMessage);
-    }
-
-    if (messagesNotProcessed.size() > 0) {
-    
-      GrouperMessagingEngine.acknowledge(
-          new GrouperMessageAcknowledgeParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-            .assignAcknowledgeType(GrouperMessageAcknowledgeType.return_to_queue)
-            .assignGrouperMessages(messagesNotProcessed)
-            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
-    }
-    if (messagesProcessed.size() > 0) {
-      GrouperMessagingEngine.acknowledge(
-          new GrouperMessageAcknowledgeParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-            .assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed)
-            .assignGrouperMessages(messagesNotProcessed)
-            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
-      
-    }
-    
-    logIntegerIfNotZero(debugMapOverall, "messageProcessedCountForProvisioner", messageProcessedCountForProvisioner);
-    this.internal_esbConsumerTestingData.messageProcessedCountForProvisioner = messageProcessedCountForProvisioner;
-    logIntegerIfNotZero(debugMapOverall, "messageNotProcessedCountForProvisioner", messageNotProcessedCountForProvisioner);
-    this.internal_esbConsumerTestingData.messageNotProcessedCountForProvisioner = messageNotProcessedCountForProvisioner;
-
-  }
-
-  /**
-   * if we need to add events we can add some negative sequence numbers
-   */
-  private int negativeSequenceNumber = -1;
-
-  /**
-   * keep messages that were sent and link to which esb event sequence numbers
-   */
-  private Map<GrouperMessage, Set<Long>> grouperMessageToSequenceNumbers = new HashMap<GrouperMessage, Set<Long>>();
-  
-  /**
-   * keep messages that were sent and link to which esb event sequence numbers
-   * @return the map
-   */
-  public Map<GrouperMessage, Set<Long>> getGrouperMessageToSequenceNumbers() {
-    return this.grouperMessageToSequenceNumbers;
-  }
-
-  /**
-   * check messages to see if we are affecting the real time provisioners
-   * @param esbEventContainersToProcess
-   * @param gcGrouperSync
-   * @param sendCreatedOnMicros
-   */
-  private void checkMessagesAndCreateEvents(
-      List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync, boolean sendCreatedOnMicros) {
-    
-    int messageCountForProvisioner = 0;
-    
-    if (provisioningMessageQueueHasMessages(gcGrouperSync.getProvisionerName())) {
-      
-      GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
-          new GrouperMessageReceiveParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-            .assignQueueType(GrouperMessageQueueType.queue)
-            .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
-
-      for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageReceiveResult.getGrouperMessages())) {
-        String messageBody = grouperMessage.getMessageBody();
-        String messageId = grouperMessage.getId();
-
-        ProvisioningMessage provisioningMessage = ProvisioningMessage.fromJson(messageBody);
-
-        if (provisioningMessage.getFullSync() != null && provisioningMessage.getFullSync()) {
-          
-          EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage, 
-              sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
-              provisioningMessage.getBlocking(), true, provisioningMessage.getFullSyncType(), null, null, null);
-          esbEventContainersToProcess.add(0, esbEventContainer);
-          messageCountForProvisioner++;
-        } else {
-          
-          if (GrouperUtil.length(provisioningMessage.getGroupIdsForSync()) > 0) {
-            for (String groupId : provisioningMessage.getGroupIdsForSync()) {
-              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
-                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
-                  provisioningMessage.getBlocking(), false, "groupSync", groupId, null, null);
-              esbEventContainersToProcess.add(0, esbEventContainer);
-              messageCountForProvisioner++;
-            }
-            
-          }
-          
-          if (GrouperUtil.length(provisioningMessage.getMemberIdsForSync()) > 0) {
-            for (String memberId : provisioningMessage.getMemberIdsForSync()) {
-              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
-                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
-                  provisioningMessage.getBlocking(), false, "memberSync", null, memberId, null);
-              esbEventContainersToProcess.add(0, esbEventContainer);
-              messageCountForProvisioner++;
-            }
-            
-          }
-          
-          if (GrouperUtil.length(provisioningMessage.getMembershipsForSync()) > 0) {
-            // TODO if user sync then see if supports user sync and if not convert to membership syncs (current and recent)
-            for (ProvisioningMembershipMessage provisioningMembershipMessage : provisioningMessage.getMembershipsForSync()) {
-              EsbEventContainer esbEventContainer = createEsbEventContainerForProvisioningMessage(grouperMessage,
-                  sendCreatedOnMicros, messageId, gcGrouperSync.getProvisionerName(),
-                  provisioningMessage.getBlocking(), false, "membershipSync", 
-                  provisioningMembershipMessage.getGroupId(), provisioningMembershipMessage.getMemberId(), 
-                  provisioningMembershipMessage.getFieldId());
-              esbEventContainersToProcess.add(0, esbEventContainer);
-              messageCountForProvisioner++;
-            }
-            
-          }
-          
-        }
-        
-      }
-    }
-    
-    debugMapOverall.put("currentSequenceNumber", null);
-    
-    logIntegerIfNotZero(debugMapOverall, "messageCountForProvisioner", messageCountForProvisioner);
-    this.internal_esbConsumerTestingData.messageCountForProvisioner = messageCountForProvisioner;
-
-  }
-
-  /**
-   * make an esb event container from provisioning message
-   * @param grouperMessage
-   * @param sendCreatedOnMicros
-   * @param messageId
-   * @param provisionerName
-   * @param blocking
-   * @param fullSync
-   * @param syncType
-   * @param groupId
-   * @param memberId
-   * @param fieldId
-   * @return the esb event container
-   */
-  private EsbEventContainer createEsbEventContainerForProvisioningMessage(GrouperMessage grouperMessage, 
-      boolean sendCreatedOnMicros, String messageId, String provisionerName,
-      Boolean blocking, boolean fullSync, String syncType, String groupId, String memberId, String fieldId) {
-
-    EsbEvent esbEvent = new EsbEvent();
-    EsbEventContainer esbEventContainer = new EsbEventContainer();
-    esbEventContainer.setSequenceNumber(GrouperUtil.longValue(this.negativeSequenceNumber--));
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-    Set<Long> sequenceNumbersForMessage = this.grouperMessageToSequenceNumbers.get(grouperMessage);
-    if (sequenceNumbersForMessage == null) {
-      sequenceNumbersForMessage = new HashSet<Long>();
-      this.grouperMessageToSequenceNumbers.put(grouperMessage, sequenceNumbersForMessage);
-    }
-    sequenceNumbersForMessage.add(esbEventContainer.getSequenceNumber());
-
-    EsbEvent event = new EsbEvent();
-    esbEventContainer.setEsbEvent(event);
-    esbEventContainer.setDebugMapForEvent(new LinkedHashMap<String, Object>());
-
-    event.setSequenceNumber(Long.toString(esbEventContainer.getSequenceNumber()));
-
-    if (sendCreatedOnMicros) {
-      event.setCreatedOnMicros(System.currentTimeMillis()*1000);
-    }
-    // TOOO set event type
-    esbEvent.setMessageId(messageId);
-    esbEvent.setProvisionerName(provisionerName);
-
-    esbEvent.setProvisionerBlocking(blocking);
-
-    esbEvent.setProvisionerSyncType(syncType);
-
-    esbEvent.setGroupId(groupId);
-    esbEvent.setMemberId(memberId);
-    esbEvent.setFieldId(fieldId);
-
-    return esbEventContainer;
-  }
-    
-  /**
-   * might need this method later
-   * @param esbEventContainersToProcess
-   */
-  private void fillInMoreData(List<EsbEventContainer> esbEventContainersToProcess) {
-    
-    if (esbEventContainersToProcess.size() == 0) {
-      return;
-    }
-
-//    MemberFind
-    
-    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainersToProcess)) {
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-      
-      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
-      
-      if (EsbEventType.MEMBERSHIP_UPDATE == esbEventContainer.getEsbEventType()) {
-        
-        
-//        event.setMemberId(retrieveLabelValue(changeLogEntry,
-//            ChangeLogLabels.MEMBERSHIP_UPDATE.memberId));
-//        event.setFieldId(retrieveLabelValue(changeLogEntry,
-//            ChangeLogLabels.MEMBERSHIP_UPDATE.fieldId));
-//
-        
-        
-      }
-      
-    }
-    debugMapOverall.put("currentSequenceNumber", null);
-
-    
-  }
-
-  /**
-   * go through esb event containers and 
-   * @param esbEventContainers
-   * @return groupIds to investigate
-   */
-  private Set<String> groupIdsToQueryProvisioningAttributes(List<EsbEventContainer> esbEventContainers) {
-    
-    Set<String> groupIdsToInvestigate = new HashSet<String>();
-    
-    Set<String> attributeAssignIdsToInvestigate = new HashSet<String>();
-    
-    // target name
-    String provisioningTargetAttributeDefNameId = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId();
-
-    // do provision
-    String provisioningDoProvisionAttributeDefNameId = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getId();
-
-    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-      
-      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
-
-      Map<String, Object> debugMapForEvent = esbEventContainer.getDebugMapForEvent();
-      
-      switch (esbEventType) {
-        
-        
-        case ATTRIBUTE_ASSIGN_ADD:
-        case ATTRIBUTE_ASSIGN_DELETE:
-          
-          String attributeAssignType = esbEvent.getAttributeAssignType();
-          if (!AttributeAssignType.group_asgn.name().equals(attributeAssignType)) {
-            
-            debugMapForEvent.put("ignoreProvisioningUpdatesDueToAssignType", attributeAssignType);
-            
-            continue;
-          }
-
-          // fall through
-          
-        case ATTRIBUTE_ASSIGN_VALUE_ADD:
-        case ATTRIBUTE_ASSIGN_VALUE_DELETE:
-          
-          String esbEventAttributeDefNameId = esbEvent.getAttributeDefNameId();
-          
-          if (!StringUtils.equals(provisioningTargetAttributeDefNameId, esbEventAttributeDefNameId)
-              && !StringUtils.equals(provisioningDoProvisionAttributeDefNameId, esbEventAttributeDefNameId)) {
-            
-            debugMapForEvent.put("ignoreProvisioningUpdatesDueToAttributeDefName", esbEvent.getAttributeDefNameName());
-            
-            continue;
-            
-          }
-
-          debugMapForEvent.put("processProvisioningUpdatesForAssignId", esbEvent.getAttributeAssignId());
-
-          //lets look at attributeAssignOnAssignIds
-          attributeAssignIdsToInvestigate.add(esbEvent.getAttributeAssignId());
-          
-          break;
-          
-        case GROUP_DELETE:
-        case GROUP_ADD:
-          
-          debugMapForEvent.put("processProvisioningUpdatesForGroupId", esbEvent.getGroupId());
-          groupIdsToInvestigate.add(esbEvent.getGroupId());
-          
-          break;
-          
-      }
-      
-    }
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-    logIntegerIfNotZero(debugMapOverall, "groupIdCountAddOrDelete", GrouperUtil.length(groupIdsToInvestigate));
-
-    
-    if (GrouperUtil.length(attributeAssignIdsToInvestigate) > 0) {
-      logIntegerIfNotZero(debugMapOverall, "attributeAssignIdsToInvestigate", GrouperUtil.length(attributeAssignIdsToInvestigate));
-      Set<String> groupIds = GrouperProvisioningService.findAllGroupIdsFromAttributeAssignIdsOnIds(attributeAssignIdsToInvestigate);
-      logIntegerIfNotZero(debugMapOverall, "groupIdCountFromAttributeAssignIds", GrouperUtil.length(groupIds));
-      groupIdsToInvestigate.addAll(GrouperUtil.nonNull(groupIds));
-    }
-    
-    return groupIdsToInvestigate;
-  }
-  
   /**
    * add subject attributes to all events
    * @param esbEventContainersToProcess
@@ -1352,275 +646,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     return addedAttributes;
   }
   
-  /**
-   * filter events that happened after the last group sync
-   * @param esbEventContainers
-   * @param gcGrouperSync
-   */
-  private void filterByProvisioningGroupSync(List<EsbEventContainer> esbEventContainersToProcess, GcGrouperSync gcGrouperSync) {
-
-    if (GrouperUtil.length(esbEventContainersToProcess) == 0) {
-      return;
-    }
-    int eventsFilteredBeforeGroupSync = 0;
-    
-    Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
-    while (iterator.hasNext()) {
-      
-      EsbEventContainer esbEventContainer = iterator.next();
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-      GcGrouperSyncGroup gcGrouperSyncGroup = esbEventContainer.getGcGrouperSyncGroup();
-      
-      String groupId = esbEventContainer.getEsbEvent().getGroupId();
-
-      // if this is a group based event
-      if (!StringUtils.isBlank(groupId)) {
-        
-        // we can ignore these...
-        Timestamp lastGroupSync = gcGrouperSyncGroup.getLastGroupSync();
-        if (lastGroupSync == null) {
-          continue;
-        }
-        
-        if (lastGroupSync.getTime() * 1000 > esbEventContainer.getEsbEvent().getCreatedOnMicros()) {
-          
-          iterator.remove();
-          eventsFilteredBeforeGroupSync++;
-          esbEventContainer.getDebugMapForEvent().put("eventFilteredBeforeGroupSync", true);
-          continue;
-        }
-      }
-      
-    }
-
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-
-    logIntegerIfNotZero(debugMapOverall, "eventsFilteredBeforeGroupSync", eventsFilteredBeforeGroupSync);
-
-  }
-
-  /**
-   * retrieve events that happened after the last group sync
-   * @param esbEventContainers
-   * @param gcGrouperSync
-   */
-  private void retrieveAndCreateProvisioningGroupSyncObjects(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
-
-    // we need all the groupIds
-    Set<String> groupIdsToRetrieve = new HashSet<String>();
-
-    if (this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap() == null) {
-      this.grouperProvisioningProcessingResult.setGroupIdToGcGrouperSyncGroupMap(new HashMap<String, GcGrouperSyncGroup>());
-    }
-    
-    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
-      
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-      String groupId = esbEventContainer.getEsbEvent().getGroupId();
-      
-      // dont worry if there is no group id
-      if (StringUtils.isBlank(groupId)) {
-        continue;
-      }
-      
-      GcGrouperSyncGroup gcGrouperSyncGroup = this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().get(groupId);
-      
-      // if this is there, when we done
-      if (gcGrouperSyncGroup != null) {
-        esbEventContainer.setGcGrouperSyncGroup(gcGrouperSyncGroup);
-      } else {
-        groupIdsToRetrieve.add(groupId);
-      }
-      
-    }
-    this.internal_esbConsumerTestingData.gcGrouperSyncGroupGroupIdsToRetrieveCount = GrouperUtil.length(groupIdsToRetrieve);
-    
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-
-    // lets retrieve all those
-    Map<String, GcGrouperSyncGroup> groupIdToSyncGroupMap = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieve);
-    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncGroupsRetrievedByEvents", GrouperUtil.length(groupIdToSyncGroupMap));
-
-    this.internal_esbConsumerTestingData.gcGrouperSyncGroupsRetrievedByEventsSize = GrouperUtil.length(GrouperUtil.length(groupIdToSyncGroupMap));
-        
-    this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().putAll(groupIdToSyncGroupMap);
-
-    //setup in the event objects
-    for (EsbEventContainer esbEventContainer : esbEventContainers) {
-      
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-      
-      String groupId = esbEventContainer.getEsbEvent().getGroupId();
-      
-      // dont worry if there is no group id or if we already have it
-      if (esbEventContainer.getGcGrouperSyncGroup() != null || StringUtils.isBlank(groupId)) {
-        continue;
-      }
-      
-      GcGrouperSyncGroup gcGrouperSyncGroup = this.grouperProvisioningProcessingResult.getGroupIdToGcGrouperSyncGroupMap().get(groupId);
-      
-      // if this is there, when we done
-      if (gcGrouperSyncGroup != null) {
-        esbEventContainer.setGcGrouperSyncGroup(gcGrouperSyncGroup);
-      }
-      
-    }
-    
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-    
-    
-  }
-
-  /**
-   * take out events that are not provisionable to this target
-   * @param esbEventContainersToProcess
-   * @param grouperProvisioningProcessingResult
-   */
-  private void filterByNotProvisionable(List<EsbEventContainer> esbEventContainersToProcess) {
-    if (GrouperUtil.length(esbEventContainersToProcess) == 0) {
-      return;
-      
-    }
-
-    this.internal_esbConsumerTestingData.filterByNotProvisionablePreSize = GrouperUtil.length(esbEventContainersToProcess);
-
-    int eventsFilteredNotTrackedAtAll = 0;
-    int eventsFilteredByNotProvisionable = 0;
-    
-    Iterator<EsbEventContainer> iterator = esbEventContainersToProcess.iterator();
-    while (iterator.hasNext()) {
-      
-      EsbEventContainer esbEventContainer = iterator.next();
-
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-
-      GcGrouperSyncGroup gcGrouperSyncGroup = esbEventContainer.getGcGrouperSyncGroup();
-      
-      String groupId = esbEventContainer.getEsbEvent().getGroupId();
-
-      // if this is a group based event
-      if (!StringUtils.isBlank(groupId)) {
-        
-        // this is not even on our radar
-        if (gcGrouperSyncGroup == null) {
-          iterator.remove();
-          eventsFilteredNotTrackedAtAll++;
-          esbEventContainer.getDebugMapForEvent().put("eventFilteredNotTrackedAtAll", true);
-          continue;
-        }
-        
-        // we can ignore these...
-        if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable()) {
-          iterator.remove();
-          eventsFilteredByNotProvisionable++;
-          esbEventContainer.getDebugMapForEvent().put("eventFilteredByNotProvisionable", true);
-          continue;
-        }
-      }
-      
-    }
-
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-
-    logIntegerIfNotZero(debugMapOverall, "eventsFilteredByNotProvisionable", eventsFilteredByNotProvisionable);
-    logIntegerIfNotZero(debugMapOverall, "eventsFilteredNotTrackedAtAll", eventsFilteredNotTrackedAtAll);
-
-    this.internal_esbConsumerTestingData.eventsFilteredByNotProvisionable = eventsFilteredByNotProvisionable;
-    this.internal_esbConsumerTestingData.eventsFilteredNotTrackedAtAll = eventsFilteredNotTrackedAtAll;
-    this.internal_esbConsumerTestingData.eventsFilteredNotTrackedOrProvisionable = eventsFilteredNotTrackedAtAll + eventsFilteredByNotProvisionable;
-    this.internal_esbConsumerTestingData.filterByNotProvisionablePostSize = GrouperUtil.length(esbEventContainersToProcess);
-  }
-
-  /**
-   * get the member objects currently in the db
-   * @param esbEventContainers
-   * @param gcGrouperSync
-   */
-  private void retrieveProvisioningMemberSyncObjects(List<EsbEventContainer> esbEventContainers, GcGrouperSync gcGrouperSync) {
-  
-    // we need all the memberIds
-    Set<String> memberIdsToRetrieve = new HashSet<String>();
-
-    if (this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap() == null) {
-      this.grouperProvisioningProcessingResult.setMemberIdToGcGrouperSyncMemberMap(new HashMap<String, GcGrouperSyncMember>());
-    }
-
-    for (EsbEventContainer esbEventContainer : esbEventContainers) {
-      
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-  
-      String memberId = esbEventContainer.getEsbEvent().getMemberId();
-      
-      // dont worry if there is no group id
-      if (StringUtils.isBlank(memberId)) {
-        continue;
-      }
-      
-      GcGrouperSyncMember gcGrouperSyncMember = this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().get(memberId);
-      
-      // if this is there, when we done
-      if (gcGrouperSyncMember != null) {
-        esbEventContainer.setGcGrouperSyncMember(gcGrouperSyncMember);
-      } else {
-        memberIdsToRetrieve.add(memberId);
-      }
-      
-    }
-    
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-  
-    // lets retrieve all those
-    Map<String, GcGrouperSyncMember> memberIdToSyncMemberMap = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieve);
-
-    logIntegerIfNotZero(debugMapOverall, "gcGrouperSyncMembersRetrievedByEvents", GrouperUtil.length(memberIdToSyncMemberMap));
-
-    if (this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap() == null) {
-      this.grouperProvisioningProcessingResult.setMemberIdToGcGrouperSyncMemberMap(new HashMap<String, GcGrouperSyncMember>());
-    }
-
-    this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().putAll(memberIdToSyncMemberMap);
-  
-    //setup in the event objects
-    for (EsbEventContainer esbEventContainer : esbEventContainers) {
-      
-      // for logging
-      debugMapOverall.put("currentSequenceNumber", esbEventContainer.getSequenceNumber());
-      
-      String memberId = esbEventContainer.getEsbEvent().getMemberId();
-      
-      // dont worry if there is no group id or if we already have it
-      if (esbEventContainer.getGcGrouperSyncMember() != null || StringUtils.isBlank(memberId)) {
-        continue;
-      }
-      
-      GcGrouperSyncMember gcGrouperSyncMember = this.grouperProvisioningProcessingResult.getMemberIdToGcGrouperSyncMemberMap().get(memberId);
-      
-      // if this is there, when we done
-      if (gcGrouperSyncMember != null) {
-        esbEventContainer.setGcGrouperSyncMember(gcGrouperSyncMember);
-      }
-      
-    }
-    
-    // for logging
-    debugMapOverall.put("currentSequenceNumber", null);
-    
-    
-  }
-
   /**
    * see if the esb event matches an EL filter.  Note the available objects are
    * event for the EsbEvent, and grouperUtil for the GrouperUtil class which has

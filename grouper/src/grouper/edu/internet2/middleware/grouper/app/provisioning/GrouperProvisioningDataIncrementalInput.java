@@ -1,6 +1,10 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 
 /**
@@ -9,6 +13,49 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
  *
  */
 public class GrouperProvisioningDataIncrementalInput {
+
+  /**
+   * if we should do a full sync
+   */
+  private Timestamp fullSyncMessageTimestamp;
+  
+
+  /**
+   * if we should do a full sync
+   * @return
+   */
+  public Timestamp getFullSyncMessageTimestamp() {
+    return fullSyncMessageTimestamp;
+  }
+
+  /**
+   * if we should do a full sync
+   * @param fullSyncMessageTimestamp
+   */
+  public void setFullSyncMessageTimestamp(Timestamp fullSyncMessageTimestamp) {
+    this.fullSyncMessageTimestamp = fullSyncMessageTimestamp;
+  }
+
+  /**
+   * if we should do a full sync
+   */
+  private boolean fullSync;
+  
+  /**
+   * 
+   * @return
+   */
+  public boolean isFullSync() {
+    return fullSync;
+  }
+
+  /**
+   * 
+   * @param fullSync
+   */
+  public void setFullSync(boolean fullSync) {
+    this.fullSync = fullSync;
+  }
 
   public GrouperProvisioningDataIncrementalInput() {
   }
@@ -101,6 +148,15 @@ public class GrouperProvisioningDataIncrementalInput {
     this.grouperProvisioner = grouperProvisioner;
   }
 
+  private List<EsbEventContainer> esbEventContainers = null;
+  
+  public void setEsbEventContainers(List<EsbEventContainer> esbEventContainers) {
+    this.esbEventContainers = esbEventContainers;
+  }
+  
+  public List<EsbEventContainer> getEsbEventContainers() {
+    return esbEventContainers;
+  }
   
 
 }

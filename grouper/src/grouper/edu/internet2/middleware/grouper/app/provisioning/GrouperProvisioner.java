@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -249,6 +248,7 @@ public abstract class GrouperProvisioner {
     
   }
 
+  private GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = null;
   
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
   
@@ -257,6 +257,13 @@ public abstract class GrouperProvisioner {
    */
   protected Class<GrouperProvisioningLogic> grouperProvisioningLogicClass() {
     return GrouperProvisioningLogic.class;
+  }
+  
+  /**
+   * return the class of the provisioning logic Incremental
+   */
+  protected Class<GrouperProvisioningLogicIncremental> grouperProvisioningLogicIncrementalClass() {
+    return GrouperProvisioningLogicIncremental.class;
   }
   
   /**
@@ -270,6 +277,20 @@ public abstract class GrouperProvisioner {
       this.grouperProvisioningLogic.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLogic;
+    
+  }
+  
+  /**
+   * return the instance of the provisioning logic incremental
+   * @return the logic
+   */
+  public GrouperProvisioningLogicIncremental retrieveGrouperProvisioningLogicIncremental() {
+    if (this.grouperProvisioningLogicIncremental == null) {
+      Class<GrouperProvisioningLogicIncremental> grouperProvisioningLogicIncrementalClass = this.grouperProvisioningLogicIncrementalClass();
+      this.grouperProvisioningLogicIncremental = GrouperUtil.newInstance(grouperProvisioningLogicIncrementalClass);
+      this.grouperProvisioningLogicIncremental.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLogicIncremental;
     
   }
   
@@ -378,6 +399,8 @@ public abstract class GrouperProvisioner {
 
   private String configId;
 
+  private long startedNanos;
+
 
   /**
    * provision
@@ -394,13 +417,15 @@ public abstract class GrouperProvisioner {
     
     this.millisWhenSyncStarted = System.currentTimeMillis();
     
-    this.grouperProvisioningOutput = new GrouperProvisioningOutput();
+    if (this.grouperProvisioningOutput == null) {
+      this.grouperProvisioningOutput = new GrouperProvisioningOutput();
+    }
     
     this.retrieveGrouperProvisioningConfiguration().configureProvisioner();
 
     this.debugMap = new LinkedHashMap<String, Object>();
     
-    long now = System.nanoTime();
+    this.startedNanos = System.nanoTime();
     
     GcDbAccess.threadLocalQueryCountReset();
     
@@ -432,69 +457,79 @@ public abstract class GrouperProvisioner {
     
       this.retrieveGrouperProvisioningLogic().provision();
       
-      if (GrouperClientUtils.isBlank(gcGrouperSyncLog.getStatus())) {
-        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
-      }
-
       return this.grouperProvisioningOutput;
     } catch (RuntimeException re) {
       gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      this.done = true;
-      
-      GcGrouperSyncHeartbeat.endAndWaitForThread(this.gcGrouperSyncHeartbeat);
+      provisionFinallyBlock();
+    }
+  }
 
-      debugMap.put("finalLog", true);
-      
-      synchronized (this) {
-        try {
-          if (this.gcGrouperSyncJob != null) {
-            this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
-          }
-        } catch (RuntimeException re2) {
-          if (this.gcGrouperSyncLog != null) {
-            this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
-          }
-          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
-        }
-      }
+  public void provisionFinallyBlock() {
+    // already did this
+    if (this.done) {
+      return;
+    }
+    this.done = true;
+    
+    GcGrouperSyncHeartbeat.endAndWaitForThread(this.gcGrouperSyncHeartbeat);
 
-      // TODO sum with dao, hibernate, and client
-      this.grouperProvisioningOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
-      debugMap.put("queryCount", this.grouperProvisioningOutput.getQueryCount());
-      
-      int durationMillis = (int)((System.nanoTime()-now)/1000000);
-      debugMap.put("tookMillis", durationMillis);
-      debugMap.put("took", DurationFormatUtils.formatDurationHMS(durationMillis));
-      
-      String debugString = GrouperClientUtils.mapToString(debugMap);
-
+    debugMap.put("finalLog", true);
+    
+    synchronized (this) {
       try {
-        if (gcGrouperSyncLog != null) {
-          gcGrouperSyncLog.setDescriptionToSave(debugString);
-          gcGrouperSyncLog.setJobTookMillis(durationMillis);
-          gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+        if (this.gcGrouperSyncJob != null) {
+          this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
         }
-      } catch (RuntimeException re3) {
-        debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
-        debugString = GrouperClientUtils.mapToString(debugMap);
-      }
-      
-      if (this.retrieveGrouperProvisioningConfiguration().isDebugLog()) {
-        GrouperProvisioningLog.debugLog(debugString);
-      }
-      
-      // already set total
-      //gcTableSyncOutput.setTotal();
-      this.grouperProvisioningOutput.setMessage(debugString);
-
-      // this isnt good
-      if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
-        throw new RuntimeException(debugString);
+      } catch (RuntimeException re2) {
+        if (this.gcGrouperSyncLog != null) {
+          this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+        }
+        debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
       }
     }
+
+    // TODO sum with dao, hibernate, and client
+    this.grouperProvisioningOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
+    debugMap.put("queryCount", this.grouperProvisioningOutput.getQueryCount());
+    
+    int durationMillis = (int)((System.nanoTime()-this.startedNanos)/1000000);
+    debugMap.put("tookMillis", durationMillis);
+    debugMap.put("took", DurationFormatUtils.formatDurationHMS(durationMillis));
+    
+    String debugString = GrouperClientUtils.mapToString(debugMap);
+
+    try {
+      if (gcGrouperSyncLog != null) {
+        gcGrouperSyncLog.setDescriptionToSave(debugString);
+        gcGrouperSyncLog.setJobTookMillis(durationMillis);
+        gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
+      }
+    } catch (RuntimeException re3) {
+      debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
+      debugString = GrouperClientUtils.mapToString(debugMap);
+    }
+    
+    if (this.retrieveGrouperProvisioningConfiguration().isDebugLog()) {
+      GrouperProvisioningLog.debugLog(debugString);
+    }
+    
+    // already set total
+    //gcTableSyncOutput.setTotal();
+    this.grouperProvisioningOutput.setMessage(debugString);
+
+    // this isnt good
+    if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
+      throw new RuntimeException(debugString);
+    }
+  }
+
+  
+  public void setGrouperProvisioningOutput(
+      GrouperProvisioningOutput grouperProvisioningOutput) {
+    this.grouperProvisioningOutput = grouperProvisioningOutput;
   }
 
   /**

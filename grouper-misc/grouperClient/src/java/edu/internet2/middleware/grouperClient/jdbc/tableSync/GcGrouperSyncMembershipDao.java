@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1018,6 +1019,24 @@ public class GcGrouperSyncMembershipDao {
     
     return this.internal_membershipRetrieveFromDbBySyncMemberIds(memberSyncIds);
         
+  }
+
+  /**
+   * get membership ids with errors after error timestamp
+   * @param errorTimestampCheckFrom if null get all
+   * @return group ids and member ids
+   */
+  public List<Object[]> retrieveGroupIdMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select gsg.group_id, gsm.member_id from grouper_sync_membership gsms, grouper_sync_group gsg, grouper_sync_member gsm "
+            + "where gsms.grouper_sync_id = ? and gsms.grouper_sync_group_id = gsg.id and gsms.grouper_sync_member_id = gsm.id" 
+            + (errorTimestampCheckFrom == null ? " and gsms.error_timestamp is not null" : " and gsms.error_timestamp >= ?"))
+        .addBindVar(this.getGcGrouperSync().getId());
+    if (errorTimestampCheckFrom != null) {
+      gcDbAccess.addBindVar(errorTimestampCheckFrom);
+    }
+    List<Object[]> groupIdMemberIds = gcDbAccess.selectList(Object[].class);
+    return groupIdMemberIds;
   }
 
 }
