@@ -405,6 +405,16 @@ public class GrouperProvisioningLogic {
           assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper, grouperSyncMemberIdToProvisioningEntityWrapper, grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper);
         }
 
+        // ######### STEP 16: retrieve grouper data
+        try {
+          debugMap.put("state", "retrieveIncrementalDataFromGrouper");
+          long start = System.currentTimeMillis();
+          grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
+          long retrieveDataPass1 = System.currentTimeMillis()-start;
+          debugMap.put("retrieveGrouperDataMillis", retrieveDataPass1);
+        } finally {
+          this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIncrementalDataFromGrouper);
+        }
         
         
         
@@ -423,15 +433,6 @@ public class GrouperProvisioningLogic {
       
   
   
-      try {
-        debugMap.put("state", "retrieveIncrementalDataFromGrouper");
-        long start = System.currentTimeMillis();
-        grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
-        long retrieveDataPass1 = System.currentTimeMillis()-start;
-        debugMap.put("retrieveDataPass1_millis", retrieveDataPass1);
-      } finally {
-        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIncrementalDataFromGrouper);
-      }
   
       try {
         debugMap.put("state", "matchingIdTargetObjects");
@@ -1068,15 +1069,25 @@ public class GrouperProvisioningLogic {
   
   public void retrieveGrouperDataIncremental() {
 
+    // get all grouper data for the provisioner
+    // and put in GrouperProvisioningDataGrouper
     this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncremental();
+
+    // put wrappers on the grouper objects and put in the grouper uuid maps in data object
+    // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
     this.grouperProvisioner.retrieveGrouperDao().processWrappers();
+    
+    // point the membership pointers to groups and entities to what they should point to
+    // and fix data problems (for instance race conditions as data was retrieved)
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
     
     // incrementals need to clone and setup sync objects as deletes
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().setupIncrementalClonesOfGroupProvisioningObjects();
 
+    // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();
 
+    // put the sync objects in their respective wrapper objects
     assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete
