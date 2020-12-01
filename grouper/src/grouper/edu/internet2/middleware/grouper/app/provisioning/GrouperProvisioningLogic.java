@@ -345,11 +345,11 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "filterNonRecalcActionsCapturedByRecalc");
       grouperProvisioningLogicIncremental.filterNonRecalcActionsCapturedByRecalc();
   
-      // ######### STEP 7: organize recalc and non recalc requests groups
-      debugMap.put("state", "organizeRecalcAndNonRecalcRequestsGroups");
-      grouperProvisioningLogicIncremental.organizeRecalcAndNonRecalcRequestsGroups();
+//      // ######### STEP 7: organize recalc and non recalc requests groups
+//      debugMap.put("state", "organizeRecalcAndNonRecalcRequestsGroups");
+//      grouperProvisioningLogicIncremental.organizeRecalcAndNonRecalcRequestsGroups();
 
-      // ######### STEP 8: retrieve all group sync objects for 
+      // ######### STEP 7: retrieve all group sync objects for 
       debugMap.put("state", "retrieveIncrementalSyncGroups");
       {
         this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncGroups();
@@ -357,23 +357,23 @@ public class GrouperProvisioningLogic {
         assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
       }
   
-      // ######### STEP 9: retrieve provisioning attributes for recalc groups and adjust sync objects
+      // ######### STEP 8: retrieve provisioning attributes for recalc groups and adjust sync objects
       debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
       grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
       
-      // ######### STEP 10: filter if not provisionable
+      // ######### STEP 9: filter if not provisionable
       debugMap.put("state", "filterByNotProvisionable");
       grouperProvisioningLogicIncremental.filterByGroupNotProvisionable();
       
-      // ######### STEP 11: filter by group sync
+      // ######### STEP 10: filter by group sync
       debugMap.put("state", "filterByGroupSync");
       grouperProvisioningLogicIncremental.filterByGroupSync();
       
-      // ######### STEP 12: convert to group sync
+      // ######### STEP 11: convert to group sync
       debugMap.put("state", "convertToGroupSync");
       grouperProvisioningLogicIncremental.convertToGroupSync();
       
-      // ######### STEP 13: convert to full sync
+      // ######### STEP 12: convert to full sync
       debugMap.put("state", "convertToFullSync");
       grouperProvisioningLogicIncremental.convertToFullSync();
       
@@ -385,12 +385,12 @@ public class GrouperProvisioningLogic {
         
       } else {
         
-        // ######### STEP 14: events without recalc that occurred during group sync (after start before finish), should be recalc'ed
+        // ######### STEP 13: events without recalc that occurred during group sync (after start before finish), should be recalc'ed
         debugMap.put("state", "recalcActionsDuringGroupSync");
         grouperProvisioningLogicIncremental.recalcEventsDuringGroupSync();
 
-        // ######### STEP 15: retrieve all membership sync objects
-        // ######### STEP 16: retrieve all members sync objects
+        // ######### STEP 14: retrieve all membership sync objects
+        // ######### STEP 15: retrieve all members sync objects
         debugMap.put("state", "retrieveIncrementalSyncMemberships");
         {
           this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncMemberships();

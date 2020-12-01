@@ -1293,75 +1293,75 @@ public class GrouperProvisioningLogicIncremental {
   }
 
 
-  /**
-   * make sure the list of groups/entities (without memberships) includes all the groups/entities for memberships
-   * @param esbEventContainers
-   * @param gcGrouperSync
-   */
-  public void organizeRecalcAndNonRecalcRequestsGroups() {
-
-    int[] organizeRecalcAndNonRecalcRequests = new int[] {0};
-
-    GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput();
-    
-    organizeRecalcAndNonRecalcRequestsGroups(grouperProvisioningDataIncrementalInput.getGrouperIncrementalDataToProcessWithoutRecalc(), organizeRecalcAndNonRecalcRequests, false);
-
-    organizeRecalcAndNonRecalcRequestsGroups(grouperProvisioningDataIncrementalInput.getGrouperIncrementalDataToProcessWithRecalc(), organizeRecalcAndNonRecalcRequests, true);
-
-    if (organizeRecalcAndNonRecalcRequests[0] > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("organizeRecalcAndNonRecalcRequestsGroups", organizeRecalcAndNonRecalcRequests[0]);
-    }
-
-  }
-
-  /**
-   * make sure the list of groups/entities (without memberships) includes all the groups/entities for memberships
-   * @param grouperIncrementalDataToProcess
-   * @param organizeRecalcAndNonRecalcRequests
-   */
-  public void organizeRecalcAndNonRecalcRequestsGroups(
-      GrouperIncrementalDataToProcess grouperIncrementalDataToProcess,
-      int[] organizeRecalcAndNonRecalcRequests, boolean recalc) {
-    
-    Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = grouperIncrementalDataToProcess.getGroupUuidsForGroupOnly();
-    Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync();
-    Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsFieldIdsForMembershipSync = grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync();
-
-    int origSize = GrouperUtil.length(groupUuidsForGroupOnly)
-      + GrouperUtil.length(groupUuidsForGroupMembershipSync)
-      + GrouperUtil.length(groupUuidsMemberUuidsFieldIdsForMembershipSync);
-
-    Set<String> groupUuidsForGroupOnlyString = new HashSet<String>();
-    
-    // add existing, though there shouldnt really be any here yet
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsForGroupOnly)) {
-      groupUuidsForGroupOnlyString.add((String)grouperIncrementalDataItem.getItem());
-    }
-
-    // check for new
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsForGroupMembershipSync)) {
-      String groupId = (String)grouperIncrementalDataItem.getItem();
-      if (!groupUuidsForGroupOnlyString.contains(groupId)) {
-        groupUuidsForGroupOnlyString.add(groupId);
-        groupUuidsForGroupOnly.add(new GrouperIncrementalDataItem(groupId, null));
-      }
-    }
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsMemberUuidsFieldIdsForMembershipSync)) {
-      {
-        String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
-        if (!groupUuidsForGroupOnlyString.contains(groupId)) {
-          groupUuidsForGroupOnlyString.add(groupId);
-          groupUuidsForGroupOnly.add(new GrouperIncrementalDataItem(groupId, null));
-        }
-      }
-    }
-    
-    int newSize = GrouperUtil.length(groupUuidsForGroupOnly)
-      + GrouperUtil.length(groupUuidsForGroupMembershipSync)
-      + GrouperUtil.length(groupUuidsMemberUuidsFieldIdsForMembershipSync);
-    
-    organizeRecalcAndNonRecalcRequests[0] += newSize-origSize;
-  }
+//  /**
+//   * make sure the list of groups/entities (without memberships) includes all the groups/entities for memberships
+//   * @param esbEventContainers
+//   * @param gcGrouperSync
+//   */
+//  public void organizeRecalcAndNonRecalcRequestsGroups() {
+//
+//    int[] organizeRecalcAndNonRecalcRequests = new int[] {0};
+//
+//    GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput();
+//    
+//    organizeRecalcAndNonRecalcRequestsGroups(grouperProvisioningDataIncrementalInput.getGrouperIncrementalDataToProcessWithoutRecalc(), organizeRecalcAndNonRecalcRequests, false);
+//
+//    organizeRecalcAndNonRecalcRequestsGroups(grouperProvisioningDataIncrementalInput.getGrouperIncrementalDataToProcessWithRecalc(), organizeRecalcAndNonRecalcRequests, true);
+//
+//    if (organizeRecalcAndNonRecalcRequests[0] > 0) {
+//      this.getGrouperProvisioner().getDebugMap().put("organizeRecalcAndNonRecalcRequestsGroups", organizeRecalcAndNonRecalcRequests[0]);
+//    }
+//
+//  }
+//
+//  /**
+//   * make sure the list of groups/entities (without memberships) includes all the groups/entities for memberships
+//   * @param grouperIncrementalDataToProcess
+//   * @param organizeRecalcAndNonRecalcRequests
+//   */
+//  public void organizeRecalcAndNonRecalcRequestsGroups(
+//      GrouperIncrementalDataToProcess grouperIncrementalDataToProcess,
+//      int[] organizeRecalcAndNonRecalcRequests, boolean recalc) {
+//    
+//    Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = grouperIncrementalDataToProcess.getGroupUuidsForGroupOnly();
+//    Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync();
+//    Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsFieldIdsForMembershipSync = grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync();
+//
+//    int origSize = GrouperUtil.length(groupUuidsForGroupOnly)
+//      + GrouperUtil.length(groupUuidsForGroupMembershipSync)
+//      + GrouperUtil.length(groupUuidsMemberUuidsFieldIdsForMembershipSync);
+//
+//    Set<String> groupUuidsForGroupOnlyString = new HashSet<String>();
+//    
+//    // add existing, though there shouldnt really be any here yet
+//    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsForGroupOnly)) {
+//      groupUuidsForGroupOnlyString.add((String)grouperIncrementalDataItem.getItem());
+//    }
+//
+//    // check for new
+//    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsForGroupMembershipSync)) {
+//      String groupId = (String)grouperIncrementalDataItem.getItem();
+//      if (!groupUuidsForGroupOnlyString.contains(groupId)) {
+//        groupUuidsForGroupOnlyString.add(groupId);
+//        groupUuidsForGroupOnly.add(new GrouperIncrementalDataItem(groupId, null));
+//      }
+//    }
+//    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(groupUuidsMemberUuidsFieldIdsForMembershipSync)) {
+//      {
+//        String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
+//        if (!groupUuidsForGroupOnlyString.contains(groupId)) {
+//          groupUuidsForGroupOnlyString.add(groupId);
+//          groupUuidsForGroupOnly.add(new GrouperIncrementalDataItem(groupId, null));
+//        }
+//      }
+//    }
+//    
+//    int newSize = GrouperUtil.length(groupUuidsForGroupOnly)
+//      + GrouperUtil.length(groupUuidsForGroupMembershipSync)
+//      + GrouperUtil.length(groupUuidsMemberUuidsFieldIdsForMembershipSync);
+//    
+//    organizeRecalcAndNonRecalcRequests[0] += newSize-origSize;
+//  }
 
 
   /**
