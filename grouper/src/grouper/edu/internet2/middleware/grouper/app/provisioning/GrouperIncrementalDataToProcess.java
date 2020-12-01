@@ -147,7 +147,7 @@ public class GrouperIncrementalDataToProcess {
    * multi key of group uuid, member uuids, field ids for membership sync
    * @return
    */
-  public Set<GrouperIncrementalDataItem> getGroupUuidsMemberUuidsFieldIdsForMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsMemberUuidsForMembershipSync() {
     return groupUuidsMemberUuidsFieldIdsForMembershipSync;
   }
 

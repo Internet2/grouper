@@ -703,7 +703,7 @@ public class GrouperProvisionerGrouperDao {
           memberIdsToRetrieveForMemberships.add((String)grouperIncrementalDataItem.getItem());
         }
         for (GrouperIncrementalDataItem grouperIncrementalDataItem : 
-            grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+            grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsForMembershipSync()) {
           MultiKey groupIdMemberIdFieldId = (MultiKey)grouperIncrementalDataItem.getItem();
           groupIdsMemberIdsToRetrieveForMemberships.add(groupIdMemberIdFieldId);
           groupIdsToRetrieve.add((String)groupIdMemberIdFieldId.getKey(0));

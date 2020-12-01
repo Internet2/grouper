@@ -416,6 +416,13 @@ public class GrouperProvisioningLogic {
           this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIncrementalDataFromGrouper);
         }
         
+        // ######### STEP 17: filter unneeded actions
+        debugMap.put("state", "filterUnneededActions");
+        grouperProvisioningLogicIncremental.filterUnneededActions();
+        
+        // ######### STEP 18: convert inconsistent events to recalc
+        debugMap.put("state", "convertInconsistentEventsToRecalc");
+        grouperProvisioningLogicIncremental.convertInconsistentEventsToRecalc();
         
         
         

@@ -121,7 +121,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String groupId = (String)grouperIncrementalDataItem.getItem();
       groupIdsToRetrieve.add(groupId);
     }
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
       String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
       groupIdsToRetrieve.add(groupId);
     }
@@ -133,7 +133,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String groupId = (String)grouperIncrementalDataItem.getItem();
       groupIdsToRetrieve.add(groupId);
     }
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
       String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
       groupIdsToRetrieve.add(groupId);
     }
@@ -177,7 +177,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String memberId = (String)grouperIncrementalDataItem.getItem();
       memberIdsToRetrieve.add(memberId);
     }
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
       String memberId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(1);
       memberIdsToRetrieve.add(memberId);
     }
@@ -189,7 +189,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String memberId = (String)grouperIncrementalDataItem.getItem();
       memberIdsToRetrieve.add(memberId);
     }
-    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
       String memberId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(1);
       memberIdsToRetrieve.add(memberId);
     }
@@ -229,11 +229,11 @@ public class GrouperProvisionerGrouperSyncDao {
     {
       Set<MultiKey> groupIdsMemberIdsToRetrieve = new HashSet<MultiKey>();
   
-      for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
         MultiKey groupIdMemberIdFieldId = (MultiKey)grouperIncrementalDataItem.getItem();
         groupIdsMemberIdsToRetrieve.add(new MultiKey(groupIdMemberIdFieldId.getKey(0), groupIdMemberIdFieldId.getKey(1)));
       }
-      for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsFieldIdsForMembershipSync()) {
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsMemberUuidsForMembershipSync()) {
         MultiKey groupIdMemberIdFieldId = (MultiKey)grouperIncrementalDataItem.getItem();
         groupIdsMemberIdsToRetrieve.add(new MultiKey(groupIdMemberIdFieldId.getKey(0), groupIdMemberIdFieldId.getKey(1)));
       }

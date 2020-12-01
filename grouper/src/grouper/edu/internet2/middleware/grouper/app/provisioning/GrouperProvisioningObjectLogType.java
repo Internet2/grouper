@@ -375,7 +375,7 @@ public enum GrouperProvisioningObjectLogType {
       appendList(logMessage, "groupUuidsForGroupMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync());
       appendList(logMessage, "memberUuidsForEntityOnly", grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly());
       appendList(logMessage, "memberUuidsForEntityMembershipSync", grouperIncrementalDataToProcess.getMemberUuidsForEntityMembershipSync());
-      appendList(logMessage, "groupUuidsMemberUuidsFieldIdsForMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
+      appendList(logMessage, "groupUuidsMemberUuidsFieldIdsForMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsForMembershipSync());
     }
   }
   private static void appendList(StringBuilder logMessage, String label, Collection<?> someList) {
