@@ -424,6 +424,10 @@ public class GrouperProvisioningLogic {
         debugMap.put("state", "convertInconsistentEventsToRecalc");
         grouperProvisioningLogicIncremental.convertInconsistentEventsToRecalc();
         
+        // ######### STEP 19: convert inconsistent events to recalc
+        debugMap.put("state", "copyIncrementalStateToWrappers");
+        grouperProvisioningLogicIncremental.copyIncrementalStateToWrappers();
+        
         
         
       }

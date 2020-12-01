@@ -1851,6 +1851,150 @@ public class GrouperProvisioningLogicIncremental {
   }
 
 
+  public void copyIncrementalStateToWrappers() {
+    
+    int copyIncrementalStateToWrappersMissing = 0;
+    
+    Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper();
+    Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
+    Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
+
+    {
+      GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
+  
+      // ########### First do recalcs...
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithRecalc.getGroupUuidsForGroupMembershipSync())) {
+        String groupId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(groupId);
+        if (provisioningGroupWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningGroupWrapper.setIncrementalSyncMemberships(true);
+        provisioningGroupWrapper.setRecalc(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithRecalc.getGroupUuidsForGroupOnly())) {
+        String groupId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(groupId);
+        if (provisioningGroupWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningGroupWrapper.setRecalc(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithRecalc.getMemberUuidsForEntityMembershipSync())) {
+        String memberId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(memberId);
+        if (provisioningEntityWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningEntityWrapper.setIncrementalSyncMemberships(true);
+        provisioningEntityWrapper.setRecalc(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithRecalc.getMemberUuidsForEntityOnly())) {
+        String memberId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(memberId);
+        if (provisioningEntityWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningEntityWrapper.setRecalc(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithRecalc.getGroupUuidsMemberUuidsForMembershipSync())) {
+        MultiKey groupIdMemberId = (MultiKey)grouperIncrementalDataItem.getItem();
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupIdMemberId);
+        if (provisioningMembershipWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningMembershipWrapper.setRecalc(true);
+  
+      }
+    }
+    
+    {
+      GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
+  
+      // ########### Then do nonrecalcs...
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsForGroupMembershipSync())) {
+        String groupId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(groupId);
+        if (provisioningGroupWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        provisioningGroupWrapper.setIncrementalSyncMemberships(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsForGroupOnly())) {
+        String groupId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(groupId);
+        if (provisioningGroupWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithoutRecalc.getMemberUuidsForEntityMembershipSync())) {
+        String memberId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(memberId);
+        if (provisioningEntityWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        provisioningEntityWrapper.setIncrementalSyncMemberships(true);
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithoutRecalc.getMemberUuidsForEntityOnly())) {
+        String memberId = (String)grouperIncrementalDataItem.getItem();
+        ProvisioningEntityWrapper provisioningEntityWrapper = memberUuidToProvisioningEntityWrapper.get(memberId);
+        if (provisioningEntityWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+  
+      }
+      for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsMemberUuidsForMembershipSync())) {
+        MultiKey groupIdMemberId = (MultiKey)grouperIncrementalDataItem.getItem();
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupIdMemberId);
+        if (provisioningMembershipWrapper == null) {
+          // why would this happen?
+          copyIncrementalStateToWrappersMissing++;
+          continue;
+        }
+        
+        if (!provisioningMembershipWrapper.isRecalc() && provisioningMembershipWrapper.getGrouperIncrementalDataAction() == null) {
+          provisioningMembershipWrapper.setGrouperIncrementalDataAction(grouperIncrementalDataItem.getGrouperIncrementalDataAction());
+        }
+      }
+    }
+    
+    if (copyIncrementalStateToWrappersMissing > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("copyIncrementalStateToWrappersMissing", copyIncrementalStateToWrappersMissing);
+    }
+  }
+
+
   
 
 }

@@ -4,6 +4,48 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper {
   
+  /**
+   * if incremental and recalc
+   */
+  private boolean recalc;
+  
+  /**
+   * if incremental and recalc
+   * @return
+   */
+  public boolean isRecalc() {
+    return recalc;
+  }
+
+  /**
+   * if incremental and recalc
+   * @param recalc
+   */
+  public void setRecalc(boolean recalc) {
+    this.recalc = recalc;
+  }
+
+  /**
+   * if this is incremental, and syncing memberships for this group
+   */
+  private boolean incrementalSyncMemberships;
+  
+  /**
+   * if this is incremental, and syncing memberships for this group
+   * @return
+   */
+  public boolean isIncrementalSyncMemberships() {
+    return incrementalSyncMemberships;
+  }
+
+  /**
+   * if this is incremental, and syncing memberships for this group
+   * @param incrementalSyncMemberships1
+   */
+  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
+    this.incrementalSyncMemberships = incrementalSyncMemberships1;
+  }
+
   private Object matchingId = null;
   
   

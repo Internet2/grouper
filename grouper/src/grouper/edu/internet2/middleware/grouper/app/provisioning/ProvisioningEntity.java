@@ -157,6 +157,22 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "loginId", this.loginId);
     firstField = toStringAppendField(result, firstField, "subjectId", this.subjectId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
+    
+    if (this.provisioningEntityWrapper != null) {
+      if (this.provisioningEntityWrapper.isRecalc()) {
+        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningEntityWrapper.isRecalc());
+      }
+      if (this.provisioningEntityWrapper.isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.isCreate());
+      }
+      if (this.provisioningEntityWrapper.isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.isDelete());
+      }
+      if (this.provisioningEntityWrapper.isIncrementalSyncMemberships()) {
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.isIncrementalSyncMemberships());
+      }
+    }
+    
     return result.append(")").toString();
   }
 
