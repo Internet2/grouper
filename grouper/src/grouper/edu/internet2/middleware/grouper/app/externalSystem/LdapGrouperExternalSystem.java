@@ -143,4 +143,7 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
     
   }
   
+  public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
+    LdapSessionUtils.ldapSession().refreshConnectionsIfNeeded(this.getConfigId());
+  }
 }

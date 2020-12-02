@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,9 @@ public class LdaptiveSessionImpl implements LdapSession {
   
   /** map of connection name to properties */
   private static Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+  
+  /** pools that need to be cleaned up */
+  private static List<PooledConnectionFactory> poolsNeedingCleanup = new ArrayList<PooledConnectionFactory>();
   
   /** 
    * What ldaptive properties will be decrypted if their values are Morph files?
@@ -1023,5 +1027,35 @@ public class LdaptiveSessionImpl implements LdapSession {
           pass);
     }
     return valid;
+  }
+  
+  public void refreshConnectionsIfNeeded(final String ldapServerId) { 
+    synchronized (LdaptiveSessionImpl.class) {
+      if (poolMap.containsKey(ldapServerId) && propertiesMap.containsKey(ldapServerId)) {
+        if (!propertiesMap.get(ldapServerId).equals(getLdaptiveProperties(ldapServerId))) {
+          PooledConnectionFactory pool = poolMap.remove(ldapServerId);
+          
+          if (pool.getConnectionPool().activeCount() > 0) {
+            poolsNeedingCleanup.add(pool);
+            LOG.warn("Unable to close old LDAP pool since it is being used.  Will check again later.");
+          } else {
+            pool.getConnectionPool().close();
+            LOG.warn("Closed old LDAP pool after confirming not in use.");
+          }
+        }
+      }
+      
+      Iterator<PooledConnectionFactory> poolsNeedingCleanupIter = poolsNeedingCleanup.iterator();
+      while (poolsNeedingCleanupIter.hasNext()) {
+        PooledConnectionFactory pool = poolsNeedingCleanupIter.next();
+        if (pool.getConnectionPool().activeCount() == 0) {
+          pool.getConnectionPool().close();
+          poolsNeedingCleanupIter.remove();
+          LOG.warn("Closed old LDAP pool after confirming not in use.");
+        } else {
+          LOG.warn("Unable to close old LDAP pool since it is being used.  Will check again later.");
+        }
+      }
+    }
   }
 }

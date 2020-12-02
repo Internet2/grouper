@@ -201,6 +201,11 @@ public class UiV2ExternalSystem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigAddEditSuccess")));
       
+      try {
+        grouperExternalSystem.refreshConnectionsIfNeeded();
+      } catch (UnsupportedOperationException e) {
+        // ok
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

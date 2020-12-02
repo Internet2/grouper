@@ -126,4 +126,10 @@ public interface LdapSession {
    */
   public abstract void authenticate(final String ldapServerId, final String userDn, final String password);
   
+  /**
+   * Check if connections need to be refreshed due to config changes
+   * @param ldapServerId
+   */
+  public abstract void refreshConnectionsIfNeeded(final String ldapServerId);
+  
 }
