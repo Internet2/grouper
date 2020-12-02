@@ -39,6 +39,16 @@ public enum GrouperProvisioningObjectLogType {
       appendSyncObjects(grouperProvisioner, logMessage, "Sync objects");
     }
   }, 
+  retrieveTargetData {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+    }
+  }, 
   targetAttributeManipulation {
 
     @Override
@@ -201,6 +211,46 @@ public enum GrouperProvisioningObjectLogType {
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "memberships");
+    }
+  }, 
+  manipulateGrouperTargetMembershipsAttributes {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "memberships");
+
+    }
+  }, 
+  manipulateGrouperTargetGroupsEntitiesAttributes {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+
+    }
+  }, 
+  translateGrouperDataToTarget {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "grouperTargetGroup", "groups");
+
+      } else if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities(), "grouperTargetEntity", "entities");
+
+      } else {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(), "memberships");
+      }
 
     }
   }, 
@@ -244,6 +294,17 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
+  matchingIdGrouperObjects {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "memberships");
+      
+    }
+  }, 
   matchingIdGrouperGroupsEntities {
 
     @Override
@@ -276,18 +337,6 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   },
-  matchingIdGrouperObjects {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "entities");
-
-    }
-  }, 
-  
   logIncomingData {
 
     @Override

@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -105,9 +107,13 @@ public class GrouperProvisioningLinkLogic {
   }
 
   public void retrieveSubjectLink() {
-    //TODO should this come from index?
-    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
+
+    Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>(); 
   
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      gcGrouperSyncMembers.add(provisioningEntityWrapper.getGcGrouperSyncMember());
+    }
+    
     if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
       return;
     }

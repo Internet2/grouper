@@ -4,7 +4,6 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class TargetDaoRetrieveMembershipsBulkRequest {
 
@@ -13,48 +12,57 @@ public class TargetDaoRetrieveMembershipsBulkRequest {
 
   public TargetDaoRetrieveMembershipsBulkRequest(List<ProvisioningGroup> targetGroups,
       List<ProvisioningEntity> targetEntities,
-      List<MultiKey> targetGroupsEntitiesMemberships) {
+      List<Object> targetGroupsEntitiesMemberships) {
     super();
-    this.targetGroups = targetGroups;
-    this.targetEntities = targetEntities;
-    this.targetGroupsEntitiesMemberships = targetGroupsEntitiesMemberships;
+    this.targetGroupsForAllMemberships = targetGroups;
+    this.targetEntitiesForAllMemberships = targetEntities;
+    this.targetMemberships = targetGroupsEntitiesMemberships;
   }
 
-  private List<ProvisioningGroup> targetGroups;
+  private List<ProvisioningGroup> targetGroupsForAllMemberships;
   
-  private List<ProvisioningEntity> targetEntities;
+  private List<ProvisioningEntity> targetEntitiesForAllMemberships;
   
-  private List<MultiKey> targetGroupsEntitiesMemberships;
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   */
+  private List<Object> targetMemberships;
 
   
-  public List<ProvisioningGroup> getTargetGroups() {
-    return targetGroups;
-  }
-
-  
-  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
-    this.targetGroups = targetGroups;
-  }
-
-  
-  public List<ProvisioningEntity> getTargetEntities() {
-    return targetEntities;
+  public List<ProvisioningGroup> getTargetGroupsForAllMemberships() {
+    return targetGroupsForAllMemberships;
   }
 
   
-  public void setTargetEntities(List<ProvisioningEntity> targetEntities) {
-    this.targetEntities = targetEntities;
+  public void setTargetGroupsForAllMemberships(List<ProvisioningGroup> targetGroups) {
+    this.targetGroupsForAllMemberships = targetGroups;
   }
 
   
-  public List<MultiKey> getTargetGroupsEntitiesMemberships() {
-    return targetGroupsEntitiesMemberships;
+  public List<ProvisioningEntity> getTargetEntitiesForAllMemberships() {
+    return targetEntitiesForAllMemberships;
   }
 
   
+  public void setTargetEntitiesForAllMemberships(List<ProvisioningEntity> targetEntities) {
+    this.targetEntitiesForAllMemberships = targetEntities;
+  }
+
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @return
+   */
+  public List<Object> getTargetMemberships() {
+    return targetMemberships;
+  }
+
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param targetGroupsEntitiesMemberships
+   */
   public void setTargetGroupsEntitiesMemberships(
-      List<MultiKey> targetGroupsEntitiesMemberships) {
-    this.targetGroupsEntitiesMemberships = targetGroupsEntitiesMemberships;
+      List<Object> targetGroupsEntitiesMemberships) {
+    this.targetMemberships = targetGroupsEntitiesMemberships;
   }
 
 

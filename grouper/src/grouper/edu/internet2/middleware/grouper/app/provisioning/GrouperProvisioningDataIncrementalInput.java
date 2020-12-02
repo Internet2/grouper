@@ -6,6 +6,7 @@ import java.util.List;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 
 /**
  * contains data to process for incremental
@@ -156,6 +157,16 @@ public class GrouperProvisioningDataIncrementalInput {
   
   public List<EsbEventContainer> getEsbEventContainers() {
     return esbEventContainers;
+  }
+
+  private List<GrouperMessage> grouperMessages;
+  
+  public void setGrouperMessages(List<GrouperMessage> grouperMessages) {
+    this.grouperMessages = grouperMessages;
+  }
+  
+  public List<GrouperMessage> getGrouperMessages() {
+    return grouperMessages;
   }
   
 

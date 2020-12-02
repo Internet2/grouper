@@ -45,9 +45,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     return new TargetDaoRetrieveAllMembershipsResponse(targetMemberships);
   }
 
-  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, List<ProvisioningEntity> grouperTargetEntities, List<MultiKey> grouperTargetMembershipMultiKeys) {
+  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, 
+      List<ProvisioningEntity> grouperTargetEntities, List<Object> grouperTargetMembershipsInput) {
     
-    if (retrieveAll && (grouperTargetGroups != null || grouperTargetEntities != null || grouperTargetMembershipMultiKeys != null)) {
+    if (retrieveAll && (grouperTargetGroups != null || grouperTargetEntities != null || grouperTargetMembershipsInput != null)) {
       throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
     }
     
@@ -63,8 +64,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
 
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
-    for (MultiKey grouperTargetMembershipMultiKey : GrouperUtil.nonNull(grouperTargetMembershipMultiKeys)) {
-      ProvisioningMembership grouperTargetMembership = (ProvisioningMembership)grouperTargetMembershipMultiKey.getKey(2);
+    for (Object grouperTargetMembershipMultiKey : GrouperUtil.nonNull(grouperTargetMembershipsInput)) {
+      ProvisioningMembership grouperTargetMembership = (ProvisioningMembership)grouperTargetMembershipMultiKey;
       if (grouperTargetMembership != null) {
         grouperTargetMemberships.add(grouperTargetMembership);
       }
@@ -654,11 +655,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
   public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroups();
-    List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntities();
-    List<MultiKey> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsEntitiesMemberships();
+    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsForAllMemberships();
+    List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntitiesForAllMemberships();
+    List<Object> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
     List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(false, grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
-    return new TargetDaoRetrieveMembershipsBulkResponse(targetMemberships);
+    List<Object> targetMembershipsObjects = new ArrayList<Object>();
+    targetMembershipsObjects.addAll(targetMemberships);
+    return new TargetDaoRetrieveMembershipsBulkResponse(targetMembershipsObjects);
   }
 
 

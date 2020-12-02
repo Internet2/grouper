@@ -31,7 +31,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  private void addProvisioningUpdatableToUpdateIfNotThere(List provisioningUpdatablesToUpdate, 
+  public void addProvisioningUpdatableToUpdateIfNotThere(List provisioningUpdatablesToUpdate, 
       ProvisioningUpdatable grouperProvisioningUpdatable) {
     // if there is nothing in the update list or this object is not last in there, then add it
     if (GrouperUtil.length(provisioningUpdatablesToUpdate) == 0 || 
@@ -42,14 +42,14 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected ProvisioningObjectChangeAction attributeChangeType(Object old, Object theNew) {
+  public ProvisioningObjectChangeAction attributeChangeType(Object old, Object theNew) {
     if (old == null) return ProvisioningObjectChangeAction.insert;
     if (theNew == null) return ProvisioningObjectChangeAction.delete;
     return ProvisioningObjectChangeAction.update;
   }
 
 
-  protected boolean attributeValueEquals(Object first, Object second) {
+  public boolean attributeValueEquals(Object first, Object second) {
     
     // update
     Collection<Object> firstCollection = null;
@@ -182,7 +182,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareAttributeValues(
+  public void compareAttributeValues(
       List provisioningUpdatablesToUpdate,
       Map<String, ProvisioningAttribute> grouperTargetAttributes,
       Map<String, ProvisioningAttribute> targetProvisioningAttributes,
@@ -351,7 +351,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareFieldValue(List provisioningUpdatablesToUpdate,
+  public void compareFieldValue(List provisioningUpdatablesToUpdate,
       String fieldName,
       Object grouperValue, Object targetValue,
       ProvisioningUpdatable grouperTargetUpdatable) {
@@ -366,7 +366,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
+  public void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
@@ -549,7 +549,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetGroups(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
+  public void compareTargetGroups(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
@@ -733,7 +733,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  protected void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
+  public void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
     
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
       ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
@@ -877,12 +877,9 @@ public class GrouperProvisioningCompare {
         this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().setProvisioningMemberships(provisioningMembershipsToUpdate);
       }
     }
-    
-    
   }
 
-
-  protected void compareTargetObjects() {
+  public void compareTargetObjects() {
     
     compareTargetGroups(grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper().values());
     compareTargetEntities(grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper().values());

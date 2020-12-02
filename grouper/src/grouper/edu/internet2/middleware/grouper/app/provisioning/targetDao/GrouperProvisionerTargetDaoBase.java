@@ -225,15 +225,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
   
   /**
-   * 
-   * @return the memberships
-   */
-  public TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership(
-      TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
    * @ptouperTargetMemberships
    * @return the target provisioning Memberships
