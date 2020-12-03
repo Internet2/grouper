@@ -32,6 +32,7 @@ public class AllLdapProvisioningTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(SimpleLdapProvisionerTest.class);
     suite.addTestSuite(LdapProvisionerWithGroupAndEntityLinksTest.class);
+    suite.addTestSuite(LdapProvisionerIncrementalTest.class);
     //$JUnit-END$
     return suite;
   }
