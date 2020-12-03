@@ -323,21 +323,19 @@ public class GrouperProvisioningLogic {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
-    try {
-      debugMap.put("state", "logIncomingData");
-    } finally {
-      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingData);
-    }
-
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
-    
-    // ######### STEP 1: check messages
-    debugMap.put("state", "incrementalCheckMessages");
-    grouperProvisioningLogicIncremental.incrementalCheckMessages();
-    
-    // ######### STEP 2: check for esb events
-    debugMap.put("state", "incrementalCheckChangeLog");
-    grouperProvisioningLogicIncremental.incrementalCheckChangeLog();
+
+    try {
+      // ######### STEP 1: check messages
+      debugMap.put("state", "incrementalCheckMessages");
+      grouperProvisioningLogicIncremental.incrementalCheckMessages();
+      
+      // ######### STEP 2: check for esb events
+      debugMap.put("state", "incrementalCheckChangeLog");
+      grouperProvisioningLogicIncremental.incrementalCheckChangeLog();
+    } finally {      
+      this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataUnprocessed);
+    }
     
     // ######### STEP 3: see if any actions happened before the last full sync
     debugMap.put("state", "filterByProvisioningFullSync");
@@ -406,6 +404,8 @@ public class GrouperProvisioningLogic {
         // ######### STEP 13: events without recalc that occurred during group sync (after start before finish), should be recalc'ed
         debugMap.put("state", "recalcActionsDuringGroupSync");
         grouperProvisioningLogicIncremental.recalcEventsDuringGroupSync();
+
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataToProcess);
 
         // ######### STEP 14: retrieve all membership sync objects
         // ######### STEP 15: retrieve all members sync objects
@@ -1205,8 +1205,8 @@ public class GrouperProvisioningLogic {
     // and fix data problems (for instance race conditions as data was retrieved)
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
     
-    // incrementals need to clone and setup sync objects as deletes
-    this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().setupIncrementalClonesOfGroupProvisioningObjects();
+//    // incrementals need to clone and setup sync objects as deletes
+//    this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().setupIncrementalClonesOfGroupProvisioningObjects();
 
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();

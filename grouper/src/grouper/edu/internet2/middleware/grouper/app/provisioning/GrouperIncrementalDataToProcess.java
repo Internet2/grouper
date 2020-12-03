@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * 
@@ -27,7 +26,7 @@ public class GrouperIncrementalDataToProcess {
    * get the group objects and the memberships for these.
    * note, these are also included in groupUuidsForGroupOnly
    */
-  private Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = new TreeSet<GrouperIncrementalDataItem>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = new HashSet<GrouperIncrementalDataItem>();
   
   
   /**
@@ -56,7 +55,7 @@ public class GrouperIncrementalDataToProcess {
    * get the entity objects and the memberships for these.
    * note, these are also included in memberUuidsForEntityOnly
    */
-  private Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync = new TreeSet<GrouperIncrementalDataItem>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync = new HashSet<GrouperIncrementalDataItem>();
 
   /**
    * get the entity objects and the memberships for these.
@@ -84,7 +83,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the group objects.
    * these are for group metadata or referenced in a membership
    */
-  private Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = new TreeSet<GrouperIncrementalDataItem>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.
@@ -113,7 +112,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the entity objects.
    * these are for entity metadata or referenced in a membership
    */
-  private Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly = new TreeSet<GrouperIncrementalDataItem>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.  

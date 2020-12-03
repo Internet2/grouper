@@ -275,9 +275,12 @@ public class GcGrouperSyncMembershipDao {
       GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToSyncGroup.get(groupId);
       GcGrouperSyncMember gcGrouperSyncMember = memberIdToSyncMember.get(memberId);
 
-      if (gcGrouperSyncGroup == null || gcGrouperSyncMember == null 
-          || gcGrouperSyncGroup.getId() == null || gcGrouperSyncMember.getId() == null) {
-        throw new RuntimeException("Cant find group or member! " + groupId + ", " + memberId);
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        throw new RuntimeException("Cant find group! " + groupId);
+      }
+
+      if (gcGrouperSyncMember == null || gcGrouperSyncMember.getId() == null) {
+        throw new RuntimeException("Cant find member! " + memberId);
       }
       GcGrouperSyncMembership gcGrouperSyncMembership = 
           this.internal_membershipCreateBySyncGroupIdAndSyncMemberIdHelper(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());

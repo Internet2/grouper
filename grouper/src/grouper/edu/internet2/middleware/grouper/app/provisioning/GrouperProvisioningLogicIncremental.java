@@ -1136,7 +1136,7 @@ public class GrouperProvisioningLogicIncremental {
       secondsToCheck = 60*2 + 20;
     }
 
-    long millisToCheckFrom = gcGrouperSync.getLastFullSyncStart() == null ? -1 : gcGrouperSync.getLastFullMetadataSyncStart().getTime();
+    long millisToCheckFrom = gcGrouperSync.getLastFullSyncStart() == null ? -1 : gcGrouperSync.getLastFullSyncStart().getTime();
 
     if (secondsToCheck > 0) {
       long newMillisToCheckFrom = System.currentTimeMillis() - (secondsToCheck * 1000);

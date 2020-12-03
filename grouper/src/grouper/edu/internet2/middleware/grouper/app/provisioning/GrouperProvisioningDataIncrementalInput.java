@@ -103,6 +103,9 @@ public class GrouperProvisioningDataIncrementalInput {
    * @return
    */
   public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithRecalc() {
+    if (this.grouperIncrementalDataToProcessWithRecalc == null) {
+      this.grouperIncrementalDataToProcessWithRecalc = new GrouperIncrementalDataToProcess();
+    }
     return grouperIncrementalDataToProcessWithRecalc;
   }
 

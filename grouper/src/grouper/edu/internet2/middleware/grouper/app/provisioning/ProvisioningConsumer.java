@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumer;
@@ -34,7 +35,9 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
 
     Map<String, Object> debugMapOverall = this.getEsbConsumer().getDebugMapOverall();
     
-    final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(this.getChangeLogProcessorMetadata().getConsumerName());
+    String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerTarget");
+    
+    final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
     grouperProvisioner.setProvisioningConsumer(this);
     grouperProvisioner.setDebugMap(debugMapOverall);
     final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
@@ -51,7 +54,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       }
       
     });
-
+ //TODO get provisioning type from config
     GrouperProvisioningType grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
     grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().setEsbEventContainers(esbEventContainers);
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);

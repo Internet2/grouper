@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+
 public class GrouperIncrementalDataItem {
 
   public static void main(String[] args) {
@@ -19,8 +21,8 @@ public class GrouperIncrementalDataItem {
   public int hashCode() {
     return new HashCodeBuilder()
         // dont worry about the millisSince1970, actions should be added in order
-        .append(this.item)
-        .append(this.grouperIncrementalDataAction).toHashCode();
+        // dont worry about action, we shouldnt have more than one item with same data
+        .append(this.item).toHashCode();
   }
 
   @Override
@@ -31,8 +33,9 @@ public class GrouperIncrementalDataItem {
     GrouperIncrementalDataItem grouperIncrementalDataItem = (GrouperIncrementalDataItem)obj;
     return new EqualsBuilder()
         // dont worry about the millisSince1970, actions should be added in order
+        // dont worry about action, we shouldnt have more than one item with same data
         .append(this.item, grouperIncrementalDataItem.item)
-        .append(this.grouperIncrementalDataAction, grouperIncrementalDataItem.grouperIncrementalDataAction).isEquals();
+        .isEquals();
   }
 
   /**
@@ -98,6 +101,5 @@ public class GrouperIncrementalDataItem {
       GrouperIncrementalDataAction grouperIncrementalDataAction) {
     this.grouperIncrementalDataAction = grouperIncrementalDataAction;
   }
-  
-  
+
 }

@@ -248,7 +248,6 @@ public class ProvisioningMessage {
   public void send(final String targetName) {
     String message = this.toJson();
     
-    //TODO we only need to send messages if there is an incremental provisioning job...
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
      @Override
