@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -99,10 +100,10 @@ import edu.internet2.middleware.morphString.Morph;
 public class LdaptiveSessionImpl implements LdapSession {
 
   /** map of connection name to pool */
-  private static Map<String, PooledConnectionFactory> poolMap = new HashMap<String, PooledConnectionFactory>();
+  private static Map<String, PooledConnectionFactory> poolMap = Collections.synchronizedMap(new HashMap<String, PooledConnectionFactory>());
   
   /** map of connection name to properties */
-  private static Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+  private static Map<String, Properties> propertiesMap = Collections.synchronizedMap(new HashMap<String, Properties>());
   
   /** pools that need to be cleaned up */
   private static List<PooledConnectionFactory> poolsNeedingCleanup = new ArrayList<PooledConnectionFactory>();
@@ -113,7 +114,7 @@ public class LdaptiveSessionImpl implements LdapSession {
    **/
   public static final String ENCRYPTABLE_LDAPTIVE_PROPERTIES[] = new String[]{"org.ldaptive.bindCredential"};
   
-  private static Map<String, LinkedHashSet<Class<SearchEntryHandler>>> searchEntryHandlers = new HashMap<String, LinkedHashSet<Class<SearchEntryHandler>>>();
+  private static Map<String, LinkedHashSet<Class<SearchEntryHandler>>> searchEntryHandlers = Collections.synchronizedMap(new HashMap<String, LinkedHashSet<Class<SearchEntryHandler>>>());
   
   private static boolean hasWarnedAboutMissingDnAttributeForSearches = false;
   
@@ -1031,19 +1032,6 @@ public class LdaptiveSessionImpl implements LdapSession {
   
   public void refreshConnectionsIfNeeded(final String ldapServerId) { 
     synchronized (LdaptiveSessionImpl.class) {
-      if (poolMap.containsKey(ldapServerId) && propertiesMap.containsKey(ldapServerId)) {
-        if (!propertiesMap.get(ldapServerId).equals(getLdaptiveProperties(ldapServerId))) {
-          PooledConnectionFactory pool = poolMap.remove(ldapServerId);
-          
-          if (pool.getConnectionPool().activeCount() > 0) {
-            poolsNeedingCleanup.add(pool);
-            LOG.warn("Unable to close old LDAP pool since it is being used.  Will check again later.");
-          } else {
-            pool.getConnectionPool().close();
-            LOG.warn("Closed old LDAP pool after confirming not in use.");
-          }
-        }
-      }
       
       Iterator<PooledConnectionFactory> poolsNeedingCleanupIter = poolsNeedingCleanup.iterator();
       while (poolsNeedingCleanupIter.hasNext()) {
@@ -1054,6 +1042,13 @@ public class LdaptiveSessionImpl implements LdapSession {
           LOG.warn("Closed old LDAP pool after confirming not in use.");
         } else {
           LOG.warn("Unable to close old LDAP pool since it is being used.  Will check again later.");
+        }
+      }
+      
+      if (poolMap.containsKey(ldapServerId) && propertiesMap.containsKey(ldapServerId)) {
+        if (!propertiesMap.get(ldapServerId).equals(getLdaptiveProperties(ldapServerId))) {
+          PooledConnectionFactory pool = poolMap.remove(ldapServerId);
+          poolsNeedingCleanup.add(pool);
         }
       }
     }
