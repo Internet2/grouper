@@ -47,6 +47,22 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class EsbConsumer extends ChangeLogConsumerBase {
 
+  @Override
+  public Integer getBatchSize() {
+    this.initEsbPublisherBase();
+    return this.esbPublisherBase.getBatchSize();
+  }
+
+  /**
+   * some change log consumers might want to be called even if nothing happened in change log
+   * e.g. check messages in provisioners
+   */
+  @Override
+  public boolean callAtLeastOnce() {
+    this.initEsbPublisherBase();
+    return this.esbPublisherBase.callAtLeastOnce();
+  }
+
   /**
    * 
    * @param args
@@ -441,11 +457,11 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     // all containers for logging or whatever
     List<EsbEventContainer> allEsbEventContainers = new ArrayList<EsbEventContainer>();
 
+    List<EsbEventContainer> esbEventContainersToProcess = new ArrayList<EsbEventContainer>();
+
     //try catch so we can track that we made some progress
     try {
       
-      List<EsbEventContainer> esbEventContainersToProcess = new ArrayList<EsbEventContainer>();
-
       debugMapOverall.put("totalCount", GrouperUtil.length(changeLogEntryList));
 
       //####### STEP 1: convert to esb events
@@ -475,15 +491,12 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       
       // ######### STEP 17: send to the publisher
       this.debugMapOverall.put("state", "sendToPublisher");
-      String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
-          + ".publisher.class");
-      debugMapOverall.put("publisherClass", theClassName);
-      Class<?> theClass = GrouperUtil.forName(theClassName);
-      this.esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
+
+      this.initEsbPublisherBase();
       
       this.esbPublisherBase.setChangeLogProcessorMetadata(this.changeLogProcessorMetadata);
       this.esbPublisherBase.setEsbConsumer(this);
-      long lastEventSequenceOverall = allEsbEventContainers.get(allEsbEventContainers.size()-1).getSequenceNumber();
+      long lastEventSequenceOverall = allEsbEventContainers.size() > 0 ? allEsbEventContainers.get(allEsbEventContainers.size()-1).getSequenceNumber() : -1;
 
       if (GrouperUtil.length(esbEventContainersToProcess) > 0) {
         long lastEventSequenceToProcess = esbEventContainersToProcess.get(esbEventContainersToProcess.size()-1).getSequenceNumber();
@@ -496,7 +509,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         }
         
       } else {
-        
+        if (this.callAtLeastOnce()) {
+          this.esbPublisherBase.dispatchEventList(esbEventContainersToProcess);
+        }
         // no records to process, we good
         currentId = lastEventSequenceOverall;
         
@@ -573,10 +588,27 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     }
 
     // not sure why this would happen
-    if (currentId == -1) {
+    if (GrouperUtil.length(esbEventContainersToProcess) > 0 && currentId == -1) {
       throw new RuntimeException("Couldn't process any records: " + GrouperUtil.mapToString(debugMapOverall));
     }
     return currentId;
+  }
+
+  
+  public void initEsbPublisherBase() {
+    if (this.esbPublisherBase == null) {
+      String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + this.getConsumerName()
+          + ".publisher.class");
+      Class<?> theClass = GrouperUtil.forName(theClassName);
+      this.esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
+    }    
+    if (this.debugMapOverall != null) {
+      debugMapOverall.put("publisherClass", this.esbPublisherBase.getClass().getName());
+    }
+  }
+
+  public EsbListenerBase getEsbPublisherBase() {
+    return this.esbPublisherBase;
   }
 
   /**

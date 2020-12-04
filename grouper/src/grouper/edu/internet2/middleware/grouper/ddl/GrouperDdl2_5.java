@@ -651,6 +651,22 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "provisionable", 
           Types.VARCHAR, "1", false, false);
     
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_insert_or_exists", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_start", 
+//            Types.TIMESTAMP, "10", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_end", 
+//            Types.TIMESTAMP, "10", false, false);
+//
+//      }
+//
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_target", 
           Types.VARCHAR, "1", false, false);
     
@@ -738,6 +754,22 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_identifier", 
           Types.VARCHAR, "255", false, false);
     
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_insert_or_exists", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_start", 
+//            Types.TIMESTAMP, "10", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_end", 
+//            Types.TIMESTAMP, "10", false, false);
+//
+//      }
+//
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target", 
           Types.VARCHAR, "1", false, false);
     
@@ -818,7 +850,23 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "grouper_sync_member_id", 
           Types.VARCHAR, "40", false, true);
-    
+      
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_insert_or_exists", 
+//            Types.VARCHAR, "1", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_start", 
+//            Types.TIMESTAMP, "10", false, false);
+//      
+//        GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_grouper_end", 
+//            Types.TIMESTAMP, "10", false, false);
+//
+//      }
+//
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "in_target", 
           Types.VARCHAR, "1", false, false);
     
@@ -975,6 +1023,18 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "provisionable", "T if provisionable and F is not");
     
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//        
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_start", "when this was put in grouper");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_end", "when this was taken out of grouper");
+//
+//      }
+//      
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target", "T if exists in target/destination and F is not.  blank if not sure");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_insert_or_exists", "T if inserted on the in_target_start date, or F if it existed then and not sure when inserted");
@@ -1027,7 +1087,19 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_id", "subject id");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_identifier", "netId or eppn or whatever");
-    
+      
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//        
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_start", "when this was put in grouper");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_end", "when this was taken out of grouper");
+//
+//      }
+//
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target", "T if exists in target/destination and F is not.  blank if not sure");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_insert_or_exists", "T if inserted on the in_target_start date, or F if it existed then and not sure when inserted");
@@ -1077,7 +1149,19 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_group_id", "foreign key back to sync group table");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "grouper_sync_member_id", "foreign key back to sync member table");
-    
+      
+//      if (GrouperDdl2_5_38.buildingToThisVersionAtLeast(ddlVersionBean)) {
+//        
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_start", "when this was put in grouper");
+//
+//        GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_grouper_end", "when this was taken out of grouper");
+//
+//      }
+//
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target", "T if exists in target/destination and F is not.  blank if not sure");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "in_target_insert_or_exists", "T if inserted on the in_target_start date, or F if it existed then and not sure when inserted");

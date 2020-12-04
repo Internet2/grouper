@@ -224,7 +224,13 @@ public class ChangeLogHelper {
 
       batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName + ".changeLogConsumerBatchSize", batchSize);
 
-      for (int i=0;i<1000;i++) {
+      changeLogConsumerBase.setConsumerName(consumerName);
+      
+      batchSize = GrouperUtil.intValue(changeLogConsumerBase.getBatchSize(), batchSize);
+      
+      boolean calledOnce = false;
+      
+      for (int i=0;i<Math.max(1, 1000000/batchSize);i++) {
         
         ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
         changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
@@ -238,12 +244,20 @@ public class ChangeLogHelper {
         }
         
         if (changeLogEntryList.size() == 0) {
+          if (!calledOnce) {
+            // some change log consumers might want to be called even if nothing happened in change log
+            // e.g. check messages in provisioners
+            if (changeLogConsumerBase.callAtLeastOnce()) {
+              changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
+            }
+          }
           break;
         }
         
         //pass this to the consumer
         long lastProcessed = -1;
         try {
+          calledOnce = true;
           lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
           
           if (LOG.isDebugEnabled()) {

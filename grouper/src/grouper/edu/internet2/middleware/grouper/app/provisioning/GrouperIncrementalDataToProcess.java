@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * 
  * @author mchyzer-local
@@ -12,7 +14,25 @@ public class GrouperIncrementalDataToProcess {
 
   private GrouperProvisioner grouperProvisioner;
 
-  
+  public boolean isHasIncrementalDataToProcess() {
+    if (GrouperUtil.length(this.groupUuidsForGroupMembershipSync) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.groupUuidsForGroupOnly) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.memberUuidsForEntityMembershipSync) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.memberUuidsForEntityOnly) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.groupUuidsMemberUuidsForMembershipSync) > 0) {
+      return true;
+    }
+    return false;
+  }
+
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -140,14 +160,14 @@ public class GrouperIncrementalDataToProcess {
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    */
-  private Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsFieldIdsForMembershipSync = new HashSet<GrouperIncrementalDataItem>();
+  private Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsForMembershipSync = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    * @return
    */
   public Set<GrouperIncrementalDataItem> getGroupUuidsMemberUuidsForMembershipSync() {
-    return groupUuidsMemberUuidsFieldIdsForMembershipSync;
+    return groupUuidsMemberUuidsForMembershipSync;
   }
 
 
@@ -155,9 +175,9 @@ public class GrouperIncrementalDataToProcess {
    * multi key of group uuid, member uuids, field ids for membership sync
    * @param groupUuidsMemberUuidsForMembershipSync
    */
-  public void setGroupUuidsMemberUuidsFieldIdsForMembershipSync(
+  public void setGroupUuidsMemberUuidsForMembershipSync(
       Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsForMembershipSync) {
-    this.groupUuidsMemberUuidsFieldIdsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
+    this.groupUuidsMemberUuidsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
   }
 
   

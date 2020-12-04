@@ -281,5 +281,22 @@ public abstract class EsbListenerBase {
   protected boolean isProcessObjectsInsteadOfJson() {
     return false;
   }
+
+  /**
+   * override the batch size configured in config file
+   * @return
+   */
+  public Integer getBatchSize() {
+    return null;
+  }
+
+  /**
+   * some change log consumers might want to be called even if nothing happened in change log
+   * e.g. check messages in provisioners
+   * @return
+   */
+  public boolean callAtLeastOnce() {
+    return false;
+  }
   
 }

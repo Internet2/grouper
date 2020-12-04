@@ -520,6 +520,8 @@ public abstract class GrouperProvisioner {
     //gcTableSyncOutput.setTotal();
     this.grouperProvisioningOutput.setMessage(debugString);
 
+    this.getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
+
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
       throw new RuntimeException(debugString);
@@ -681,7 +683,7 @@ public abstract class GrouperProvisioner {
 
   
   
-  private ProvisioningSyncResult provisioningSyncResult = null;
+  private ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
 
   
   public ProvisioningSyncResult getProvisioningSyncResult() {

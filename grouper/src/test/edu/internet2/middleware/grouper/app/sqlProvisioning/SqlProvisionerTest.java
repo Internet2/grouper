@@ -105,7 +105,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.grouperSession = grouperSession;
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaRealTime"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaRealTimeAddMember"));
     
   }
   
@@ -332,48 +332,82 @@ public class SqlProvisionerTest extends GrouperTest {
    * 
    */
   public void ensureTableSyncTables() {
-    //we need to delete the test table if it is there, and create a new one
-    //drop field id col, first drop foreign keys
-    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-  
-      public void changeDatabase(DdlVersionBean ddlVersionBean) {
-        
-        Database database = ddlVersionBean.getDatabase();
-  
-        createTableLdapGroup(ddlVersionBean, database);
-        createTableLdapGroupAttr(ddlVersionBean, database);
-        createTableLdapEntity(ddlVersionBean, database);
-        createTableLdapEntityAttr(ddlVersionBean, database);
+    createTableLdapGroup();
+    createTableLdapGroupAttr();
+    createTableLdapEntity();
+    createTableLdapEntityAttr();
 
-        createTableGroup(ddlVersionBean, database);
-        
-        createTableMship0(ddlVersionBean, database);
-        
-        createTableMship1(ddlVersionBean, database);
-      }
-      
-    });
+    createTableGroup();
+    
+    createTableMship0();
+    
+    createTableMship1();
   }
 
   /**
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableGroup(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableGroup() {
   
-    String tableName = "testgrouper_prov_group";
+    final String tableName = "testgrouper_prov_group";
+  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+          
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "posix_id", Types.BIGINT, "10", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "posix_id", Types.BIGINT, "10", false, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "1024", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "1024", false, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+        }
+        
+      });
+    }
+  }
+  
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public void createTableLdapGroup() {
+
+    final String tableName = "testgrouper_prov_ldap_group";
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+    
+          
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+        }
+        
+      });
+    }
     
   }
   
@@ -381,27 +415,28 @@ public class SqlProvisionerTest extends GrouperTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapGroup(DdlVersionBean ddlVersionBean, Database database) {
-  
-    String tableName = "testgrouper_prov_ldap_group";
-    
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
-    
-  }
-  
-  /**
-   * @param ddlVersionBean
-   * @param database
-   */
-  public void createTableLdapEntity(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableLdapEntity() {
   
     String tableName = "testgrouper_prov_ldap_entity";
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+    
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+        }
+        
+      });
+    }
     
   }
   
@@ -409,52 +444,96 @@ public class SqlProvisionerTest extends GrouperTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapGroupAttr(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableLdapGroupAttr() {
   
     String tableName = "testgrouper_prov_ldap_group_attr";
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, true);
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", true, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, true);
 
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", true, false);
+        }
+        
+      });
+    }
   }
 
   /**
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableMship1(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableMship1() {
   
     String tableName = "testgrouper_prov_mship1";
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", false, true);
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "1024", false, true);
-    
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", false, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "1024", false, true);
+          
+        }
+        
+      });
+    }
   }
 
   /**
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableMship0(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableMship0() {
   
     String tableName = "testgrouper_prov_mship0";
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "180", true, true);
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "70", true, true);
-    
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "180", true, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "70", true, true);
+          
+        }
+        
+      });
+    }
   }
 
   /**
@@ -1687,18 +1766,34 @@ public class SqlProvisionerTest extends GrouperTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapEntityAttr(DdlVersionBean ddlVersionBean, Database database) {
+  public void createTableLdapEntityAttr() {
   
     String tableName = "testgrouper_prov_ldap_entity_attr";
     
-    Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_name", Types.VARCHAR, "200", true, true);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_value", Types.VARCHAR, "200", true, false);
-  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+        
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_name", Types.VARCHAR, "200", true, true);
+        
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_value", Types.VARCHAR, "200", true, false);
+        
+        }
+        
+      });
+    }
+
   }
 
   /**
@@ -1912,14 +2007,6 @@ public class SqlProvisionerTest extends GrouperTest {
     //TODO make an attribute config for this
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.entityLink.memberToId2", "${targetEntity.retrieveAttributeValue('dn')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationMembership.scriptCount", "1");
-    
-    //TODO make an attribute config for this
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationMembership.0.script", 
-        "${if (!grouperUtil.isBlank(gcGrouperSyncMember.getMemberToId2())) { "
-        + "grouperTargetGroup.addAttributeValueForMembership('member', gcGrouperSyncMember.getMemberToId2());"
-        + "}"
-        + "}");
     
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.scriptCount",  "2");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.0.script",  
@@ -2200,6 +2287,203 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
 
 
+  }
+
+  /**
+   * just do a simple full sync of groups and memberships
+   */
+  public void testSimpleGroupLdapPaRealTimeAddMember() {
+    
+    long started = System.currentTimeMillis();
+
+    configureLdapPaTestCase();
+
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.quartzCron", "0 * * * * ?");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerTarget", "pspng_oneprod");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerJobSyncType", "incrementalProvisionChangeLog");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.debug", "true");
+    
+    // # if provisioning in ui should be enabled
+    //# {valueType: "boolean", required: true}
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    Stem stem3 = new StemSave(this.grouperSession).assignName("test3").save();
+    Stem stem4 = new StemSave(this.grouperSession).assignName("test4").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test3:testGroup3").save();
+    Group testGroup4 = new GroupSave(this.grouperSession).assignName("test4:testGroup4").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+  
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+  
+    testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
+    testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
+  
+    testGroup4.addMember(SubjectTestHelper.SUBJ6, false);
+    testGroup4.addMember(SubjectTestHelper.SUBJ7, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(true);
+    attributeValue.setTargetName("pspng_oneprod");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // add some entities
+    for (int i=0;i<10;i++) {
+      String uuid = GrouperUuid.getUuid();
+      String dn = "dn_test.subject." + i;
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+    }
+    
+    
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+
+    assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
+
+    assertLdapAttributesInTable(GrouperUtil.toSet(
+        new MultiKey("test:testGroup", "cn", "test:testGroup"),
+        new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu"),
+        new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex()),
+        new MultiKey("test:testGroup", "objectClass", "group"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "pspng_oneprod");
+
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+    assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncGroup.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
+        EsbConsumer.class.getName());
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
+        ProvisioningConsumer.class.getName());
+    
+    //something that will never fire
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
+        "0 0 5 * * 2000");
+
+    // we dont need an EL filter
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
+    //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "pspng_oneprod");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
+        GrouperProvisioningType.incrementalProvisionChangeLog.name());
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
+
+    //clear out changelog
+    // run the provisioner, it will init
+    hib3GrouperLoaderLog = runJobs(true, true);
+    
+    ProvisioningConsumer provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+
+    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+    
+    int messageCount = GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0);
+    
+    assertEquals(1, messageCount);
+    
+    assertFalse((Boolean)grouperProvisioner.getDebugMap().get("hasIncrementalDataToProcess"));
+    
+    // add member
+    testGroup.addMember(SubjectTestHelper.SUBJ8, false);
+
+    // run the provisioner
+    hib3GrouperLoaderLog = runJobs(true, true);
+
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    // this includes fields and attributes etc
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+
+    assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
+
+    assertLdapAttributesInTable(GrouperUtil.toSet(
+        new MultiKey("test:testGroup", "cn", "test:testGroup"),
+        new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu"),
+        new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex()),
+        new MultiKey("test:testGroup", "objectClass", "group"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
+
+  }
+
+  private void assertLdapAttributesInTable(Set<MultiKey> set) {
+    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    String errorMessage = "Expected: " + GrouperUtil.setToString(set) + "      ,     Actual: " + GrouperUtil.setToString(attributesInTable);
+
+    assertEquals(errorMessage,set.size(), attributesInTable.size());
+    for (MultiKey name: set) {
+      if (!attributesInTable.contains(name)) {
+        assertTrue(errorMessage, false);
+      }
+    }
+
+  }
+  
+  private void assertLdapGroupNamesInTable(Set<String> set) {
+    String sql = "select uuid from testgrouper_prov_ldap_group";
+
+    List<String> dataInTable = new GcDbAccess().sql(sql).selectList(String.class);
+    
+    Set<String> groupNamesInTable = new HashSet<String>();
+    
+    for (String row: dataInTable) {
+      groupNamesInTable.add(row);
+    }
+    
+    String errorMessage = "Expected: " + GrouperUtil.setToString(set) + "      ,     Actual: " + GrouperUtil.setToString(groupNamesInTable);
+    assertEquals(errorMessage,set.size(), groupNamesInTable.size());
+    for (String name: set) {
+      if (!groupNamesInTable.contains(name)) {
+        assertTrue(errorMessage, false);
+      }
+    }
+    
   }
 
 }

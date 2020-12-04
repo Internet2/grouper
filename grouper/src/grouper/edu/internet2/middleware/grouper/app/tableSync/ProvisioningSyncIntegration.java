@@ -195,6 +195,34 @@ public class ProvisioningSyncIntegration {
       ProvisioningGroupWrapper provisioningGroupWrapper, String newGroupName,
       Long newGroupIdIndex, boolean groupIsProvisionable) {
     
+//    {
+//      // is in grouper?
+//      Boolean inGrouper = null;
+//      if (inGrouper == null && provisioningGroupWrapper != null && provisioningGroupWrapper.isDelete()) {
+//        inGrouper = false;
+//      }
+//      if (inGrouper == null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null) {
+//        inGrouper = true;
+//      }
+//      if (inGrouper == null && groupIsProvisionable) {
+//        inGrouper = true;
+//      }
+//      if (inGrouper == null) {
+//        inGrouper = false;
+//      }
+//      if (gcGrouperSyncGroup.getInGrouper() != inGrouper) {
+//        if (gcGrouperSyncGroup.getInGrouperInsertOrExistsDb() == null) {
+//          gcGrouperSyncGroup.setInTargetInsertOrExists(false);
+//        }
+//        gcGrouperSyncGroup.setInGrouper(inGrouper);
+//        if (inGrouper) {
+//          gcGrouperSyncGroup.setInGrouperStart(new Timestamp(System.currentTimeMillis()));
+//        } else {
+//          gcGrouperSyncGroup.setInGrouperEnd(new Timestamp(System.currentTimeMillis()));
+//        }
+//      }
+//    }
+//    
     // keep it
     if (groupIsProvisionable || gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncGroup.isInTarget()) {
       
@@ -239,9 +267,11 @@ public class ProvisioningSyncIntegration {
     groupUuidToSyncGroup.remove(gcGrouperSyncGroup.getGroupId());
 
     //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
-    if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTargetEnd() == null) {
+    if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTargetEnd() != null) {
       long targetEndMillis = gcGrouperSyncGroup.getInTargetEnd() == null ? 0 : gcGrouperSyncGroup.getInTargetEnd().getTime();
-      if ((System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget) {
+      targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getProvisionableEnd() == null ? 0 : gcGrouperSyncGroup.getProvisionableEnd().getTime());
+      targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getLastUpdated() == null ? 0 : gcGrouperSyncGroup.getLastUpdated().getTime());
+      if (targetEndMillis != 0 &&( (System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget)) {
         gcGrouperSyncRowsToDeleteFromDatabase.add(gcGrouperSyncGroup);
       }
     }
@@ -336,11 +366,13 @@ public class ProvisioningSyncIntegration {
         }
         
         memberUuidToSyncMember.remove(gcGrouperSyncMember.getMemberId());
-  
+        
         if (!gcGrouperSyncMember.isInTarget() && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTargetEnd() != null) {
-          //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
           long targetEndMillis = gcGrouperSyncMember.getInTargetEnd() == null ? 0 : gcGrouperSyncMember.getInTargetEnd().getTime();
-          if ((System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget) {
+          targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getProvisionableEnd() == null ? 0 : gcGrouperSyncMember.getProvisionableEnd().getTime());
+          targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getLastUpdated() == null ? 0 : gcGrouperSyncMember.getLastUpdated().getTime());
+          //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
+          if (targetEndMillis != 0 &&( (System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget)) {
             gcGrouperSyncRowsToDeleteFromDatabase.add(gcGrouperSyncMember);
           }
         }
@@ -518,10 +550,13 @@ public class ProvisioningSyncIntegration {
         
         groupIdMemberIdToSyncMembership.remove(groupIdMemberId);
   
+
         if (!gcGrouperSyncMembership.isInTarget() && gcGrouperSyncMembership.getInTargetEnd() != null) {
           //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
           long targetEndMillis = gcGrouperSyncMembership.getInTargetEnd() == null ? 0 : gcGrouperSyncMembership.getInTargetEnd().getTime();
-          if ((System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget) {
+          targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMembership.getLastUpdated() == null ? 0 : gcGrouperSyncMembership.getLastUpdated().getTime());
+          //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
+          if (targetEndMillis != 0 &&( (System.currentTimeMillis() - targetEndMillis) / 1000 > removeSyncRowsAfterSecondsOutOfTarget)) {
             gcGrouperSyncRowsToDeleteFromDatabase.add(gcGrouperSyncMembership);
           }
         }

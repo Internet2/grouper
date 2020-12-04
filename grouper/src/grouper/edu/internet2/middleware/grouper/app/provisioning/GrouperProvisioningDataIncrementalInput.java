@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 
@@ -170,6 +171,31 @@ public class GrouperProvisioningDataIncrementalInput {
   
   public List<GrouperMessage> getGrouperMessages() {
     return grouperMessages;
+  }
+
+  public boolean isHasEvents() {
+    if (GrouperUtil.length(this.esbEventContainers) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.grouperMessages) > 0) {
+      return true;
+    }
+    this.getGrouperProvisioner().getDebugMap().put("hasEvents", false);
+    return false;
+  }
+
+  public boolean isHasIncrementalDataToProcess() {
+    if (this.fullSync) {
+      return true;
+    }
+    if (this.grouperIncrementalDataToProcessWithoutRecalc.isHasIncrementalDataToProcess()) {
+      return true;
+    }
+    if (this.grouperIncrementalDataToProcessWithRecalc.isHasIncrementalDataToProcess()) {
+      return true;
+    }
+    this.getGrouperProvisioner().getDebugMap().put("hasIncrementalDataToProcess", false);
+    return false;
   }
   
 

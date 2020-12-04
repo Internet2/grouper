@@ -22,14 +22,35 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
   public ProvisioningConsumer() {
   }
 
+  private GrouperProvisioner grouperProvisioner;
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+  @Override
+  public Integer getBatchSize() {
+    return 100000;
+  }
+
+  /**
+   * some change log consumers might want to be called even if nothing happened in change log
+   * e.g. check messages in provisioners
+   */
+  @Override
+  public boolean callAtLeastOnce() {
+    return true;
+  }
+
   @Override
   public ProvisioningSyncConsumerResult dispatchEventList(
       List<EsbEventContainer> esbEventContainers) {
     
-    // not sure why this would happen...
-    if (GrouperUtil.length(esbEventContainers) == 0) {
-      return null;
-    }
+    // not sure why this would happen... if there are no change log events but there might be
+    // messages
+//    if (GrouperUtil.length(esbEventContainers) == 0) {
+//      return null;
+//    }
     
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
 
@@ -37,7 +58,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     
     String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerTarget");
     
-    final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
+    this.grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
     grouperProvisioner.setProvisioningConsumer(this);
     grouperProvisioner.setDebugMap(debugMapOverall);
     final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
@@ -54,7 +75,8 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       }
       
     });
- //TODO get provisioning type from config
+    
+    //TODO get provisioning type from config
     GrouperProvisioningType grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
     grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().setEsbEventContainers(esbEventContainers);
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
@@ -62,8 +84,11 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     hib3GrouperLoaderLog.store();
 
     // if we didnt throw an exception, then we processed all of them
-    EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
-    Long lastSequenceNumber = lastEvent.getSequenceNumber();
+    Long lastSequenceNumber = -1L;
+    if (GrouperUtil.length(esbEventContainers) > 0) {
+      EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
+      lastSequenceNumber = lastEvent.getSequenceNumber();
+    }
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceNumber);
     return provisioningSyncConsumerResult;
   }
