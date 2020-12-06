@@ -1,14 +1,19 @@
 package edu.internet2.middleware.grouper.app.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,6 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -316,7 +322,7 @@ public abstract class GrouperConfigurationModuleBase {
     
     ConfigPropertiesCascadeBase configPropertiesCascadeBase = configFileName.getConfig();
     
-    Map<String, GrouperConfigurationModuleAttribute> result = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+    Map<String, GrouperConfigurationModuleAttribute> tempResult = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
 
     Pattern pattern = Pattern.compile(this.getConfigIdRegex());
 
@@ -377,61 +383,171 @@ public abstract class GrouperConfigurationModuleBase {
       configIdThatIdentifiesThisConfig = this.getConfigIdThatIdentifiesThisConfig();
     }
     
-      for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
-        for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
-
-          String propertyName = configItemMetadata.getKeyOrSampleKey();
-          String suffix = propertyName;
-          if (!this.retrieveExtraConfigKeys().contains(propertyName)) {
-            
-            Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
-            if (!matcher.matches()) {
-              continue;
-            }
-            
-            String prefix = matcher.group(1);
-            suffix = null;
-                    
-            if(this.isMultiple()) { // multiple means config id will not be blank on an edit
-
-              if (StringUtils.isBlank(configIdThatIdentifiesThisConfig)) {
-                throw new RuntimeException("Why is configIdThatIdentifiesThisConfig blank??? " + this.getClass().getName());
-              }
-
-              String currentConfigId = matcher.group(2);
-
-              if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisConfig)) {
-                continue;
-              }
-              
-              suffix = matcher.group(3);
-              propertyName = prefix + "." + this.getConfigId() + "." + suffix;
-              
-            } else {
-              
-              if (!StringUtils.isBlank(this.getConfigId())) {
-                throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
-              }
-              suffix = matcher.group(2);
-              propertyName = configItemMetadata.getKeyOrSampleKey();
-              
-            }
-
-          }
-          
-          GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata, configPropertiesCascadeBase);
-          result.put(suffix, grouperConfigModuleAttribute);
-       
+    Set<String> subsectionsToIgnore = new HashSet<String>();
+    Set<String> suffixesToIgnore = new HashSet<String>();
+    Set<Pattern> regexPatternsToIgnore = new HashSet<Pattern>();
+    
+    if (!StringUtils.isBlank(configIdThatIdentifiesThisConfig)) {
+      
+      {
+        String subsectionsToIgnoreString = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisionerPropertiesToIgnore."+this.getClass().getSimpleName()+".subsections", "");
+        String[] ignoreSusections = subsectionsToIgnoreString.split(",");
+        for (String singleSubsection: ignoreSusections) {
+          subsectionsToIgnore.add(singleSubsection.trim());
         }
       }
       
-      Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(result);
-      result.putAll(extraAttributes);
+      {
+        String suffixesToIgnoreString = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisionerPropertiesToIgnore."+this.getClass().getSimpleName()+".keySuffixes", "");
+        String[] ignoreSuffixes = suffixesToIgnoreString.split(",");
+        for (String singleSuffix: ignoreSuffixes) {
+          suffixesToIgnore.add(singleSuffix.trim());
+        }
+      }
       
-      this.attributeCache = result;
+      {
+        String suffixesRegexToIgnoreString = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisionerPropertiesToIgnore."+this.getClass().getSimpleName()+".keySuffixRegexes", "");
+        String[] ignoreSuffixesRegex = suffixesRegexToIgnoreString.split(",");
+        for (String singleSuffixRegex: ignoreSuffixesRegex) {
+          String regexStr = singleSuffixRegex.trim().replace("U+002C", ",");
+          regexPatternsToIgnore.add(Pattern.compile(regexStr));
+        }
+      }
+      
+    }
+    
+    for (ConfigSectionMetadata configSectionMetadata: configSectionMetadataList) {
+      lbl: for (ConfigItemMetadata configItemMetadata: configSectionMetadata.getConfigItemMetadataList()) {
 
+        String propertyName = configItemMetadata.getKeyOrSampleKey();
+        String suffix = propertyName;
+        if (!this.retrieveExtraConfigKeys().contains(propertyName)) {
+          
+          Matcher matcher = pattern.matcher(configItemMetadata.getKeyOrSampleKey());
+          if (!matcher.matches()) {
+            continue;
+          }
+          
+          String prefix = matcher.group(1);
+          suffix = null;
+                  
+          if(this.isMultiple()) { // multiple means config id will not be blank on an edit
 
-    return result;
+            if (StringUtils.isBlank(configIdThatIdentifiesThisConfig)) {
+              throw new RuntimeException("Why is configIdThatIdentifiesThisConfig blank??? " + this.getClass().getName());
+            }
+
+            String currentConfigId = matcher.group(2);
+
+            if (!StringUtils.equals(currentConfigId, configIdThatIdentifiesThisConfig) && 
+                !StringUtils.equals(currentConfigId, this.getGenericConfigId())) {
+              continue;
+            }
+            
+            suffix = matcher.group(3);
+            propertyName = prefix + "." + this.getConfigId() + "." + suffix;
+            
+          } else {
+            
+            if (!StringUtils.isBlank(this.getConfigId())) {
+              throw new RuntimeException("Why is configId not blank??? " + this.getClass().getName());
+            }
+            suffix = matcher.group(2);
+            propertyName = configItemMetadata.getKeyOrSampleKey();
+            
+          }
+
+        }
+        
+        if (subsectionsToIgnore.contains(configItemMetadata.getSubSection())) {
+          continue;
+        }
+        
+        if (suffixesToIgnore.contains(suffix)) {
+          continue;
+        }
+        
+        for (Pattern patternToIgnore: regexPatternsToIgnore) {
+          Matcher matcher = patternToIgnore.matcher(suffix);
+          if (matcher.matches()) {
+            continue lbl;
+          }
+        }
+        
+        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata, configPropertiesCascadeBase);
+        tempResult.put(suffix, grouperConfigModuleAttribute);
+     
+      }
+    }
+    
+    // entries belonging to the same repeat group; pull them out because they need to stay together
+    // they don't follow the order based on order property from json
+    
+    Map<String, Map<String, GrouperConfigurationModuleAttribute>> repeatGroups = new LinkedHashMap<String, Map<String, GrouperConfigurationModuleAttribute>>();
+    Map<Integer, String> orderToRepeatGroup = new TreeMap<Integer, String>(); 
+    
+    Iterator<Entry<String, GrouperConfigurationModuleAttribute>> iterator = tempResult.entrySet().iterator();
+    
+    while (iterator.hasNext()) {
+      
+      Entry<String, GrouperConfigurationModuleAttribute> entry = iterator.next();
+      String repeatGroup = entry.getValue().getConfigItemMetadata().getRepeatGroup();
+      
+      if (StringUtils.isNotBlank(repeatGroup)) {
+        
+        if (repeatGroups.containsKey(repeatGroup)) {
+          repeatGroups.get(repeatGroup).put(entry.getKey(), entry.getValue());
+          iterator.remove();
+        } else {
+          Map<String, GrouperConfigurationModuleAttribute> map = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+          map.put(entry.getKey(), entry.getValue());
+          repeatGroups.put(repeatGroup, map);
+          orderToRepeatGroup.put(entry.getValue().getConfigItemMetadata().getOrder(), repeatGroup);
+        }
+      }
+    }
+    
+    List<Map.Entry<String, GrouperConfigurationModuleAttribute>> sorted = new ArrayList<>(tempResult.entrySet());
+   
+    Collections.sort(sorted, new Comparator<Map.Entry<String, GrouperConfigurationModuleAttribute>>() {
+
+      @Override
+      public int compare(Entry<String, GrouperConfigurationModuleAttribute> o1,
+          Entry<String, GrouperConfigurationModuleAttribute> o2) {
+        
+        return o1.getValue().getConfigItemMetadata().getOrder() - o2.getValue().getConfigItemMetadata().getOrder();
+      }
+    });
+    
+    Map<String, GrouperConfigurationModuleAttribute> finalResult = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
+    
+    // place repeat groups in the sorted based on the order
+    for (Map.Entry<String, GrouperConfigurationModuleAttribute> entry: sorted) {
+      
+      int orderWithoutRepeatGroup= entry.getValue().getConfigItemMetadata().getOrder();
+      
+      Iterator<Entry<Integer, String>> itr = orderToRepeatGroup.entrySet().iterator();
+      
+      while (itr.hasNext()) {
+        Entry<Integer, String> ntry = itr.next();
+        if (ntry.getKey() < orderWithoutRepeatGroup) {
+          
+          String repeatGroup = ntry.getValue();
+          Map<String, GrouperConfigurationModuleAttribute> map = repeatGroups.get(repeatGroup);
+          finalResult.putAll(map);
+          itr.remove();
+        }
+      }
+      
+      finalResult.put(entry.getKey(), entry.getValue());
+    }
+    
+    Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(finalResult);
+    finalResult.putAll(extraAttributes);
+    
+    this.attributeCache = finalResult;
+
+    return finalResult;
     
   }
   
@@ -967,6 +1083,10 @@ public abstract class GrouperConfigurationModuleBase {
    * @return
    */
   protected abstract String getConfigurationTypePrefix();
+  
+  protected String getGenericConfigId() {
+    return null;
+  }
   
   /**
    * can there be multiple instances of this config. for eg: LdapProvisionerConfig is true but for GrouperDaemonChangeLogRulesConfiguration is false

@@ -212,6 +212,26 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * used for ordering elements
+   */
+  private int order;
+  
+  /**
+   * @return used for ordering elements
+   */
+  public int getOrder() {
+    return order;
+  }
+
+  /**
+   * used for ordering elements
+   * @param order
+   */
+  public void setOrder(int order) {
+    this.order = order;
+  }
+
+  /**
    * put a label to group items together.  if blank then all in default subsection
    */
   private String subSection;
@@ -327,7 +347,7 @@ public class ConfigItemMetadata {
     copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.comment = GrouperUtil.replace(this.comment, "$i$", GrouperUtil.stringValue(repeatIndex));
-//    copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
     
     copy.multiple = this.multiple;
     copy.required = this.required;
@@ -338,6 +358,7 @@ public class ConfigItemMetadata {
     copy.formElement = this.formElement;
     copy.optionValues = this.optionValues;
 //    copy.repeatCount = this.repeatCount;
+    copy.order = this.order;
     
     return copy;
   }
@@ -366,6 +387,7 @@ public class ConfigItemMetadata {
     this.readOnly = false;
     this.repeatGroup = null;
     this.repeatCount = 0;
+    this.order = 0;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -384,6 +406,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("repeatCount")) {
         this.repeatCount = jsonObject.getInt("repeatCount");
         jsonObject.remove("repeatCount");
+      }
+      
+      if (jsonObject.containsKey("order")) {
+        this.order = jsonObject.getInt("order");
+        jsonObject.remove("order");
       }
       
       if (jsonObject.containsKey("mustExtendClass")) {
@@ -825,7 +852,5 @@ public class ConfigItemMetadata {
   public void setCheckboxValuesFromClass(String checkboxValuesFromClass) {
     this.checkboxValuesFromClass = checkboxValuesFromClass;
   }
-  
-  
   
 }

@@ -45,7 +45,10 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     return "provisionerConfiguration";
   }
   
-  
+  @Override
+  protected String getGenericConfigId() {
+    return "genericProvisioner";
+  }
   
   @Override
   public void deleteConfig(boolean fromUi) {
