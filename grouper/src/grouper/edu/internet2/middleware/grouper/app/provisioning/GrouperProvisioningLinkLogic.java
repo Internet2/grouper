@@ -52,17 +52,10 @@ public class GrouperProvisioningLinkLogic {
     }
 
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId2();
-    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
-    
-    String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId3();
-    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
-  
-    String groupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId2();
-    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
-  
-    String groupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId3();
-    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+    boolean hasGroupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupFromId2();
+    boolean hasGroupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupFromId3();
+    boolean hasGroupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupToId2();
+    boolean hasGroupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupToId3();
   
     boolean needsRefresh = false;
     needsRefresh = needsRefresh || (hasGroupLinkGroupFromId2 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupFromId2()));
@@ -85,17 +78,10 @@ public class GrouperProvisioningLinkLogic {
     }
 
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String entityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2();
-    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
-    
-    String entityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3();
-    boolean hasEntityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3);
-  
-    String entityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2();
-    boolean hasEntityLinkMemberToId2 = !StringUtils.isBlank(entityLinkMemberToId2);
-  
-    String entityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3();
-    boolean hasEntityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3);
+    boolean hasEntityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberFromId2();
+    boolean hasEntityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberFromId3();
+    boolean hasEntityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberToId2();
+    boolean hasEntityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberToId3();
   
     boolean needsRefresh = false;
     needsRefresh = needsRefresh || (hasEntityLinkMemberFromId2 && StringUtils.isBlank(gcGrouperSyncMember.getMemberFromId2()));
@@ -172,16 +158,20 @@ public class GrouperProvisioningLinkLogic {
     
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
     String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId2();
-    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
+    GrouperProvisioningConfigurationAttribute groupLinkGroupFromId2Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupLinkGroupFromId2Attribute();
+    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2) || groupLinkGroupFromId2Attribute != null;
     
     String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId3();
-    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
+    GrouperProvisioningConfigurationAttribute groupLinkGroupFromId3Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupLinkGroupFromId3Attribute();
+    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3) || groupLinkGroupFromId3Attribute != null;
   
     String groupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId2();
-    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
+    GrouperProvisioningConfigurationAttribute groupLinkGroupToId2Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupLinkGroupToId2Attribute();
+    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2) || groupLinkGroupToId2Attribute != null;
   
     String groupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId3();
-    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+    GrouperProvisioningConfigurationAttribute groupLinkGroupToId3Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupLinkGroupToId3Attribute();
+    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3) || groupLinkGroupToId3Attribute != null;
   
     if (!hasGroupLinkGroupFromId2 && !hasGroupLinkGroupFromId3 && !hasGroupLinkGroupToId2 && !hasGroupLinkGroupToId3) {
       return;
@@ -220,7 +210,12 @@ public class GrouperProvisioningLinkLogic {
       variableMap.put("targetGroup", targetGroup);
       
       if (hasGroupLinkGroupFromId2) {
-        String groupFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap, true, false, true));
+        String groupFromId2Value = null;
+        if (groupLinkGroupFromId2Attribute != null) {
+          groupFromId2Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupFromId2Attribute);
+        } else {
+          groupFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(groupFromId2Value, gcGrouperSyncGroup.getGroupFromId2())) {
           gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
           hasChange = true;
@@ -228,7 +223,12 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupFromId3) {
-        String groupFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap, true, false, true));
+        String groupFromId3Value = null;
+        if (groupLinkGroupFromId3Attribute != null) {
+          groupFromId3Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupFromId3Attribute);
+        } else {
+          groupFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(groupFromId3Value, gcGrouperSyncGroup.getGroupFromId3())) {
           gcGrouperSyncGroup.setGroupFromId3(groupFromId3Value);
           hasChange = true;
@@ -236,7 +236,12 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupToId2) {
-        String groupToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap, true, false, true));
+        String groupToId2Value = null;
+        if (groupLinkGroupToId2Attribute != null) {
+          groupToId2Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupToId2Attribute);
+        } else {
+          groupToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(groupToId2Value, gcGrouperSyncGroup.getGroupToId2())) {
           gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
           hasChange = true;
@@ -244,7 +249,12 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupFromId3) {
-        String groupToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap, true, false, true));
+        String groupToId3Value = null;
+        if (groupLinkGroupToId3Attribute != null) {
+          groupToId3Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupToId3Attribute);
+        } else {
+          groupToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(groupToId3Value, gcGrouperSyncGroup.getGroupToId3())) {
           gcGrouperSyncGroup.setGroupToId3(groupToId3Value);
           hasChange = true;
@@ -303,38 +313,6 @@ public class GrouperProvisioningLinkLogic {
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
   }
 
-  public void updateGroupLinkIncremental() {
-    // If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
-    //TODO should this come from wrappers?
-    Collection<GcGrouperSyncGroup> gcGrouperSyncGroups = GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups());
-  
-    if (GrouperUtil.length(gcGrouperSyncGroups) == 0) {
-      return;
-    }
-    
-    List<GcGrouperSyncGroup> gcGrouperSyncGroupsToRefreshGroupLink = new ArrayList<GcGrouperSyncGroup>();
-    
-    int refreshGroupLinkIfLessThanAmount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getRefreshGroupLinkIfLessThanAmount();
-    if (GrouperUtil.length(gcGrouperSyncGroups) <= refreshGroupLinkIfLessThanAmount) {
-      gcGrouperSyncGroupsToRefreshGroupLink.addAll(gcGrouperSyncGroups);
-    } else {
-      for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
-        if (groupLinkMissing(gcGrouperSyncGroup)) {
-          gcGrouperSyncGroupsToRefreshGroupLink.add(gcGrouperSyncGroup);
-        }
-      }
-    }
-    int gcGrouperSyncGroupsToRefreshGroupLinkCount = GrouperUtil.length(gcGrouperSyncGroupsToRefreshGroupLink);
-    if (gcGrouperSyncGroupsToRefreshGroupLinkCount > 0) {
-      this.grouperProvisioner.getDebugMap().put("gcGrouperSyncGroupsToRefreshGroupLink", gcGrouperSyncGroupsToRefreshGroupLinkCount);
-    }
-    if (gcGrouperSyncGroupsToRefreshGroupLinkCount == 0) {
-      return;
-    }
-    // TODO retrieve groups and updateGroupLink(gcGrouperSyncGroupsToRefreshGroupLink);
-  }
-
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
@@ -352,16 +330,20 @@ public class GrouperProvisioningLinkLogic {
     
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
     String entityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2();
-    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
+    GrouperProvisioningConfigurationAttribute entityLinkMemberFromId2Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntityLinkMemberFromId2Attribute();
+    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2) || entityLinkMemberFromId2Attribute != null;
     
     String entityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3();
-    boolean hasEnityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3);
+    GrouperProvisioningConfigurationAttribute entityLinkMemberFromId3Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntityLinkMemberFromId3Attribute();
+    boolean hasEnityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3) || entityLinkMemberFromId3Attribute != null;
   
     String entityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2();
-    boolean hasEnityLinkMemberToId2 = !StringUtils.isBlank(entityLinkMemberToId2);
+    GrouperProvisioningConfigurationAttribute entityLinkMemberToId2Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntityLinkMemberToId2Attribute();
+    boolean hasEnityLinkMemberToId2 = !StringUtils.isBlank(entityLinkMemberToId2) || entityLinkMemberToId2Attribute != null;
   
     String entityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3();
-    boolean hasEnityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3);
+    GrouperProvisioningConfigurationAttribute entityLinkMemberToId3Attribute = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntityLinkMemberToId3Attribute();
+    boolean hasEnityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3) || entityLinkMemberToId3Attribute != null;
   
     if (!hasEntityLinkMemberFromId2 && !hasEnityLinkMemberFromId3 && !hasEnityLinkMemberToId2 && !hasEnityLinkMemberToId3) {
       return;
@@ -400,7 +382,12 @@ public class GrouperProvisioningLinkLogic {
       variableMap.put("targetEntity", targetEntity);
       
       if (hasEntityLinkMemberFromId2) {
-        String entityFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap, true, false, true));
+        String entityFromId2Value = null;
+        if (entityLinkMemberFromId2Attribute != null) {
+          entityFromId2Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberFromId2Attribute);
+        } else {
+          entityFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(entityFromId2Value, gcGrouperSyncEntity.getMemberFromId2())) {
           gcGrouperSyncEntity.setMemberFromId2(entityFromId2Value);
           hasChange = true;
@@ -408,7 +395,13 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasEnityLinkMemberFromId3) {
-        String entityFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap, true, false, true));
+        String entityFromId3Value = null;
+        if (entityLinkMemberFromId3Attribute != null) {
+          entityFromId3Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberFromId3Attribute);
+        } else {
+          entityFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap, true, false, true));
+        }
+
         if (!StringUtils.equals(entityFromId3Value, gcGrouperSyncEntity.getMemberFromId3())) {
           gcGrouperSyncEntity.setMemberFromId3(entityFromId3Value);
           hasChange = true;
@@ -416,15 +409,25 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasEnityLinkMemberToId2) {
-        String entityToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap, true, false, true));
+        String entityToId2Value = null;
+        if (entityLinkMemberToId2Attribute != null) {
+          entityToId2Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberToId2Attribute);
+        } else {
+          entityToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(entityToId2Value, gcGrouperSyncEntity.getMemberToId2())) {
           gcGrouperSyncEntity.setMemberToId2(entityToId2Value);
           hasChange = true;
         }
       }
       
-      if (hasEnityLinkMemberFromId3) {
-        String entityToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap, true, false, true));
+      if (hasEnityLinkMemberToId3) {
+        String entityToId3Value = null;
+        if (entityLinkMemberToId3Attribute != null) {
+          entityToId3Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberToId3Attribute);
+        } else {
+          entityToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap, true, false, true));
+        }
         if (!StringUtils.equals(entityToId3Value, gcGrouperSyncEntity.getMemberToId3())) {
           gcGrouperSyncEntity.setMemberToId3(entityToId3Value);
           hasChange = true;
@@ -469,38 +472,6 @@ public class GrouperProvisioningLinkLogic {
       this.grouperProvisioner.getDebugMap().put("targetEntitiesForLinkNull", targetEntitiesForLinkNull);
     }
     
-  }
-
-  public void updateEntityLinkIncremental() {
-    // If using target group link and the ID is not in the group sync cache object, then resolve the target group, and put the id in the group sync object
-    //TODO should this come from index
-    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
-  
-    if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
-      return;
-    }
-    
-    List<GcGrouperSyncMember> gcGrouperSyncMembersToRefreshEntityLink = new ArrayList<GcGrouperSyncMember>();
-    
-    int refreshEntityLinkIfLessThanAmount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getRefreshEntityLinkIfLessThanAmount();
-    if (GrouperUtil.length(gcGrouperSyncMembers) <= refreshEntityLinkIfLessThanAmount) {
-      gcGrouperSyncMembersToRefreshEntityLink.addAll(gcGrouperSyncMembers);
-    } else {
-      for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembers) {
-        if (entityLinkMissing(gcGrouperSyncMember)) {
-          gcGrouperSyncMembersToRefreshEntityLink.add(gcGrouperSyncMember);
-        }
-      }
-    }
-    int gcGrouperSyncMembersToRefreshEntityLinkCount = GrouperUtil.length(gcGrouperSyncMembersToRefreshEntityLink);
-    if (gcGrouperSyncMembersToRefreshEntityLinkCount > 0) {
-      this.grouperProvisioner.getDebugMap().put("gcGrouperSyncMembersToRefreshEntityLinkCount", gcGrouperSyncMembersToRefreshEntityLinkCount);
-    }
-    if (gcGrouperSyncMembersToRefreshEntityLinkCount == 0) {
-      return;
-    }
-    // TODO retrieve entities and updateEntityLink(gcGrouperSyncMembersToRefreshEntityLink);
   }
 
   /**
@@ -550,24 +521,17 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetEntities;
     }
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetEntityLink()) {
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetEntityLink(), false)) {
       return grouperTargetEntities;
     }
 
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String entityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2();
-    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
-    
-    String entityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3();
-    boolean hasEnityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3);
-  
-    String entityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2();
-    boolean hasEnityLinkMemberToId2 = !StringUtils.isBlank(entityLinkMemberToId2);
-  
-    String entityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3();
-    boolean hasEnityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3);
-  
-    if (!hasEntityLinkMemberFromId2 && !hasEnityLinkMemberFromId3 && !hasEnityLinkMemberToId2 && !hasEnityLinkMemberToId3) {
+    boolean hasEntityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberFromId2();
+    boolean hasEntityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberFromId3();
+    boolean hasEntityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberToId2();
+    boolean hasEntityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasEntityLinkMemberToId3();
+
+    if (!hasEntityLinkMemberFromId2 && !hasEntityLinkMemberFromId3 && !hasEntityLinkMemberToId2 && !hasEntityLinkMemberToId3) {
       return grouperTargetEntities;
     }
   
@@ -596,15 +560,15 @@ public class GrouperProvisioningLinkLogic {
         hasChange = true;
       }
       
-      if (hasEnityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberFromId3())) {
+      if (hasEntityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberFromId3())) {
         hasChange = true;
       }
       
-      if (hasEnityLinkMemberToId2 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId2())) {
+      if (hasEntityLinkMemberToId2 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId2())) {
         hasChange = true;
       }
       
-      if (hasEnityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId3())) {
+      if (hasEntityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId3())) {
         hasChange = true;
       }
       if (hasChange) {
@@ -629,22 +593,15 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetGroups;
     }
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetGroupLink()) {
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetGroupLink(), false)) {
       return grouperTargetGroups;
     }
     
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId2();
-    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
-    
-    String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId3();
-    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
-  
-    String groupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId2();
-    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
-  
-    String groupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId3();
-    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+    boolean hasGroupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupFromId2();
+    boolean hasGroupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupFromId3();
+    boolean hasGroupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupToId2();
+    boolean hasGroupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasGroupLinkGroupToId3();
   
     if (!hasGroupLinkGroupFromId2 && !hasGroupLinkGroupFromId3 && !hasGroupLinkGroupToId2 && !hasGroupLinkGroupToId3) {
       return grouperTargetGroups;

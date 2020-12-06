@@ -148,6 +148,50 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     this.provisioningEntityWrapper = provisioningEntityWrapper;
   }
   
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public String retrieveFieldOrAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    
+    return GrouperUtil.stringValue(this.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute));
+    
+  }
+
+  
+  /**
+   * base on attribute get the value
+   * @param grouperProvisioningConfigurationAttribute
+   * @return the value
+   */
+  public Object retrieveFieldOrAttributeValue(
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute == null) {
+      throw new NullPointerException("attribute is null: " + this);
+    }
+    if (grouperProvisioningConfigurationAttribute.isAttribute()) {
+      return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
+    } else {
+      if ("email".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getEmail();
+      }
+      if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getId();
+      }
+      if ("loginId".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getLoginId();
+      }
+      if ("name".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getName();
+      }
+      if ("subjectId".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getSubjectId();
+      }
+      throw new RuntimeException("Invalid field name '" + grouperProvisioningConfigurationAttribute.getName() + "': " + this);
+    }
+  }
+
   public String toString() {
     StringBuilder result = new StringBuilder("Entity(");
     boolean firstField = true;

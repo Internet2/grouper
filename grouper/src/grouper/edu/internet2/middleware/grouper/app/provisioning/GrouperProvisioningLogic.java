@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -544,7 +543,7 @@ public class GrouperProvisioningLogic {
           
           // ######### STEP 25: recalc retrieve data from target
           try {
-            debugMap.put("state", "retrieveIncrementalRecalcTargetData");
+            debugMap.put("state", "retrieveIncrementalTargetData");
             long start = System.currentTimeMillis();
             grouperProvisioningLogicIncremental.retrieveIncrementalTargetData();
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;

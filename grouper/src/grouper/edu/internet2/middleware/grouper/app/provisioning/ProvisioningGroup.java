@@ -195,4 +195,45 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupDeleteAttribute(name);
   }
 
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public String retrieveFieldOrAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    
+    return GrouperUtil.stringValue(this.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute));
+    
+  }
+
+  
+  /**
+   * base on attribute get the value
+   * @param grouperProvisioningConfigurationAttribute
+   * @return the value
+   */
+  public Object retrieveFieldOrAttributeValue(
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute == null) {
+      throw new NullPointerException("attribute is null: " + this);
+    }
+    if (grouperProvisioningConfigurationAttribute.isAttribute()) {
+      return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
+    } else {
+      if ("displayName".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getDisplayName();
+      }
+      if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getId();
+      }
+      if ("idIndex".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getIdIndex() == null ? null : this.getIdIndex().toString();
+      }
+      if ("name".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        return this.getName();
+      }
+      throw new RuntimeException("Invalid field name '" + grouperProvisioningConfigurationAttribute.getName() + "': " + this);
+    }
+  }
+
 }

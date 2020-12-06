@@ -1023,6 +1023,16 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String translateToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateToGroupSyncField" , false);
+          attributeConfig.setTranslateToGroupSyncField(translateToGroupSyncField);
+        }
+        
+        {
+          String translateToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateToMemberSyncField" , false);
+          attributeConfig.setTranslateToMemberSyncField(translateToMemberSyncField);
+        }
+        
+        {
           boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
           attributeConfig.setUpdate(update);
         }

@@ -5532,9 +5532,13 @@ public class GrouperUtil {
         break;
       }
     }
-    
-    
-    return "get" + capitalize(propertyName);
+    String getterName = "get" + capitalize(propertyName);
+    String iserName = "is" + capitalize(propertyName);
+    Set<String> methodNames = methodNames(theClass, null, false, false);
+    if (methodNames.contains(iserName)) {
+      return iserName;
+    }
+    return getterName;
   }
 
   /**
