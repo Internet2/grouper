@@ -917,8 +917,29 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   public abstract void configureSpecificSettings();
 
+  private GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType;
+  
+  
+  
+  
+  public GrouperProvisioningBehaviorMembershipType getGrouperProvisioningBehaviorMembershipType() {
+    return grouperProvisioningBehaviorMembershipType;
+  }
+
+  
+  public void setGrouperProvisioningBehaviorMembershipType(
+      GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType) {
+    this.grouperProvisioningBehaviorMembershipType = grouperProvisioningBehaviorMembershipType;
+  }
+
   public void configureGenericSettings() {
 
+    {
+      String provisioningTypeString = this.retrieveConfigString("provisioningType", true);
+      this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
+    }
+
+    
     for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       
       boolean foundMatchingId = false;

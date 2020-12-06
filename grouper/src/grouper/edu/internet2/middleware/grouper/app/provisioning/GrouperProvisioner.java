@@ -772,7 +772,9 @@ public abstract class GrouperProvisioner {
    * let the provisioner tell the framework how the provisioner should behave with respect to the target
    * @param grouperProvisioningBehavior
    */
-  public abstract void registerProvisioningBehaviors(GrouperProvisioningBehavior grouperProvisioningBehavior);
+  public void registerProvisioningBehaviors(GrouperProvisioningBehavior grouperProvisioningBehavior) {
+    
+  }
 
   /**
    * returns the subclass of Data Access Object for this provisioner

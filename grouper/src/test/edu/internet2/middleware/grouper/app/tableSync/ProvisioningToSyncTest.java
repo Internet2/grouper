@@ -840,7 +840,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
 //          "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
 //
-//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "testTarget");
+//      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "testTarget");
 //
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
 //          GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys.name());
@@ -868,7 +868,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 //      assertEquals(2, this.esbConsumer.internal_esbConsumerTestingData.convertAllChangeLogEventsToEsbEventsSize);
 //      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.filterInvalidEventTypesSize);
 //
-//      assertEquals("testTarget", this.esbConsumer.internal_esbConsumerTestingData.provisionerTarget);
+//      assertEquals("testTarget", this.esbConsumer.internal_esbConsumerTestingData.provisionerConfigId);
 //      assertEquals("incrementalFromIdentifiedPrimaryKeys", this.esbConsumer.internal_esbConsumerTestingData.provisionerJobSyncType);
 //      
 //      assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.skippedEventsDueToFullSync);
@@ -1749,7 +1749,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
 //        "0 0 5 * * 2000");
 //    
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "testTarget");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "testTarget");
 //  
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
 //        GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys.name());

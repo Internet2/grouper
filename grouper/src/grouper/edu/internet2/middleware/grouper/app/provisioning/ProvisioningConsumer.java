@@ -56,7 +56,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
 
     Map<String, Object> debugMapOverall = this.getEsbConsumer().getDebugMapOverall();
     
-    String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerTarget");
+    String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerConfigId");
     
     this.grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
     grouperProvisioner.setProvisioningConsumer(this);

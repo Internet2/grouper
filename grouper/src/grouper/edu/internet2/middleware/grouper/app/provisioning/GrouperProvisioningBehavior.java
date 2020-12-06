@@ -551,6 +551,9 @@ public class GrouperProvisioningBehavior {
   }
 
   public GrouperProvisioningBehaviorMembershipType getGrouperProvisioningBehaviorMembershipType() {
+    if (this.grouperProvisioningBehaviorMembershipType == null) {
+      return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningBehaviorMembershipType();
+    }
     return grouperProvisioningBehaviorMembershipType;
   }
   

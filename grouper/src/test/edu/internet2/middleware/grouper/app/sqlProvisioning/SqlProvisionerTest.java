@@ -944,7 +944,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
 //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "sqlProvTest");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "sqlProvTest");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
         GrouperProvisioningType.incrementalProvisionChangeLog.name());
@@ -1387,7 +1387,7 @@ public class SqlProvisionerTest extends GrouperTest {
   //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
   //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
   
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "sqlProvTest");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "sqlProvTest");
   
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
           GrouperProvisioningType.incrementalProvisionChangeLog.name());
@@ -2121,7 +2121,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.quartzCron", "0 * * * * ?");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerTarget", "pspng_oneprod");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerConfigId", "pspng_oneprod");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerJobSyncType", "incrementalProvisionChangeLog");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.debug", "true");
     
@@ -2228,7 +2228,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
 //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "pspng_oneprod");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "pspng_oneprod");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
         GrouperProvisioningType.incrementalProvisionChangeLog.name());
@@ -2274,7 +2274,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.quartzCron", "0 * * * * ?");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerTarget", "pspng_oneprod");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerConfigId", "pspng_oneprod");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerJobSyncType", "incrementalProvisionChangeLog");
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.debug", "true");
     
@@ -2374,7 +2374,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
     //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerTarget", "pspng_oneprod");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "pspng_oneprod");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
         GrouperProvisioningType.incrementalProvisionChangeLog.name());

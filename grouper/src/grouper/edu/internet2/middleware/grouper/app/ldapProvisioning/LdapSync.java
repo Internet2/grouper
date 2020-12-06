@@ -44,26 +44,4 @@ public class LdapSync extends GrouperProvisioner {
     return (LdapSyncConfiguration)this.retrieveGrouperProvisioningConfiguration();
   }
 
-  @Override
-  public void registerProvisioningBehaviors(
-      GrouperProvisioningBehavior grouperProvisioningBehavior) {
-    
-    LdapSyncConfiguration ldapSyncConfiguration = this.retrieveLdapProvisioningConfiguration();
-    switch (ldapSyncConfiguration.getLdapProvisioningType()) {
-      case groupMemberships:
-        
-        grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
-
-       break;
-        
-      case userAttributes:
-        
-        grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.entityAttributes);
-        break;
-        
-      default:
-          throw new RuntimeException("Not expecting type: " + ldapSyncConfiguration.getLdapProvisioningType());
-    }
-  }
-
 }
