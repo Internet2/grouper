@@ -6,6 +6,49 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class ProvisioningMembershipWrapper {
   
+  /**
+   * if incremental and recalc
+   */
+  private boolean recalc;
+  
+  /**
+   * if incremental and recalc
+   * @return
+   */
+  public boolean isRecalc() {
+    return recalc;
+  }
+
+  /**
+   * if incremental and recalc
+   * @param recalc
+   */
+  public void setRecalc(boolean recalc) {
+    this.recalc = recalc;
+  }
+
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   */
+  private GrouperIncrementalDataAction grouperIncrementalDataAction;
+  
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   * @return
+   */
+  public GrouperIncrementalDataAction getGrouperIncrementalDataAction() {
+    return grouperIncrementalDataAction;
+  }
+
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   * @param grouperIncrementalDataAction
+   */
+  public void setGrouperIncrementalDataAction(
+      GrouperIncrementalDataAction grouperIncrementalDataAction) {
+    this.grouperIncrementalDataAction = grouperIncrementalDataAction;
+  }
+
   private MultiKey groupIdMemberId = null;
   
   private MultiKey syncGroupIdSyncMemberId = null;

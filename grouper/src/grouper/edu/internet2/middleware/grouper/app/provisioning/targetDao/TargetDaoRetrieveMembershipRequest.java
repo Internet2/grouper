@@ -6,17 +6,32 @@ public class TargetDaoRetrieveMembershipRequest {
 
   public TargetDaoRetrieveMembershipRequest() {
   }
-  private ProvisioningMembership targetMembership;
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   */
+  private Object targetMembership;
   
-  public ProvisioningMembership getTargetMembership() {
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @return
+   */
+  public Object getTargetMembership() {
     return targetMembership;
   }
   
-  public void setTargetMembership(ProvisioningMembership targetMembership) {
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param targetMembership
+   */
+  public void setTargetMembership(Object targetMembership) {
     this.targetMembership = targetMembership;
   }
 
-  public TargetDaoRetrieveMembershipRequest(ProvisioningMembership targetMembership) {
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param targetMembership
+   */
+  public TargetDaoRetrieveMembershipRequest(Object targetMembership) {
     this.targetMembership = targetMembership;
   }
   

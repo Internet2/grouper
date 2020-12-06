@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -19,6 +21,15 @@ public enum SqlProvisioningType {
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void registerProvisioningBehaviors(
+        GrouperProvisioningBehavior grouperProvisioningBehavior) {
+
+      grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.membershipObjects);
+
+      
+    }
   },
   
   /**
@@ -30,6 +41,14 @@ public enum SqlProvisioningType {
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void registerProvisioningBehaviors(
+        GrouperProvisioningBehavior grouperProvisioningBehavior) {
+
+      grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.membershipObjects);
+      
+    }
   },
   
   /**
@@ -40,6 +59,14 @@ public enum SqlProvisioningType {
     @Override
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerProvisioningBehaviors(
+        GrouperProvisioningBehavior grouperProvisioningBehavior) {
+
+      grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.membershipObjects);
+      
     }
   },
   
@@ -53,6 +80,14 @@ public enum SqlProvisioningType {
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
       return SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap.class;
     }
+
+    @Override
+    public void registerProvisioningBehaviors(
+        GrouperProvisioningBehavior grouperProvisioningBehavior) {
+      
+      grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
+      
+    }
   },
 
   /**
@@ -64,6 +99,14 @@ public enum SqlProvisioningType {
     @Override
     public Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerProvisioningBehaviors(
+        GrouperProvisioningBehavior grouperProvisioningBehavior) {
+      
+      grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.entityAttributes);
+      
     }
   };
   
@@ -79,5 +122,8 @@ public enum SqlProvisioningType {
   }
 
   public abstract Class<? extends GrouperProvisionerTargetDaoBase> sqlTargetDaoClass();
+
+  public abstract void registerProvisioningBehaviors(
+      GrouperProvisioningBehavior grouperProvisioningBehavior);
   
 }

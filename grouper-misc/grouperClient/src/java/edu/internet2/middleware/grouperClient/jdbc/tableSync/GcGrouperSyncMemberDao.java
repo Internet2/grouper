@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -588,6 +589,22 @@ public class GcGrouperSyncMemberDao {
   
     new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeToDatabase(gcGrouperSyncMember);
   
+  }
+
+  /**
+   * get member ids with errors after error timestamp
+   * @param errorTimestampCheckFrom if null get all
+   * @return member ids
+   */
+  public List<String> retrieveMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select member_id from grouper_sync_member where grouper_sync_id = ?" + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
+        .addBindVar(this.getGcGrouperSync().getId());
+    if (errorTimestampCheckFrom != null) {
+      gcDbAccess.addBindVar(errorTimestampCheckFrom);
+    }
+    List<String> memberIds = gcDbAccess.selectList(String.class);
+    return memberIds;
   }
 
 }

@@ -5,7 +5,6 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
@@ -13,7 +12,6 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * wraps the dao so it can convert methods and see if things are available
@@ -382,8 +380,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveIncrementalData(), false)) {
       return this.wrappedDao.retrieveIncrementalData(targetDaoRetrieveIncementalDataRequest);
     }
-    GrouperProvisioningLists targetObjects = new GrouperProvisioningLists();
-    TargetDaoRetrieveIncrementalDataResponse result = new TargetDaoRetrieveIncrementalDataResponse(targetObjects);
+    TargetDaoRetrieveIncrementalDataResponse result = new TargetDaoRetrieveIncrementalDataResponse();
     if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupsRetrieve(), false)) {
       List<ProvisioningGroup> targetGroups = null;
       targetGroups = targetDaoRetrieveIncementalDataRequest.getTargetGroupsForGroupOnly();
@@ -392,7 +389,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
             new TargetDaoRetrieveGroupsRequest(targetGroups, false));
         List<ProvisioningGroup> targetGroupsResult = targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups();
-        targetObjects.setProvisioningGroups(targetGroupsResult);
+        result.setProvisioningGroups(targetGroupsResult);
       }
     }
     if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getEntitiesRetrieve(), false)) {
@@ -403,17 +400,17 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             new TargetDaoRetrieveEntitiesRequest(targetEntities, false));
         List<ProvisioningEntity> targetEntitiesResult = targetDaoRetrieveEntitiesResponse == null ?
             null : targetDaoRetrieveEntitiesResponse.getTargetEntities();
-        targetObjects.setProvisioningEntities(targetEntitiesResult);
+        result.setProvisioningEntities(targetEntitiesResult);
       }
     }
     if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getMembershipsRetrieve(), false)) {
       List<ProvisioningGroup> targetGroups = targetDaoRetrieveIncementalDataRequest.getTargetGroupsForGroupMembershipSync();
       List<ProvisioningEntity> targetEntities = targetDaoRetrieveIncementalDataRequest.getTargetEntitiesForEntityMembershipSync();
-      List<MultiKey> targetGroupsEntitiesMemberships = targetDaoRetrieveIncementalDataRequest.getTargetGroupsEntitiesMembershipsForMembershipSync();
+      List<Object> targetGroupsEntitiesMemberships = targetDaoRetrieveIncementalDataRequest.getTargetMembershipObjectsForMembershipSync();
       if (GrouperUtil.length(targetGroupsEntitiesMemberships) > 0 || GrouperUtil.length(targetGroups) > 0 || GrouperUtil.length(targetEntities) > 0) {
         TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk = this.retrieveMembershipsBulk(new TargetDaoRetrieveMembershipsBulkRequest(targetGroups, targetEntities, targetGroupsEntitiesMemberships));
-        List<ProvisioningMembership> targetMemberships = retrieveMembershipsBulk == null ? null : retrieveMembershipsBulk.getTargetMemberships();
-        targetObjects.setProvisioningMemberships(targetMemberships);
+        List<Object> targetMemberships = retrieveMembershipsBulk == null ? null : retrieveMembershipsBulk.getTargetMemberships();
+        result.setProvisioningMemberships(targetMemberships);
       }
     }
     return result;
@@ -463,34 +460,35 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return this.wrappedDao.retrieveMembershipsBulk(targetDaoRetrieveMembershipsBulkRequest);
     }
 
-    List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
+    List<Object> targetMembershipsResults = new ArrayList<Object>();
     
-    List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroups();
+    List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsForAllMemberships();
     
     if (GrouperUtil.length(targetGroups) > 0) {
       TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups = this.retrieveMembershipsByGroups(new TargetDaoRetrieveMembershipsByGroupsRequest(targetGroups));
-      targetMemberships.addAll(retrieveMembershipsByGroups == null ? null : retrieveMembershipsByGroups.getTargetMemberships());
+      targetMembershipsResults.addAll(retrieveMembershipsByGroups == null ? null : retrieveMembershipsByGroups.getTargetMemberships());
     }
     
-    List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntities();
+    List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntitiesForAllMemberships();
     if (GrouperUtil.length(targetEntities) > 0) {
       TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse =
           this.retrieveMembershipsByEntities(new TargetDaoRetrieveMembershipsByEntitiesRequest(targetEntities));
-      List<ProvisioningMembership> targetMembershipsResult = targetDaoRetrieveMembershipsByEntitiesResponse == null ? null : targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships();
-      targetMemberships.addAll(targetMembershipsResult);
+      List<Object> targetMembershipsResult = targetDaoRetrieveMembershipsByEntitiesResponse == null ? null : targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships();
+      targetMembershipsResults.addAll(targetMembershipsResult);
     }
     
-    List<MultiKey> targetGroupsMembersMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? 
-        null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsEntitiesMemberships();
-    if (GrouperUtil.length(targetGroupsMembersMemberships) > 0) {
+    List<Object> targetMembershipsInput = targetDaoRetrieveMembershipsBulkRequest == null ? 
+        null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
+    if (GrouperUtil.length(targetMembershipsInput) > 0) {
       
-      TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership = this.retrieveMembershipsByTargetGroupEntityMembership(new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest(
-          targetGroupsMembersMemberships));
-      targetMemberships.addAll(retrieveMembershipsByTargetGroupEntityMembership == null ? null :
-        retrieveMembershipsByTargetGroupEntityMembership.getTargetMemberships());
+      TargetDaoRetrieveMembershipsResponse retrieveMembershipsResponse 
+        = this.retrieveMemberships(new TargetDaoRetrieveMembershipsRequest(
+          targetMembershipsInput));
+      targetMembershipsResults.addAll(retrieveMembershipsResponse == null ? null :
+        retrieveMembershipsResponse.getTargetMemberships());
     }
     
-    return new TargetDaoRetrieveMembershipsBulkResponse(targetMemberships);
+    return new TargetDaoRetrieveMembershipsBulkResponse(targetMembershipsResults);
   }
 
 
@@ -507,7 +505,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
       
-      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+      List<Object> results = new ArrayList<Object>();
       
       for (ProvisioningGroup provisioningGroup : targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) {
 
@@ -562,7 +560,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
       
-      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+      List<Object> results = new ArrayList<Object>();
       
       for (ProvisioningEntity provisioningEntity : targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()) {
 
@@ -605,36 +603,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
 
   @Override
-  public TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse retrieveMembershipsByTargetGroupEntityMembership(
-      TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest) {
-
-    if (GrouperUtil.length(targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest.getTargetGroupsMembersMemberships()) == 0) {
-      return new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse();
-    }
-    
-    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getMembershipsRetrieve(), false)) {
-      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
-        return this.wrappedDao.retrieveMembershipsByTargetGroupEntityMembership(targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest);
-      }
-  
-      List<ProvisioningMembership> targetMembershipsToRetrieve = new ArrayList<ProvisioningMembership>();
-      List<MultiKey> groupsEntitiesMemberships = targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest == null ? null : 
-        targetDaoRetrieveMembershipsByTargetGroupEntityMembershipRequest.getTargetGroupsMembersMemberships();
-      for (MultiKey targetGroupEntityMembership : GrouperUtil.nonNull(groupsEntitiesMemberships)) {
-        ProvisioningMembership targetMembership = (ProvisioningMembership)targetGroupEntityMembership.getKey(2);
-        if (targetMembership != null) {
-          targetMembershipsToRetrieve.add(targetMembership);
-        }
-      }
-      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.retrieveMemberships(new TargetDaoRetrieveMembershipsRequest(targetMembershipsToRetrieve));
-      List<ProvisioningMembership> retrieveMemberships = targetDaoRetrieveMembershipsResponse == null ? null : targetDaoRetrieveMembershipsResponse.getTargetMemberships();
-      return new TargetDaoRetrieveMembershipsByTargetGroupEntityMembershipResponse(retrieveMemberships);
-    }
-    return null;
-  }
-
-
-  @Override
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(
       TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
     
@@ -647,9 +615,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
       
-      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+      List<Object> results = new ArrayList<Object>();
       
-      for (ProvisioningMembership provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+      for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
 
         TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(provisioningMembership));
         if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {

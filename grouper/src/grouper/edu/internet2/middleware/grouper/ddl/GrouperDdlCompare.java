@@ -658,21 +658,19 @@ public class GrouperDdlCompare {
         if (databaseColumns.size() != javaColumns.size()) {
 
           viewErrors.append("column count " + databaseColumns.size() + " but should be " + javaColumns.size() + ".  ");
-
-        } else {
-          {
-            Set<String> missingColumns = new TreeSet<String>(javaColumns);
-            missingColumns.removeAll(databaseColumns);
-            if (missingColumns.size() > 0) {
-              viewErrors.append("missing columns: " + GrouperUtil.join(missingColumns.iterator(), ", ") + ".  ");
-            }
+        }
+        {
+          Set<String> missingColumns = new TreeSet<String>(javaColumns);
+          missingColumns.removeAll(databaseColumns);
+          if (missingColumns.size() > 0) {
+            viewErrors.append("missing columns: " + GrouperUtil.join(missingColumns.iterator(), ", ") + ".  ");
           }
-          {
-            Set<String> extraColumns = new TreeSet<String>(databaseColumns);
-            extraColumns.removeAll(javaColumns);
-            if (extraColumns.size() > 0) {
-              viewErrors.append("extra columns: " + GrouperUtil.join(extraColumns.iterator(), ", ") + ".  ");
-            }
+        }
+        {
+          Set<String> extraColumns = new TreeSet<String>(databaseColumns);
+          extraColumns.removeAll(javaColumns);
+          if (extraColumns.size() > 0) {
+            viewErrors.append("extra columns: " + GrouperUtil.join(extraColumns.iterator(), ", ") + ".  ");
           }
         }
         

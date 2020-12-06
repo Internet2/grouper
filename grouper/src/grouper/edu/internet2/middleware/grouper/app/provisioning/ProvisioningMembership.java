@@ -287,6 +287,21 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
     firstField = toStringAppendField(result, firstField, "id", this.id);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
+    if (this.provisioningMembershipWrapper != null) {
+      if (this.provisioningMembershipWrapper.isRecalc()) {
+        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.isRecalc());
+      }
+      if (this.provisioningMembershipWrapper.getGrouperIncrementalDataAction() != null) {
+        firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getGrouperIncrementalDataAction());
+      }
+      if (this.provisioningMembershipWrapper.isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.isDelete());
+      }
+      if (this.provisioningMembershipWrapper.isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.isCreate());
+      }
+
+    }
     return result.append(")").toString();
   }
 

@@ -45,11 +45,15 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
   @Override
   public List<String> test() throws UnsupportedOperationException {
     
-    String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestSearchDn");
-    String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestSearchScope");
-    String uiTestFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestFilter");
-    String uiTestAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestAttributeName");
-    String uiTestExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestExpectedValue");
+    String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchDn");
+    String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchScope");
+    String uiTestFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestFilter");
+    String uiTestAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestAttributeName");
+    String uiTestExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestExpectedValue");
+    
+    if (!LdapSessionUtils.ldapSession().testConnection(this.getConfigId())) {
+      return GrouperUtil.toList("Invalid config");
+    }
     
     if (StringUtils.isNotBlank(uiTestSearchDn) || StringUtils.isNotBlank(uiTestSearchScope) ||
         StringUtils.isNotBlank(uiTestAttributeName) || StringUtils.isNotBlank(uiTestFilter) ||
@@ -81,11 +85,9 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
         return GrouperUtil.toList("Expected '"+uiTestExpectedValue+"' but received '"+ result + "'");
       }
       return null;
-    } else if (LdapSessionUtils.ldapSession().testConnection(this.getConfigId())) {
-      return null;
     }
     
-    return GrouperUtil.toList("Invalid config");
+    return null;
   }
 
   @Override
@@ -98,11 +100,11 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
     
     super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
 
-    String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestSearchDn");
-    String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestSearchScope");
-    String uiTestFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestFilter");
-    String uiTestAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestAttributeName");
-    String uiTestExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap.personLdap.uiTestExpectedValue");
+    String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchDn");
+    String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchScope");
+    String uiTestFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestFilter");
+    String uiTestAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestAttributeName");
+    String uiTestExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestExpectedValue");
   
     if (StringUtils.isNotBlank(uiTestSearchDn) || StringUtils.isNotBlank(uiTestSearchScope) ||
         StringUtils.isNotBlank(uiTestAttributeName) || StringUtils.isNotBlank(uiTestFilter) ||
@@ -141,4 +143,7 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
     
   }
   
+  public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
+    LdapSessionUtils.ldapSession().refreshConnectionsIfNeeded(this.getConfigId());
+  }
 }

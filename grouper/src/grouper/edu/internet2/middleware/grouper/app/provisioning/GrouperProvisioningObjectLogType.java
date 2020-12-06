@@ -12,6 +12,13 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public enum GrouperProvisioningObjectLogType {
+  end {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      
+    }
+  }, 
   configure {
 
     @Override
@@ -37,6 +44,16 @@ public enum GrouperProvisioningObjectLogType {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
 
       appendSyncObjects(grouperProvisioner, logMessage, "Sync objects");
+    }
+  }, 
+  retrieveTargetData {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
     }
   }, 
   targetAttributeManipulation {
@@ -194,7 +211,16 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
-  manipulateGrouperTargetAttributes {
+  manipulateGrouperTargetMembershipsAttributes {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "memberships");
+
+    }
+  }, 
+  manipulateGrouperTargetGroupsEntitiesAttributes {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -276,26 +302,27 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   },
-  matchingIdGrouperObjects {
+  logIncomingDataUnprocessed {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), "entities");
-
-    }
-  }, 
-  
-  logIncomingData {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data", "(with recalc from target)",     
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(with recalc from target)",     
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data", "(without recalc from target)",     
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(without recalc from target)",     
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc());
+      
+    }
+    
+  },
+  logIncomingDataToProcess {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(with recalc from target)",     
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
+      appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(without recalc from target)",     
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc());
       
     }
@@ -375,7 +402,7 @@ public enum GrouperProvisioningObjectLogType {
       appendList(logMessage, "groupUuidsForGroupMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync());
       appendList(logMessage, "memberUuidsForEntityOnly", grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly());
       appendList(logMessage, "memberUuidsForEntityMembershipSync", grouperIncrementalDataToProcess.getMemberUuidsForEntityMembershipSync());
-      appendList(logMessage, "groupUuidsMemberUuidsFieldIdsForMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsFieldIdsForMembershipSync());
+      appendList(logMessage, "groupUuidsMemberUuidsMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsForMembershipSync());
     }
   }
   private static void appendList(StringBuilder logMessage, String label, Collection<?> someList) {
@@ -385,6 +412,11 @@ public enum GrouperProvisioningObjectLogType {
       for (Object item : someList) {
         if (count > 0) {
           logMessage.append(", ");
+        }
+        GrouperIncrementalDataAction grouperIncrementalDataAction = null;
+        if (item instanceof GrouperIncrementalDataItem) {
+          grouperIncrementalDataAction = ((GrouperIncrementalDataItem)item).getGrouperIncrementalDataAction();
+          item = ((GrouperIncrementalDataItem)item).getItem();
         }
         if (item instanceof String) {
           logMessage.append(item);
@@ -398,6 +430,9 @@ public enum GrouperProvisioningObjectLogType {
             logMessage.append(itemMultiKey.getKey(i));
           }
           logMessage.append("]");
+        }
+        if (grouperIncrementalDataAction != null) {
+          logMessage.append(" (").append(grouperIncrementalDataAction.name()).append(")");
         }
         count++;
         if (count > 5) {

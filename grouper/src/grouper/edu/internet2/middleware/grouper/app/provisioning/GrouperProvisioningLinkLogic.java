@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -105,9 +107,13 @@ public class GrouperProvisioningLinkLogic {
   }
 
   public void retrieveSubjectLink() {
-    //TODO should this come from index?
-    Collection<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
+
+    Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>(); 
   
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      gcGrouperSyncMembers.add(provisioningEntityWrapper.getGcGrouperSyncMember());
+    }
+    
     if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {
       return;
     }
@@ -214,7 +220,7 @@ public class GrouperProvisioningLinkLogic {
       variableMap.put("targetGroup", targetGroup);
       
       if (hasGroupLinkGroupFromId2) {
-        String groupFromId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap);
+        String groupFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap, true, false, true));
         if (!StringUtils.equals(groupFromId2Value, gcGrouperSyncGroup.getGroupFromId2())) {
           gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
           hasChange = true;
@@ -222,7 +228,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupFromId3) {
-        String groupFromId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap);
+        String groupFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap, true, false, true));
         if (!StringUtils.equals(groupFromId3Value, gcGrouperSyncGroup.getGroupFromId3())) {
           gcGrouperSyncGroup.setGroupFromId3(groupFromId3Value);
           hasChange = true;
@@ -230,7 +236,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupToId2) {
-        String groupToId2Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap);
+        String groupToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap, true, false, true));
         if (!StringUtils.equals(groupToId2Value, gcGrouperSyncGroup.getGroupToId2())) {
           gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
           hasChange = true;
@@ -238,7 +244,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasGroupLinkGroupFromId3) {
-        String groupToId3Value = GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap);
+        String groupToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap, true, false, true));
         if (!StringUtils.equals(groupToId3Value, gcGrouperSyncGroup.getGroupToId3())) {
           gcGrouperSyncGroup.setGroupToId3(groupToId3Value);
           hasChange = true;
@@ -394,7 +400,7 @@ public class GrouperProvisioningLinkLogic {
       variableMap.put("targetEntity", targetEntity);
       
       if (hasEntityLinkMemberFromId2) {
-        String entityFromId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap);
+        String entityFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap, true, false, true));
         if (!StringUtils.equals(entityFromId2Value, gcGrouperSyncEntity.getMemberFromId2())) {
           gcGrouperSyncEntity.setMemberFromId2(entityFromId2Value);
           hasChange = true;
@@ -402,7 +408,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasEnityLinkMemberFromId3) {
-        String entityFromId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap);
+        String entityFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap, true, false, true));
         if (!StringUtils.equals(entityFromId3Value, gcGrouperSyncEntity.getMemberFromId3())) {
           gcGrouperSyncEntity.setMemberFromId3(entityFromId3Value);
           hasChange = true;
@@ -410,7 +416,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasEnityLinkMemberToId2) {
-        String entityToId2Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap);
+        String entityToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap, true, false, true));
         if (!StringUtils.equals(entityToId2Value, gcGrouperSyncEntity.getMemberToId2())) {
           gcGrouperSyncEntity.setMemberToId2(entityToId2Value);
           hasChange = true;
@@ -418,7 +424,7 @@ public class GrouperProvisioningLinkLogic {
       }
       
       if (hasEnityLinkMemberFromId3) {
-        String entityToId3Value = GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap);
+        String entityToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap, true, false, true));
         if (!StringUtils.equals(entityToId3Value, gcGrouperSyncEntity.getMemberToId3())) {
           gcGrouperSyncEntity.setMemberToId3(entityToId3Value);
           hasChange = true;
@@ -528,6 +534,169 @@ public class GrouperProvisioningLinkLogic {
     needsRefresh = needsRefresh || (hasSubjectLinkMemberToId3 && StringUtils.isBlank(gcGrouperSyncMember.getMemberToId3()));
     return needsRefresh;
   
+  }
+
+  /**
+   * see which entities needs to be retrieve in incremental logic if non recalc, and needs link data
+   * @param provisioningEntityWrappers
+   * @return
+   */
+  public List<ProvisioningEntity> retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks(
+      Set<ProvisioningEntityWrapper> provisioningEntityWrappers) {
+    
+    List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
+    
+    if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
+      return grouperTargetEntities;
+    }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetEntityLink()) {
+      return grouperTargetEntities;
+    }
+
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String entityLinkMemberFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2();
+    boolean hasEntityLinkMemberFromId2 = !StringUtils.isBlank(entityLinkMemberFromId2);
+    
+    String entityLinkMemberFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3();
+    boolean hasEnityLinkMemberFromId3 = !StringUtils.isBlank(entityLinkMemberFromId3);
+  
+    String entityLinkMemberToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2();
+    boolean hasEnityLinkMemberToId2 = !StringUtils.isBlank(entityLinkMemberToId2);
+  
+    String entityLinkMemberToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3();
+    boolean hasEnityLinkMemberToId3 = !StringUtils.isBlank(entityLinkMemberToId3);
+  
+    if (!hasEntityLinkMemberFromId2 && !hasEnityLinkMemberFromId3 && !hasEnityLinkMemberToId2 && !hasEnityLinkMemberToId3) {
+      return grouperTargetEntities;
+    }
+  
+    int retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks = 0;
+    
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
+
+      if (provisioningEntityWrapper.isRecalc()) {
+        continue;
+      }
+
+      boolean hasChange = false;
+  
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      if (grouperTargetEntity == null) {
+        continue;
+      }
+      
+      GcGrouperSyncMember gcGrouperSyncEntity = provisioningEntityWrapper.getGcGrouperSyncMember();
+
+      if (gcGrouperSyncEntity == null) {
+        continue;
+      }
+  
+      if (hasEntityLinkMemberFromId2 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberFromId2())) {
+        hasChange = true;
+      }
+      
+      if (hasEnityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberFromId3())) {
+        hasChange = true;
+      }
+      
+      if (hasEnityLinkMemberToId2 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId2())) {
+        hasChange = true;
+      }
+      
+      if (hasEnityLinkMemberFromId3 && StringUtils.isBlank(gcGrouperSyncEntity.getMemberToId3())) {
+        hasChange = true;
+      }
+      if (hasChange) {
+        grouperTargetEntities.add(grouperTargetEntity);
+        retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks++;
+      }
+  
+    }
+    if (retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks", retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks);
+    }
+    return grouperTargetEntities;
+
+  }
+
+  public List<ProvisioningGroup> retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks(
+      Set<ProvisioningGroupWrapper> provisioningGroupWrappers) {
+    
+    List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
+
+    if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
+      return grouperTargetGroups;
+    }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetGroupLink()) {
+      return grouperTargetGroups;
+    }
+    
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    String groupLinkGroupFromId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId2();
+    boolean hasGroupLinkGroupFromId2 = !StringUtils.isBlank(groupLinkGroupFromId2);
+    
+    String groupLinkGroupFromId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupFromId3();
+    boolean hasGroupLinkGroupFromId3 = !StringUtils.isBlank(groupLinkGroupFromId3);
+  
+    String groupLinkGroupToId2 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId2();
+    boolean hasGroupLinkGroupToId2 = !StringUtils.isBlank(groupLinkGroupToId2);
+  
+    String groupLinkGroupToId3 = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupLinkGroupToId3();
+    boolean hasGroupLinkGroupToId3 = !StringUtils.isBlank(groupLinkGroupToId3);
+  
+    if (!hasGroupLinkGroupFromId2 && !hasGroupLinkGroupFromId3 && !hasGroupLinkGroupToId2 && !hasGroupLinkGroupToId3) {
+      return grouperTargetGroups;
+    }
+  
+    int retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks = 0;
+  
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
+  
+      if (provisioningGroupWrapper.isRecalc()) {
+        continue;
+      }
+
+      boolean hasChange = false;
+  
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      if (grouperTargetGroup == null) {
+        continue;
+      }
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+
+      if (gcGrouperSyncGroup == null) {
+        continue;
+      }
+      
+      if (hasGroupLinkGroupFromId2 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupFromId2())) {
+        hasChange = true;
+      }
+      
+      if (hasGroupLinkGroupFromId3 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupFromId3())) {
+        hasChange = true;
+      }
+      
+      if (hasGroupLinkGroupToId2 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupToId2())) {
+        hasChange = true;
+      }
+      
+      if (hasGroupLinkGroupFromId3 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupToId3())) {
+        hasChange = true;
+      }
+      
+      if (hasChange) {
+        grouperTargetGroups.add(grouperTargetGroup);
+        retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks++;
+
+      }
+    }
+    if (retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks", retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks);
+    }
+    return grouperTargetGroups;
   }
 
 }

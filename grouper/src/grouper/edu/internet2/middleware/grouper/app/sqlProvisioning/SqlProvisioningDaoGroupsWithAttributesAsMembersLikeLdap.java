@@ -2,8 +2,10 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -306,18 +308,53 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         try {
           List<ProvisioningGroup> currentBatchGrouperTargetGroups = GrouperUtil.batchList(grouperTargetGroups, 900, i);
           StringBuilder sql = new StringBuilder(sqlInitial);
-          sql.append(" where g.").append(groupTableIdColumn).append(" in (");
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
+          // use the search filter to get the entities, should only be filtering by one attribute
+          String searchAttribute = null;
+          Set<Object> values = new LinkedHashSet<Object>();
           for (int j=0; j<currentBatchGrouperTargetGroups.size();j++) {
             ProvisioningGroup grouperTargetGroup = currentBatchGrouperTargetGroups.get(j);
-            gcDbAccess.addBindVar(grouperTargetGroup.getId());
-            if (j>0) {
+            String searchFilter = grouperTargetGroup.getSearchFilter();
+            if (StringUtils.isBlank(searchFilter)) {
+              throw new RuntimeException("Cant find searchFilter for: " + grouperTargetGroup);
+            }
+            String attribute = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", true));
+            String value = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", false));
+            if (searchAttribute == null) {
+              searchAttribute = attribute;
+            } else {
+              if (!StringUtils.equals(attribute, searchAttribute)) {
+                throw new RuntimeException("Inconsistent search filters: " + searchAttribute + ", " + attribute);
+              }
+            }
+            if (StringUtils.isBlank(value) || StringUtils.isBlank(searchAttribute)) {
+              throw new RuntimeException("Invalid searchFilter: '" + searchFilter + "', " + grouperTargetGroup);
+            }
+            values.add(value);
+          }
+          
+          //  WHERE a.group_uuid IN (SELECT a2.group_uuid FROM testgrouper_prov_ldap_group_attr AS a2 WHERE a2.attribute_name = 'gidNumber'
+          //      AND a2.attribute_value IN ('10007'));
+
+          sql.append(" where a.").append(groupAttributeTableForeignKeyToGroup)
+            .append(" IN (SELECT a2.").append(groupAttributeTableForeignKeyToGroup)
+            .append(" FROM ").append(groupAttributeTableName).append(" AS a2 WHERE a2.")
+            .append(groupAttributeTableAttributeNameColumn).append(" = '")
+            .append(searchAttribute)
+            .append("' and a2.").append(groupAttributeTableAttributeValueColumn).append(" IN (");
+
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+          
+          boolean first = true;
+          for (Object value : values) {
+            gcDbAccess.addBindVar(value);
+            if (!first) {
               sql.append(",");
             }
             sql.append("?");
+            first = false;
           }
-          sql.append(" ) ");
+          sql.append(" ) ) ");
           groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
           retrieveGroupsByAttributesAddRecord(result, groupTableIdColumn, groupAttributeTableAttributeNameColumn,
               groupAttributeTableAttributeValueColumn, commaSeparatedGroupColumnNames,
@@ -589,18 +626,53 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         try {
           List<ProvisioningEntity> currentBatchGrouperTargetEntities = GrouperUtil.batchList(grouperTargetEntities, 900, i);
           StringBuilder sql = new StringBuilder(sqlInitial);
-          sql.append(" where e.").append(entityTableIdColumn).append(" in (");
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
+          // use the search filter to get the entities, should only be filtering by one attribute
+          String searchAttribute = null;
+          Set<Object> values = new LinkedHashSet<Object>();
           for (int j=0; j<currentBatchGrouperTargetEntities.size();j++) {
             ProvisioningEntity grouperTargetEntity = currentBatchGrouperTargetEntities.get(j);
-            gcDbAccess.addBindVar(grouperTargetEntity.getId());
-            if (j>0) {
+            String searchFilter = grouperTargetEntity.getSearchFilter();
+            if (StringUtils.isBlank(searchFilter)) {
+              throw new RuntimeException("Cant find searchFilter for: " + grouperTargetEntity);
+            }
+            String attribute = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", true));
+            String value = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", false));
+            if (searchAttribute == null) {
+              searchAttribute = attribute;
+            } else {
+              if (!StringUtils.equals(attribute, searchAttribute)) {
+                throw new RuntimeException("Inconsistent search filters: " + searchAttribute + ", " + attribute);
+              }
+            }
+            if (StringUtils.isBlank(value) || StringUtils.isBlank(searchAttribute)) {
+              throw new RuntimeException("Invalid searchFilter: '" + searchFilter + "', " + grouperTargetEntity);
+            }
+            values.add(value);
+          }
+
+          //  WHERE a.entity_uuid IN (SELECT a2.entity_uuid FROM testgrouper_prov_ldap_entity_attr AS a2 WHERE a2.attribute_name = 'employeeID'
+          //      AND a2.attribute_value IN ('10007'));
+
+          sql.append(" where a.").append(entityAttributeTableForeignKeyToEntity)
+            .append(" IN (SELECT a2.").append(entityAttributeTableForeignKeyToEntity)
+            .append(" FROM ").append(entityAttributeTableName).append(" AS a2 WHERE a2.")
+            .append(entityAttributeTableAttributeNameColumn).append(" = '")
+            .append(searchAttribute)
+            .append("' and a2.").append(entityAttributeTableAttributeValueColumn).append(" IN (");
+
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+          
+          boolean first = true;
+          for (Object value : values) {
+            gcDbAccess.addBindVar(value);
+            if (!first) {
               sql.append(",");
             }
             sql.append("?");
+            first = false;
           }
-          sql.append(" ) ");
+          sql.append(" ) ) ");
           groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
           retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
               entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,

@@ -1,23 +1,39 @@
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
-
 public class TargetDaoRetrieveMembershipResponse {
 
-  private ProvisioningMembership targetMembership;
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   */
+  private Object targetMembership;
 
-  public ProvisioningMembership getTargetMembership() {
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @return
+   */
+  public Object getTargetMembership() {
     return targetMembership;
   }
   
-  public void setTargetMembership(ProvisioningMembership targetMembership) {
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param targetMembership
+   */
+  public void setTargetMembership(Object targetMembership) {
     this.targetMembership = targetMembership;
   }
-
+  
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   */
   public TargetDaoRetrieveMembershipResponse() {
   }
-
-  public TargetDaoRetrieveMembershipResponse(ProvisioningMembership targetMembership) {
+  
+  /**
+   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param targetMembership
+   */
+  public TargetDaoRetrieveMembershipResponse(Object targetMembership) {
     this.targetMembership = targetMembership;
   }
   

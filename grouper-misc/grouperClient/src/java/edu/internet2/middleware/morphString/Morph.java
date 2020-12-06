@@ -27,6 +27,12 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class Morph {
 
+  public static void main(String[] args) {
+    System.out.println("a: " + decryptIfFile("a"));
+    System.out.println("*: " + decryptIfFile("*"));
+    System.out.println("****: " + decryptIfFile("****"));
+  }
+  
   /**
    * 
    */

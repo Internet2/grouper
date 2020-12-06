@@ -4,13 +4,11 @@ import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 @DisallowConcurrentExecution
 public class GrouperProvisioningFullSyncJob extends OtherJobBase {
@@ -27,50 +25,42 @@ public class GrouperProvisioningFullSyncJob extends OtherJobBase {
         String daemonName = jobName.substring(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX.length(), jobName.length());
         String key = "otherJob."+daemonName+".provisionerConfigId";
         String provisionerConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString(key);
+        final Hib3GrouperLoaderLog hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
         
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
-        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-        
+        runFullSync(provisionerConfigId, hib3GrouperLoaderLog);
+
         return null;
       }
     });
     
     return null;
   }
-  
-  public static void main(String[] args) {
-    runDaemonStandalone();
-  }
-  
-  /**
-   * run standalone
-   */
-  public static void runDaemonStandalone() {
+
+  public static void runFullSync(String provisionerConfigId,
+      final Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
     
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
+    grouperProvisioner.getGcGrouperSyncHeartbeat().insertHeartbeatLogic(new Runnable() {
+
       @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      public void run() {
         
-        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-        String jobName = "OTHER_JOB_fullProvisioningDaemon";
-    
-        hib3GrouperLoaderLog.setJobName(jobName);
-        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-        hib3GrouperLoaderLog.store();
-        
-        OtherJobInput otherJobInput = new OtherJobInput();
-        otherJobInput.setJobName(jobName);
-        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-        otherJobInput.setGrouperSession(grouperSession);
-        
-        new GrouperProvisioningFullSyncJob().run(otherJobInput);
-        return null;
+        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
+        if (grouperProvisioningOutput != null) {
+          grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+          hib3GrouperLoaderLog.store();
+        }
       }
-    });
       
+    });
+
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+    hib3GrouperLoaderLog.store();
+  }
+
+  public static void main(String[] args) {
+    
   }
 
 }

@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -78,6 +79,10 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   
     gcGrouperSyncGroup.grouperSyncId = this.grouperSyncId;
     gcGrouperSyncGroup.id = this.id;
+//    gcGrouperSyncGroup.inGrouperDb = this.inGrouperDb;
+//    gcGrouperSyncGroup.inGrouperEnd = this.inGrouperEnd;
+//    gcGrouperSyncGroup.inGrouperInsertOrExistsDb = this.inGrouperInsertOrExistsDb;
+//    gcGrouperSyncGroup.inGrouperStart = this.inGrouperStart;
     gcGrouperSyncGroup.inTargetDb = this.inTargetDb;
     gcGrouperSyncGroup.inTargetEnd = this.inTargetEnd;
     gcGrouperSyncGroup.inTargetInsertOrExistsDb = this.inTargetInsertOrExistsDb;
@@ -132,6 +137,10 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
       .append(this.grouperSyncId, other.grouperSyncId)
       .append(this.id, other.id)
+//      .append(this.inGrouperDb, other.inGrouperDb)
+//      .append(this.inGrouperEnd, other.inGrouperEnd)
+//      .append(this.inGrouperInsertOrExistsDb, other.inGrouperInsertOrExistsDb)
+//      .append(this.inGrouperStart, other.inGrouperStart)
       .append(this.inTargetDb, other.inTargetDb)
       .append(this.inTargetEnd, other.inTargetEnd)
       .append(this.inTargetInsertOrExistsDb, other.inTargetInsertOrExistsDb)
@@ -356,13 +365,16 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     
   }
   
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName", "dbVersion", "debugMap", 
+      "grouperSync", "grouperSyncId", "lastGroupMetadataSync", "lastGroupMetadataSyncStart", "lastGroupSync", "lastUpdated",
+      "metadataUpdated");
   
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
   }
 
   /**
@@ -516,7 +528,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   public boolean isInTargetInsertOrExists() {
     return GrouperClientUtils.booleanValue(this.inTargetInsertOrExistsDb, false);
   }
-  
+
   /**
    * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
    * @param inTargetInsertOrExists
@@ -824,6 +836,132 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * other metadata on groups
    */
   private String groupToId3;
+
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   * @return true or false
+//   */
+//  public boolean isInGrouperInsertOrExists() {
+//    return GrouperClientUtils.booleanValue(this.inGrouperInsertOrExistsDb, false);
+//  }
+//  
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   * @param inGrouperInsertOrExists
+//   */
+//  public void setInGrouperInsertOrExists(boolean inGrouperInsertOrExists) {
+//    this.inGrouperInsertOrExistsDb = inGrouperInsertOrExists ? "T" : "F";
+//  }
+//  
+//  /**
+//   * if in grouper
+//   * @return if in grouper
+//   */
+//  public boolean isInGrouper() {
+//    return GrouperClientUtils.booleanValue(this.inGrouperDb, false);
+//  }
+//
+//  /**
+//   * if in grouper
+//   * @param in grouper
+//   */
+//  public void setInGrouper(boolean inGrouper) {
+//    this.inGrouperDb = inGrouper ? "T" : "F";
+//  }
+//  
+//  /**
+//   * if this group exists in grouper
+//   */
+//  @GcPersistableField(columnName="in_grouper")
+//  private String inGrouperDb;
+//
+//  /**
+//   * when this group was removed from grouper
+//   */
+//  private Timestamp inGrouperEnd;
+//
+//  /**
+//   * when this group was added to grouper
+//   */
+//  private Timestamp inGrouperStart;
+//
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   */
+//  @GcPersistableField(columnName="in_grouper_insert_or_exists")
+//  private String inGrouperInsertOrExistsDb;
+//  
+//  /**
+//   * if this group exists in grouper
+//   * @return if is target
+//   */
+//  public Boolean getInGrouper() {
+//    return GrouperClientUtils.booleanObjectValue(this.inGrouperDb);
+//  }
+//
+//  /**
+//   * if this group exists in grouper T/F
+//   * @return
+//   */
+//  public String getInGrouperDb() {
+//    return inGrouperDb;
+//  }
+//
+//  /**
+//   * if this group exists in grouper T/F
+//   * @param inGrouperDb
+//   */
+//  public void setInGrouperDb(String inGrouperDb) {
+//    this.inGrouperDb = inGrouperDb;
+//  }
+//
+//  /**
+//   * when this group was removed from grouper
+//   * @return
+//   */
+//  public Timestamp getInGrouperEnd() {
+//    return inGrouperEnd;
+//  }
+//
+//  /**
+//   * when this group was removed from grouper
+//   * @param inGrouperEnd
+//   */
+//  public void setInGrouperEnd(Timestamp inGrouperEnd) {
+//    this.inGrouperEnd = inGrouperEnd;
+//  }
+//
+//  /**
+//   * when this group was added to grouper
+//   * @return
+//   */
+//  public Timestamp getInGrouperStart() {
+//    return inGrouperStart;
+//  }
+//
+//  /**
+//   * when this group was added to grouper
+//   * @param inGrouperStart
+//   */
+//  public void setInGrouperStart(Timestamp inGrouperStart) {
+//    this.inGrouperStart = inGrouperStart;
+//  }
+//
+//  /**
+//   * if the provisioner added to grouper or if it already existed
+//   * @return
+//   */
+//  public String getInGrouperInsertOrExistsDb() {
+//    return inGrouperInsertOrExistsDb;
+//  }
+//
+//  /**
+//   * if the provisioner added to grouper or if it already existed
+//   * @param inGrouperInsertOrExistsDb
+//   */
+//  public void setInGrouperInsertOrExistsDb(String inGrouperInsertOrExistsDb) {
+//    this.inGrouperInsertOrExistsDb = inGrouperInsertOrExistsDb;
+//  }
 
   /**
    * other metadata on groups

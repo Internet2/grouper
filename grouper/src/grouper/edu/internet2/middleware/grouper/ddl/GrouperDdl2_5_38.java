@@ -101,14 +101,37 @@ public class GrouperDdl2_5_38 {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_log", "sync_timestamp_start", "start of sync operation for log");
 
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "in_grouper_start", "when this was put in grouper");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "in_grouper_end", "when this was taken out of grouper");
+//
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "last_group_sync_start", "start of last successful group sync");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_group", "last_group_metadata_sync_start", "start of last successful group metadata sync");
 
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "in_grouper_start", "when this was put in grouper");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "in_grouper_end", "when this was taken out of grouper");
+//
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "last_user_sync_start", "start of last successful user sync");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "last_user_metadata_sync_start", "start of last successful user metadata sync");
 
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_membership", "in_grouper", "T if exists in grouper and F is not.  blank if not sure");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_membership", "in_grouper_insert_or_exists", "T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_membership", "in_grouper_start", "when this was put in grouper");
+//
+//    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_membership", "in_grouper_end", "when this was taken out of grouper");
   }
   
   
@@ -144,6 +167,14 @@ public class GrouperDdl2_5_38 {
 
     {
       Table grouperSyncGroupTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_group", true);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_insert_or_exists", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_start", 
+//          Types.TIMESTAMP, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "in_grouper_end", 
+//          Types.TIMESTAMP, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_sync_start", 
           Types.TIMESTAMP, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_group_metadata_sync_start", 
@@ -152,12 +183,31 @@ public class GrouperDdl2_5_38 {
 
     {
       Table grouperSyncMemberTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_member", true);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "in_grouper", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "in_grouper_insert_or_exists", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "in_grouper_start", 
+//          Types.TIMESTAMP, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "in_grouper_end", 
+//          Types.TIMESTAMP, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "last_user_sync_start", 
           Types.TIMESTAMP, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMemberTable, "last_user_metadata_sync_start", 
           Types.TIMESTAMP, null, false, false);
     }
 
+//    {
+//      Table grouperSyncMembershipTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_membership", true);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMembershipTable, "in_grouper", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMembershipTable, "in_grouper_insert_or_exists", 
+//          Types.VARCHAR, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMembershipTable, "in_grouper_start", 
+//          Types.TIMESTAMP, "1", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncMembershipTable, "in_grouper_end", 
+//          Types.TIMESTAMP, "1", false, false);
+//    }
     {
       Table grouperSyncLogTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_log", true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncLogTable, "sync_timestamp_start", 

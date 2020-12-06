@@ -2,9 +2,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -15,7 +14,25 @@ public class GrouperIncrementalDataToProcess {
 
   private GrouperProvisioner grouperProvisioner;
 
-  
+  public boolean isHasIncrementalDataToProcess() {
+    if (GrouperUtil.length(this.groupUuidsForGroupMembershipSync) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.groupUuidsForGroupOnly) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.memberUuidsForEntityMembershipSync) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.memberUuidsForEntityOnly) > 0) {
+      return true;
+    }
+    if (GrouperUtil.length(this.groupUuidsMemberUuidsForMembershipSync) > 0) {
+      return true;
+    }
+    return false;
+  }
+
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -29,7 +46,7 @@ public class GrouperIncrementalDataToProcess {
    * get the group objects and the memberships for these.
    * note, these are also included in groupUuidsForGroupOnly
    */
-  private Set<String> groupUuidsForGroupMembershipSync = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = new HashSet<GrouperIncrementalDataItem>();
   
   
   /**
@@ -37,7 +54,7 @@ public class GrouperIncrementalDataToProcess {
    * note, these are also included in groupUuidsForGroupOnly
    * @return
    */
-  public Set<String> getGroupUuidsForGroupMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupMembershipSync() {
     return groupUuidsForGroupMembershipSync;
   }
 
@@ -48,7 +65,7 @@ public class GrouperIncrementalDataToProcess {
    * @param groupUuidsForGroupMembershipSync
    */
   public void setGroupUuidsForGroupMembershipSync(
-      Set<String> groupUuidsForGroupMembershipSync) {
+      Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync) {
     this.groupUuidsForGroupMembershipSync = groupUuidsForGroupMembershipSync;
   }
 
@@ -58,14 +75,14 @@ public class GrouperIncrementalDataToProcess {
    * get the entity objects and the memberships for these.
    * note, these are also included in memberUuidsForEntityOnly
    */
-  private Set<String> memberUuidsForEntityMembershipSync = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync = new HashSet<GrouperIncrementalDataItem>();
 
   /**
    * get the entity objects and the memberships for these.
    * note, these are also included in memberUuidsForEntityOnly
    * @return the uuids
    */
-  public Set<String> getMemberUuidsForEntityMembershipSync() {
+  public Set<GrouperIncrementalDataItem> getMemberUuidsForEntityMembershipSync() {
     return memberUuidsForEntityMembershipSync;
   }
 
@@ -76,7 +93,7 @@ public class GrouperIncrementalDataToProcess {
    * @param memberUuidsForEntityMembershipSync
    */
   public void setMemberUuidsForEntityMembershipSync(
-      Set<String> memberUuidsForEntityMembershipSync) {
+      Set<GrouperIncrementalDataItem> memberUuidsForEntityMembershipSync) {
     this.memberUuidsForEntityMembershipSync = memberUuidsForEntityMembershipSync;
   }
 
@@ -86,7 +103,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the group objects.
    * these are for group metadata or referenced in a membership
    */
-  private Set<String> groupUuidsForGroupOnly = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.
@@ -94,7 +111,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for group metadata or referenced in a membership
    * @return
    */
-  public Set<String> getGroupUuidsForGroupOnly() {
+  public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupOnly() {
     return groupUuidsForGroupOnly;
   }
 
@@ -105,7 +122,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for group metadata or referenced in a membership
    * @param groupUuidsForGroupOnly
    */
-  public void setGroupUuidsForGroupOnly(Set<String> groupUuidsForGroupOnly) {
+  public void setGroupUuidsForGroupOnly(Set<GrouperIncrementalDataItem> groupUuidsForGroupOnly) {
     this.groupUuidsForGroupOnly = groupUuidsForGroupOnly;
   }
 
@@ -115,7 +132,7 @@ public class GrouperIncrementalDataToProcess {
    * Just get the entity objects.
    * these are for entity metadata or referenced in a membership
    */
-  private Set<String> memberUuidsForEntityOnly = new TreeSet<String>();
+  private Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * do not retrieve all memberships for these unless they are also included in memberUuidsForEntityMembershipSync.  
@@ -123,7 +140,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for entity metadata or referenced in a membership
    * @return
    */
-  public Set<String> getMemberUuidsForEntityOnly() {
+  public Set<GrouperIncrementalDataItem> getMemberUuidsForEntityOnly() {
     return memberUuidsForEntityOnly;
   }
 
@@ -134,7 +151,7 @@ public class GrouperIncrementalDataToProcess {
    * these are for entity metadata or referenced in a membership
    * @param memberUuidsForEntityOnly
    */
-  public void setMemberUuidsForEntityOnly(Set<String> memberUuidsForEntityOnly) {
+  public void setMemberUuidsForEntityOnly(Set<GrouperIncrementalDataItem> memberUuidsForEntityOnly) {
     this.memberUuidsForEntityOnly = memberUuidsForEntityOnly;
   }
 
@@ -143,14 +160,14 @@ public class GrouperIncrementalDataToProcess {
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    */
-  private Set<MultiKey> groupUuidsMemberUuidsFieldIdsForMembershipSync = new HashSet<MultiKey>();
+  private Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsForMembershipSync = new HashSet<GrouperIncrementalDataItem>();
   
   /**
    * multi key of group uuid, member uuids, field ids for membership sync
    * @return
    */
-  public Set<MultiKey> getGroupUuidsMemberUuidsFieldIdsForMembershipSync() {
-    return groupUuidsMemberUuidsFieldIdsForMembershipSync;
+  public Set<GrouperIncrementalDataItem> getGroupUuidsMemberUuidsForMembershipSync() {
+    return groupUuidsMemberUuidsForMembershipSync;
   }
 
 
@@ -158,9 +175,9 @@ public class GrouperIncrementalDataToProcess {
    * multi key of group uuid, member uuids, field ids for membership sync
    * @param groupUuidsMemberUuidsForMembershipSync
    */
-  public void setGroupUuidsMemberUuidsFieldIdsForMembershipSync(
-      Set<MultiKey> groupUuidsMemberUuidsForMembershipSync) {
-    this.groupUuidsMemberUuidsFieldIdsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
+  public void setGroupUuidsMemberUuidsForMembershipSync(
+      Set<GrouperIncrementalDataItem> groupUuidsMemberUuidsForMembershipSync) {
+    this.groupUuidsMemberUuidsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
   }
 
   

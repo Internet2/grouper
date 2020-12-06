@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -391,8 +392,11 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
   }
+
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName",
+      "dbVersion", "grouperSync", "grouperSyncId", "lastSyncTimestamp","lastUpdated");
 
   /**
    * heartbeat updated every minute

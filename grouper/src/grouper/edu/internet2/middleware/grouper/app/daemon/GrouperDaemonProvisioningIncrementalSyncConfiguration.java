@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningIncrementalSyncJob;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonProvisioningIncrementalSyncConfiguration extends GrouperDaemonConfiguration {
@@ -34,7 +34,7 @@ public class GrouperDaemonProvisioningIncrementalSyncConfiguration extends Group
 
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
-    return GrouperProvisioningIncrementalSyncJob.class.getName();
+    return ProvisioningConsumer.class.getName();
   }
 
   @Override

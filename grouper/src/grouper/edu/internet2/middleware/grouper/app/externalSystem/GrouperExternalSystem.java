@@ -168,5 +168,12 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     return keysAndLabels;
   }
   
-  
+  /**
+   * check if connections need to be refreshed due to config changes
+   * @return
+   * @throws UnsupportedOperationException
+   */
+  public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException();
+  }
 }

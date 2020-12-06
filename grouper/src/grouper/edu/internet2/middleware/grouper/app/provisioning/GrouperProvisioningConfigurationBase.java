@@ -30,6 +30,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
 
+  /** if the target should be checked before sending actions.  e.g. if an addMember is made to a provisionable group, then check the target to see if the entity is already a member first. */
+  private boolean recalculateAllOperations;
+
   /**
    * attribute name to config
    */
@@ -306,8 +309,62 @@ public abstract class GrouperProvisioningConfigurationBase {
   public Map<String, List<String>> getGrouperProvisioningToTargetTranslation() {
     return grouperProvisioningToTargetTranslation;
   }
-
   
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   */
+  private int scoreConvertToFullSyncThreshold;
+  
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   * @return
+   */
+  public int getScoreConvertToFullSyncThreshold() {
+    return scoreConvertToFullSyncThreshold;
+  }
+
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   * @param scoreConvertToFullSyncThreshold1
+   */
+  public void setScoreConvertToFullSyncThreshold(int scoreConvertToFullSyncThreshold1) {
+    this.scoreConvertToFullSyncThreshold = scoreConvertToFullSyncThreshold1;
+  }
+
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500.
+   * -1 to not use this feature
+   */
+  private int membershipsConvertToGroupSyncThreshold;
+  
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500
+   * -1 to not use this feature
+   * @return threshold
+   */
+  public int getMembershipsConvertToGroupSyncThreshold() {
+    return membershipsConvertToGroupSyncThreshold;
+  }
+
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500
+   * -1 to not use this feature
+   * @param membershipsConvertToGroupSyncThreshold
+   */
+  public void setMembershipsConvertToGroupSyncThreshold(
+      int membershipsConvertToGroupSyncThreshold) {
+    this.membershipsConvertToGroupSyncThreshold = membershipsConvertToGroupSyncThreshold;
+  }
+
   /**
    * get a config name for this or dependency
    * @param configName
@@ -789,7 +846,28 @@ public abstract class GrouperProvisioningConfigurationBase {
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
    */
   private GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = null;
-  
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   */
+  private String attributeNameForMemberships;
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getAttributeNameForMemberships() {
+    return attributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @param attributeNameForMemberships
+   */
+  public void setAttributeNameForMemberships(String attributeNameForMemberships) {
+    this.attributeNameForMemberships = attributeNameForMemberships;
+  }
+
   /**
    * attribute name in a group object that refers to memberships (if applicable)
    */
@@ -1060,6 +1138,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
     this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
     
+    this.scoreConvertToFullSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("scoreConvertToFullSyncThreshold", false), 10000);
+    this.membershipsConvertToGroupSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("membershipsConvertToGroupSyncThreshold", false), 500);
+    
     this.userSearchFilter = this.retrieveConfigString("userSearchFilter", false);
     this.userSearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
@@ -1092,6 +1173,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
         this.groupAttributeNameForMemberships = targetGroupAttributeName;
+        this.attributeNameForMemberships = targetGroupAttributeName;
       }
       
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMultiValued()) {
@@ -1105,6 +1187,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
       
       if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
+        this.attributeNameForMemberships = targetEntityAttributeName;
         this.userAttributeNameForMemberships = targetEntityAttributeName;
       }
       
@@ -1133,6 +1216,8 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.deleteInTargetIfDeletedInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteInTargetIfDeletedInGrouper", false), true);
 
+    this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
+    
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
       if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {
@@ -1146,7 +1231,6 @@ public abstract class GrouperProvisioningConfigurationBase {
       } else {
         throw new RuntimeException("Invalid GrouperProvisioningMembershipFieldType: '" + grouperProvisioningMembershipFieldTypeString + "'");
       }
-      
     }
     
     for (String configItem : new String[] {"grouperToTargetTranslationMembership", "grouperToTargetTranslationEntity",
@@ -1172,6 +1256,16 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   }
   
+  
+  public boolean isRecalculateAllOperations() {
+    return recalculateAllOperations;
+  }
+
+  
+  public void setRecalculateAllOperations(boolean recalculateAllOperations) {
+    this.recalculateAllOperations = recalculateAllOperations;
+  }
+
   /**
    * no need to configure twice if the caller needs to configure before provisioning
    */
