@@ -1794,7 +1794,7 @@ public class GrouperProvisioningLogicIncremental {
       switch (grouperIncrementalDataItem.getGrouperIncrementalDataAction()) {
         case delete:
           
-          if (provisioningMembership != null) {
+          if (!provisioningMembershipWrapper.isDelete() && provisioningMembership != null) {
             convertInconsistentEventsToRecalc++;
             iterator.remove();
             groupUuidsMemberUuidsForMembershipSyncWithRecalc.add(grouperIncrementalDataItem);
@@ -1805,7 +1805,7 @@ public class GrouperProvisioningLogicIncremental {
           
         case insert:
 
-          if (provisioningMembership == null) {
+          if (provisioningMembershipWrapper.isDelete() || provisioningMembership == null) {
             convertInconsistentEventsToRecalc++;
             iterator.remove();
             groupUuidsMemberUuidsForMembershipSyncWithRecalc.add(grouperIncrementalDataItem);

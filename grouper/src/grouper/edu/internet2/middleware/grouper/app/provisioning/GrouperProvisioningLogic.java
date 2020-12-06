@@ -1156,12 +1156,12 @@ public class GrouperProvisioningLogic {
   public void assignSyncObjectsToWrappersMemberships(
       Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper,
       Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper,
-      Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper) {
+      Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper) {
     {
 
       List<GcGrouperSyncMembership> gcGrouperSyncMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMemberships();
 
-      Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper();
+      Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
       if (GrouperUtil.length(gcGrouperSyncMemberships) > 0) {
         

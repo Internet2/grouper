@@ -2432,6 +2432,32 @@ public class SqlProvisionerTest extends GrouperTest {
 
     // this includes fields and attributes etc
     assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+
+    // remove member
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+
+    // run the provisioner
+    hib3GrouperLoaderLog = runJobs(true, true);
+
+    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+
+    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
+
+    assertLdapAttributesInTable(GrouperUtil.toSet(
+        new MultiKey("test:testGroup", "cn", "test:testGroup"),
+        new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu"),
+        new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex()),
+        new MultiKey("test:testGroup", "objectClass", "group"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.8"))        
+        );
+
+    // this includes fields and attributes etc
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
   }
 
   private void assertLdapAttributesInTable(Set<MultiKey> set) {

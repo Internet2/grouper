@@ -294,6 +294,13 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
       if (this.provisioningMembershipWrapper.getGrouperIncrementalDataAction() != null) {
         firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getGrouperIncrementalDataAction());
       }
+      if (this.provisioningMembershipWrapper.isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.isDelete());
+      }
+      if (this.provisioningMembershipWrapper.isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.isCreate());
+      }
+
     }
     return result.append(")").toString();
   }
