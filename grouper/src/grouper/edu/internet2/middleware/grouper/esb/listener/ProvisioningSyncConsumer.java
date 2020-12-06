@@ -18,7 +18,6 @@ package edu.internet2.middleware.grouper.esb.listener;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 
 /**

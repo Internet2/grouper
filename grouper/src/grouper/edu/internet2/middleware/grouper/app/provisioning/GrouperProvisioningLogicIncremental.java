@@ -917,7 +917,8 @@ public class GrouperProvisioningLogicIncremental {
     Set<String> sourceIdsToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision();
     
     // these events are already filtered
-    List<EsbEventContainer> esbEventContainers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers());
+    // make a new array list so we dont re-order the existing object
+    List<EsbEventContainer> esbEventContainers = new ArrayList<EsbEventContainer>(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
 
     // the sets wont add if the element is already there, so add newer actions first, and ignore older actions
     Collections.reverse(esbEventContainers);
@@ -1967,7 +1968,7 @@ public class GrouperProvisioningLogicIncremental {
   }
 
   
-  public void retrieveIncrementalRecalcTargetData() {
+  public void retrieveIncrementalTargetData() {
     TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = new TargetDaoRetrieveIncrementalDataRequest();
     boolean needsData = false;
     {
@@ -1985,6 +1986,14 @@ public class GrouperProvisioningLogicIncremental {
           } 
         }
       }
+      {
+        // we need to retrieve non recalc groups for entity attribute provisioning, if there is a group link and no data
+        List<ProvisioningGroup> grouperTargetGroupsToRetrieveForLinks = 
+            this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
+            .retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks(
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+        grouperTargetGroupsRecalcForGroupOnly.addAll(grouperTargetGroupsToRetrieveForLinks);
+      }
       if (grouperTargetGroupsRecalcForMembershipSync.size() > 0) {
         targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupMembershipSync(grouperTargetGroupsRecalcForMembershipSync);
         needsData = true;
@@ -1996,7 +2005,7 @@ public class GrouperProvisioningLogicIncremental {
     }    
     {
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForMembershipSync = new ArrayList<ProvisioningEntity>();
-      List<ProvisioningEntity> grouperTargetEntitiesRecalcForGroupOnly = new ArrayList<ProvisioningEntity>();
+      List<ProvisioningEntity> grouperTargetEntitiesRecalcForEntityOnly = new ArrayList<ProvisioningEntity>();
 
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
@@ -2004,20 +2013,29 @@ public class GrouperProvisioningLogicIncremental {
             if (provisioningEntityWrapper.isIncrementalSyncMemberships()) {
               grouperTargetEntitiesRecalcForMembershipSync.add(provisioningEntityWrapper.getGrouperTargetEntity());
             } else {
-              grouperTargetEntitiesRecalcForGroupOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+              grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
             }
           } 
         }
+      }
+      {
+        // we need to retrieve non recalc entities for group attribute provisioning, if there is an entity link and no data
+        List<ProvisioningEntity> grouperTargetEntitiesToRetrieveForLinks = 
+            this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
+            .retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks(
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+        grouperTargetEntitiesRecalcForEntityOnly.addAll(grouperTargetEntitiesToRetrieveForLinks);
       }
       if (grouperTargetEntitiesRecalcForMembershipSync.size() > 0) {
         targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityMembershipSync(grouperTargetEntitiesRecalcForMembershipSync);
         needsData = true;
       }
-      if (grouperTargetEntitiesRecalcForGroupOnly.size() > 0) {
-        targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(grouperTargetEntitiesRecalcForGroupOnly);
+      if (grouperTargetEntitiesRecalcForEntityOnly.size() > 0) {
+        targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(grouperTargetEntitiesRecalcForEntityOnly);
         needsData = true;
       }
     }
+    
     {
       List<Object> provisioningObjectsRecalcForMembershipSync = new ArrayList<Object>();
       

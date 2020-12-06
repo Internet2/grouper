@@ -2005,37 +2005,10 @@ public class SqlProvisionerTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchBaseDn", "DC=one,DC=upenn,DC=edu");
 
     //TODO make an attribute config for this
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.hasTargetUserLink", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.entityLink.memberToId2", "${targetEntity.retrieveAttributeValue('dn')}");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
     
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.scriptCount",  "2");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.0.script",  
-//        "${grouperTargetEntity.assignAttributeValue('employeeID',  grouperProvisioningEntity.getSubjectId())}");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationEntity.1.script",  
-//        "${grouperTargetEntity.assignAttributeValue('dn', gcGrouperSyncMember.getMemberToId2() )}");
-          
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.scriptCount", "2");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.0.script", 
-//        "${grouperTargetGroup.assignAttributeValue('gidNumber', grouperProvisioningGroup.getIdIndex()); }");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroup.1.script", 
-//        "${grouperTargetGroup.assignAttributeValue('dn', gcGrouperSyncGroup.getGroupToId2()); }");
-
-    // TODO matching id
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupMatchingIdAttribute", "gidNumber");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityMatchingIdAttribute", "employeeID");
-
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.scriptCount", "4");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.0.script", 
-//        "${grouperTargetGroup.assignAttributeValue('dn', 'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'); }");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.1.script", 
-//        "${grouperTargetGroup.assignAttributeValue('cn', grouperProvisioningGroup.getName()); }");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.2.script", 
-//        "${grouperTargetGroup.assignAttributeValue('objectClass', grouperUtil.toSet('group')); }");
-////    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.3.script", 
-////        "${grouperTargetGroup.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()); }");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.grouperToTargetTranslationGroupCreateOnly.3.script", 
-//        "${grouperTargetGroup.setId(grouperProvisioningGroup.getName()); }");
-
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttributeCount", "6");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.name", "cn");
@@ -2094,7 +2067,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.name", "dn");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.translateExpression", "${gcGrouperSyncMember.getMemberToId2()}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.translateFromMemberSyncField", "memberToId2");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.name", "employeeID");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.valueType", "string");
@@ -2415,9 +2388,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
     
-    int messageCount = GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0);
-    
-    assertEquals(1, messageCount);
+    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
     assertFalse((Boolean)grouperProvisioner.getDebugMap().get("hasIncrementalDataToProcess"));
     
@@ -2426,6 +2397,12 @@ public class SqlProvisionerTest extends GrouperTest {
 
     // run the provisioner
     hib3GrouperLoaderLog = runJobs(true, true);
+
+    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+
+    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+    
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("missingGroupsForCreate"), 0));
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     // this includes fields and attributes etc

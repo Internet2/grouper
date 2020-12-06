@@ -79,16 +79,19 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     //TODO get provisioning type from config
     GrouperProvisioningType grouperProvisioningType = GrouperProvisioningType.incrementalProvisionChangeLog;
     grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().setEsbEventContainers(esbEventContainers);
-    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
-    grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
-    hib3GrouperLoaderLog.store();
 
     // if we didnt throw an exception, then we processed all of them
+    // get the last sequence before the provisioner re-orders them
     Long lastSequenceNumber = -1L;
     if (GrouperUtil.length(esbEventContainers) > 0) {
       EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
       lastSequenceNumber = lastEvent.getSequenceNumber();
     }
+
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
+    grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+    hib3GrouperLoaderLog.store();
+
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceNumber);
     return provisioningSyncConsumerResult;
   }

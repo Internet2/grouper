@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -20,17 +19,17 @@ public class GrouperProvisioningBehavior {
   /**
    * If the subject API is needed to resolve attribute on subject  required, drives requirements of other configurations. defaults to false.
    */
-  private Boolean hasSubjectLink = false;
+  private Boolean hasSubjectLink = null;
   
   /**
    * If groups need to be resolved in the target before provisioning
    */
-  private Boolean hasTargetGroupLink = false;
+  private Boolean hasTargetGroupLink = null;
   
   /**
    * If users need to be resolved in the target before provisioning
    */
-  private Boolean hasTargetEntityLink = false;
+  private Boolean hasTargetEntityLink = null;
 
   
   public boolean canGroupInsertField(String name) {
@@ -259,7 +258,20 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getEntitiesRetrieve() {
-    return entitiesRetrieve;
+    if (this.entitiesRetrieve != null) {
+      return this.entitiesRetrieve;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      return true;
+    }
+    if (GrouperUtil.booleanValue(this.getHasTargetEntityLink(), false)) {
+      return true;
+    }
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
+      return true;
+    }
+    return null;
   }
 
 
@@ -273,7 +285,18 @@ public class GrouperProvisioningBehavior {
   
   
   public Boolean getMembershipsRetrieve() {
-    return membershipsRetrieve;
+    if (this.membershipsRetrieve != null) {
+      return membershipsRetrieve;
+    }
+
+    if (GrouperUtil.booleanValue(this.getMembershipsRetrieveAll(), false)) {
+      return true;
+    }
+
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
+    return null;
   }
 
 
@@ -291,11 +314,21 @@ public class GrouperProvisioningBehavior {
       return groupsRetrieve;
     }
 
-    Boolean groupsRetrieveAllLocal = this.getGroupsRetrieveAll();
-    if (groupsRetrieveAllLocal != null) {
-      return groupsRetrieveAllLocal;
+    if (GrouperUtil.booleanValue(this.getGroupsRetrieveAll(), false)) {
+      return true;
     }
-    return groupsRetrieve;
+
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      return true;
+    }
+    if (GrouperUtil.booleanValue(this.getHasTargetGroupLink(), false)) {
+      return true;
+    }
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
+      return true;
+    }
+    return null;
   }
 
 
@@ -376,10 +409,14 @@ public class GrouperProvisioningBehavior {
     if (this.groupsRetrieveAll != null) {
       return groupsRetrieveAll;
     }
+    if (GrouperUtil.booleanValue(this.getHasTargetGroupLink(), false)) {
+      return true;
+    }
     
     // by default, if we're inserting/updating/deleting groups, then retrieve all groups?
     if (this.getGroupsInsert() == Boolean.TRUE || this.getGroupsUpdate() == Boolean.TRUE ||
-        this.getGroupsDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getGroupsDeleteIfNotInGrouper() == Boolean.TRUE) {
+        this.getGroupsDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getGroupsDeleteIfNotInGrouper() == Boolean.TRUE ||
+            this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       return true;
     }
     return null;
@@ -416,10 +453,8 @@ public class GrouperProvisioningBehavior {
       return groupsUpdate;
     }
     
-    // if we can create or delete then allow update by default?
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingGroups() ||
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfDeletedInGrouper() ||
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfInTargetAndNotGrouper()) {
+    if ( this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        || GrouperUtil.length(this.getGroupsUpdateAttributes()) > 0 || GrouperUtil.length(this.getGroupsUpdateFields()) > 0) {
       return true;
     }
     return null;
@@ -524,14 +559,15 @@ public class GrouperProvisioningBehavior {
     if (this.entitiesRetrieveAll != null) {
       return entitiesRetrieveAll;
     }
-    
+
+    if (GrouperUtil.booleanValue(this.getHasTargetEntityLink(), false)) {
+      return true;
+    }
+
     // by default, if we're inserting/updating/deleting entities or there's an entity link, then retrieve all entities?
     if (this.getEntitiesInsert() == Boolean.TRUE || this.getEntitiesUpdate() == Boolean.TRUE ||
         this.getEntitiesDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getEntitiesDeleteIfNotInGrouper() == Boolean.TRUE ||
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId2() != null ||
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberFromId3() != null ||
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId2() != null ||
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityLinkMemberToId3() != null) {
+        this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       return true;
     }
     return null;
@@ -564,7 +600,14 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getEntitiesUpdate() {
-    return entitiesUpdate;
+    if (this.entitiesUpdate != null) {
+      return this.entitiesUpdate;
+    }
+    if ( this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+        || GrouperUtil.length(this.getEntitiesUpdateAttributes()) > 0 || GrouperUtil.length(this.getEntitiesUpdateFields()) > 0) {
+      return true;
+    }
+    return null;
   }
 
   
@@ -594,7 +637,10 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getEntitiesInsert() {
-    return entitiesInsert;
+    if (this.entitiesInsert != null) {
+      return this.entitiesInsert;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingUsers();
   }
 
   
@@ -645,6 +691,12 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getMembershipsRetrieveAll() {
+    if (this.membershipsRetrieveAll != null) {
+      return this.membershipsRetrieveAll;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
     return membershipsRetrieveAll;
   }
 
@@ -675,6 +727,15 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getMembershipsUpdate() {
+    if (membershipsUpdate != null) {
+      return membershipsUpdate;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanUpdateMembership(), false)
+          || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanUpdateMemberships(), false)) {
+        return true;
+      }
+    }
     return membershipsUpdate;
   }
 
@@ -705,6 +766,12 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getMembershipsInsert() {
+    if (membershipsInsert != null) {
+      return membershipsInsert;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
     return membershipsInsert;
   }
 
@@ -735,6 +802,12 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getMembershipsDeleteIfNotInGrouper() {
+    if (membershipsDeleteIfNotInGrouper != null) {
+      return membershipsDeleteIfNotInGrouper;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
     return membershipsDeleteIfNotInGrouper;
   }
 
@@ -745,6 +818,12 @@ public class GrouperProvisioningBehavior {
 
   
   public Boolean getMembershipsDeleteIfDeletedFromGrouper() {
+    if (membershipsDeleteIfDeletedFromGrouper != null) {
+      return membershipsDeleteIfDeletedFromGrouper;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
     return membershipsDeleteIfDeletedFromGrouper;
   }
 
@@ -790,6 +869,35 @@ public class GrouperProvisioningBehavior {
     }
     
     return result.toString();
+  }
+  
+  public boolean canObjectUpdateAttribute(
+      ProvisioningUpdatable grouperProvisioningUpdatable, String attributeName) {
+
+    if (grouperProvisioningUpdatable instanceof ProvisioningGroup) {
+      return this.canGroupUpdateAttribute(attributeName);
+    }
+    if (grouperProvisioningUpdatable instanceof ProvisioningEntity) {
+      return this.canEntityUpdateAttribute(attributeName);
+    }
+    if (grouperProvisioningUpdatable instanceof ProvisioningMembership) {
+      return this.canMembershipUpdateAttribute(attributeName);
+    }
+    throw new RuntimeException("Not expecting object type: " + (grouperProvisioningUpdatable == null ? "null" : grouperProvisioningUpdatable.getClass().getName()));
+  }
+  
+  public boolean canObjectUpdateField(ProvisioningUpdatable grouperTargetUpdatable,
+      String fieldName) {
+    if (grouperTargetUpdatable instanceof ProvisioningGroup) {
+      return this.canGroupUpdateField(fieldName);
+    }
+    if (grouperTargetUpdatable instanceof ProvisioningEntity) {
+      return this.canEntityUpdateField(fieldName);
+    }
+    if (grouperTargetUpdatable instanceof ProvisioningMembership) {
+      return this.canMembershipUpdateField(fieldName);
+    }
+    throw new RuntimeException("Not expecting object type: " + (grouperTargetUpdatable == null ? "null" : grouperTargetUpdatable.getClass().getName()));
   }
 
 }

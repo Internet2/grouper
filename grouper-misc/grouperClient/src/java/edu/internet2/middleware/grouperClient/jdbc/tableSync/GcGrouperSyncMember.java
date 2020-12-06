@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -610,12 +611,15 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     }
   }
   
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName", 
+      "dbVersion", "grouperSync", "grouperSyncId", "lastUpdated", "lastUserMetadataSync", "lastUserSync", "metadataUpdated");
+  
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
   }
 
   /**

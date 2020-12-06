@@ -846,7 +846,28 @@ public abstract class GrouperProvisioningConfigurationBase {
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
    */
   private GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = null;
-  
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   */
+  private String attributeNameForMemberships;
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getAttributeNameForMemberships() {
+    return attributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @param attributeNameForMemberships
+   */
+  public void setAttributeNameForMemberships(String attributeNameForMemberships) {
+    this.attributeNameForMemberships = attributeNameForMemberships;
+  }
+
   /**
    * attribute name in a group object that refers to memberships (if applicable)
    */
@@ -1152,6 +1173,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
         this.groupAttributeNameForMemberships = targetGroupAttributeName;
+        this.attributeNameForMemberships = targetGroupAttributeName;
       }
       
       if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMultiValued()) {
@@ -1165,6 +1187,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
       
       if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
+        this.attributeNameForMemberships = targetEntityAttributeName;
         this.userAttributeNameForMemberships = targetEntityAttributeName;
       }
       

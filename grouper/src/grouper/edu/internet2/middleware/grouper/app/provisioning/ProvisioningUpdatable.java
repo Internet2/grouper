@@ -16,6 +16,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  public boolean isRecalc() {
+    if (this instanceof ProvisioningGroup) {
+      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalc();
+    }
+    if (this instanceof ProvisioningEntity) {
+      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalc();
+    }
+    if (this instanceof ProvisioningMembership) {
+      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper().isRecalc();
+    }
+    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
+  }
+  
   public abstract boolean canInsertAttribute(String name);
   public abstract boolean canUpdateAttribute(String name);
   public abstract boolean canDeleteAttrbute(String name);

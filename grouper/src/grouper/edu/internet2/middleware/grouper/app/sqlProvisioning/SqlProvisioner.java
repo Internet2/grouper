@@ -33,15 +33,10 @@ public class SqlProvisioner extends GrouperProvisioner {
   @Override
   public void registerProvisioningBehaviors(
       GrouperProvisioningBehavior grouperProvisioningBehavior) {
+
+    this.retrieveSqlProvisioningConfiguration().getSqlProvisioningType().registerProvisioningBehaviors(
+        grouperProvisioningBehavior);
     
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = this.retrieveSqlProvisioningConfiguration();
-    switch (sqlProvisioningConfiguration.getSqlProvisioningType()) {
-      case sqlLikeLdapGroupMemberships:
-        grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.groupAttributes);
-        break;
-      default:
-        throw new RuntimeException("Not expecting type: " + sqlProvisioningConfiguration.getSqlProvisioningType());
-    }
   }
 
 }
