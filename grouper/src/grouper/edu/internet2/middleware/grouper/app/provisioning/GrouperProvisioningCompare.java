@@ -256,6 +256,10 @@ public class GrouperProvisioningCompare {
           }
           
         }
+        if (GrouperUtil.length(grouperProvisioningUpdatable.getInternal_objectChanges()) > 0) {
+          addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
+              grouperProvisioningUpdatable);
+        }
         return;
       }
       

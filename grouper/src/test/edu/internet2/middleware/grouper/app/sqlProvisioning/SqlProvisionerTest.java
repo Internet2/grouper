@@ -2356,6 +2356,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
     assertNull(gcGrouperSyncGroup.getInTargetEnd());
     assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     
@@ -2384,6 +2385,17 @@ public class SqlProvisionerTest extends GrouperTest {
     // run the provisioner, it will init
     hib3GrouperLoaderLog = runJobs(true, true);
     
+    assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
+
+    assertLdapAttributesInTable(GrouperUtil.toSet(
+        new MultiKey("test:testGroup", "cn", "test:testGroup"),
+        new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu"),
+        new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex()),
+        new MultiKey("test:testGroup", "objectClass", "group"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
+    
+
     ProvisioningConsumer provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
 
     grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
@@ -2405,8 +2417,6 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("missingGroupsForCreate"), 0));
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
-    // this includes fields and attributes etc
-    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
 
     assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
 
@@ -2416,8 +2426,12 @@ public class SqlProvisionerTest extends GrouperTest {
         new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex()),
         new MultiKey("test:testGroup", "objectClass", "group"),
         new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
-        new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
+        new MultiKey("test:testGroup", "member", "dn_test.subject.1"),
+        new MultiKey("test:testGroup", "member", "dn_test.subject.8"))        
+        );
 
+    // this includes fields and attributes etc
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
   }
 
   private void assertLdapAttributesInTable(Set<MultiKey> set) {

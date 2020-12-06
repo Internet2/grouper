@@ -333,9 +333,15 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
             values.add(value);
           }
           
-          sql.append(" where a.").append(groupAttributeTableAttributeNameColumn)
-          .append(" = '").append(searchAttribute)
-          .append("' and a.").append(groupAttributeTableAttributeValueColumn).append(" in (");
+          //  WHERE a.group_uuid IN (SELECT a2.group_uuid FROM testgrouper_prov_ldap_group_attr AS a2 WHERE a2.attribute_name = 'gidNumber'
+          //      AND a2.attribute_value IN ('10007'));
+
+          sql.append(" where a.").append(groupAttributeTableForeignKeyToGroup)
+            .append(" IN (SELECT a2.").append(groupAttributeTableForeignKeyToGroup)
+            .append(" FROM ").append(groupAttributeTableName).append(" AS a2 WHERE a2.")
+            .append(groupAttributeTableAttributeNameColumn).append(" = '")
+            .append(searchAttribute)
+            .append("' and a2.").append(groupAttributeTableAttributeValueColumn).append(" IN (");
 
           GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
@@ -348,7 +354,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
             sql.append("?");
             first = false;
           }
-          sql.append(" ) ");
+          sql.append(" ) ) ");
           groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
           retrieveGroupsByAttributesAddRecord(result, groupTableIdColumn, groupAttributeTableAttributeNameColumn,
               groupAttributeTableAttributeValueColumn, commaSeparatedGroupColumnNames,
@@ -645,9 +651,16 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
             values.add(value);
           }
 
-          sql.append(" where a.").append(entityAttributeTableAttributeNameColumn)
-            .append(" = '").append(searchAttribute)
-            .append("' and a.").append(entityAttributeTableAttributeValueColumn).append(" in (");
+          //  WHERE a.entity_uuid IN (SELECT a2.entity_uuid FROM testgrouper_prov_ldap_entity_attr AS a2 WHERE a2.attribute_name = 'employeeID'
+          //      AND a2.attribute_value IN ('10007'));
+
+          sql.append(" where a.").append(entityAttributeTableForeignKeyToEntity)
+            .append(" IN (SELECT a2.").append(entityAttributeTableForeignKeyToEntity)
+            .append(" FROM ").append(entityAttributeTableName).append(" AS a2 WHERE a2.")
+            .append(entityAttributeTableAttributeNameColumn).append(" = '")
+            .append(searchAttribute)
+            .append("' and a2.").append(entityAttributeTableAttributeValueColumn).append(" IN (");
+
           GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
           boolean first = true;
@@ -659,7 +672,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
             sql.append("?");
             first = false;
           }
-          sql.append(" ) ");
+          sql.append(" ) ) ");
           groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
           retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
               entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,
