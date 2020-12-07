@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -304,6 +305,29 @@ public abstract class GrouperConfigurationModuleBase {
     }
   }
   
+  private Map<String, Object> objectValueSubstituteMap = null;
+  
+  /**
+   * expression language substitute map
+   * @return
+   */
+  public Map<String, Object> retrieveObjectValueSubstituteMap() {
+    
+    if (this.objectValueSubstituteMap == null) {
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+
+      variableMap.put("grouperUtil", new GrouperUtilElSafe());
+      
+      for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
+        
+        variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
+        
+      }
+      this.objectValueSubstituteMap = variableMap;
+    }
+    return this.objectValueSubstituteMap;
+  }
+  
   /**
    * retrieve attributes based on the instance
    * @return
@@ -313,6 +337,9 @@ public abstract class GrouperConfigurationModuleBase {
     if (this.attributeCache != null) {
       return this.attributeCache;
     }
+    
+    // recalculate this
+    this.objectValueSubstituteMap = null;
     
     ConfigFileName configFileName = this.getConfigFileName();
     

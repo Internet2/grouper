@@ -119,15 +119,7 @@ public class GrouperConfigurationModuleAttribute {
       return false;
     }
     
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    variableMap.put("grouperUtil", new GrouperUtilElSafe());
-    
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
-      
-      variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
-      
-    }
+    Map<String, Object> variableMap = this.grouperConfigModule.retrieveObjectValueSubstituteMap();
 
     String requiredString = GrouperUtil.substituteExpressionLanguage(requiredEl, variableMap, true, true, true);
     
@@ -431,7 +423,8 @@ public class GrouperConfigurationModuleAttribute {
    * @return if show
    */
   public boolean isShow() {
-    
+
+
     {
       Boolean showOverride = this.grouperConfigModule.showAttributeOverride(this.configSuffix);
       if (showOverride != null) {
@@ -444,16 +437,7 @@ public class GrouperConfigurationModuleAttribute {
       return true;
     }
     
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    variableMap.put("grouperUtil", new GrouperUtilElSafe());
-    
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
-      
-      variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
-      
-      
-    }
+    Map<String, Object> variableMap = this.grouperConfigModule.retrieveObjectValueSubstituteMap();
 
     String showString = GrouperUtil.substituteExpressionLanguage(showEl, variableMap, true, true, true);
     
