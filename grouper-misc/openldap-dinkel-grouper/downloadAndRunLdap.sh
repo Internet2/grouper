@@ -1,7 +1,5 @@
 #!/bin/bash
 
-mkdir ldapExample
-cd ldapExample
 mkdir ldap-seed-data
 cd ldap-seed-data
 wget https://raw.githubusercontent.com/Internet2/grouper/GROUPER_2_5_BRANCH/grouper-misc/openldap-dinkel-grouper/ldap-seed-data/02-users.ldif
