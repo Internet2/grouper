@@ -80,6 +80,8 @@ public class DbConfigEngine {
       }
       boolean isExpressionLanguage = GrouperUtil.booleanValue(expressionLanguageString);
   
+      propertyNameString = StringUtils.trim(propertyNameString);
+      
       if (propertyNameString.endsWith(".elConfig") && !isExpressionLanguage) {
         
         final String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameElConfig");
