@@ -13,6 +13,7 @@ cd schemas
 wget https://raw.githubusercontent.com/Internet2/grouper/GROUPER_2_5_BRANCH/grouper-misc/openldap-dinkel-grouper/schemas/eduperson.ldif
 cd ..
 wget https://raw.githubusercontent.com/Internet2/grouper/GROUPER_2_5_BRANCH/grouper-misc/openldap-dinkel-grouper/Dockerfile
+wget https://raw.githubusercontent.com/Internet2/grouper/GROUPER_2_5_BRANCH/grouper-misc/openldap-dinkel-grouper/subject.properties
 docker build -t openldap-dinkel-grouper .
 docker run -d -p 389:389 --name openldap-dinkel-grouper --mount type=bind,source="$PWD/ldap-seed-data",target=/etc/ldap/prepopulate \
    -e SLAPD_PASSWORD=secret -e SLAPD_CONFIG_PASSWORD=secret -e SLAPD_DOMAIN=example.edu openldap-dinkel-grouper
