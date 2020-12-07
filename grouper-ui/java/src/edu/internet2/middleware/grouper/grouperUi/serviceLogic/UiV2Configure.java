@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -412,7 +413,7 @@ public class UiV2Configure {
         grouperConfigHibernateMap.put(grouperConfigHibernate.getConfigKey(), grouperConfigHibernate);
       }
       
-      Map<String, String> properties = ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName());
+      Map<String, String> properties = new TreeMap<String, String>(ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName()));
       
       for (String property: properties.keySet()) {
         
@@ -425,6 +426,8 @@ public class UiV2Configure {
         contents.append(property + " = " + value);
         contents.append("\n");
       }
+      
+      
       
       response.setContentType("application/octet-stream");
       response.setHeader ("Content-Disposition", "inline;filename=\"" + configFileName.getConfigFileName() + "\"");
