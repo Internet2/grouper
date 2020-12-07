@@ -3,8 +3,6 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -459,7 +457,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
    */
   public String getDescriptionOrDescriptionClob() {
     
-    if (StringUtils.isNotBlank(description)) {
+    if (GrouperClientUtils.isNotBlank(description)) {
       return description;
     }
     
