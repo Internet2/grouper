@@ -18,7 +18,7 @@
 
 This file contains summary examples of some of the more useful methods
 available within the Grouper API.  More examples will be added in the future.
-See the full JavaDoc for more complete documentation
+See the full JavaDoc for more complete documentation.
 
 
 ## Contents
