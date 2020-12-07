@@ -50,8 +50,8 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
     attribute.setValue("mySubjectSource");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("ldapProvisioningType");
-    attribute.setValue("groupMemberships");
+    attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
+    attribute.setValue("groupAttributes");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupCreationLdifTemplate_attr_0");
     attribute.setValue("test attribute 0");
@@ -92,9 +92,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     String value = attribute.getValue();
     assertEquals("mySubjectSource", value);
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("ldapProvisioningType");
+    attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
     value = attribute.getValue();
-    assertEquals("groupMemberships", value);
+    assertEquals("groupAttributes", value);
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupCreationLdifTemplate_attr_0");
     value = attribute.getValue();
@@ -227,7 +227,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     value = attribute.getValue();
     assertEquals("", value);
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("ldapProvisioningType");
+    attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
     value = attribute.getValue();
     assertEquals("", value);
     
