@@ -92,5 +92,8 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
     return keysAndLabels;
   }
 
-  
+  public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
+    GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(this.getConfigId());
+    grouperLoaderDb.refreshConnectionsIfNeeded();
+  }
 }
