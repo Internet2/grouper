@@ -2722,131 +2722,131 @@ CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_
 
 COMMENT ON TABLE grouper_sync_membership_v IS 'Memberships for provisioning joined with the group, member, and sync tables';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_NAME IS 'G_GROUP_NAME: grouper group system name';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_name IS 'g_group_name: grouper group system name';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_ID_INDEX IS 'G_GROUP_ID_INDEX: grouper group id index';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_id_index IS 'g_group_id_index: grouper group id index';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_SOURCE_ID IS 'U_SOURCE_ID: subject source id';
+COMMENT ON COLUMN grouper_sync_membership_v.u_source_id IS 'u_source_id: subject source id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_SUBJECT_ID IS 'U_SUBJECT_ID: subject id';
+COMMENT ON COLUMN grouper_sync_membership_v.u_subject_id IS 'u_subject_id: subject id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_SUBJECT_IDENTIFIER IS 'U_SUBJECT_IDENTIFIER: subject identifier0';
+COMMENT ON COLUMN grouper_sync_membership_v.u_subject_identifier IS 'u_subject_identifier: subject identifier0';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_IN_TARGET IS 'M_IN_TARGET: T/F if provisioned to target';
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target IS 'm_in_target: t/f if provisioned to target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_ID IS 'M_ID: sync membership id';
+COMMENT ON COLUMN grouper_sync_membership_v.m_id IS 'm_id: sync membership id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_IN_TARGET_INSERT_OR_EXISTS IS 'M_IN_TARGET_INSERT_OR_EXISTS: T/F if it was inserted into target or already existed';
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_insert_or_exists IS 'm_in_target_insert_or_exists: t/f if it was inserted into target or already existed';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_IN_TARGET_START IS 'M_IN_TARGET_START: timestamp was inserted or detected to be in target';
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_start IS 'm_in_target_start: timestamp was inserted or detected to be in target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_IN_TARGET_END IS 'M_IN_TARGET_END: timestamp was removed from target or detected not there';
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_end IS 'm_in_target_end: timestamp was removed from target or detected not there';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_LAST_UPDATED IS 'M_LAST_UPDATED: when sync membership last updated';
+COMMENT ON COLUMN grouper_sync_membership_v.m_last_updated IS 'm_last_updated: when sync membership last updated';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_MEMBERSHIP_ID IS 'M_MEMBERSHIP_ID: link membership id';
+COMMENT ON COLUMN grouper_sync_membership_v.m_membership_id IS 'm_membership_id: link membership id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_MEMBERSHIP_ID2 IS 'M_MEMBERSHIP_ID2: link membership id2';
+COMMENT ON COLUMN grouper_sync_membership_v.m_membership_id2 IS 'm_membership_id2: link membership id2';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_METADATA_UPDATED IS 'M_METADATA_UPDATED: when metadata e.g. links was last updated';
+COMMENT ON COLUMN grouper_sync_membership_v.m_metadata_updated IS 'm_metadata_updated: when metadata e.g. links was last updated';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_ERROR_MESSAGE IS 'M_ERROR_MESSAGE: error message when last operation occurred unless a success happened afterward';
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_message IS 'm_error_message: error message when last operation occurred unless a success happened afterward';
 
-COMMENT ON COLUMN grouper_sync_membership_v.M_ERROR_TIMESTAMP IS 'M_ERROR_TIMESTAMP: timestamp last error occurred unless a success happened afterward';
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_timestamp IS 'm_error_timestamp: timestamp last error occurred unless a success happened afterward';
 
-COMMENT ON COLUMN grouper_sync_membership_v.S_ID IS 'S_ID: sync id overall';
+COMMENT ON COLUMN grouper_sync_membership_v.s_id IS 's_id: sync id overall';
 
-COMMENT ON COLUMN grouper_sync_membership_v.S_SYNC_ENGINE IS 'S_SYNC_ENGINE: sync engine';
+COMMENT ON COLUMN grouper_sync_membership_v.s_sync_engine IS 's_sync_engine: sync engine';
 
-COMMENT ON COLUMN grouper_sync_membership_v.S_PROVISIONER_NAME IS 'S_PROVISIONER_NAME: name of provisioner';
+COMMENT ON COLUMN grouper_sync_membership_v.s_provisioner_name IS 's_provisioner_name: name of provisioner';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_ID IS 'U_ID: sync member id';
+COMMENT ON COLUMN grouper_sync_membership_v.u_id IS 'u_id: sync member id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_MEMBER_ID IS 'U_MEMBER_ID: grouper member uuid for subject';
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_id IS 'u_member_id: grouper member uuid for subject';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_IN_TARGET IS 'U_IN_TARGET: T/F if entity is in target';
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target IS 'u_in_target: t/f if entity is in target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_IN_TARGET_INSERT_OR_EXISTS IS 'U_IN_TARGET_INSERT_OR_EXISTS: T/F if grouper inserted the entity or if it already existed';
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_insert_or_exists IS 'u_in_target_insert_or_exists: t/f if grouper inserted the entity or if it already existed';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_IN_TARGET_START IS 'U_IN_TARGET_START: when this entity started being in target or detected there';
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_start IS 'u_in_target_start: when this entity started being in target or detected there';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_IN_TARGET_END IS 'U_IN_TARGET_END: when this entity stopped being in target or detected not there';
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_end IS 'u_in_target_end: when this entity stopped being in target or detected not there';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_PROVISIONABLE IS 'U_PROVISIONABLE: T/F if the entity is provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable IS 'u_provisionable: t/f if the entity is provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_PROVISIONABLE_START IS 'U_PROVISIONABLE_START: when this entity started being provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable_start IS 'u_provisionable_start: when this entity started being provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_PROVISIONABLE_END IS 'U_PROVISIONABLE_END: when this entity stopped being provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable_end IS 'u_provisionable_end: when this entity stopped being provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_UPDATED IS 'U_LAST_UPDATED: when the sync member was last updated';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_updated IS 'u_last_updated: when the sync member was last updated';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_USER_SYNC_START IS 'U_LAST_USER_SYNC_START: when the user was last overall sync started';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_sync_start IS 'u_last_user_sync_start: when the user was last overall sync started';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_USER_SYNC IS 'U_LAST_USER_SYNC: when the user was last overall synced';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_sync IS 'u_last_user_sync: when the user was last overall synced';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_USER_META_SYNC_START IS 'U_LAST_USER_META_SYNC_START: when the metadata was sync started';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_meta_sync_start IS 'u_last_user_meta_sync_start: when the metadata was sync started';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_USER_METADATA_SYNC IS 'U_LAST_USER_METADATA_SYNC: when the metadata was last synced';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_metadata_sync IS 'u_last_user_metadata_sync: when the metadata was last synced';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_MEMBER_FROM_ID2 IS 'U_MEMBER_FROM_ID2: link data from id2';
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_from_id2 IS 'u_member_from_id2: link data from id2';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_MEMBER_FROM_ID3 IS 'U_MEMBER_FROM_ID3: link data from id3';
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_from_id3 IS 'u_member_from_id3: link data from id3';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_MEMBER_TO_ID2 IS 'U_MEMBER_TO_ID2: link data to id2';
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_to_id2 IS 'u_member_to_id2: link data to id2';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_MEMBER_TO_ID3 IS 'U_MEMBER_TO_ID3: link data to id3';
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_to_id3 IS 'u_member_to_id3: link data to id3';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_METADATA_UPDATED IS 'U_METADATA_UPDATED: when metadata was last updated for entity';
+COMMENT ON COLUMN grouper_sync_membership_v.u_metadata_updated IS 'u_metadata_updated: when metadata was last updated for entity';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_LAST_TIME_WORK_WAS_DONE IS 'U_LAST_TIME_WORK_WAS_DONE: time last work was done on user object';
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_time_work_was_done IS 'u_last_time_work_was_done: time last work was done on user object';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_ERROR_MESSAGE IS 'U_ERROR_MESSAGE: error message last time work was done on user unless a success happened afterward';
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_message IS 'u_error_message: error message last time work was done on user unless a success happened afterward';
 
-COMMENT ON COLUMN grouper_sync_membership_v.U_ERROR_TIMESTAMP IS 'U_ERROR_TIMESTAMP: timestamp the last error occurred unless a success happened afterwards';
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_timestamp IS 'u_error_timestamp: timestamp the last error occurred unless a success happened afterwards';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_ID IS 'G_ID: sync group id';
+COMMENT ON COLUMN grouper_sync_membership_v.g_id IS 'g_id: sync group id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_ID IS 'G_GROUP_ID: grouper group id';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_id IS 'g_group_id: grouper group id';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_PROVISIONABLE IS 'G_PROVISIONABLE: T/F if group is provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable IS 'g_provisionable: t/f if group is provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_IN_TARGET IS 'G_IN_TARGET: T/F if the group is in target';
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target IS 'g_in_target: t/f if the group is in target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_IN_TARGET_INSERT_OR_EXISTS IS 'G_IN_TARGET_INSERT_OR_EXISTS: T/F if the group was inserted by grouper or already existed in target';
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_insert_or_exists IS 'g_in_target_insert_or_exists: t/f if the group was inserted by grouper or already existed in target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_IN_TARGET_START IS 'G_IN_TARGET_START: when the group was detected to be in the target';
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_start IS 'g_in_target_start: when the group was detected to be in the target';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_IN_TARGET_END IS 'G_IN_TARGET_END: when the group was detected to not be in the target anymore';
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_end IS 'g_in_target_end: when the group was detected to not be in the target anymore';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_PROVISIONABLE_START IS 'G_PROVISIONABLE_START: when this group started being provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable_start IS 'g_provisionable_start: when this group started being provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_PROVISIONABLE_END IS 'G_PROVISIONABLE_END: when this group stopped being provisionable';
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable_end IS 'g_provisionable_end: when this group stopped being provisionable';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_UPDATED IS 'G_LAST_UPDATED: when the sync group was last updated';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_updated IS 'g_last_updated: when the sync group was last updated';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_GROUP_SYNC_START IS 'G_LAST_GROUP_SYNC_START: when the group was sync started';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_sync_start IS 'g_last_group_sync_start: when the group was sync started';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_GROUP_SYNC IS 'G_LAST_GROUP_SYNC: when the group was last synced';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_sync IS 'g_last_group_sync: when the group was last synced';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_GROUP_META_SYNC_START IS 'G_LAST_GROUP_META_SYNC_START: when the metadata sync started';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_meta_sync_start IS 'g_last_group_meta_sync_start: when the metadata sync started';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_GROUP_METADATA_SYNC IS 'G_LAST_GROUP_METADATA_SYNC: when the metadata was last synced';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_metadata_sync IS 'g_last_group_metadata_sync: when the metadata was last synced';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_FROM_ID2 IS 'G_GROUP_FROM_ID2: link data from id2';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_from_id2 IS 'g_group_from_id2: link data from id2';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_FROM_ID3 IS 'G_GROUP_FROM_ID3: link data from id3';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_from_id3 IS 'g_group_from_id3: link data from id3';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_TO_ID2 IS 'G_GROUP_TO_ID2: link data to id2';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_to_id2 IS 'g_group_to_id2: link data to id2';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_GROUP_TO_ID3 IS 'G_GROUP_TO_ID3: link data to id3';
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_to_id3 IS 'g_group_to_id3: link data to id3';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_METADATA_UPDATED IS 'G_METADATA_UPDATED: when metadata e.g. link data was last updated';
+COMMENT ON COLUMN grouper_sync_membership_v.g_metadata_updated IS 'g_metadata_updated: when metadata e.g. link data was last updated';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_ERROR_MESSAGE IS 'G_ERROR_MESSAGE: if there is an error message last time work was done it is here';
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_message IS 'g_error_message: if there is an error message last time work was done it is here';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_ERROR_TIMESTAMP IS 'G_ERROR_TIMESTAMP: timestamp if last time work was done there was an error';
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_timestamp IS 'g_error_timestamp: timestamp if last time work was done there was an error';
 
-COMMENT ON COLUMN grouper_sync_membership_v.G_LAST_TIME_WORK_WAS_DONE IS 'G_LAST_TIME_WORK_WAS_DONE: timestamp of last time work was done on group';
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_time_work_was_done IS 'g_last_time_work_was_done: timestamp of last time work was done on group';
 
 COMMENT ON TABLE grouper_ddl IS 'holds a record for each database object name, and db version, and java version';
 
