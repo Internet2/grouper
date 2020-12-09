@@ -1657,10 +1657,6 @@ CREATE TABLE grouper_sync_group
     group_name VARCHAR(1024),
     group_id_index BIGINT,
     provisionable VARCHAR(1),
-    in_grouper VARCHAR(1),
-    in_grouper_insert_or_exists VARCHAR(1),
-    in_grouper_start TIMESTAMP,
-    in_grouper_end TIMESTAMP,
     in_target VARCHAR(1),
     in_target_insert_or_exists VARCHAR(1),
     in_target_start TIMESTAMP,
@@ -1707,10 +1703,6 @@ CREATE TABLE grouper_sync_member
     source_id VARCHAR(255),
     subject_id VARCHAR(255),
     subject_identifier VARCHAR(255),
-    in_grouper VARCHAR(1),
-    in_grouper_insert_or_exists VARCHAR(1),
-    in_grouper_start TIMESTAMP,
-    in_grouper_end TIMESTAMP,
     in_target VARCHAR(1),
     in_target_insert_or_exists VARCHAR(1),
     in_target_start TIMESTAMP,
@@ -1758,10 +1750,6 @@ CREATE TABLE grouper_sync_membership
     grouper_sync_id VARCHAR(40) NOT NULL,
     grouper_sync_group_id VARCHAR(40) NOT NULL,
     grouper_sync_member_id VARCHAR(40) NOT NULL,
-    in_grouper VARCHAR(1),
-    in_grouper_insert_or_exists VARCHAR(1),
-    in_grouper_start TIMESTAMP,
-    in_grouper_end TIMESTAMP,
     in_target VARCHAR(1),
     in_target_insert_or_exists VARCHAR(1),
     in_target_start TIMESTAMP,
@@ -2438,14 +2426,6 @@ COMMENT ON COLUMN grouper_sync_group.group_id_index IS 'if this is groups, then 
 
 COMMENT ON COLUMN grouper_sync_group.provisionable IS 'T if provisionable and F is not';
 
-COMMENT ON COLUMN grouper_sync_group.in_grouper IS 'T if exists in grouper and F is not.  blank if not sure';
-
-COMMENT ON COLUMN grouper_sync_group.in_grouper_insert_or_exists IS 'T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted';
-
-COMMENT ON COLUMN grouper_sync_group.in_grouper_start IS 'when this was put in grouper';
-
-COMMENT ON COLUMN grouper_sync_group.in_grouper_end IS 'when this was taken out of grouper';
-
 COMMENT ON COLUMN grouper_sync_group.in_target IS 'T if exists in target/destination and F is not.  blank if not sure';
 
 COMMENT ON COLUMN grouper_sync_group.in_target_insert_or_exists IS 'T if inserted on the in_target_start date, or F if it existed then and not sure when inserted';
@@ -2494,14 +2474,6 @@ COMMENT ON COLUMN grouper_sync_member.subject_id IS 'subject id';
 
 COMMENT ON COLUMN grouper_sync_member.subject_identifier IS 'netId or eppn or whatever';
 
-COMMENT ON COLUMN grouper_sync_member.in_grouper IS 'T if exists in grouper and F is not.  blank if not sure';
-
-COMMENT ON COLUMN grouper_sync_member.in_grouper_insert_or_exists IS 'T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted';
-
-COMMENT ON COLUMN grouper_sync_member.in_grouper_start IS 'when this was put in grouper';
-
-COMMENT ON COLUMN grouper_sync_member.in_grouper_end IS 'when this was taken out of grouper';
-
 COMMENT ON COLUMN grouper_sync_member.in_target IS 'T if exists in target/destination and F is not.  blank if not sure';
 
 COMMENT ON COLUMN grouper_sync_member.in_target_insert_or_exists IS 'T if inserted on the in_target_start date, or F if it existed then and not sure when inserted';
@@ -2547,14 +2519,6 @@ COMMENT ON COLUMN grouper_sync_membership.grouper_sync_id IS 'foreign key back t
 COMMENT ON COLUMN grouper_sync_membership.grouper_sync_group_id IS 'foreign key back to sync group table';
 
 COMMENT ON COLUMN grouper_sync_membership.grouper_sync_member_id IS 'foreign key back to sync member table';
-
-COMMENT ON COLUMN grouper_sync_membership.in_grouper IS 'T if exists in grouper and F is not.  blank if not sure';
-
-COMMENT ON COLUMN grouper_sync_membership.in_grouper_insert_or_exists IS 'T if inserted to grouper on the in_target_start date, or F if it existed then and not sure when inserted';
-
-COMMENT ON COLUMN grouper_sync_membership.in_grouper_start IS 'when this was put in grouper';
-
-COMMENT ON COLUMN grouper_sync_membership.in_grouper_end IS 'when this was taken out of grouper';
 
 COMMENT ON COLUMN grouper_sync_membership.in_target IS 'T if exists in target/destination and F is not.  blank if not sure';
 
