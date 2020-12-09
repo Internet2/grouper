@@ -36,3 +36,8 @@ CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_
 
 update grouper_ddl set last_updated = to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), history = substring((to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V' || db_version || ' to V35, ' || history) from 1 for 3500), db_version = 35 where object_name = 'Grouper';
 commit;
+
+delete from grouper_config where config_key = 'grouper.config.millisSinceLastDbConfigChanged';
+commit;
+insert into grouper_pit_config (id, source_id, config_file_name, config_key, config_value, config_comment, config_file_hierarchy, config_encrypted, config_sequence , config_version_index , last_updated, config_value_bytes, active, start_time, hibernate_version_number ) select id, id, config_file_name , config_key , config_value , config_comment , config_file_hierarchy , config_encrypted , config_sequence , config_version_index , last_updated , 10, 'T', last_updated, 0  from grouper_config where not exists (select 1 from grouper_pit_config gpc2 where gpc2.source_id = grouper_config.id);
+commit;
