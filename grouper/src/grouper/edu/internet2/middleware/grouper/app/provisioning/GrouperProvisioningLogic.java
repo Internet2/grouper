@@ -549,9 +549,9 @@ public class GrouperProvisioningLogic {
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
           } finally {
-            this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetData);
+            this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataIncremental);
           }
-  
+
           // ######### STEP 26: target object attribute manipulation
           try {
             debugMap.put("state", "targetAttributeManipulation");
