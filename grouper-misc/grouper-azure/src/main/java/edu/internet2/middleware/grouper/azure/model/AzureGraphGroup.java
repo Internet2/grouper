@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.azure.AzureVisibility;
 
 import java.util.Collection;
 
-public class Group {
+public class AzureGraphGroup {
 
     public final String id;
     public final String displayName;
@@ -15,7 +15,7 @@ public class Group {
     public final String description;
     public final AzureVisibility visibility;
 
-    public Group(String id, String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description, AzureVisibility visibility) {
+    public AzureGraphGroup(String id, String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description, AzureVisibility visibility) {
         this.id = id;
         this.displayName = displayName;
         this.mailEnabled = mailEnabled;

@@ -127,7 +127,7 @@ public class GraphApiClient {
         logger.debug("Token tenant ID: " + this.tenantId);
         RetrofitWrapper retrofit = buildRetrofitAuth(this.graphTokenHttpClient);
         Office365AuthApiService service = retrofit.create(Office365AuthApiService.class);
-        retrofit2.Response<OAuthTokenInfo> response = service.getOauth2Token(
+        retrofit2.Response<AzureGraphOAuthTokenInfo> response = service.getOauth2Token(
                 "client_credentials",
                 this.clientId,
                 this.clientSecret,
@@ -135,7 +135,7 @@ public class GraphApiClient {
                 "https://graph.microsoft.com")
                 .execute();
         if (response.isSuccessful()) {
-            OAuthTokenInfo info = response.body();
+            AzureGraphOAuthTokenInfo info = response.body();
             logTokenInfo(info);
             return info.accessToken;
         } else {
@@ -144,7 +144,7 @@ public class GraphApiClient {
         }
     }
 
-    private void logTokenInfo(OAuthTokenInfo info) {
+    private void logTokenInfo(AzureGraphOAuthTokenInfo info) {
         logger.trace("Token scope: " + info.scope);
         logger.trace("Token expiresIn: " + info.expiresIn);
         logger.trace("Token expiresOn: " + info.expiresOn);
@@ -179,7 +179,7 @@ public class GraphApiClient {
         throw new IOException("Retry failed for: " + call.request().url());
     }
 
-    public edu.internet2.middleware.grouper.azure.model.Group addGroup(String displayName, String mailNickname, String description) {
+    public AzureGraphGroup addGroup(String displayName, String mailNickname, String description) {
         logger.debug("Creating group " + displayName + ", group type: " + this.azureGroupType.name());
         boolean securityEnabled;
         Collection<String> groupTypes = new ArrayList<>();
@@ -199,8 +199,8 @@ public class GraphApiClient {
                 throw new IllegalStateException("Unexpected value: " + this.azureGroupType);
         }
         try {
-            edu.internet2.middleware.grouper.azure.model.Group group = invoke(this.service.createGroup(
-                    new edu.internet2.middleware.grouper.azure.model.Group(
+            AzureGraphGroup azureGroup = invoke(this.service.createGroup(
+                    new AzureGraphGroup(
                             null,
                             displayName,
                             false,
@@ -212,8 +212,8 @@ public class GraphApiClient {
                     )
             )).body();
 
-            logger.debug("Created group: id = " + (group == null ? "null" : group.id));
-            return group;
+            logger.debug("Created group in Azure: id = " + (azureGroup == null ? "null" : azureGroup.id));
+            return azureGroup;
 
         } catch (IOException e) {
             logger.error(e);
@@ -231,8 +231,8 @@ public void removeGroup(String groupId) {
     }
 
     /* In Kansas State's version, this was used to look up users from multiple domains */
-    public User lookupMSUser(String userPrincipalName) {
-        User user = null;
+    public AzureGraphUser lookupMSUser(String userPrincipalName) {
+        AzureGraphUser user = null;
         logger.debug("calling getUserFrom Office365ApiClient");
         try {
             user = invoke(this.service.getUserByUPN(userPrincipalName)).body();
@@ -250,7 +250,7 @@ public void removeGroup(String groupId) {
 
     public void addMemberToMS(String groupId, String userPrincipalName) {
         try {
-            invoke(this.service.addGroupMember(groupId, new OdataIdContainer("https://graph.microsoft.com/v1.0/users/" + userPrincipalName)));
+            invoke(this.service.addGroupMember(groupId, new AzureGraphDataIdContainer("https://graph.microsoft.com/v1.0/users/" + userPrincipalName)));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         } catch (MemberAddAlreadyExistsException me) {
@@ -261,7 +261,7 @@ public void removeGroup(String groupId) {
     public void removeMembership(String userPrincipalName, Group group) {
         try {
             if (group != null) {
-                User user = lookupMSUser(userPrincipalName);
+                AzureGraphUser user = lookupMSUser(userPrincipalName);
                 if (user == null) {
                     throw new RuntimeException("Failed to locate member: " + userPrincipalName);
                 }
@@ -277,7 +277,7 @@ public void removeGroup(String groupId) {
         }
     }
 
-    protected boolean ifUserAndGroupExistInMS(User user, String groupId) {
+    protected boolean ifUserAndGroupExistInMS(AzureGraphUser user, String groupId) {
         return user != null && groupId != null;
     }
 
@@ -285,23 +285,23 @@ public void removeGroup(String groupId) {
         invoke(this.service.removeGroupMember(groupId, userId));
     }
 
-    public List<edu.internet2.middleware.grouper.azure.model.Group> getGroups() throws IOException {
-        GroupsOdata groupContainer = invoke(this.service.getGroups(Collections.emptyMap())).body();
+    public List<AzureGraphGroup> getGroups() throws IOException {
+        AzureGraphGroups groupContainer = invoke(this.service.getGroups(Collections.emptyMap())).body();
         return groupContainer.groups;
     }
 
-    public List<MemberUser> getGroupMembers(String groupId) throws IOException {
-        Members azureGroupMembers = invoke(this.service.getGroupMembers(groupId)).body();
+    public List<AzureGraphGroupMember> getGroupMembers(String groupId) throws IOException {
+        AzureGraphGroupMembers azureGroupMembers = invoke(this.service.getGroupMembers(groupId)).body();
         return azureGroupMembers.users;
     }
 
-    public edu.internet2.middleware.grouper.azure.model.Group retrieveGroup(String groupId) throws IOException {
+    public AzureGraphGroup retrieveGroup(String groupId) throws IOException {
         return invoke(this.service.getGroup(groupId)).body();
     }
 
-    public List<User> getAllUsers() throws IOException {
-        UsersOdata usersOdata = invoke(this.service.getUsers()).body();
-        return usersOdata.users;
+    public List<AzureGraphUser> getAllUsers() throws IOException {
+        AzureGraphUsers azureGraphUsers = invoke(this.service.getUsers()).body();
+        return azureGraphUsers.users;
     }
 
 }

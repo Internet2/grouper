@@ -8,11 +8,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.azure.AzureGroupType;
 import edu.internet2.middleware.grouper.azure.AzureVisibility;
+import edu.internet2.middleware.grouper.azure.model.AzureGraphGroup;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
-import edu.internet2.middleware.grouper.azure.model.User;
+import edu.internet2.middleware.grouper.azure.model.AzureGraphUser;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValueQuery;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValueView;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
@@ -241,7 +242,7 @@ Response
         String description = evaluateGroupJexlExpression(group, this.descriptionJexl, group.getId());
         logger.debug("consumer " + this.getConsumerName() + ": calculated description as " + description);
 
-        edu.internet2.middleware.grouper.azure.model.Group azureGroup = apiClient.addGroup(
+        AzureGraphGroup azureGroup = apiClient.addGroup(
                         displayName,
                         mailNickname,
                         description
@@ -253,12 +254,11 @@ Response
         group.getAttributeValueDelegate().assignValue(GROUP_ID_ATTRIBUTE_NAME, azureGroup.id);
     }
 
-    // TODO: find out how to induce and implement (if necessary)
+    // invoked when the sync attribute is removed from the group or folder
     @Override
     protected void removeGroup(Group group, ChangeLogEntry changeLogEntry) {
-        logger.info("consumer " + this.getConsumerName() + ": Removing group " + group);
-        String id = group.getAttributeValueDelegate().retrieveValuesString(GROUP_ID_ATTRIBUTE_NAME).get(0);
-        logger.debug("removing azure groupId: " + id);
+        logger.info("consumer " + this.getConsumerName() + ": Sync attribute removed (will stop sync until re-added) for group " + group.getName());
+        logger.debug("removeGroup() called (no effect except to stop future sync) for group " + group.getName());
     }
 
     @Override
@@ -315,7 +315,7 @@ Response
     protected void removeMembership(Subject subject, Group group, ChangeLogEntry changeLogEntry) {
         logger.info("consumer " + this.getConsumerName() + ": Removing " + subject + " from " + group);
         try {
-            User user = apiClient.lookupMSUser(getUserPrincipalName(subject));
+            AzureGraphUser user = apiClient.lookupMSUser(getUserPrincipalName(subject));
             String groupId = group.getAttributeValueDelegate().retrieveValueString(GROUP_ID_ATTRIBUTE_NAME);
             apiClient.removeUserFromGroupInMS(groupId, user.id);
         } catch (IOException e) {

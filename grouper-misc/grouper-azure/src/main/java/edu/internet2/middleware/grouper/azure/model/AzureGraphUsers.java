@@ -4,12 +4,12 @@ import com.squareup.moshi.Json;
 
 import java.util.List;
 
-public class GroupsOdata {
+public class AzureGraphUsers {
     @Json(name = "@odata.context") public final String context;
-    @Json(name = "value") public final List<Group> groups;
+    @Json(name = "value") public final List<AzureGraphUser> users;
 
-    public GroupsOdata(String context, List<Group> groups) {
+    public AzureGraphUsers(String context, List<AzureGraphUser> users) {
         this.context = context;
-        this.groups = groups;
+        this.users = users;
     }
 }

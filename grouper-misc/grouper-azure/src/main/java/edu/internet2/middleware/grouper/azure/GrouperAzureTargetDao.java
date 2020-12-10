@@ -5,9 +5,9 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.*;
-import edu.internet2.middleware.grouper.azure.model.Group;
-import edu.internet2.middleware.grouper.azure.model.MemberUser;
-import edu.internet2.middleware.grouper.azure.model.User;
+import edu.internet2.middleware.grouper.azure.model.AzureGraphGroup;
+import edu.internet2.middleware.grouper.azure.model.AzureGraphGroupMember;
+import edu.internet2.middleware.grouper.azure.model.AzureGraphUser;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -31,14 +31,14 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
 
-      List<Group> allAzureGroups = null;
+      List<AzureGraphGroup> allAzureGroups = null;
       try {
         allAzureGroups = apiClient.getGroups();
       } catch (IOException e) {
         throw new RuntimeException("Failed to retrieve all Azure groups", e);
       }
 
-      for (Group azureGroup : allAzureGroups) {
+      for (AzureGraphGroup azureGroup : allAzureGroups) {
         ProvisioningGroup targetGroup = new ProvisioningGroup();
         targetGroup.setName(azureGroup.mailNickname);
         targetGroup.setId(azureGroup.id);
@@ -64,7 +64,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
 
-      Group azureGroup = apiClient.addGroup(targetGroup.getDisplayName(), "?mailNickname", "?description");
+      AzureGraphGroup azureGroup = apiClient.addGroup(targetGroup.getDisplayName(), "?mailNickname", "?description");
 
       targetGroup.setProvisioned(true);
       /* ??? */ targetGroup.setId(azureGroup.id);
@@ -130,7 +130,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
 
-      List<MemberUser> azureGroupMembers = null;
+      List<AzureGraphGroupMember> azureGroupMembers = null;
       try {
         azureGroupMembers = apiClient.getGroupMembers(targetGroup.getId());
       } catch (IOException e) {
@@ -139,7 +139,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<Object> results = new ArrayList<>();
 
-      for (MemberUser azureUser : azureGroupMembers) {
+      for (AzureGraphGroupMember azureUser : azureGroupMembers) {
         ProvisioningEntity targetEntity = new ProvisioningEntity();
         targetEntity.setLoginId(azureUser.getUserPrincipalName());
 
@@ -166,16 +166,16 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
 
-      List<User> azureGroupMembers = null;
+      List<AzureGraphUser> azureUsers = null;
       try {
-        azureGroupMembers = apiClient.getAllUsers();
+        azureUsers = apiClient.getAllUsers();
       } catch (IOException e) {
         throw new RuntimeException("Failed to retrieve full list of users from Azure", e);
       }
 
       List<ProvisioningMembership> results = new ArrayList<>();
 
-      for (User azureUser : azureGroupMembers) {
+      for (AzureGraphUser azureUser : azureUsers) {
         ProvisioningEntity targetEntity = new ProvisioningEntity();
         targetEntity.setLoginId(azureUser.userPrincipalName);
 
@@ -269,7 +269,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = targetDaoRetrieveGroupRequest.getTargetGroup();
 
 
-      Group azureGroup = null;
+      AzureGraphGroup azureGroup = null;
       try {
         azureGroup = apiClient.retrieveGroup(targetGroup.getId());
       } catch (IOException e) {
@@ -298,7 +298,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
 
       ProvisioningEntity targetEntity = targetDaoRetrieveEntityRequest.getTargetEntity();
-      User azureUser = apiClient.lookupMSUser(targetEntity.getLoginId());
+      AzureGraphUser azureUser = apiClient.lookupMSUser(targetEntity.getLoginId());
 
       ProvisioningEntity responseEntity = new ProvisioningEntity();
       targetEntity.setId(azureUser.id);
