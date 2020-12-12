@@ -285,7 +285,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute.setValue("Database External System");
     
     // set the following two values so that we can test that some internal attributes are also being saved correctly in the db.
-    attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetUserLink");
+    attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetEntityLink");
     attribute.setValue("true");
 
     attribute = provisionerConfiguration.retrieveAttributes().get("userPrimaryKey");
