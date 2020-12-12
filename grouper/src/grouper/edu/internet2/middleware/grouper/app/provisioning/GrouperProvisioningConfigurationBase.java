@@ -982,6 +982,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
   
         {
+          boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
+          attributeConfig.setRequired(required);
+        }
+  
+        {
           boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
           String translateExpressionFromMembership = this.retrieveConfigString(objectType + "." + i + ".translateExpressionFromMembership", false);
           if (membershipAttribute) {

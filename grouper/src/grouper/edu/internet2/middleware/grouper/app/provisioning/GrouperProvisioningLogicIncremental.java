@@ -1767,6 +1767,7 @@ public class GrouperProvisioningLogicIncremental {
 
   public void convertInconsistentEventsToRecalc() {
     int convertInconsistentEventsToRecalc = 0;
+    int convertMissingEntityEventsToRecalc = 0;
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
 
@@ -1806,6 +1807,14 @@ public class GrouperProvisioningLogicIncremental {
           
         case insert:
 
+//          // if there is no sync member, then it might need to get created, we should recalc
+//          if (gcGrouperSyncMembership.getGrouperSyncMember() == null) {
+//            convertMissingEntityEventsToRecalc++;
+//            iterator.remove();
+//            groupUuidsMemberUuidsForMembershipSyncWithRecalc.add(grouperIncrementalDataItem);
+//            continue;
+//          }
+
           if (provisioningMembershipWrapper.isDelete() || provisioningMembership == null) {
             convertInconsistentEventsToRecalc++;
             iterator.remove();
@@ -1821,7 +1830,9 @@ public class GrouperProvisioningLogicIncremental {
     if (convertInconsistentEventsToRecalc > 0) {
       this.getGrouperProvisioner().getDebugMap().put("convertInconsistentEventsToRecalc", convertInconsistentEventsToRecalc);
     }
-
+    if (convertMissingEntityEventsToRecalc > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("convertMissingEntityEventsToRecalc", convertMissingEntityEventsToRecalc);
+    }
   }
 
 
@@ -1986,7 +1997,13 @@ public class GrouperProvisioningLogicIncremental {
             } else {
               grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
             }
-          } 
+          } else {
+            // TODO look at "state" here too
+            if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+              // we need to retrieve or create this, its probably already a recalc but...
+              grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
+            }
+          }
         }
       }
       {
@@ -2016,6 +2033,12 @@ public class GrouperProvisioningLogicIncremental {
             if (provisioningEntityWrapper.isIncrementalSyncMemberships()) {
               grouperTargetEntitiesRecalcForMembershipSync.add(provisioningEntityWrapper.getGrouperTargetEntity());
             } else {
+              grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+            }
+          } else {
+            // TODO look at "state" here too
+            if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+              // we need to retrieve or create this, its probably already a recalc but...
               grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
             }
           } 

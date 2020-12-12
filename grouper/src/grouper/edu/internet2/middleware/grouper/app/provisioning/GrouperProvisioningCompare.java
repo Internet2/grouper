@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -612,10 +613,44 @@ public class GrouperProvisioningCompare {
   public void addInternalObjectChangeForEntitiesToInsert(
       List<ProvisioningEntity> provisioningEntitiesToInsert) {
     
+    if (provisioningEntitiesToInsert == null) {
+      return;
+    }
+
     for (ProvisioningEntity provisioningEntity: GrouperUtil.nonNull(provisioningEntitiesToInsert)) {
       GrouperUtil.setClear(provisioningEntity.getInternal_objectChanges());
     }
 
+    {
+      int entitiesMissingRequiredData = 0;
+      //check for required attributes
+      Iterator<ProvisioningEntity> iterator = provisioningEntitiesToInsert.iterator();
+      while (iterator.hasNext()) {
+        ProvisioningEntity provisioningEntity = iterator.next();
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values()) {
+          if (grouperProvisioningConfigurationAttribute.isRequired()) {
+            if (null == provisioningEntity.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
+              iterator.remove();
+              entitiesMissingRequiredData++;
+              continue;
+            }
+          }
+        }
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+          if (grouperProvisioningConfigurationAttribute.isRequired()) {
+            if (null == provisioningEntity.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
+              iterator.remove();
+              entitiesMissingRequiredData++;
+              continue;
+            }
+          }
+        }
+      }
+      if (entitiesMissingRequiredData > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("entitiesMissingRequiredData", entitiesMissingRequiredData);
+      }
+    }
+    
     for (ProvisioningEntity entityToInsert : provisioningEntitiesToInsert) {
 
       if (entityToInsert.getId() != null && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().canEntityInsertField("id")) {
@@ -812,9 +847,43 @@ public class GrouperProvisioningCompare {
   public void addInternalObjectChangeForGroupsToInsert(
       List<ProvisioningGroup> provisioningGroupsToInsert) {
     
+    if (provisioningGroupsToInsert == null) {
+      return;
+    }
     for (ProvisioningGroup provisioningGroup: GrouperUtil.nonNull(provisioningGroupsToInsert)) {
       GrouperUtil.setClear(provisioningGroup.getInternal_objectChanges());
     }
+
+    {
+      int groupsMissingRequiredData = 0;
+      //check for required attributes
+      Iterator<ProvisioningGroup> iterator = provisioningGroupsToInsert.iterator();
+      while (iterator.hasNext()) {
+        ProvisioningGroup provisioningGroup = iterator.next();
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values()) {
+          if (grouperProvisioningConfigurationAttribute.isRequired()) {
+            if (null == provisioningGroup.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
+              iterator.remove();
+              groupsMissingRequiredData++;
+              continue;
+            }
+          }
+        }
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+          if (grouperProvisioningConfigurationAttribute.isRequired()) {
+            if (null == provisioningGroup.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
+              iterator.remove();
+              groupsMissingRequiredData++;
+              continue;
+            }
+          }
+        }
+      }
+      if (groupsMissingRequiredData > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("groupsMissingRequiredData", groupsMissingRequiredData);
+      }
+    }
+    
 
     for (ProvisioningGroup groupToInsert: provisioningGroupsToInsert) {
       

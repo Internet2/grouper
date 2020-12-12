@@ -464,7 +464,7 @@ public class GrouperProvisioningLogic {
           debugMap.put("state", "convertInconsistentEventsToRecalc");
           grouperProvisioningLogicIncremental.convertInconsistentEventsToRecalc();
           
-          // ######### STEP 19: convert inconsistent events to recalc
+          // ######### STEP 19: copy incremental state to wrappers (so wrapper knows if recalc or whatever)
           debugMap.put("state", "copyIncrementalStateToWrappers");
           grouperProvisioningLogicIncremental.copyIncrementalStateToWrappers();
           
@@ -912,14 +912,7 @@ public class GrouperProvisioningLogic {
       
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalc()) {
-        continue;
-      }
-      
-      // shouldnt be null at this point
-      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
-      
-      if (!gcGrouperSyncMember.isProvisionable()) {
+      if (provisioningEntity == null) {
         continue;
       }
       
@@ -928,8 +921,22 @@ public class GrouperProvisioningLogic {
       if (targetEntity != null) {
         continue;
       }
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable()) {
+        continue;
+      }
 
-      missingEntities.add(provisioningEntity);
+      if (provisioningEntityWrapper.isRecalc()) {
+          
+        missingEntities.add(provisioningEntity);
+      } else {
+        // TODO check "state"
+        if (gcGrouperSyncMember != null && gcGrouperSyncMember.isInTarget()) {
+          continue;
+        }
+        missingEntities.add(provisioningEntity);
+      }
     }
 
     if (GrouperUtil.length(missingEntities) == 0) {
@@ -946,6 +953,7 @@ public class GrouperProvisioningLogic {
     
     // translate
     List<ProvisioningEntity> grouperTargetEntitiesToInsert = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(missingEntities, false, true);
+    
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningEntities(grouperTargetEntitiesToInsert);
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingGrouperTargetEntitiesForCreate);
