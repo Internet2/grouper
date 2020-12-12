@@ -1122,6 +1122,7 @@
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <!-- staging profile for edu.internet2.middleware.grouper -->
                             <stagingProfileId>87a160186f8901</stagingProfileId>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
                         </configuration>
                     </plugin>
                 </plugins>

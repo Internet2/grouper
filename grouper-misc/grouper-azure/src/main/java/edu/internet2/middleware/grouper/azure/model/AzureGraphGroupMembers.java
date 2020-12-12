@@ -1,16 +1,16 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
+package edu.internet2.middleware.grouper.azure.model;
 
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Members {
+public class AzureGraphGroupMembers {
     @SerializedName("@odata.context")
     public final String context;
-    @SerializedName("value") public final List<MemberUser> users;
+    @SerializedName("value") public final List<AzureGraphGroupMember> users;
 
-    public Members(String context, List<MemberUser> users) {
+    public AzureGraphGroupMembers(String context, List<AzureGraphGroupMember> users) {
         this.context = context;
         this.users = users;
     }

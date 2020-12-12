@@ -1,10 +1,10 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
+package edu.internet2.middleware.grouper.azure.model;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
 
-public class MemberUser {
+public class AzureGraphGroupMember {
     @SerializedName("@odata.type")
     private String type;
     private String id;
@@ -19,7 +19,7 @@ public class MemberUser {
     private String surname;
     private String userPrincipalName;
 
-    public MemberUser(String type, String id, String[] businessPhones, String displayName, String givenName, String jobTitle, String mail, String mobilePhone, String officeLocation, String preferredLanguage, String surname, String userPrincipalName) {
+    public AzureGraphGroupMember(String type, String id, String[] businessPhones, String displayName, String givenName, String jobTitle, String mail, String mobilePhone, String officeLocation, String preferredLanguage, String surname, String userPrincipalName) {
         this.type = type;
         this.id = id;
         this.businessPhones = businessPhones;
@@ -34,7 +34,7 @@ public class MemberUser {
         this.userPrincipalName = userPrincipalName;
     }
 
-    public MemberUser() {
+    public AzureGraphGroupMember() {
     }
 
     public String getType() {

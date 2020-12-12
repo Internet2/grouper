@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -516,8 +517,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoRetrieveMembershipsByGroupsResponse(results);
 
     }
-
-    throw new RuntimeException("Dao cannot retrieve memberships by entity or entities");
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
+          new TargetDaoRetrieveGroupsRequest(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), true));
+      return new TargetDaoRetrieveMembershipsByGroupsResponse((List<Object>)(Object)targetDaoRetrieveGroupsResponse.getTargetGroups());
+    }
+    
+    throw new RuntimeException("Dao cannot retrieve memberships by group or groups");
   }
 
 
@@ -570,6 +577,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
       return new TargetDaoRetrieveMembershipsByEntitiesResponse(results);
 
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.retrieveEntities(
+          new TargetDaoRetrieveEntitiesRequest(targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities(), true));
+      return new TargetDaoRetrieveMembershipsByEntitiesResponse((List<Object>)(Object)targetDaoRetrieveEntitiesResponse.getTargetEntities());
     }
 
     throw new RuntimeException("Dao cannot retrieve memberships by entity or entities");

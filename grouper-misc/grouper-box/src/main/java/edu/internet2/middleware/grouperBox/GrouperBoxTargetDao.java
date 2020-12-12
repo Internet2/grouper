@@ -229,7 +229,7 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
 
       BoxAPIConnection boxAPIConnection = BoxGrouperExternalSystem.retrieveBoxApiConnection(boxConfiguration.getBoxExternalSystemConfigId());
 
-      List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+      List<Object> results = new ArrayList<Object>();
       
       BoxGroup boxGroup = getBoxGroup(boxAPIConnection, targetGroup);
       if (boxGroup == null) {

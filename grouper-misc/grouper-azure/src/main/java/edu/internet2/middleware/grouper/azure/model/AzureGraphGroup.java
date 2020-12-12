@@ -1,9 +1,10 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.o365.model;
+package edu.internet2.middleware.grouper.azure.model;
+
+import edu.internet2.middleware.grouper.azure.AzureVisibility;
 
 import java.util.Collection;
 
-public class Group {
-    public enum Visibility {Public, Private, HiddenMembership}
+public class AzureGraphGroup {
 
     public final String id;
     public final String displayName;
@@ -12,9 +13,9 @@ public class Group {
     public final boolean securityEnabled;
     public final Collection<String> groupTypes;
     public final String description;
-    public final Visibility visibility;
+    public final AzureVisibility visibility;
 
-    public Group(String id, String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description, Visibility visibility) {
+    public AzureGraphGroup(String id, String displayName, boolean mailEnabled, String mailNickname, boolean securityEnabled, Collection<String> groupTypes, String description, AzureVisibility visibility) {
         this.id = id;
         this.displayName = displayName;
         this.mailEnabled = mailEnabled;

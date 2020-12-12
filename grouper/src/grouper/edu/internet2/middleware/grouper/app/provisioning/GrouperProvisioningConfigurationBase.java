@@ -1120,9 +1120,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.debugMap.put("hasTargetGroupLink", this.hasTargetGroupLink);
     }
 
-    this.hasTargetEntityLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetUserLink", false), false);
+    this.hasTargetEntityLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetEntityLink", false), false);
     if (this.hasTargetEntityLink) {
-      this.debugMap.put("hasTargetUserLink", this.hasTargetEntityLink);
+      this.debugMap.put("hasTargetEntityLink", this.hasTargetEntityLink);
     }
 
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
@@ -1627,8 +1627,8 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   
-  public void setHasTargetEntityLink(boolean hasTargetUserLink) {
-    this.hasTargetEntityLink = hasTargetUserLink;
+  public void setHasTargetEntityLink(boolean hasTargetEntityLink) {
+    this.hasTargetEntityLink = hasTargetEntityLink;
   }
   
   public Set<String> getSubjectSourcesToProvision() {
