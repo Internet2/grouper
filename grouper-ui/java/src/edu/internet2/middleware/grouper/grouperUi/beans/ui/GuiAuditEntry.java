@@ -3,14 +3,10 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,12 +21,14 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
@@ -40,7 +38,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -264,6 +261,28 @@ public class GuiAuditEntry {
    */
   private String file;
   
+  /**
+   * action when permission is added to role
+   */
+  private String action;
+  
+  /**
+   * action when permission is added to role
+   * @return
+   */
+  public String getAction() {
+    return action;
+  }
+
+  /**
+   * action when permission is added to role
+   * @param action
+   */
+  public void setAction(String action) {
+    this.action = action;
+  }
+
+
   private int importTotalAdded;
   
   private int importTotalDeleted;
@@ -482,7 +501,14 @@ public class GuiAuditEntry {
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          }
           
         case MEMBER_DEPROVISIONING:
           
@@ -495,14 +521,28 @@ public class GuiAuditEntry {
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE");
-        
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE");
+          }
+                  
         case ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE:
           
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE");
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE");
+          }
         
         case ATTRIBUTE_ASSIGN_ASSIGN_ADD:
           
@@ -560,21 +600,39 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_ADD");
-        
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_ADD");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_ADD");
+          }
+          
         case ATTRIBUTE_ASSIGN_GROUP_DELETE:
           
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_DELETE");
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_DELETE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_DELETE");
+          }
         
         case ATTRIBUTE_ASSIGN_GROUP_UPDATE:
           
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_UPDATE");
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_UPDATE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_UPDATE");
+          }
         
         case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
   
@@ -1024,7 +1082,10 @@ public class GuiAuditEntry {
     }
     if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_ADD 
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_DELETE
-        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE) {
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_ADD
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE) {
       groupIdName = "ownerGroupId";
     }
     if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COMPOSITE_ADD 
@@ -1169,6 +1230,11 @@ public class GuiAuditEntry {
     GuiEntity guiEntity = new GuiEntity(entity);
     this.setGuiEntity(guiEntity);
     
+  }
+  
+  private void setupAction() {
+    String action = this.auditEntry.retrieveStringValue("action");
+    this.action = action;
   }
   
   private void setupExportProperties() {
