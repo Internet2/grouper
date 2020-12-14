@@ -836,7 +836,7 @@ public class GrouperProvisioningBehavior {
     if (this.groupsInsert != null) {
       return groupsInsert;
     }
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingGroups()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertGroups()) {
       return true;
     }
     return null;
@@ -872,7 +872,7 @@ public class GrouperProvisioningBehavior {
     if (this.groupsDeleteIfNotInGrouper != null) {
       return groupsDeleteIfNotInGrouper;
     }
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfInTargetAndNotGrouper()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroupsIfNotExistInGrouper()) {
       return true;
     }
     return null;    
@@ -888,7 +888,7 @@ public class GrouperProvisioningBehavior {
     if (this.groupsDeleteIfDeletedFromGrouper != null) {
       return groupsDeleteIfDeletedFromGrouper;
     }
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteInTargetIfDeletedInGrouper()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroupsIfGrouperDeleted()) {
       return true;
     }
     return null;
@@ -986,7 +986,7 @@ public class GrouperProvisioningBehavior {
     if (this.entitiesInsert != null) {
       return this.entitiesInsert;
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCreateMissingUsers();
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertEntities();
   }
 
   

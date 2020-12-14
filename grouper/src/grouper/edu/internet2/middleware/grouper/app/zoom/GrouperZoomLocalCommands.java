@@ -164,7 +164,7 @@ public class GrouperZoomLocalCommands {
    * @return if delete
    */
   public static boolean deleteInTargetIfDeletedInGrouper(String configId) {
-    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".deleteInTargetIfDeletedInGrouper", true);
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".deleteGroupsIfGrouperDeleted", true);
   }
   
   /**
