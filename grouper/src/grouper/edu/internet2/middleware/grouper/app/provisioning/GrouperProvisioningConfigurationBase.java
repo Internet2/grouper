@@ -636,16 +636,16 @@ public abstract class GrouperProvisioningConfigurationBase {
       int refreshSubjectLinkIfLessThanAmount) {
     this.refreshSubjectLinkIfLessThanAmount = refreshSubjectLinkIfLessThanAmount;
   }
-
+  
   /**
-   * if should create missing users, default false
+   * if entities should be inserted in target 
    */
-  private boolean createMissingUsers = false;
-
+  private boolean insertEntities = false;
+  
   /**
-   * if should create missing groups, default true
+   * if groups should be inserted in target
    */
-  private boolean createMissingGroups = true;
+  private boolean insertGroups = true;
   
   /**
    * search filter to look up entity if cannot just use the matchingId
@@ -830,17 +830,18 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.groupSearchAllFilter = groupSearchAllFilter;
   }
   
+  
   /**
    * true or false if groups in full sync should be deleted if in group all filter and not in grouper
    * or for attributes delete other attribute not provisioned by grouper default to false
    */
-  private boolean deleteInTargetIfInTargetAndNotGrouper = false;
+  private boolean deleteGroupsIfNotExistInGrouper = false;
 
   /**
    * true or false if groups that were created in grouper were deleted should it be deleted in ldap?
    * or for attributes, delete attribute value if deleted in grouper default to true
    */
-  private boolean deleteInTargetIfDeletedInGrouper = true;
+  private boolean deleteGroupsIfGrouperDeleted = true;
 
   /**
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
@@ -1187,12 +1188,10 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.groupSearchAttributes = new HashSet<String>();
     }
     
-    this.userAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userAttributesMultivalued", false), ",");
     if (this.userAttributesMultivalued == null) {
       this.userAttributesMultivalued = new HashSet<String>();
     }
     
-    this.groupAttributesMultivalued = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupAttributesMultivalued", false), ",");
     if (this.groupAttributesMultivalued == null) {
       this.groupAttributesMultivalued = new HashSet<String>(); 
     }
@@ -1227,9 +1226,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
     }
     
-    this.createMissingUsers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("createMissingUsers", false), false);
+    this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
 
-    this.createMissingGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("createMissingGroups", false), true);
+    this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
 
     if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
       this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
@@ -1243,9 +1242,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       throw new RuntimeException("Should only specify membershipAttribute on one attribute or userAttributeNameForMemberships");
     }
 
-    this.deleteInTargetIfInTargetAndNotGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteInTargetIfInTargetAndNotGrouper", false), false);
+    this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
 
-    this.deleteInTargetIfDeletedInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteInTargetIfDeletedInGrouper", false), true);
+    this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), true);
 
     this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
     
@@ -1679,48 +1678,46 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.groupAttributesMultivalued = groupAttributesMultivalued;
   }
 
-  
-  public boolean isCreateMissingUsers() {
-    return createMissingUsers;
+  public boolean isInsertEntities() {
+    return insertEntities;
   }
 
   
-  public void setCreateMissingUsers(boolean createMissingUsers) {
-    this.createMissingUsers = createMissingUsers;
+  public void setInsertEntities(boolean insertEntities) {
+    this.insertEntities = insertEntities;
   }
 
   
-  public boolean isCreateMissingGroups() {
-    return createMissingGroups;
+  public boolean isInsertGroups() {
+    return insertGroups;
   }
 
   
-  public void setCreateMissingGroups(boolean createMissingGroups) {
-    this.createMissingGroups = createMissingGroups;
-  }
-  
-  public boolean isDeleteInTargetIfInTargetAndNotGrouper() {
-    return deleteInTargetIfInTargetAndNotGrouper;
+  public void setInsertGroups(boolean insertGroups) {
+    this.insertGroups = insertGroups;
   }
 
   
-  public void setDeleteInTargetIfInTargetAndNotGrouper(
-      boolean deleteInTargetIfInTargetAndNotGrouper) {
-    this.deleteInTargetIfInTargetAndNotGrouper = deleteInTargetIfInTargetAndNotGrouper;
+  
+  public boolean isDeleteGroupsIfNotExistInGrouper() {
+    return deleteGroupsIfNotExistInGrouper;
   }
 
   
-  public boolean isDeleteInTargetIfDeletedInGrouper() {
-    return deleteInTargetIfDeletedInGrouper;
+  public void setDeleteGroupsIfNotExistInGrouper(boolean deleteGroupsIfNotExistInGrouper) {
+    this.deleteGroupsIfNotExistInGrouper = deleteGroupsIfNotExistInGrouper;
+  }
+
+
+  public boolean isDeleteGroupsIfGrouperDeleted() {
+    return deleteGroupsIfGrouperDeleted;
   }
 
   
-  public void setDeleteInTargetIfDeletedInGrouper(
-      boolean deleteInTargetIfDeletedInGrouper) {
-    this.deleteInTargetIfDeletedInGrouper = deleteInTargetIfDeletedInGrouper;
+  public void setDeleteGroupsIfGrouperDeleted(boolean deleteGroupsIfGrouperDeleted) {
+    this.deleteGroupsIfGrouperDeleted = deleteGroupsIfGrouperDeleted;
   }
 
-  
   public GrouperProvisioningMembershipFieldType getGrouperProvisioningMembershipFieldType() {
     return grouperProvisioningMembershipFieldType;
   }

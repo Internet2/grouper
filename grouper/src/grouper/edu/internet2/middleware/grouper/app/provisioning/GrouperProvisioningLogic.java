@@ -180,10 +180,10 @@ public class GrouperProvisioningLogic {
       }
 
     }
-    debugMap.put("state", "createMissingGroups");
+    debugMap.put("state", "insertGroups");
     createMissingGroupsFull();
 
-    debugMap.put("state", "createMissingEntities");
+    debugMap.put("state", "insertEntities");
     createMissingEntitiesFull();
 
     try {
@@ -606,10 +606,10 @@ public class GrouperProvisioningLogic {
           }
       
           // ######### STEP 28: create groups / entities
-          debugMap.put("state", "createMissingGroups");
+          debugMap.put("state", "insertGroups");
           createMissingGroupsFull();
   
-          debugMap.put("state", "createMissingEntities");
+          debugMap.put("state", "insertEntities");
           createMissingEntitiesFull();
   
           // ######### STEP 29: retrieve target group and entity link

@@ -409,8 +409,10 @@ public class ConfigFileMetadata {
         }
         
         for (int i=0; i<repeatCount; i++) {
+          
           for (ConfigItemMetadata configMetadata: metadataItemsBelongingToSameRepeatGroup) {
             ConfigItemMetadata copy = configMetadata.clone(i);
+            copy.setSubSection(copy.getRepeatGroup()+"."+i);
             copy.setRepeatGroupIndex(i);
             expandedConfigItemMetadataListPerSection.add(copy);
           }

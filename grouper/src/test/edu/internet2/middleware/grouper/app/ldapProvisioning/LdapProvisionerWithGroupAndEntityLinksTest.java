@@ -117,7 +117,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testLdapProvisionerWithGroupAndEntityLinksFullLatestConfig_1() {
     
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttributeCount", "4");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.numberOfGroupAttributes", "4");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
@@ -338,7 +338,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteInTargetIfInTargetAndNotGrouper", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteGroupsIfNotExistInGrouper", "true");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
@@ -352,7 +352,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testLdapProvisionerWithGroupAndEntityLinksFullLatestConfig_2() {
     
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttributeCount", "6");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.numberOfGroupAttributes", "6");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
@@ -581,7 +581,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteInTargetIfInTargetAndNotGrouper", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.deleteGroupsIfNotExistInGrouper", "true");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");

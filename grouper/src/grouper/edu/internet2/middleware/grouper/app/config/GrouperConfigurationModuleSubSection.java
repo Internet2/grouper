@@ -45,6 +45,19 @@ public class GrouperConfigurationModuleSubSection {
   public String getTitle() {
     String configPrefix = getConfiguration().getConfigurationTypePrefix();
     String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title");
+    
+    if (StringUtils.isBlank(title)) {
+      String key = "provisionerConfiguration.GenericConfiguration.subSection." + this.label + ".title";
+      title = GrouperTextContainer.textOrNull(key);
+    }
+    
+    if (StringUtils.isBlank(title)) {   
+      if (this.label.matches(".*[0-9].*")) {
+        String key = "provisionerConfiguration.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".title";
+        title = GrouperTextContainer.textOrNull(key);
+      } 
+    }
+    
     if (StringUtils.isBlank(title)) {
       return label;
     }
@@ -58,6 +71,19 @@ public class GrouperConfigurationModuleSubSection {
   public String getDescription() {
     String configPrefix = getConfiguration().getConfigurationTypePrefix();
     String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label + ".description");
+    
+    if (StringUtils.isBlank(title)) {
+      String key = "provisionerConfiguration.GenericConfiguration.subSection." + this.label + ".description";
+      title = GrouperTextContainer.textOrNull(key);
+    }
+    
+    if (StringUtils.isBlank(title)) { 
+      if (this.label.matches(".*[0-9].*")) {
+        String key = "provisionerConfiguration.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".description";
+        title = GrouperTextContainer.textOrNull(key);
+      } 
+    }
+    
     if (StringUtils.isBlank(title)) {
       return label;
     }
