@@ -161,6 +161,27 @@ public class GrouperProvisioningConfigurationAttribute {
   private GrouperProvisioningConfigurationAttributeValueType valueType;
   
   /**
+   * if a value is require to provision this group/entity
+   */
+  private boolean required;
+  
+  /**
+   * if a value is require to provision this group/entity
+   * @return
+   */
+  public boolean isRequired() {
+    return required;
+  }
+
+  /**
+   * if a value is require to provision this group/entity
+   * @param required
+   */
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
+
+  /**
    * insert this attribute
    */
   private boolean insert;
