@@ -475,4 +475,12 @@ public class SourceManager {
       log.error("Exception occurred: " + ex.getMessage(), ex);
     }
   }
+  
+  /**
+   * remove source for testing
+   * @param sourceId
+   */
+  public void internal_removeSource(String sourceId) {
+    sourceMap.remove(sourceId);
+  }
 }

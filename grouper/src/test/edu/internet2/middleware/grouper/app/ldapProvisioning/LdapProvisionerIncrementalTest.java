@@ -112,7 +112,8 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();  
+    SourceManager.getInstance().internal_removeSource("personLdapSource");
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
