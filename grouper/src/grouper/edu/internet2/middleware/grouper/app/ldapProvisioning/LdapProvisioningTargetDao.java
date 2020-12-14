@@ -407,10 +407,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
       try {
         List<ProvisioningGroup> currentBatchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
-        String filter = "";
+        StringBuilder filterBuilder = new StringBuilder();
         for (ProvisioningGroup targetGroup : currentBatchTargetGroups) {
-          filter += targetGroup.getSearchFilter();
+          filterBuilder.append(targetGroup.getSearchFilter());
         }
+        
+        String filter = filterBuilder.toString();
         
         if (currentBatchTargetGroups.size() > 1) {
           filter = "(|" + filter + ")";
@@ -561,10 +563,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
       try {
         List<ProvisioningEntity> currentBatchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
-        String filter = "";
+        StringBuilder filterBuilder = new StringBuilder();
         for (ProvisioningEntity targetEntity : currentBatchTargetEntities) {
-          filter += targetEntity.getSearchFilter();
+          filterBuilder.append(targetEntity.getSearchFilter());
         }
+        
+        String filter = filterBuilder.toString();
         
         if (currentBatchTargetEntities.size() > 1) {
           filter = "(|" + filter + ")";
