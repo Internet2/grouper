@@ -493,6 +493,7 @@ public class GrouperProvisioningCompare {
           entityIdsToInsert.add(key);
         }
       }
+      entityIdsToInsert.removeAll(targetMatchingIdToTargetEntity.keySet());
 
       if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntitiesInsert(), false)) {
         List<ProvisioningEntity> provisioningEntitiesToInsert = new ArrayList<ProvisioningEntity>();

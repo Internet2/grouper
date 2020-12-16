@@ -259,6 +259,14 @@ public class GrouperProvisioningOutput {
    * records with delete errors
    */
   private int recordsWithDeleteErrors = 0;
+
+  /**
+   * count of all errors
+   * @return
+   */
+  public int getRecordsWithErrors() {
+    return this.recordsWithDeleteErrors + this.recordsWithInsertErrors + this.recordsWithUpdateErrors + this.recordsWithPrimaryKeyErrors;
+  }
   
   /**
    * @return the recordsWithDeleteErrors

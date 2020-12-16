@@ -75,6 +75,7 @@ public class LdapProvisionerTestUtils {
     
     RuntimeException lastException = null;
     for (int i = 0; i < 100; i++) {
+      lastException = null;
       try {
         if (LdapSessionUtils.ldapSession().testConnection("personLdap")) {
           return;
@@ -85,6 +86,9 @@ public class LdapProvisionerTestUtils {
         lastException = e;
         GrouperUtil.sleep(1000);
       }
+    }
+    if (lastException != null) {
+      throw lastException;
     }
   }
   
