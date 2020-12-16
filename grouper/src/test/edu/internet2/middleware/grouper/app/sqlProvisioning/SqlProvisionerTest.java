@@ -274,7 +274,8 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
     List<Object[]> dataInTable = new GcDbAccess().sql("select group_name, subject_id from testgrouper_prov_mship0").selectList(Object[].class);
     
     Set<MultiKey> groupIdSubjectIdsInTable = new HashSet<MultiKey>();
@@ -617,7 +618,8 @@ public class SqlProvisionerTest extends GrouperTest {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      
       String sql = "select uuid from testgrouper_prov_ldap_group";
       
       List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -733,7 +735,8 @@ public class SqlProvisionerTest extends GrouperTest {
         GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
         
         GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+        assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
         String sql = "select uuid from testgrouper_prov_ldap_group";
         
         List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -779,7 +782,8 @@ public class SqlProvisionerTest extends GrouperTest {
         grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
         
         grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+        assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
         sql = "select uuid from testgrouper_prov_ldap_group";
         
         dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -902,7 +906,8 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
     List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -1060,7 +1065,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // do a full should do nothing
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     sql = "select uuid from testgrouper_prov_ldap_group";
     
@@ -1215,7 +1220,8 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
     List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -1261,7 +1267,8 @@ public class SqlProvisionerTest extends GrouperTest {
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-  
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
     sql = "select uuid from testgrouper_prov_ldap_group";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -1864,6 +1871,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
@@ -2195,6 +2203,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
@@ -2348,6 +2357,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
 

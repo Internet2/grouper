@@ -438,6 +438,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithInsertErrors(1);
       }
     }
   }
@@ -509,6 +510,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMember.setErrorMessage(grouperTargetEntity.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetEntity.getException()));
         gcGrouperSyncMember.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithInsertErrors(1);
       }
     }
   }
@@ -534,6 +536,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMembership.setErrorMessage(grouperTargetMembership.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetMembership.getException()));
         gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithInsertErrors(1);
       }
     }
   }
@@ -568,6 +571,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMember.setErrorMessage(grouperTargetEntity.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetEntity.getException()));
         gcGrouperSyncMember.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithUpdateErrors(1);
       }
     }
   }
@@ -603,6 +607,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithUpdateErrors(1);
       }
     }
   }
@@ -676,6 +681,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMembership.setErrorMessage(grouperTargetMembership.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetMembership.getException()));
         gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithUpdateErrors(1);
       }
     }
   }
@@ -720,6 +726,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMember.setErrorMessage(grouperTargetEntity.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetEntity.getException()));
         gcGrouperSyncMember.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }
   }
@@ -764,6 +771,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }
   }
@@ -788,6 +796,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         gcGrouperSyncMembership.setErrorMessage(grouperTargetMembership.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetMembership.getException()));
         gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }
   }
