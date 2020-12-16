@@ -1676,6 +1676,7 @@ CREATE TABLE grouper_sync_group
     error_message VARCHAR2(4000),
     error_timestamp DATE,
     last_time_work_was_done DATE,
+    error_code VARCHAR2(3),
     PRIMARY KEY (id)
 );
 
@@ -1693,7 +1694,7 @@ CREATE INDEX grouper_sync_gr_t2_idx ON grouper_sync_group (grouper_sync_id, grou
 
 CREATE INDEX grouper_sync_gr_t3_idx ON grouper_sync_group (grouper_sync_id, group_to_id3);
 
-CREATE INDEX grouper_sync_gr_er_idx ON grouper_sync_group (grouper_sync_id, error_timestamp);
+CREATE INDEX grouper_sync_gr_er_idx ON grouper_sync_group (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_member
 (
@@ -1723,6 +1724,7 @@ CREATE TABLE grouper_sync_member
     last_time_work_was_done DATE,
     error_message VARCHAR2(4000),
     error_timestamp DATE,
+    error_code VARCHAR2(3),
     PRIMARY KEY (id)
 );
 
@@ -1740,9 +1742,9 @@ CREATE INDEX grouper_sync_us_t2_idx ON grouper_sync_member (grouper_sync_id, mem
 
 CREATE INDEX grouper_sync_us_t3_idx ON grouper_sync_member (grouper_sync_id, member_to_id3);
 
-CREATE INDEX grouper_sync_us_er_idx ON grouper_sync_member (grouper_sync_id, error_timestamp);
-
 CREATE INDEX grouper_sync_us_st_gr_idx ON grouper_sync_member (grouper_sync_id, source_id, subject_id);
+
+CREATE INDEX grouper_sync_us_er_idx ON grouper_sync_member (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_membership
 (
@@ -1760,6 +1762,7 @@ CREATE TABLE grouper_sync_membership
     metadata_updated DATE,
     error_message VARCHAR2(4000),
     error_timestamp DATE,
+    error_code VARCHAR2(3),
     PRIMARY KEY (id)
 );
 
@@ -1769,11 +1772,11 @@ CREATE INDEX grouper_sync_mship_me_idx ON grouper_sync_membership (grouper_sync_
 
 CREATE INDEX grouper_sync_mship_sy_idx ON grouper_sync_membership (grouper_sync_id, last_updated);
 
-CREATE INDEX grouper_sync_mship_er_idx ON grouper_sync_membership (grouper_sync_id, error_timestamp);
-
 CREATE INDEX grouper_sync_mship_f1_idx ON grouper_sync_membership (grouper_sync_id, membership_id);
 
 CREATE INDEX grouper_sync_mship_f2_idx ON grouper_sync_membership (grouper_sync_id, membership_id2);
+
+CREATE INDEX grouper_sync_mship_er_idx ON grouper_sync_membership (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_log
 (
@@ -2460,6 +2463,8 @@ COMMENT ON COLUMN grouper_sync_group.error_message IS 'if there was an error whe
 
 COMMENT ON COLUMN grouper_sync_group.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
 
+COMMENT ON COLUMN grouper_sync_group.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
 COMMENT ON TABLE grouper_sync_member IS 'user metadata for sync';
 
 COMMENT ON COLUMN grouper_sync_member.id IS 'uuid of this record in this table';
@@ -2510,6 +2515,8 @@ COMMENT ON COLUMN grouper_sync_member.error_message IS 'if there was an error wh
 
 COMMENT ON COLUMN grouper_sync_member.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
 
+COMMENT ON COLUMN grouper_sync_member.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
 COMMENT ON TABLE grouper_sync_membership IS 'record of a sync_group and a sync_member represents a sync^ed membership';
 
 COMMENT ON COLUMN grouper_sync_membership.id IS 'uuid of this record';
@@ -2539,6 +2546,8 @@ COMMENT ON COLUMN grouper_sync_membership.metadata_updated IS 'when the metadata
 COMMENT ON COLUMN grouper_sync_membership.error_message IS 'if there was an error when syncing this object, this is the message';
 
 COMMENT ON COLUMN grouper_sync_membership.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
+
+COMMENT ON COLUMN grouper_sync_membership.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
 COMMENT ON TABLE grouper_sync_log IS 'last log for this sync that affected this group or member etc';
 
@@ -2587,16 +2596,6 @@ COMMENT ON COLUMN grouper_config.config_version_index IS 'for built in configs, 
 COMMENT ON COLUMN grouper_config.last_updated IS 'when this record was inserted or last updated';
 
 COMMENT ON COLUMN grouper_config.hibernate_version_number IS 'hibernate version for optimistic locking';
-
-COMMENT ON TABLE grouper_ddl_worker IS 'JVMs register a uuid so only one JVM does the DDL upgrades at a time';
-
-COMMENT ON COLUMN grouper_ddl_worker.grouper IS 'this just holds the word grouper, so there is only one row here';
-
-COMMENT ON COLUMN grouper_ddl_worker.worker_uuid IS 'random uuid from a jvm to do work on the database';
-
-COMMENT ON COLUMN grouper_ddl_worker.heartbeat IS 'while the ddl is running, keep a heartbeat updated';
-
-COMMENT ON COLUMN grouper_ddl_worker.last_updated IS 'when this record was last updated';
 
 COMMENT ON TABLE grouper_time IS 'Update the row with current time before joining to other tables (e.g. for recent memberships)';
 
@@ -2718,7 +2717,7 @@ COMMENT ON COLUMN grouper_sync_member.last_user_sync_start IS 'start of last suc
 
 COMMENT ON COLUMN grouper_sync_member.last_user_metadata_sync_start IS 'start of last successful user metadata sync';
 
-CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_id, u_subject_id, u_subject_identifier, m_in_target, m_id, m_in_target_insert_or_exists, m_in_target_start, m_in_target_end, m_last_updated, m_membership_id, m_membership_id2, m_metadata_updated, m_error_message, m_error_timestamp, s_id, s_sync_engine, s_provisioner_name, u_id, u_member_id, u_in_target, u_in_target_insert_or_exists, u_in_target_start, u_in_target_end, u_provisionable, u_provisionable_start, u_provisionable_end, u_last_updated, u_last_user_sync_start, u_last_user_sync, u_last_user_meta_sync_start, u_last_user_metadata_sync, u_member_from_id2, u_member_from_id3, u_member_to_id2, u_member_to_id3, u_metadata_updated, u_last_time_work_was_done, u_error_message, u_error_timestamp, g_id, g_group_id, g_provisionable, g_in_target, g_in_target_insert_or_exists, g_in_target_start, g_in_target_end, g_provisionable_start, g_provisionable_end, g_last_updated, g_last_group_sync_start, g_last_group_sync, g_last_group_meta_sync_start, g_last_group_metadata_sync, g_group_from_id2, g_group_from_id3, g_group_to_id2, g_group_to_id3, g_metadata_updated, g_error_message, g_error_timestamp, g_last_time_work_was_done) AS select g.group_name as g_group_name, g.group_id_index as g_group_id_index, u.source_id as u_source_id, u.subject_id as u_subject_id, u.subject_identifier as u_subject_identifier, m.in_target as m_in_target, m.id as m_id, m.in_target_insert_or_exists as m_in_target_insert_or_exists, m.in_target_start as m_in_target_start, m.in_target_end as m_in_target_end, m.last_updated as m_last_updated, m.membership_id as m_membership_id, m.membership_id2 as m_membership_id2, m.metadata_updated as m_metadata_updated, m.error_message as m_error_message, m.error_timestamp as m_error_timestamp, s.id as s_id, s.sync_engine as s_sync_engine, s.provisioner_name as s_provisioner_name, u.id as u_id, u.member_id as u_member_id, u.in_target as u_in_target, u.in_target_insert_or_exists as u_in_target_insert_or_exists, u.in_target_start as u_in_target_start, u.in_target_end as u_in_target_end, u.provisionable as u_provisionable, u.provisionable_start as u_provisionable_start, u.provisionable_end as u_provisionable_end, u.last_updated as u_last_updated, u.last_user_sync_start as u_last_user_sync_start, u.last_user_sync as u_last_user_sync, u.last_user_metadata_sync_start as u_last_user_meta_sync_start, u.last_user_metadata_sync as u_last_user_metadata_sync, u.member_from_id2 as u_member_from_id2, u.member_from_id3 as u_member_from_id3, u.member_to_id2 as u_member_to_id2, u.member_to_id3 as u_member_to_id3, u.metadata_updated as u_metadata_updated, u.last_time_work_was_done as u_last_time_work_was_done, u.error_message as u_error_message, u.error_timestamp as u_error_timestamp, g.id as g_id, g.group_id as g_group_id, g.provisionable as g_provisionable, g.in_target as g_in_target, g.in_target_insert_or_exists as g_in_target_insert_or_exists, g.in_target_start as g_in_target_start, g.in_target_end as g_in_target_end, g.provisionable_start as g_provisionable_start, g.provisionable_end as g_provisionable_end, g.last_updated as g_last_updated, g.last_group_sync_start as g_last_group_sync_start, g.last_group_sync as g_last_group_sync, g.last_group_metadata_sync_start as g_last_group_meta_sync_start, g.last_group_metadata_sync as g_last_group_metadata_sync, g.group_from_id2 as g_group_from_id2, g.group_from_id3 as g_group_from_id3, g.group_to_id2 as g_group_to_id2, g.group_to_id3 as g_group_to_id3, g.metadata_updated as g_metadata_updated, g.error_message as g_error_message, g.error_timestamp as g_error_timestamp, g.last_time_work_was_done as g_last_time_work_was_done  from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
+CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_id, u_subject_id, u_subject_identifier, m_in_target, m_id, m_in_target_insert_or_exists, m_in_target_start, m_in_target_end, m_last_updated, m_membership_id, m_membership_id2, m_metadata_updated, m_error_message, m_error_timestamp, s_id, s_sync_engine, s_provisioner_name, u_id, u_member_id, u_in_target, u_in_target_insert_or_exists, u_in_target_start, u_in_target_end, u_provisionable, u_provisionable_start, u_provisionable_end, u_last_updated, u_last_user_sync_start, u_last_user_sync, u_last_user_meta_sync_start, u_last_user_metadata_sync, u_member_from_id2, u_member_from_id3, u_member_to_id2, u_member_to_id3, u_metadata_updated, u_last_time_work_was_done, u_error_message, u_error_timestamp, g_id, g_group_id, g_provisionable, g_in_target, g_in_target_insert_or_exists, g_in_target_start, g_in_target_end, g_provisionable_start, g_provisionable_end, g_last_updated, g_last_group_sync_start, g_last_group_sync, g_last_group_meta_sync_start, g_last_group_metadata_sync, g_group_from_id2, g_group_from_id3, g_group_to_id2, g_group_to_id3, g_metadata_updated, g_error_message, g_error_timestamp, g_last_time_work_was_done, m_error_code, u_error_code, g_error_code) AS select g.group_name as g_group_name, g.group_id_index as g_group_id_index, u.source_id as u_source_id, u.subject_id as u_subject_id, u.subject_identifier as u_subject_identifier, m.in_target as m_in_target, m.id as m_id, m.in_target_insert_or_exists as m_in_target_insert_or_exists, m.in_target_start as m_in_target_start, m.in_target_end as m_in_target_end, m.last_updated as m_last_updated, m.membership_id as m_membership_id, m.membership_id2 as m_membership_id2, m.metadata_updated as m_metadata_updated, m.error_message as m_error_message, m.error_timestamp as m_error_timestamp, s.id as s_id, s.sync_engine as s_sync_engine, s.provisioner_name as s_provisioner_name, u.id as u_id, u.member_id as u_member_id, u.in_target as u_in_target, u.in_target_insert_or_exists as u_in_target_insert_or_exists, u.in_target_start as u_in_target_start, u.in_target_end as u_in_target_end, u.provisionable as u_provisionable, u.provisionable_start as u_provisionable_start, u.provisionable_end as u_provisionable_end, u.last_updated as u_last_updated, u.last_user_sync_start as u_last_user_sync_start, u.last_user_sync as u_last_user_sync, u.last_user_metadata_sync_start as u_last_user_meta_sync_start, u.last_user_metadata_sync as u_last_user_metadata_sync, u.member_from_id2 as u_member_from_id2, u.member_from_id3 as u_member_from_id3, u.member_to_id2 as u_member_to_id2, u.member_to_id3 as u_member_to_id3, u.metadata_updated as u_metadata_updated, u.last_time_work_was_done as u_last_time_work_was_done, u.error_message as u_error_message, u.error_timestamp as u_error_timestamp, g.id as g_id, g.group_id as g_group_id, g.provisionable as g_provisionable, g.in_target as g_in_target, g.in_target_insert_or_exists as g_in_target_insert_or_exists, g.in_target_start as g_in_target_start, g.in_target_end as g_in_target_end, g.provisionable_start as g_provisionable_start, g.provisionable_end as g_provisionable_end, g.last_updated as g_last_updated, g.last_group_sync_start as g_last_group_sync_start, g.last_group_sync as g_last_group_sync, g.last_group_metadata_sync_start as g_last_group_meta_sync_start, g.last_group_metadata_sync as g_last_group_metadata_sync, g.group_from_id2 as g_group_from_id2, g.group_from_id3 as g_group_from_id3, g.group_to_id2 as g_group_to_id2, g.group_to_id3 as g_group_to_id3, g.metadata_updated as g_metadata_updated, g.error_message as g_error_message, g.error_timestamp as g_error_timestamp, g.last_time_work_was_done as g_last_time_work_was_done,  m.error_code as m_error_code, u.error_code as u_error_code, g.error_code as g_error_code from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
 
 COMMENT ON TABLE grouper_sync_membership_v IS 'Memberships for provisioning joined with the group, member, and sync tables';
 
@@ -2847,6 +2846,12 @@ COMMENT ON COLUMN grouper_sync_membership_v.g_error_message IS 'g_error_message:
 COMMENT ON COLUMN grouper_sync_membership_v.g_error_timestamp IS 'g_error_timestamp: timestamp if last time work was done there was an error';
 
 COMMENT ON COLUMN grouper_sync_membership_v.g_last_time_work_was_done IS 'g_last_time_work_was_done: timestamp of last time work was done on group';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_code IS 'm_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_code IS 'u_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_code IS 'g_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
 COMMENT ON TABLE grouper_ddl IS 'holds a record for each database object name, and db version, and java version';
 
@@ -6805,6 +6810,6 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 35, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V35, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 36, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V36, ');
 commit;

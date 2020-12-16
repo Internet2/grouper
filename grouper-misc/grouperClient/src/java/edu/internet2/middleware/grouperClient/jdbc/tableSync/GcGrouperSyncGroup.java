@@ -66,6 +66,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   
     //dbVersion  DONT CLONE
 
+    gcGrouperSyncGroup.errorCodeDb = this.errorCodeDb;
     gcGrouperSyncGroup.errorMessage = this.errorMessage;
     gcGrouperSyncGroup.errorTimestamp = this.errorTimestamp;
     gcGrouperSyncGroup.groupFromId2 = this.groupFromId2;
@@ -123,6 +124,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       //connectionName  DONT EQUALS
 
       //dbVersion  DONT EQUALS
+      .append(this.errorCodeDb, other.errorCodeDb)
       .append(this.errorMessage, other.errorMessage)
       .append(this.errorTimestamp, other.errorTimestamp)
 
@@ -291,6 +293,47 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     this.grouperSyncId = gcGrouperSync == null ? null : gcGrouperSync.getId();
     this.connectionName = gcGrouperSync == null ? this.connectionName : gcGrouperSync.getConnectionName();
 
+  }
+  
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   */
+  @GcPersistableField(columnName="error_code")
+  private String errorCodeDb;
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @return
+   */
+  public String getErrorCodeDb() {
+    return errorCodeDb;
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @param errorCodeDb
+   */
+  public void setErrorCodeDb(String errorCodeDb) {
+    this.errorCodeDb = errorCodeDb;
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @return
+   */
+  public GcGrouperSyncErrorCode getErrorCode() {
+    if (this.errorCodeDb == null) {
+      return null;
+    }
+    return GrouperClientUtils.enumValueOfIgnoreCase(GcGrouperSyncErrorCode.class, this.errorCodeDb, false);
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @param gcGrouperSyncErrorCode
+   */
+  public void setErrorCode(GcGrouperSyncErrorCode gcGrouperSyncErrorCode) {
+    this.errorCodeDb = gcGrouperSyncErrorCode == null ? null : gcGrouperSyncErrorCode.name();
   }
   
   /**
