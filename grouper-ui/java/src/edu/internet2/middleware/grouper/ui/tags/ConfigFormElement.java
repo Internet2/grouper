@@ -391,6 +391,30 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("</select>");
     }
     
+    if (configItemFormElement == ConfigItemFormElement.RADIOBUTTON) {
+      boolean firstOption = true;
+      for (MultiKey multiKey: valuesAndLabels) {
+        
+        String key = (String) multiKey.getKey(0);
+        String radioButtonValue = (String) multiKey.getKey(1);
+        boolean checked = StringUtils.equals(key, value);
+
+        field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
+        field.append(checked ? " checked ": "");
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append(">");
+        field.append("</input>");
+        
+        if (firstOption) {
+          firstOption = false;
+          field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+        } else {
+          field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+        }
+      }
+      
+    }
+    
     if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {
       
       String[] selectedValuesArray = value != null ? value.split(","): new String[] {};

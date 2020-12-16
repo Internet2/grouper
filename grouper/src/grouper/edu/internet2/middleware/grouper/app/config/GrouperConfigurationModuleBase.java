@@ -792,15 +792,12 @@ public abstract class GrouperConfigurationModuleBase {
       if (configItemFormElement != null) {
         grouperConfigModuleAttribute.setFormElement(configItemFormElement);
       } else {
-        // boolean is a drop down
+        // boolean is a radio button
         if (configItemMetadata.getValueType() == ConfigItemMetadataType.BOOLEAN) {
           
-          grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+          grouperConfigModuleAttribute.setFormElement(ConfigItemFormElement.RADIOBUTTON);
   
           if (GrouperUtil.length(grouperConfigModuleAttribute.getDropdownValuesAndLabels()) == 0) {
-            
-            List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
-            valuesAndLabels.add(new MultiKey("", ""));
             
             String trueLabel = GrouperTextContainer.textOrNull("config." 
                 + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".trueLabel");
@@ -811,6 +808,16 @@ public abstract class GrouperConfigurationModuleBase {
                 + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".falseLabel");
             
             falseLabel = GrouperUtil.defaultIfBlank(falseLabel, GrouperTextContainer.textOrNull("config.defaultFalseLabel"));
+            
+            String defaultValue = configItemMetadata.getDefaultValue();
+            Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
+            
+            String defaultValueStr = "";
+            if (booleanObjectValue != null) {
+              defaultValueStr = booleanObjectValue ? "("+trueLabel+")" : "("+falseLabel+")"; 
+            }
+            List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+            valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
             
             valuesAndLabels.add(new MultiKey("true", trueLabel));
             valuesAndLabels.add(new MultiKey("false", falseLabel));
