@@ -18,11 +18,15 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -43,6 +47,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * database configuration
@@ -55,6 +61,10 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   
   /** db uuid for this row */
   public static final String COLUMN_ID = "id";
+
+  private static Pattern subjectPropertiesConfigPattern = Pattern.compile("^subjectApi\\.source\\.([^.]+)\\..*$");
+
+  private static Log LOG = LogFactory.getLog(GrouperConfigHibernate.class);
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -633,7 +643,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
         });
     
     updateLastUpdated();
-    
+    reloadSubjectSourceIfApplicable();
   }
   
   /**
@@ -791,7 +801,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
         });
     
     updateLastUpdated();
-    
+    reloadSubjectSourceIfApplicable();
   }
 
   /**
@@ -965,5 +975,26 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     ConfigDatabaseLogic.clearCache(false);
     ConfigPropertiesCascadeBase.clearCacheThisOnly();
   }
+  
+  private void reloadSubjectSourceIfApplicable() {
+    if ("subject.properties".equals(this.configFileName) && !StringUtils.isEmpty(this.configKey)) {
+      Matcher matcher = subjectPropertiesConfigPattern.matcher(this.configKey);
+      if (matcher.matches()) {
+        String sourceConfigId = matcher.group(1);
+        String sourceId = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".id");
+        
+        if (!StringUtils.isEmpty(sourceId)) {
+          try {
+            // reload subject source here first
+            SourceManager.getInstance().reloadSource(sourceId);
 
+            // then let others reload if the above didn't produce errors
+            GrouperCacheDatabase.customNotifyDatabaseOfChanges("edu.internet2.middleware.subject.provider.SourceManager.sourceId." + sourceId);
+          } catch (Exception e) {
+            LOG.error("Failed to reload subject source " + sourceId, e);
+          }
+        }
+      }
+    }
+  }
 }

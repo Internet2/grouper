@@ -38,6 +38,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -241,6 +244,8 @@ public class SourceManager {
 
   /** */
   Map<String, Source> sourceMap = new HashMap<String, Source>();
+  
+  private static Set<String> registeredDatabaseCacheNames = Collections.synchronizedSet(new HashSet<String>());
 
   /**
    * Default constructor.
@@ -256,7 +261,11 @@ public class SourceManager {
    */
   public static SourceManager getInstance() {
     if (manager == null) {
-      manager = new SourceManager();
+      synchronized(SourceManager.class) {
+        if (manager == null) {
+          manager = new SourceManager();
+        }
+      }
     }
     return manager;
   }
@@ -319,6 +328,14 @@ public class SourceManager {
       throw new RuntimeException("Error initializing SourceManager", ex);
     }
   }
+  
+  public synchronized void reloadSource(String sourceId) {
+    Source source = SubjectConfig.retrieveConfig().reloadSourceConfigs(sourceId);
+    
+    if (source != null) {
+      loadSource(source);
+    }    
+  }
 
   /**
    * (non-javadoc)
@@ -329,6 +346,20 @@ public class SourceManager {
     
     //put in map before initting
     this.sourceMap.put(source.getId(), source);
+    
+    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.sourceId." + source.getId();
+    if (!registeredDatabaseCacheNames.contains(cacheName)) {
+      registeredDatabaseCacheNames.add(cacheName);
+      GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
+             
+             private String sourceId = source.getId();
+             
+             @Override
+             public void clear() {
+               SourceManager.getInstance().reloadSource(sourceId);
+             }
+          });
+    }
 
     for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext();) {
       SubjectType type = (SubjectType) it.next();
