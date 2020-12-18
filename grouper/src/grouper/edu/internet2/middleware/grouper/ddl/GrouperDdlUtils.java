@@ -64,12 +64,14 @@ import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
@@ -1309,11 +1311,12 @@ public class GrouperDdlUtils {
     String aliasesString = StringUtils.join(aliases.iterator(), ", ");
     
     String fullSql;
-    if (ddlVersionBean.isHsql()) {
-      fullSql = "\nCREATE VIEW ";
-    } else {
-      fullSql = "\nCREATE OR REPLACE VIEW ";
-    }
+//    if (ddlVersionBean.isHsql()) {
+//      fullSql = "\nCREATE VIEW ";
+//    } else {
+//      fullSql = "\nCREATE OR REPLACE VIEW ";
+//    }
+    fullSql = "\nCREATE VIEW ";
     
     fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
     if (ddlVersionBean.isSqlServer()) {
@@ -1936,6 +1939,105 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * see if an index has a column, if index isnt there its an exception
+   * @param tableName
+   * @param indexName
+   * @param columnName
+   * @return true or false
+   */
+  public static boolean assertIndexHasColumn(String tableName, String indexName, String columnName) {
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    Index index = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
+      
+      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
+      
+      if (index == null) {
+        throw new NullPointerException("Cant find index '" + indexName + "' on table: '" + tableName + "'");
+      }
+      
+      for (IndexColumn indexColumn : index.getColumns()) {
+        if (StringUtils.equalsIgnoreCase(columnName, indexColumn.getName())) {
+          return true;
+        }
+      }
+      return false;
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+  }
+  
+  /**
+   * see if an index has a column, if index isnt there its an exception
+   * @param tableName
+   * @param indexName
+   * @param columnName
+   * @return true or false
+   */
+  public static boolean assertIndexExists(String tableName, String indexName) {
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    Index index = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
+      
+      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
+      
+      if (index == null) {
+        return false;
+      }
+      
+      return true;
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+  }
+  
+  /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database
    * @param ddlVersionBean can be null unless custom script
@@ -2526,7 +2628,7 @@ public class GrouperDdlUtils {
 
   /**
    * see if tables are there (at least the grouper groups one)
-   * @param expectTrue throw exception if expecting true and not there or vice versa
+   * @param expectTrue what the expected outcome is
    * @param tableName 
    * @param columnName 
    * @return true if everything ok, false if not

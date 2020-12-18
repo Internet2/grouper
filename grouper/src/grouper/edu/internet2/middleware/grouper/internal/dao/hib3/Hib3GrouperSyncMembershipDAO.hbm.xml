@@ -58,6 +58,7 @@
 
     <property name="membershipId2" column="membership_id2"/>
     <property name="membershipId" column="membership_id"/>
+    <property name="errorCodeDb" column="error_code"/>
     <property name="errorMessage" column="error_message"/>
     <property name="errorTimestamp" column="error_timestamp" type="timestamp"/>
     <property name="grouperSyncId" column="grouper_sync_id"/>

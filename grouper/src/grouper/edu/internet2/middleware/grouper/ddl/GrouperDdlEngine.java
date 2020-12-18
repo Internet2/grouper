@@ -971,7 +971,7 @@ public class GrouperDdlEngine {
       
       if (this.deepCheck) {
 
-        GrouperDdlCompareResult grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
+        this.grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
 
         String script = grouperDdlCompareResult.getResult().toString();
 
@@ -979,7 +979,6 @@ public class GrouperDdlEngine {
         if (LOG.isErrorEnabled()) {
           LOG.error(script);
         }
-
       }
       
       initRegistryAndClearCache(upToDate);
@@ -1000,6 +999,15 @@ public class GrouperDdlEngine {
 
   }
 
+  private GrouperDdlCompareResult grouperDdlCompareResult;
+  
+  
+  
+  public GrouperDdlCompareResult getGrouperDdlCompareResult() {
+    return grouperDdlCompareResult;
+  }
+
+  
   private void initRegistryAndClearCache(boolean upToDate) {
     ConfigPropertiesCascadeBase.assignInitted();
     if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {

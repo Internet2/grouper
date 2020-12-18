@@ -62,6 +62,7 @@
     <property name="memberToId2" column="member_to_id2"/>
     <property name="memberToId3" column="member_to_id3"/>
 
+    <property name="errorCodeDb" column="error_code"/>
     <property name="errorMessage" column="error_message"/>
     <property name="errorTimestamp" column="error_timestamp" type="timestamp"/>
     <property name="lastTimeWorkWasDone" column="last_time_work_was_done" type="timestamp"/>

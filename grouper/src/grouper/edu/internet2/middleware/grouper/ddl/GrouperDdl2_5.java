@@ -24,7 +24,7 @@ public class GrouperDdl2_5 {
   /**
    * if building to this version at least
    */
-  private static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
+  public static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
     boolean buildingToThisVersionAtLeast = GrouperDdl.V32.getVersion() <= buildingToVersion;
@@ -728,7 +728,10 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSyncGroupTable, "last_time_work_was_done", 
           Types.TIMESTAMP, null, false, false);
     
-      
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeColumnsGroup(database, ddlVersionBean);
+      }
+
     }
     
     {
@@ -832,6 +835,10 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", Types.TIMESTAMP, "10", false, false);
     
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeColumnsMember(database, ddlVersionBean);
+      }
+
       
     }
     {
@@ -895,7 +902,10 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "error_timestamp", Types.TIMESTAMP, "10", false, false);
     
-      
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeColumnsMembership(database, ddlVersionBean);
+      }
+
     }
     {
       final String tableName = "grouper_sync_log";
@@ -1069,6 +1079,9 @@ public class GrouperDdl2_5 {
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
       
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeCommentsGroup(database, ddlVersionBean);
+      }
     }
     {
       final String tableName = "grouper_sync_member";
@@ -1135,7 +1148,10 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this object, this is the message");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
-      
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeCommentsMember(database, ddlVersionBean);
+      }
+
     }
     {
       final String tableName = "grouper_sync_membership";
@@ -1181,7 +1197,11 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_message", "if there was an error when syncing this object, this is the message");
     
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "error_timestamp", "timestamp of error if there was an error when syncing this object");
-      
+
+      if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_40.addGrouperSyncErrorCodeCommentsMembership(database, ddlVersionBean);
+      }
+
     }
   
     {
@@ -1301,10 +1321,6 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_gr_t3_idx", false, "grouper_sync_id", "group_to_id3(255)");
     
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-          "grouper_sync_gr_er_idx", false, "grouper_sync_id", "error_timestamp");
-    
-
     }
     {
       final String tableName = "grouper_sync_member";
@@ -1330,9 +1346,6 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_us_t3_idx", false, "grouper_sync_id", "member_to_id3(255)");
     
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-          "grouper_sync_us_er_idx", false, "grouper_sync_id", "error_timestamp");
-    
       // there could be some overlap as things change with subjects (edge case)
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_us_st_gr_idx", false, "grouper_sync_id", "source_id", "subject_id");
@@ -1353,9 +1366,6 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_mship_sy_idx", false, "grouper_sync_id", "last_updated");
     
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-          "grouper_sync_mship_er_idx", false, "grouper_sync_id", "error_timestamp");
-      
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_mship_f1_idx", false, "grouper_sync_id", "membership_id(255)");
     
