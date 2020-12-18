@@ -465,6 +465,8 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     
     GrouperCacheDatabase.customRegisterDatabaseClearable(
         "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest", grouperCacheDatabaseClear);
+    GrouperCacheDatabase.customRegisterDatabaseClearable(
+        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest____b", grouperCacheDatabaseClear);
 
     long nowNanos = System.currentTimeMillis() * 1000000;
     GrouperUtil.sleep(30);
