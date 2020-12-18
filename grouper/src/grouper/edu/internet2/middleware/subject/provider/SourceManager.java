@@ -253,6 +253,17 @@ public class SourceManager {
    */
   private SourceManager() {
     init();
+    
+    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource";
+    GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
+            
+      @Override
+      public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
+        String cacheName = grouperCacheDatabaseClearInput.getCacheName();
+        String sourceId = StringUtils.substringAfterLast(cacheName, "____");
+        SourceManager.getInstance().reloadSource(sourceId);
+      }
+    });
   }
 
   /**
@@ -332,10 +343,11 @@ public class SourceManager {
   
   public synchronized void reloadSource(String sourceId) {
     Source source = SubjectConfig.retrieveConfig().reloadSourceConfigs(sourceId);
-    
     if (source != null) {
       loadSource(source);
-    }    
+    } else {
+      sourceMap.remove(sourceId);
+    }
   }
 
   /**
@@ -348,7 +360,7 @@ public class SourceManager {
     //put in map before initting
     this.sourceMap.put(source.getId(), source);
     
-    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.sourceId." + source.getId();
+    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource____" + source.getId();
     if (!registeredDatabaseCacheNames.contains(cacheName)) {
       registeredDatabaseCacheNames.add(cacheName);
       GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         

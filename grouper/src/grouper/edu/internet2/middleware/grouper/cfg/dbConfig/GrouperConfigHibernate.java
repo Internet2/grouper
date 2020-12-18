@@ -986,11 +986,13 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
         
         if (!StringUtils.isEmpty(sourceId)) {
           try {
+            // TODO when the new subject source ui is created, this should probably be called after it validates the config
+
             // reload subject source here first
             SourceManager.getInstance().reloadSource(sourceId);
 
             // then let others reload if the above didn't produce errors
-            GrouperCacheDatabase.customNotifyDatabaseOfChanges("edu.internet2.middleware.subject.provider.SourceManager.sourceId." + sourceId);
+            GrouperCacheDatabase.customNotifyDatabaseOfChanges("edu.internet2.middleware.subject.provider.SourceManager.reloadSource____" + sourceId);
           } catch (Exception e) {
             LOG.error("Failed to reload subject source " + sourceId, e);
           }
