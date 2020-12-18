@@ -240,10 +240,18 @@ public class GrouperCacheDatabase {
     if (cacheNameWithPrefix.startsWith("custom__")) {
       cacheNameWithPrefix = GrouperUtil.stripPrefix(cacheNameWithPrefix, "custom__");
       GrouperCacheDatabaseClear grouperCacheDatabaseClear = customDatabaseClearables.get(cacheNameWithPrefix);
+      
+      // look by prefix so caches can insert data for other caches
+      if (grouperCacheDatabaseClear == null && cacheNameWithPrefix.contains("____")) {
+        String cacheByPrefix = GrouperUtil.prefixOrSuffix(cacheNameWithPrefix, "____", true);
+        grouperCacheDatabaseClear = customDatabaseClearables.get(cacheByPrefix);
+      }
       if (grouperCacheDatabaseClear == null) {
         return false;
       }
-      grouperCacheDatabaseClear.clear();
+      GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput = new GrouperCacheDatabaseClearInput();
+      grouperCacheDatabaseClearInput.setCacheName(cacheNameWithPrefix);
+      grouperCacheDatabaseClear.clear(grouperCacheDatabaseClearInput);
       return true;
     }
 

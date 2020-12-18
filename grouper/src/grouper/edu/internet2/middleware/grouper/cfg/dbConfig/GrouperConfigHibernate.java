@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -964,7 +965,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * clear the cache when the database tells us to
    */
   @Override
-  public void clear() {
+  public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
     clearConfigsInMemory();
   }
 
