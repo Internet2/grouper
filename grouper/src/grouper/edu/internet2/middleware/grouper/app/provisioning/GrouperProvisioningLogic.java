@@ -41,14 +41,6 @@ public class GrouperProvisioningLogic {
    */
   public void provision() {
 
-    // let the target dao tell the framework what it can do
-    this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
-        this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
-        );
-
-    // let the provisioner tell the framework how the provisioner should behave with respect to the target
-    this.getGrouperProvisioner().registerProvisioningBehaviors(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior());
-
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.configure);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().provision(this.grouperProvisioner);
@@ -195,7 +187,13 @@ public class GrouperProvisioningLogic {
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkData);
     }
-      
+
+    // validate
+    debugMap.put("state", "validateGroupsAndEntities");
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
+
+    
     try {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
@@ -238,6 +236,9 @@ public class GrouperProvisioningLogic {
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
     
+    // validate memberships
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
+
     try {
       debugMap.put("state", "compareTargetObjects");
       this.grouperProvisioner.retrieveGrouperProvisioningCompare().compareTargetObjects();
@@ -538,10 +539,15 @@ public class GrouperProvisioningLogic {
             
             this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
             
-  
           }
           
-          // ######### STEP 25: recalc retrieve data from target
+          // ######### STEP 25: take all the matching ids of grouper groups/entities and index those for quick lookups
+          // validate
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
+          
+          // ######### STEP 26: recalc retrieve data from target
           try {
             debugMap.put("state", "retrieveIncrementalTargetData");
             long start = System.currentTimeMillis();
@@ -552,7 +558,7 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataIncremental);
           }
 
-          // ######### STEP 26: target object attribute manipulation
+          // ######### STEP 27: target object attribute manipulation
           try {
             debugMap.put("state", "targetAttributeManipulation");
             // do not assign defaults to target
@@ -574,7 +580,7 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.targetAttributeManipulation);
           }
   
-          // ######### STEP 27: matching id target objects
+          // ######### STEP 28: matching id target objects
           try {
             debugMap.put("state", "matchingIdTargetObjects");
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
@@ -605,14 +611,14 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdTargetObjects);
           }
       
-          // ######### STEP 28: create groups / entities
+          // ######### STEP 29: create groups / entities
           debugMap.put("state", "insertGroups");
           createMissingGroupsFull();
   
           debugMap.put("state", "insertEntities");
           createMissingEntitiesFull();
   
-          // ######### STEP 29: retrieve target group and entity link
+          // ######### STEP 30: retrieve target group and entity link
           try {
             debugMap.put("state", "retrieveTargetGroupLink");
             this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
@@ -623,7 +629,7 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkData);
           }
             
-          // ######### STEP 30: translate grouper memberships to target format
+          // ######### STEP 31: translate grouper memberships to target format
           try {
             debugMap.put("state", "translateGrouperMembershipsToTarget");
   
@@ -638,7 +644,7 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget);
           }
 
-          // ######### STEP 31: based on configs manipulate the defaults, types, etc for grouper target memberships translated attributes and fields
+          // ######### STEP 32: based on configs manipulate the defaults, types, etc for grouper target memberships translated attributes and fields
           try {
             debugMap.put("state", "manipulateGrouperTargetMembershipAttributes");
 
@@ -651,7 +657,7 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetMembershipsAttributes);
           }
           
-          // ######### STEP 32: calculate the matching id of grouper translated membership data
+          // ######### STEP 33: calculate the matching id of grouper translated membership data
           try {
             debugMap.put("state", "matchingIdGrouperMemberships");
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(
@@ -660,13 +666,13 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
           }
 
-          // ######### STEP 33: index matching ID of grouper and target objects
+          // ######### STEP 34: index matching ID of grouper and target objects
           debugMap.put("state", "indexMatchingIdOfGrouperObjects");
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
             
-          // ######### STEP 34: compare target objects
+          // ######### STEP 35: compare target objects
           try {
             debugMap.put("state", "compareTargetObjectsIncremental");
             this.grouperProvisioner.retrieveGrouperProvisioningCompare().compareTargetObjects();
@@ -676,7 +682,7 @@ public class GrouperProvisioningLogic {
           
           this.countInsertsUpdatesDeletes();
       
-          // ######### STEP 35: send changes to target
+          // ######### STEP 36: send changes to target
           RuntimeException runtimeException = null;
           try {
             debugMap.put("state", "sendChangesToTarget");
@@ -843,6 +849,10 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningGroups(grouperTargetGroupsToInsert);
+    
+    // validate
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroupsToInsert, true);
+    
     // add object change entries
     this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroupsToInsert);
     
@@ -957,6 +967,9 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningEntities(grouperTargetEntitiesToInsert);
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingGrouperTargetEntitiesForCreate);
+
+    // validate
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntitiesToInsert, true);
 
     // add object change entries
     this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForEntitiesToInsert(grouperTargetEntitiesToInsert);

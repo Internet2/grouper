@@ -161,6 +161,48 @@ public class GrouperProvisioningConfigurationAttribute {
   private GrouperProvisioningConfigurationAttributeValueType valueType;
   
   /**
+   * Validate value with jexl to see if valid for provisioning, the variable 'value' represents the current value.  return true if valid and false if invalid
+   */
+  private String validExpression;
+  
+  /**
+   * Validate value with jexl to see if valid for provisioning, the variable 'value' represents the current value.  return true if valid and false if invalid
+   * @return
+   */
+  public String getValidExpression() {
+    return validExpression;
+  }
+
+  /**
+   * Validate value with jexl to see if valid for provisioning, the variable 'value' represents the current value.  return true if valid and false if invalid
+   * @param validExpression
+   */
+  public void setValidExpression(String validExpression) {
+    this.validExpression = validExpression;
+  }
+
+  /**
+   * max length of value to be valid for provisioning
+   */
+  private Integer maxlength;
+  
+  /**
+   * max length of value to be valid for provisioning
+   * @return
+   */
+  public Integer getMaxlength() {
+    return maxlength;
+  }
+
+  /**
+   * max length of value to be valid for provisioning
+   * @param maxlength
+   */
+  public void setMaxlength(Integer maxlength) {
+    this.maxlength = maxlength;
+  }
+
+  /**
    * if a value is require to provision this group/entity
    */
   private boolean required;

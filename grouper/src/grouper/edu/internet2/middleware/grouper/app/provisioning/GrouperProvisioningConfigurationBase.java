@@ -981,7 +981,17 @@ public abstract class GrouperProvisioningConfigurationBase {
           boolean delete = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".delete" , false), false);
           attributeConfig.setDelete(delete);
         }
-  
+
+        {
+          Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
+          attributeConfig.setMaxlength(maxlength);
+        }
+        
+        {
+          String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
+          attributeConfig.setValidExpression(validExpression);
+        }
+        
         {
           boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
           attributeConfig.setRequired(required);

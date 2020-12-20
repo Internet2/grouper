@@ -85,6 +85,9 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningTranslatorBase.class.equals(this.grouperTranslatorClass())) {
       result.append(", Translator: ").append(this.grouperTranslatorClass().getName());
     }
+    if (!GrouperProvisioningValidation.class.equals(this.grouperProvisioningValidationClass())) {
+      result.append(", Validation: ").append(this.grouperProvisioningValidationClass().getName());
+    }
     
     return result.toString();
   }
@@ -248,6 +251,29 @@ public abstract class GrouperProvisioner {
     
   }
 
+  private GrouperProvisioningValidation grouperProvisioningValidation = null;
+
+  /**
+   * return the class of the provisioning validation
+   */
+  protected Class<GrouperProvisioningValidation> grouperProvisioningValidationClass() {
+    return GrouperProvisioningValidation.class;
+  }
+
+  /**
+   * return the instance of the validation
+   * @return the logic
+   */
+  public GrouperProvisioningValidation retrieveGrouperProvisioningValidation() {
+    if (this.grouperProvisioningValidation == null) {
+      Class<GrouperProvisioningValidation> grouperProvisioningValidationClass = this.grouperProvisioningValidationClass();
+      this.grouperProvisioningValidation = GrouperUtil.newInstance(grouperProvisioningValidationClass);
+      this.grouperProvisioningValidation.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningValidation;
+    
+  }
+
   private GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = null;
   
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
@@ -360,7 +386,7 @@ public abstract class GrouperProvisioner {
   /**
    * provisioning output
    */
-  private GrouperProvisioningOutput grouperProvisioningOutput;
+  private GrouperProvisioningOutput grouperProvisioningOutput = new GrouperProvisioningOutput();
   
   /**
    * provisioning output
@@ -401,7 +427,32 @@ public abstract class GrouperProvisioner {
 
   private long startedNanos;
 
+  private boolean initialized = false;
 
+  public void initialize(GrouperProvisioningType grouperProvisioningType1) {
+
+    if (!this.initialized) {
+
+      this.debugMap = new LinkedHashMap<String, Object>();
+
+      GcDbAccess.threadLocalQueryCountReset();
+
+      this.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(grouperProvisioningType1);
+
+      this.retrieveGrouperProvisioningConfiguration().configureProvisioner();
+
+      // let the target dao tell the framework what it can do
+      this.retrieveGrouperTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
+          this.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
+          );
+
+      // let the provisioner tell the framework how the provisioner should behave with respect to the target
+      this.registerProvisioningBehaviors(this.retrieveGrouperProvisioningBehavior());
+
+    }
+    this.initialized = true;
+  }
+  
   /**
    * provision
    * @param grouperProvisioningType
@@ -413,28 +464,17 @@ public abstract class GrouperProvisioner {
       throw new RuntimeException("Dont re-use instances of this class: " + GrouperProvisioner.class.getName());
     }
 
-    this.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(grouperProvisioningType1);
-    
     this.millisWhenSyncStarted = System.currentTimeMillis();
     
-    if (this.grouperProvisioningOutput == null) {
-      this.grouperProvisioningOutput = new GrouperProvisioningOutput();
-    }
-    
-    this.retrieveGrouperProvisioningConfiguration().configureProvisioner();
-
-    this.debugMap = new LinkedHashMap<String, Object>();
-    
     this.startedNanos = System.nanoTime();
-    
-    GcDbAccess.threadLocalQueryCountReset();
     
     try {
 
       debugMap.put("finalLog", false);
       
       debugMap.put("state", "init");
-
+      this.initialize(grouperProvisioningType1);
+      
       this.gcGrouperSyncHeartbeat.setGcGrouperSyncJob(this.gcGrouperSyncJob);
       this.gcGrouperSyncHeartbeat.setFullSync(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
       this.gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
@@ -459,8 +499,12 @@ public abstract class GrouperProvisioner {
       
       return this.grouperProvisioningOutput;
     } catch (RuntimeException re) {
-      gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      if (gcGrouperSyncLog != null) {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+      }
+      if (debugMap != null) {
+        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      }
       throw re;
     } finally {
       provisionFinallyBlock();

@@ -215,6 +215,9 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
       if (this.provisioningEntityWrapper.isIncrementalSyncMemberships()) {
         firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.isIncrementalSyncMemberships());
       }
+      if (this.provisioningEntityWrapper.getErrorCode() != null) {
+        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
+      }
     }
     
     return result.append(")").toString();

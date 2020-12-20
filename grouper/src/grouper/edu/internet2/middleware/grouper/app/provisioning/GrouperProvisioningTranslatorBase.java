@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,8 +11,10 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
  * @author shilen
@@ -86,6 +89,8 @@ public class GrouperProvisioningTranslatorBase {
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     
+    int invalidMembershipsDuringTranslation = 0;
+    
     // clear out the membership attribute, it might have a default value in there
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
@@ -108,17 +113,34 @@ public class GrouperProvisioningTranslatorBase {
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Membership"));
 
     for (ProvisioningMembership grouperProvisioningMembership: GrouperUtil.nonNull(grouperProvisioningMemberships)) {
-      
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperProvisioningMembership.getProvisioningMembershipWrapper();
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
- 
+
+      GcGrouperSyncErrorCode errorCode = provisioningGroupWrapper.getErrorCode();
+      String errorMessage = provisioningGroupWrapper.getGcGrouperSyncGroup().getErrorMessage();
+          
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
 
+      if (errorCode == null) {
+        errorCode = provisioningEntityWrapper.getErrorCode();
+        errorMessage = provisioningEntityWrapper.getGcGrouperSyncMember().getErrorMessage();
+      }
+      
+      if (errorCode != null) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+        continue;
+      }
+
+
       ProvisioningMembership grouperTargetMembership = new ProvisioningMembership();
-      grouperTargetMembership.setProvisioningMembershipWrapper(grouperProvisioningMembership.getProvisioningMembershipWrapper());
+      grouperTargetMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
  
-      provisioningMembershipWrapperThreadLocal.set(grouperProvisioningMembership.getProvisioningMembershipWrapper());
+      provisioningMembershipWrapperThreadLocal.set(provisioningMembershipWrapper);
       try {
 
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
@@ -134,9 +156,9 @@ public class GrouperProvisioningTranslatorBase {
         elVariableMap.put("gcGrouperSyncMember", provisioningEntityWrapper.getGcGrouperSyncMember());
         
         elVariableMap.put("grouperProvisioningMembership", grouperProvisioningMembership);
-        elVariableMap.put("provisioningMembershipWrapper", grouperProvisioningMembership.getProvisioningMembershipWrapper());
+        elVariableMap.put("provisioningMembershipWrapper", provisioningMembershipWrapper);
         elVariableMap.put("grouperTargetMembership", grouperTargetMembership);
-        elVariableMap.put("gcGrouperSyncMembership", grouperProvisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership());
+        elVariableMap.put("gcGrouperSyncMembership", gcGrouperSyncMembership);
 
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
@@ -170,6 +192,17 @@ public class GrouperProvisioningTranslatorBase {
                     grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
               }
               if (result != null) {
+                
+                MultiKey validationError = this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validFieldOrAttributeValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, result);
+                if (validationError != null) {
+                  
+                  errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
+                  errorMessage = (String)validationError.getKey(1);
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+
+                  continue;
+                }
+                
                 grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
                 this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               }
@@ -193,6 +226,17 @@ public class GrouperProvisioningTranslatorBase {
                     grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
               }
               if (result != null) {
+                
+                MultiKey validationError = this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validFieldOrAttributeValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, result);
+                if (validationError != null) {
+                  
+                  errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
+                  errorMessage = (String)validationError.getKey(1);
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+
+                  continue;
+                }
+
                 grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
                 this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               }
@@ -265,6 +309,10 @@ public class GrouperProvisioningTranslatorBase {
       }
     }
     
+    if (invalidMembershipsDuringTranslation > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "invalidMembershipsDuringTranslation", invalidMembershipsDuringTranslation);
+    }
+
     return grouperTargetMemberships;
   }
 
@@ -318,6 +366,7 @@ public class GrouperProvisioningTranslatorBase {
               grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               if (required && GrouperUtil.isBlank(result)) {
+                // short circuit this since other fields might need this field and its not there and invalid anyways
                 continue PROVISIONING_ENTITY_BLOCK;
               }
             
@@ -447,6 +496,7 @@ public class GrouperProvisioningTranslatorBase {
               grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               if (required && GrouperUtil.isBlank(result)) {
+                // short circuit this since other fields might need this field and its not there and invalid anyways
                 continue PROVISIONING_GROUP_BLOCK;
               }
             }

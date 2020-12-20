@@ -337,6 +337,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
       if (this.provisioningMembershipWrapper.isCreate()) {
         firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.isCreate());
       }
+      if (this.provisioningMembershipWrapper.getErrorCode() != null) {
+        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningMembershipWrapper.getErrorCode().name());
+      }
 
     }
     return result.append(")").toString();

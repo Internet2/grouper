@@ -453,10 +453,25 @@ public class GrouperProvisioningCompare {
 
   public void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
     
+    if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
+      return;
+    }
+
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
       if (grouperTargetEntity != null) {
         GrouperUtil.setClear(grouperTargetEntity.getInternal_objectChanges());
+      }
+    }
+
+    {
+      provisioningEntityWrappers = new ArrayList<ProvisioningEntityWrapper>(provisioningEntityWrappers);
+      Iterator<ProvisioningEntityWrapper> iterator = provisioningEntityWrappers.iterator();
+      while (iterator.hasNext()) {
+        ProvisioningEntityWrapper provisioningEntityWrapper = iterator.next();
+        if (provisioningEntityWrapper.getErrorCode() != null) {
+          iterator.remove();
+        }
       }
     }
 
@@ -622,36 +637,6 @@ public class GrouperProvisioningCompare {
       GrouperUtil.setClear(provisioningEntity.getInternal_objectChanges());
     }
 
-    {
-      int entitiesMissingRequiredData = 0;
-      //check for required attributes
-      Iterator<ProvisioningEntity> iterator = provisioningEntitiesToInsert.iterator();
-      while (iterator.hasNext()) {
-        ProvisioningEntity provisioningEntity = iterator.next();
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values()) {
-          if (grouperProvisioningConfigurationAttribute.isRequired()) {
-            if (null == provisioningEntity.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
-              iterator.remove();
-              entitiesMissingRequiredData++;
-              continue;
-            }
-          }
-        }
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-          if (grouperProvisioningConfigurationAttribute.isRequired()) {
-            if (null == provisioningEntity.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
-              iterator.remove();
-              entitiesMissingRequiredData++;
-              continue;
-            }
-          }
-        }
-      }
-      if (entitiesMissingRequiredData > 0) {
-        this.getGrouperProvisioner().getDebugMap().put("entitiesMissingRequiredData", entitiesMissingRequiredData);
-      }
-    }
-    
     for (ProvisioningEntity entityToInsert : provisioningEntitiesToInsert) {
 
       if (entityToInsert.getId() != null && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().canEntityInsertField("id")) {
@@ -683,10 +668,25 @@ public class GrouperProvisioningCompare {
 
   public void compareTargetGroups(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
     
+    if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
+      return;
+    }
+    
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
       if (grouperTargetGroup != null) {
         GrouperUtil.setClear(grouperTargetGroup.getInternal_objectChanges());
+      }
+    }
+
+    {
+      provisioningGroupWrappers = new ArrayList<ProvisioningGroupWrapper>(provisioningGroupWrappers);
+      Iterator<ProvisioningGroupWrapper> iterator = provisioningGroupWrappers.iterator();
+      while (iterator.hasNext()) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = iterator.next();
+        if (provisioningGroupWrapper.getErrorCode() != null) {
+          iterator.remove();
+        }
       }
     }
     
@@ -855,37 +855,6 @@ public class GrouperProvisioningCompare {
       GrouperUtil.setClear(provisioningGroup.getInternal_objectChanges());
     }
 
-    {
-      int groupsMissingRequiredData = 0;
-      //check for required attributes
-      Iterator<ProvisioningGroup> iterator = provisioningGroupsToInsert.iterator();
-      while (iterator.hasNext()) {
-        ProvisioningGroup provisioningGroup = iterator.next();
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values()) {
-          if (grouperProvisioningConfigurationAttribute.isRequired()) {
-            if (null == provisioningGroup.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
-              iterator.remove();
-              groupsMissingRequiredData++;
-              continue;
-            }
-          }
-        }
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-          if (grouperProvisioningConfigurationAttribute.isRequired()) {
-            if (null == provisioningGroup.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute)) {
-              iterator.remove();
-              groupsMissingRequiredData++;
-              continue;
-            }
-          }
-        }
-      }
-      if (groupsMissingRequiredData > 0) {
-        this.getGrouperProvisioner().getDebugMap().put("groupsMissingRequiredData", groupsMissingRequiredData);
-      }
-    }
-    
-
     for (ProvisioningGroup groupToInsert: provisioningGroupsToInsert) {
       
       if (groupToInsert.getId() != null && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().canGroupInsertField("id")) {
@@ -916,10 +885,25 @@ public class GrouperProvisioningCompare {
 
   public void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
     
+    if (GrouperUtil.length(provisioningMembershipWrappers) == 0) {
+      return;
+    }
+
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
       ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
       if (grouperTargetMembership != null) {
         GrouperUtil.setClear(grouperTargetMembership.getInternal_objectChanges());
+      }
+    }
+
+    {
+      provisioningMembershipWrappers = new ArrayList<ProvisioningMembershipWrapper>(provisioningMembershipWrappers);
+      Iterator<ProvisioningMembershipWrapper> iterator = provisioningMembershipWrappers.iterator();
+      while (iterator.hasNext()) {
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = iterator.next();
+        if (provisioningMembershipWrapper.getErrorCode() != null) {
+          iterator.remove();
+        }
       }
     }
 

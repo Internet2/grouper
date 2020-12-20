@@ -131,6 +131,9 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
       if (this.provisioningGroupWrapper.isIncrementalSyncMemberships()) {
         firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.isIncrementalSyncMemberships());
       }
+      if (this.provisioningGroupWrapper.getErrorCode() != null) {
+        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+      }
     }
     
     return result.append(")").toString();
@@ -218,7 +221,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
       throw new NullPointerException("attribute is null: " + this);
     }
     if (grouperProvisioningConfigurationAttribute.isAttribute()) {
-      return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
+      return this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
     } else {
       if ("displayName".equals(grouperProvisioningConfigurationAttribute.getName())) {
         return this.getDisplayName();

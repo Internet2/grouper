@@ -12766,6 +12766,41 @@ public class GrouperUtil {
     return result;
   }
 
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int or long
+   */
+  public static void mapAddValue(Map<String, Object> map, String key, Object numberToAdd) {
+    if (map == null || numberToAdd == null) {
+      return;
+    }
+    if (numberToAdd instanceof Integer) {
+
+      Integer intValue = intObjectValue(numberToAdd, false);
+      Object currentValue = map.get(key);
+      if (currentValue != null) {
+        Integer currentIntValue = intObjectValue(currentValue, false);
+        intValue += currentIntValue;
+      }
+      map.put(key, intValue);
+
+    } if (numberToAdd instanceof Long) {
+      
+      Long longValue = longObjectValue(numberToAdd, false);
+      Object currentValue = map.get(key);
+      if (currentValue != null) {
+        Long currentLongValue = longObjectValue(currentValue, false);
+        longValue += currentLongValue;
+      }
+      map.put(key, longValue);
+        
+    } else {
+      throw new RuntimeException("Not expecting type: " + numberToAdd.getClass());
+    }
+  }
+
   
 
 }

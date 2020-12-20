@@ -2,10 +2,32 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper {
   
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   */
+  private GcGrouperSyncErrorCode errorCode;
+  
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   * @return
+   */
+  public GcGrouperSyncErrorCode getErrorCode() {
+    return errorCode;
+  }
+
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   * @param errorCode
+   */
+  public void setErrorCode(GcGrouperSyncErrorCode errorCode) {
+    this.errorCode = errorCode;
+  }
+
   /**
    * if incremental and recalc
    */
