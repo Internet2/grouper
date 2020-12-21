@@ -8,7 +8,6 @@ import java.io.File;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.ddl.GrouperAntProject;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -80,6 +79,8 @@ public class OtherJobScript extends OtherJobBase {
       
       String fileName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".fileName");
       String scriptSource = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".scriptSource");
+
+      String connectionName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".connectionName");
   
       if (StringUtils.isBlank(fileName) && StringUtils.isBlank(scriptSource)) {
         throw new RuntimeException("You must provide a \"otherJob." + jobName + ".fileName\" or \"otherJob." + jobName + ".scriptSource\"!!!");
@@ -107,14 +108,17 @@ public class OtherJobScript extends OtherJobBase {
         GrouperAntProject.assignLoggingThreadLocal(theLog);
         try {
           String localOutput = null;
+          if (StringUtils.isBlank(connectionName)) {
+            connectionName = "grouper";
+          }
           // we need a file or a script
           if (!StringUtils.isBlank(fileName)) {
             
-            localOutput = GrouperDdlUtils.runScriptFileIfShouldReturnString(file, true);
+            localOutput = GrouperDdlUtils.runScriptFileIfShouldReturnString(connectionName, file, true);
             
           } else if (!StringUtils.isBlank(scriptSource)) {
     
-            localOutput = GrouperDdlUtils.runScriptIfShouldReturnString(scriptSource, true, true);
+            localOutput = GrouperDdlUtils.runScriptIfShouldReturnString(connectionName, scriptSource, true, true);
     
           }
           if (theLog.length() > 0) {
