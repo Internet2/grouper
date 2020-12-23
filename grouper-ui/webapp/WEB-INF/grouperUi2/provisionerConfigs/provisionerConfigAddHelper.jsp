@@ -42,6 +42,10 @@
   			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
 	  			<tr>
 	  				<th colspan="3">
+              <%-- the header needs to be on a field to subsitute the name in the label if there --%>
+              <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                      property="currentConfigSuffix"
+                      value="${subSection.label}.header" />  
 	  					<h4>${subSection.title}</h4>
 	  					<p style="font-weight: normal;">${subSection.description} </p>
 	  				</th>
@@ -54,6 +58,9 @@
   			<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                	property="index"
                	value="${attribute.repeatGroupIndex}" />	
+        <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                property="currentConfigSuffix"
+                value="${attribute.configSuffix}" />  
   			
   				<grouper:configFormElement 
   					formElementType="${attribute.formElement}" 
@@ -74,6 +81,6 @@
   			</c:forEach>
   			
   		</tbody>
-  
+
   </c:forEach>
   

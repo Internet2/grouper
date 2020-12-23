@@ -3,10 +3,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -221,7 +224,60 @@ public class ProvisionerConfigurationContainer {
     this.activityForMembership = activityForMembership;
   }
 
+  public String getSubSectionNameOrIndex() {
+    
+    // targetGroupAttribute.0.select
+    String nameLabel = null;
+    boolean isFieldElseAttribute = false;
+    if (this.currentConfigSuffix != null) {
+      int lastIndexOfDot = this.currentConfigSuffix.lastIndexOf('.');
+      if (lastIndexOfDot > 0) {
+        String indexKey = this.currentConfigSuffix.substring(0, lastIndexOfDot);
+        String isFieldElseAttributeKey = indexKey + ".isFieldElseAttribute";
+        isFieldElseAttribute = GrouperUtil.booleanValue(this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(isFieldElseAttributeKey).getValue(), false);
+        if (isFieldElseAttribute) {
+          String fieldNameKey = indexKey + ".fieldName";
+          nameLabel = this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(fieldNameKey).getValue();
+        } else {
+          String nameKey = indexKey + ".name";
+          nameLabel = this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(nameKey).getValue();
+        }
+      }
+    }
+    
+    if (StringUtils.isBlank(nameLabel)) {
+      if (this.currentConfigSuffix != null && this.currentConfigSuffix.endsWith(".header")) {
+        String prefix = GrouperUtil.prefixOrSuffix(this.currentConfigSuffix, ".header", true);
+        String suffix = GrouperUtil.prefixOrSuffix(prefix, ".", false);
+        // might be integer
+        try {
+          int suffixInt = GrouperUtil.intValue(suffix);
+          this.setIndex(suffixInt);
+        } catch (Exception e) {
+          // ignore this
+        }
+      }
+      
+      return TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix") + " " + (this.index+1);
+    }
+
+    return (isFieldElseAttribute ? 
+        TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.fieldPrefix") :
+        TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix")
+          ) + " '" + nameLabel + "'";
+  }
   
+  private String currentConfigSuffix;
+  
+  public String getCurrentConfigSuffix() {
+    return currentConfigSuffix;
+  }
+
+  
+  public void setCurrentConfigSuffix(String currentConfigSuffix) {
+    this.currentConfigSuffix = currentConfigSuffix;
+  }
+
   public int getIndex() {
     return index;
   }

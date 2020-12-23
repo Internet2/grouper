@@ -335,30 +335,33 @@ public class ConfigItemMetadata {
   public ConfigItemMetadata clone(int repeatIndex) {
     
     ConfigItemMetadata copy = new ConfigItemMetadata();
-    copy.regex = GrouperUtil.replace(this.regex, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.checkboxValuesFromClass = GrouperUtil.replace(this.checkboxValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.comment = GrouperUtil.replace(this.comment, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.mustExtendClass = GrouperUtil.replace(this.mustExtendClass, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.mustImplementInterface = GrouperUtil.replace(this.mustImplementInterface, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.sampleValue = GrouperUtil.replace(this.sampleValue, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.optionValuesFromClass = GrouperUtil.replace(this.optionValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.showEl = GrouperUtil.replace(this.showEl, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
-    copy.comment = GrouperUtil.replace(this.comment, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.regex = GrouperUtil.replace(this.regex, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleValue = GrouperUtil.replace(this.sampleValue, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.showEl = GrouperUtil.replace(this.showEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
     
+    copy.defaultValue = this.defaultValue;
+    copy.formElement = this.formElement;
     copy.multiple = this.multiple;
-    copy.required = this.required;
+    copy.optionValues = this.optionValues;
+    copy.order = this.order;
     copy.readOnly = this.readOnly;
     copy.requiresRestart = this.requiresRestart;
+    copy.required = this.required;
     copy.sensitive = this.sensitive;
     copy.valueType = this.valueType;
-    copy.formElement = this.formElement;
-    copy.optionValues = this.optionValues;
+//    copy.rawMetadataJson = this.rawMetadataJson;
 //    copy.repeatCount = this.repeatCount;
-    copy.order = this.order;
+//    copy.value = this.valueType;
     
     return copy;
   }

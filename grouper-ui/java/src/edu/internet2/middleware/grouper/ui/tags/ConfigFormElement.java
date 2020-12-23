@@ -327,7 +327,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     }
     field.append("</td>");
     
-    field.append("<td>");
+    field.append("<td><span style=\"white-space: nowrap\">");
     
     ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(formElementType, true);
     
@@ -456,13 +456,14 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("</span>");
     }
     
-    field.append("<br>");
+    field.append("</span><br>");
     field.append("<span class='description'>");
     if (StringUtils.isNotBlank(helperText)) {      
       field.append(helperText);
     }
+    helperText = helperText.trim();
     if (StringUtils.isNotBlank(helperTextDefaultValue)) {
-      if (helperText.endsWith(".") == false) {
+      if (!helperText.endsWith(".") && !helperText.endsWith(",") && !helperText.endsWith("?") && !helperText.endsWith(">")) {
         field.append(".");
       }
       field.append(" ").append(GrouperTextContainer.textOrNull("grouperConfigDefaultValueHintPrefix"))

@@ -217,8 +217,8 @@ public class GrouperConfigurationModuleAttribute {
     String label = GrouperTextContainer.textOrNull(key);
     
     if (StringUtils.isBlank(label)) {   
-      if (this.getConfigSuffix().matches(".*[0-9].*")) {
-        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".label";
+      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
+        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".label";
         label = GrouperTextContainer.textOrNull(key);
       } 
     }
@@ -229,8 +229,8 @@ public class GrouperConfigurationModuleAttribute {
     }
     
     if (StringUtils.isBlank(label)) {   
-      if (this.getConfigSuffix().matches(".*[0-9].*")) {
-        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".label";
+      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
+        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".label";
         label = GrouperTextContainer.textOrNull(key);
       } 
     }
@@ -252,8 +252,8 @@ public class GrouperConfigurationModuleAttribute {
     String description = GrouperTextContainer.textOrNull(key);
     
     if (StringUtils.isBlank(description)) {      
-      if (this.getConfigSuffix().matches(".*[0-9].*")) {
-        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".description";
+      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
+        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".description";
         description = GrouperTextContainer.textOrNull(key);
       } 
     }
@@ -265,8 +265,8 @@ public class GrouperConfigurationModuleAttribute {
     }
     
     if (StringUtils.isBlank(description)) {   
-      if (this.getConfigSuffix().matches(".*[0-9].*")) {
-        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("[0-9]+", "i")) + ".description";
+      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
+        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".description";
         description = GrouperTextContainer.textOrNull(key);
       } 
     }

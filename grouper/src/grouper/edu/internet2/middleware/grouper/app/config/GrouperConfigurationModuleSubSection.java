@@ -54,6 +54,9 @@ public class GrouperConfigurationModuleSubSection {
     if (StringUtils.isBlank(title)) {   
       if (this.label.matches(".*[0-9].*")) {
         String key = "provisionerConfiguration.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".title";
+        
+        //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerTitle");
+        
         title = GrouperTextContainer.textOrNull(key);
       } 
     }
@@ -80,6 +83,9 @@ public class GrouperConfigurationModuleSubSection {
     if (StringUtils.isBlank(title)) { 
       if (this.label.matches(".*[0-9].*")) {
         String key = "provisionerConfiguration.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".description";
+
+        //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerDescription");
+        
         title = GrouperTextContainer.textOrNull(key);
       } 
     }

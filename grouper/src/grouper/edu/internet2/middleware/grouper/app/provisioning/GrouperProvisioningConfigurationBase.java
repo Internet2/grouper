@@ -949,7 +949,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       boolean foundMembershipAttribute = false;
       String foundMembershipAttributeName = null;
       
-      for (int i=0; i<= 1000; i++) {
+      for (int i=0; i< 20; i++) {
   
         GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
   
@@ -960,17 +960,18 @@ public abstract class GrouperProvisioningConfigurationBase {
         } else if (StringUtils.equals("targetMembershipAttribute", objectType)) {
           attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
         } else {
-          throw new RuntimeException("Cnat find object type: " + objectType);
+          throw new RuntimeException("Cant find object type: " + objectType);
         }
-        
-        String name = this.retrieveConfigString(objectType + "."+i+".name" , false);
-        if (StringUtils.isBlank(name)) {
+
+        Boolean attribute = this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false);
+        if (attribute == null) {
           break;
         }
+        attributeConfig.setAttribute(attribute);
+
+        String name = this.retrieveConfigString(objectType + "."+i+(attribute ? ".name" : ".fieldName") , true);
         attributeConfig.setName(name);
   
-        boolean attribute = !GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false), false);
-        attributeConfig.setAttribute(attribute);
         
         {
           boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
@@ -1080,6 +1081,21 @@ public abstract class GrouperProvisioningConfigurationBase {
                   this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
           attributeConfig.setValueType(valueType);
         }
+        
+        {
+          String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
+          if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
+            GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
+                GrouperProvisioningConfigurationAttributeValueType.STRING);
+            
+            for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
+              ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
+              Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
+              attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+            }
+          }
+        }
+
         if ("targetGroupAttribute".equals(objectType)) {
           if (attribute) {
             if (targetGroupAttributeNameToConfig.containsKey(name)) {

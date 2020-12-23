@@ -525,6 +525,7 @@ public class UiV2ProvisionerConfiguration {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
               "#provisionerConfigId",
               TextContainer.retrieveFromRequest().getText().get("provisionerConfigCreateErrorConfigIdRequired")));
+          guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("provisionerConfigType", ""));
           return;
         }
         

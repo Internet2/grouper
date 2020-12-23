@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -233,6 +234,27 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   private boolean delete;
   
+  /**
+   * 
+   */
+  private Set<Object> ignoreIfMatchesValues = new HashSet<Object>();
+  
+  /**
+   * 
+   * @return
+   */
+  public Set<Object> getIgnoreIfMatchesValues() {
+    return ignoreIfMatchesValues;
+  }
+
+  /**
+   * 
+   * @param ignoreIfMatchesValues
+   */
+  public void setIgnoreIfMatchesValue(Set<Object> ignoreIfMatchesValues) {
+    this.ignoreIfMatchesValues = ignoreIfMatchesValues;
+  }
+
   /**
    * delete this attribute
    * @return

@@ -802,12 +802,54 @@ public abstract class GrouperConfigurationModuleBase {
             String trueLabel = GrouperTextContainer.textOrNull("config." 
                 + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".trueLabel");
             
-            trueLabel = GrouperUtil.defaultIfBlank(trueLabel, GrouperTextContainer.textOrNull("config.defaultTrueLabel"));
-  
+            if (StringUtils.isBlank(trueLabel)) {
+              trueLabel = GrouperTextContainer.textOrNull(
+                  "config.GenericConfiguration.attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".trueLabel");
+            }
+            
+            if (StringUtils.isBlank(trueLabel)) {
+              String configSuffix = grouperConfigModuleAttribute.getConfigSuffix();
+              
+              if (configSuffix.matches(".*\\.[0-9]\\..*")) {
+                configSuffix = configSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+                trueLabel = GrouperTextContainer.textOrNull("config." 
+                    + this.getClass().getSimpleName() + ".attribute.option." + configSuffix + ".trueLabel");
+                if (StringUtils.isBlank(trueLabel)) {
+                  trueLabel = GrouperTextContainer.textOrNull(
+                      "config.GenericConfiguration.attribute.option." + configSuffix + ".trueLabel");
+                }
+              }
+            }
+            
+            if (StringUtils.isBlank(trueLabel)) {
+              trueLabel = GrouperTextContainer.textOrNull("config.defaultTrueLabel");
+            }
+            
             String falseLabel = GrouperTextContainer.textOrNull("config." 
                 + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".falseLabel");
-            
-            falseLabel = GrouperUtil.defaultIfBlank(falseLabel, GrouperTextContainer.textOrNull("config.defaultFalseLabel"));
+
+            if (StringUtils.isBlank(falseLabel)) {
+              falseLabel = GrouperTextContainer.textOrNull(
+                  "config.GenericConfiguration.attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + ".falseLabel");
+            }
+
+            if (StringUtils.isBlank(falseLabel)) {
+              String configSuffix = grouperConfigModuleAttribute.getConfigSuffix();
+              
+              if (configSuffix.matches(".*\\.[0-9]\\..*")) {
+                configSuffix = configSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+                falseLabel = GrouperTextContainer.textOrNull("config." 
+                    + this.getClass().getSimpleName() + ".attribute.option." + configSuffix + ".falseLabel");
+                if (StringUtils.isBlank(falseLabel)) {
+                  falseLabel = GrouperTextContainer.textOrNull(
+                      "config.GenericConfiguration.attribute.option." + configSuffix + ".falseLabel");
+                }
+              }
+            }
+
+            if (StringUtils.isBlank(falseLabel)) {
+              falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+            }
             
             String defaultValue = configItemMetadata.getDefaultValue();
             Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
