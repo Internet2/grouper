@@ -1079,6 +1079,9 @@ public abstract class GrouperProvisioningConfigurationBase {
           GrouperProvisioningConfigurationAttributeValueType valueType = 
               GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
                   this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
+          if (valueType == null) {
+            valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
+          }
           attributeConfig.setValueType(valueType);
         }
         

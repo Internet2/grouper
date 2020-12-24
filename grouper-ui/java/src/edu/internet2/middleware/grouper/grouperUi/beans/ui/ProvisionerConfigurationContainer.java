@@ -224,12 +224,60 @@ public class ProvisionerConfigurationContainer {
     this.activityForMembership = activityForMembership;
   }
 
+  private String cacheGroupAttributePrefix;
+
+
+  
+  
+  public String getCacheGroupAttributePrefix() {
+    
+    if (this.cacheGroupAttributePrefix == null) {
+      this.cacheGroupAttributePrefix = TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.groupAttributePrefix");
+    }
+    
+    return cacheGroupAttributePrefix;
+  }
+
+  
+  public String getCacheEntityAttributePrefix() {
+    if (this.cacheEntityAttributePrefix == null) {
+      this.cacheEntityAttributePrefix = TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetEntityAttribute.i.entityAttributePrefix");
+    }
+    return cacheEntityAttributePrefix;
+  }
+
+  
+  public String getCacheAttributePrefix() {
+    if (this.cacheAttributePrefix == null) {
+      this.cacheAttributePrefix = TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix");
+    }
+    return cacheAttributePrefix;
+  }
+
+  
+  public String getCacheFieldPrefix() {
+    if (this.cacheFieldPrefix == null) {
+      this.cacheFieldPrefix = TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.fieldPrefix");
+    }
+    return cacheFieldPrefix;
+  }
+
+  private String cacheEntityAttributePrefix;
+  private String cacheAttributePrefix;
+  private String cacheFieldPrefix;
+  
   public String getSubSectionNameOrIndex() {
     
     // targetGroupAttribute.0.select
     String nameLabel = null;
     boolean isFieldElseAttribute = false;
+    String labelPrefix = null;
     if (this.currentConfigSuffix != null) {
+      if (this.currentConfigSuffix.startsWith("targetGroup")) {
+        labelPrefix = this.getCacheGroupAttributePrefix();
+      } else {
+        labelPrefix = this.getCacheEntityAttributePrefix();
+      }
       int lastIndexOfDot = this.currentConfigSuffix.lastIndexOf('.');
       if (lastIndexOfDot > 0) {
         String indexKey = this.currentConfigSuffix.substring(0, lastIndexOfDot);
@@ -245,6 +293,7 @@ public class ProvisionerConfigurationContainer {
       }
     }
     
+    
     if (StringUtils.isBlank(nameLabel)) {
       if (this.currentConfigSuffix != null && this.currentConfigSuffix.endsWith(".header")) {
         String prefix = GrouperUtil.prefixOrSuffix(this.currentConfigSuffix, ".header", true);
@@ -258,12 +307,13 @@ public class ProvisionerConfigurationContainer {
         }
       }
       
-      return TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix") + " " + (this.index+1);
+      return labelPrefix + " "
+        + this.getCacheAttributePrefix() + " " + (this.index+1);
     }
 
-    return (isFieldElseAttribute ? 
-        TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.fieldPrefix") :
-        TextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix")
+    return labelPrefix + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
+         :
+        this.getCacheAttributePrefix()
           ) + " '" + nameLabel + "'";
   }
   
