@@ -23,7 +23,7 @@
     <td>
       <span style="white-space: nowrap">
       <select name="provisionerConfigType" id="provisionerConfigTypeId" style="width: 30em"
-      onchange="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration', {formIds: 'provisionerConfigDetails'}); return false;"
+      onchange="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=provisionerConfigType', {formIds: 'provisionerConfigDetails'}); return false;"
       >
        
         <option value=""></option>
@@ -77,7 +77,7 @@
   					shouldShow="${attribute.show}"
   					value="${attribute.valueOrExpressionEvaluation}"
   					hasExpressionLanguage="${attribute.expressionLanguage}"
-  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
+  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
   					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
   					checkboxAttributes="${attribute.checkboxAttributes}"
   				/>
