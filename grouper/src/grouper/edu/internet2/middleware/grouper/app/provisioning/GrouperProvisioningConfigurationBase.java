@@ -963,13 +963,13 @@ public abstract class GrouperProvisioningConfigurationBase {
           throw new RuntimeException("Cant find object type: " + objectType);
         }
 
-        Boolean attribute = this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false);
-        if (attribute == null) {
+        Boolean isField = this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false);
+        if (isField == null) {
           break;
         }
-        attributeConfig.setAttribute(attribute);
+        attributeConfig.setAttribute(!isField);
 
-        String name = this.retrieveConfigString(objectType + "."+i+(attribute ? ".name" : ".fieldName") , true);
+        String name = this.retrieveConfigString(objectType + "."+i+(isField ? ".fieldName" : ".name") , true);
         attributeConfig.setName(name);
   
         
@@ -1100,7 +1100,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
 
         if ("targetGroupAttribute".equals(objectType)) {
-          if (attribute) {
+          if (!isField) {
             if (targetGroupAttributeNameToConfig.containsKey(name)) {
               throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
             }
@@ -1114,7 +1114,7 @@ public abstract class GrouperProvisioningConfigurationBase {
           }
           
         } else if ("targetEntityAttribute".equals(objectType)) {
-          if (attribute) {
+          if (!isField) {
             if (targetEntityAttributeNameToConfig.containsKey(name)) {
               throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
             }
@@ -1127,7 +1127,7 @@ public abstract class GrouperProvisioningConfigurationBase {
           }
           
         } else if ("targetMembershipAttribute".equals(objectType)) {
-          if (attribute) {
+          if (!isField) {
             if (targetMembershipAttributeNameToConfig.containsKey(name)) {
               throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
             }
