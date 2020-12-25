@@ -9,20 +9,6 @@
                             </td>
                         </tr>
                         
-                        <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningGroupLabel'] }</strong></td>
-                            <td>
-                              ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncGroup.groupName}
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectLabel'] }</strong></td>
-                            <td>
-                              ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncMember.subjectId}
-                            </td>
-                        </tr>
-
                          <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningConfigTableHeaderInTarget'] }</strong></td>
                             <td>

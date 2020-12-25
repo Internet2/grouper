@@ -403,7 +403,7 @@ public class GrouperProvisioningService {
    * @param member
    * @return
    */
-  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Member member){
+  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Member member) {
     
     final List<GrouperProvisioningAttributeValue> result = new ArrayList<GrouperProvisioningAttributeValue>();
     
@@ -452,7 +452,7 @@ public class GrouperProvisioningService {
    * @param member
    * @return
    */
-  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Group group, Member member){
+  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Group group, Member member) {
     
     final List<GrouperProvisioningAttributeValue> result = new ArrayList<GrouperProvisioningAttributeValue>();
     
