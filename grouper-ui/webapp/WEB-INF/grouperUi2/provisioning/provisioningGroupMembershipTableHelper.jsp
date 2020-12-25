@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <c:choose>
-	<c:when test="${fn:length(grouperRequestContainer.provisioningContainer.gcGrouperSyncMemberships) > 0}">
+	<c:when test="${fn:length(grouperRequestContainer.provisioningContainer.guiGrouperSyncObjects) > 0}">
      	
      	<table class="table table-hover table-bordered table-striped table-condensed data-table">
           <thead>        
@@ -9,15 +9,17 @@
               <th>${textContainer.text['provisioningConfigTableHeaderLastTimeWorkWasDone']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderProvisionable']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderInTarget']}</th>
+              <th>${textContainer.text['provisioningConfigTableHeaderHasDirectSettings']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderActions']}</th>              
             </tr>
           </thead>
           <tbody>
           
-          <c:forEach items="${grouperRequestContainer.provisioningContainer.gcGrouperSyncMemberships}" var="gcGrouperSyncMembership" >
+          <c:forEach items="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObjects}" var="guiGrouperSyncObject" >
+          	<c:set value="${guiGrouperSyncObject.gcGrouperSyncMembership}" var="gcGrouperSyncMembership"></c:set>
               <tr>
               <td style="white-space: nowrap;">
-                ${gcGrouperSyncMembership.grouperSync.provisionerName}
+                ${guiGrouperSyncObject.targetName}
               </td>
               
               <td style="white-space: nowrap;">
@@ -60,6 +62,18 @@
                   </c:otherwise>
                  </c:choose>
               </td>
+              
+              <td style="white-space: nowrap;">
+                <c:choose>
+                  <c:when test="${guiGrouperSyncObject.hasDirectSettings}">
+                    ${textContainer.text['provisioningConfigTableHeaderHasDirectSettingsYesLabel']}
+                  </c:when>
+                  <c:otherwise>
+                    ${textContainer.text['provisioningConfigTableHeaderHasDirectSettingsNoLabel']}
+                  </c:otherwise>
+                 </c:choose>
+              </td>
+              
               <td>
                    <div class="btn-group">
                          <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
@@ -68,7 +82,7 @@
                            <span class="caret"></span>
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                         	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroupMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${gcGrouperSyncMembership.grouperSync.provisionerName}&groupSyncMembershipId=${gcGrouperSyncMembership.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
+                         	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroupMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMembershipId=${gcGrouperSyncMembership.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
                          </ul>
                        </div>
                  </td>

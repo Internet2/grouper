@@ -68,5 +68,19 @@
                             </tr>
                           </c:if>
                           
+                          <c:forEach items="${grouperRequestContainer.provisioningContainer.grouperProvisioningObjectMetadataItems}" var="metadataItem">
+			  				
+			  				<grouper:provisioningMetadataItemFormElement
+			  				    name="${metadataItem.name}"
+			  					formElementType="${metadataItem.formElementType}" 
+			  					labelKey="${metadataItem.labelKey}"
+			  					descriptionKey="${metadataItem.descriptionKey}"
+			  					required="${metadataItem.required}"
+			  					value="${metadataItem.defaultValue}"
+			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
+			  				/>
+			  				
+			  		    </c:forEach>
+                          
                         </c:if>
 

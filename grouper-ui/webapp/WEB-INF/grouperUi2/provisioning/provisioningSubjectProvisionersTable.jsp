@@ -21,6 +21,17 @@
                     <%@ include file="../subject/subjectMoreTab.jsp" %>
                   </c:if>
                 </ul>
+                
+                <div class="row-fluid">
+			      <div class="lead span9">${textContainer.text['provisioningSubjectProvisioningTitle'] }</div>
+			      <div class="span3" id="grouperProvisioningSubjectMoreActionsButtonContentsDivId">
+			        <%@ include file="provisioningSubjectMoreActionsButtonContents.jsp"%>
+			      </div>
+			    </div>
+			    
+			    <%-- <div class="row-fluid">
+			      <div class="span9"> <p>${textContainer.text['provisioningGroupProvisioningDescription'] }</p></div>
+			    </div> --%>
 
                 <%@ include file="provisioningSubjectProvisionersTableHelper.jsp" %>
 

@@ -36,7 +36,29 @@
 			    	</div>
 			    </div>
 			    
-                <%@ include file="provisioningSubjectMembershipTableHelper.jsp" %>
+                <form class="form-inline form-small form-filter" id="editProvisioningFormId">
+                  <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
+                  <table class="table table-condensed table-striped">
+                    <tbody>
+                      <%@ include file="provisioningSubjectMembershipSettingsEditHelper.jsp" %>
+                      <tr>
+                        <td></td>
+                        <td
+                          style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
+                          <input type="submit" class="btn btn-primary"
+                          aria-controls="objectTypeSubmitId" id="submitId"
+                          value="${textContainer.text['provisioningEditButtonSave'] }"
+                          onclick="ajax('../app/UiV2Provisioning.editProvisioningOnSubjectMembershipSave?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'editProvisioningFormId'}); return false;">
+                          &nbsp; <a class="btn btn-cancel" role="button"
+                          onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['provisioningEditButtonCancel'] }</a>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                  
+                </form>
 
               </div>
             </div>

@@ -53,24 +53,10 @@ public class GrouperProvisioningAttributeNames {
   public static final String PROVISIONING_DO_PROVISION = "provisioningDoProvision";
   
   /**
-   * Millis since 1970 that this was last full provisioned
+   * metadata json
    */
-  public static final String PROVISIONING_LAST_FULL_MILLIS_SINCE_1970 = "provisioningLastFullMillisSince1970";
+  public static final String PROVISIONING_METADATA_JSON = "provisioningMetadataJson";
   
-  /**
-   * Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target
-   */
-  public static final String PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970 = "provisioningLastIncrementalMillisSince1970";
-  
-  /**
-   * Summary of last full run
-   */
-  public static final String PROVISIONING_LAST_FULL_SUMMARY = "provisioningLastFullSummary";
-  
-  /**
-   * Summary of last incremental run
-   */
-  public static final String PROVISIONING_LAST_INCREMENTAL_SUMMARY = "provisioningLastIncrementalSummary";
   
   /**
    * marker attribute def assigned to stem or group

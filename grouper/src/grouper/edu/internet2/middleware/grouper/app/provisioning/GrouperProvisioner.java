@@ -100,6 +100,8 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningObjectLog grouperProvisioningObjectLog = null;
   
+  private GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata;
+  
   /**
    * reference to the consumer which is sending provisioning events to be processed
    */
@@ -832,6 +834,27 @@ public abstract class GrouperProvisioner {
     }
     return this.grouperProvisioningLinkLogic;
     
+  }
+  
+  /**
+   * returns the object metadata instance
+   * @return the object metadata instance
+   */
+  public GrouperProvisioningObjectMetadata retrieveGrouperProvisioningObjectMetadata() {
+    if (this.grouperProvisioningObjectMetadata == null) {
+      Class<GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass = this.grouperProvisioningObjectMetadataClass();
+      this.grouperProvisioningObjectMetadata = GrouperUtil.newInstance(grouperProvisioningObjectMetadataClass);
+      this.grouperProvisioningObjectMetadata.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningObjectMetadata;
+    
+  }
+  
+  /**
+   * return the class of the object metadata
+   */
+  protected Class<GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
+    return GrouperProvisioningObjectMetadata.class;
   }
 
   /**

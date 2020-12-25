@@ -1244,9 +1244,20 @@ public class GrouperCheckConfig {
           //assign once for each target
           provisioningDef.setMultiAssignable(true);
           provisioningDef.setAssignToGroup(true);
+          provisioningDef.setAssignToMember(true);
+          provisioningDef.setAssignToEffMembership(true);
           provisioningDef.setAssignToStem(true);
+          
           provisioningDef.store();
         }
+        
+        if (provisioningDef.isAssignToEffMembership() == false) {
+          provisioningDef.setAssignToEffMembership(true);
+          provisioningDef.setAssignToMember(true);
+          
+          provisioningDef.store();
+        }
+        
         
         //add a name
         AttributeDefName attribute = checkAttribute(grouperProvisioningStemName, provisioningDef, GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME, "has provisioning attributes", wasInCheckConfig);
@@ -1257,10 +1268,19 @@ public class GrouperCheckConfig {
             provisioningValueAttrDefName, false, new QueryOptions().secondLevelCache(false));
         if (provisioningAttrValueDef == null) {
           provisioningAttrValueDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF, AttributeDefType.attr);
+          
           provisioningAttrValueDef.setAssignToGroupAssn(true);
           provisioningAttrValueDef.setAssignToStemAssn(true);
+          provisioningAttrValueDef.setAssignToMemberAssn(true);
+          provisioningAttrValueDef.setAssignToEffMembershipAssn(true);
           provisioningAttrValueDef.setAssignToAttributeDefAssn(true);
           provisioningAttrValueDef.setValueType(AttributeDefValueType.string);
+          provisioningAttrValueDef.store();
+        }
+        
+        if (provisioningAttrValueDef.isAssignToEffMembershipAssn() == false) {
+          provisioningAttrValueDef.setAssignToMemberAssn(true);
+          provisioningAttrValueDef.setAssignToEffMembershipAssn(true);
           provisioningAttrValueDef.store();
         }
 
@@ -1283,18 +1303,9 @@ public class GrouperCheckConfig {
         checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION, 
             "If you should provision (default to true)", wasInCheckConfig);
         
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_MILLIS_SINCE_1970, 
-            "Millis since 1970 that this was last full provisioned", wasInCheckConfig);
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON,
+            "generated json from the UI", wasInCheckConfig);
         
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970, 
-            "Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target", wasInCheckConfig);
-        
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_SUMMARY, 
-            "Summary of last full run", wasInCheckConfig);
-        
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY, 
-            "Summary of last incremental run", wasInCheckConfig);
-
       }
       
       // https://spaces.at.internet2.edu/display/Grouper/USDU+delete+subjects+after+unresolvable+for+X+days

@@ -2,10 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_MILLIS_SINCE_1970;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_SUMMARY;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970;
-import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY;
+import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_TARGET;
@@ -25,6 +22,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -372,13 +371,109 @@ public class GrouperProvisioningService {
    * @return
    */
   public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(GrouperObject grouperObject, String targetName) {
-    
+     
     AttributeAssign attributeAssign = getAttributeAssign(grouperObject, targetName);
     if (attributeAssign == null) {
       return null;
     }
     
     return buildGrouperProvisioningAttributeValue(attributeAssign);
+  }
+  
+  /**
+   * retrieve type setting for a given member and target name.
+   * @param member
+   * @param targetName
+   * @return
+   */
+  public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(Member member, String targetName) {
+    
+    Set<AttributeAssign> attributeAssigns = member.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
+    
+    AttributeAssign attributeAssign = getAttributeAssign(attributeAssigns, targetName);
+    if (attributeAssign == null) {
+      return null;
+    }
+    
+    return buildGrouperProvisioningAttributeValue(attributeAssign);
+  }
+  
+  /**
+   * retrieve all the configured provisioning attributes for a given member
+   * @param member
+   * @return
+   */
+  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Member member){
+    
+    final List<GrouperProvisioningAttributeValue> result = new ArrayList<GrouperProvisioningAttributeValue>();
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets(true);
+        
+        for (String targetName: targetNames.keySet()) {
+          GrouperProvisioningAttributeValue value = getProvisioningAttributeValue(member, targetName);
+          if (value != null) {
+            result.add(value);
+          }
+        }
+        return null;
+      }
+      
+    });
+    return result;
+  }
+  
+  /**
+   * retrieve type setting for a given membership and target name.
+   * @param group
+   * @param member
+   * @param targetName
+   * @return
+   */
+  public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(Group group, Member member, String targetName) {
+    
+    Set<AttributeAssign> attributeAssigns = group.getAttributeDelegateEffMship(member).retrieveAssignments(retrieveAttributeDefNameBase());
+    
+    AttributeAssign attributeAssign = getAttributeAssign(attributeAssigns, targetName);
+    if (attributeAssign == null) {
+      return null;
+    }
+    
+    return buildGrouperProvisioningAttributeValue(attributeAssign);
+  }
+  
+  /**
+   * retrieve all the configured provisioning attributes for a given membership
+   * @param group
+   * @param member
+   * @return
+   */
+  public static List<GrouperProvisioningAttributeValue> getProvisioningAttributeValues(Group group, Member member){
+    
+    final List<GrouperProvisioningAttributeValue> result = new ArrayList<GrouperProvisioningAttributeValue>();
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets(true);
+        
+        for (String targetName: targetNames.keySet()) {
+          GrouperProvisioningAttributeValue value = getProvisioningAttributeValue(group, member, targetName);
+          if (value != null) {
+            result.add(value);
+          }
+        }
+        return null;
+      }
+      
+    });
+    return result;
   }
 
   /**
@@ -430,7 +525,13 @@ public class GrouperProvisioningService {
       attributeAssigns = stem.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
     }
     
-    for (AttributeAssign attributeAssign: attributeAssigns) {
+    return getAttributeAssign(attributeAssigns, targetName);
+  }
+  
+  
+  private static AttributeAssign getAttributeAssign(Set<AttributeAssign> attributeAssigns, String targetName) {
+    
+    for (AttributeAssign attributeAssign: GrouperUtil.nonNull(attributeAssigns)) {
       
       AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_TARGET);
       if (attributeAssignValue == null || StringUtils.isBlank(attributeAssignValue.getValueString())) {
@@ -493,20 +594,23 @@ public class GrouperProvisioningService {
     boolean doProvision = BooleanUtils.toBoolean(doProvisionStr);
     result.setDoProvision(doProvision);
     
-    AttributeAssignValue lastProvisionedFullMillisAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_LAST_FULL_MILLIS_SINCE_1970);
-    result.setLastFullMillisSince1970String(lastProvisionedFullMillisAssignValue != null ? lastProvisionedFullMillisAssignValue.getValueString(): null);
-    
-    AttributeAssignValue lastProvisionedIncrementalMillisAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970);
-    result.setLastIncrementalMillisSince1970String(lastProvisionedIncrementalMillisAssignValue != null ? lastProvisionedIncrementalMillisAssignValue.getValueString(): null);
-    
-    AttributeAssignValue lastProvisionedFullSummaryAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_LAST_FULL_SUMMARY);
-    result.setLastFullSummary(lastProvisionedFullSummaryAssignValue != null ? lastProvisionedFullSummaryAssignValue.getValueString(): null);
-    
-    AttributeAssignValue lastProvisionedIncrementalSummaryAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_LAST_INCREMENTAL_SUMMARY);
-    result.setLastIncrementalSummary(lastProvisionedIncrementalSummaryAssignValue != null ? lastProvisionedIncrementalSummaryAssignValue.getValueString(): null);
-    
     AttributeAssignValue ownerStemIdAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID);
     result.setOwnerStemId(ownerStemIdAssignValue != null ? ownerStemIdAssignValue.getValueString(): null);
+    
+    AttributeAssignValue provisioningObjectMetadataJson = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON);
+    if (provisioningObjectMetadataJson != null && StringUtils.isNotBlank(provisioningObjectMetadataJson.getValueString())) {
+//      GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = GrouperProvisioningObjectMetadata.buildGrouperProvisioningObjectMetadataFromJsonString(provisioningObjectMetadataJson.getValueString());
+//      result.setGrouperProvisioningObjectMetadata(grouperProvisioningObjectMetadata);
+      try {
+        Map<String, Object> metadataNameValues = GrouperProvisioningSettings.objectMapper
+            .readValue(provisioningObjectMetadataJson.getValueString(), Map.class);
+        result.setMetadataNameValues(metadataNameValues);
+      } catch(Exception e) {
+        throw new RuntimeException("could not convert json string" +provisioningObjectMetadataJson.getValueString() + " to Map object", e);
+      }
+      
+      
+    }
     
     return result;
   }
@@ -533,7 +637,75 @@ public class GrouperProvisioningService {
       return true;
     }
     
+    if (one.getMetadataNameValues() != null && two.getMetadataNameValues() == null) return true;
+    if (one.getMetadataNameValues() == null && two.getMetadataNameValues() != null) return true;
+    if (one.getMetadataNameValues() != null && two.getMetadataNameValues() != null) {
+      return !one.getMetadataNameValues().equals(two.getMetadataNameValues());
+    }
+    
     return false;
+  }
+  
+  /**
+   * save or update provisioning config for a given member
+   * @param grouperProvisioningAttributeValue
+   * @param member
+   */
+  public static void saveOrUpdateProvisioningAttributes(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue, Member member) {
+    
+    Set<AttributeAssign> attributeAssigns = member.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
+    
+    AttributeAssign attributeAssign = getAttributeAssign(attributeAssigns, grouperProvisioningAttributeValue.getTargetName());
+    if (attributeAssign == null) {
+      attributeAssign = member.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+    }
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_TARGET, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getTargetName());
+
+    Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
+    if (metadataNameValues != null) {
+      attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
+      try {
+        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("could not convert map into json string", e);
+      }
+    }
+    
+    attributeAssign.saveOrUpdate();
+  }
+  
+  /**
+   * save or update provisioning config for a given group, member
+   * @param grouperProvisioningAttributeValue
+   * @param membership
+   */
+  public static void saveOrUpdateProvisioningAttributes(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue, Group group, Member member) {
+    
+    Set<AttributeAssign> attributeAssigns = group.getAttributeDelegateEffMship(member).retrieveAssignments(retrieveAttributeDefNameBase());
+    
+    AttributeAssign attributeAssign = getAttributeAssign(attributeAssigns, grouperProvisioningAttributeValue.getTargetName());
+    if (attributeAssign == null) {
+      attributeAssign = group.getAttributeDelegateEffMship(member).addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+    }
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_TARGET, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getTargetName());
+
+    Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
+    if (metadataNameValues != null) {
+      attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
+      try {
+        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("could not convert map into json string", e);
+      }
+    }
+    
+    attributeAssign.saveOrUpdate();
   }
   
   /**
@@ -569,6 +741,17 @@ public class GrouperProvisioningService {
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.isDirectAssignment() ? null: grouperProvisioningAttributeValue.getOwnerStemId());
+    
+    Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
+    if (metadataNameValues != null) {
+      attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
+      try {
+        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("could not convert map into json string", e);
+      }
+    }
     
     if (grouperProvisioningAttributeValue.isDirectAssignment() && grouperObject instanceof Stem) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_STEM_SCOPE, true);
@@ -755,6 +938,7 @@ public class GrouperProvisioningService {
         childValueToSave.setDoProvision(parentAttributeValue.isDoProvision());
         childValueToSave.setOwnerStemId(parent.getId());
         childValueToSave.setTargetName(targetName);
+        childValueToSave.setMetadataNameValues(parentAttributeValue.getMetadataNameValues());
         saveOrUpdateProvisioningAttributes(childValueToSave, grouperObject);
       } else {
         AttributeAssign attributeAssign = getAttributeAssign(grouperObject, targetName);
@@ -818,6 +1002,7 @@ public class GrouperProvisioningService {
           savedValue.setDoProvision(attributeValue.isDoProvision());
           savedValue.setOwnerStemId(parent.getId());
           savedValue.setTargetName(attributeValue.getTargetName());
+          savedValue.setMetadataNameValues(attributeValue.getMetadataNameValues());
           saveOrUpdateProvisioningAttributes(savedValue, grouperObject);
           break;
         }
@@ -901,10 +1086,12 @@ public class GrouperProvisioningService {
     
     boolean isEditable = true;
     
-    if (grouperObject instanceof Stem) {
-      isEditable = isTargetEditableForStem(target, (Stem)grouperObject);
-    } else {
-      isEditable = !target.isAllowAssignmentsOnlyOnOneStem();
+    if (grouperObject != null) {
+      if (grouperObject instanceof Stem) {
+        isEditable = isTargetEditableForStem(target, (Stem)grouperObject);
+      } else {
+        isEditable = !target.isAllowAssignmentsOnlyOnOneStem();
+      }
     }
     
     return isEditable && isTargetEditableBySubject(target, subject);

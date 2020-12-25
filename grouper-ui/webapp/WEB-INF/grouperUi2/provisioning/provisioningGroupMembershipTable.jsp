@@ -18,8 +18,12 @@
         <%@ include file="../group/groupMoreTab.jsp" %>
       </ul>
     </div>
+    
     <div class="row-fluid">
-      <div class="lead span12">${textContainer.text['provisioningMembershipProvisioningTitle'] }</div>
+      <div class="lead span9">${textContainer.text['provisioningMembershipProvisioningTitle'] }</div>
+      <div class="span3" id="grouperProvisioningGroupMembershipMoreActionsButtonContentsDivId">
+        <%@ include file="provisioningGroupMembershipMoreActionsButtonContents.jsp"%>
+      </div>
     </div>
     
     <div class="row-fluid">

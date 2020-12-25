@@ -1,3 +1,4 @@
+               <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.provisioningContainer.hasProvisioningOnThisObjectOrParent}">
                     <c:forEach items="${grouperRequestContainer.provisioningContainer.guiGrouperProvisioningAttributeValues}" var="guiGrouperProvisioningAttributeValue" >
@@ -102,6 +103,21 @@
                             </c:if>
                             
                           </c:if>
+                          
+                          <c:forEach items="${guiGrouperProvisioningAttributeValue.metadataItems}" var="metadataItem">
+			  				
+			  				<grouper:provisioningMetadataItemFormElement
+			  				    name="${metadataItem.name}"
+			  				    readOnly="true"
+			  					formElementType="${metadataItem.formElementType}" 
+			  					labelKey="${metadataItem.labelKey}"
+			  					descriptionKey="${metadataItem.descriptionKey}"
+			  					required="${metadataItem.required}"
+			  					value="${metadataItem.defaultValue}"
+			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
+			  				/>
+			  				
+			  		    </c:forEach>
 
                         </tbody>
                       </table>

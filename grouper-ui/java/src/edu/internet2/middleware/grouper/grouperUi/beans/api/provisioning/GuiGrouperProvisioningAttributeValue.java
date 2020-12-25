@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -15,7 +16,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 public class GuiGrouperProvisioningAttributeValue {
   
-  private GuiGrouperProvisioningAttributeValue(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue) {
+  public GuiGrouperProvisioningAttributeValue(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue) {
     this.grouperProvisioningAttributeValue = grouperProvisioningAttributeValue;
   }
   
@@ -26,6 +27,10 @@ public class GuiGrouperProvisioningAttributeValue {
   private boolean inTarget;
   
   private boolean provisionable;
+  
+  private boolean hasDirectSettings;
+  
+  private List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
   
   public Timestamp getLastTimeWorkWasDone() {
     return lastTimeWorkWasDone;
@@ -111,4 +116,24 @@ public class GuiGrouperProvisioningAttributeValue {
     
   }
 
+  
+  public List<GrouperProvisioningObjectMetadataItem> getMetadataItems() {
+    return metadataItems;
+  }
+
+  
+  public void setMetadataItems(List<GrouperProvisioningObjectMetadataItem> metadataItems) {
+    this.metadataItems = metadataItems;
+  }
+
+  
+  public boolean isHasDirectSettings() {
+    return hasDirectSettings;
+  }
+
+  
+  public void setHasDirectSettings(boolean hasDirectSettings) {
+    this.hasDirectSettings = hasDirectSettings;
+  }
+  
 }

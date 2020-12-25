@@ -9,6 +9,7 @@
               <th>${textContainer.text['provisioningConfigTableHeaderLastTimeWorkWasDone']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderProvisionable']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderInTarget']}</th>
+              <th>${textContainer.text['provisioningConfigTableHeaderHasDirectSettings']}</th>
               <th>${textContainer.text['provisioningConfigTableHeaderActions']}</th>              
             </tr>
           </thead>
@@ -47,6 +48,17 @@
                   </c:when>
                   <c:otherwise>
                     ${textContainer.text['provisioningConfigTableHeaderInTargetNoLabel']}
+                  </c:otherwise>
+                 </c:choose>
+              </td>
+              <td style="white-space: nowrap;">
+                <c:choose>
+                
+                  <c:when test="${fn:length(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.metadataNameValues) > 0}">
+                    ${textContainer.text['provisioningConfigTableHeaderHasDirectSettingsYesLabel']}
+                  </c:when>
+                  <c:otherwise>
+                    ${textContainer.text['provisioningConfigTableHeaderHasDirectSettingsNoLabel']}
                   </c:otherwise>
                  </c:choose>
               </td>

@@ -13,17 +13,18 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperSyncObject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -41,6 +42,11 @@ public class ProvisioningContainer {
    * attribute value for given group/stem and type
    */
   private GrouperProvisioningAttributeValue grouperProvisioningAttributeValue;
+  
+  /**
+   * grouper proivisioning object metadata items
+   */
+  private List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
   
   /**
    * list of all grouper provisioning attribute values for a given group/stem
@@ -92,6 +98,15 @@ public class ProvisioningContainer {
    */
   private GcGrouperSyncMember gcGrouperSyncMember;
   
+  /**
+   * encapsulate gcGrouperSyncMember/gcGrouperSyncMember with direct settings
+   */
+  private GuiGrouperSyncObject guiGrouperSyncObject;
+  
+  /**
+   * encapsulate gcGrouperSyncMember/gcGrouperSyncMember with direct settings
+   */
+  private List<GuiGrouperSyncObject> guiGrouperSyncObjects = new ArrayList<GuiGrouperSyncObject>();
   
   /**
    * @return target name user is currently working on
@@ -449,7 +464,21 @@ public class ProvisioningContainer {
     this.gcGrouperSyncMember = gcGrouperSyncMember;
   }
 
+  /**
+   * * grouper proivisioning object metadata items
+   * @return
+   */
+  public List<GrouperProvisioningObjectMetadataItem> getGrouperProvisioningObjectMetadataItems() {
+    return grouperProvisioningObjectMetadataItems;
+  }
 
+  /**
+   * grouper proivisioning object metadata items
+   * @param grouperProvisioningObjectMetadataItems
+   */
+  public void setGrouperProvisioningObjectMetadataItems(List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems) {
+    this.grouperProvisioningObjectMetadataItems = grouperProvisioningObjectMetadataItems;
+  }
 
 
   /**
@@ -474,5 +503,24 @@ public class ProvisioningContainer {
     this.guiPaging = guiPaging;
   }
 
+  
+  public List<GuiGrouperSyncObject> getGuiGrouperSyncObjects() {
+    return guiGrouperSyncObjects;
+  }
+
+  
+  public void setGuiGrouperSyncObjects(List<GuiGrouperSyncObject> guiGrouperSyncObjects) {
+    this.guiGrouperSyncObjects = guiGrouperSyncObjects;
+  }
+
+  
+  public GuiGrouperSyncObject getGuiGrouperSyncObject() {
+    return guiGrouperSyncObject;
+  }
+
+  
+  public void setGuiGrouperSyncObject(GuiGrouperSyncObject guiGrouperSyncObject) {
+    this.guiGrouperSyncObject = guiGrouperSyncObject;
+  }
   
 }

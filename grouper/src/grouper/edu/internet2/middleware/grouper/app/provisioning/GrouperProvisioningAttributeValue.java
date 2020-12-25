@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -50,6 +53,14 @@ public class GrouperProvisioningAttributeValue {
    * last incremental summary
    */
   private String lastIncrementalSummary;
+  
+  
+  /**
+   * provisioning object metadata
+   */
+  // private GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata;
+  
+  private Map<String, Object> metadataNameValues = new HashMap<String, Object>();
 
   /**
    * provisioning target name
@@ -216,6 +227,7 @@ public class GrouperProvisioningAttributeValue {
     return Scope.SUB == this.getStemScope();
   }
   
+  
   /**
    * copy a given attribute value object
    * @param from
@@ -232,8 +244,38 @@ public class GrouperProvisioningAttributeValue {
     value.setOwnerStemId(from.getOwnerStemId());
     value.setStemScopeString(from.getStemScopeString());
     value.setTargetName(from.getTargetName());
+    //value.setGrouperProvisioningObjectMetadata(from.getGrouperProvisioningObjectMetadata());
+    value.setMetadataNameValues(from.getMetadataNameValues());
     return value;
   }
+
+  
+  public Map<String, Object> getMetadataNameValues() {
+    return metadataNameValues;
+  }
+
+  
+  public void setMetadataNameValues(Map<String, Object> metadataNameValues) {
+    this.metadataNameValues = metadataNameValues;
+  }
+
+  
+//  /**
+//   * provisioning object metadata
+//   * @return
+//   */
+//  public GrouperProvisioningObjectMetadata getGrouperProvisioningObjectMetadata() {
+//    return grouperProvisioningObjectMetadata;
+//  }
+//
+//  /**
+//   * @param grouperProvisioningObjectMetadata
+//   */
+//  public void setGrouperProvisioningObjectMetadata(GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata) {
+//    this.grouperProvisioningObjectMetadata = grouperProvisioningObjectMetadata;
+//  }
+  
+  
   
   
 }
