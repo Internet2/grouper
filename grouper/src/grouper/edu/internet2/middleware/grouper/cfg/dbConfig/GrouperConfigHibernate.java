@@ -49,7 +49,6 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.config.SubjectConfig;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * database configuration
@@ -988,11 +987,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
           try {
             // TODO when the new subject source ui is created, this should probably be called after it validates the config
 
-            // reload subject source here first
-            SourceManager.getInstance().reloadSource(sourceId);
-
-            // then let others reload if the above didn't produce errors
-            GrouperCacheDatabase.customNotifyDatabaseOfChanges("edu.internet2.middleware.subject.provider.SourceManager.reloadSource____" + sourceId);
+            GrouperCacheDatabase.notifyDatabaseOfCacheUpdate("custom__edu.internet2.middleware.subject.provider.SourceManager.reloadSource____" + sourceId, false);
           } catch (Exception e) {
             LOG.error("Failed to reload subject source " + sourceId, e);
           }
