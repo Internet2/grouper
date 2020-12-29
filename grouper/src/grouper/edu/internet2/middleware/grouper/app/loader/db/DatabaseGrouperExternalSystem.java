@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -25,9 +29,25 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
     
     System.out.println(databaseGrouperExternalSystem.test());
   }
+  
+  
+  
+  @Override
+  public void validatePreSave(boolean isInsert, boolean fromUi,
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    
+    GrouperConfigurationModuleAttribute testQueryAttribute = this.retrieveAttributes().get("testQuery");
+    GrouperConfigurationModuleAttribute testExpectedValueAttribute = this.retrieveAttributes().get("testExpectedValue");
 
-  
-  
+    if (StringUtils.isNotBlank(testExpectedValueAttribute.getEvaluatedValueForValidation()) && StringUtils.isBlank(testQueryAttribute.getEvaluatedValueForValidation())) {
+      GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", testQueryAttribute.getLabel());
+      validationErrorsToDisplay.put(testQueryAttribute.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationTestSqlQueryRequired"));
+      GrouperTextContainer.resetThreadLocalVariableMap();
+    }
+    
+  }
+
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
@@ -52,7 +72,8 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(this.getConfigId());
     grouperLoaderDb.initProperties();
 
-    String query = GrouperLoaderConfig.retrieveConfig().propertyValueString("db.warehouse.testQuery");
+    String query = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + this.getConfigId() + ".testQuery");
+    String testExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + this.getConfigId() + ".testExpectedValue");
     
     if (StringUtils.isBlank(query)) {
       query = "select 1";
@@ -64,7 +85,15 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
       }
     }
 
-    new GcDbAccess().connectionName(this.getConfigId()).sql(query).select(String.class);
+    String result = new GcDbAccess().connectionName(this.getConfigId()).sql(query).select(String.class);
+    if (StringUtils.isNotBlank(testExpectedValue)) {
+      if (!StringUtils.equals(testExpectedValue, result)) {
+        String errorMessage = GrouperTextContainer.textOrNull("grouperConfigurationTestExpectedNotMatchingResult");
+        errorMessage = errorMessage.replace("$$expectedValue$$", testExpectedValue);
+        errorMessage = errorMessage.replace("$$receivedValue$$", result);
+        return GrouperUtil.toList(errorMessage);
+      }
+    }
 
     return new ArrayList<String>();
   }

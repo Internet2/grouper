@@ -22,8 +22,8 @@
       <div class="lead span12">${textContainer.text['provisioningMembershipProvisioningTitle'] }</div>
     </div>
     
-    <div class="row-fluid">
-     <%--  <div class="span9"> <p>${textContainer.text['provisioningMembershipProvisioningDescription'] }</p></div> --%>
+    <div class="row-fluid">   
+     <div class="span9"> <p>${textContainer.text['provisioningSubjectGroupMembershipProvisioningDescription'] }</p></div>
     </div>
     
     <%@ include file="provisioningGroupOrSubjectMembershipDetailsHelper.jsp"%>

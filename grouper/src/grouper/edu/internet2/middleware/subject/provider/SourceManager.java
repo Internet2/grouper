@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -261,6 +262,7 @@ public class SourceManager {
       public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
         String cacheName = grouperCacheDatabaseClearInput.getCacheName();
         String sourceId = StringUtils.substringAfterLast(cacheName, "____");
+        GrouperConfigHibernate.clearConfigsInMemory();
         SourceManager.getInstance().reloadSource(sourceId);
       }
     });
@@ -369,6 +371,7 @@ public class SourceManager {
              
              @Override
              public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
+               GrouperConfigHibernate.clearConfigsInMemory();
                SourceManager.getInstance().reloadSource(sourceId);
              }
           });

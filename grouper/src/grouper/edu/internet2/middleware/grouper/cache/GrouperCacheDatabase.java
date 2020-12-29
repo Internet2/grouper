@@ -124,7 +124,16 @@ public class GrouperCacheDatabase {
    * @param cacheName name of cache to clear
    * @return true if cache
    */
-  public static synchronized void notifyDatabaseOfCacheUpdate(String cacheName) {
+  public static void notifyDatabaseOfCacheUpdate(String cacheName) {
+    notifyDatabaseOfCacheUpdate(cacheName, true);
+  }
+  
+  /**
+   * @param cacheName name of cache to clear
+   * @param updateLastUpdatedNanos false to allow the current jvm to also receive the notification
+   * @return true if cache
+   */
+  public static synchronized void notifyDatabaseOfCacheUpdate(String cacheName, boolean updateLastUpdatedNanos) {
     for (int i=0;i<3;i++) {
       try {
         // do a try/catch since another JVM could be updating the same cache at the same time
@@ -141,8 +150,8 @@ public class GrouperCacheDatabase {
         }
         lastNanos = nowNanos;
 
-        notifyDatabaseOfCacheUpdateHelper(cacheName, nowNanos);
-        notifyDatabaseOverallOfCacheUpdateHelper(nowNanos);
+        notifyDatabaseOfCacheUpdateHelper(cacheName, nowNanos, updateLastUpdatedNanos);
+        notifyDatabaseOverallOfCacheUpdateHelper(nowNanos, updateLastUpdatedNanos);
         // we good
         return;
       } catch (Exception e) {
@@ -157,9 +166,10 @@ public class GrouperCacheDatabase {
 
   /**
    * @param cacheName name of cache to clear
+   * @param updateLastUpdatedNanos false to allow the current jvm to also receive the notification
    * @return true if cache
    */
-  private static void notifyDatabaseOfCacheUpdateHelper(String cacheName, long nowNanos) {
+  private static void notifyDatabaseOfCacheUpdateHelper(String cacheName, long nowNanos, boolean updateLastUpdatedNanos) {
     if (!cacheName.startsWith("ehcache__") && !cacheName.startsWith("expirableCache__") && !cacheName.startsWith("custom__")) {
       throw new RuntimeException("Invalid cache name! '" + cacheName + "'");
     }
@@ -181,15 +191,19 @@ public class GrouperCacheDatabase {
         throw new RuntimeException("Why is rows updated not 0 or 1???? " + rowsUpdated);
       }
     }
-    // capture here so we dont thrash
-    cacheKeyToLastUpdatedNanos.put(cacheName, nowNanos);
+    
+    if (updateLastUpdatedNanos) {
+      // capture here so we dont thrash
+      cacheKeyToLastUpdatedNanos.put(cacheName, nowNanos);
+    }
   }
 
   /**
    * @param cacheName name of cache to clear
+   * @param updateLastUpdatedNanos false to allow the current jvm to also receive the notification
    * @return true if cache
    */
-  private static void notifyDatabaseOverallOfCacheUpdateHelper(long nowNanos) {
+  private static void notifyDatabaseOverallOfCacheUpdateHelper(long nowNanos, boolean updateLastUpdatedNanos) {
     
     int rowsUpdated = new GcDbAccess()
       .sql("update grouper_cache_overall set nanos_since_1970 = ? where overall_cache = 0 and nanos_since_1970 != ?")
@@ -208,8 +222,11 @@ public class GrouperCacheDatabase {
         throw new RuntimeException("Why is rows updated not 0 or 1???? " + rowsUpdated);
       }
     }
-    // capture here so we dont thrash
-    cacheOverallLastUpdatedNanos = nowNanos;
+    
+    if (updateLastUpdatedNanos) {
+      // capture here so we dont thrash
+      cacheOverallLastUpdatedNanos = nowNanos;
+    }
   }
 
   /**

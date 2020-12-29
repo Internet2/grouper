@@ -8,13 +8,18 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -612,6 +617,13 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
     attributeValue.setTargetName("ldap");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("string", "string");
+    metadataNameValues.put("int", 2);
+    metadataNameValues.put("float", 3.14);
+    metadataNameValues.put("boolean", true);
+    metadataNameValues.put("timestamp", new Timestamp(new Date().getTime()));
+    attributeValue.setMetadataNameValues(metadataNameValues);
     
     //When
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem0);
@@ -620,6 +632,84 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(stemTest1, "ldap");
     assertFalse(attributeValue1.isDirectAssignment());
     assertEquals("ldap", attributeValue1.getTargetName());
+    
+    Map<String, Object> metadata = attributeValue1.getMetadataNameValues();
+    assertEquals("string", metadata.get("string"));
+    assertEquals(2, metadata.get("int"));
+    assertEquals(3.14, metadata.get("float"));
+    assertEquals(true, metadata.get("boolean"));
+    assertTrue(metadata.containsKey("timestamp"));
+  }
+  
+  public void testSaveOrUpdateProvisioningAttributesForMember() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setTargetName("ldap");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("string", "string");
+    metadataNameValues.put("int", 2);
+    metadataNameValues.put("float", 3.14);
+    metadataNameValues.put("boolean", true);
+    metadataNameValues.put("timestamp", new Timestamp(new Date().getTime()));
+    attributeValue.setMetadataNameValues(metadataNameValues);
+    
+    //When
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, member);
+    
+    //Then
+    GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(member, "ldap");
+    assertEquals("ldap", attributeValue1.getTargetName());
+    
+    Map<String, Object> metadata = attributeValue1.getMetadataNameValues();
+    assertEquals("string", metadata.get("string"));
+    assertEquals(2, metadata.get("int"));
+    assertEquals(3.14, metadata.get("float"));
+    assertEquals(true, metadata.get("boolean"));
+    assertTrue(metadata.containsKey("timestamp"));
+  }
+  
+  public void testSaveOrUpdateProvisioningAttributesForMembership() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group someGroup = new GroupSave(grouperSession).assignName("a:b:c")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    someGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setTargetName("ldap");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("string", "string");
+    metadataNameValues.put("int", 2);
+    metadataNameValues.put("float", 3.14);
+    metadataNameValues.put("boolean", true);
+    metadataNameValues.put("timestamp", new Timestamp(new Date().getTime()));
+    attributeValue.setMetadataNameValues(metadataNameValues);
+    
+    //When
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, someGroup, member);
+    
+    //Then
+    GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(someGroup, member, "ldap");
+    assertEquals("ldap", attributeValue1.getTargetName());
+    
+    Map<String, Object> metadata = attributeValue1.getMetadataNameValues();
+    assertEquals("string", metadata.get("string"));
+    assertEquals(2, metadata.get("int"));
+    assertEquals(3.14, metadata.get("float"));
+    assertEquals(true, metadata.get("boolean"));
+    assertTrue(metadata.containsKey("timestamp"));
   }
   
   public void testCopyConfigFromParent() {
