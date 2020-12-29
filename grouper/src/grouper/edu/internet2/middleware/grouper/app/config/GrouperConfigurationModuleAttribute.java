@@ -369,7 +369,8 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getHtmlForElementIdHandle() {
-    return "#config_" + this.getConfigSuffix() + "_id";
+    // added a span so the marker for error doesnt wrap to next line
+    return "#config_" + this.getConfigSuffix() + "_spanid";
   }
   
   /**

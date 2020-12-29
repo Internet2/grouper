@@ -102,7 +102,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
    * @param validationErrorsToDisplay
    */
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
     if (!isInsert && isMultiple()) {
       if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));

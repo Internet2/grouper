@@ -43,6 +43,9 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningCompare.class.equals(this.grouperProvisioningCompareClass())) {
       result.append(", Compare: ").append(this.grouperProvisioningCompareClass().getName());
     }
+    if (!(this.grouperProvisioningConfigurationValidationClass().equals(GrouperProvisioningConfigurationValidation.class))) {
+      result.append(", ConfigurationValidation: ").append(this.grouperProvisioningConfigurationValidationClass().getName());
+    }
     if (!(this.retrieveGrouperProvisioningData().getClass().equals(GrouperProvisioningData.class))) {
       result.append(", Data: ").append(this.retrieveGrouperProvisioningData().getClass().getName());
     }
@@ -779,6 +782,26 @@ public abstract class GrouperProvisioner {
   
   protected Class<GrouperProvisioningMatchingIdIndex> grouperProvisioningMatchingIdIndexClass() {
     return GrouperProvisioningMatchingIdIndex.class;
+  }
+
+  /**
+   * return the instance of the provisioning configuration validation
+   * @return the logic
+   */
+  public GrouperProvisioningConfigurationValidation retrieveGrouperProvisioningConfigurationValidation() {
+    if (this.grouperProvisioningConfigurationValidation == null) {
+      Class<GrouperProvisioningConfigurationValidation> grouperProvisioningLogicClass = this.grouperProvisioningConfigurationValidationClass();
+      this.grouperProvisioningConfigurationValidation = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningConfigurationValidation.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningConfigurationValidation;
+    
+  }
+
+  private GrouperProvisioningConfigurationValidation grouperProvisioningConfigurationValidation;
+  
+  protected Class<GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
+    return GrouperProvisioningConfigurationValidation.class;
   }
 
   /**

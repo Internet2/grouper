@@ -327,7 +327,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     }
     field.append("</td>");
     
-    field.append("<td><span style=\"white-space: nowrap\">");
+    field.append("<td><span style=\"white-space: nowrap\" id=\"config_"+configId+"_spanid\">");
     
     ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(formElementType, true);
     
