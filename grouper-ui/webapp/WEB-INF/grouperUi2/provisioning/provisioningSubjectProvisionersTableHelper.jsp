@@ -61,7 +61,7 @@
                            <span class="caret"></span>
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                         	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMemberId=${gcGrouperSyncMember.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
+                         	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMemberId=${guiGrouperSyncObject.gcGrouperSyncMember.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
                          </ul>
                        </div>
                  </td>

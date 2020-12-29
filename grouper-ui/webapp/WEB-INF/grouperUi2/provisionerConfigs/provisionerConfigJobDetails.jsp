@@ -64,6 +64,14 @@
                        </td>
                      </tr>
                      <tr>
+                       <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastSyncStartTime'] }</strong></td>
+                       <td>
+                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncStart}
+                         <br />
+                         <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
+                       </td>
+                     </tr>
+                     <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastSyncTime'] }</strong></td>
                        <td>
                        ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncTimestamp}

@@ -126,11 +126,29 @@
                           </tr>
                           
                           <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsLastGroupSyncStart'] }</strong></td>
+                            <td>
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.lastGroupSyncStart}
+                            <br />
+                            <span class="description">${textContainer.text['privsioningConfigDetailsLastGroupSyncStartDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsLastGroupSync'] }</strong></td>
                             <td>
                             ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.lastGroupSync}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsLastGroupSyncDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsLastGroupMetadataSyncStart'] }</strong></td>
+                            <td>
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.lastGroupMetadataSyncStart}
+                            <br />
+                            <span class="description">${textContainer.text['privsioningConfigDetailsLastGroupMetadataSyncStartDescription']}</span>
                             </td>
                           </tr>
                           
@@ -203,6 +221,18 @@
                             ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.errorTimestamp}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsErrorTimestampDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsErrorCode'] }</strong></td>
+                            <td>
+                            <c:if test="${not empty grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.errorCode}">
+	                            <c:set var="errorText" value="privsioningConfigDetailsErrorCode.${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.errorCode}"></c:set>
+	                            ${textContainer.text[errorText]}
+                            </c:if>
+                            <br />
+                            <span class="description">${textContainer.text['privsioningConfigDetailsErrorCodeDescription']}</span>
                             </td>
                           </tr>
                           

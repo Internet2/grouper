@@ -601,6 +601,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
     GcGrouperSyncMembership gcGrouperSyncMembership = new GcGrouperSyncMembership();
     gcGrouperSyncMembership.setGrouperSyncGroup(gcGrouperSyncGroup);
     gcGrouperSyncMembership.setGrouperSyncMember(gcGrouperSyncMember);
+    gcGrouperSyncMembership.setGrouperSync(gcGrouperSync);
     gcGrouperSyncMembership.inTargetDb = "T";
     gcGrouperSyncMembership.inTargetInsertOrExistsDb = "T";
     gcGrouperSyncMembership.inTargetEnd = new Timestamp(123L);
@@ -624,10 +625,10 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
       System.out.println(theGcGrouperSyncMembership.toString());
     }
 
-    gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(gcGrouperSyncMembership, false);
-    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
-    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember, false, false);
-    gcGrouperSync.getGcGrouperSyncDao().delete();
+//    gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(gcGrouperSyncMembership, false);
+//    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
+//    gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncMember, false, false);
+//    gcGrouperSync.getGcGrouperSyncDao().delete();
     
     System.out.println("deleted");
 

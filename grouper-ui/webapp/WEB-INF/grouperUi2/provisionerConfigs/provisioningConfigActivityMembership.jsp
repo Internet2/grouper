@@ -21,6 +21,7 @@
              <th>${textContainer.text['provisionerActivityTableHeaderMetadataUpdated']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorMessage']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorTimestamp']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderErrorCode']}</th>
            </tr>
            </thead>
            <tbody>
@@ -94,6 +95,13 @@
                   
                   <td style="white-space: nowrap;">
                     ${grouperSyncMembership.errorTimestamp}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
+                    <c:if test="${not empty grouperSyncMembership.errorCode}">
+                     <c:set var="errorText" value="privsioningConfigDetailsErrorCode.${grouperSyncMembership.errorCode}"></c:set>
+                     ${textContainer.text[errorText]}
+                    </c:if>
                   </td>
                   
                   </tr>

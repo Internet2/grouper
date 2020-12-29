@@ -170,10 +170,17 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     gcGrouperSyncJob.setSyncType("testSyncType");
     gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
 
-    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("groupId");
     gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
     gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
 
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("memberId");
+    gcGrouperSyncMember.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 4000));
+    gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById("membershipId");
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+    
     GcGrouperSyncLog gcGrouperSyncLog = new GcGrouperSyncLog();
     gcGrouperSyncLog.setDescriptionToSave("desc");
     gcGrouperSyncLog.jobTookMillis = 1223;
@@ -195,10 +202,10 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
       System.out.println(theGcGrouperSyncLog.toString());
     }
 
-    gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
-    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
-    gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
-    gcGrouperSync.getGcGrouperSyncDao().delete();
+//    gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncLog);
+//    gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
+//    gcGrouperSync.getGcGrouperSyncJobDao().jobDelete(gcGrouperSyncJob, false);
+//    gcGrouperSync.getGcGrouperSyncDao().delete();
     
     System.out.println("deleted");
 

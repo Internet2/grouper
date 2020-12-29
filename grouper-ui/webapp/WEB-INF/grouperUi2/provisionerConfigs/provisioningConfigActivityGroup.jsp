@@ -18,7 +18,9 @@
              <th>${textContainer.text['provisionerActivityTableHeaderProvisionableStart']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderProvisionableEnd']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastUpdated']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderLastGroupSyncStart']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastGroupSync']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderLastGroupMetadataSyncStart']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastGroupMetadataSync']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderGroupFromId2']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderGroupFromId3']}</th>
@@ -27,6 +29,7 @@
              <th>${textContainer.text['provisionerActivityTableHeaderMetadataUpdated']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorMessage']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorTimestamp']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderErrorCode']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastTimeWorkWasDone']}</th>
            </tr>
            </thead>
@@ -102,7 +105,15 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
+                    ${grouperSyncGroup.lastGroupSyncStart}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
                     ${grouperSyncGroup.lastGroupSync}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
+                    ${grouperSyncGroup.lastGroupMetadataSyncStart}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -135,6 +146,14 @@
                   
                   <td style="white-space: nowrap;">
                     ${grouperSyncGroup.errorTimestamp}
+                  </td>
+                  
+                  <td style="white-space: nowrap;">
+                  
+                  <c:if test="${not empty grouperSyncGroup.errorCode}">
+                    <c:set var="errorText" value="privsioningConfigDetailsErrorCode.${grouperSyncGroup.errorCode}"></c:set>
+                    ${textContainer.text[errorText]}
+                   </c:if>
                   </td>
                   
                   <td style="white-space: nowrap;">

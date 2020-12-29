@@ -49,6 +49,17 @@
 				        <tr>
              		   	  <td style="vertical-align: top; white-space: nowrap;">
              		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderLastFullSyncStartTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullSyncStartTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+				        <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
              		   		  ${textContainer.text['provisionerConfigsTableHeaderFullSyncLastRunTimestamp']}
              		   		</label></strong>
              		   	  </td>
@@ -65,6 +76,28 @@
              		   	  </td>
              		   	  <td>
              		   	 	${syncDetails.lastIncrementalSyncTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   	    ${textContainer.text['provisionerConfigsTableHeaderLastFullMetadataSyncStartTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullMetadataSyncStartTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderLastFullMetadataSyncRunTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullMetadataSyncTimestamp}
              		   	   </td>
              		    </tr>
              		    

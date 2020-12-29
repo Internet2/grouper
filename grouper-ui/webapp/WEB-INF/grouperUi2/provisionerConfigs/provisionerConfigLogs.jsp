@@ -39,6 +39,7 @@
 			        <table class="table table-hover table-bordered table-striped table-condensed data-table">
 			          <thead>        
 			            <tr>
+			              <th>${textContainer.text['provisionerLogsTableHeaderSyncStartTimestamp']}</th>
 			              <th>${textContainer.text['provisionerLogsTableHeaderSyncTimestamp']}</th>
 			              <th>${textContainer.text['provisionerLogsTableHeaderLogType']}</th>
 			              <th>${textContainer.text['provisionerLogsTableHeaderOwner']}</th>
@@ -56,6 +57,11 @@
 			              <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerLogs}" var="guiProvisionerLog">
 			              
 			                <tr>
+			                	
+			                   <td style="white-space: nowrap;">
+                    			${guiProvisionerLog.gcGrouperSyncLogWithOwner.gcGrouperSyncLog.syncTimestampStart}
+			                   </td>
+			                	
 			                   <td style="white-space: nowrap;">
                     			${guiProvisionerLog.gcGrouperSyncLogWithOwner.gcGrouperSyncLog.syncTimestamp}
 			                   </td>

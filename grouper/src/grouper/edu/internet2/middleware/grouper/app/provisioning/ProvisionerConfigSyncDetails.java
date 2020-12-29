@@ -14,9 +14,25 @@ public class ProvisionerConfigSyncDetails {
   private String lastFullSyncTimestamp;
   
   /**
+   * last full sync start
+   */
+  private String lastFullSyncStartTimestamp;
+  
+  
+  /**
    * last incremental sync timestamp
    */
   private String lastIncrementalSyncTimestamp;
+  
+  /**
+   * last full metadata sync start timestamp
+   */
+  private String lastFullMetadataSyncStartTimestamp;
+  
+  /**
+   * last full metadata sync timestamp
+   */
+  private String lastFullMetadataSyncTimestamp;
   
   /**
    * group count
@@ -96,6 +112,45 @@ public class ProvisionerConfigSyncDetails {
   public void setSyncJobs(List<GrouperSyncJobWrapper> syncJobs) {
     this.syncJobs = syncJobs;
   }
+
+
+  
+  public String getLastFullSyncStartTimestamp() {
+    return lastFullSyncStartTimestamp;
+  }
+
+
+  
+  public void setLastFullSyncStartTimestamp(String lastFullSyncStartTimestamp) {
+    this.lastFullSyncStartTimestamp = lastFullSyncStartTimestamp;
+  }
+
+
+  
+  public String getLastFullMetadataSyncStartTimestamp() {
+    return lastFullMetadataSyncStartTimestamp;
+  }
+
+
+  
+  public void setLastFullMetadataSyncStartTimestamp(
+      String lastFullMetadataSyncStartTimestamp) {
+    this.lastFullMetadataSyncStartTimestamp = lastFullMetadataSyncStartTimestamp;
+  }
+
+
+  
+  public String getLastFullMetadataSyncTimestamp() {
+    return lastFullMetadataSyncTimestamp;
+  }
+
+
+  
+  public void setLastFullMetadataSyncTimestamp(String lastFullMetadataSyncTimestamp) {
+    this.lastFullMetadataSyncTimestamp = lastFullMetadataSyncTimestamp;
+  }
+  
+  
 
 }
 

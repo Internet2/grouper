@@ -22,25 +22,8 @@
                           </td>
                         </tr>
       
-                      <%-- if the target is selected --%>
+                        <%-- if the target is selected --%>
                       <c:if test="${!grouper:isBlank(grouperRequestContainer.provisioningContainer.targetName)}">
-                        <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperObjectTypeHasConfigurationId">${textContainer.text['provisioningDirectIndirectTypeLabel']}</label></strong></td>
-                          <td>
-                            <select name="hasMetadata" id="hasMetadataId" style="width: 30em"
-                              onchange="ajax('../app/UiV2Provisioning.editProvisioningOnGroupMembership', {formIds: 'editProvisioningFormId'}); return false;">
-                              <option value="false" ${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.directAssignment ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['provisioningNoDoesNotHaveDirectLabel']}</option>
-                              <option value="true" ${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.directAssignment ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['provisioningYesHasDirectLabel']}</option>
-                            </select>
-                            <br />
-                            <span class="description">${textContainer.text['provisioningHasTypeHint']}</span>
-                          </td>
-                        </tr>
-                      </c:if>
-                        
-                        <%-- if there is configuration then show the rest --%>
-                        <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.directAssignment == false}">
-                        
                           <c:forEach items="${grouperRequestContainer.provisioningContainer.grouperProvisioningObjectMetadataItems}" var="metadataItem">
 			  				
 			  				<grouper:provisioningMetadataItemFormElement
@@ -54,6 +37,5 @@
 			  				/>
 			  				
 			  		    </c:forEach>
-                          
-                        </c:if>
+                          </c:if>
 

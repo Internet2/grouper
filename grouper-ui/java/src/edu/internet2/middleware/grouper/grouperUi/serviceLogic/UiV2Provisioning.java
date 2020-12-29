@@ -397,6 +397,7 @@ public class UiV2Provisioning {
             
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
+            provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
             
           }
           
@@ -707,6 +708,7 @@ public class UiV2Provisioning {
             
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
+            provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
             
           }
           
@@ -931,6 +933,7 @@ public class UiV2Provisioning {
             
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
+            provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
             
           }
           
@@ -2009,6 +2012,7 @@ public class UiV2Provisioning {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           Member member = MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
+          GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, member);
           
           return null;
         }

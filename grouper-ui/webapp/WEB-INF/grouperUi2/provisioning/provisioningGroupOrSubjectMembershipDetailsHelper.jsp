@@ -119,6 +119,18 @@
                             </td>
                           </tr>
                           
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsErrorCode'] }</strong></td>
+                            <td>
+                            <c:if test="${not empty grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorCode}">
+	                            <c:set var="errorText" value="privsioningConfigDetailsErrorCode.${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorCode}"></c:set>
+	                            ${textContainer.text[errorText]}
+                            </c:if>
+                            <br />
+                            <span class="description">${textContainer.text['privsioningConfigDetailsErrorCodeDescription']}</span>
+                            </td>
+                          </tr>
+                          
                           <c:forEach items="${grouperRequestContainer.provisioningContainer.grouperProvisioningObjectMetadataItems}" var="metadataItem">
 			  				
 			  				<grouper:provisioningMetadataItemFormElement
