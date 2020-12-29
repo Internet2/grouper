@@ -4,6 +4,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -16,7 +18,19 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public abstract class ProvisionerConfiguration extends GrouperConfigurationModuleBase {
   
+  public static ProvisionerConfiguration retrieveConfigurationByConfigSuffix(String propertyValueThatIdentifiesThisDaemon) {
+    for (ProvisionerConfiguration provisionerConfiguration : GrouperUtil.nonNull(retrieveAllProvisionerConfigurationTypes())) {
+      if (StringUtils.equals(propertyValueThatIdentifiesThisDaemon, 
+          provisionerConfiguration.getPropertyValueThatIdentifiesThisConfig())) {
+        return provisionerConfiguration;
+      }
+    }
+    return null;
+  }
+  
   public final static Set<String> provisionerConfigClassNames = new LinkedHashSet<String>();
+  
+  
   
   static {
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());

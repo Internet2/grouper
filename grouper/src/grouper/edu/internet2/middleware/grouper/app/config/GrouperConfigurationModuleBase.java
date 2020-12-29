@@ -177,11 +177,10 @@ public abstract class GrouperConfigurationModuleBase {
   /**
    * validations to run before saving values into db
    * @param isInsert
-   * @param fromUi
    * @param errorsToDisplay
    * @param validationErrorsToDisplay
    */
-  public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     if (isInsert) {
       if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
@@ -898,7 +897,7 @@ public abstract class GrouperConfigurationModuleBase {
   public void insertConfig(boolean fromUi, 
       StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    validatePreSave(true, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    validatePreSave(true, errorsToDisplay, validationErrorsToDisplay);
 
     if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
       return;
@@ -968,7 +967,7 @@ public abstract class GrouperConfigurationModuleBase {
    */
   public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    validatePreSave(false, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
 
     if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
       return;
