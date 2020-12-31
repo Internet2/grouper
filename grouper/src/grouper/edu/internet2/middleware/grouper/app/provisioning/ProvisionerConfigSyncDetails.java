@@ -50,6 +50,21 @@ public class ProvisionerConfigSyncDetails {
   private int recordsCount;
   
   /**
+   * number of validation errors for a given provisioner across groups, members, and memberships
+   */
+  private int validationErrorCount;
+  
+  /**
+   * number of exceptions for a given provisioner across groups, members, and memberships
+   */
+  private int exceptionCount;
+  
+  /**
+   * number of target errors for a given provisioner across groups, members, and memberships
+   */
+  private int targetErrorCount;
+  
+  /**
    * list of sync jobs for a provisioner config
    */
   private List<GrouperSyncJobWrapper> syncJobs = new ArrayList<GrouperSyncJobWrapper>();
@@ -149,7 +164,42 @@ public class ProvisionerConfigSyncDetails {
   public void setLastFullMetadataSyncTimestamp(String lastFullMetadataSyncTimestamp) {
     this.lastFullMetadataSyncTimestamp = lastFullMetadataSyncTimestamp;
   }
+
+
   
+  public int getValidationErrorCount() {
+    return validationErrorCount;
+  }
+
+
+  
+  public void setValidationErrorCount(int validationErrorCount) {
+    this.validationErrorCount = validationErrorCount;
+  }
+
+
+  
+  public int getExceptionCount() {
+    return exceptionCount;
+  }
+
+
+  
+  public void setExceptionCount(int exceptionCount) {
+    this.exceptionCount = exceptionCount;
+  }
+
+
+  
+  public int getTargetErrorCount() {
+    return targetErrorCount;
+  }
+
+
+  
+  public void setTargetErrorCount(int targetErrorCount) {
+    this.targetErrorCount = targetErrorCount;
+  }
   
 
 }

@@ -1041,5 +1041,18 @@ public class GcGrouperSyncMembershipDao {
     List<Object[]> groupIdMemberIds = gcDbAccess.selectList(Object[].class);
     return groupIdMemberIds;
   }
+  
+  /**
+   * get count of rows per error code
+   * @return
+   */
+  public Map<String, Integer> retrieveErrorCountByCode() {
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select error_code, count(*) from grouper_sync_membership where grouper_sync_id = ? and error_code is not null group by error_code")
+        .addBindVar(this.getGcGrouperSync().getId());
+    Map<String, Integer> errorCount = gcDbAccess.selectMapMultipleRows(String.class, Integer.class);
+    return errorCount;
+  }
 
 }

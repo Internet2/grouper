@@ -134,6 +134,41 @@
              		   	   </td>
              		    </tr>
              		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderExceptionCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.exceptionCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderTargetErrorCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.targetErrorCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderValidationErrorCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.validationErrorCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    
+             		    
              		    <c:forEach items="${syncDetails.syncJobs}" var="syncJob">
              		    	<tr>
 	             		   		<th colspan="2">

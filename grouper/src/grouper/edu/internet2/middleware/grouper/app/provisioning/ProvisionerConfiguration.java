@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +11,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBas
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
@@ -141,9 +143,41 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
         provisionerConfigSyncDetails.getSyncJobs().add(grouperSyncJobWrapper);
       }
       
+      Map<String, Integer> errorCountByCodeGroup = grouperSync.getGcGrouperSyncGroupDao().retrieveErrorCountByCode();
+      
+      Map<String, Integer> errorCountByCodeMember = grouperSync.getGcGrouperSyncMemberDao().retrieveErrorCountByCode();
+      
+      Map<String, Integer> errorCountByCodeMembership = grouperSync.getGcGrouperSyncMembershipDao().retrieveErrorCountByCode();
+      
+      int[] counts = new int[] {0, 0, 0};
+      setErrorCount(errorCountByCodeGroup, counts);
+      setErrorCount(errorCountByCodeMember, counts);
+      setErrorCount(errorCountByCodeMembership, counts);
+      
+      provisionerConfigSyncDetails.setExceptionCount(counts[0]);
+      provisionerConfigSyncDetails.setTargetErrorCount(counts[1]);
+      provisionerConfigSyncDetails.setValidationErrorCount(counts[2]);
+      
     }
     
     return provisionerConfigSyncDetails;
   }
+  
+  private void setErrorCount(Map<String, Integer> errorCountByCode, int[] counts) {
+    
+    for (String error: errorCountByCode.keySet()) {
+      
+      GcGrouperSyncErrorCode gcGrouperSyncErrorCode = GcGrouperSyncErrorCode.valueOf(error);
+      if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.ERR) {
+        counts[0] = counts[0] + errorCountByCode.get(error);
+      } else if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.DNE) {
+        counts[1] = counts[1] + errorCountByCode.get(error);
+      } else {
+        counts[2] = counts[2] + errorCountByCode.get(error);
+      }
+      
+    }
+  }
+  
 
 }
