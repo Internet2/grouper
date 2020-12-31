@@ -1005,7 +1005,6 @@ public class UiV2Provisioning {
       if (gcGrouperSyncGroup != null) {
         guiGrouperProvisioningAttributeValue.setInTarget(gcGrouperSyncGroup.isInTarget());
         guiGrouperProvisioningAttributeValue.setLastTimeWorkWasDone(gcGrouperSyncGroup.getLastTimeWorkWasDone());
-        guiGrouperProvisioningAttributeValue.setProvisionable(gcGrouperSyncGroup.isProvisionable());
       }
       
       List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = GrouperProvisioner.retrieveProvisioner(provisionerName).retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
