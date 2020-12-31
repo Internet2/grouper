@@ -24,6 +24,8 @@ import java.util.*;
  */
 public class GraphApiClient {
     private static final Logger logger = Logger.getLogger(GraphApiClient.class);
+    private final String authUrlBase;
+    private final String resourceUrlBase;
     private final String clientId;
     private final String clientSecret;
     private final String tenantId;
@@ -35,10 +37,12 @@ public class GraphApiClient {
     private final AzureGroupType azureGroupType;
     private final AzureVisibility visibility;
 
-    public GraphApiClient(String clientId, String clientSecret, String tenantId, String scope,
+    public GraphApiClient(String authUrlbase, String resourceUrlbase, String clientId, String clientSecret, String tenantId, String scope,
                           AzureGroupType azureGroupType,
                           AzureVisibility visibility,
                           String proxyType, String proxyHost, Integer proxyPort) {
+        this.authUrlBase = authUrlbase;
+        this.resourceUrlBase = resourceUrlbase;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.tenantId = tenantId;
@@ -70,7 +74,7 @@ public class GraphApiClient {
     protected RetrofitWrapper buildRetrofit(OkHttpClient okHttpClient) {
         return new RetrofitWrapper((new Retrofit
                 .Builder()
-                .baseUrl("https://graph.microsoft.com/v1.0/")
+                .baseUrl(this.resourceUrlBase)
                 .addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClient)
                 .build()));
@@ -79,7 +83,7 @@ public class GraphApiClient {
     protected RetrofitWrapper buildRetrofitAuth(OkHttpClient okHttpClient) {
         return new RetrofitWrapper((new Retrofit
                 .Builder()
-                .baseUrl("https://login.microsoftonline.com/" + this.tenantId + "/")
+                .baseUrl(this.authUrlBase + this.tenantId + "/")
                 .addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClient)
                 .build()));

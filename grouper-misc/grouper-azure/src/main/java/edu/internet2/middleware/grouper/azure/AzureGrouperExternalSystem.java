@@ -2,12 +2,17 @@ package edu.internet2.middleware.grouper.azure;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.changeLog.consumer.o365.GraphApiClient;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AzureGrouperExternalSystem extends GrouperExternalSystem {
 
@@ -47,6 +52,70 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
    */
   private static ExpirableCache<String, GraphApiClient> apiConnectionCache = new ExpirableCache<String, GraphApiClient>(5);
 
+  /**
+   * Validates the Azure provisioner by trying to log in and getting an auth token
+   * @return
+   * @throws UnsupportedOperationException
+   */
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    List<String> ret = new ArrayList<>();
+
+    GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
+    String configPrefix = "grouper.azureConnector." + this.getConfigId() + ".";
+
+    String loginEndpointProperty = configPrefix + "loginEndpoint";
+    String loginEndpoint = config.propertyValueString(loginEndpointProperty);
+    if (GrouperUtil.isBlank(loginEndpoint)) {
+      ret.add("Undefined or blank property: " + loginEndpointProperty);
+    } else if (!loginEndpoint.endsWith("/")) {
+      ret.add("Property " + loginEndpointProperty + " does not end in '/' - is this correct?");
+    }
+
+    String resourceEndpointProperty = configPrefix + "resourceEndpoint";
+    String resourceEndpoint = config.propertyValueString(resourceEndpointProperty);
+    if (GrouperUtil.isBlank(resourceEndpoint)) {
+      ret.add("Undefined or blank property: " + resourceEndpointProperty);
+    } else if (!resourceEndpoint.endsWith("/")) {
+      ret.add("Property " + resourceEndpointProperty + " does not end in '/' - is this correct?");
+    }
+
+
+    String clientIdProperty = configPrefix + "clientId";
+    String clientId = config.propertyValueString(clientIdProperty);
+    if (GrouperUtil.isBlank(clientId)) {
+      ret.add("Undefined or blank property: " + clientIdProperty);
+    }
+
+    String clientSecretProperty = configPrefix + "clientSecret";
+    String clientSecret = config.propertyValueString(clientSecretProperty);
+    if (GrouperUtil.isBlank(clientSecret)) {
+      ret.add("Undefined or blank property: " + clientSecretProperty);
+    }
+
+    String tenantIdProperty = configPrefix + "tenantId";
+    String tenantId = config.propertyValueString(tenantIdProperty);
+    if (GrouperUtil.isBlank(tenantId)) {
+      ret.add("Undefined or blank property: " + tenantIdProperty);
+    }
+
+    String scope = config.propertyValueString(configPrefix + "scope");
+
+
+    try {
+      GraphApiClient graphApiClient = new GraphApiClient(loginEndpoint, resourceEndpoint,
+              clientId, clientSecret, tenantId, scope,
+              null, null, null, null, null);
+
+      graphApiClient.getToken();  // ignore resulting token
+      logger.debug("Azure test successfully retrieved auth token");
+    } catch (Exception e) {
+      ret.add("Unable to retrieve Azure authentication token: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+    }
+
+    return ret;
+  }
+
   public synchronized static GraphApiClient retrieveApiConnectionForChangelogConsumer(String configId) {
     return retrieveApiConnection(configId, ProvisionerType.CHANGELOG_CONSUMER);
   }
@@ -71,6 +140,8 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
           configPrefix = "";
       }
 
+      String authEndpoint = config.propertyValueStringRequired(configPrefix + "loginEndpoint");
+      String resourceEndpoint = config.propertyValueStringRequired(configPrefix + "resourceEndpoint");
       String clientId = config.propertyValueStringRequired(configPrefix + "clientId");
       String clientSecret = config.propertyValueStringRequired(configPrefix + "clientSecret");
       String tenantId = config.propertyValueStringRequired(configPrefix + "tenantId");
@@ -118,7 +189,8 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
         proxyPort = null;
       }
 
-      graphApiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
+      graphApiClient = new GraphApiClient(authEndpoint, resourceEndpoint,
+              clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
 
     }
     return graphApiClient;
