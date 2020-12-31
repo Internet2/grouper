@@ -54,6 +54,8 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         String name = changeLogProcessorMetadata.getConsumerName();
         GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
 
+        String authEndpoint = config.propertyValueString(CONFIG_PREFIX + name + ".loginEndpoint", "https://login.microsoftonline.com/");
+        String resourceEndpoint = config.propertyValueString(CONFIG_PREFIX + name  + ".resourceEndpoint", "https://graph.microsoft.com/v1.0/");
         String clientId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientId");
         String clientSecret = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".clientSecret");
         this.tenantId = config.propertyValueStringRequired(CONFIG_PREFIX + name + ".tenantId");
@@ -109,7 +111,8 @@ public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
         }
 
         this.grouperSession = GrouperSession.startRootSession();
-        this.apiClient = new GraphApiClient(clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
+        this.apiClient = new GraphApiClient(authEndpoint, resourceEndpoint,
+                clientId, clientSecret, tenantId, scope, groupType, visibility, proxyType, proxyHost, proxyPort);
     }
 
     @Override
