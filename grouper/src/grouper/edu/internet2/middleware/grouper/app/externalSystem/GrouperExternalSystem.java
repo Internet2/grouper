@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
@@ -112,8 +113,8 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   
   public final static Set<String> externalTypeClassNames = new LinkedHashSet<String>();
   static {
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.azure.AzureGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
+    externalTypeClassNames.add(AzureGrouperExternalSystem.class.getName());
+    externalTypeClassNames.add(LdapGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");

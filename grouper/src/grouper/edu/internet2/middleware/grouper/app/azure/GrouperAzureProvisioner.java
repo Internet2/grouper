@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.azure;
+package edu.internet2.middleware.grouper.app.azure;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
@@ -7,8 +7,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class GrouperAzureProvisioner extends GrouperProvisioner {
-
-  @Override
+  
   protected Class<? extends GrouperProvisionerTargetDaoBase> grouperTargetDaoClass() {
     return GrouperAzureTargetDao.class;
   }

@@ -113,7 +113,9 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -1835,6 +1837,49 @@ public class GrouperUtil {
   }
   
   /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignString(ObjectNode objectNode, String fieldName, String value) {
+    if (!StringUtils.isBlank(value)) {
+      objectNode.put(fieldName, value);
+    }
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignBoolean(ObjectNode objectNode, String fieldName, Boolean value) {
+    if (value != null) {
+      objectNode.put(fieldName, value);
+    }
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignStringArray(ObjectNode objectNode, String fieldName, Collection<String> values) {
+    if (values != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      ArrayNode valuesJson = objectMapper.createArrayNode();
+      for (String value : values) {
+        valuesJson.add(value);
+      }
+      objectNode.set(fieldName, valuesJson);
+    }
+  }
+  
+  
+  
+  /**
    * get a field as string and handle null
    * @param jsonNode
    * @param fieldName
@@ -1853,6 +1898,28 @@ public class GrouperUtil {
       }
     }
     return defaultString;
+  }
+
+  /**
+   * get a field as string set.  could return null if not there
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Set<String> jsonJacksonGetStringSet(JsonNode jsonNode, String fieldName) {
+    Set<String> result = null;
+    if (jsonNode != null) {
+      ArrayNode fieldNode = (ArrayNode)jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        result = new LinkedHashSet<String>();
+        for (int i=0;i<fieldNode.size();i++) {
+          JsonNode textNode = fieldNode.get(i);
+          String textValue = textNode.asText();
+          result.add(textValue);
+        }
+      }
+    }
+    return result;
   }
 
   /**
