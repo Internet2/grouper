@@ -999,6 +999,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
   
         {
+          boolean searchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".searchAttribute" , false), false);
+          attributeConfig.setSearchAttribute(searchAttribute);
+        }
+  
+        {
           boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
           String translateExpressionFromMembership = this.retrieveConfigString(objectType + "." + i + ".translateExpressionFromMembership", false);
           if (membershipAttribute) {
