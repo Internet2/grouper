@@ -208,6 +208,14 @@ public abstract class GrouperProvisioner {
    */
   protected abstract Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass();
   
+  public ProvisionerDiagnosticsContainer retrieveProvisionerDiagnosticsContainer() {
+    
+    ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer = new ProvisionerDiagnosticsContainer();
+    provisionerDiagnosticsContainer.setGrouperProvisioner(this);
+    
+    return provisionerDiagnosticsContainer;
+  }
+  
   /**
    * returns the subclass of Data Access Object for this provisioner
    * @return the DAO

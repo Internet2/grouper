@@ -16,15 +16,6 @@
                     <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
-                <div class="row-fluid">
-                  <div class="span12">
-                  
-                    <p style="margin-top: -1em; margin-bottom: 1em">
-                    ${textContainer.text['provisionerConfigIdLabel']}: 
-                    ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId)}
-                    </p>
-                  </div>
-                </div>
               </div>
               
             </div>

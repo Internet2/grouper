@@ -11,7 +11,7 @@
        <div class="page-header blue-gradient">
        
          <div class="row-fluid">
-           <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h4></div>
+           <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousProvisionerConfigurationsEditProvisionerDescription'] }</h4></div>
            <div class="span2 pull-right">
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>

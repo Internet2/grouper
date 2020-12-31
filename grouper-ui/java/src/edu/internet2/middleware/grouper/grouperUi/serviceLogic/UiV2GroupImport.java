@@ -754,6 +754,9 @@ public class UiV2GroupImport {
         grouperCallable.callLogic();
       }
   
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportReportWrapper.jsp"));
+      
       groupImportReportStatusHelper(sessionId, uniqueImportId);
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
@@ -801,7 +804,7 @@ public class UiV2GroupImport {
       GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupImportContainer(groupImportContainer);
   
       //show the report screen
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueImportId, 
           "/WEB-INF/grouperUi2/groupImport/groupImportReport.jsp"));
       // guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
 

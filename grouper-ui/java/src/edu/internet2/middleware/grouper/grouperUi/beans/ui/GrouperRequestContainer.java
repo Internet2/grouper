@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisionerDiagnosticsContainer;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
@@ -172,6 +173,11 @@ public class GrouperRequestContainer {
    * data for importing members into groups
    */
   private GroupImportContainer groupImportContainer;
+  
+  /**
+   * data for provisioner diagnostics
+   */
+  private ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer;
 
   /**
    * data for importing members into groups
@@ -190,6 +196,27 @@ public class GrouperRequestContainer {
    */
   public void setGroupImportContainer(GroupImportContainer groupImportContainer1) {
     this.groupImportContainer = groupImportContainer1;
+  }
+  
+  
+  /**
+   * data for provisioner diagnostics
+   * @return provisionerDiagnosticsContainer
+   */
+  public ProvisionerDiagnosticsContainer getProvisionerDiagnosticsContainer() {
+    if (this.provisionerDiagnosticsContainer == null) {
+      this.provisionerDiagnosticsContainer = new ProvisionerDiagnosticsContainer();
+    }
+    return this.provisionerDiagnosticsContainer;
+  }
+
+  /**
+   * data for provisioner diagnostics
+   * @param provisionerDiagnosticsContainer
+   */
+  public void setProvisionerDiagnosticsContainer(
+      ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer) {
+    this.provisionerDiagnosticsContainer = provisionerDiagnosticsContainer;
   }
 
   /** 
