@@ -1878,7 +1878,6 @@ public class GrouperUtil {
   }
   
   
-  
   /**
    * get a field as string and handle null
    * @param jsonNode
@@ -1900,6 +1899,26 @@ public class GrouperUtil {
     return defaultString;
   }
 
+  /**
+   * get a field as node or array.  could return null if not there
+   * @param jsonNode
+   * @param fieldName
+   * @return the node or array
+   */
+  public static JsonNode jsonJacksonGetNode(JsonNode jsonNode, String fieldName) {
+    
+    if (jsonNode == null) {
+      return null;
+    }
+    
+    JsonNode fieldNode = jsonNode.get(fieldName);
+    if (fieldNode == null || fieldNode instanceof NullNode) {
+      return null;
+    }
+    return fieldNode;
+    
+  }
+  
   /**
    * get a field as string set.  could return null if not there
    * @param jsonNode

@@ -54,6 +54,53 @@ public class GrouperAzureGroup {
     return targetGroup;
   }
   
+  /**
+   * 
+   * @param targetGroup
+   * @return
+   */
+  public static GrouperAzureGroup fromProvisioningGroup(ProvisioningGroup targetGroup, Set<String> fieldNamesToSet) {
+    
+    GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+    
+    if (fieldNamesToSet.contains("description")) {      
+      grouperAzureGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
+    }
+    if (fieldNamesToSet.contains("displayName")) {      
+      grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
+    }
+    if (fieldNamesToSet.contains("groupTypeMailEnabled")) {      
+      grouperAzureGroup.setGroupTypeMailEnabled(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabled"));
+    }
+    if (fieldNamesToSet.contains("groupTypeMailEnabledSecurity")) {      
+      grouperAzureGroup.setGroupTypeMailEnabledSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabledSecurity"));
+    }
+    if (fieldNamesToSet.contains("groupTypeSecurity")) {      
+      grouperAzureGroup.setGroupTypeSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeSecurity"));
+    }
+    if (fieldNamesToSet.contains("groupTypeUnified")) {      
+      grouperAzureGroup.setGroupTypeUnified(targetGroup.retrieveAttributeValueBoolean("groupTypeUnified"));
+    }
+    if (fieldNamesToSet.contains("id")) {      
+      grouperAzureGroup.setId(targetGroup.getId());
+    }
+    if (fieldNamesToSet.contains("mailEnabled")) {      
+      grouperAzureGroup.setMailEnabled(targetGroup.retrieveAttributeValueBoolean("mailEnabled"));
+    }
+    if (fieldNamesToSet.contains("mailNickname")) {      
+      grouperAzureGroup.setMailNickname(targetGroup.retrieveAttributeValueString("mailNickname"));
+    }
+    if (fieldNamesToSet.contains("securityEnabled")) {      
+      grouperAzureGroup.setSecurityEnabled(targetGroup.retrieveAttributeValueBoolean("securityEnabled"));
+    }
+    if (fieldNamesToSet.contains("visibility")) {      
+      grouperAzureGroup.setVisibilityString(targetGroup.retrieveAttributeValueString("visibility"));
+    }
+    
+    return grouperAzureGroup;
+
+  }
+  
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this);
@@ -80,6 +127,8 @@ public class GrouperAzureGroup {
   private boolean groupTypeUnified;
   private String description;
   private AzureVisibility visibility;
+
+  public static final String fieldsToSelect="description,displayName,groupTypeMailEnabled,groupTypeMailEnabledSecurity,groupTypeSecurity,groupTypeUnified,id,mailEnabled,mailNickname,securityEnabled,visibility";
   
   public String getId() {
     return id;
