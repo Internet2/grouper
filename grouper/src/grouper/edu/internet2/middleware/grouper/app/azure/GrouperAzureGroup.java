@@ -1,14 +1,23 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperAzureGroup {
@@ -29,7 +38,7 @@ public class GrouperAzureGroup {
     grouperAzureGroup.setSecurityEnabled(true);
     grouperAzureGroup.setVisibility(AzureVisibility.Private);
 
-    String json = GrouperUtil.jsonJacksonToString(grouperAzureGroup.toJson());
+    String json = GrouperUtil.jsonJacksonToString(grouperAzureGroup.toJson(null));
     System.out.println(json);
     
     grouperAzureGroup = GrouperAzureGroup.fromJson(GrouperUtil.jsonJacksonNode(json));
@@ -38,6 +47,48 @@ public class GrouperAzureGroup {
     
   }
   
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public static void createTableAzureGroup() {
+
+    final String tableName = "mock_azure_group";
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+    
+          
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled_sec", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_security", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_unified", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_enabled", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
+        }
+        
+      });
+    }
+    
+  }
+
   public ProvisioningGroup toProvisioningGroup() {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
     targetGroup.assignAttributeValue("description", this.description);
@@ -63,38 +114,38 @@ public class GrouperAzureGroup {
     
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     
-    if (fieldNamesToSet.contains("description")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       grouperAzureGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
     }
-    if (fieldNamesToSet.contains("displayName")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
     }
-    if (fieldNamesToSet.contains("groupTypeMailEnabled")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeMailEnabled")) {      
       grouperAzureGroup.setGroupTypeMailEnabled(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabled"));
     }
-    if (fieldNamesToSet.contains("groupTypeMailEnabledSecurity")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeMailEnabledSecurity")) {      
       grouperAzureGroup.setGroupTypeMailEnabledSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabledSecurity"));
     }
-    if (fieldNamesToSet.contains("groupTypeSecurity")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeSecurity")) {      
       grouperAzureGroup.setGroupTypeSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeSecurity"));
     }
-    if (fieldNamesToSet.contains("groupTypeUnified")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
       grouperAzureGroup.setGroupTypeUnified(targetGroup.retrieveAttributeValueBoolean("groupTypeUnified"));
     }
-    if (fieldNamesToSet.contains("id")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperAzureGroup.setId(targetGroup.getId());
     }
-    if (fieldNamesToSet.contains("mailEnabled")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailEnabled")) {      
       grouperAzureGroup.setMailEnabled(targetGroup.retrieveAttributeValueBoolean("mailEnabled"));
     }
-    if (fieldNamesToSet.contains("mailNickname")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {      
       grouperAzureGroup.setMailNickname(targetGroup.retrieveAttributeValueString("mailNickname"));
     }
-    if (fieldNamesToSet.contains("securityEnabled")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {      
       grouperAzureGroup.setSecurityEnabled(targetGroup.retrieveAttributeValueBoolean("securityEnabled"));
     }
-    if (fieldNamesToSet.contains("visibility")) {      
-      grouperAzureGroup.setVisibilityString(targetGroup.retrieveAttributeValueString("visibility"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("visibility")) {      
+      grouperAzureGroup.setVisibilityDb(targetGroup.retrieveAttributeValueString("visibility"));
     }
     
     return grouperAzureGroup;
@@ -128,7 +179,7 @@ public class GrouperAzureGroup {
   private String description;
   private AzureVisibility visibility;
 
-  public static final String fieldsToSelect="description,displayName,groupTypeMailEnabled,groupTypeMailEnabledSecurity,groupTypeSecurity,groupTypeUnified,id,mailEnabled,mailNickname,securityEnabled,visibility";
+  public static final String fieldsToSelect="description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility";
   
   public String getId() {
     return id;
@@ -154,6 +205,14 @@ public class GrouperAzureGroup {
     this.mailEnabled = mailEnabled;
   }
   
+  public String getMailEnabledDb() {
+    return mailEnabled ? "T" : "F";
+  }
+  
+  public void setMailEnabledDb(String mailEnabledDb) {
+    this.mailEnabled = GrouperUtil.booleanValue(mailEnabledDb, false);
+  }
+  
   public String getMailNickname() {
     return mailNickname;
   }
@@ -170,6 +229,14 @@ public class GrouperAzureGroup {
     this.securityEnabled = securityEnabled;
   }
   
+  public String getSecurityEnabledDb() {
+    return securityEnabled ? "T" : "F";
+  }
+  
+  public void setSecurityEnabledDb(String securityEnabledDb) {
+    this.securityEnabled = GrouperUtil.booleanValue(securityEnabledDb, false);
+  }
+  
   public boolean isGroupTypeSecurity() {
     return groupTypeSecurity;
   }
@@ -178,12 +245,28 @@ public class GrouperAzureGroup {
     this.groupTypeSecurity = groupTypeMailSecurity;
   }
   
+  public String getGroupTypeSecurityDb() {
+    return groupTypeSecurity ? "T" : "F";
+  }
+  
+  public void setGroupTypeSecurityDb(String groupTypeMailSecurityDb) {
+    this.groupTypeSecurity = GrouperUtil.booleanValue(groupTypeMailSecurityDb, false);
+  }
+  
   public boolean isGroupTypeUnified() {
     return groupTypeUnified;
   }
   
   public void setGroupTypeUnified(boolean groupTypeUnified) {
     this.groupTypeUnified = groupTypeUnified;
+  }
+  
+  public String getGroupTypeUnifiedDb() {
+    return groupTypeUnified ? "T" : "F";
+  }
+  
+  public void setGroupTypeUnifiedDb(String groupTypeUnifiedDb) {
+    this.groupTypeUnified = GrouperUtil.booleanValue(groupTypeUnifiedDb, false);
   }
   
   public String getDescription() {
@@ -231,16 +314,16 @@ public class GrouperAzureGroup {
     grouperAzureGroup.mailEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "mailEnabled", false);
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
     grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", false);
-    grouperAzureGroup.setVisibilityString(GrouperUtil.jsonJacksonGetString(groupNode, "visibility"));
+    grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility"));
     
     return grouperAzureGroup;
   }
 
-  public void setVisibilityString(String visibilityString) {
+  public void setVisibilityDb(String visibilityString) {
     this.visibility = AzureVisibility.valueOfIgnoreCase(visibilityString, false);    
   }
 
-  public String getVisibilityString() {
+  public String getVisibilityDb() {
     return this.visibility == null ? null : this.visibility.name();
   }
 
@@ -249,14 +332,21 @@ public class GrouperAzureGroup {
    * @param groupNode
    * @return the group
    */
-  public ObjectNode toJson() {
+  public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
 
-    GrouperUtil.jsonJacksonAssignString(result, "description", this.description);
-    GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
+      result.put("description", this.description);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
+      result.put("displayName", this.displayName);
+    }
     
-    {
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeMailEnabled")
+        || fieldNamesToSet.contains("groupTypeMailEnabledSecurity") 
+        || fieldNamesToSet.contains("groupTypeSecurity") || fieldNamesToSet.contains("groupTypeUnified") ) {      
+
       Set<String> groupTypes = new HashSet<String>();
       if (this.groupTypeMailEnabled) {
         groupTypes.add("MailEnabled");
@@ -270,16 +360,31 @@ public class GrouperAzureGroup {
       if (this.groupTypeUnified) {
         groupTypes.add("Unified");
       }
+      // do we need to set null if none set?  hmmm
       if (groupTypes.size() > 0) {
         GrouperUtil.jsonJacksonAssignStringArray(result, "groupTypes", groupTypes);
       }
     }
     
-    GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
-    GrouperUtil.jsonJacksonAssignBoolean(result, "mailEnabled", this.mailEnabled);
-    GrouperUtil.jsonJacksonAssignString(result, "mailNickname", this.mailNickname);
-    GrouperUtil.jsonJacksonAssignBoolean(result, "securityEnabled", this.securityEnabled);
-    GrouperUtil.jsonJacksonAssignString(result, "visibility", this.getVisibilityString());
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
+      result.put("id", this.id);
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailEnabled")) {
+      result.put("mailEnabled", this.mailEnabled);
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {
+      result.put("mailNickname", this.mailNickname);
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {
+      result.put("securityEnabled", this.securityEnabled);
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("visibility")) {
+      result.put("visibility", this.getVisibilityDb());
+    }
     
     return result;
   }
@@ -294,14 +399,32 @@ public class GrouperAzureGroup {
     this.groupTypeMailEnabled = groupTypeMailEnabled;
   }
 
+  public String getGroupTypeMailEnabledDb() {
+    return groupTypeMailEnabled ? "T" : "F";
+  }
+
+  
+  public void setGroupTypeMailEnabledDb(String groupTypeMailEnabled) {
+    this.groupTypeMailEnabled = GrouperUtil.booleanValue(groupTypeMailEnabled, false);
+  }
+
   
   public boolean isGroupTypeMailEnabledSecurity() {
     return groupTypeMailEnabledSecurity;
   }
 
   
-  public void setGroupTypeMailEnabledSecurity(boolean groupTypeMailEnabledSecurity) {
-    this.groupTypeMailEnabledSecurity = groupTypeMailEnabledSecurity;
+  public void setGroupTypeMailEnabledSecurity(boolean groupTypeMailEnabledSecurityDb) {
+    this.groupTypeMailEnabledSecurity = groupTypeMailEnabledSecurityDb;
+  }
+  
+  public String getGroupTypeMailEnabledSecurityDb() {
+    return groupTypeMailEnabledSecurity ? "T" : "F";
+  }
+
+  
+  public void setGroupTypeMailEnabledSecurityDb(String groupTypeMailEnabledSecurityDb) {
+    this.groupTypeMailEnabledSecurity = GrouperUtil.booleanValue(groupTypeMailEnabledSecurityDb, false);
   }
   
 }

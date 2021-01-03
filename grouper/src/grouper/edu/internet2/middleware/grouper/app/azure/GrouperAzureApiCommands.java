@@ -1,22 +1,26 @@
 package edu.internet2.middleware.grouper.app.azure;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -29,226 +33,50 @@ public class GrouperAzureApiCommands {
 
   public static void main(String[] args) {
 
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+//        "grouper.azureConnector.azure1.loginEndpoint",
+//        "http://localhost/f3/login.microsoftonline.com/");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+//        "grouper.azureConnector.azure1.resourceEndpoint",
+//        "http://localhost/f3/graph.microsoft.com/v1.0/");
+
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-        "grouper.azureConnector.azure1.loginEndpoint",
-        "http://localhost/f3/login.microsoftonline.com/");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-        "grouper.azureConnector.azure1.resourceEndpoint",
-        "http://localhost/f3/graph.microsoft.com/v1.0/");
+    "grouper.azureConnector.azure1.loginEndpoint",
+    "http://localhost:8400/grouper/mockServices/azure/auth");
+  GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+    "grouper.azureConnector.azure1.resourceEndpoint",
+    "http://localhost:8400/grouper/mockServices/azure");
 
     //GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("AzureProvA");
     //GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
 
     //GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning("azure1");
 
-    //    List<GrouperAzureGroup> grouperAzureGroups = retrieveAzureGroups("azure1");
-    //    
-    //    for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-    //      System.out.println(grouperAzureGroup);
-    //    }
-
-    List<GrouperAzureUser> grouperAzureUsers = retrieveAzureUsers("azure1");
-
-    for (GrouperAzureUser grouperAzureUser : grouperAzureUsers) {
-      System.out.println(grouperAzureUser);
+    List<GrouperAzureGroup> grouperAzureGroups = retrieveAzureGroups("azure1");
+    
+    for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
+      System.out.println(grouperAzureGroup);
     }
 
+    //  List<GrouperAzureUser> grouperAzureUsers = retrieveAzureUsers("azure1");
+    //
+    //  for (GrouperAzureUser grouperAzureUser : grouperAzureUsers) {
+    //    System.out.println(grouperAzureUser);
+    //  }
+
+    //  GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+    //  grouperAzureGroup.setDescription("myDescription2");
+    //  grouperAzureGroup.setDisplayName("myDisplayName2");
+    //  grouperAzureGroup.setGroupTypeUnified(true);
+    //  grouperAzureGroup.setVisibility(AzureVisibility.Public);
+    //  createAzureGroup("azure1", grouperAzureGroup, null);
+
+    //  deleteAzureGroup("azure1", "e111dbca-c413-8c63-909d-801327b230c5");
+    
+    
   }
 
-  //    public GraphApiClient(String authUrlbase, String resourceUrlbase, String clientId, String clientSecret, String tenantId, String scope,
-  //                          AzureGroupType azureGroupType,
-  //                          AzureVisibility visibility,
-  //                          String proxyType, String proxyHost, Integer proxyPort) {
-  //        this.authUrlBase = authUrlbase;
-  //        this.resourceUrlBase = resourceUrlbase;
-  //        this.clientId = clientId;
-  //        this.clientSecret = clientSecret;
-  //        this.tenantId = tenantId;
-  //        this.scope = scope;
-  //        this.azureGroupType = azureGroupType;
-  //        this.visibility = visibility;
-  //
-  //        final Proxy proxy;
-  //
-  //        if (proxyType == null) {
-  //            proxy = null; // probably works too: Proxy.NO_PROXY
-  //        } else if ("http".equals(proxyType)) {
-  //            proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyHost, proxyPort));
-  //        } else if ("socks".equals(proxyType)) {
-  //            proxy = new Proxy(Proxy.Type.SOCKS,new InetSocketAddress(proxyHost, proxyPort));
-  //        } else {
-  //            logger.warn("Unable to determine proxy type from '" + proxyType + "'; Valid proxy types for this consumer are 'http' or 'socks'");
-  //            proxy = null;
-  //        }
-  //
-  //        graphTokenHttpClient = buildBaseOkHttpClient(proxy);
-  //        graphApiHttpClient = buildGraphOkHttpClient(graphTokenHttpClient);
-  //
-  //        RetrofitWrapper retrofit = buildRetrofit(graphApiHttpClient);
-  //
-  //        this.service = retrofit.create(Office365GraphApiService.class);
-  //    }
-
-  //    protected RetrofitWrapper buildRetrofit(OkHttpClient okHttpClient) {
-  //        return new RetrofitWrapper((new Retrofit
-  //                .Builder()
-  //                .baseUrl(this.resourceUrlBase)
-  //                .addConverterFactory(MoshiConverterFactory.create())
-  //                .client(okHttpClient)
-  //                .build()));
-  //    }
-
-  //    protected RetrofitWrapper buildRetrofitAuth(OkHttpClient okHttpClient) {
-  //        return new RetrofitWrapper((new Retrofit
-  //                .Builder()
-  //                .baseUrl(this.authUrlBase + this.tenantId + "/")
-  //                .addConverterFactory(MoshiConverterFactory.create())
-  //                .client(okHttpClient)
-  //                .build()));
-  //    }
-
-  //    protected OkHttpClient buildBaseOkHttpClient(Proxy proxy) {
-  //        logger.trace("Building OkHttpClient: proxy=" + proxy);
-  //
-  //        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-  //
-  //        if (proxy != null) {
-  //            builder.proxy(proxy);
-  //        }
-  //
-  //        return builder.build();
-  //    }
-
-  //    /*
-  //     * customize a shared OkHttpClient instance, which will share the same connection pool, thread pools, and
-  //     * configuration as the parent
-  //     */
-  //    protected OkHttpClient buildGraphOkHttpClient(OkHttpClient okHttpClient) {
-  //        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor((msg) -> {
-  //            logger.debug(msg);
-  //        });
-  //        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-  //        // strips out the Bearer token and replaces with U+2588 (a black square)
-  //        loggingInterceptor.redactHeader("Authorization");
-  //
-  //        return okHttpClient.newBuilder()
-  //                .addInterceptor(new Interceptor() {
-  //                @Override
-  //                public Response intercept(Chain chain) throws IOException {
-  //                    Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
-  //                    return chain.proceed(request);
-  //                }
-  //            })
-  //                .addInterceptor(loggingInterceptor)
-  //                .build();
-  //    }
-
-  //    public String getToken() throws IOException {
-  //        logger.debug("Token client ID: " + this.clientId);
-  //        logger.debug("Token tenant ID: " + this.tenantId);
-  //        RetrofitWrapper retrofit = buildRetrofitAuth(this.graphTokenHttpClient);
-  //        Office365AuthApiService service = retrofit.create(Office365AuthApiService.class);
-  //        retrofit2.Response<AzureGraphOAuthTokenInfo> response = service.getOauth2Token(
-  //                "client_credentials",
-  //                this.clientId,
-  //                this.clientSecret,
-  //                this.scope,
-  //                "https://graph.microsoft.com")
-  //                .execute();
-  //        if (response.isSuccessful()) {
-  //            AzureGraphOAuthTokenInfo info = response.body();
-  //            logTokenInfo(info);
-  //            return info.accessToken;
-  //        } else {
-  //            ResponseBody errorBody = response.errorBody();
-  //            throw new IOException("error requesting token (" + response.code() + "): " + errorBody.string());
-  //        }
-  //    }
-
-  //    private void logTokenInfo(AzureGraphOAuthTokenInfo info) {
-  //        logger.trace("Token scope: " + info.scope);
-  //        logger.trace("Token expiresIn: " + info.expiresIn);
-  //        logger.trace("Token expiresOn: " + info.expiresOn);
-  //        logger.trace("Token resource: " + info.resource);
-  //        logger.trace("Token tokenType: " + info.tokenType);
-  //        logger.trace("Token notBefore: " + info.notBefore);
-  //    }
-
-  //    /*
-  //     * This method invokes a retrofit API call with retry.  If the first call returns 401 (unauthorized)
-  //     * the same is retried again after fetching a new token.
-  //    */
-  //    private <T> retrofit2.Response<T> invoke(retrofit2.Call<T> call) throws IOException {
-  //        for (int retryMax = 2; retryMax > 0; retryMax--) {
-  //            if (token == null) {
-  //                token = getToken();
-  //            }
-  //            retrofit2.Response<T> r = call.execute();
-  //            if (r.isSuccessful()) {
-  //                return r;
-  //            } else if (r.code() == 401) {
-  //                logger.debug("auth fail, retry: " + call.request().url());
-  //                // Call objects cannot be reused, so docs say to use clone() to create a new one with the
-  //                // same specs for retry purposes
-  //                call = call.clone();
-  //                // null out existing token so we'll fetch a new one on next loop pass
-  //                token = null;
-  //            } else {
-  //                throw new IOException("Unhandled invoke response (" + r.code() + ") " + r.errorBody().string());
-  //            }
-  //        }
-  //        throw new IOException("Retry failed for: " + call.request().url());
-  //    }
-
-  //    public void removeGroup(String groupId) {
-  //        try {
-  //            invoke(this.service.deleteGroup(groupId));
-  //        } catch (IOException e) {
-  //            logger.error(e);
-  //            throw new RuntimeException("service.deleteGroup failed", e);
-  //        }
-  //    }
-
-  //    protected String lookupOffice365GroupId(Group group) {
-  //        return group.getAttributeValueDelegate().retrieveValueString(Office365ChangeLogConsumer.GROUP_ID_ATTRIBUTE_NAME);
-  //    }
-
-  //    public void addMemberToMS(String groupId, String userPrincipalName) {
-  //        try {
-  //            invoke(this.service.addGroupMember(groupId, new AzureGraphDataIdContainer("https://graph.microsoft.com/v1.0/users/" + userPrincipalName)));
-  //        } catch (IOException e) {
-  //            logger.error(e.getMessage(), e);
-  //        } catch (MemberAddAlreadyExistsException me) {
-  //            logger.debug("member already exists for subject:" + userPrincipalName + " and group:" + groupId);
-  //        }
-  //    }
-
-  //    public void removeMembership(String userPrincipalName, Group group) {
-  //        try {
-  //            if (group != null) {
-  //                AzureGraphUser user = lookupMSUser(userPrincipalName);
-  //                if (user == null) {
-  //                    throw new RuntimeException("Failed to locate member: " + userPrincipalName);
-  //                }
-  //                String groupId = lookupOffice365GroupId(group);
-  //                if (ifUserAndGroupExistInMS(user, groupId)) {
-  //                    removeUserFromGroupInMS(user.id, groupId);
-  //                }
-  //            }
-  //        } catch (IOException e) {
-  //            logger.error(e);
-  //        } catch (MemberDeleteAlreadyDeletedException me) {
-  //            logger.debug("member already deleted for subject:" + userPrincipalName + " and group:" + group.getId());
-  //        }
-  //    }
-
-  //    protected boolean ifUserAndGroupExistInMS(AzureGraphUser user, String groupId) {
-  //        return user != null && groupId != null;
-  //    }
-
-  //    public void removeUserFromGroupInMS(String groupId, String userId) throws IOException {
-  //        invoke(this.service.removeGroupMember(groupId, userId));
-  //    }
+  
 
   /**
    * 
@@ -259,7 +87,7 @@ public class GrouperAzureApiCommands {
    */
   private static GetMethod httpGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix) {
-    return (GetMethod)httpMethod(debugMap, configId, urlSuffix, "GET");
+    return (GetMethod) httpMethod(debugMap, configId, urlSuffix, "GET");
   }
 
   /**
@@ -271,7 +99,7 @@ public class GrouperAzureApiCommands {
    */
   private static PostMethod httpPostMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix) {
-    return (PostMethod)httpMethod(debugMap, configId, urlSuffix, "POST");
+    return (PostMethod) httpMethod(debugMap, configId, urlSuffix, "POST");
   }
 
   /**
@@ -301,6 +129,15 @@ public class GrouperAzureApiCommands {
       method = new GetMethod(url);
     } else if (StringUtils.equals("POST", httpMethodName)) {
       method = new PostMethod(url);
+    } else if (StringUtils.equals("DELETE", httpMethodName)) {
+      method = new DeleteMethod(url);
+    } else if (StringUtils.equals("PUT", httpMethodName)) {
+      method = new PutMethod(url);
+    } else if (StringUtils.equals("PATCH", httpMethodName)) {
+
+      method = new PostMethod(url) {
+        @Override public String getName() { return "PATCH"; }
+      };
     } else {
       throw new RuntimeException("Not expecting type: '" + httpMethodName + "'");
     }
@@ -311,12 +148,14 @@ public class GrouperAzureApiCommands {
 
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix) {
-    
-    return executeMethod(debugMap, "GET", configId, urlSuffix, GrouperUtil.toSet(200, 404), new int[] {-1}, null);
-    
+
+    return executeMethod(debugMap, "GET", configId, urlSuffix,
+        GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
+
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap, String httpMethodName, String configId,
+  private static JsonNode executeMethod(Map<String, Object> debugMap,
+      String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
     HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName);
@@ -326,8 +165,9 @@ public class GrouperAzureApiCommands {
     if (!StringUtils.isBlank(body)) {
       if (httpMethod instanceof EntityEnclosingMethod) {
         try {
-          StringRequestEntity entity = new StringRequestEntity(body, "application/json", "UTF-8");
-          ((EntityEnclosingMethod)httpMethod).setRequestEntity(entity);
+          StringRequestEntity entity = new StringRequestEntity(body, "application/json",
+              "UTF-8");
+          ((EntityEnclosingMethod) httpMethod).setRequestEntity(entity);
         } catch (Exception e) {
           throw new RuntimeException("error", e);
         }
@@ -335,7 +175,7 @@ public class GrouperAzureApiCommands {
         throw new RuntimeException("Cant attach a body if in method: " + httpMethodName);
       }
     }
-    
+
     int code = -1;
     String json = null;
 
@@ -349,7 +189,8 @@ public class GrouperAzureApiCommands {
 
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException(
-          "Invalid return code, expecting: " + GrouperUtil.setToString(allowedReturnCodes) + ". '" + debugMap.get("url") + "' " + json);
+          "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)
+              + ". '" + debugMap.get("url") + "' " + json);
     }
 
     if (StringUtils.isBlank(json)) {
@@ -365,21 +206,23 @@ public class GrouperAzureApiCommands {
    * @param grouperAzureGroup
    * @return the result
    */
-  public static GrouperAzureGroup createGroup(String configId, GrouperAzureGroup grouperAzureGroup) {
+  public static GrouperAzureGroup createAzureGroup(String configId,
+      GrouperAzureGroup grouperAzureGroup, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "createGroup");
+    debugMap.put("method", "createAzureGroup");
 
     long startTime = System.nanoTime();
 
     try {
 
-      JsonNode jsonToSend = grouperAzureGroup.toJson();
+      JsonNode jsonToSend = grouperAzureGroup.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-      
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups", GrouperUtil.toSet(201), new int[] {-1}, jsonStringToSend);
-      
+
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups",
+          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
+
       GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
 
       return grouperAzureGroupResult;
@@ -390,9 +233,182 @@ public class GrouperAzureApiCommands {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
 
-    
+  }
+
+  /**
+   * create a membership
+   * @param grouperAzureGroup
+   * @return the result
+   */
+  public static void createAzureMembership(String configId,
+      String groupId, String userId) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "createAzureMembership");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
+
+      objectNode.put("@odata.id", "https://graph.microsoft.com/v1.0/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
+      
+      executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
+          GrouperUtil.toSet(204, 400), new int[] { -1 }, jsonStringToSend);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
 
   }
+
+  /**
+   * create a membership
+   * @param grouperAzureGroup
+   * @return the result
+   */
+  public static void createAzureMemberships(String configId,
+      String groupId, Collection<String> userIds) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "createAzureMemberships");
+
+    //  PATCH https://graph.microsoft.com/v1.0/groups/{group-id}
+    //  Content-type: application/json
+    //  Content-length: 30
+    //
+    //  {
+    //    "members@odata.bind": [
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}",
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}",
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}"
+    //      ]
+    //  }
+    
+    long startTime = System.nanoTime();
+
+    try {
+
+      int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20);
+      List<String> userIdsList = new ArrayList<String>(userIds);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize);
+      debugMap.put("numberOfBatches", numberOfBatches);
+      for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+        debugMap.put("batchIndex", batchIndex);
+        List<String> batchOfUserIds = GrouperUtil.batchList(userIdsList, batchSize, batchIndex);
+
+        ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+        
+        for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
+          String userId = batchOfUserIds.get(i);
+          arrayNode.add("https://graph.microsoft.com/v1.0/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
+        }
+        
+        ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
+
+        objectNode.set("members@odata.bind", arrayNode);
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
+        try {
+          executeMethod(debugMap, "PATCH", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId),
+              GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
+        } catch (Exception e) {
+
+          debugMap.put("innerException", GrouperClientUtils.getFullStackTrace(e));
+
+          // if this fails, try individually
+          for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
+            String userId = batchOfUserIds.get(i);
+            createAzureMembership(configId, groupId, userId);
+          }
+        }
+
+      }
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+
+  }
+
+  /**
+   * update a group
+   * @param grouperAzureGroup
+   * @return the result
+   */
+  public static GrouperAzureGroup updateAzureGroup(String configId,
+      GrouperAzureGroup grouperAzureGroup, Set<String> fieldsToUpdate) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "updateAzureGroup");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      String id = grouperAzureGroup.getId();
+      
+      if (StringUtils.isBlank(id)) {
+        throw new RuntimeException("id is null: " + grouperAzureGroup);
+      }
+
+      if (fieldsToUpdate.contains("id")) {
+        throw new RuntimeException("Cant update the id field: " + grouperAzureGroup + ", " + GrouperUtil.setToString(fieldsToUpdate));
+      }
+      
+      JsonNode jsonToSend = grouperAzureGroup.toJson(fieldsToUpdate);
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+      JsonNode jsonNode = executeMethod(debugMap, "PATCH", configId, "/groups/" + GrouperUtil.escapeUrlEncode(id),
+          GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
+
+      GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
+
+      return grouperAzureGroupResult;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+
+  }
+
+  public static void deleteAzureGroup(String configId,
+      String groupId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "deleteAzureGroup");
+
+    long startTime = System.nanoTime();
+
+    try {
+    
+      if (StringUtils.isBlank(groupId)) {
+        throw new RuntimeException("id is null");
+      }
+    
+      executeMethod(debugMap, "DELETE", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId),
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  }
+
 
   public static List<GrouperAzureGroup> retrieveAzureGroups(String configId) {
 
@@ -520,6 +536,103 @@ public class GrouperAzureApiCommands {
   }
 
   /**
+   * return user ids in the group
+   * @param configId
+   * @param userId
+   * @return group ids
+   */
+  public static Set<String> retrieveAzureUserGroups(String configId, String userId)  {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveAzureUserGroups");
+
+    long startTime = System.nanoTime();
+    
+    Set<String> result = new LinkedHashSet<String>();
+
+    try {
+
+      String urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(userId) + "/memberOf?$select=id";
+
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+
+      //lets get the group node
+
+      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+      if (value != null && value.size() > 0) {
+        for (int i=0;i<value.size();i++) {
+          JsonNode membership = value.get(i);
+          result.add(GrouperUtil.jsonJacksonGetString(membership, "id"));
+        }
+      }
+
+      return result;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  }
+
+  /**
+   * return user ids in the group
+   * @param configId
+   * @param groupId
+   * @return user ids
+   */
+  public static Set<String> retrieveAzureGroupMembers(String configId, String groupId)  {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveAzureGroupMembers");
+
+    int calls = 0;
+    long startTime = System.nanoTime();
+    
+    Set<String> result = new LinkedHashSet<String>();
+
+    try {
+
+      String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id";
+
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+
+      //lets get the group node
+      retrieveAzureGroupMembersHelper(result, jsonNode);
+      debugMap.put("calls", ++calls);
+      
+      for (int i=0;i<1000000;i++) {
+        String nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
+        if (StringUtils.isBlank(nextLink)) {
+          break;
+        }
+        jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        retrieveAzureGroupMembersHelper(result, jsonNode);
+        debugMap.put("calls", ++calls);
+      }
+
+      return result;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  }
+
+  private static void retrieveAzureGroupMembersHelper(Set<String> result, JsonNode jsonNode) {
+    ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+    if (value != null && value.size() > 0) {
+      for (int i=0;i<value.size();i++) {
+        JsonNode membership = value.get(i);
+        result.add(GrouperUtil.jsonJacksonGetString(membership, "id"));
+      }
+    }
+  }
+
+  /**
    * @param configId
    * @param fieldName is id or displayName
    * @param fieldValue is value of id or displayName
@@ -573,23 +686,34 @@ public class GrouperAzureApiCommands {
 
   }
 
-  //    public List<AzureGraphGroup> getGroups() throws IOException {
-  //        AzureGraphGroups groupContainer = invoke(this.service.getGroups(Collections.emptyMap())).body();
-  //        return groupContainer.groups;
-  //    }
 
-  //    public List<AzureGraphGroupMember> getGroupMembers(String groupId) throws IOException {
-  //        AzureGraphGroupMembers azureGroupMembers = invoke(this.service.getGroupMembers(groupId)).body();
-  //        return azureGroupMembers.users;
-  //    }
 
-  //    public AzureGraphGroup retrieveGroup(String groupId) throws IOException {
-  //        return invoke(this.service.getGroup(groupId)).body();
-  //    }
+  /**
+   * delete membership
+   * @param grouperAzureGroup
+   * @return the result
+   */
+  public static void deleteAzureMembership(String configId,
+      String groupId, String userId) {
 
-  //    public List<AzureGraphUser> getAllUsers() throws IOException {
-  //        AzureGraphUsers azureGraphUsers = invoke(this.service.getUsers()).body();
-  //        return azureGraphUsers.users;
-  //    }
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "deleteAzureMembership");
+
+    long startTime = System.nanoTime();
+
+    try {
+  
+      executeMethod(debugMap, "DELETE", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/" + GrouperUtil.escapeUrlEncode(userId) + "/$ref",
+          GrouperUtil.toSet(204, 400), new int[] { -1 }, null);
+  
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  
+  }
 
 }

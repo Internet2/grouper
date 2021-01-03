@@ -2035,6 +2035,21 @@ public class GrouperUtil {
     return defaultInteger;
   }
 
+
+  public static ObjectNode jsonJacksonNode() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectNode objectNode = objectMapper.createObjectNode();
+    return objectNode;
+  }
+
+  public static ArrayNode jsonJacksonArrayNode() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    ArrayNode arrayNode = objectMapper.createArrayNode();
+    return arrayNode;
+  }
+  
+ 
+  
   public static JsonNode jsonJacksonNode(String json) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();

@@ -44,6 +44,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureAuth;
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureGroup;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
@@ -208,6 +210,10 @@ public abstract class Hib3DAO {
       addClass(configuration, GcGrouperSyncLog.class, "Hib3GrouperSyncLogDAO");
       addClass(configuration, GcGrouperSyncMember.class, "Hib3GrouperSyncMemberDAO");
       addClass(configuration, GcGrouperSyncMembership.class, "Hib3GrouperSyncMembershipDAO");
+      if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false)) {
+        addClass(configuration, GrouperAzureGroup.class);
+        addClass(configuration, GrouperAzureAuth.class);
+      }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);
       addClass(configuration, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
