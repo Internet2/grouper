@@ -26,11 +26,11 @@ public class Pac4jServletContainerInitializer implements ServletContainerInitial
             FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", CallbackFilter.class);
             callbackFilter.setInitParameter("defaultUrl", GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.defaultUrl", "/"));
             callbackFilter.setInitParameter("renewSession", "true");
-            callbackFilter.addMappingForUrlPatterns(null, false, GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/grouper/callback"));
+            callbackFilter.addMappingForUrlPatterns(null, false, GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback"));
 
             FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", SecurityFilter.class);
             securityFilter.setInitParameter("configFactory", Pac4jConfigFactory.class.getCanonicalName());
-            securityFilter.setInitParameter("clients", "CasClient");
+            securityFilter.setInitParameter("clients", "client");
             securityFilter.setInitParameter(Pac4jConstants.MATCHERS, String.join(Pac4jConstants.ELEMENT_SEPARATOR, "excludePathServicesRest", "excludePathServices"));
             securityFilter.setInitParameter(Pac4jConstants.AUTHORIZERS, DefaultAuthorizers.NONE);
             securityFilter.addMappingForUrlPatterns(null, false, "/*");

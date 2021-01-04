@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperAuthentication;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.pac4j.cas.client.CasClient;
 import org.pac4j.cas.config.CasConfiguration;
+import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -45,8 +46,10 @@ public class Pac4jConfigFactory implements ConfigFactory {
             default:
                 throw new IllegalStateException("Unexpected value: " + authMechanism);
         }
+        ((BaseClient)client).setName("client");
+
         String callbackUrl = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.grouperContextUrl")
-                           + GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl");
+                           + GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback");
         final Clients clients = new Clients(callbackUrl, client);
 
         final Config config = new Config(clients);
