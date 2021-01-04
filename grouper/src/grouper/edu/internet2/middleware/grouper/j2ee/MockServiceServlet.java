@@ -127,6 +127,14 @@ public class MockServiceServlet extends HttpServlet {
       mockServiceRequest.setHttpServletRequest(httpServletRequest);
       mockServiceResponse.setHttpServletResponse(httpServletResponse);
 
+      String className = urlToHandler.get(mockServiceRequest.getMockName());
+      mockServiceRequest.getDebugMap().put("mockHandlerClassName", className);
+      if (className == null) {
+        throw new RuntimeException("Cant find mock name for '" + className + "'");
+      }
+      Class<MockServiceHandler> mockServiceHandlerClass = GrouperUtil.forName(className);
+      MockServiceHandler mockServiceHandler = GrouperUtil.newInstance(mockServiceHandlerClass);
+
       {
         // if params get those
         httpServletRequest.getParameterMap();
@@ -138,18 +146,46 @@ public class MockServiceServlet extends HttpServlet {
           StringBuilder requestLog = new StringBuilder("\n");
           requestLog.append(httpServletRequest.getMethod()).append(" ").append(httpServletRequest.getRequestURI());
           if (!StringUtils.isBlank(httpServletRequest.getQueryString())) {
-            requestLog.append("?").append(httpServletRequest.getQueryString());
+            boolean logQueryString = true;
+            for (String doNotLogParameter : GrouperUtil.nonNull(mockServiceHandler.doNotLogParameters())) {
+              if (httpServletRequest.getQueryString().contains(doNotLogParameter)) {
+                logQueryString = false;
+              }
+            }
+            if (logQueryString) {
+              requestLog.append("?").append(httpServletRequest.getQueryString());
+            } else {
+              requestLog.append("?").append(GrouperUtil.abbreviate(httpServletRequest.getQueryString(), 6));
+            }
           }
           requestLog.append("\n");
           for (Enumeration<String> enumeration = httpServletRequest.getHeaderNames(); enumeration.hasMoreElements();) {
             String headerName = enumeration.nextElement();
             String headerValue = httpServletRequest.getHeader(headerName);
-            requestLog.append(headerName).append(": ").append(headerValue).append("\n");
+            requestLog.append(headerName).append(": ");
+            if (GrouperUtil.nonNull(mockServiceHandler.doNotLogHeaders()).contains(headerName)) {
+              if (headerValue.startsWith("Bearer ")) {
+                requestLog.append(GrouperUtil.abbreviate(headerValue, 13));
+              } else {
+                requestLog.append(GrouperUtil.abbreviate(headerValue, 6));
+              }
+            } else {
+              requestLog.append(headerValue);
+            }
+            requestLog.append("\n");
           }
           for (Enumeration<String> enumeration = httpServletRequest.getParameterNames(); enumeration.hasMoreElements();) {
             String parameterName = enumeration.nextElement();
             String parameterValue = httpServletRequest.getParameter(parameterName);
-            requestLog.append("Parameter: ").append(parameterName).append(" = ").append(parameterValue).append("\n");
+            requestLog.append("Parameter: ").append(parameterName).append(" = ");
+            
+            if (GrouperUtil.nonNull(mockServiceHandler.doNotLogHeaders()).contains(parameterName)) {
+              requestLog.append(GrouperUtil.abbreviate(parameterValue, 6));
+            } else {
+              requestLog.append(parameterValue);
+            }
+            
+            requestLog.append("\n");
           }
           if (!StringUtils.isBlank(requestBody)) {
             requestLog.append("\n").append(requestBody).append("\n");
@@ -157,15 +193,7 @@ public class MockServiceServlet extends HttpServlet {
           mockServiceRequest.getDebugMap().put("requestLog", requestLog.toString());
         }
       }
-      
-      String className = urlToHandler.get(mockServiceRequest.getMockName());
-      mockServiceRequest.getDebugMap().put("mockHandlerClassName", className);
-      if (className == null) {
-        throw new RuntimeException("Cant find mock name for '" + className + "'");
-      }
-      Class<MockServiceHandler> mockServiceHandlerClass = GrouperUtil.forName(className);
-      MockServiceHandler mockServiceHandler = GrouperUtil.newInstance(mockServiceHandlerClass);
-      
+            
       mockServiceHandler.handleRequest(mockServiceRequest, mockServiceResponse);
       
       if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mock.services.logRequestsResponses", false)) {

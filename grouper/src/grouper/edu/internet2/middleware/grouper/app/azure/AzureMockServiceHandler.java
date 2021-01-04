@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
 import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
@@ -27,9 +29,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.morphString.Morph;
 
-public class AzureMockServiceHandler implements MockServiceHandler {
+public class AzureMockServiceHandler extends MockServiceHandler {
 
   public AzureMockServiceHandler() {
+  }
+
+  /**
+   * 
+   */
+  private static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
+
+  /**
+   * 
+   */
+  private static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
+
+  /**
+   * params to not log all of
+   */
+  @Override
+  public Set<String> doNotLogParameters() {
+    
+    return doNotLogParameters;
+  }
+
+  /**
+   * headers to not log all of
+   */
+  @Override
+  public Set<String> doNotLogHeaders() {
+    return doNotLogHeaders;
   }
 
   /**
@@ -94,6 +123,11 @@ public class AzureMockServiceHandler implements MockServiceHandler {
         getGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+          && "members".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
+        getGroupMembers(mockServiceRequest, mockServiceResponse);
+        return;
+      }
       if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
         getUsers(mockServiceRequest, mockServiceResponse);
         return;
@@ -128,8 +162,19 @@ public class AzureMockServiceHandler implements MockServiceHandler {
         postMembership(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+          && "getMemberGroups".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
+        postUserGroups(mockServiceRequest, mockServiceResponse);
+        return;
+      }
     }
-    
+    if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
+      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+        patchGroups(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+    }    
+
     throw new RuntimeException("Not expecting request: '" + mockServiceRequest.getHttpServletRequest().getMethod() 
         + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
   }
@@ -256,7 +301,11 @@ public class AzureMockServiceHandler implements MockServiceHandler {
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    resultNode.put("@odata.context", "https://graph.microsoft.com/v1.0/$metadata#groups");
+    
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.azure1.resourceEndpoint");
+
+    resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
     
     Set<String> fieldsToRetrieve = null;
     String fieldsToRetrieveString = mockServiceRequest.getHttpServletRequest().getParameter("$select");
@@ -548,6 +597,169 @@ public class AzureMockServiceHandler implements MockServiceHandler {
   
   }
 
+  public void patchGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+
+    checkAuthorization(mockServiceRequest);
+    
+    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
+      throw new RuntimeException("Content type must be application/json");
+    }
+
+    String requestJsonString = mockServiceRequest.getRequestBody();
+    JsonNode requestJsonNode = GrouperUtil.jsonJacksonNode(requestJsonString);
+    
+    if (requestJsonNode.has("members@odata.bind")) {
+      patchMemberships(mockServiceRequest, mockServiceResponse, requestJsonNode);
+      return;
+    }
+    
+    // patch a group
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    mockServiceRequest.getDebugMap().put("groupId", groupId);
+
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+      mockServiceRequest.getDebugMap().put("cantFindGroup", true);
+      mockServiceResponse.setResponseCode(404);
+      return;
+    }
+    if (GrouperUtil.length(grouperAzureGroups) > 1) {
+      throw new RuntimeException("Found multiple matched groups! " + GrouperUtil.length(grouperAzureGroups));
+    }
+    GrouperAzureGroup grouperAzureGroup = grouperAzureGroups.get(0);
+
+    // only update fields if they are in the patch
+    if (requestJsonNode.has("description")) {
+      grouperAzureGroup.setDescription(GrouperUtil.jsonJacksonGetString(requestJsonNode, "description"));
+    }
+    if (requestJsonNode.has("displayName")) {
+      grouperAzureGroup.setDisplayName(GrouperUtil.jsonJacksonGetString(requestJsonNode, "displayName"));
+    }
+    if (requestJsonNode.has("groupTypes")) {
+      ArrayNode groupTypesArrayNode = (ArrayNode)requestJsonNode.get("groupTypes");
+      Set<String> groupTypesSet = new HashSet<String>();
+      for (int i=0;i<groupTypesArrayNode.size();i++) {
+        String groupType = groupTypesArrayNode.get(i).asText();
+        groupTypesSet.add(groupType);
+      }
+      grouperAzureGroup.setGroupTypeMailEnabled(groupTypesSet.contains("MailEnabled"));
+      grouperAzureGroup.setGroupTypeMailEnabledSecurity(groupTypesSet.contains("MailEnabledSecurity"));
+      grouperAzureGroup.setGroupTypeSecurity(groupTypesSet.contains("Security"));
+      grouperAzureGroup.setGroupTypeUnified(groupTypesSet.contains("Unified"));
+    }
+    if (requestJsonNode.has("id")) {
+      throw new RuntimeException("Cant update the id field!");
+    }
+    if (requestJsonNode.has("mailEnabled")) {
+      grouperAzureGroup.setMailEnabled(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "mailEnabled"));
+    }
+    if (requestJsonNode.has("mailNickname")) {
+      grouperAzureGroup.setMailNickname(GrouperUtil.jsonJacksonGetString(requestJsonNode, "mailNickname"));
+    }
+    if (requestJsonNode.has("securityEnabled")) {
+      grouperAzureGroup.setSecurityEnabled(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "securityEnabled"));
+    }
+    if (requestJsonNode.has("visibility")) {
+      grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(requestJsonNode, "visibility"));
+    }
+    HibernateSession.byObjectStatic().saveOrUpdate(grouperAzureGroup);
+    
+    mockServiceResponse.setResponseCode(204);
+    mockServiceResponse.setContentType("application/json");
+
+    
+  }
+  
+    
+  public void patchMemberships(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse, JsonNode odataJsonNode) {
+  
+    //  PATCH https://graph.microsoft.com/v1.0/groups/{group-id}
+    //  Content-type: application/json
+    //  Content-length: 30
+    //
+    //  {
+    //    "members@odata.bind": [
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}",
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}",
+    //      "https://graph.microsoft.com/v1.0/directoryObjects/{id}"
+    //      ]
+    //  }
+      
+    //check require args
+    GrouperUtil.assertion(odataJsonNode.has("members@odata.bind"), "members@odata.bind is required");
+    
+    ArrayNode membersNode = (ArrayNode)odataJsonNode.get("members@odata.bind");
+
+    GrouperUtil.assertion(membersNode.size() > 0, "members@odata.bind needs elements");
+
+    mockServiceRequest.getDebugMap().put("members", membersNode.size());
+
+    int maxSize = Math.min(20, GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20));
+    
+    GrouperUtil.assertion(membersNode.size() <= maxSize, "members@odata.bind cannot be more than " + maxSize);
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    mockServiceRequest.getDebugMap().put("groupId", groupId);
+
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+      mockServiceRequest.getDebugMap().put("cantFindGroup", true);
+      mockServiceResponse.setResponseCode(404);
+      return;
+    }
+    
+    int responseCode = 204;
+    
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.azure1.resourceEndpoint");
+    
+    for (int i=0;i<membersNode.size();i++) {
+
+      String url = membersNode.get(i).asText();
+      GrouperUtil.assertion(url.startsWith(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/"), "@odata.id must start with " + GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/");
+      String userId = GrouperUtil.prefixOrSuffix(url, GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/", false);
+      
+      List<GrouperAzureMembership> grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureMembership where groupId = :theGroupId and userId = :theUserId")
+          .setString("theGroupId", groupId).setString("theUserId", userId).list(GrouperAzureMembership.class);
+
+      if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+        responseCode = 400;
+        continue;
+      }
+
+      List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureUser where id = :theId")
+          .setString("theId", userId).list(GrouperAzureUser.class);
+      
+      if (GrouperUtil.length(grouperAzureUsers) == 0) {
+        mockServiceRequest.getDebugMap().put("cantFindUser", true);
+        responseCode = 404;
+        continue;
+      }
+
+      GrouperAzureMembership grouperAzureMembership = new GrouperAzureMembership();
+      grouperAzureMembership.setId(GrouperUuid.getUuid());
+      grouperAzureMembership.setGroupId(groupId);
+      grouperAzureMembership.setUserId(userId);
+      HibernateSession.byObjectStatic().save(grouperAzureMembership);
+      
+    }
+
+    mockServiceResponse.setResponseCode(responseCode);
+  
+    
+  }
+
+  
   public void postMembership(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
     
@@ -564,9 +776,13 @@ public class AzureMockServiceHandler implements MockServiceHandler {
   
     //check require args
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
-    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith("https://graph.microsoft.com/v1.0/directoryObjects/"), "@odata.id must start with https://graph.microsoft.com/v1.0/directoryObjects/");
 
-    String userId = GrouperUtil.prefixOrSuffix(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id"), "https://graph.microsoft.com/v1.0/directoryObjects/", false);
+    String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.azure1.resourceEndpoint")) + "/directoryObjects/";
+    
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
+
+    String userId = GrouperUtil.prefixOrSuffix(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id"), resourceEndpointDirectoryObjects, false);
 
     mockServiceRequest.getDebugMap().put("userId", userId);
 
@@ -655,5 +871,145 @@ public class AzureMockServiceHandler implements MockServiceHandler {
 
     mockServiceRequest.getDebugMap().put("cantFindMembership", true);
     mockServiceResponse.setResponseCode(404);
+  }
+
+  public void getGroupMembers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+  
+    checkAuthorization(mockServiceRequest);
+    
+    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
+      throw new RuntimeException("Content type must be application/json");
+    }
+    
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "id is required");
+    GrouperUtil.assertion("id".equals(mockServiceRequest.getHttpServletRequest().getParameter("$select")), "$select must equal 'id'");
+
+    // GET /groups/{id}/members
+    //  $top=5&$skiptoken=X%274453707 ... 6633B900000000
+    int pageSize = Math.min(GrouperUtil.intValue(mockServiceRequest.getHttpServletRequest().getParameter("$top"), 100), 100);
+    pageSize = Math.min(pageSize, GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetMembershipPagingSize", 100));
+
+    mockServiceRequest.getDebugMap().put("pageSize", pageSize);
+
+    String skipToken = mockServiceRequest.getHttpServletRequest().getParameter("$skiptoken");
+    mockServiceRequest.getDebugMap().put("skipToken", skipToken);
+
+    List<GrouperAzureMembership> grouperAzureMemberships = null;
+    
+    // get one more than page size to see if there is more data :)
+    if (StringUtils.isBlank(skipToken)) {
+      grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership where groupId = :theGroupId")
+          .setString("theGroupId", groupId).options(QueryOptions.create("userId", true, 1, pageSize+1)).list(GrouperAzureMembership.class);
+    } else {
+      grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership where groupId = :theGroupId and userId > :skipToken")
+          .setString("theGroupId", groupId).setString("skipToken", skipToken).options(QueryOptions.create("userId", true, 1, pageSize+1)).list(GrouperAzureMembership.class);
+    }
+
+    mockServiceRequest.getDebugMap().put("resultSize", GrouperUtil.length(grouperAzureMemberships));
+
+    mockServiceResponse.setContentType("application/json");
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+
+    // if theres more, send the nextLink
+    if (GrouperUtil.length(grouperAzureMemberships) == pageSize + 1) {
+      
+      // take off the last one
+      grouperAzureMemberships.remove(grouperAzureMemberships.size()-1);
+      
+      // e.g. http://localhost:8400/grouper/mockServices/azure
+      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.azure1.resourceEndpoint"));
+
+      String odataNextLink = azureLink + "/groups/" + GrouperUtil.escapeUrlEncode(groupId) 
+        + "/members?$skiptoken=" + GrouperUtil.escapeUrlEncode(grouperAzureMemberships.get(grouperAzureMemberships.size()-1).getUserId())
+        + "&$top=" + pageSize + "&$select=id";
+      
+      mockServiceRequest.getDebugMap().put("odataNextLink", odataNextLink);
+      
+      resultNode.put("@odata.nextLink", odataNextLink);
+      
+      
+    }
+
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.azure1.resourceEndpoint");
+
+    resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#directoryObjects");
+
+    mockServiceResponse.setResponseCode(200);
+
+    if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+    
+      ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+
+
+      //  {
+      //    "id": "11111111-2222-3333-4444-555555555555"
+      //  }
+
+      for (GrouperAzureMembership grouperAzureMembership : grouperAzureMemberships) {
+        ObjectNode membershipNode = GrouperUtil.jsonJacksonNode();
+        membershipNode.put("id", grouperAzureMembership.getUserId());
+        valueNode.add(membershipNode);
+      }
+      
+      resultNode.set("value", valueNode);
+
+    }
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  
+  }
+
+  /**
+   * get groups for a user
+   * @param mockServiceRequest
+   * @param mockServiceResponse
+   */
+  public void postUserGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+  
+    checkAuthorization(mockServiceRequest);
+    
+    String userId = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+    
+    List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser where id = :theId or userPrincipalName = :theId2")
+        .setString("theId", userId).setString("theId2", userId).list(GrouperAzureUser.class);
+  
+    if (GrouperUtil.length(grouperAzureUsers) == 1) {
+      
+      mockServiceResponse.setResponseCode(200);
+      
+      //  {
+      //    "value": [
+      //      "11111111-2222-3333-4444-555555555555",
+      //      "12334-3452-43345-352345345-345345345"]
+      //  }
+
+      int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
+
+      List<GrouperAzureMembership> grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership where userId = :theUserId")
+        .setString("theUserId", userId).options(QueryOptions.create("userId", true, 1, azureGetUserGroupsMax)).list(GrouperAzureMembership.class);
+        
+      mockServiceResponse.setContentType("application/json");
+  
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+        ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+        for (GrouperAzureMembership grouperAzureMembership : grouperAzureMemberships) {
+          valueNode.add(grouperAzureMembership.getGroupId());
+        }
+        objectNode.set("value", valueNode);
+      }
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+  
+    } else if (GrouperUtil.length(grouperAzureUsers) == 0) {
+      mockServiceResponse.setResponseCode(404);
+    } else {
+      throw new RuntimeException("usersById: " + GrouperUtil.length(grouperAzureUsers) + ", id: " + userId);
+    }
+  
   }
 }

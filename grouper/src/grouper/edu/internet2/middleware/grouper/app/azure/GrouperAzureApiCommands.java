@@ -68,14 +68,42 @@ public class GrouperAzureApiCommands {
     //  GrouperAzureGroup grouperAzureGroup = retrieveAzureGroup("azure1", "displayName", "myDisplayName2");
     //  System.out.println(grouperAzureGroup);
 
+//    for (int i=0;i<5;i++) {
+//      {
+//        GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+//        grouperAzureUser.setAccountEnabled(true);
+//        grouperAzureUser.setDisplayName("myDispName" + i);
+//        grouperAzureUser.setId(GrouperUuid.getUuid());
+//        grouperAzureUser.setMailNickname("a" + i + "@b.c");
+//        grouperAzureUser.setOnPremisesImmutableId((12345678+i) + "");
+//        grouperAzureUser.setUserPrincipalName("jsmith" + 1);
+//        HibernateSession.byObjectStatic().save(grouperAzureUser);
+//        createAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", grouperAzureUser.getId());
+//      }
+//      
+//    }
+    
+    //  Set<String> groupIds = retrieveAzureUserGroups("azure1", "84ec56bad4da4430ae5f2998ea283dfc");
+    //  for (String groupId : groupIds) {
+    //    System.out.println(groupId);
+    //  }
+
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("azureGetMembershipPagingSize", "2");
+    //
+    //    Set<String> userIds = retrieveAzureGroupMembers("azure1", "dcba5d8d7986432db23a0342887e8fba");
+    //    for (String userId : userIds) {
+    //      System.out.println(userId);
+    //    }
+        
+    
     //  {
     //    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
     //    grouperAzureUser.setAccountEnabled(true);
-    //    grouperAzureUser.setDisplayName("myDispName");
+    //    grouperAzureUser.setDisplayName("myDispName2");
     //    grouperAzureUser.setId(GrouperUuid.getUuid());
-    //    grouperAzureUser.setMailNickname("a@b.c");
-    //    grouperAzureUser.setOnPremisesImmutableId("12345678");
-    //    grouperAzureUser.setUserPrincipalName("jsmith");
+    //    grouperAzureUser.setMailNickname("a@b.d");
+    //    grouperAzureUser.setOnPremisesImmutableId("12345679");
+    //    grouperAzureUser.setUserPrincipalName("kjohnson");
     //    HibernateSession.byObjectStatic().save(grouperAzureUser);
     //  }
     
@@ -90,7 +118,10 @@ public class GrouperAzureApiCommands {
     //System.out.println(grouperAzureUser);
     
     //  createAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
-    deleteAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
+    
+    //createAzureMemberships("azure1", "dcba5d8d7986432db23a0342887e8fba", GrouperUtil.toSet("1db63cda166a4640b9ef1a0808f90873", "b1dda78d8d42461a93f8b471f26b682e"));
+    
+    //  deleteAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
     
     //  GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     //  grouperAzureGroup.setDescription("myDescription2");
@@ -102,6 +133,11 @@ public class GrouperAzureApiCommands {
 
     //deleteAzureGroup("azure1", "fa356bb8ddb14600be7994cd7b5239a7");
     
+    GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+    grouperAzureGroup.setId("dcba5d8d7986432db23a0342887e8fba");
+    grouperAzureGroup.setDisplayName("myDisplayName3");
+    grouperAzureGroup.setMailNickname("whatever");
+    updateAzureGroup("azure1", grouperAzureGroup, GrouperUtil.toSet("displayName"));
   }
 
   
@@ -149,7 +185,12 @@ public class GrouperAzureApiCommands {
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
     }
-    url += (urlSuffix.startsWith("/") ? "" : "/") + urlSuffix;
+    // in a nextLink, url is specified, so it might not have a prefix of the resourceEndpoint
+    if (!urlSuffix.startsWith("http")) {
+      url += (urlSuffix.startsWith("/") ? "" : "/") + urlSuffix;
+    } else {
+      url = urlSuffix;
+    }
     debugMap.put("url", url);
 
     HttpMethodBase method = null;
@@ -281,7 +322,10 @@ public class GrouperAzureApiCommands {
 
       ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
 
-      objectNode.put("@odata.id", "https://graph.microsoft.com/v1.0/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
+      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+          "grouper.azureConnector.azure1.resourceEndpoint");
+      
+      objectNode.put("@odata.id", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
       
       executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
@@ -334,9 +378,12 @@ public class GrouperAzureApiCommands {
 
         ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
         
+        String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+            "grouper.azureConnector.azure1.resourceEndpoint");
+        
         for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
           String userId = batchOfUserIds.get(i);
-          arrayNode.add("https://graph.microsoft.com/v1.0/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
+          arrayNode.add(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
         }
         
         ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
@@ -584,17 +631,23 @@ public class GrouperAzureApiCommands {
 
     try {
 
-      String urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(userId) + "/memberOf?$select=id";
+      String urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(userId) + "/getMemberGroups";
 
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), new int[] {-1}, null);
 
       //lets get the group node
 
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
       if (value != null && value.size() > 0) {
+        
+        int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
+        if (value.size() == azureGetUserGroupsMax) {
+          throw new RuntimeException("Too many groups! " + value.size());
+        }
+        
         for (int i=0;i<value.size();i++) {
-          JsonNode membership = value.get(i);
-          result.add(GrouperUtil.jsonJacksonGetString(membership, "id"));
+          String groupId = value.get(i).asText();
+          result.add(groupId);
         }
       }
 
@@ -626,7 +679,9 @@ public class GrouperAzureApiCommands {
 
     try {
 
-      String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id";
+      int azureGetMembershipPagingSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetMembershipPagingSize", 100);
+      
+      String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id&$top=" + azureGetMembershipPagingSize;
 
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
 
@@ -638,6 +693,15 @@ public class GrouperAzureApiCommands {
         String nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         if (StringUtils.isBlank(nextLink)) {
           break;
+        }
+        String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
+            "grouper.azureConnector.azure1.resourceEndpoint");
+        if (!nextLink.startsWith(resourceEndpoint)) {
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperAzureAllowNextLinkPrefixMismatch", false)) {
+            throw new RuntimeException("@odata.nextLink is going to a different URL! '" + nextLink + "', '" + resourceEndpoint + "'");
+          }
+        } else {
+          urlSuffix = nextLink.substring(resourceEndpoint.length(), nextLink.length());
         }
         jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
         retrieveAzureGroupMembersHelper(result, jsonNode);
