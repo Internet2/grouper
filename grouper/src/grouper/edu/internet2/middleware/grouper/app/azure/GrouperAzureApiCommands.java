@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -33,6 +35,9 @@ public class GrouperAzureApiCommands {
 
   public static void main(String[] args) {
 
+//    AzureMockServiceHandler.dropAzureMockTables();
+//    AzureMockServiceHandler.ensureAzureMockTables();
+    
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
 //        "grouper.azureConnector.azure1.loginEndpoint",
 //        "http://localhost/f3/login.microsoftonline.com/");
@@ -43,7 +48,8 @@ public class GrouperAzureApiCommands {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
     "grouper.azureConnector.azure1.loginEndpoint",
     "http://localhost:8400/grouper/mockServices/azure/auth");
-  GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
     "grouper.azureConnector.azure1.resourceEndpoint",
     "http://localhost:8400/grouper/mockServices/azure");
 
@@ -52,27 +58,49 @@ public class GrouperAzureApiCommands {
 
     //GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning("azure1");
 
-    List<GrouperAzureGroup> grouperAzureGroups = retrieveAzureGroups("azure1");
+    //  List<GrouperAzureGroup> grouperAzureGroups = retrieveAzureGroups("azure1");
+    //  
+    //  for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
+    //    System.out.println(grouperAzureGroup);
+    //  }
     
-    for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      System.out.println(grouperAzureGroup);
-    }
+    //  GrouperAzureGroup grouperAzureGroup = retrieveAzureGroup("azure1", "id", "1153755cfa554297a29cfc332e1bef9f");
+    //  GrouperAzureGroup grouperAzureGroup = retrieveAzureGroup("azure1", "displayName", "myDisplayName2");
+    //  System.out.println(grouperAzureGroup);
 
+    //  {
+    //    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+    //    grouperAzureUser.setAccountEnabled(true);
+    //    grouperAzureUser.setDisplayName("myDispName");
+    //    grouperAzureUser.setId(GrouperUuid.getUuid());
+    //    grouperAzureUser.setMailNickname("a@b.c");
+    //    grouperAzureUser.setOnPremisesImmutableId("12345678");
+    //    grouperAzureUser.setUserPrincipalName("jsmith");
+    //    HibernateSession.byObjectStatic().save(grouperAzureUser);
+    //  }
+    
     //  List<GrouperAzureUser> grouperAzureUsers = retrieveAzureUsers("azure1");
     //
     //  for (GrouperAzureUser grouperAzureUser : grouperAzureUsers) {
     //    System.out.println(grouperAzureUser);
     //  }
-
+    
+    //GrouperAzureUser grouperAzureUser = retrieveAzureUser("azure1", "userPrincipalName", "jsmith");
+    //GrouperAzureUser grouperAzureUser = retrieveAzureUser("azure1", "displayName", "myDispName");
+    //System.out.println(grouperAzureUser);
+    
+    //  createAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
+    deleteAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
+    
     //  GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     //  grouperAzureGroup.setDescription("myDescription2");
     //  grouperAzureGroup.setDisplayName("myDisplayName2");
+    //  grouperAzureGroup.setMailNickname("myMailNick");
     //  grouperAzureGroup.setGroupTypeUnified(true);
     //  grouperAzureGroup.setVisibility(AzureVisibility.Public);
     //  createAzureGroup("azure1", grouperAzureGroup, null);
 
-    //  deleteAzureGroup("azure1", "e111dbca-c413-8c63-909d-801327b230c5");
-    
+    //deleteAzureGroup("azure1", "fa356bb8ddb14600be7994cd7b5239a7");
     
   }
 
@@ -503,7 +531,10 @@ public class GrouperAzureApiCommands {
         urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(fieldValue) + "?$select="
             + GrouperAzureUser.fieldsToSelect;
       } else {
-        throw new RuntimeException("Not expecting field: " + fieldName);
+        urlSuffix = "/users?$filter=" + GrouperUtil.escapeUrlEncode(fieldName)
+            + "%20eq%20'" + GrouperUtil.escapeUrlEncode(StringUtils.replace(fieldValue, "'", "''")) + "'&$select="
+            + GrouperAzureUser.fieldsToSelect;
+
       }
 
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
@@ -655,7 +686,7 @@ public class GrouperAzureApiCommands {
             + GrouperAzureGroup.fieldsToSelect;
       } else {
         urlSuffix = "/groups?$filter=" + GrouperUtil.escapeUrlEncode(fieldName)
-            + "%20eq%20'" + GrouperUtil.escapeUrlEncode(fieldValue) + "'&$select="
+            + "%20eq%20'" + GrouperUtil.escapeUrlEncode(StringUtils.replace(fieldValue, "'", "''")) + "'&$select="
             + GrouperAzureGroup.fieldsToSelect;
       }
 
@@ -705,7 +736,7 @@ public class GrouperAzureApiCommands {
     try {
   
       executeMethod(debugMap, "DELETE", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/" + GrouperUtil.escapeUrlEncode(userId) + "/$ref",
-          GrouperUtil.toSet(204, 400), new int[] { -1 }, null);
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
   
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

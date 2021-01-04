@@ -20,31 +20,20 @@ public class GrouperAzureAuth {
    * @param ddlVersionBean
    * @param database
    */
-  public static void createTableAzureAuth() {
+  public static void createTableAzureAuth(DdlVersionBean ddlVersionBean, Database database) {
 
     final String tableName = "mock_azure_auth";
 
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
     } catch (Exception e) {
-      //we need to delete the test table if it is there, and create a new one
-      //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-    
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+      
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "config_id", Types.VARCHAR, "1024", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "access_token", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "expires_on_seconds", Types.BIGINT, "12", false, true);
           
-          Database database = ddlVersionBean.getDatabase();
-    
-          
-          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "config_id", Types.VARCHAR, "1024", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "access_token", Types.VARCHAR, "40", true, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "expires_on_seconds", Types.BIGINT, "12", false, true);
-          
-        }
-        
-      });
     }
     
   }

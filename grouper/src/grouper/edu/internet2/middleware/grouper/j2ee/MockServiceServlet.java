@@ -14,15 +14,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
-import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -64,28 +58,10 @@ public class MockServiceServlet extends HttpServlet {
     try {
       // if you cant connrc to it, its not there
       HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      throw new RuntimeException("Cant drop table: '" + tableName + "'");
     } catch (Exception e) {
       return;
     }
-    //we need to delete the test table if it is there, and create a new one
-    //drop field id col, first drop foreign keys
-    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-  
-      public void changeDatabase(DdlVersionBean ddlVersionBean) {
-        
-        Database database = ddlVersionBean.getDatabase();
-  
-        {
-          Table loaderTable = database.findTable(tableName);
-          
-          if (loaderTable != null) {
-            database.removeTable(loaderTable);
-          }
-        }
-                
-      }
-      
-    });
   }
 
   /**

@@ -4,6 +4,7 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -51,42 +52,32 @@ public class GrouperAzureGroup {
    * @param ddlVersionBean
    * @param database
    */
-  public static void createTableAzureGroup() {
+  public static void createTableAzureGroup(DdlVersionBean ddlVersionBean, Database database) {
 
     final String tableName = "mock_azure_group";
 
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
     } catch (Exception e) {
-      //we need to delete the test table if it is there, and create a new one
-      //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          
-          Database database = ddlVersionBean.getDatabase();
-    
-          
-          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled_sec", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_security", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_unified", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_enabled", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
-        }
-        
-      });
+      
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled_sec", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_security", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_unified", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_enabled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
     }
-    
+            
   }
 
   public ProvisioningGroup toProvisioningGroup() {
@@ -340,7 +331,9 @@ public class GrouperAzureGroup {
       result.put("description", this.description);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
-      result.put("displayName", this.displayName);
+      if (!StringUtils.isBlank(this.displayName)) {
+        result.put("displayName", this.displayName);
+      }
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeMailEnabled")
@@ -367,7 +360,9 @@ public class GrouperAzureGroup {
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      result.put("id", this.id);
+      if (!StringUtils.isBlank(this.id)) {
+        result.put("id", this.id);
+      }
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("mailEnabled")) {
@@ -375,7 +370,9 @@ public class GrouperAzureGroup {
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {
-      result.put("mailNickname", this.mailNickname);
+      if (!StringUtils.isBlank(this.mailNickname)) {
+        result.put("mailNickname", this.mailNickname);
+      }
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {

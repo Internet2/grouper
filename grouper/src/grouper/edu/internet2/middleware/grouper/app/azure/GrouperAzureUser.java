@@ -1,11 +1,24 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.sql.Types;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperAzureUser {
@@ -50,6 +63,14 @@ public class GrouperAzureUser {
 
   public void setAccountEnabled(boolean accountEnabled) {
     this.accountEnabled = accountEnabled;
+  }
+
+  public String getAccountEnabledDb() {
+    return accountEnabled ? "T" : "F";
+  }
+
+  public void setAccountEnabledDb(String accountEnabledDb) {
+    this.accountEnabled = GrouperUtil.booleanValue(accountEnabledDb);
   }
 
   public String getDisplayName() {
@@ -113,7 +134,7 @@ public class GrouperAzureUser {
     grouperAzureUser.setOnPremisesImmutableId("onPrem");
     grouperAzureUser.setUserPrincipalName("userPri");
   
-    String json = GrouperUtil.jsonJacksonToString(grouperAzureUser.toJson());
+    String json = GrouperUtil.jsonJacksonToString(grouperAzureUser.toJson(null));
     System.out.println(json);
     
     grouperAzureUser = GrouperAzureUser.fromJson(GrouperUtil.jsonJacksonNode(json));
@@ -127,16 +148,28 @@ public class GrouperAzureUser {
    * @param groupNode
    * @return the group
    */
-  public ObjectNode toJson() {
+  public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
   
-    GrouperUtil.jsonJacksonAssignBoolean(result, "accountEnabled", this.accountEnabled);
-    GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
-    GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
-    GrouperUtil.jsonJacksonAssignString(result, "mailNickname", this.mailNickname);
-    GrouperUtil.jsonJacksonAssignString(result, "onPremisesImmutableId", this.onPremisesImmutableId);
-    GrouperUtil.jsonJacksonAssignString(result, "userPrincipalName", this.userPrincipalName);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("accountEnabled")) {      
+      GrouperUtil.jsonJacksonAssignBoolean(result, "accountEnabled", this.accountEnabled);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "mailNickname", this.mailNickname);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("onPremisesImmutableId")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "onPremisesImmutableId", this.onPremisesImmutableId);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("userPrincipalName")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "userPrincipalName", this.userPrincipalName);
+    }
     
     return result;
   }
@@ -144,6 +177,33 @@ public class GrouperAzureUser {
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this);
+  }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public static void createTableAzureUser(DdlVersionBean ddlVersionBean, Database database) {
+  
+    final String tableName = "mock_azure_user";
+  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+          
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "account_enabled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_immutable_id", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_principal_name", Types.VARCHAR, "256", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_user_upn_idx", false, "user_principal_name");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_user_opii_idx", false, "on_premises_immutable_id");
+    }
+    
   }
 
 }
