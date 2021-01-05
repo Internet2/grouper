@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,14 +24,14 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDele
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
@@ -55,8 +56,6 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
     try {
 
-      //TODO
-      //boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false : targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
@@ -459,59 +458,55 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
     }
   }
-  //
-  //  @Override
-  //  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-  //    long startNanos = System.nanoTime();
-  //
-  //    try {
-  //      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-  //
-  //      GraphApiClient apiClient = AzureGrouperExternalSystem.retrieveApiConnectionForProvisioning(azureConfiguration.getAzureExternalSystemConfigId());
-  //
-  //      List<AzureGraphUser> azureUsers = null;
-  //      try {
-  //        azureUsers = apiClient.getAllUsers();
-  //      } catch (IOException e) {
-  //        throw new RuntimeException("Failed to retrieve full list of users from Azure", e);
-  //      }
-  //
-  //      List<ProvisioningMembership> results = new ArrayList<>();
-  //
-  //      for (AzureGraphUser azureUser : azureUsers) {
-  //        ProvisioningEntity targetEntity = new ProvisioningEntity();
-  //        targetEntity.setLoginId(azureUser.userPrincipalName);
-  //
-  //        ProvisioningMembership targetMembership = new ProvisioningMembership();
-  //        targetMembership.setId(azureUser.id);
-  //        targetMembership.setProvisioningEntity(targetEntity);
-  //
-  //        results.add(targetMembership);
-  //      }
-  //
-  //      return new TargetDaoRetrieveAllMembershipsResponse(results);
-  //    } finally {
-  //      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
-  //    }
-  //  }
-  //
-  //  
+
+  @Override
+  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
+    long startNanos = System.nanoTime();
+
+    try {
+      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
+          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId());
+
+      List<ProvisioningMembership> results = new ArrayList<>();
+
+      for (GrouperAzureGroup grouperAzureGroup : GrouperUtil.nonNull(grouperAzureGroups)) {
+        Set<String> userIds = GrouperAzureApiCommands
+            .retrieveAzureGroupMembers(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup.getId());
+        for (String userId : GrouperUtil.nonNull(userIds)) {
+          
+          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          targetMembership.setProvisioningEntityId(userId);
+          targetMembership.setProvisioningGroupId(grouperAzureGroup.getId());
+          results.add(targetMembership);
+        }
+
+      }
+
+      return new TargetDaoRetrieveAllMembershipsResponse(results);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
+    }
+  }
+
+  
 
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
-    grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
-    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
-    // not really grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
-    grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
+    grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
+    grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
 
 }
