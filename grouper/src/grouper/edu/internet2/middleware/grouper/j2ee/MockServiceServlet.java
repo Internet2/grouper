@@ -179,7 +179,7 @@ public class MockServiceServlet extends HttpServlet {
             String parameterValue = httpServletRequest.getParameter(parameterName);
             requestLog.append("Parameter: ").append(parameterName).append(" = ");
             
-            if (GrouperUtil.nonNull(mockServiceHandler.doNotLogHeaders()).contains(parameterName)) {
+            if (GrouperUtil.nonNull(mockServiceHandler.doNotLogParameters()).contains(parameterName)) {
               requestLog.append(GrouperUtil.abbreviate(parameterValue, 6));
             } else {
               requestLog.append(parameterValue);
