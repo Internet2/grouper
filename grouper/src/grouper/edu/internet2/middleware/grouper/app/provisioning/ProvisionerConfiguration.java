@@ -165,7 +165,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   
   private void setErrorCount(Map<String, Integer> errorCountByCode, int[] counts) {
     
-    for (String error: errorCountByCode.keySet()) {
+    for (String error: GrouperUtil.nonNull(errorCountByCode).keySet()) {
       
       GcGrouperSyncErrorCode gcGrouperSyncErrorCode = GcGrouperSyncErrorCode.valueOf(error);
       if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.ERR) {

@@ -312,6 +312,27 @@ public class GrouperProvisioningConfigurationAttribute {
   private boolean membershipAttribute;
 
   /**
+   * if this is the attribute used to search for objects in the target
+   */
+  private boolean searchAttribute;
+  
+  /**
+   * if this is the attribute used to search for objects in the target
+   * @return
+   */
+  public boolean isSearchAttribute() {
+    return searchAttribute;
+  }
+
+  /**
+   * if this is the attribute used to search for objects in the target
+   * @param searchAttribute
+   */
+  public void setSearchAttribute(boolean searchAttribute) {
+    this.searchAttribute = searchAttribute;
+  }
+
+  /**
    * attribute or field name
    * @return
    */

@@ -21,7 +21,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
    * @param args
    */
   public static void main(String args[]) {
-    TestRunner.run(new GrouperProvisioningLogicTest("testConfigurationValidationEntities"));
+    TestRunner.run(new GrouperProvisioningLogicTest("testConfigurationValidationGroups"));
   }
   
   public GrouperProvisioningLogicTest() {
@@ -235,7 +235,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.update", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.delete", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.matchingId", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.multiValued", "false");
@@ -247,7 +246,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.update", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.delete", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.matchingId", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.multiValued", "true");
@@ -310,6 +308,45 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "hasTargetEntityLink")));
     assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "targetEntityAttribute.0.translateToMemberSyncField")));
     assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "common.entityLink.memberFromId2")));
+
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.isFieldElseAttribute", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.valueType", "string");
+
+    errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+
+    //provisioning.configuration.validation.multipleAttributesSameName = Error: two ${type} ${fieldType}s have the same name '${attributeName}'
+    GrouperTextContainer.assignThreadLocalVariable("type", "group");
+    GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
+    GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "targetGroupAttribute.2.name"})));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "targetGroupAttribute.2.isFieldElseAttribute"})));
+    GrouperTextContainer.resetThreadLocalVariableMap();
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.name", "description");
+
+    
+    errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+    GrouperTextContainer.assignThreadLocalVariable("type", "group");
+    GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
+    GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
+    // provisioning.configuration.validation.attributeNameRequired = Error: ${type} ${fieldType} name is required
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "targetGroupAttribute.2.name"})));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "targetGroupAttribute.2.isFieldElseAttribute"})));
+    GrouperTextContainer.resetThreadLocalVariableMap();
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.isFieldElseAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.valueType");
+
+    errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+
+    GrouperTextContainer.assignThreadLocalVariable("type", "group");
+    GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
+    GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "targetGroupAttribute.2.name"})));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "targetGroupAttribute.2.isFieldElseAttribute"})));
+    GrouperTextContainer.resetThreadLocalVariableMap();
 
   }
   

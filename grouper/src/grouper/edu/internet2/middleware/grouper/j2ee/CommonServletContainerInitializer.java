@@ -25,7 +25,9 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
     
       boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
-      
+
+      boolean runMockServices = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false);
+
       boolean runGrouperWs = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
       
       boolean runGrouperScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
@@ -42,6 +44,14 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
         throw new RuntimeException("why edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet is not there??");
       }
      
+      if (runMockServices) {
+        
+        String uiServletName = "MockServices";
+        javax.servlet.ServletRegistration.Dynamic uiServlet = context.addServlet(uiServletName, MockServiceServlet.class);
+        uiServlet.addMapping("/mockServices/*");
+          
+      }
+
       
       if (runGrouperUi) {
         

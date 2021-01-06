@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.azure;
+package edu.internet2.middleware.grouper.app.azure;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

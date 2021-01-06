@@ -1,11 +1,12 @@
-package edu.internet2.middleware.grouper.azure;
-
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import org.apache.commons.lang3.StringUtils;
+package edu.internet2.middleware.grouper.app.azure;
 
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class AzureProvisionerConfiguration extends ProvisionerConfiguration {
 

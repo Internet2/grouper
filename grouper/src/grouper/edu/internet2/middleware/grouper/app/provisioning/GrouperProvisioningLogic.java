@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -879,6 +880,8 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
 
+    registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
+    
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(targetGroups, true, false, false);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(targetGroups);
 
@@ -906,6 +909,128 @@ public class GrouperProvisioningLogic {
       provisioningGroupWrapper.setCreate(false);
     }
     
+  }
+
+  /**
+   * 
+   * @param grouperTargetGroupsToInsert
+   * @param targetProvisioningGroups
+   */
+  public void registerRetrievedGroups(
+      List<ProvisioningGroup> grouperTargetGroups,
+      List<ProvisioningGroup> targetProvisioningGroups) {
+    
+    GrouperProvisioningConfigurationAttribute searchAttribute = null;
+    
+    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
+      new Collection[] {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
+    
+      // look for required fields
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+          grouperProvisioningConfigurationAttributes) {
+        
+        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+          searchAttribute = grouperProvisioningConfigurationAttribute;
+          break;
+        }
+        
+        //default is id I guess
+        if (!grouperProvisioningConfigurationAttribute.isAttribute() && "id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+          searchAttribute = grouperProvisioningConfigurationAttribute;
+        }
+      }
+    }
+    
+    if (searchAttribute == null) {
+      throw new RuntimeException("Identify a group search attribute!");
+    }
+
+    Map<Object, ProvisioningGroup> searchAttributeValueToGrouperTargetGroup = new HashMap<Object, ProvisioningGroup>();
+
+    // index by search attribute
+    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
+      Object searchAttributeValue = grouperTargetGroup.retrieveFieldOrAttributeValue(searchAttribute);
+      if (searchAttributeValue != null) {
+        searchAttributeValueToGrouperTargetGroup.put(searchAttributeValue, grouperTargetGroup);
+      }
+    }
+
+    for (ProvisioningGroup targetProvisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
+      Object searchAttributeValue = targetProvisioningGroup.retrieveFieldOrAttributeValue(searchAttribute);
+      if (searchAttributeValue != null) {
+        ProvisioningGroup grouperTargetGroup = searchAttributeValueToGrouperTargetGroup.get(searchAttributeValue);
+        if (grouperTargetGroup != null) {
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
+          if (provisioningGroupWrapper != null) {
+            targetProvisioningGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+            provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
+          }
+        }
+      }
+    }    
+  }
+
+  /**
+   * 
+   * @param grouperTargetEntitiesToInsert
+   * @param targetProvisioningEntities
+   */
+  public void registerRetrievedEntities(
+      List<ProvisioningEntity> grouperTargetEntities,
+      List<ProvisioningEntity> targetProvisioningEntities) {
+    
+    GrouperProvisioningConfigurationAttribute searchAttribute = null;
+    
+    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
+      new Collection[] {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
+    
+      // look for required fields
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+          grouperProvisioningConfigurationAttributes) {
+        
+        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+          searchAttribute = grouperProvisioningConfigurationAttribute;
+          break;
+        }
+        
+        //default is id I guess
+        if (!grouperProvisioningConfigurationAttribute.isAttribute() && "id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+          searchAttribute = grouperProvisioningConfigurationAttribute;
+        }
+      }
+    }
+    
+    if (searchAttribute == null) {
+      throw new RuntimeException("Identify an entity search attribute!");
+    }
+
+    Map<Object, ProvisioningEntity> searchAttributeValueToGrouperTargetEntity = new HashMap<Object, ProvisioningEntity>();
+
+    // index by search attribute
+    for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
+      Object searchAttributeValue = grouperTargetEntity.retrieveFieldOrAttributeValue(searchAttribute);
+      if (searchAttributeValue != null) {
+        searchAttributeValueToGrouperTargetEntity.put(searchAttributeValue, grouperTargetEntity);
+      }
+    }
+
+    for (ProvisioningEntity targetProvisioningEntity : GrouperUtil.nonNull(targetProvisioningEntities)) {
+      Object searchAttributeValue = targetProvisioningEntity.retrieveFieldOrAttributeValue(searchAttribute);
+      if (searchAttributeValue != null) {
+        ProvisioningEntity grouperTargetEntity = searchAttributeValueToGrouperTargetEntity.get(searchAttributeValue);
+        if (grouperTargetEntity != null) {
+          ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
+          if (provisioningEntityWrapper != null) {
+            targetProvisioningEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+            provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+          }
+        }
+      }
+    }    
   }
 
   public void createMissingEntitiesFull() {
@@ -994,6 +1119,11 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
     
+    registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
+
+    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(targetEntities, true, false, false);
+    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(targetEntities);
+
     // index
     this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(targetEntities);
     
