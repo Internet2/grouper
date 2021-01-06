@@ -185,7 +185,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
+    Hib3GrouperVersioned, Comparable<GrouperObject>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
     GrouperObject {
 
   /**
@@ -372,7 +372,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Stem that) {
+  public int compareTo(GrouperObject that) {
     if (that==null) {
       return 1;
     }

@@ -668,6 +668,21 @@ public class StemFinder {
    * find groups with this value
    */
   private Object attributeValue2;
+  
+  /**
+   * find stems that don't have a certain type assigned
+   */
+  private boolean attributeNotAssigned = false;
+  
+  /**
+   * find stems that don't have a certain type assigned
+   * @param attributeNotAssigned
+   * @return
+   */
+  public StemFinder assignAttributeNotAssigned(boolean attributeNotAssigned) {
+    this.attributeNotAssigned = attributeNotAssigned;
+    return this;
+  }
 
   /**
    * config key for caching
@@ -808,7 +823,8 @@ public class StemFinder {
             this.userHasInAttributeFields, this.stemIds, 
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
             this.attributeValuesOnAssignment, 
-            this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
+            this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2,
+            this.attributeNotAssigned);
    
     for (Stem stem : GrouperUtil.nonNull(stems)) {
       stemFlashCacheAddIfSupposedTo(stem);

@@ -11,11 +11,16 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -29,6 +34,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -398,7 +404,7 @@ public class GrouperObjectTypesConfiguration {
    */
   public static List<Stem> findStemsWhereCurrentUserIsAdminOfService(Subject subject) {
     
-    List stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
+    List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
         .assignSubject(subject)
         .assignNameOfAttributeDefName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true")
         .assignNameOfAttributeDefName2(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME).addAttributeValuesOnAssignment2("service")
@@ -407,32 +413,178 @@ public class GrouperObjectTypesConfiguration {
     return stems;
   }
   
-  /**
-   * search all the children of the given stem and return stems with object types
-   *  that are candidates for auto assigning types
-   * @param stem
-   * @param children
-   * @return
-   */
-  public static List<StemObjectType> getAutoAssignTypeStemCandidates(Stem stem, Set<Stem> children) {
+  private static Set<Stem> stemsForAutoAssignSuggestion(Stem parentStem, Subject subject) {
     
-    List<StemObjectType> result = new ArrayList<StemObjectType>();
+    String attributeDefName = GrouperObjectTypesSettings.objectTypesStemName()
+        + ":"+ GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
+
+    Map<String, String> scopesToObjectType = new HashMap<String, String>();
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.BASIS+"%", GrouperObjectTypesSettings.BASIS);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.REF+"%", GrouperObjectTypesSettings.REF);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.POLICY+"%", GrouperObjectTypesSettings.POLICY);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.ETC+"%", GrouperObjectTypesSettings.ETC);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.GROUPER_SECURITY+"%", GrouperObjectTypesSettings.GROUPER_SECURITY);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.ORG+"%", GrouperObjectTypesSettings.ORG);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.APP+"%", GrouperObjectTypesSettings.APP);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.SERVICE+"%", GrouperObjectTypesSettings.SERVICE);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.READ_ONLY+"%", GrouperObjectTypesSettings.READ_ONLY);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.TEST+"%", GrouperObjectTypesSettings.TEST);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.ADHOC+"%", GrouperObjectTypesSettings.ADHOC);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.INTERMEDIATE+"%", GrouperObjectTypesSettings.INTERMEDIATE);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.BUNDLE+"%", GrouperObjectTypesSettings.REF);
     
-    for (Stem child: children) {
+    Map<String, Pattern> scopesToPattern = new HashMap<String, Pattern>();
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.BASIS+"%", Pattern.compile("^basis$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.REF+"%", Pattern.compile("^ref$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.POLICY+"%", Pattern.compile("^policy$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.ETC+"%", Pattern.compile("^etc$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.GROUPER_SECURITY+"%", Pattern.compile("^grouperSecurity$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.ORG+"%", Pattern.compile("^org$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.APP+"%", Pattern.compile("^app$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.SERVICE+"%", Pattern.compile("^service$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.READ_ONLY+"%", Pattern.compile("^readOnly$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.TEST+"%", Pattern.compile("^test$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.ADHOC+"%", Pattern.compile("^adhoc$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.INTERMEDIATE+"%", Pattern.compile("^intermediate$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.BUNDLE+"%", Pattern.compile("^bundle$"));
+    
+    Set<Stem> stems = new HashSet<Stem>();
+    for (String key: scopesToObjectType.keySet()) {
       
-      String folderExtension = child.getExtension().toLowerCase();
-      String objecType = GrouperObjectTypesSettings.getFolderExtensionToTypeSuggestion().get(folderExtension);
-      if (StringUtils.isNotBlank(objecType)) {
-        // if folder already has types assigned, no need to suggest anything
-        List<GrouperObjectTypesAttributeValue> objectTypesAttributeValues = getGrouperObjectTypesAttributeValues(child);
-        if (objectTypesAttributeValues.size() == 0) {
-          result.add(new StemObjectType(child, objecType));
+      Set<Stem> localStems = new StemFinder().assignStemScope(Scope.SUB)
+          .assignSubject(subject)
+          .assignParentStemId(parentStem.getId())
+          .addPrivilege(AccessPrivilege.ADMIN)
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .assignNameOfAttributeDefName(attributeDefName)
+          .assignAttributeNotAssigned(true)
+          .addAttributeValuesOnAssignment(scopesToObjectType.get(key))
+          .assignScope(key)
+          .findStems();
+      
+      Pattern pattern = scopesToPattern.get(key);
+      
+      for (Stem stem: localStems) {
+        if (pattern.matcher(stem.getExtension()).matches()) {
+          stems.add(stem);
         }
       }
       
     }
     
+    return stems;
+  }
+  
+  private static Set<Group> groupsForAutoAssignSuggestion(Stem parentStem, Subject subject) {
+    
+    String attributeDefName = GrouperObjectTypesSettings.objectTypesStemName()
+        + ":"+ GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
+    
+    Map<String, String> scopesToObjectType = new HashMap<String, String>();
+    scopesToObjectType.put("%adhoc%", "adhoc");
+    scopesToObjectType.put("%allow%", "intermediate");
+    scopesToObjectType.put("%deny%", "intermediate");
+    scopesToObjectType.put("%preRequire%", "intermediate");
+    scopesToObjectType.put("%excludes%", "intermediate");
+    scopesToObjectType.put("%includes%", "intermediate");
+    scopesToObjectType.put("%systemOfRecordAndIncludes%", "intermediate");
+    scopesToObjectType.put("%systemOfRecord%", "intermediate");
+    
+    Map<String, Pattern> scopesToPattern = new HashMap<String, Pattern>();
+    scopesToPattern.put("%adhoc%", Pattern.compile("^.*_adhoc$"));
+    scopesToPattern.put("%allow%", Pattern.compile("^.*_allow$"));
+    scopesToPattern.put("%deny%", Pattern.compile("^.*_deny$"));
+    scopesToPattern.put("%preRequire%", Pattern.compile("^.*_preRequire_.*$"));
+    scopesToPattern.put("%excludes%", Pattern.compile("^.*_excludes$"));
+    scopesToPattern.put("%includes%", Pattern.compile("^.*_includes$"));
+    scopesToPattern.put("%systemOfRecordAndIncludes%", Pattern.compile("^.*_systemOfRecordAndIncludes$"));
+    scopesToPattern.put("%systemOfRecord%", Pattern.compile("^.*_systemOfRecord$"));
+    
+    Set<Group> groups = new HashSet<Group>();
+    for (String key: scopesToObjectType.keySet()) {
+      
+      Set<Group> localGroups = new GroupFinder().assignStemScope(Scope.SUB)
+          .assignSubject(subject)
+          .assignParentStemId(parentStem.getId())
+          .addPrivilege(AccessPrivilege.ADMIN)
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .assignNameOfAttributeDefName(attributeDefName)
+          .assignAttributeNotAssigned(true)
+          .addAttributeValuesOnAssignment(scopesToObjectType.get(key))
+          .assignScope(key)
+          .findGroups();
+      
+      Pattern pattern = scopesToPattern.get(key);
+      
+      for (Group group: localGroups) {
+        if (pattern.matcher(group.getExtension()).matches()) {
+          groups.add(group);
+        }
+      }
+      
+    }
+    
+    return groups;
+  }
+  
+  /**
+   * get list of objects that qualify for auto assign type suggestions 
+   * @param stem
+   * @param subject
+   * @return
+   */
+  public static List<StemOrGroupObjectType> getAutoAssignTypeCandidates(Stem stem, Subject subject) {
+    
+    Set<Stem> stems = stemsForAutoAssignSuggestion(stem, subject);
+    Set<Group> groups = groupsForAutoAssignSuggestion(stem, subject);
+
+    Set<GrouperObject> grouperObjects = new TreeSet<GrouperObject>();
+    grouperObjects.addAll(groups);
+    grouperObjects.addAll(stems);
+    
+    List<StemOrGroupObjectType> result = new ArrayList<StemOrGroupObjectType>();
+    
+    for (GrouperObject grouperObject: grouperObjects) {
+      String objectType = null;
+      if (grouperObject instanceof Stem) {
+        Stem stm = (Stem)grouperObject;
+        String folderExtension = stm.getExtension().toLowerCase();
+        objectType = GrouperObjectTypesSettings.getFolderExtensionToTypeSuggestion().get(folderExtension);
+      } else {
+        objectType = getObjectTypeForGroupName(grouperObject.getName());
+      }
+
+      if (StringUtils.isNotBlank(objectType)) {
+        
+        result.add(new StemOrGroupObjectType(grouperObject, objectType));
+        
+      }
+      
+    }
     return result;
+  }
+  
+  
+  private static String getObjectTypeForGroupName(String groupName) {
+     /**
+         if system name of group ends in _adhoc, then suggest type as adhoc
+         if system name ends in _allow or _deny, then suggest type as intermediate
+         if system name contains _preRequire_ , then suggest intermediate
+         if system name ends in "_excludes" is intermediate
+         if system name ends in "_includes" is intermediate
+         if system name ends in "_systemOfRecordAndIncludes" is intermediate
+         if system name ends in "_systemOfRecord" is intermediate
+       */
+    
+    if (groupName.endsWith("_adhoc")) return GrouperObjectTypesSettings.ADHOC;
+    
+    if (StringUtils.endsWithAny(groupName, "_allow", "_deny", "_excludes", "_includes",
+        "_systemOfRecordAndIncludes", "_systemOfRecord")) return GrouperObjectTypesSettings.INTERMEDIATE;
+    
+    if (StringUtils.contains(groupName, "_preRequire_")) return GrouperObjectTypesSettings.INTERMEDIATE;
+    
+    return null;
+    
   }
   
   private static void deleteAttributesOnAllChildrenWithIndirectConfig(Stem stem, String objectType) {

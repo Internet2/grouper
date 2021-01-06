@@ -4,10 +4,10 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.getDataOwnerMemberDescriptionRequiringObjectTypeNames;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.getServiceRequiringObjectTypeNames;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,17 +16,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesJob;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
-import edu.internet2.middleware.grouper.app.grouperTypes.StemObjectType;
+import edu.internet2.middleware.grouper.app.grouperTypes.StemOrGroupObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemObjectType;
@@ -36,6 +37,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ObjectTypeContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -840,17 +842,25 @@ public class UiV2GrouperObjectTypes {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
       
-          Set<Stem> children = new StemFinder().assignStemScope(Scope.SUB).assignSubject(loggedInSubject)
-              .assignParentStemId(STEM.getId()).addPrivilege(NamingPrivilege.STEM_ADMIN).findStems();
+          List<StemOrGroupObjectType> objectTypes = GrouperObjectTypesConfiguration.getAutoAssignTypeCandidates(STEM, loggedInSubject);
+          int totalSize = objectTypes.size();
           
-          List<StemObjectType> stemObjectTypes = GrouperObjectTypesConfiguration.getAutoAssignTypeStemCandidates(STEM, children);
-          List<GuiStemObjectType> guiStemObjectTypes = GuiStemObjectType.convertFromStemObjectType(stemObjectTypes);
-          objectTypeContainer.setGuiStemObjectTypes(guiStemObjectTypes);          
+          int maximumItemsToshow = GrouperConfig.retrieveConfig().propertyValueInt("objectTypes.max.autoAssign.objectCount", 2000);
+          
+          List<GuiStemObjectType> guiStemObjectTypes = new ArrayList<GuiStemObjectType>();
+          if (totalSize > maximumItemsToshow) {
+            guiStemObjectTypes.addAll(GuiStemObjectType.convertFromStemObjectType(objectTypes.subList(0, maximumItemsToshow)));
+          } else {
+            guiStemObjectTypes.addAll(GuiStemObjectType.convertFromStemObjectType(objectTypes));
+          }
+          
+          objectTypeContainer.setGuiStemObjectTypes(guiStemObjectTypes);
+          objectTypeContainer.setMaxAutoAssignSize(maximumItemsToshow);
+          objectTypeContainer.setTotalAutoAssignSize(totalSize);
           
           return null;
         }
       });
-      
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/grouperObjectTypes/grouperObjectTypesFolderAutoAssign.jsp"));
@@ -859,6 +869,8 @@ public class UiV2GrouperObjectTypes {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  
   
   /**
    * assign bulk object types to selected folders 
@@ -910,7 +922,7 @@ public class UiV2GrouperObjectTypes {
       
       final String[] stemObjectTypes = request.getParameterValues("stemObjectType[]");
       
-      final Map<Stem, GrouperObjectTypesAttributeValue> attributeValues = new HashMap<Stem, GrouperObjectTypesAttributeValue>();
+      final Map<GrouperObject, GrouperObjectTypesAttributeValue> attributeValues = new HashMap<GrouperObject, GrouperObjectTypesAttributeValue>();
       
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
@@ -920,12 +932,33 @@ public class UiV2GrouperObjectTypes {
           for (String stemObjectType: stemObjectTypes) {
             
             String[] stemObjectTypeArray = stemObjectType.split("_");
-            String stemId = stemObjectTypeArray[0];
+            String stemOrGroup = stemObjectTypeArray[2];
             
-            Stem stemToAssignType = StemFinder.findByUuid(theGrouperSession, stemId, true);
+            String stemObjectTypeWithNoStemGroupSuffix = stemObjectTypeArray[0] + "_" + stemObjectTypeArray[1];
             
-            if (!stemToAssignType.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-              throw new RuntimeException(GrouperUtil.subjectToString(loggedInSubject) + " cannot ADMIN folder: " + stemToAssignType.getName());
+            GrouperObject grouperObject = null;
+            
+            if (stemOrGroup.equals("stem")) {
+              String stemId = stemObjectTypeArray[0];
+              
+              Stem stemToAssignType = StemFinder.findByUuid(theGrouperSession, stemId, true);
+              
+              if (!stemToAssignType.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
+                throw new RuntimeException(GrouperUtil.subjectToString(loggedInSubject) + " cannot ADMIN folder: " + stemToAssignType.getName());
+              }
+              grouperObject = stemToAssignType;
+            } else if (stemOrGroup.equals("group")) {
+              
+              String groupId = stemObjectTypeArray[0];
+              
+              Group groupToAssignType = GroupFinder.findByUuid(theGrouperSession, groupId, true);
+              
+              if (!groupToAssignType.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
+                throw new RuntimeException(GrouperUtil.subjectToString(loggedInSubject) + " cannot ADMIN group: " + groupToAssignType.getName());
+              }
+              grouperObject = groupToAssignType;
+            } else {
+              throw new RuntimeException("Invalid input: "+stemObjectType+" must end with stem or group");
             }
             
             String objectType = stemObjectTypeArray[1];
@@ -934,9 +967,9 @@ public class UiV2GrouperObjectTypes {
               throw new RuntimeException("Invalid type: "+objectType);
             }
             
-            String dataOwner = request.getParameter(stemObjectType+"_dataOwner");
-            String memberDescription = request.getParameter(stemObjectType+"_memberDescription");
-            String service = request.getParameter(stemObjectType+"_service");
+            String dataOwner = request.getParameter(stemObjectTypeWithNoStemGroupSuffix+"_dataOwner");
+            String memberDescription = request.getParameter(stemObjectTypeWithNoStemGroupSuffix+"_memberDescription");
+            String service = request.getParameter(stemObjectTypeWithNoStemGroupSuffix+"_service");
             
             GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
             attributeValue.setDirectAssignment(true);
@@ -945,7 +978,7 @@ public class UiV2GrouperObjectTypes {
             attributeValue.setObjectTypeName(objectType);
             attributeValue.setObjectTypeServiceName(service);
             
-            attributeValues.put(stemToAssignType, attributeValue);
+            attributeValues.put(grouperObject, attributeValue);
             
           }
           
@@ -959,8 +992,8 @@ public class UiV2GrouperObjectTypes {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          for (Stem stem: attributeValues.keySet()) {
-            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValues.get(stem), stem);
+          for (GrouperObject grouperObject: attributeValues.keySet()) {
+            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValues.get(grouperObject), grouperObject);
           }
           
           return null;

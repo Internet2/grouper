@@ -1027,6 +1027,11 @@ public class GroupFinder {
   private String attributeDefNameId;
   
   /**
+   * find groups that don't have a certain type assigned
+   */
+  private boolean attributeNotAssigned = false;
+  
+  /**
    * use security around attribute def?  default is true
    */
   private boolean attributeCheckReadOnAttributeDef = true;
@@ -1038,6 +1043,16 @@ public class GroupFinder {
    */
   public GroupFinder assignAttributeCheckReadOnAttributeDef(boolean theAttributeDefNameUseSecurity) {
     this.attributeCheckReadOnAttributeDef = theAttributeDefNameUseSecurity;
+    return this;
+  }
+  
+  /**
+   * find groups that don't have a certain type assigned
+   * @param attributeNotAssigned
+   * @return
+   */
+  public GroupFinder assignAttributeNotAssigned(boolean attributeNotAssigned) {
+    this.attributeNotAssigned = attributeNotAssigned;
     return this;
   }
   
@@ -1235,7 +1250,8 @@ public class GroupFinder {
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
             this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment, 
-            this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
+            this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, 
+            this.attributeValuesOnAssignment2, this.attributeNotAssigned);
     
   }
 

@@ -10,6 +10,8 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.REF;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.SERVICE;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.TEST;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.ADHOC;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.INTERMEDIATE;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,6 +38,8 @@ public class GuiGrouperObjectTypesAttributeValue {
     objectTypesToDescriptions.put(SERVICE, "objectTypeServiceFolderDescription");
     objectTypesToDescriptions.put(READ_ONLY, "objectTypeReadOnlyFolderDescription");
     objectTypesToDescriptions.put(TEST, "objectTypeTestFolderDescription");
+    objectTypesToDescriptions.put(ADHOC, "objectTypeAdhocFolderDescription");
+    objectTypesToDescriptions.put(INTERMEDIATE, "objectTypeIntermediateFolderDescription");
 
   }
   

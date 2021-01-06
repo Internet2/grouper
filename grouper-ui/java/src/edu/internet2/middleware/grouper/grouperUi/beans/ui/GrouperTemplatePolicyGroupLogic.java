@@ -56,7 +56,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
   @Override
   public boolean validate(List<ServiceAction> selectedServiceActions) {
     
-    // TODO validate service actions
+    //TODO validate service actions
     
     return super.validate(selectedServiceActions);
   }
@@ -118,7 +118,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
     // overall group is at the top
     compositeGroupList.add(overallGroup);
     
-    Map<Group, ServiceAction> mapFromGroupToAction = new HashMap();
+    Map<Group, ServiceAction> mapFromGroupToAction = new HashMap<>();
     
     ServiceAction lastServiceActionDoesntNeedHelper = null;
     
@@ -158,7 +158,14 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
       compositeGroupList.add(requireGroup);
       mapFromGroupToAction.put(requireGroup, serviceAction);
       requireGroupExtensionsUsed.add(groupExtension);
-
+      
+      ServiceAction serviceActionForIntermediateType = new ServiceAction();
+      List<ServiceActionArgument> args = new ArrayList<ServiceActionArgument>();
+      args.add(new ServiceActionArgument("groupName", requireGroup.getName()));
+      args.add(new ServiceActionArgument("groupDisplayName", requireGroup.getDisplayName()));
+      args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.INTERMEDIATE));
+      serviceActionForIntermediateType.setArgs(args);
+      ServiceActionType.grouperType.createTemplateItem(serviceActionForIntermediateType);
     }
 
     for (int i=0;i<compositeGroupList.size();i++) {
@@ -345,6 +352,18 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
       templateContainer.setCurrentServiceAction(null);
 
       overallGroupAction.addChildServiceAction(allowGroupAction);
+      
+      {
+        //Assign the "intermediate" type to the "app:policyGroup_allow" group?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("groupName", allowGroupName));
+        args.add(new ServiceActionArgument("groupDisplayName", allowGroupDisplayName));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.INTERMEDIATE));
+        ServiceAction inermediateTypeAction = createNewServiceAction("allowIntermediatgeGroupType", true, 2, "stemServiceGroupTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(inermediateTypeAction);
+        allowGroupAction.addChildServiceAction(inermediateTypeAction);
+      }
 
       //  Do you want a "app:policyGroup_allow_adhoc" group created?
       {
@@ -368,7 +387,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
         allowGroupAction.addChildServiceAction(allowAdhocGroupAction);
 
         {
-          //    Do you want the "app:policyGroup_allow_adhoc" added to the "app:policyGroup_allow" group?
+          // Do you want the "app:policyGroup_allow_adhoc" added to the "app:policyGroup_allow" group?
           
           args = new ArrayList<ServiceActionArgument>();
           args.add(new ServiceActionArgument("groupNameMembership", allowAdhocGroupName));
@@ -382,6 +401,18 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
           serviceActionsForStem.add(addAdhocToAllowMembershipAction);
           
           allowAdhocGroupAction.addChildServiceAction(addAdhocToAllowMembershipAction);
+          
+          {
+            //Assign the "adhoc" type to the "app:policyGroup_allow_adhoc" group?
+            args = new ArrayList<ServiceActionArgument>();
+            args.add(new ServiceActionArgument("groupName", allowAdhocGroupName));
+            args.add(new ServiceActionArgument("groupDisplayName", allowAdhocGroupDisplayName));
+            args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.ADHOC));
+            ServiceAction adhocTypeAction = createNewServiceAction("allowAdhocGroupType", false, 3, "stemServiceGroupTypeConfirmation", ServiceActionType.grouperType, args, null);
+            
+            serviceActionsForStem.add(adhocTypeAction);
+            allowAdhocGroupAction.addChildServiceAction(adhocTypeAction);
+          }
 
         }
       }
@@ -409,6 +440,18 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(denyGroupAction);
 
       overallGroupAction.addChildServiceAction(denyGroupAction);
+      
+      {
+        //Assign the "intermediate" type to the "app:policyGroup_deny" group?
+        args = new ArrayList<ServiceActionArgument>();
+        args.add(new ServiceActionArgument("groupName", denyGroupName));
+        args.add(new ServiceActionArgument("groupDisplayName", denyGroupDisplayName));
+        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.INTERMEDIATE));
+        ServiceAction intermediateTypeAction = createNewServiceAction("denyIntermediatgeGroupType", true, 2, "stemServiceGroupTypeConfirmation", ServiceActionType.grouperType, args, null);
+        
+        serviceActionsForStem.add(intermediateTypeAction);
+        denyGroupAction.addChildServiceAction(intermediateTypeAction);
+      }
       
       int i=0;
       for (LockoutGroup lockoutGroup : GrouperUtil.nonNull(LockoutGroup.retrieveAllLockoutGroups(grouperSession.getSubject()))){
@@ -451,7 +494,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
         denyGroupAction.addChildServiceAction(denyAdhocGroupAction);
 
         {
-          //    Do you want the "app:policyGroup_deny_adhoc" added to the "app:policyGroup_deny" group?
+          //Do you want the "app:policyGroup_deny_adhoc" added to the "app:policyGroup_deny" group?
           
           args = new ArrayList<ServiceActionArgument>();
           args.add(new ServiceActionArgument("groupNameMembership", denyAdhocGroupName));
@@ -465,6 +508,18 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
           serviceActionsForStem.add(addAdhocToDenyMembershipAction);
           
           denyAdhocGroupAction.addChildServiceAction(addAdhocToDenyMembershipAction);
+          
+          {
+            //Assign the "adhoc" type to the "app:policyGroup_deny_adhoc" group?
+            args = new ArrayList<ServiceActionArgument>();
+            args.add(new ServiceActionArgument("groupName", denyAdhocGroupName));
+            args.add(new ServiceActionArgument("groupDisplayName", denyAdhocGroupDisplayName));
+            args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.ADHOC));
+            ServiceAction denyAdhocActionType = createNewServiceAction("denyAdhocGroupType", false, 3, "stemServiceGroupTypeConfirmation", ServiceActionType.grouperType, args, null);
+            
+            serviceActionsForStem.add(denyAdhocActionType);
+            denyAdhocGroupAction.addChildServiceAction(denyAdhocActionType);
+          }
 
         }
       }

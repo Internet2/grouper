@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-
 /**
  * 
  */
