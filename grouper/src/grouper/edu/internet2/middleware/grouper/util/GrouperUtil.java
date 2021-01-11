@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -173,7 +174,18 @@ public class GrouperUtil {
     System.out.println("10 runs lightweight: " + ((System.nanoTime()-startNanos)/1000000));
 
   }
-  
+
+  /**
+   * run a GSH script
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the script
+   */
+  public static String gshRunScript(String script) {
+    return gshRunScript(script, false);
+  }
+
   /**
    * run a GSH script
    * @param script
@@ -2956,6 +2968,49 @@ public class GrouperUtil {
    */
   private static final String CACHE_SEPARATOR = "__";
 
+  /**
+   * 
+   * @param timestamp
+   * @return timestamp string
+   */
+  public static String timestampIsoUtcSecondsConvertToString(Timestamp timestamp) {
+    
+    if (timestamp == null) {
+      return null;
+    }
+    
+    String my8601formattedDate = timestampIsoUtcSeconds.format(timestamp);
+    return my8601formattedDate;
+  }
+
+  /**
+   * 
+   * @param timestamp
+   * @return timestamp string
+   */
+  public static Timestamp timestampIsoUtcSecondsConvertFromString(String string) {
+    
+    if (StringUtils.isBlank(string)) {
+      return null;
+    }
+    
+    try {
+      Date date = timestampIsoUtcSeconds.parse(string);
+      return new Timestamp(date.getTime());
+    } catch (Exception e) {
+      throw new RuntimeException("Cant parse string: '" + string + "' in format: yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+  }
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampIsoUtcSeconds = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+  
+  static {
+    timestampIsoUtcSeconds.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
+  
   /**
    * string format of dates
    */
@@ -10459,13 +10514,34 @@ public class GrouperUtil {
    */
   public static String stripLastSlashIfExists(String input) {
     if ((input == null) || (input.length() == 0)) {
-      return null;
+      return input;
     }
 
     char lastChar = input.charAt(input.length() - 1);
 
     if ((lastChar == '\\') || (lastChar == '/')) {
       return input.substring(0, input.length() - 1);
+    }
+
+    return input;
+  }
+
+  /**
+   * strip the first slash (/ or \) from a string if it exists
+   *
+   * @param input
+   *
+   * @return input - the last / or \
+   */
+  public static String stripFirstSlashIfExists(String input) {
+    if ((input == null) || (input.length() == 0)) {
+      return input;
+    }
+
+    char firstChar = input.charAt(0);
+
+    if ((firstChar == '\\') || (firstChar == '/')) {
+      return input.substring(1, input.length());
     }
 
     return input;

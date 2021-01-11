@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -135,7 +133,7 @@ public class GrouperAzureApiCommands {
     
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     grouperAzureGroup.setId("dcba5d8d7986432db23a0342887e8fba");
-    grouperAzureGroup.setDisplayName("myDisplayName3");
+    grouperAzureGroup.setDisplayName("myDisplayName4");
     grouperAzureGroup.setMailNickname("whatever");
     updateAzureGroup("azure1", grouperAzureGroup, GrouperUtil.toSet("displayName"));
   }
@@ -266,8 +264,13 @@ public class GrouperAzureApiCommands {
       return null;
     }
 
-    JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
-    return rootNode;
+    try {
+      JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
+      return rootNode;
+    } catch (Exception e) {
+      throw new RuntimeException("Error parsing response: '" + json + "'", e);
+    }
+
   }
 
   /**

@@ -1,10 +1,8 @@
 package edu.internet2.middleware.grouper.app.azure;
 
 import java.sql.Types;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -13,10 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
-import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;

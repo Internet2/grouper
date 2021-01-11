@@ -127,6 +127,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
+    externalTypeClassNames.add(WsBearerTokenExternalSystem.class.getName());
   }
   
   /**

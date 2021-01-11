@@ -91,6 +91,7 @@ public class GrouperProvisioningConfigurationValidation {
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityLinkOnePerBucket(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateNoUnsedConfigs(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeNamesNotReused(suffixToConfigValue));
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeCount(suffixToConfigValue));
     
     return errorMessagesAndConfigSuffixes;
     
@@ -558,6 +559,77 @@ public class GrouperProvisioningConfigurationValidation {
 
       for (int i=0; i< 20; i++) {
 
+        Boolean isField = GrouperUtil.booleanObjectValue(suffixToConfigValue.get(objectType + "."+i+".isFieldElseAttribute"));
+        if (isField == null) {
+          continue OBJECT_TYPE;
+        }
+        GrouperTextContainer.assignThreadLocalVariable("fieldType", isField ? fieldLabel : attributeLabel);
+        String nameConfigKey = objectType + "."+i+(isField ? ".fieldName" : ".name");
+        String name = suffixToConfigValue.get(nameConfigKey);
+        
+        if (StringUtils.isBlank(name)) {
+          
+          // provisioning.configuration.validation.attributeNameRequired = Error: ${fieldType} name is required
+          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), objectType + "."+i+".isFieldElseAttribute"));
+          
+          continue;
+        }
+        GrouperTextContainer.assignThreadLocalVariable("attributeName", name);
+        
+        MultiKey objectTypeAttributeTypeName = new MultiKey(objectType, isField, name);
+        if (objectTypeAttributeTypeNames.contains(objectTypeAttributeTypeName)) {
+          
+          // provisioning.configuration.validation.multipleAttributesSameName = Error: two ${type} ${fieldType}s have the same name '${attributeName}'
+          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), nameConfigKey));
+        }
+        objectTypeAttributeTypeNames.add(objectTypeAttributeTypeName);
+      }      
+    }
+    GrouperTextContainer.resetThreadLocalVariableMap();
+    return result;
+    
+  }
+
+  // hasTargetGroupLink
+  // if target group link then there should be a copy to sync field or a translation
+  
+  /**
+   * make sure attribute names arent re-used
+   * @param suffixToConfigValue
+   * @return 
+   */
+  public List<MultiKey> validateAttributeCount(Map<String, String> suffixToConfigValue) {
+    
+    Set<MultiKey> objectTypeAttributeTypeNames = new HashSet<MultiKey>();
+    List<MultiKey> result = new ArrayList<MultiKey>();
+  
+    String fieldLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.trueLabel").toLowerCase();
+    String attributeLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.falseLabel").toLowerCase();
+        
+    OBJECT_TYPE: for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
+      
+      String objectTypeLabel = null;
+      
+      String numberOfAttributesKey = null;
+      if (StringUtils.equals("targetGroupAttribute", objectType)) {
+        objectTypeLabel = GrouperTextContainer.textOrNull("auditsGroup");
+        numberOfAttributesKey = "numberOfGroupAttributes";
+      } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
+        objectTypeLabel = GrouperTextContainer.textOrNull("auditsEntity");
+        numberOfAttributesKey = "numberOfEntityAttributes";
+      } else if (StringUtils.equals("targetMembershipAttribute", objectType)) {
+        objectTypeLabel = GrouperTextContainer.textOrNull("auditsMembership");
+        numberOfAttributesKey = "numberOfMembershipAttributes";
+      } else {
+        throw new RuntimeException("Cant find object type: " + objectType);
+      }
+
+      int numberOfExpectedAttributes = GrouperUtil.intValue(suffixToConfigValue.get(numberOfAttributesKey), 0);
+
+      GrouperTextContainer.assignThreadLocalVariable("type", objectTypeLabel);
+  
+      for (int i=0; i< 20; i++) {
+  
         Boolean isField = GrouperUtil.booleanObjectValue(suffixToConfigValue.get(objectType + "."+i+".isFieldElseAttribute"));
         if (isField == null) {
           continue OBJECT_TYPE;

@@ -117,6 +117,7 @@
         <commons.logging.version>1.2</commons.logging.version>
         <commons.math.version>1.2</commons.math.version>
         <commons.pool.version>1.6</commons.pool.version>
+        <commons.text.version>1.9</commons.text.version>
         <commons.validator.version>1.6</commons.validator.version>
         <commons.csv.version>1.6</commons.csv.version>
         <cron.parser.core.version>3.4</cron.parser.core.version>
@@ -460,6 +461,11 @@
                 <groupId>commons-pool</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons.text.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>

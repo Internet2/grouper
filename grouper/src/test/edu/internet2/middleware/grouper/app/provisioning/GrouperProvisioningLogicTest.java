@@ -251,7 +251,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.membershipAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.translateFromMemberSyncField", "subjectId");
-
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
 
