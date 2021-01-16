@@ -533,4 +533,8 @@ public class GraphNode {
   public String getGrouperObjectName() {
     return this.getGrouperObject().getName();
   }
+
+  public String toString() {
+    return this.getClass().getSimpleName() + ": {" + grouperObject + ", distanceFromStartNode=" + distanceFromStartNode + "}";
+  }
 }
