@@ -96,24 +96,24 @@
                     <c:if test="${guiGrouperDaemonConfiguration != null}">
 						
 	                    <c:forEach items="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configAttributes}" var="attribute">
-	  				
-			  				<grouper:configFormElement 
-			  					formElementType="${attribute.formElement}"
-			  					configId="${attribute.configSuffix}" 
-			  					label="${attribute.label}"
-			  					helperText="${attribute.description}"
-			  					helperTextDefaultValue="${attribute.defaultValue}"
-			  					required="${attribute.required}"
-			  					readOnly="${attribute.readOnly}"
-			  					shouldShow="true"
-			  					value="${attribute.valueOrExpressionEvaluation}"
-			  					hasExpressionLanguage="${attribute.expressionLanguage}"
-			  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
-			  					checkboxAttributes="${attribute.checkboxAttributes}"
-			  					ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
-			  				/>
-			  				  				
-			  			</c:forEach>
+        	  				
+        			  				<grouper:configFormElement 
+        			  					formElementType="${attribute.formElement}"
+        			  					configId="${attribute.configSuffix}" 
+        			  					label="${attribute.label}"
+                          readOnly="${attribute.readOnly}"
+        			  					helperText="${attribute.description}"
+        			  					helperTextDefaultValue="${attribute.defaultValue}"
+        			  					required="${attribute.required}"
+        			  					shouldShow="${attribute.show}"
+        			  					value="${attribute.valueOrExpressionEvaluation}"
+        			  					hasExpressionLanguage="${attribute.expressionLanguage}"
+        			  					valuesAndLabels="${attribute.dropdownValuesAndLabels}"
+        			  					ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
+                          checkboxAttributes="${attribute.checkboxAttributes}"
+        			  				/>
+        			  				  				
+        			  			</c:forEach>
                     </c:if>
                     </tbody>
                     

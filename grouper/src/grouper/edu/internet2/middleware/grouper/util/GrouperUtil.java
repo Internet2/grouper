@@ -96,6 +96,8 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.Script;
+import org.apache.commons.jexl2.UnifiedJEXL;
+import org.apache.commons.jexl2.UnifiedJEXL.Template;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -155,23 +157,62 @@ public class GrouperUtil {
   public static void main(String[] args) {
     GrouperStartup.startup();
     
-    // prime classloader or whatever
-    gshRunScript("GrouperSession.startRootSession()", false);
-    gshRunScript("GrouperSession.startRootSession()", true);
-    
-    long startNanos = System.nanoTime();
-    
-    for (int i=0;i<10;i++) {
-      gshRunScript("GrouperSession.startRootSession()", false);
-    }
-    System.out.println("10 runs non lightweight: " + ((System.nanoTime()-startNanos)/1000000));
+    //  // prime classloader or whatever
+    //  gshRunScript("GrouperSession.startRootSession()", false);
+    //  gshRunScript("GrouperSession.startRootSession()", true);
+    //  
+    //  long startNanos = System.nanoTime();
+    //  
+    //  for (int i=0;i<10;i++) {
+    //    gshRunScript("GrouperSession.startRootSession()", false);
+    //  }
+    //  System.out.println("10 runs non lightweight: " + ((System.nanoTime()-startNanos)/1000000));
+    //
+    //  startNanos = System.nanoTime();
+    //  
+    //  for (int i=0;i<10;i++) {
+    //    gshRunScript("GrouperSession.startRootSession()", true);
+    //  }
+    //  System.out.println("10 runs lightweight: " + ((System.nanoTime()-startNanos)/1000000));
 
-    startNanos = System.nanoTime();
+    String templateSource = "hey\nthere\n";
+    templateSource += "$$ for (var item : list) { \n";
+    templateSource += "  sup yall ${item} chillin yall\n";
+    templateSource += "$$ }\n";
+    templateSource += "hey\n";
+//    templateSource += "${size(listOfRecordMaps)}\n";
+    templateSource += "$$ for (var recordMap : listOfRecordMaps) { \n";
+    templateSource += "  Record subject ID: ${recordMap.get('subject_id')}, name: ${recordMap.get('subject_name')}\n";
+    templateSource += "$$ }\n";
+
+//    String templateSource = "hello ${subject_name},\n";
+//    templateSource += "$$ for (var recordMap : listOfRecordMaps) {\n";
+//    templateSource += "a\n";
+//    templateSource += "Record subject ID: ${recordMap.get('subject_id')} is\n";
+//    templateSource += "$$}\n";
     
-    for (int i=0;i<10;i++) {
-      gshRunScript("GrouperSession.startRootSession()", true);
+    List<Map<String, Object>> recordMapList = new ArrayList<Map<String, Object>>();
+    
+    Map<String, Object> map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId1", "subject_name", "subjectName1");
+    recordMapList.add(map);
+    map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId2", "subject_name", "subjectName2");
+    recordMapList.add(map);
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+
+    for (Map theMap : recordMapList) {
+      System.out.println("Subject1: " + theMap.get("subject_id"));
     }
-    System.out.println("10 runs lightweight: " + ((System.nanoTime()-startNanos)/1000000));
+    
+    variableMap.put("subject_name", "some subject name");
+    variableMap.put("listOfRecordMaps", recordMapList);
+    
+    List<String> list = new ArrayList();
+    list.add("one");
+    list.add("two");
+    variableMap.put("list", list);
+
+    String result = substituteExpressionLanguageTemplate(templateSource, variableMap, true, false, true);
+    System.out.println("'" + result + "'");
 
   }
 
@@ -9892,19 +9933,7 @@ public class GrouperUtil {
   public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     variableMap = nonNull(variableMap);
-    if (!jexlEnginesInitialized) {
-      synchronized (GrouperUtil.class) {
-        if (!jexlEnginesInitialized) {
-          
-          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
-          for (JexlEngine jexlEngine : jexlEngines.values()) {
-            jexlEngine.setCache(cacheSize);
-          }
-          
-          jexlEnginesInitialized = true;
-        }
-      }
-    }
+    substituteExpressionInit();
     
     if (isBlank(stringToParse)) {
       return stringToParse;
@@ -10072,19 +10101,7 @@ public class GrouperUtil {
   public static Object substituteExpressionLanguageScript(String script,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     variableMap = nonNull(variableMap);
-    if (!jexlEnginesInitialized) {
-      synchronized (GrouperUtil.class) {
-        if (!jexlEnginesInitialized) {
-          
-          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
-          for (JexlEngine jexlEngine : jexlEngines.values()) {
-            jexlEngine.setCache(cacheSize);
-          }
-          
-          jexlEnginesInitialized = true;
-        }
-      }
-    }
+    substituteExpressionInit();
     
     if (isBlank(script)) {
       return null;
@@ -12978,6 +12995,121 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the object
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguageTemplate(String script,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    variableMap = nonNull(variableMap);
+    substituteExpressionInit();
+    
+    if (isBlank(script)) {
+      return null;
+    }
+    String overallResult = null;
+    Exception exception = null;
+    try {
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
   
+      int index = 0;
+  
+      for (String key: variableMap.keySet()) {
+        jc.set(key, variableMap.get(key));
+      }
+  
+      //allow utility methods
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
+  
+      script = script.trim();
+  
+      UnifiedJEXL jexl = new UnifiedJEXL(jexlEngines.get(new MultiKey(false, true)));
+      Template theTemplate = jexl.createTemplate(script);
+      Writer writer = new StringWriter();
+  
+      String result = null;
 
+      //this is the result of the evaluation
+      try {
+        theTemplate.evaluate(jc, writer);
+        
+        result = writer.toString();
+      } catch (JexlException je) {
+        //exception-scrape to see if missing variable
+        if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          //clean up the message a little bit
+          // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+          String message = je.getMessage();
+          //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+          Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+          Matcher exceptionMatcher = exceptionPattern.matcher(message);
+          if (exceptionMatcher.matches()) {
+            //message = "'" + exceptionMatcher.group(1);
+            message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+          }
+          throw new ExpressionLanguageMissingVariableException(message, je);
+        }
+        throw je;
+      }
+      // for some reason this adds newlines...  trim them
+      return trim(result);
+    } catch (HookVeto hv) {
+      exception = hv;
+      throw hv;
+    } catch (Exception e) {
+      exception = e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
+      throw new RuntimeException("Error substituting string: '" + script + "', substituteVarNames: " + setToString(variableMap.keySet()), e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(script).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
+    }
+  }
+
+  private static void substituteExpressionInit() {
+    if (!jexlEnginesInitialized) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+  }
+  
 }

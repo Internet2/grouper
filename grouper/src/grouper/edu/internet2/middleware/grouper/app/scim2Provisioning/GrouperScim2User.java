@@ -325,19 +325,17 @@ public class GrouperScim2User {
   /**
    * emails[0]['value']
    */
-  private static Pattern arrayIndexPattern = Pattern.compile("^([^\\[]+)\\[(\\d)+\\]\\['([^\\]]*)'\\]$");
+  public static Pattern arrayIndexPattern = Pattern.compile("^([^\\[]+)\\[(\\d)+\\]\\['([^\\]]*)'\\]$");
 
   /**
    * emails.value eq "emailVal"
    */
-  private static Pattern objectFieldEqPattern = Pattern.compile("^([^.]+)\\.([^\\s]+)\\s+eq\\s+\"([^\"]+)\"$");
+  public static Pattern objectFieldEqPattern = Pattern.compile("^([^.]+)\\.([^\\s]+)\\s+eq\\s+\"([^\"]+)\"$");
 
   /**
    * emails[value eq "emailVal"]
    */
-  private static Pattern objectIndexFieldEqPattern = Pattern.compile("^([^\\[]+)\\[([^\\s]+) eq \"([^\"]+)\"\\]$");
-
-  
+  public static Pattern objectIndexFieldEqPattern = Pattern.compile("^([^\\[]+)\\[([^\\s]+) eq \"([^\"]+)\"\\]$");
   
   /**
    * see if this scim path matches the current email 
@@ -389,7 +387,7 @@ public class GrouperScim2User {
         if (!StringUtils.equals(value, emailValue)) {
           throw new RuntimeException("Expected value '" + this.emailValue + "' but received '" + value + "'");
         }
-      } else if ("type".equals(this.emailType)) {
+      } else if ("type".equals(emailField)) {
         
         if (!StringUtils.equals(value, emailType)) {
           throw new RuntimeException("Expected value '" + this.emailType + "' but received '" + value + "'");

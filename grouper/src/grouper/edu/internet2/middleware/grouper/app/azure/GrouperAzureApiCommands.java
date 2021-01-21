@@ -121,21 +121,21 @@ public class GrouperAzureApiCommands {
     
     //  deleteAzureMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
     
-    //  GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
-    //  grouperAzureGroup.setDescription("myDescription2");
-    //  grouperAzureGroup.setDisplayName("myDisplayName2");
-    //  grouperAzureGroup.setMailNickname("myMailNick");
-    //  grouperAzureGroup.setGroupTypeUnified(true);
-    //  grouperAzureGroup.setVisibility(AzureVisibility.Public);
-    //  createAzureGroup("azure1", grouperAzureGroup, null);
+    GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+    grouperAzureGroup.setDescription("myDescription3");
+    grouperAzureGroup.setDisplayName("myDisplayName3");
+    grouperAzureGroup.setMailNickname("myMailNick3");
+    grouperAzureGroup.setGroupTypeUnified(true);
+    grouperAzureGroup.setVisibility(AzureVisibility.Public);
+    createAzureGroup("azure1", grouperAzureGroup, null);
 
     //deleteAzureGroup("azure1", "fa356bb8ddb14600be7994cd7b5239a7");
     
-    GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
-    grouperAzureGroup.setId("dcba5d8d7986432db23a0342887e8fba");
-    grouperAzureGroup.setDisplayName("myDisplayName4");
-    grouperAzureGroup.setMailNickname("whatever");
-    updateAzureGroup("azure1", grouperAzureGroup, GrouperUtil.toSet("displayName"));
+//    GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+//    grouperAzureGroup.setId("dcba5d8d7986432db23a0342887e8fba");
+//    grouperAzureGroup.setDisplayName("myDisplayName4");
+//    grouperAzureGroup.setMailNickname("whatever");
+//    updateAzureGroup("azure1", grouperAzureGroup, GrouperUtil.toSet("displayName"));
   }
 
   

@@ -19,8 +19,11 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -50,9 +53,9 @@ public class GrouperScim2ApiCommands {
 //      grouperScimUser.setUserName("userNam" + i);
 //      grouperScimUser.setUserType("userTyp" + i);
 //  
-//      createScimUser("awsReal", grouperScimUser, null);
+//      createScimUser("awsLocal", grouperScimUser, null);
 //    }
-
+//
 //    for (int i=3;i<10;i++) {
 //      GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
 //      grouperScimGroup.setDisplayName("dispName" + i);
@@ -60,24 +63,234 @@ public class GrouperScim2ApiCommands {
 //      createScimGroup("awsLocal", grouperScimGroup, null);
 //    }
 
-//    List<GrouperScimUser> grouperScimUsers = retrieveScimUsers("awsLocal");
-//    for (GrouperScimUser grouperScimUser : grouperScimUsers) {
-//      System.out.println(grouperScimUser);
+//    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsLocal");
+//    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
+//      System.out.println(grouperScim2User);
 //    }
 
 //    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsLocal", "id", "ce8ef11ccae741d394f37b6b78d92735");
-    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsLocal", "displayName", "dispName4");
-    System.out.println(grouperScimGroup);
+//    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsLocal", "displayName", "dispName4");
+//    System.out.println(grouperScimGroup);
 
-//    GrouperScimUser grouperScimUser = retrieveScimUser("awsLocal", "displayName", "dispName5");
-//    System.out.println(grouperScimUser);
-
-//    deleteScimUser("awsLocal", "4489fb364b7f4689bd2acc7a3c56441f");
-//    deleteScimGroup("awsLocal", "75975fdb5bde4f2f9d89271d1f5ed6ec");
+    //    GrouperScimUser grouperScimUser = retrieveScimUser("awsLocal", "displayName", "dispName5");
+    //    System.out.println(grouperScimUser);
     
+    //    deleteScimUser("awsLocal", "4489fb364b7f4689bd2acc7a3c56441f");
+    //    deleteScimGroup("awsLocal", "75975fdb5bde4f2f9d89271d1f5ed6ec");
+    
+//    GrouperScim2User grouperScim2User = HibernateSession.byHqlStatic()
+//      .createQuery("select groupScim2User from GrouperScim2User where id = :theId")
+//      .setString("theId", "f5a889d1f4944eaabd28c299125c8d8c")
+//      .uniqueResult(GrouperScim2User.class);
+
+    //  String scimConfigId = "awsLocal";
+    //  GrouperScim2User grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
+    //  System.out.println(grouperScim2User);
+    //  
+    //  Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+    //  fieldToAction.put("active", ProvisioningObjectChangeAction.update);
+    //  grouperScim2User.setActive(false);
+    //  patchScimUser(scimConfigId, grouperScim2User, fieldToAction);
+    //
+    //  grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
+    //  System.out.println(grouperScim2User);
+
+//    String scimConfigId = "awsReal";
+//    GrouperScim2User grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
+//    System.out.println(grouperScim2User);
+//    
+//    Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+//    fieldToAction.put("middleName", ProvisioningObjectChangeAction.update);
+//    grouperScim2User.setMiddleName("myMid5");
+//    patchScimUser(scimConfigId, grouperScim2User, fieldToAction);
+//
+//    grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
+//    System.out.println(grouperScim2User);
+
+//    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsLocal");
+//    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
+//      System.out.println(grouperScim2User);
+//    }
+
+//    createScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
+//        "1bc585968f974664be6144bbbecfc061", "4a47eaa93d7d47bb8e0fee0b20c6e6ee",
+//        "566d06979c4246f69d20cb0540722d4a"));
+
+//    createScimMemberships("awsReal", "906765e4ce-532dd5cb-bdc4-4046-923e-16dec5fe4b9a",
+//        GrouperUtil.toSet("906765e4ce-cf77e628-89ed-41ac-93cd-cfa0a1bc965a", 
+//            "906765e4ce-64270e1f-d1f7-4922-a487-69ac67c218b9", "906765e4ce-70466854-1917-403f-a193-c99cb07505dc"));
+
+//    deleteScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
+//      "1bc585968f974664be6144bbbecfc061", "4a47eaa93d7d47bb8e0fee0b20c6e6ee",
+//      "566d06979c4246f69d20cb0540722d4a"));
+
+//    replaceScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
+//      //"1bc585968f974664be6144bbbecfc061",
+//      "4a47eaa93d7d47bb8e0fee0b20c6e6ee", "566d06979c4246f69d20cb0540722d4a"));
+
+    List<GrouperScim2Group> grouperScim2Groups = retrieveScimGroups("awsLocal");
+    for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
+      System.out.println(grouperScim2Group);
+    }
+
+//    deleteScimMemberships("awsReal", "906765e4ce-532dd5cb-bdc4-4046-923e-16dec5fe4b9a",
+//        GrouperUtil.toSet("906765e4ce-cf77e628-89ed-41ac-93cd-cfa0a1bc965a", 
+//            "906765e4ce-64270e1f-d1f7-4922-a487-69ac67c218b9", "906765e4ce-70466854-1917-403f-a193-c99cb07505dc"));
+
+//    replaceScimMemberships("awsReal", "906765e4ce-532dd5cb-bdc4-4046-923e-16dec5fe4b9a",
+//    GrouperUtil.toSet(//"906765e4ce-cf77e628-89ed-41ac-93cd-cfa0a1bc965a", 
+//        "906765e4ce-64270e1f-d1f7-4922-a487-69ac67c218b9", "906765e4ce-70466854-1917-403f-a193-c99cb07505dc"));
+
   }
 
+  
+  /**
+   * create a user
+   * @param grouperScim2User
+   * @return the result
+   */
+  public static void patchScimUser(String configId,
+      GrouperScim2User grouperScim2User, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
 
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "patchScimUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      //  {
+      //    "schemas": [
+      //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      //    ],
+      //    "Operations": [
+      //        {
+      //            "op": "replace",
+      //            "path": "active",
+      //            "value": "false"
+      //        }
+      //    ]
+      // }
+
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
+      ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+
+      if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
+        
+        ProvisioningObjectChangeAction emailValueChangeAction = fieldsToUpdate.get("emailValue");
+        ProvisioningObjectChangeAction emailTypeChangeAction = fieldsToUpdate.get("emailType");
+        
+        // "value", "type" 
+        //  {
+        //    "op": "replace",
+        //    "path": "active",
+        //    "value": "false"
+        //  }
+
+        ProvisioningObjectChangeAction resultingAction = null;
+        if (GrouperUtil.defaultIfNull(emailTypeChangeAction, ProvisioningObjectChangeAction.delete) == ProvisioningObjectChangeAction.delete 
+            || GrouperUtil.defaultIfNull(emailValueChangeAction, ProvisioningObjectChangeAction.delete) == ProvisioningObjectChangeAction.delete) {
+          resultingAction = ProvisioningObjectChangeAction.delete;
+        } else if (GrouperUtil.defaultIfNull(emailTypeChangeAction, ProvisioningObjectChangeAction.insert) == ProvisioningObjectChangeAction.insert 
+            || GrouperUtil.defaultIfNull(emailValueChangeAction, ProvisioningObjectChangeAction.insert) == ProvisioningObjectChangeAction.insert) {
+          resultingAction = ProvisioningObjectChangeAction.insert;
+        } else {
+          resultingAction = ProvisioningObjectChangeAction.update;
+        }
+
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        operationNode.put("path", "emails");
+
+        if (resultingAction == ProvisioningObjectChangeAction.delete) {
+          
+          operationNode.put("op", "remove");
+          
+        } else {
+          
+          operationNode.put("op", "replace");
+          ArrayNode emailsNode = GrouperUtil.jsonJacksonArrayNode();
+          ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
+          emailNode.put("primary", true);
+          if (!StringUtils.isBlank(grouperScim2User.getEmailValue())) {
+            emailNode.put("value", grouperScim2User.getEmailValue());
+          }
+          if (!StringUtils.isBlank(grouperScim2User.getEmailType())) {
+            emailNode.put("type", grouperScim2User.getEmailType());
+          }
+          emailsNode.add(emailNode);
+          
+          operationNode.set("value", emailsNode);
+        }
+        operationsNode.add(operationNode);
+        
+      }
+
+      for (String fieldToUpdate : fieldsToUpdate.keySet()) {
+        ProvisioningObjectChangeAction provisioningObjectChangeAction = fieldsToUpdate.get(fieldToUpdate);
+        
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        
+        switch (provisioningObjectChangeAction) {
+          case insert:
+            operationNode.put("op", "add");
+            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            break;
+          case update:
+            operationNode.put("op", "replace");
+            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            break;
+          case delete:
+            operationNode.put("op", "remove");
+            break;
+          default:
+            throw new RuntimeException("Not expecting object change: " + provisioningObjectChangeAction);
+        }
+        
+        if ("id".equals(fieldToUpdate)) {
+          throw new RuntimeException("Cannot patch id field");
+        } else if ("costCenter".equals(fieldToUpdate)) {
+          fieldToUpdate = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.costCenter";
+        } else if ("employeeNumber".equals(fieldToUpdate)) {
+          fieldToUpdate = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.employeeNumber";
+        } else if ("familyName".equals(fieldToUpdate)) {
+          fieldToUpdate = "name.familyName";
+        } else if ("formattedName".equals(fieldToUpdate)) {
+          fieldToUpdate = "name.formattedName";
+        } else if ("middleName".equals(fieldToUpdate)) {
+          fieldToUpdate = "name.middleName";
+        } else if ("givenName".equals(fieldToUpdate)) {
+          fieldToUpdate = "name.givenName";
+        }
+        operationNode.put("path", fieldToUpdate);
+        operationsNode.add(operationNode);
+        
+      }
+      
+      jsonToSend.set("Operations", operationsNode);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+      executeMethod(debugMap, "PATCH", configId, "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+
+  }
+
+  
   /**
    * 
    * @param debugMap
@@ -161,6 +374,9 @@ public class GrouperScim2ApiCommands {
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
+    int code = -1;
+    String json = null;
+
     HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName);
 
     HttpClient httpClient = new HttpClient();
@@ -179,32 +395,30 @@ public class GrouperScim2ApiCommands {
       }
     }
 
-    int code = -1;
-    String json = null;
-
     try {
       code = httpClient.executeMethod(httpMethod);
       returnCode[0] = code;
       json = httpMethod.getResponseBodyAsString();
+
+      if (!allowedReturnCodes.contains(code)) {
+        throw new RuntimeException(
+            "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes));
+      }
+      if (StringUtils.isBlank(json)) {
+        return null;
+      }
+      try {
+        JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
+        return rootNode;
+      } catch (Exception e) {
+        throw new RuntimeException("Error parsing response: '" + json + "'", e);
+      }
     } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + httpMethodName + "' '" + debugMap.get("url") + "'", e);
+      throw new RuntimeException("Error connecting to '" 
+          + httpMethodName + "' '" + debugMap.get("url") + ", body: '" +
+          body + "' returnCode: " + code + ", response: '" + json + "'", e);
     }
 
-    if (!allowedReturnCodes.contains(code)) {
-      throw new RuntimeException(
-          "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)
-              + ". '" + debugMap.get("url") + "' " + json);
-    }
-
-    if (StringUtils.isBlank(json)) {
-      return null;
-    }
-    try {
-      JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
-      return rootNode;
-    } catch (Exception e) {
-      throw new RuntimeException("Error parsing response: '" + json + "'", e);
-    }
   }
 
   /**
@@ -505,7 +719,321 @@ public class GrouperScim2ApiCommands {
     }
   
   }
+
+
+  /**
+   * create membership
+   * @param groupId
+   * @param userIds
+   * @return the result
+   */
+  public static void createScimMemberships(String configId,
+      String groupId, Set<String> userIds) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "createScimMemberships");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      //  {
+      //    "schemas": [
+      //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      //    ],
+      //    "Operations": [
+      //        {
+      //            "op": "add",
+      //            "path": "members",
+      //            "value": [{
+      //                "value": "user_id_2"
+      //            }]
+      //        }
+      //    ]
+      // }
+
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
+        jsonToSend.set("schemas", schemasNode);
+      }
   
+      ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+
+      ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+      
+      operationNode.put("op", "add");
+      operationNode.put("path", "members");
+
+      ArrayNode valuesNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      for (String userId: userIds) {
+        
+        ObjectNode valueNode = GrouperUtil.jsonJacksonNode();
+        valueNode.put("value", userId);
+        valuesNode.add(valueNode);
+        
+      }
+      operationNode.set("value", valuesNode);
+      
+      operationsNode.add(operationNode);
+
+      jsonToSend.set("Operations", operationsNode);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+  
+      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+    
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+
+  }
+
+
+  /**
+   * delete membership
+   * @param groupId
+   * @param userIds
+   * @return the result
+   */
+  public static void deleteScimMemberships(String configId,
+      String groupId, Set<String> userIds) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "deleteScimMemberships");
+  
+    long startTime = System.nanoTime();
+  
+    try {
+  
+      List<String> userIdsList = new ArrayList<String>(userIds);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, 100);
+
+      debugMap.put("numberOfBatches", numberOfBatches);
+
+      for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+        
+        List<String> currentBatch = GrouperUtil.batchList(userIdsList, 100, batchIndex);
+        
+        deleteScimMembershipsHelper(configId, groupId, currentBatch);
+        
+      }
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+    
+  }
+
+  /**
+   * delete membership
+   * @param groupId
+   * @param userIds
+   * @return the result
+   */
+  private static void deleteScimMembershipsHelper(String configId,
+      String groupId, List<String> userIds) {
+  
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "deleteScimMembershipsHelper");
+  
+    long startTime = System.nanoTime();
+  
+    try {
+  
+      //  {
+      //    "schemas": [
+      //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      //    ],
+      //    "Operations": [
+      //        {
+      //            "op": "remove",
+      //            "path": "members",
+      //            "value": [{
+      //                "value": "user_id_2"
+      //            }]
+      //        }
+      //    ]
+      // }
+  
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
+        jsonToSend.set("schemas", schemasNode);
+      }
+  
+      ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+
+      for (String userId: userIds) {
+
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        
+        operationNode.put("op", "remove");
+        //  members[value eq "89bb1940-b905-4575-9e7f-6f887cfb368e"]
+        operationNode.put("path", "members[value eq \"" + StringEscapeUtils.escapeJson(userId) + "\"]");
+        
+        operationsNode.add(operationNode);
+      }
+      
+      jsonToSend.set("Operations", operationsNode);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+  
+      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+    
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  
+  }
+
+
+  /**
+   * replace memberships
+   * @param groupId
+   * @param userIds
+   * @return the result
+   */
+  public static void replaceScimMemberships(String configId,
+      String groupId, Set<String> userIds) {
+  
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "replaceScimMemberships");
+  
+    long startTime = System.nanoTime();
+  
+    try {
+  
+      //  {
+      //    "schemas": [
+      //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      //    ],
+      //    "Operations": [
+      //        {
+      //            "op": "replace",
+      //            "path": "members",
+      //            "value": [{
+      //                "value": "user_id_2"
+      //            }]
+      //        }
+      //    ]
+      // }
+  
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
+        jsonToSend.set("schemas", schemasNode);
+      }
+  
+      ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+  
+      ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+      
+      operationNode.put("op", "replace");
+      operationNode.put("path", "members");
+  
+      ArrayNode valuesNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      for (String userId: userIds) {
+        
+        ObjectNode valueNode = GrouperUtil.jsonJacksonNode();
+        valueNode.put("value", userId);
+        valuesNode.add(valueNode);
+        
+      }
+      operationNode.set("value", valuesNode);
+      
+      operationsNode.add(operationNode);
+  
+      jsonToSend.set("Operations", operationsNode);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+  
+      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+    
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+  
+  }
+
+
+  /**
+   * retrieve all groups
+   * @return the results
+   */
+  public static List<GrouperScim2Group> retrieveScimGroups(String configId) {
+  
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "retrieveScimGroups");
+  
+    long startTime = System.nanoTime();
+  
+    List<GrouperScim2Group> results = new ArrayList<GrouperScim2Group>();
+    
+    try {
+  
+      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Groups",
+          GrouperUtil.toSet(200), new int[] { -1 }, null);
+  
+      int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
+      int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
+      int startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+  
+      if (totalResults > itemsPerPage) {
+        throw new RuntimeException("Total results " + totalResults + " is greater than items per page " + itemsPerPage);
+      }
+  
+      if (totalResults == 0) {
+        return results;
+      }
+      
+      ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+  
+      for (int i=0;i<resourcesNode.size();i++) {
+        JsonNode userNode = resourcesNode.get(i);
+        GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
+        results.add(grouperScimGroup);
+      }
+      
+      return results;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+  
+  }
+
+
 //  public void updateScimUser(String configId,
 //      GrouperScim2User grouperScimUser, Set<String> fieldsToUpdate) {
 //    

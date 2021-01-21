@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.scim2Provisioning;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
@@ -11,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -36,6 +37,66 @@ public class GrouperScim2Group {
     
   }
 
+  /**
+   * 
+   * @param targetGroup
+   * @return
+   */
+  public static GrouperScim2Group fromProvisioningGroup(ProvisioningGroup targetGroup, Set<String> fieldNamesToSet) {
+    
+    GrouperScim2Group grouperScim2Group = new GrouperScim2Group();
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
+      grouperScim2Group.setDisplayName(targetGroup.getDisplayName());
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      grouperScim2Group.setId(targetGroup.getId());
+    }
+    
+    return grouperScim2Group;
+
+  }
+
+  /**
+   * see if this scim path matches the current members 
+   * @param path
+   * @return userId
+   */
+  public String validateMembersPath(String path) {
+    
+    String field = null;
+    String membersField = null;
+    String value = null;
+    
+    // objectFieldEqPattern members.value eq "1234567"
+    Matcher matcher = GrouperScim2User.objectFieldEqPattern.matcher(path);
+    if (!matcher.matches()) {
+
+      // objectIndexFieldEqPattern members[value eq "89bb1940-b905-4575-9e7f-6f887cfb368e"]
+      matcher = GrouperScim2User.objectIndexFieldEqPattern.matcher(path);
+
+      if (!matcher.matches()) {
+        throw new RuntimeException("Invalid field expression '" + path + "'");
+      }
+    }
+    membersField = matcher.group(2);
+
+    field = matcher.group(1);
+    value = matcher.group(3); 
+
+    if (!"members".equalsIgnoreCase(field)) {
+      throw new RuntimeException("Expecting emails but received '" + field + "'");
+    }
+
+    if ("value".equals(membersField)) {
+      return value;
+    } else {
+      throw new RuntimeException("Expected value but received '" + membersField + "'");
+    }
+    
+  }
+  
+
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this);
@@ -44,18 +105,18 @@ public class GrouperScim2Group {
   public GrouperScim2Group() {
   }
 
-  public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+  public ProvisioningGroup toProvisioningGroup() {
+    ProvisioningGroup targetGroup = new ProvisioningGroup();
     
     if (this.displayName != null) {
-      targetEntity.assignAttributeValue("displayName", this.displayName);
+      targetGroup.assignAttributeValue("displayName", this.displayName);
     }
     
     if (this.id != null) {
-      targetEntity.setId(this.id);
+      targetGroup.setId(this.id);
     }
     
-    return targetEntity;
+    return targetGroup;
   }
 
   /**

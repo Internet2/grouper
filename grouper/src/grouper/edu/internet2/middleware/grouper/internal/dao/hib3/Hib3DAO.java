@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -221,6 +222,7 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperAzureMembership.class);
         addClass(configuration, GrouperScim2User.class);
         addClass(configuration, GrouperScim2Group.class);
+        addClass(configuration, GrouperScim2Membership.class);
       }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);

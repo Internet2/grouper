@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -54,6 +55,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     try {
       new GcDbAccess().sql("select count(*) from mock_scim_user").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_scim_group").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_scim_membership").select(int.class);
     } catch (Exception e) {
 
       //we need to delete the test table if it is there, and create a new one
@@ -64,6 +66,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
           Database database = ddlVersionBean.getDatabase();
           GrouperScim2User.createTableScimUser(ddlVersionBean, database);
           GrouperScim2Group.createTableScimGroup(ddlVersionBean, database);
+          GrouperScim2Membership.createTableScimMembership(ddlVersionBean, database);
           
         }
       });
@@ -75,6 +78,8 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
    * 
    */
   public static void dropScimMockTables() {
+    MockServiceServlet.dropMockTable("mock_scim_membership");
+    MockServiceServlet.dropMockTable("mock_scim_group");
     MockServiceServlet.dropMockTable("mock_scim_user");
   }
   
@@ -127,6 +132,10 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
         patchUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+        patchGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -657,7 +666,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
     
     ObjectNode objectNode = grouperScimUser.toJson(null);
-    mockServiceResponse.setResponseCode(204);
+    mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
     
@@ -813,6 +822,153 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   
+  }
+
+  public void patchGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    
+    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
+      return;
+    }
+    
+    String id = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
+  
+    GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic()
+        .createQuery("from GrouperScim2Group where id = :theValue").setString("theValue", id)
+        .uniqueResult(GrouperScim2Group.class);
+
+    if (grouperScimGroup == null) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceRequest.getDebugMap().put("foundGroup", false);
+      return;
+    }
+        
+    mockServiceResponse.setContentType("application/json");
+    
+    //  {
+    //    "schemas": [
+    //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+    //    ],
+    //    "Operations": [
+    //        {
+    //            "op": "replace",
+    //            "path": "active",
+    //            "value": "false"
+    //        }
+    //    ]
+    //  }
+    
+    String requestBodyString = mockServiceRequest.getRequestBody();
+    JsonNode requestNode = GrouperUtil.jsonJacksonNode(requestBodyString);
+  
+    ArrayNode schemasNode = (ArrayNode)requestNode.get("schemas");
+  
+    GrouperUtil.assertion(schemasNode.size() == 1, "schema is required");
+    GrouperUtil.assertion("urn:ietf:params:scim:api:messages:2.0:PatchOp".equals(schemasNode.get(0).asText()), "schema is required");
+  
+    ArrayNode operationsNode = (ArrayNode)requestNode.get("Operations");
+
+    GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
+
+    int adds = 0;
+    int removes = 0;
+    int replaces = 0;
+    
+    for (int i=0;i<operationsNode.size();i++) {
+
+      JsonNode operation = operationsNode.get(i);
+
+      //            "op": "replace",
+      //            "path": "active",
+      //            "value": "false"
+
+      // replace, add, remove
+      String op = GrouperUtil.jsonJacksonGetString(operation, "op");
+      boolean opAdd = "add".equals(op);
+      boolean opReplace = "replace".equals(op);
+      boolean opRemove = "remove".equals(op);
+      if (!opAdd && !opRemove && !opReplace) {
+        throw new RuntimeException("Invalid op, expecting add, replace, remove, but received: '" + op + "'");
+      }
+      String path = GrouperUtil.jsonJacksonGetString(operation, "path");
+
+      Set<String> userIdsToAdd = new HashSet<String>();
+      Set<String> userIdsToRemove = new HashSet<String>();
+
+      if (opRemove) {
+        
+        String userId = grouperScimGroup.validateMembersPath(path);
+        
+        if (StringUtils.isBlank(userId)) {
+          throw new RuntimeException("userId is blank: " + requestBodyString);
+        }
+
+        userIdsToRemove.add(userId);
+        
+      } else {
+        
+        GrouperUtil.assertion("members".equals(path), "'members' is only path acceptable, not '" + path + "'");
+        
+        JsonNode valueNode = GrouperUtil.jsonJacksonGetNode(operation, "value");
+        
+        if (!valueNode.isArray()) {
+          ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+          arrayNode.add(valueNode);
+          valueNode = arrayNode;
+        }
+        for (int j=0;j<valueNode.size();j++) {
+          
+          JsonNode theValue = valueNode.get(j);
+          
+          String value = GrouperUtil.jsonJacksonGetString(theValue, "value");
+          GrouperUtil.assertion(!StringUtils.isBlank(value), "'members' is only path acceptable, not '" + path + "'");
+          userIdsToAdd.add(value);
+        }
+        
+        if (opReplace) {
+         
+          userIdsToRemove.addAll(HibernateSession.byHqlStatic()
+              .createQuery("select userId from GrouperScim2Membership where groupId = :theGroupId")
+              .setString("theGroupId", id).listSet(String.class));
+
+          Set<String> replaceWithIds = new HashSet<String>(userIdsToAdd);
+          
+          userIdsToAdd.removeAll(userIdsToRemove);
+          userIdsToRemove.removeAll(replaceWithIds);
+          replaces++;
+        }
+      }
+      
+      for (String userId : userIdsToRemove) {
+        GrouperScim2Membership grouperScim2Membership = HibernateSession.byHqlStatic()
+            .createQuery("select membership from GrouperScim2Membership membership where userId = :theUserId and groupId = :theGroupId")
+            .setString("theGroupId", id).setString("theUserId", userId).uniqueResult(GrouperScim2Membership.class);
+        
+        if (grouperScim2Membership != null) {
+          HibernateSession.byObjectStatic().delete(grouperScim2Membership);
+          removes++;
+        }
+
+      }
+
+      for (String userId : userIdsToAdd) {
+        GrouperScim2Membership grouperScim2Membership = new GrouperScim2Membership();
+        grouperScim2Membership.setId(GrouperUuid.getUuid());
+        grouperScim2Membership.setUserId(userId);
+        grouperScim2Membership.setGroupId(id);
+        HibernateSession.byObjectStatic().save(grouperScim2Membership);
+        adds++;
+      }
+
+    }
+
+    mockServiceRequest.getDebugMap().put("adds", adds);
+    mockServiceRequest.getDebugMap().put("removes", removes);
+    mockServiceRequest.getDebugMap().put("replaces", replaces);
+    mockServiceResponse.setResponseCode(204);
+    mockServiceResponse.setContentType("application/json");
+    
   }
   
 }

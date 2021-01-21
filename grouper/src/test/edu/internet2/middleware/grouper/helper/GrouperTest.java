@@ -1136,6 +1136,7 @@ public class GrouperTest extends TestCase {
     setupInitDb();
 
     GrouperEmail.testingEmails().clear();
+    GrouperEmail.testingEmailCount = 0;
     GrouperCacheUtils.clearAllCaches();
 
 

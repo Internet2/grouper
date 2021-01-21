@@ -308,7 +308,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       return new TargetDaoInsertMembershipsResponse();
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMembership", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMemberships", startNanos));
     }
   }
 
@@ -486,7 +486,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       return new TargetDaoRetrieveAllMembershipsResponse(results);
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
     }
   }
 

@@ -7,7 +7,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -32,13 +34,12 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   
   public final static Set<String> provisionerConfigClassNames = new LinkedHashSet<String>();
   
-  
-  
   static {
+    provisionerConfigClassNames.add(AzureProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
-    provisionerConfigClassNames.add("edu.internet2.middleware.grouper.azure.AzureProvisionerConfiguration");
+//    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
   }
   
   /**
