@@ -351,12 +351,12 @@ public class GrouperProvisionerGrouperDao {
       }
       
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupUuidsMemberUuidsList.size(), 450);
-      StringBuilder sql = new StringBuilder(sqlInitial);
       
-      sql.append(" and ( ");
       for (int i = 0; i < numberOfBatches; i++) {
         List<MultiKey> currentBatchIds = GrouperUtil.batchList(groupUuidsMemberUuidsList, 450, i);
-        
+        StringBuilder sql = new StringBuilder(sqlInitial);
+        sql.append(" and ( ");
+
         List<Object> paramsCurrent = new ArrayList<Object>(paramsInitial);
 
         List<Type> typesCurrent = new ArrayList<Type>(typesInitial);
