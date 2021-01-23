@@ -267,7 +267,8 @@ public class GcTableSyncTableMetadata {
           query = GrouperClientUtils.replace(query, " where ", " where 1!=1 and ");
           query = GrouperClientUtils.replace(query, " WHERE ", " where 1!=1 and ");
         } else {
-          if (!query.toLowerCase().contains("where")) {
+          if (!query.toLowerCase().contains("where") && !query.toLowerCase().contains(" order ")
+              && !query.toLowerCase().contains(" group ")) {
             query += " where 1!=1";
           }
         }
