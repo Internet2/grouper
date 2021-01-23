@@ -23,7 +23,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMe
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -135,13 +134,13 @@ public class GcTableSyncTableMetadata {
    * @return the list of columns
    */
   public List<GcTableSyncColumnMetadata> lookupColumns(String columnNames) {
-    if (StringUtils.isBlank(columnNames)) {
+    if (GrouperClientUtils.isBlank(columnNames)) {
       throw new RuntimeException("Pass in columns for " + this.getConnectionName() + " -> " + this.getTableName());
     }
     
     List<GcTableSyncColumnMetadata> result = new ArrayList<GcTableSyncColumnMetadata>();
     
-    if (StringUtils.equals(columnNames, "*")) {
+    if (GrouperClientUtils.equals(columnNames, "*")) {
       result.addAll(this.getColumnMetadata());
     } else {
       
