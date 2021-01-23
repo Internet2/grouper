@@ -96,8 +96,9 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.Script;
-import org.apache.commons.jexl2.UnifiedJEXL;
-import org.apache.commons.jexl2.UnifiedJEXL.Template;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JxltEngine;
+import org.apache.commons.jexl3.JxltEngine.Template;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -175,15 +176,15 @@ public class GrouperUtil {
     //  }
     //  System.out.println("10 runs lightweight: " + ((System.nanoTime()-startNanos)/1000000));
 
-    String templateSource = "hey\nthere\n";
-    templateSource += "$$ for (var item : list) { \n";
-    templateSource += "  sup yall ${item} chillin yall\n";
-    templateSource += "$$ }\n";
-    templateSource += "hey\n";
-//    templateSource += "${size(listOfRecordMaps)}\n";
-    templateSource += "$$ for (var recordMap : listOfRecordMaps) { \n";
-    templateSource += "  Record subject ID: ${recordMap.get('subject_id')}, name: ${recordMap.get('subject_name')}\n";
-    templateSource += "$$ }\n";
+//    String templateSource = "hey\nthere\n";
+//    templateSource += "$$ for (var item : list) { \n";
+//    templateSource += "  sup yall ${item} chillin yall\n";
+//    templateSource += "$$ }\n";
+//    templateSource += "hey\n";
+////    templateSource += "${size(listOfRecordMaps)}\n";
+//    templateSource += "$$ for (var recordMap : listOfRecordMaps) { \n";
+//    templateSource += "  Record subject ID: ${recordMap.get('subject_id')}, name: ${recordMap.get('subject_name')}\n";
+//    templateSource += "$$ }\n";
 
 //    String templateSource = "hello ${subject_name},\n";
 //    templateSource += "$$ for (var recordMap : listOfRecordMaps) {\n";
@@ -191,29 +192,47 @@ public class GrouperUtil {
 //    templateSource += "Record subject ID: ${recordMap.get('subject_id')} is\n";
 //    templateSource += "$$}\n";
     
-    List<Map<String, Object>> recordMapList = new ArrayList<Map<String, Object>>();
+//    List<Map<String, Object>> recordMapList = new ArrayList<Map<String, Object>>();
+//    
+//    Map<String, Object> map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId1", "subject_name", "subjectName1");
+//    recordMapList.add(map);
+//    map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId2", "subject_name", "subjectName2");
+//    recordMapList.add(map);
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//
+//    for (Map theMap : recordMapList) {
+//      System.out.println("Subject1: " + theMap.get("subject_id"));
+//    }
+//    
+//    variableMap.put("subject_name", "some subject name");
+//    variableMap.put("listOfRecordMaps", recordMapList);
+//    
+//    List<String> list = new ArrayList();
+//    list.add("one");
+//    list.add("two");
+//    variableMap.put("list", list);
+//
+//    String result = substituteExpressionLanguageTemplate(templateSource, variableMap, true, false, true);
+//    System.out.println("'" + result + "'");
+
+    String templateSource = "Dear ${subject_name}, \n"
+        + "\n"
+        + "Your FERPA training is about to expire and then access to NGSS resources will be revoked.  Please take the FERPA training again now or at least before ${column_needed_by_date}.\n"
+        + "\n"
+        + "https://tinyurl.com/ngssFerpa\n"
+        + "\n"
+        + "Thanks,\n"
+        + "Chris Hyzer\n"
+        + "ps. Slack or teams or skype me with issues.";
     
-    Map<String, Object> map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId1", "subject_name", "subjectName1");
-    recordMapList.add(map);
-    map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId2", "subject_name", "subjectName2");
-    recordMapList.add(map);
     Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    for (Map theMap : recordMapList) {
-      System.out.println("Subject1: " + theMap.get("subject_id"));
-    }
     
-    variableMap.put("subject_name", "some subject name");
-    variableMap.put("listOfRecordMaps", recordMapList);
+    variableMap.put("subject_name", "mySubjName1");
+    variableMap.put("column_needed_by_date", "2021/01/04");
     
-    List<String> list = new ArrayList();
-    list.add("one");
-    list.add("two");
-    variableMap.put("list", list);
-
     String result = substituteExpressionLanguageTemplate(templateSource, variableMap, true, false, true);
     System.out.println("'" + result + "'");
-
+    
   }
 
   /**
@@ -9863,10 +9882,84 @@ public class GrouperUtil {
 
     }
 
-
-
-
   }
+
+  /**
+  *
+  */
+ private static class GrouperMapContext3 extends org.apache.commons.jexl3.MapContext {
+
+   /**
+    * retrieve class if class
+    * @param name
+    * @return class
+    */
+   private static Object retrieveClass(String name) {
+     if (isBlank(name)) {
+       return null;
+     }
+
+     //see if fully qualified class
+
+     Boolean knowsIfClass = jexlKnowsIfClass.get(name);
+
+     //see if knows answer
+     if (knowsIfClass != null) {
+       //return class or null
+       return jexlClass.get(name);
+     }
+
+     //see if valid class
+     if (jexlClassPattern.matcher(name).matches()) {
+
+       jexlKnowsIfClass.put(name, true);
+       //try to load
+       try {
+         Class<?> theClass = Class.forName(name);
+         jexlClass.put(name, theClass);
+         return theClass;
+       } catch (Exception e) {
+         LOG.info("Cant load what looks like class: " + name, e);
+         //this is ok I guess, dont rethrow, not sure it is a class
+       }
+     }
+     return null;
+
+   }
+
+   /**
+    * @see org.apache.commons.jexl2.MapContext#get(java.lang.String)
+    */
+   @Override
+   public Object get(String name) {
+
+     //see if registered
+     Object object = super.get(name);
+
+     if (object != null) {
+       return object;
+     }
+     return retrieveClass(name);
+   }
+
+   /**
+    * @see org.apache.commons.jexl2.MapContext#has(java.lang.String)
+    */
+   @Override
+   public boolean has(String name) {
+     boolean superHas = super.has(name);
+     if (superHas) {
+       return true;
+     }
+
+     return retrieveClass(name) != null;
+
+   }
+
+
+
+
+ }
 
   /**
    * substitute an EL for objects
@@ -13009,15 +13102,28 @@ public class GrouperUtil {
   public static String substituteExpressionLanguageTemplate(String script,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     variableMap = nonNull(variableMap);
-    substituteExpressionInit();
+    substituteExpressionInit3();
     
     if (isBlank(script)) {
       return null;
     }
+
+    // TODO replace when we upgrade jexl templates to allow multiple newline
+    //  Caused by: java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+    //  at java.lang.String.charAt(String.java:658)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.startsWith(UnifiedJEXL.java:1350)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.readTemplate(UnifiedJEXL.java:1413)
+    //  at org.apache.commons.jexl2.UnifiedJEXL$Template.<init>(UnifiedJEXL.java:1083)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.createTemplate(UnifiedJEXL.java:1462)
+    //  at edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguageTemplate(GrouperUtil.java:13059)
+//    while (script.contains("\n\n")) {
+//      script = replace(script, "\n\n", "\n");
+//    }
+
     String overallResult = null;
     Exception exception = null;
     try {
-      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
+      org.apache.commons.jexl3.JexlContext jc = allowStaticClasses ? new GrouperMapContext3() : new org.apache.commons.jexl3.MapContext();
   
       int index = 0;
   
@@ -13028,11 +13134,13 @@ public class GrouperUtil {
       //allow utility methods
       jc.set("grouperUtil", new GrouperUtilElSafe());
       //if you add another one here, add it in the logs below
-  
+
       script = script.trim();
-  
-      UnifiedJEXL jexl = new UnifiedJEXL(jexlEngines.get(new MultiKey(false, true)));
-      Template theTemplate = jexl.createTemplate(script);
+
+      org.apache.commons.jexl3.JexlEngine jexl = jexlEngines3.get(new MultiKey(silent, lenient));
+      JxltEngine jxlt = jexl.createJxltEngine();
+      Template theTemplate = jxlt.createTemplate(script);
+      
       Writer writer = new StringWriter();
   
       String result = null;
@@ -13096,6 +13204,16 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * create one set of jexlEngine instances (one per type of setting) so we can cache expressions
+   */
+  private final static Map<MultiKey, org.apache.commons.jexl3.JexlEngine> jexlEngines3 = new HashMap<MultiKey, org.apache.commons.jexl3.JexlEngine>();
+  
+  /**
+   * if the jexl engine instances are all initialized completely
+   */
+  private static boolean jexlEnginesInitialized3 = false;
+
   private static void substituteExpressionInit() {
     if (!jexlEnginesInitialized) {
       synchronized (GrouperUtil.class) {
@@ -13107,6 +13225,43 @@ public class GrouperUtil {
           }
           
           jexlEnginesInitialized = true;
+        }
+      }
+    }
+  }
+  
+  private static void substituteExpressionInit3() {
+    if (!jexlEnginesInitialized3) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized3) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          { 
+            Boolean silent = true;
+            Boolean lenient = true;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = false;
+            Boolean lenient = true;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = true;
+            Boolean lenient = false;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = false;
+            Boolean lenient = false;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          
+          jexlEnginesInitialized3 = true;
         }
       }
     }

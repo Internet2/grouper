@@ -101,6 +101,7 @@
         <jsch.version>0.1.55</jsch.version>
         <commons.vfs2.version>2.4.1</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
+        <commons.jexl3.version>3.0</commons.jexl3.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
         <commons.cli.version>1.4</commons.cli.version>
         <commons.codec.version>1.11</commons.codec.version>
@@ -545,6 +546,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>${commons.jexl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl3</artifactId>
+                <version>${commons.jexl3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ddlutils</groupId>
@@ -1298,17 +1304,6 @@
             <organization>Duke University</organization>
             <organizationUrl>http://www.duke.edu</organizationUrl>
             <email>shilen@duke.edu</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>bafbl</id>
-            <name>Bert Bee-Lindgren</name>
-            <organization>Georgia Tech</organization>
-            <organizationUrl>https://www.gatech.edu/</organizationUrl>
-            <email>bert.bee-lindgren@oit.gatech.edu</email>
             <roles>
                 <role>Developer</role>
             </roles>

@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -32,6 +33,16 @@ import edu.internet2.middleware.subject.Subject;
 
 public class NotificationDaemon extends OtherJobBase {
 
+  public static void main(String[] args) {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_ngssFerpaExpireNotification");
+    
+  }
+  
   /**
    * logger 
    */
@@ -273,7 +284,7 @@ public class NotificationDaemon extends OtherJobBase {
     for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
       GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
       if ("subject_id".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        subjectIdIndex = i;
+        subjectIdIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
         break;
       }
     }
@@ -284,7 +295,7 @@ public class NotificationDaemon extends OtherJobBase {
     for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
       GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
       if ("email_address_to_send_to".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        emailAddressIndex = i;
+        emailAddressIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
         break;
       }
     }
@@ -359,7 +370,7 @@ public class NotificationDaemon extends OtherJobBase {
 
         recordMap.put(
             "column_" + gcTableSyncColumnMetadata.getColumnName().toLowerCase(), 
-            result[i]);
+            result[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()]);
 
         i++;
       }
@@ -524,7 +535,7 @@ public class NotificationDaemon extends OtherJobBase {
 
           variableMap.put(
               "column_" + gcTableSyncColumnMetadata.getColumnName().toLowerCase(), 
-              result[i]);
+              result[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()]);
 
           i++;
         }
@@ -566,7 +577,7 @@ public class NotificationDaemon extends OtherJobBase {
 
       } catch (RuntimeException e) {
 
-        LOG.error("Error sending email to: " + subjectId + ", '" + email + "'");
+        LOG.error("Error sending email to: " + subjectId + ", '" + email + "'", e);
         re = e;
 
         otherJobInput.getHib3GrouperLoaderLog().incrementUnresolvableSubjectCount();
