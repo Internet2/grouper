@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -2380,7 +2381,30 @@ public class GrouperCheckConfig {
 
       }
 
-      
+      {
+        String notificationLastSentStemName = NotificationDaemon.attributeAutoCreateStemName();
+
+        Stem notificationLastSentStem = StemFinder.findByName(grouperSession, notificationLastSentStemName, false, new QueryOptions().secondLevelCache(false));
+        if (notificationLastSentStem == null) {
+          notificationLastSentStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in external subject invite attributes, and holds the data via attributes for invites.  Dont delete this folder")
+            .assignName(notificationLastSentStemName).save();
+        }
+
+        //see if attributeDef is there
+        String notificationLastSentDefName = notificationLastSentStemName + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF;
+
+        AttributeDef notificationLastSentDef = new AttributeDefSave(grouperSession).assignName(notificationLastSentDefName)
+          .assignToImmMembership(true).assignMultiAssignable(false).assignMultiValued(false).assignValueType(AttributeDefValueType.string)
+          .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).save();
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(notificationLastSentDef);
+
+        //add a name
+        checkAttribute(notificationLastSentStem, notificationLastSentDef, 
+            NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, "daemon config id underscore yyyy/mm/dd comma separated.  Represents last date notification was sent", wasInCheckConfig);
+      }
+
       {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
         

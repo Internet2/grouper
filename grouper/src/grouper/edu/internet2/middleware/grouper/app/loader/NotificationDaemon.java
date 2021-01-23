@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -40,9 +41,21 @@ public class NotificationDaemon extends OtherJobBase {
    */
   private static final Log LOG = GrouperUtil.getLog(NotificationDaemon.class);
 
-  
+
   public NotificationDaemon() {
   }
+
+  /**
+   * 
+   * @return the stem name
+   */
+  public static String attributeAutoCreateStemName() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:notifications";
+  }
+
+  public static final String GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF = "grouperNotificationLastSentDef";
+
+  public static final String GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT = "grouperNotificationLastSent";
 
   private OtherJobInput otherJobInput = null;
 
@@ -75,8 +88,6 @@ public class NotificationDaemon extends OtherJobBase {
 
   private String bccsCommaSeparated = null;
 
-  private String lastSentNameOfAttributeDefName = null;
-      
   private Group lastSentGroup = null;
   
   private Set<String> eligibilitySubjectIds = null;
@@ -197,30 +208,27 @@ public class NotificationDaemon extends OtherJobBase {
     sendToBccOnly = GrouperLoaderConfig
         .retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".sendToBccOnly", false);
     
-    // penn:isc:ait:apps:ngss:attributes:ngssTeamNotificationsLastSent
-    lastSentNameOfAttributeDefName = null;
-    
     lastSentGroup = null;
     
     if (!StringUtils.isBlank(lastSentGroupName)) {
       lastSentGroup = GroupFinder.findByName(grouperSession, lastSentGroupName, true);
   
-      lastSentNameOfAttributeDefName = GrouperLoaderConfig
-          .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".lastSentAttributeDefName");
-      AttributeDefName lastSentAttributeDefName = null;
-      
-      lastSentAttributeDefName = AttributeDefNameFinder.findByName(lastSentNameOfAttributeDefName, true);
-  
-      AttributeDef lastSentAttributeDef = lastSentAttributeDefName.getAttributeDef();
-      
-      GrouperUtil.assertion(!lastSentAttributeDef.isMultiValued(), 
-          lastSentAttributeDef.getName() + " must not be multi valued");
-      GrouperUtil.assertion(!lastSentAttributeDef.isMultiAssignable(), 
-          lastSentAttributeDef.getName() + " must not be multi assign");
-      GrouperUtil.assertion(lastSentAttributeDef.getValueType() == AttributeDefValueType.string, 
-          lastSentAttributeDef.getName() + " must be value type string");
-      GrouperUtil.assertion(lastSentAttributeDef.isAssignToImmMembership(), 
-          lastSentAttributeDef.getName() + " must be able to be assign to immediate membership");
+//      lastSentNameOfAttributeDefName = GrouperLoaderConfig
+//          .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".lastSentAttributeDefName");
+//      AttributeDefName lastSentAttributeDefName = null;
+//      
+//      lastSentAttributeDefName = AttributeDefNameFinder.findByName(lastSentNameOfAttributeDefName, true);
+//  
+//      AttributeDef lastSentAttributeDef = lastSentAttributeDefName.getAttributeDef();
+//      
+//      GrouperUtil.assertion(!lastSentAttributeDef.isMultiValued(), 
+//          lastSentAttributeDef.getName() + " must not be multi valued");
+//      GrouperUtil.assertion(!lastSentAttributeDef.isMultiAssignable(), 
+//          lastSentAttributeDef.getName() + " must not be multi assign");
+//      GrouperUtil.assertion(lastSentAttributeDef.getValueType() == AttributeDefValueType.string, 
+//          lastSentAttributeDef.getName() + " must be value type string");
+//      GrouperUtil.assertion(lastSentAttributeDef.isAssignToImmMembership(), 
+//          lastSentAttributeDef.getName() + " must be able to be assign to immediate membership");
     }
     
     eligibilitySubjectIds = null;
@@ -255,7 +263,8 @@ public class NotificationDaemon extends OtherJobBase {
           .sql("select subject_id from grouper_aval_asn_mship_v gaaev "
               + "where group_name = ? "
               + "and attribute_def_name_name = ? and value_string = ?")
-          .addBindVar(lastSentGroupName).addBindVar(lastSentNameOfAttributeDefName)
+          .addBindVar(lastSentGroupName).addBindVar(
+              NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT )
           .addBindVar(date).selectList(String.class));
     }
     
@@ -431,7 +440,7 @@ public class NotificationDaemon extends OtherJobBase {
           if (lastSentGroup != null) {
             lastSentGroup.addMember(emailSummaryToSubject, false);
             Member member = MemberFinder.findBySubject(grouperSession, emailSummaryToSubject, true);
-            lastSentGroup.getAttributeValueDelegateMembership(member).assignValue(lastSentNameOfAttributeDefName, date);
+            lastSentGroup.getAttributeValueDelegateMembership(member).assignValue(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, date);
           }
         }
 
@@ -553,7 +562,7 @@ public class NotificationDaemon extends OtherJobBase {
           if (lastSentGroup != null) {
             lastSentGroup.addMember(subject, false);
             Member member = MemberFinder.findBySubject(grouperSession, subject, true);
-            lastSentGroup.getAttributeValueDelegateMembership(member).assignValue(lastSentNameOfAttributeDefName, date);
+            lastSentGroup.getAttributeValueDelegateMembership(member).assignValue(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, date);
           }
         }
 

@@ -574,6 +574,75 @@ public class GrouperScim2User {
   public void setActiveDb(String theActive) {
     this.active = GrouperUtil.booleanObjectValue(theActive);
   }
+
+  /**
+   * 
+   * @param targetEntity
+   * @return
+   */
+  public static GrouperScim2User fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
+    
+    GrouperScim2User grouperScim2User = new GrouperScim2User();
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      grouperScim2User.setActive(GrouperUtil.booleanObjectValue(targetEntity.retrieveAttributeValueString("active")));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("costCenter")) {      
+      grouperScim2User.setCostCenter(targetEntity.retrieveAttributeValueString("costCenter"));
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
+      grouperScim2User.setDisplayName(targetEntity.retrieveAttributeValueString("displayName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailType")) {      
+      grouperScim2User.setEmailType(targetEntity.retrieveAttributeValueString("emailType"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue")) {      
+      grouperScim2User.setEmailValue(targetEntity.retrieveAttributeValueString("emailValue"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("employeeNumber")) {      
+      grouperScim2User.setEmployeeNumber(targetEntity.retrieveAttributeValueString("employeeNumber"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {      
+      grouperScim2User.setExternalId(targetEntity.retrieveAttributeValueString("externalId"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("familyName")) {      
+      grouperScim2User.setFamilyName(targetEntity.retrieveAttributeValueString("familyName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("formattedName")) {      
+      grouperScim2User.setFormattedName(targetEntity.retrieveAttributeValueString("formattedName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("givenName")) {      
+      grouperScim2User.setGivenName(targetEntity.retrieveAttributeValueString("givenName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      grouperScim2User.setId(targetEntity.getId());
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("middleName")) {      
+      grouperScim2User.setMiddleName(targetEntity.retrieveAttributeValueString("middleName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("userName")) {      
+      grouperScim2User.setUserName(targetEntity.retrieveAttributeValueString("userName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("userType")) {      
+      grouperScim2User.setUserType(targetEntity.retrieveAttributeValueString("userType"));
+    }
+    
+    return grouperScim2User;
+  
+  }
   
   
   

@@ -17,10 +17,20 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChang
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
@@ -30,6 +40,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -98,7 +110,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     long startNanos = System.nanoTime();
 
     try {
-      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       // we can retrieve by id or userPrincipalName, prefer id
@@ -109,7 +121,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
       if (!StringUtils.isBlank(grouperTargetEntity.getId())) {
         grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
-            azureConfiguration.getBearerTokenExternalSystemConfigId(), "id", 
+            scimConfiguration.getBearerTokenExternalSystemConfigId(), "id", 
             grouperTargetEntity.getId());
       }
 
@@ -117,7 +129,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           .retrieveAttributeValueString("userName");
       if (grouperScim2User == null && !StringUtils.isBlank(userName)) {
         grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
-            azureConfiguration.getBearerTokenExternalSystemConfigId(), "userName", userName);
+            scimConfiguration.getBearerTokenExternalSystemConfigId(), "userName", userName);
       }
 
       ProvisioningEntity targetEntity = grouperScim2User == null ? null
@@ -174,7 +186,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
 
     try {
-      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToInsert = new HashSet<String>();
@@ -187,7 +199,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperScim2Group grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
       
-      GrouperScim2ApiCommands.createScimGroup(azureConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2Group, fieldNamesToInsert);
+      GrouperScim2ApiCommands.createScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2Group, fieldNamesToInsert);
 
       targetGroup.setProvisioned(true);
 
@@ -215,7 +227,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
     try {
       
-      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       // lets collate by group
       Map<String, List<String>> groupIdToUserIds = new LinkedHashMap<String, List<String>>();
@@ -242,7 +254,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         
         RuntimeException runtimeException = null;
         try {
-          GrouperScim2ApiCommands.createScimMemberships(azureConfiguration.getBearerTokenExternalSystemConfigId(), groupId, new HashSet<String>(userIds));
+          GrouperScim2ApiCommands.createScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(), groupId, new HashSet<String>(userIds));
         } catch (RuntimeException e) {
           runtimeException = e;
         }
@@ -265,201 +277,269 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
 
-//  public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
-//    long startNanos = System.nanoTime();
-//    ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest.getTargetMembership();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      GrouperAzureApiCommands.deleteAzureMembership(azureConfiguration.getBearerTokenExternalSystemConfigId(), targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
-//
-//      targetMembership.setProvisioned(true);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(true);
-//      }
-//
-//      return new TargetDaoDeleteMembershipResponse();
-//    } catch (Exception e) {
-//      targetMembership.setProvisioned(false);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(false);
-//      }
-//      throw new RuntimeException("Failed to delete Azure group member (groupId '" + targetMembership.getProvisioningGroupId() + "', member '" + targetMembership.getProvisioningEntityId() + "'", e);
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMembership", startNanos));
-//    }
-//  }
-//
-//  @Override
-//  public TargetDaoUpdateGroupResponse updateGroup(
-//      TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
-//    long startNanos = System.nanoTime();
-//    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration scim2Configuration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//      
-//      // lets make sure we are doing the right thing
-//      Set<String> fieldNamesToUpdate = new HashSet<String>();
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
-//        fieldNamesToUpdate.add(fieldName);
-//      }
-//      
-//      GrouperScim2Group grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
-//      
-//      GrouperScim2ApiCommands.(scim2Configuration.getBearerTokenExternalSystemConfigId(), grouperScim2Group, fieldNamesToUpdate);
-//
-//      targetGroup.setProvisioned(true);
-//
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(true);
-//      }
-//
-//      return new TargetDaoUpdateGroupResponse();
-//    } catch (Exception e) {
-//      targetGroup.setProvisioned(false);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(false);
-//      }
-//      
-//      throw e;
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
-//    }
-//  }
-//
-//  @Override
-//  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
-//    
-//    long startNanos = System.nanoTime();
-//    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
-//      
-//      GrouperAzureApiCommands.deleteAzureGroup(azureConfiguration.getBearerTokenExternalSystemConfigId(), grouperAzureGroup.getId());
-//
-//      targetGroup.setProvisioned(true);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(true);
-//      }
-//      return new TargetDaoDeleteGroupResponse();
-//    } catch (Exception e) {
-//      targetGroup.setProvisioned(false);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(false);
-//      }
-//      throw e;
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
-//    }
-//  }
-//    
-//  @Override
-//  public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(
-//      TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
-//    long startNanos = System.nanoTime();
-//    ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      Set<String> groupIds = GrouperAzureApiCommands.retrieveAzureUserGroups(azureConfiguration.getBearerTokenExternalSystemConfigId(), targetEntity.getId());
-//      
-//      List<Object> provisioningMemberships = new ArrayList<Object>();
-//      
-//      for (String groupId : groupIds) {
-//
-//        ProvisioningMembership targetMembership = new ProvisioningMembership();
-//        targetMembership.setProvisioningGroupId(groupId);
-//        targetMembership.setProvisioningEntityId(targetEntity.getId());
-//        provisioningMemberships.add(targetMembership);
-//      }
-//  
-//      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
-//    }
-//  }
-//
-//  @Override
-//  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
-//    long startNanos = System.nanoTime();
-//    ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers(azureConfiguration.getBearerTokenExternalSystemConfigId(), targetGroup.getId());
-//      
-//      List<Object> provisioningMemberships = new ArrayList<Object>();
-//      
-//      for (String userId : userIds) {
-//
-//        ProvisioningMembership targetMembership = new ProvisioningMembership();
-//        targetMembership.setProvisioningGroupId(targetGroup.getId());
-//        targetMembership.setProvisioningEntityId(userId);
-//        provisioningMemberships.add(targetMembership);
-//      }
-//  
-//      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
-//    }
-//  }
-//
-//  @Override
-//  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-//    long startNanos = System.nanoTime();
-//
-//    try {
-//      GrouperScim2ProvisionerConfiguration azureConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
-//          .retrieveAzureGroups(azureConfiguration.getBearerTokenExternalSystemConfigId());
-//
-//      List<ProvisioningMembership> results = new ArrayList<>();
-//
-//      for (GrouperAzureGroup grouperAzureGroup : GrouperUtil.nonNull(grouperAzureGroups)) {
-//        Set<String> userIds = GrouperAzureApiCommands
-//            .retrieveAzureGroupMembers(azureConfiguration.getBearerTokenExternalSystemConfigId(), grouperAzureGroup.getId());
-//        for (String userId : GrouperUtil.nonNull(userIds)) {
-//          
-//          ProvisioningMembership targetMembership = new ProvisioningMembership();
-//          targetMembership.setProvisioningEntityId(userId);
-//          targetMembership.setProvisioningGroupId(grouperAzureGroup.getId());
-//          results.add(targetMembership);
-//        }
-//
-//      }
-//
-//      return new TargetDaoRetrieveAllMembershipsResponse(results);
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-//    }
-//  }
+  @Override
+  public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
 
+    long startNanos = System.nanoTime();
+    List<ProvisioningMembership> targetMemberships = targetDaoReplaceGroupMembershipsRequest.getTargetMemberships();
+    ProvisioningGroup targetGroup = targetDaoReplaceGroupMembershipsRequest.getTargetGroup();
+
+    RuntimeException runtimeException = null;
+
+    try {
+
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      // lets collate by group
+      Set<String> userIds = new HashSet<String>();
+
+      for (ProvisioningMembership targetMembership : targetMemberships) {
+
+        GrouperUtil.assertion(StringUtils.equals(targetGroup.getId(), targetMembership.getProvisioningGroupId()), 
+            "Group id doesnt match: '" + targetGroup.getId() + "', '" + targetMembership.getProvisioningGroupId() + "'");
+
+        userIds.add(targetMembership.getProvisioningEntityId());
+
+      }
+
+      try {
+        GrouperScim2ApiCommands.replaceScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(), targetGroup.getId(), new HashSet<String>(userIds));
+      } catch (RuntimeException e) {
+        runtimeException = e;
+      }
+
+      boolean success = runtimeException == null;
+
+      for (ProvisioningMembership targetMembership : targetMemberships) {
+        targetMembership.setProvisioned(success);
+        targetMembership.setException(runtimeException);
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(success);
+        }
+      }
+      return new TargetDaoReplaceGroupMembershipsResponse();
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMemberships", startNanos));
+    }
+  }
   
+  public TargetDaoDeleteMembershipsResponse deleteMemberships(TargetDaoDeleteMembershipsRequest targetDaoDeleteMembershipsRequest) {
+    
+    long startNanos = System.nanoTime();
+    List<ProvisioningMembership> targetMemberships = targetDaoDeleteMembershipsRequest.getTargetMemberships();
+
+    try {
+      
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      // lets collate by group
+      Map<String, List<String>> groupIdToUserIds = new LinkedHashMap<String, List<String>>();
+
+      // keep track to mark as complete
+      Map<MultiKey, ProvisioningMembership> groupIdUserIdToProvisioningMembership = new HashMap<MultiKey, ProvisioningMembership>();
+      
+      for (ProvisioningMembership targetMembership : targetMemberships) {
+
+        groupIdUserIdToProvisioningMembership.put(new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId()), targetMembership);
+        
+        List<String> userIds = groupIdToUserIds.get(targetMembership.getProvisioningGroupId());
+        if (userIds == null) {
+          userIds = new ArrayList<String>();
+          groupIdToUserIds.put(targetMembership.getProvisioningGroupId(), userIds);
+        }
+        userIds.add(targetMembership.getProvisioningEntityId());
+      }
+
+      // send batches by group
+      for (String groupId : groupIdToUserIds.keySet()) {
+
+        List<String> userIds = groupIdToUserIds.get(groupId);
+        
+        RuntimeException runtimeException = null;
+        try {
+          GrouperScim2ApiCommands.deleteScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(), groupId, new HashSet<String>(userIds));
+        } catch (RuntimeException e) {
+          runtimeException = e;
+        }
+        boolean success = runtimeException == null;
+        for (String userId : userIds) {
+          ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
+          
+          targetMembership.setProvisioned(success);
+          targetMembership.setException(runtimeException);
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+            provisioningObjectChange.setProvisioned(success);
+            
+          }
+        }
+      }
+      
+      return new TargetDaoDeleteMembershipsResponse();
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMemberships", startNanos));
+    }
+  }
+  @Override
+  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
+
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      GrouperScim2Group grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
+
+      GrouperScim2ApiCommands.deleteScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2Group.getId());
+
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
+    }
+
+  }
 
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanReplaceGroupMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
-    grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
+  }
+
+  @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+  
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      // lets make sure we are doing the right thing
+      Set<String> fieldNamesToInsert = new HashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+          fieldNamesToInsert.add(fieldName);
+        }
+      }
+
+      GrouperScim2User grouperScim2User = GrouperScim2User.fromProvisioningEntity(targetEntity, null);
+
+      GrouperScim2ApiCommands.createScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2User, fieldNamesToInsert);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+  
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+    
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+  
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  
+      GrouperScim2User grouperScim2User = GrouperScim2User.fromProvisioningEntity(targetEntity, null);
+  
+      GrouperScim2ApiCommands.deleteScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2User.getId());
+  
+      targetEntity.setProvisioned(true);
+  
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+  
+      return new TargetDaoDeleteEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+  
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  
+  }
+
+  @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+  
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) 
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      // lets make sure we are doing the right thing
+      Map<String, ProvisioningObjectChangeAction> fieldNamesToProvisioningObjectChangeAction = new HashMap<String, ProvisioningObjectChangeAction>();
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        fieldNamesToProvisioningObjectChangeAction.put(fieldName, provisioningObjectChange.getProvisioningObjectChangeAction());
+      }
+  
+      GrouperScim2User grouperScim2User = GrouperScim2User.fromProvisioningEntity(targetEntity, null);
+  
+      GrouperScim2ApiCommands.patchScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
+          grouperScim2User, fieldNamesToProvisioningObjectChangeAction);
+  
+      targetEntity.setProvisioned(true);
+  
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+  
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
   }
 
 }

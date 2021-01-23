@@ -372,6 +372,15 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * replace a groups memberships with this list
+   * @param targetDaoReplaceGroupMembershipsRequest
+   * @return the response
+   */
+  public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
    * insert all these Memberships and either throw exception for all or mark each one with an exception
    * set each provisioning object as "provisioned" after the insert/update/delete is done
    * e.g. targetObject.setProvisioned(true)

@@ -8,12 +8,6 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -61,7 +55,6 @@ public class NotificationDaemonTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListDbConnection", "");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListGroupName", "test:testGroupMembers");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListQuery", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentAttributeDefName", "test:gotEmail");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentGroupName", "test:testGroupLastSent");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.bccsCommaSeparated", "mchyzer@yahoo.com");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.sendToBccOnly", "false");
@@ -80,10 +73,10 @@ public class NotificationDaemonTest extends GrouperTest {
 
     Group testGroupLastSent = new GroupSave(grouperSession).assignName("test:testGroupLastSent").assignCreateParentStemsIfNotExist(true).save();
 
-    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
-        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
-    
-    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
+//    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
+//        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
+//    
+//    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
     
     GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_notificationTest");
 
@@ -105,8 +98,8 @@ public class NotificationDaemonTest extends GrouperTest {
 
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member0).retrieveValueString(gotEmailDefName.getName()));
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member1).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member0).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member1).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
 
     testGroupMembers.addMember(SubjectTestHelper.SUBJ8, false);
 
@@ -119,7 +112,7 @@ public class NotificationDaemonTest extends GrouperTest {
     assertEquals("hello my name is test.subject.8\ntest.subject.8bye", GrouperEmail.testingEmails().get(2).getBody());
 
     Member member8 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member8).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member8).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
 
   }
 
@@ -140,7 +133,7 @@ public class NotificationDaemonTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListDbConnection", "");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListGroupName", "test:testGroupMembers");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListQuery", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentAttributeDefName", "test:gotEmail");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentAttributeDefName", "test:gotEmail");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentGroupName", "test:testGroupLastSent");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.bccsCommaSeparated", "mchyzer@yahoo.com");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.sendToBccOnly", "false");
@@ -154,10 +147,10 @@ public class NotificationDaemonTest extends GrouperTest {
 
     Group testGroupLastSent = new GroupSave(grouperSession).assignName("test:testGroupLastSent").assignCreateParentStemsIfNotExist(true).save();
 
-    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
-        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
-    
-    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
+//    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
+//        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
+//    
+//    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
     
     GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_notificationTest");
 
@@ -185,9 +178,9 @@ public class NotificationDaemonTest extends GrouperTest {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
     Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member0).retrieveValueString(gotEmailDefName.getName()));
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member1).retrieveValueString(gotEmailDefName.getName()));
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member2).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member0).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member1).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member2).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
 
     testGroupMembers.addMember(SubjectTestHelper.SUBJ8, false);
 
@@ -200,7 +193,7 @@ public class NotificationDaemonTest extends GrouperTest {
     assertEquals("hello my name is test.subject.8\ntest.subject.8bye", GrouperEmail.testingEmails().get(3).getBody());
 
     Member member8 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member8).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member8).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
 
   }
 
@@ -230,7 +223,6 @@ public class NotificationDaemonTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListGroupName", "");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.emailListQuery", 
         "select subject_id from grouper_memberships_lw_v where group_name = 'test:testGroupMembers' and list_name = 'members' order by subject_id");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentAttributeDefName", "test:gotEmail");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.lastSentGroupName", "test:testGroupLastSent");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.bccsCommaSeparated", "mchyzer@yahoo.com");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.notificationTest.sendToBccOnly", "false");
@@ -253,10 +245,10 @@ public class NotificationDaemonTest extends GrouperTest {
     
     Group testGroupLastSent = new GroupSave(grouperSession).assignName("test:testGroupLastSent").assignCreateParentStemsIfNotExist(true).save();
 
-    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
-        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
-    
-    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
+//    AttributeDef gotEmailDef = new AttributeDefSave(grouperSession).assignName("test:gotEmailDef").assignAttributeDefType(AttributeDefType.attr)
+//        .assignToImmMembership(true).assignValueType(AttributeDefValueType.string).save();
+//    
+//    AttributeDefName gotEmailDefName = new AttributeDefNameSave(grouperSession, gotEmailDef).assignName("test:gotEmail").save();
     
     GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_notificationTest");
   
@@ -281,8 +273,8 @@ public class NotificationDaemonTest extends GrouperTest {
 
     Member member6 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ6, false);
     Member member7 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member6).retrieveValueString(gotEmailDefName.getName()));
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member7).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member6).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member7).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
 
     testGroupMembers.addMember(SubjectTestHelper.SUBJ8, false);
   
@@ -298,7 +290,7 @@ public class NotificationDaemonTest extends GrouperTest {
         + "Record subject ID: test.subject.1 is\n  Record subject ID: test.subject.8 is\nbye", GrouperEmail.testingEmails().get(2).getBody());
   
     Member member9 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ9, false);
-    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member9).retrieveValueString(gotEmailDefName.getName()));
+    assertEquals(date, testGroupLastSent.getAttributeValueDelegateMembership(member9).retrieveValueString(NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT));
   
   }
 

@@ -94,7 +94,16 @@ public class GrouperProvisionerDaoCapabilities {
   private Boolean canUpdateGroupMembershipAttribute;
   private Boolean canUpdateMembership;
   private Boolean canUpdateMemberships;
+  private Boolean canReplaceGroupMemberships;
   
+  public Boolean getCanReplaceGroupMemberships() {
+    return canReplaceGroupMemberships;
+  }
+  
+  public void setCanReplaceGroupMemberships(Boolean canReplaceGroupMemberships) {
+    this.canReplaceGroupMemberships = canReplaceGroupMemberships;
+  }
+
   public Boolean getCanDeleteEntities() {
     return canDeleteEntities;
   }

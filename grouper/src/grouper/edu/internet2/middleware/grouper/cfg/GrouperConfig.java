@@ -46,6 +46,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
@@ -186,6 +187,9 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // external subject invite
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
+                
+                // notifications
+                namesOfAttributeDefs.add(NotificationDaemon.attributeAutoCreateStemName() + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF);
                 
                 if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
                   namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));

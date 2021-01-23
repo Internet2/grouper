@@ -545,19 +545,23 @@ public class GrouperProvisioningConfigurationValidation {
     OBJECT_TYPE: for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       
       String objectTypeLabel = null;
-      
+      int numberOfAttributes = -1;
       if (StringUtils.equals("targetGroupAttribute", objectType)) {
         objectTypeLabel = GrouperTextContainer.textOrNull("auditsGroup");
+        numberOfAttributes = GrouperUtil.intValue(suffixToConfigValue.get("numberOfGroupAttributes"), 0);
       } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
         objectTypeLabel = GrouperTextContainer.textOrNull("auditsEntity");
+        numberOfAttributes = GrouperUtil.intValue(suffixToConfigValue.get("numberOfEntityAttributes"), 0);
       } else if (StringUtils.equals("targetMembershipAttribute", objectType)) {
         objectTypeLabel = GrouperTextContainer.textOrNull("auditsMembership");
+        numberOfAttributes = GrouperUtil.intValue(suffixToConfigValue.get("numberOfMembershipAttributes"), 0);
       } else {
         throw new RuntimeException("Cant find object type: " + objectType);
       }
       GrouperTextContainer.assignThreadLocalVariable("type", objectTypeLabel);
 
-      for (int i=0; i< 20; i++) {
+      
+      for (int i=0; i<numberOfAttributes ; i++) {
 
         Boolean isField = GrouperUtil.booleanObjectValue(suffixToConfigValue.get(objectType + "."+i+".isFieldElseAttribute"));
         if (isField == null) {
@@ -628,7 +632,7 @@ public class GrouperProvisioningConfigurationValidation {
 
       GrouperTextContainer.assignThreadLocalVariable("type", objectTypeLabel);
   
-      for (int i=0; i< 20; i++) {
+      for (int i=0; i< numberOfExpectedAttributes; i++) {
   
         Boolean isField = GrouperUtil.booleanObjectValue(suffixToConfigValue.get(objectType + "."+i+".isFieldElseAttribute"));
         if (isField == null) {

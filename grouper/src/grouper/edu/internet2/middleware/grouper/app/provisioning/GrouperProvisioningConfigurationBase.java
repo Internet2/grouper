@@ -641,7 +641,28 @@ public abstract class GrouperProvisioningConfigurationBase {
    * if entities should be inserted in target 
    */
   private boolean insertEntities = false;
+
+  /**
+   * if memberships should be replaced in target
+   */
+  private boolean replaceMemberships = false;
   
+  /**
+   * if memberships should be replaced in target
+   * @return
+   */
+  public boolean isReplaceMemberships() {
+    return replaceMemberships;
+  }
+  
+  /**
+   * if memberships should be replaced in target
+   * @return
+   */
+  public void setReplaceMemberships(boolean replaceMemberships) {
+    this.replaceMemberships = replaceMemberships;
+  }
+
   /**
    * if groups should be inserted in target
    */

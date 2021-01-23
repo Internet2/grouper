@@ -632,7 +632,7 @@ public class GrouperScim2ApiCommands {
 
 
   public static void deleteScimGroup(String configId,
-      String userId) {
+      String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "deleteScimGroup");
@@ -641,11 +641,11 @@ public class GrouperScim2ApiCommands {
   
     try {
     
-      if (StringUtils.isBlank(userId)) {
+      if (StringUtils.isBlank(groupId)) {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(userId),
+      executeMethod(debugMap, "DELETE", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
   
     } catch (RuntimeException re) {
