@@ -2402,7 +2402,7 @@ public class GrouperCheckConfig {
 
         //add a name
         checkAttribute(notificationLastSentStem, notificationLastSentDef, 
-            NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, "daemon config id underscore yyyy/mm/dd comma separated.  Represents last date notification was sent", wasInCheckConfig);
+            NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, "yyyy/mm/dd.  Represents last date notification was sent", wasInCheckConfig);
       }
 
       {
