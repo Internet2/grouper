@@ -348,4 +348,29 @@ public interface Source {
    */
   public Set<Subject> search(String searchValue, String realm);
   
+  /**
+   * @return true if the source is editable otherwise false
+   */
+  public boolean isEditable();
+  
+  
+  /**
+   * @return true if the source is active otherwise false
+   */
+  public boolean isEnabled();
+  
+  /**
+   * @return configId for this source 
+   */
+  public String getConfigId();
+  
+  /**
+   * set config id for this source
+   */
+  public void setConfigId(String configId);
+  
+  public String convertSubjectAttributeToSourceAttribute(String nameOfSubjectAttribute);
+  
+  public String convertSourceAttributeToSubjectAttribute(String nameOfSourceAttribute);
+  
 }

@@ -72,6 +72,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperDaemonConfiguration;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectSourceContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -100,37 +101,6 @@ public class UiV2Admin extends UiServiceLogicBase {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(UiV2Admin.class);
-  
-  /**
-   * show screen or subject API diagnostics
-   * @param request
-   * @param response
-   */
-  public void subjectApiDiagnostics(HttpServletRequest request, HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    //initialize the bean
-    GrouperRequestContainer.retrieveFromRequestOrCreate();
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      //if the user allowed
-      if (!subjectApiDiagnosticsAllowed()) {
-        return;
-      }
-      
-      //just show a jsp
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/admin/adminSubjectApiDiagnostics.jsp"));
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
   
   /**
    * show instrumentation screen
@@ -1425,6 +1395,9 @@ public class UiV2Admin extends UiServiceLogicBase {
           throw new RuntimeException("Cant find source by id: '" + sourceId + "'");
         }
         
+        SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
+        subjectSourceContainer.setSubjectSourceId(sourceId);
+        
         subjectId = source.getInitParam("subjectIdToFindOnCheckConfig");
         subjectId = StringUtils.defaultIfBlank(subjectId, "someSubjectId");
 
@@ -1435,11 +1408,13 @@ public class UiV2Admin extends UiServiceLogicBase {
         searchString = StringUtils.defaultIfBlank(searchString, "first last");
       }
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/admin/adminSubjectApiDiagnostics.jsp"));
+      
       // change the textfields
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdName", subjectId));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdentifierName", subjectIdentifier));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchStringName", searchString));
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

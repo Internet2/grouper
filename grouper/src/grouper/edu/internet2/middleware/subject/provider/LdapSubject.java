@@ -86,7 +86,7 @@ public class LdapSubject extends SubjectImpl {
     * @param nameAttribute
     * @param descriptionAttribute
     */
-   protected LdapSubject(String id, String name, String description,
+   public LdapSubject(String id, String name, String description,
         String type, String sourceId,
    		  String nameAttribute, String descriptionAttribute) {
      super(id, name, description, type, sourceId, nameAttribute, descriptionAttribute);

@@ -555,7 +555,19 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    */
   public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
     return this.subject.getAttributes(excludeInternalAttributes);
+  }
+
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    return null;
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    throw new UnsupportedOperationException();
   } 
+  
+  
   
 }
 

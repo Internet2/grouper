@@ -64,7 +64,7 @@ public class GuiStemObjectType {
   }
   
   public boolean isShowDataOwnerMemberDescription() {
-    List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org", "adhoc");
+    List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org", "manual");
     return dataOwnerRequiringTypeNames.contains(this.getStemObjectType().getObjectType());
   }
   

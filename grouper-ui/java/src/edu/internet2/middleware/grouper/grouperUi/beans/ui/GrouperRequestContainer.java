@@ -672,6 +672,11 @@ public class GrouperRequestContainer {
   private SubjectResolutionContainer subjectResolutionContainer;
   
   /**
+   * container for subject sources
+   */
+  private SubjectSourceContainer subjectSourceContainer;
+  
+  /**
    * container for external systems
    */
   private ExternalSystemContainer externalSystemContainer;
@@ -782,6 +787,13 @@ public class GrouperRequestContainer {
       this.subjectResolutionContainer = new SubjectResolutionContainer();
     }
     return this.subjectResolutionContainer;
+  }
+  
+  public SubjectSourceContainer getSubjectSourceContainer() {
+    if (this.subjectSourceContainer == null) {
+      this.subjectSourceContainer = new SubjectSourceContainer();
+    }
+    return this.subjectSourceContainer;
   }
 
   /**

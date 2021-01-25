@@ -429,7 +429,7 @@ public class GrouperObjectTypesConfiguration {
     scopesToObjectType.put("%"+GrouperObjectTypesSettings.SERVICE+"%", GrouperObjectTypesSettings.SERVICE);
     scopesToObjectType.put("%"+GrouperObjectTypesSettings.READ_ONLY+"%", GrouperObjectTypesSettings.READ_ONLY);
     scopesToObjectType.put("%"+GrouperObjectTypesSettings.TEST+"%", GrouperObjectTypesSettings.TEST);
-    scopesToObjectType.put("%"+GrouperObjectTypesSettings.ADHOC+"%", GrouperObjectTypesSettings.ADHOC);
+    scopesToObjectType.put("%"+GrouperObjectTypesSettings.MANUAL+"%", GrouperObjectTypesSettings.MANUAL);
     scopesToObjectType.put("%"+GrouperObjectTypesSettings.INTERMEDIATE+"%", GrouperObjectTypesSettings.INTERMEDIATE);
     scopesToObjectType.put("%"+GrouperObjectTypesSettings.BUNDLE+"%", GrouperObjectTypesSettings.REF);
     
@@ -444,7 +444,7 @@ public class GrouperObjectTypesConfiguration {
     scopesToPattern.put("%"+GrouperObjectTypesSettings.SERVICE+"%", Pattern.compile("^service$"));
     scopesToPattern.put("%"+GrouperObjectTypesSettings.READ_ONLY+"%", Pattern.compile("^readOnly$"));
     scopesToPattern.put("%"+GrouperObjectTypesSettings.TEST+"%", Pattern.compile("^test$"));
-    scopesToPattern.put("%"+GrouperObjectTypesSettings.ADHOC+"%", Pattern.compile("^adhoc$"));
+    scopesToPattern.put("%"+GrouperObjectTypesSettings.MANUAL+"%", Pattern.compile("^manual$"));
     scopesToPattern.put("%"+GrouperObjectTypesSettings.INTERMEDIATE+"%", Pattern.compile("^intermediate$"));
     scopesToPattern.put("%"+GrouperObjectTypesSettings.BUNDLE+"%", Pattern.compile("^bundle$"));
     
@@ -481,7 +481,7 @@ public class GrouperObjectTypesConfiguration {
         + ":"+ GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
     
     Map<String, String> scopesToObjectType = new HashMap<String, String>();
-    scopesToObjectType.put("%adhoc%", "adhoc");
+    scopesToObjectType.put("%manual%", "manual");
     scopesToObjectType.put("%allow%", "intermediate");
     scopesToObjectType.put("%deny%", "intermediate");
     scopesToObjectType.put("%preRequire%", "intermediate");
@@ -491,7 +491,7 @@ public class GrouperObjectTypesConfiguration {
     scopesToObjectType.put("%systemOfRecord%", "intermediate");
     
     Map<String, Pattern> scopesToPattern = new HashMap<String, Pattern>();
-    scopesToPattern.put("%adhoc%", Pattern.compile("^.*_adhoc$"));
+    scopesToPattern.put("%manual%", Pattern.compile("^.*_manual$"));
     scopesToPattern.put("%allow%", Pattern.compile("^.*_allow$"));
     scopesToPattern.put("%deny%", Pattern.compile("^.*_deny$"));
     scopesToPattern.put("%preRequire%", Pattern.compile("^.*_preRequire_.*$"));
@@ -567,7 +567,7 @@ public class GrouperObjectTypesConfiguration {
   
   private static String getObjectTypeForGroupName(String groupName) {
      /**
-         if system name of group ends in _adhoc, then suggest type as adhoc
+         if system name of group ends in _manual, then suggest type as manual
          if system name ends in _allow or _deny, then suggest type as intermediate
          if system name contains _preRequire_ , then suggest intermediate
          if system name ends in "_excludes" is intermediate
@@ -576,7 +576,7 @@ public class GrouperObjectTypesConfiguration {
          if system name ends in "_systemOfRecord" is intermediate
        */
     
-    if (groupName.endsWith("_adhoc")) return GrouperObjectTypesSettings.ADHOC;
+    if (groupName.endsWith("_manual")) return GrouperObjectTypesSettings.MANUAL;
     
     if (StringUtils.endsWithAny(groupName, "_allow", "_deny", "_excludes", "_includes",
         "_systemOfRecordAndIncludes", "_systemOfRecord")) return GrouperObjectTypesSettings.INTERMEDIATE;

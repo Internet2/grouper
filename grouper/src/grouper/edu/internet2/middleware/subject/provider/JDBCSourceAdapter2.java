@@ -39,6 +39,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 /**
@@ -105,7 +107,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   /**
    * cols which are selected in queries
    */
-  private Set<String> selectCols = new LinkedHashSet<String>();
+  protected Set<String> selectCols = new LinkedHashSet<String>();
 
   /**
    * map of col to attribute name
@@ -702,9 +704,19 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     //defaults to true
     Boolean readOnly = SubjectUtils.booleanObjectValue(props.getProperty("readOnly"));
 
-    String jdbcConnectionProviderString = SubjectUtils.defaultIfBlank(props
-        .getProperty("jdbcConnectionProvider"), C3p0JdbcConnectionProvider.class
-        .getName());
+    
+    
+    String jdbcConnectionProviderString = props.getProperty("jdbcConnectionProvider");
+    
+    if (StringUtils.isBlank(jdbcConnectionProviderString)) {
+      
+      if (StringUtils.isNotBlank(jdbcConfigId)) {
+        jdbcConnectionProviderString = GrouperJdbcConnectionProvider.class.getName();
+      } else {
+        jdbcConnectionProviderString = C3p0JdbcConnectionProvider.class.getName();
+      }
+      
+    }
     Class<JdbcConnectionProvider> jdbcConnectionProviderClass = null;
     try {
       jdbcConnectionProviderClass = SubjectUtils.forName(jdbcConnectionProviderString);
@@ -1245,7 +1257,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @return the value
    * @throws SQLException 
    */
-  private String retrieveString(ResultSet resultSet, String name, String varName,
+  protected String retrieveString(ResultSet resultSet, String name, String varName,
       String query, ResultSetMetaData resultSetMetaData) throws SQLException {
     try {
       int columnCount = resultSetMetaData.getColumnCount();
@@ -1259,6 +1271,12 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
       }
       String result = resultSet.getString(name);
+      
+      
+      if (this.getSourceAttributesToLowerCase().containsKey(name) && result != null) {
+        result = result.toLowerCase();
+      }
+      
       return result;
     } catch (SQLException se) {
       SubjectUtils.injectInException(se, "Error retrieving column name: '" + name

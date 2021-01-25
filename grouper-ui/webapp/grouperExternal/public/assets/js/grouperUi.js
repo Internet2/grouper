@@ -2611,6 +2611,20 @@ function openFolderTreePathToObject(pathArray) {
   folderTree.set('path', pathArray);
 }
 
+function showLinkToRefreshSubjectSourceAttributes(focusOnElementName) {
+	var href = window.location.href;
+	if (href.indexOf('editSubjectSource') != -1) {
+	  var subjectSourceId = $('#config_id_id').val();	
+      var url = '../app/UiV2SubjectSource.editSubjectSource?focusOnElementName='+focusOnElementName+'&subjectSourceId='+subjectSourceId;
+      ajax(url, {formIds: 'sourceConfigDetails'});	
+	} else {
+		ajax('../app/UiV2SubjectSource.addSubjectSource?focusOnElementName='+focusOnElementName+'&subjectSourceConfigId='+ $('#subjectSourceConfigId').val() +'&subjectSourceConfigType='+$('#subjectSourceConfigTypeId').val(), {formIds: 'sourceConfigDetails'});	
+	}
+	 
+	return false;
+	
+}
+
 // sometimes window is blocked on back button
 $(window).unload(function() {
   $.unblockUI();                

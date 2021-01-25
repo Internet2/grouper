@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,6 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager.SourceManagerStatusBean;
 
 /**
@@ -56,7 +59,103 @@ import edu.internet2.middleware.subject.provider.SourceManager.SourceManagerStat
  * </pre>
  */
 public abstract class BaseSourceAdapter implements Source {
+  
+  private Map<String, Void> sourceAttributesToLowerCase = null;
+  
+  public Map<String, Void> getSourceAttributesToLowerCase() {
+    
+    if (sourceAttributesToLowerCase == null) {
+      
+      Map<String, Void> temp = new CaseInsensitiveMap();
+      
+      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+            
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+                    
+          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
+          boolean formatToLowerCase = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".formatToLowerCase", false);
+          
+          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+          if (!isTranslation && formatToLowerCase) {
+            temp.put(sourceAttribute, null);
+          }
+         
+        }
+        
+      }
+            
+      sourceAttributesToLowerCase = temp;
+      
+    }
+    
+    return sourceAttributesToLowerCase;
+  }
 
+
+  public String convertSubjectAttributeToSourceAttribute(String nameOfSubjectAttribute) {
+    
+    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+    
+    // if this is the new source config then dereference the subject attributes with the source
+    // columns or ldap attributes
+    if (this.isEditable()) {
+          
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
+          if (StringUtils.equals(nameOfSubjectAttribute, subjectAttributeName)) {
+            if (!isTranslation) {
+              return sourceAttribute;
+            }
+          }
+        }
+        
+      }
+          
+    }
+    
+    return nameOfSubjectAttribute;
+    
+  } 
+  
+  
+  public String convertSourceAttributeToSubjectAttribute(String nameOfSourceAttribute) {
+    
+    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+    
+    // if this is the new source config then dereference the subject attributes with the source
+    // columns or ldap attributes
+    if (this.isEditable()) {
+          
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
+          if (StringUtils.equals(nameOfSourceAttribute, sourceAttribute)) {
+            boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+            if (!isTranslation) {
+              return SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+            }
+          }
+        }
+        
+      }
+          
+    }
+    
+    return nameOfSourceAttribute;
+    
+  } 
   
   
   /**
@@ -649,10 +748,30 @@ public abstract class BaseSourceAdapter implements Source {
             }        
           }
           
+          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+          if (StringUtils.isNotBlank(numberOfAttributes)) {
+            
+            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+            for (int i=0; i<numberOfAttrs; i++) {
+              
+              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+              if (subjectIdentifier) {
+                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                if (StringUtils.isNotBlank(name)) {
+                  temp.put(temp.size()-1, name.toLowerCase());
+                }
+              }
+            
+            }
+            
+          }
+          
           this.subjectIdentifierAttributes = temp;
         }
       }
     }
+    
+    
     
     return this.subjectIdentifierAttributes;
   }
@@ -674,6 +793,24 @@ public abstract class BaseSourceAdapter implements Source {
             }  else {
               break;
             }
+          }
+          
+          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+          if (StringUtils.isNotBlank(numberOfAttributes)) {
+            
+            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+            for (int i=0; i<numberOfAttrs; i++) {
+              
+              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+              if (subjectIdentifier) {
+                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                if (StringUtils.isNotBlank(name)) {
+                  temp.put(temp.size()-1, name.toLowerCase());
+                }
+              }
+            
+            }
+            
           }
           
           this.subjectIdentifierAttributesAll = temp;
@@ -733,4 +870,29 @@ public abstract class BaseSourceAdapter implements Source {
     
     return this.searchAttributes;
   }
+
+
+  @Override
+  public boolean isEditable() {
+    return false;
+  }
+
+  private String configId;
+  
+  @Override
+  public String getConfigId() {
+    return this.configId;
+  }
+  
+  @Override
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
+  
 }

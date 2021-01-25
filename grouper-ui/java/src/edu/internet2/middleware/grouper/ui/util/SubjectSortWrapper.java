@@ -226,4 +226,16 @@ public class SubjectSortWrapper implements Subject, Comparable {
     return this.wrappedSubject.getAttributes(excludeInternalAttributes);
   }
 
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    return null;
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    
+  }
+  
+  
+
 }

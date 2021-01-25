@@ -344,12 +344,13 @@ public class ConfigItemMetadata {
     copy.regex = GrouperUtil.replace(this.regex, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.defaultValueEl = GrouperUtil.replace(this.defaultValueEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.defaultValue = GrouperUtil.replace(this.defaultValue, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.sampleValue = GrouperUtil.replace(this.sampleValue, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.showEl = GrouperUtil.replace(this.showEl, "$i$", GrouperUtil.stringValue(repeatIndex));
     copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
     
-    copy.defaultValue = this.defaultValue;
     copy.formElement = this.formElement;
     copy.multiple = this.multiple;
     copy.optionValues = this.optionValues;
@@ -389,6 +390,8 @@ public class ConfigItemMetadata {
     this.checkboxValuesFromClass = null;
     this.readOnly = false;
     this.repeatGroup = null;
+    this.defaultValue = null;
+    this.defaultValueEl = null;
     this.repeatCount = 0;
     this.order = 0;
     
@@ -439,6 +442,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("regex")) {
         this.regex = jsonObject.getString("regex");
         jsonObject.remove("regex");
+      }
+      
+      if (jsonObject.containsKey("defaultValueEl")) {
+        this.defaultValueEl = jsonObject.getString("defaultValueEl");
+        jsonObject.remove("defaultValueEl");
       }
       
       if (jsonObject.containsKey("required")) {
@@ -748,6 +756,27 @@ public class ConfigItemMetadata {
     this.comment = comment1;
   }
   
+  /**
+   * default value EL expression
+   */
+  private String defaultValueEl;
+  
+  /**
+   * default value EL expression
+   * @return
+   */
+  public String getDefaultValueEl() {
+    return defaultValueEl;
+  }
+
+  /**
+   * default value EL expression
+   * @param defaultValueEl
+   */
+  public void setDefaultValueEl(String defaultValueEl) {
+    this.defaultValueEl = defaultValueEl;
+  }
+
   /**
    * fully qualified classname that this value which is a class must extend
    */

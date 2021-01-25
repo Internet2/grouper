@@ -4,6 +4,7 @@
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['adminSubjectApiDiagnosticsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources');">${textContainer.text['miscellaneousSubjectSourcesOverallBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['adminSubjectApiDiagnosticsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -15,27 +16,14 @@
               <div class="span12">
                 <form class="form-horizontal" id="subjectApiDiagnosticsForm"
                     onsubmit="return false;">
-
+				
                   <div class="control-group">
                     <label for="subjectApiSourceIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSourceId'] }</label>
                     <div class="controls">
-                      <select name="subjectApiSourceIdName" id="subjectApiSourceIdId" 
-                          onchange="ajax('../app/UiV2Admin.subjectApiDiagnosticsSourceIdChanged', {formIds: 'subjectApiDiagnosticsForm'}); return false;">
-                        <option value="" ></option>
-                        
-                        <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
-                          <option value="${grouper:escapeHtml(source.id)}">
-                            ${grouper:escapeHtml(source.name) } (
-                              <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
-                                <c:if test="${typeStatus.count>1}">, </c:if>
-                                ${grouper:escapeHtml(subjectType)}
-                              </c:forEach>
-                            )                               
-                          </option>
-                        </c:forEach>
-                        
-                        
-                      </select>                    
+					  
+					  <input type="hidden" name="subjectApiSourceIdName" id="subjectApiSourceIdId" value="${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}" />                    	
+       			      ${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}
+                    
                       <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSourceIdLabel'] }</span>
                     </div>
                   </div>
@@ -75,11 +63,15 @@
                   
                   
                   <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Admin.subjectApiDiagnosticsRun', {formIds: 'subjectApiDiagnosticsForm'}); return false;">${textContainer.text['subjectApiDiagnosticsSubmitButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['groupCreateCancelButton'] }</a></div>
+                  
+                  <a class="btn btn-cancel" role="button"
+                          onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources'); return false;"
+                          >${textContainer.text['subjectSourcesAddFormCancelButton'] }</a>
+                  </div>
                   
                 </form>
                 <div id="subjectApiDiagnosticsResultsId">
                 </div>
               </div>
-
+           </div>
 

@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
+import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2_5;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
@@ -414,7 +415,7 @@ public class SubjectSourceDiagnostics {
   
           }              
           
-          if (sourceAdapter instanceof JDBCSourceAdapter || sourceAdapter instanceof JDBCSourceAdapter2) {
+          if ( (sourceAdapter instanceof JDBCSourceAdapter || sourceAdapter instanceof JDBCSourceAdapter2) && !(sourceAdapter instanceof GrouperJdbcSourceAdapter2_5) ) {
             
             String jdbcConnectionProviderClassName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".param.jdbcConnectionProvider.value"); 
             subjectApiReport.append("JDBC connection provider class: '" + GrouperUtil.xmlEscape(jdbcConnectionProviderClassName) + "'\n  - configured in subject.properties: subjectApi.source." + sourceId + ".param.jdbcConnectionProvider.value\n");

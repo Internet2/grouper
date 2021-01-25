@@ -65,14 +65,15 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                       	${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
                     </c:if>
-                    <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnostics');" style="white-space: nowrap;"
-                      >${textContainer.text['adminSubjectApiDiagnosticsLink'] }</a>
-                    </c:if>
                     
                     <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
                       >${textContainer.text['subjectResolutionMainLink'] }</a>
+                    </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources');" style="white-space: nowrap;"
+                      >${textContainer.text['subjectSourcesMainLink'] }</a>
                     </c:if>
                     
                     </div>

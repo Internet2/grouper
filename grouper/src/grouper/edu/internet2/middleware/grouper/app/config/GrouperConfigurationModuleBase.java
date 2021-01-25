@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,10 +19,13 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -327,6 +331,50 @@ public abstract class GrouperConfigurationModuleBase {
     return this.objectValueSubstituteMap;
   }
   
+  
+  public void populateConfigurationValuesFromUi(final HttpServletRequest request) {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
+      String name = "config_"+attribute.getConfigSuffix();
+      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
+      
+      String elValue = request.getParameter(elCheckboxName);
+      
+      String value = null;
+      if (attribute.getConfigItemMetadata().getFormElement() == ConfigItemFormElement.CHECKBOX) {
+        String[] values = request.getParameterValues(name+"[]");
+        if (values != null && values.length > 0) {
+          value = String.join(",", Arrays.asList(values));
+        }
+      } else {
+        value = request.getParameter(name);
+      }
+      
+      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
+        attribute.setExpressionLanguage(true);
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setExpressionLanguageScript(value);
+      } else {
+        attribute.setExpressionLanguage(false);
+        attribute.setValue(value);
+      }
+        
+    }
+    
+    // if the dropdown is based on an option driver that uses configuration values
+    // we need a second pass
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
+      
+     populateValuesLabelsFromOptionValueClass(attributes, attribute);
+      
+    }
+    
+    
+  }
+  
+  
   /**
    * retrieve attributes based on the instance
    * @return
@@ -500,7 +548,9 @@ public abstract class GrouperConfigurationModuleBase {
           }
         }
         
-        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata, configPropertiesCascadeBase);
+        GrouperConfigurationModuleAttribute grouperConfigModuleAttribute =
+            buildConfigurationModuleAttribute(propertyName, suffix, true, configItemMetadata,
+                configPropertiesCascadeBase, tempResult);
         tempResult.put(suffix, grouperConfigModuleAttribute);
      
       }
@@ -509,9 +559,18 @@ public abstract class GrouperConfigurationModuleBase {
     // entries belonging to the same repeat group; pull them out because they need to stay together
     // they don't follow the order based on order property from json
     
+    // keys are the repeat groups and the values are the key value pairs of all the configs
+    // in order for that repeat group
     Map<String, Map<String, GrouperConfigurationModuleAttribute>> repeatGroups = new LinkedHashMap<String, Map<String, GrouperConfigurationModuleAttribute>>();
+    
+    // order index of the first item in the repeat group
+    // which is also in the list of items that don't include the repeat group
+    //  so when we iterate through and we see an item with that index in this map,
+    // we will substitute that repeat group
     Map<Integer, String> orderToRepeatGroup = new TreeMap<Integer, String>(); 
     
+    // temp result is all the config items without the full repeat groups but including
+    // the first item of the repeat group
     Iterator<Entry<String, GrouperConfigurationModuleAttribute>> iterator = tempResult.entrySet().iterator();
     
     while (iterator.hasNext()) {
@@ -520,11 +579,13 @@ public abstract class GrouperConfigurationModuleBase {
       String repeatGroup = entry.getValue().getConfigItemMetadata().getRepeatGroup();
       
       if (StringUtils.isNotBlank(repeatGroup)) {
-        
+        // if we have seen the repeat group then add the item
         if (repeatGroups.containsKey(repeatGroup)) {
           repeatGroups.get(repeatGroup).put(entry.getKey(), entry.getValue());
           iterator.remove();
         } else {
+          // create a repeat group if we haven't seen it before and add the item
+          // don't move the item from the temp result because we need the pointer back to the repeat group
           Map<String, GrouperConfigurationModuleAttribute> map = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
           map.put(entry.getKey(), entry.getValue());
           repeatGroups.put(repeatGroup, map);
@@ -533,6 +594,7 @@ public abstract class GrouperConfigurationModuleBase {
       }
     }
     
+    // sort the temp result by the sort order index, only include the first repeat group item in the index
     List<Map.Entry<String, GrouperConfigurationModuleAttribute>> sorted = new ArrayList<>(tempResult.entrySet());
    
     Collections.sort(sorted, new Comparator<Map.Entry<String, GrouperConfigurationModuleAttribute>>() {
@@ -545,6 +607,7 @@ public abstract class GrouperConfigurationModuleBase {
       }
     });
     
+    // all items including repeat group in order
     Map<String, GrouperConfigurationModuleAttribute> finalResult = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
     
     // place repeat groups in the sorted based on the order
@@ -552,20 +615,19 @@ public abstract class GrouperConfigurationModuleBase {
       
       int orderWithoutRepeatGroup= entry.getValue().getConfigItemMetadata().getOrder();
       
-      Iterator<Entry<Integer, String>> itr = orderToRepeatGroup.entrySet().iterator();
-      
-      while (itr.hasNext()) {
-        Entry<Integer, String> ntry = itr.next();
-        if (ntry.getKey() < orderWithoutRepeatGroup) {
-          
-          String repeatGroup = ntry.getValue();
-          Map<String, GrouperConfigurationModuleAttribute> map = repeatGroups.get(repeatGroup);
-          finalResult.putAll(map);
-          itr.remove();
-        }
+      // if this is the first item of the repeat group then put the repeat group in the index instead of the item
+      // the repeat group contains this item so don't also add this item
+      // Note: subsections are sorted by the first item that has the subsection and the order index in another method
+      // repeat groups will create subsections based on the repeat group label and the repeat group iterator
+      String repeatGroupName = orderToRepeatGroup.get(orderWithoutRepeatGroup);
+      if (StringUtils.isNotBlank(repeatGroupName)) {
+        Map<String, GrouperConfigurationModuleAttribute> map = repeatGroups.get(repeatGroupName);
+        finalResult.putAll(map);
+      } else {
+        // this is not the first item of the repeat group so just add it
+        finalResult.put(entry.getKey(), entry.getValue());
       }
       
-      finalResult.put(entry.getKey(), entry.getValue());
     }
     
     Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(finalResult);
@@ -697,7 +759,8 @@ public abstract class GrouperConfigurationModuleBase {
         configItemMetadata.setValueType(ConfigItemMetadataType.STRING);
         
         GrouperConfigurationModuleAttribute configModuleAttribute =
-            buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, configPropertiesCascadeBase);
+            buildConfigurationModuleAttribute(propertyName, suffix, false, configItemMetadata, 
+                configPropertiesCascadeBase, result);
         
         result.put(suffix, configModuleAttribute);
       }
@@ -710,7 +773,8 @@ public abstract class GrouperConfigurationModuleBase {
   
   private GrouperConfigurationModuleAttribute buildConfigurationModuleAttribute(
       String propertyName, String suffix, boolean useConfigItemMetadataValue,
-      ConfigItemMetadata configItemMetadata, ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
+      ConfigItemMetadata configItemMetadata, ConfigPropertiesCascadeBase configPropertiesCascadeBase,
+      Map<String, GrouperConfigurationModuleAttribute> attributesSoFar) {
     
     GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = new GrouperConfigurationModuleAttribute();
     grouperConfigModuleAttribute.setConfigItemMetadata(configItemMetadata);
@@ -741,7 +805,15 @@ public abstract class GrouperConfigurationModuleBase {
     {
       grouperConfigModuleAttribute.setReadOnly(configItemMetadata.isReadOnly());
       grouperConfigModuleAttribute.setType(configItemMetadata.getValueType());
-      grouperConfigModuleAttribute.setDefaultValue(configItemMetadata.getDefaultValue());
+      
+      String defaultValue = configItemMetadata.getDefaultValue();
+      String defaultValueEl = configItemMetadata.getDefaultValueEl();
+      
+      if (StringUtils.isBlank(defaultValue) && StringUtils.isNotBlank(defaultValueEl)) {
+        defaultValue = GrouperUtil.substituteExpressionLanguage(defaultValueEl, new HashMap<String, Object>(), true, false, true);
+      }
+      
+      grouperConfigModuleAttribute.setDefaultValue(defaultValue);
       grouperConfigModuleAttribute.setPassword(configItemMetadata.isSensitive());
     }
     
@@ -764,13 +836,7 @@ public abstract class GrouperConfigurationModuleBase {
       
       if (StringUtils.isNotBlank(configItemMetadata.getOptionValuesFromClass())) {
         
-        String optionValueFromClassString = configItemMetadata.getOptionValuesFromClass();
-        Class<OptionValueDriver> klass = GrouperUtil.forName(optionValueFromClassString);
-        OptionValueDriver driver = GrouperUtil.newInstance(klass);
-        List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
-        valuesAndLabels.add(new MultiKey("", ""));
-        valuesAndLabels.addAll(driver.retrieveKeysAndLabels());
-        grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+        populateValuesLabelsFromOptionValueClass(attributesSoFar, grouperConfigModuleAttribute);
         
       }
     }
@@ -875,6 +941,26 @@ public abstract class GrouperConfigurationModuleBase {
     }
     
     return grouperConfigModuleAttribute;
+  }
+
+  protected void populateValuesLabelsFromOptionValueClass(
+      Map<String, GrouperConfigurationModuleAttribute> attributesSoFar,
+      GrouperConfigurationModuleAttribute grouperConfigModuleAttribute) {
+    
+    String optionValueFromClassString = grouperConfigModuleAttribute.getConfigItemMetadata().getOptionValuesFromClass();
+    
+    if (StringUtils.isNotBlank(optionValueFromClassString)) {
+    
+      Class<OptionValueDriver> klass = GrouperUtil.forName(optionValueFromClassString);
+      OptionValueDriver driver = GrouperUtil.newInstance(klass);
+      driver.setConfigSuffixToConfigModuleAttribute(attributesSoFar);
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      valuesAndLabels.add(new MultiKey("", ""));
+      valuesAndLabels.addAll(driver.retrieveKeysAndLabels());
+      grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
+      
+    }
+    
   }
   
   /**

@@ -48,7 +48,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +56,7 @@ import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -76,10 +76,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
   private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
 
   private Properties props;
-  private String nameAttributeName = null;
-  private String subjectIDAttributeName = null;
-  private boolean subjectIDFormatToLowerCase = false;
-  private String descriptionAttributeName = null;
+  protected String nameAttributeName = null;
+  protected String subjectIDAttributeName = null;
+  protected boolean subjectIDFormatToLowerCase = false;
+  protected String descriptionAttributeName = null;
   private String ldapServerId = null;
 
   private boolean multipleResults = false;
@@ -123,19 +123,33 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     nameAttributeName = getNeededProperty(props,"Name_AttributeType");
     subjectIDAttributeName = getNeededProperty(props,"SubjectID_AttributeType");
     descriptionAttributeName = getNeededProperty(props,"Description_AttributeType");
+    
+    
+    // if this is the new source config then dereference the subject attributes with the source
+    // columns or ldap attributes
+    subjectIDAttributeName = convertSubjectAttributeToSourceAttribute(subjectIDAttributeName);
+    descriptionAttributeName = convertSubjectAttributeToSourceAttribute(descriptionAttributeName);
+    nameAttributeName = convertSubjectAttributeToSourceAttribute(nameAttributeName);
+    
 
-    subjectIDFormatToLowerCase = SubjectUtils.booleanValue(getNeededProperty(props,"SubjectID_formatToLowerCase"), false);
+    subjectIDFormatToLowerCase = SubjectUtils.booleanValue(props.getProperty("SubjectID_formatToLowerCase"), false);
 
     String mr = props.getProperty("Multiple_Results");
     if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
     Set<?> attributeNameSet = this.getAttributes();
-    allAttributeNames = new String[3+attributeNameSet.size()];
-    allAttributeNames[0] = nameAttributeName;
-    allAttributeNames[1] = subjectIDAttributeName;
-    allAttributeNames[2] = descriptionAttributeName;
-    int i = 0;
-    for (Iterator<?> it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
+    
+    if (!this.isEditable()) {
+      allAttributeNames = new String[3+attributeNameSet.size()];
+      allAttributeNames[0] = nameAttributeName;
+      allAttributeNames[1] = subjectIDAttributeName;
+      allAttributeNames[2] = descriptionAttributeName;
+      int i = 0;
+      for (Iterator<?> it = attributeNameSet.iterator(); it.hasNext(); allAttributeNames[3+i++]= (String) it.next());
+    } else {
+      allAttributeNames = GrouperUtil.toArray(attributeNameSet, String.class);
+    }
+    
 
     Map<String, String> virtualAttributes = SubjectUtils.nonNull(SubjectImpl.virtualAttributesForSource(this));
 
@@ -391,7 +405,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
   /**
    * @param attributes
    */
-  private Subject createSubject(LdapEntry entry) {
+  public Subject createSubject(LdapEntry entry) {
     String subjectID = "";
 
     if (entry==null) {
@@ -415,6 +429,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     for (Iterator<LdapAttribute> e = entry.getAttributes().iterator(); e.hasNext();) {
       LdapAttribute attr = e.next();
       String attrName = attr.getName();
+      
+      attrName = convertSourceAttributeToSubjectAttribute(attrName);
 
       Set<String> values = new HashSet<String>();
       values.addAll(attr.getStringValues());

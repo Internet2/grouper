@@ -170,6 +170,16 @@ public class ConfigFileMetadata {
                 + "required = true and defaultValue ("+configItemMetadata.getDefaultValue() + ") is not blank. Only one property can be set.");
           }
           
+          if (configItemMetadata.isRequired() && StringUtils.isNotBlank(configItemMetadata.getDefaultValueEl())) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "required = true and defaultValueEl ("+configItemMetadata.getDefaultValueEl() + ") is not blank. Only one property can be set.");
+          }
+          
+          if (StringUtils.isNotBlank(configItemMetadata.getDefaultValue()) && StringUtils.isNotBlank(configItemMetadata.getDefaultValueEl())) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "defaultValue = "+configItemMetadata.getDefaultValue() +" and defaultValueEl ("+configItemMetadata.getDefaultValueEl() + ") is not blank. Only one property can be set.");
+          }
+          
           rawMetadataJson = null;
           
           if (configLineIsComment) {

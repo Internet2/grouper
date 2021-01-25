@@ -362,5 +362,16 @@ public class ImportSubjectWrapper implements Subject {
     throw new RuntimeException("Dont call this method on an import subject");
   }
 
-  
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

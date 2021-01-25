@@ -16,6 +16,7 @@
 package edu.internet2.middleware.subject;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -186,5 +187,18 @@ public interface Subject extends Serializable {
 	 * @return source
 	 */
 	public Source getSource();
+	
+	/**
+	 * we want to resolve virtual translated attributes when they are  needed so store a map of subject and source attributes for that translation
+	 * @return
+	 */
+	public Map<String, Object> getTranslationMap();
+	
+	/**
+	 * we want to resolve virtual translated attributes when they are  needed so store a map of subject and source attributes for that translation
+	 * @param translationMap
+	 */
+	public void setTranslationMap(Map<String, Object> translationMap);
+	
 
 }

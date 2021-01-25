@@ -143,7 +143,7 @@ public class GrouperObjectTypeConfigurationTest extends GrouperTest {
     Stem ref = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:ref").save();
     
     Stem test = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:test").save();
-    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:test:policyKey_allow_adhoc").save();
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:test:policyKey_allow_manual").save();
     
     //When
     List<StemOrGroupObjectType> assignTypeCandidates = GrouperObjectTypesConfiguration.getAutoAssignTypeCandidates(top, grouperSession.getSubject());
@@ -151,7 +151,7 @@ public class GrouperObjectTypeConfigurationTest extends GrouperTest {
     Set<String> names = new HashSet<String>();
     names.add("top:ref");
     names.add("top:test");
-    names.add("top:test:policyKey_allow_adhoc");
+    names.add("top:test:policyKey_allow_manual");
     //Then
     assertEquals(3, assignTypeCandidates.size());
     assignTypeCandidates.forEach(stemOrGroupObjectType -> {

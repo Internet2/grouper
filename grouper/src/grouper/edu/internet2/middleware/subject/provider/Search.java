@@ -95,7 +95,7 @@ public class Search {
    * @param name
    * @return param
    */
-  protected String getParam(String name) {
+  public String getParam(String name) {
     return this.params.getProperty(name);
   }
 

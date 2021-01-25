@@ -16,13 +16,18 @@
 package edu.internet2.middleware.subject.config;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
+import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
@@ -174,6 +179,8 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
       Class<?> adapterClassClass = SubjectUtils.forName(adapterClassName);
       source = (BaseSourceAdapter)SubjectUtils.newInstance(adapterClassClass);
     }              
+
+    source.setConfigId(sourceConfigId);
     
     {
       //  # generally the <configName> is the same as the source id.  Generally this should not have special characters
@@ -221,6 +228,90 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
     }
     
     {
+      List<SubjectSourceConfiguration> subjectSourceConfigurations = SubjectSourceConfiguration.retrieveAllSubjectSourceConfigurations();
+      SubjectSourceConfiguration subjectSourceConfiguration = null;
+      for (SubjectSourceConfiguration subjectSourceConfig: subjectSourceConfigurations) {
+        
+        if (StringUtils.equals(subjectSourceConfig.getConfigId(), sourceConfigId)) {
+          subjectSourceConfiguration = subjectSourceConfig;
+          break;
+        }
+      }
+      
+      if (subjectSourceConfiguration != null) {
+        Map<String, GrouperConfigurationModuleAttribute> attributes = subjectSourceConfiguration.retrieveAttributes();
+        GrouperConfigurationModuleAttribute sqlAttribute = attributes.get("param.jdbcConfigId.value");
+        if (sqlAttribute != null) {
+          
+//          source.addInitParam("jdbcConnectionProvider", GrouperJdbcConnectionProvider.class.getName());
+          
+          GrouperConfigurationModuleAttribute subjectIdAttribute = attributes.get("param.SubjectID_AttributeType.value");
+          String subjectIdAttributeName = subjectIdAttribute.getValueOrExpressionEvaluation();
+          
+          GrouperConfigurationModuleAttribute subjectNameAttribute = attributes.get("param.Name_AttributeType.value");
+          String subjectNameAttributeName = subjectNameAttribute.getValueOrExpressionEvaluation();
+          
+          GrouperConfigurationModuleAttribute subjectDescriptionAttribute = attributes.get("param.Description_AttributeType.value");
+          String subjectDescriptionAttributeName = subjectDescriptionAttribute.getValueOrExpressionEvaluation();
+          
+          GrouperConfigurationModuleAttribute subjectEmailAttribute = attributes.get("param.emailAttributeName.value");
+          String subjectEmailAttributeName = null;
+          if (subjectEmailAttribute != null) {            
+            subjectEmailAttributeName = subjectEmailAttribute.getValueOrExpressionEvaluation();
+          }
+          
+          GrouperConfigurationModuleAttribute subjectNetIdAttribute = attributes.get("param.netId.value");
+          String subjectNetIdAttributeName = null;
+          if (subjectNetIdAttribute != null) {            
+            subjectNetIdAttributeName = subjectNetIdAttribute.getValueOrExpressionEvaluation();
+          }
+          
+          
+          String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+                
+          if (StringUtils.isNotBlank(numberOfAttributes)) {
+            
+            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+            for (int i=0; i<numberOfAttrs; i++) {
+              
+              String subjectAttributeNme = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+              if (StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
+                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                source.addInitParam("subjectIdCol", sourceAttribute);
+              }
+              
+              if (StringUtils.equals(subjectNameAttributeName, subjectAttributeNme)) {
+                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                source.addInitParam("nameCol", sourceAttribute);
+                source.removeInitParam("Name_AttributeType");
+              }
+              
+              if (StringUtils.equals(subjectDescriptionAttributeName, subjectAttributeNme)) {
+                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                source.addInitParam("descriptionCol", sourceAttribute);
+                source.removeInitParam("Description_AttributeType");
+              }
+              
+              if (StringUtils.isNotBlank(subjectEmailAttributeName) && StringUtils.equals(subjectEmailAttributeName, subjectAttributeNme)) {
+                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                source.addInitParam("emailAttributeName", sourceAttribute);
+              }
+              
+              if (StringUtils.isNotBlank(subjectNetIdAttributeName) && StringUtils.equals(subjectNetIdAttributeName, subjectAttributeNme)) {
+                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                source.addInitParam("netId", sourceAttribute);
+              }
+              
+            }
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    {
       //  # internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated
       //  # subjectApi.source.<configName>.internalAttributes = someName, anotherName
       String internalAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".internalAttributes");
@@ -229,6 +320,53 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
           source.addInternalAttribute(internalAttribute);
         }
       }
+      
+      String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          boolean isInternal = propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".internal", false);
+          if (isInternal) {
+            String name = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+            if (StringUtils.isNotBlank(name)) {
+              source.addInternalAttribute(name);
+            }
+          }
+        
+        }
+        
+      }
+      
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        Set<String> subjectIdentifiers = new TreeSet<String>();
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
+          if (!isTranslation) {
+            String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+            String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+            boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".subjectIdentifier", false);
+            
+            if (isSubjectIdentifier) {
+              subjectIdentifiers.add(subjectAttributeName);
+              source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), sourceAttributeName);
+              source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+            }
+          }
+        
+        }
+        
+        source.addInitParam("identifierAttributes", GrouperUtil.join(subjectIdentifiers.iterator(), ","));
+        
+      }
+      
+      
+      
+      
     }
 
     {
@@ -240,6 +378,32 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
           source.addAttribute(attribute);
         }
       }
+      
+      String extraAttributesFromSource = propertyValueString("subjectApi.source." + sourceConfigId + ".extraAttributesFromSource");
+      if (!StringUtils.isEmpty(extraAttributesFromSource)) {
+        for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
+          source.addAttribute(extraAttribute);
+        }
+      }
+      
+      String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          boolean isTranslation = propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
+          if (!isTranslation) {
+            String sourceAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+            if (StringUtils.isNotBlank(sourceAttributeName)) {
+              source.addAttribute(sourceAttributeName);
+            }
+          }
+        
+        }
+        
+      }
+      
     }
 
     //  digester.addObjectCreate("sources/source/search",
@@ -280,6 +444,22 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
               paramName = paramConfigId;
             }
             search.addParam(paramName, paramValue);
+          }
+        }
+        
+        if (StringUtils.isBlank(search.getParam("base"))) {
+          String searchSubjectBase = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.base.value");
+          if (StringUtils.isNotBlank(searchSubjectBase)) {
+            search.addParam("base", searchSubjectBase);
+          }
+        }
+        
+        if (StringUtils.isBlank(search.getParam("scope"))) {
+          String searchSubjectScope = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.scope.value");
+          if (StringUtils.isNotBlank(searchSubjectScope)) {
+            search.addParam("scope", searchSubjectScope);
+          } else {
+            search.addParam("scope", "SUBTREE_SCOPE");
           }
         }
         
