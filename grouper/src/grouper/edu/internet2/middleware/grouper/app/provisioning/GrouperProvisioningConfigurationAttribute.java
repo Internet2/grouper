@@ -122,6 +122,28 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
+   * grouper provisioning group field
+   */
+  private String translateFromGrouperProvisioningGroupField;
+  
+  /**
+   * grouper provisioning group field
+   * @return
+   */
+  public String getTranslateFromGrouperProvisioningGroupField() {
+    return translateFromGrouperProvisioningGroupField;
+  }
+
+  /**
+   * grouper provisioning group field
+   * @param translateFromGrouperProvisioningGroupField
+   */
+  public void setTranslateFromGrouperProvisioningGroupField(
+      String translateFromGrouperProvisioningGroupField) {
+    this.translateFromGrouperProvisioningGroupField = translateFromGrouperProvisioningGroupField;
+  }
+
+  /**
    * 
    */
   private String translateFromGroupSyncField;

@@ -1119,6 +1119,11 @@ public abstract class GrouperProvisioningConfigurationBase {
           String translateFromGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromGroupSyncField" , false);
           attributeConfig.setTranslateFromGroupSyncField(translateFromGroupSyncField);
         }
+
+        {
+          String translateFromGrouperProvisioningGroupField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupField" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningGroupField(translateFromGrouperProvisioningGroupField);
+        }
         
         {
           String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);

@@ -8,10 +8,27 @@ public enum LdapSyncGroupDnType {
   /**
    * 
    */
-  bushy,
+  bushy {
+
+    @Override
+    public String convertNameToDn(String name) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+  },
   
   /**
    * 
    */
-  flat;
+  flat {
+
+    @Override
+    public String convertNameToDn(String name) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+  };
+  
+  public abstract String convertNameToDn(String name);
+  
 }

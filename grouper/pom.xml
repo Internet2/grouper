@@ -358,6 +358,10 @@
             <artifactId>ldaptive</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.ldaptive</groupId>
+          <artifactId>ldaptive-unboundid</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.redhogs.cronparser</groupId>
             <artifactId>cron-parser-core</artifactId>
         </dependency>

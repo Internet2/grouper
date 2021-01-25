@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 
@@ -16,7 +18,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private String ldapExternalSystemConfigId;
   private String userSearchBaseDn;
   private String groupSearchBaseDn;
-  private LdapSyncGroupDnType groupDnType; // TODO remove?
+  private LdapSyncGroupDnType groupDnType;
   
   @Override
   public void configureSpecificSettings() {
@@ -30,7 +32,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
 
     {
-      /*
       String groupDnTypeString = this.retrieveConfigString("groupDnType", true);
       if (StringUtils.equalsIgnoreCase("flat", groupDnTypeString)) {
         this.groupDnType = LdapSyncGroupDnType.flat;
@@ -39,7 +40,6 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
       } else {
         throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
       }
-      */
     }
   }
 

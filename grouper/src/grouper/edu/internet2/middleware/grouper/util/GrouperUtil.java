@@ -45,6 +45,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -114,12 +115,14 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.ldaptive.io.Hex;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -156,83 +159,12 @@ import net.sf.json.util.PropertyFilter;
 public class GrouperUtil {
 
   public static void main(String[] args) {
+
     GrouperStartup.startup();
-    
-    //  // prime classloader or whatever
-    //  gshRunScript("GrouperSession.startRootSession()", false);
-    //  gshRunScript("GrouperSession.startRootSession()", true);
-    //  
-    //  long startNanos = System.nanoTime();
-    //  
-    //  for (int i=0;i<10;i++) {
-    //    gshRunScript("GrouperSession.startRootSession()", false);
-    //  }
-    //  System.out.println("10 runs non lightweight: " + ((System.nanoTime()-startNanos)/1000000));
-    //
-    //  startNanos = System.nanoTime();
-    //  
-    //  for (int i=0;i<10;i++) {
-    //    gshRunScript("GrouperSession.startRootSession()", true);
-    //  }
-    //  System.out.println("10 runs lightweight: " + ((System.nanoTime()-startNanos)/1000000));
 
-//    String templateSource = "hey\nthere\n";
-//    templateSource += "$$ for (var item : list) { \n";
-//    templateSource += "  sup yall ${item} chillin yall\n";
-//    templateSource += "$$ }\n";
-//    templateSource += "hey\n";
-////    templateSource += "${size(listOfRecordMaps)}\n";
-//    templateSource += "$$ for (var recordMap : listOfRecordMaps) { \n";
-//    templateSource += "  Record subject ID: ${recordMap.get('subject_id')}, name: ${recordMap.get('subject_name')}\n";
-//    templateSource += "$$ }\n";
+    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
+    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
 
-//    String templateSource = "hello ${subject_name},\n";
-//    templateSource += "$$ for (var recordMap : listOfRecordMaps) {\n";
-//    templateSource += "a\n";
-//    templateSource += "Record subject ID: ${recordMap.get('subject_id')} is\n";
-//    templateSource += "$$}\n";
-    
-//    List<Map<String, Object>> recordMapList = new ArrayList<Map<String, Object>>();
-//    
-//    Map<String, Object> map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId1", "subject_name", "subjectName1");
-//    recordMapList.add(map);
-//    map = (Map<String, Object>)(Object)GrouperUtil.toMap("subject_id", "subjectId2", "subject_name", "subjectName2");
-//    recordMapList.add(map);
-//    Map<String, Object> variableMap = new HashMap<String, Object>();
-//
-//    for (Map theMap : recordMapList) {
-//      System.out.println("Subject1: " + theMap.get("subject_id"));
-//    }
-//    
-//    variableMap.put("subject_name", "some subject name");
-//    variableMap.put("listOfRecordMaps", recordMapList);
-//    
-//    List<String> list = new ArrayList();
-//    list.add("one");
-//    list.add("two");
-//    variableMap.put("list", list);
-//
-//    String result = substituteExpressionLanguageTemplate(templateSource, variableMap, true, false, true);
-//    System.out.println("'" + result + "'");
-
-    String templateSource = "Dear ${subject_name}, \n"
-        + "\n"
-        + "Your FERPA training is about to expire and then access to NGSS resources will be revoked.  Please take the FERPA training again now or at least before ${column_needed_by_date}.\n"
-        + "\n"
-        + "https://tinyurl.com/ngssFerpa\n"
-        + "\n"
-        + "Thanks,\n"
-        + "Chris Hyzer\n"
-        + "ps. Slack or teams or skype me with issues.";
-    
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    
-    variableMap.put("subject_name", "mySubjName1");
-    variableMap.put("column_needed_by_date", "2021/01/04");
-    
-    String result = substituteExpressionLanguageTemplate(templateSource, variableMap, true, false, true);
-    System.out.println("'" + result + "'");
-    
   }
 
   /**
@@ -1453,6 +1385,126 @@ public class GrouperUtil {
   }
 
   /**
+   * This takes a string of attribute=value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN: attribute=value
+   * @return
+   */
+  public static String ldapEscapeRdn(String rdnString) {
+
+    String rdnAttribute = StringUtils.substringBefore(rdnString, "=");
+    String rdnValue     = StringUtils.substringAfter(rdnString, "=");
+
+    if ( StringUtils.isEmpty(rdnValue) || StringUtils.isEmpty(rdnValue) ) {
+      throw new RuntimeException("Unable to parse and escape rdn: '" + rdnString + "'");
+    }
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    RDN rdn = new RDN(rdnAttribute, rdnValue);
+    return rdn.toMinimallyEncodedString();
+  }
+
+  /**
+   * 
+   * @param groupName
+   * @param rdnAttributeName
+   * @param ouAttributeName
+   * @param performRdnEscaping
+   * @param performFilterEscaping
+   * @return
+   */
+  public static String ldapBushyDn(String groupName, String rdnAttributeName,
+      String ouAttributeName,
+      boolean performRdnEscaping, boolean performFilterEscaping) {
+
+    StringBuilder result = new StringBuilder();
+    
+    List<String> namePieces=Arrays.asList(groupName.split(":"));
+    Collections.reverse(namePieces);
+
+    /// Work through the pieces backwards. The first is rdn=X and the others are ou=X
+    for (int i=0; i<namePieces.size(); i++) {
+      if ( result.length() != 0 ) {
+        result.append(',');
+      }
+      
+      RDN rdn;
+      String piece = namePieces.get(i);
+
+      // Look for filter-relevant characters if this will be used in a filter
+      if ( performFilterEscaping ) {
+        piece = ldapFilterEscape(piece);
+      }
+
+      if (i==0) {
+        rdn = new RDN(rdnAttributeName, piece);
+      } else {
+        rdn = new RDN(ouAttributeName, piece);
+      }
+
+      if ( performRdnEscaping ) {
+        result.append(rdn.toMinimallyEncodedString());
+      } else {
+        result.append(rdn.toString());
+      }
+    }
+
+    return result.toString();
+
+  }
+  
+  public static String ldapFilterEscape(String s) {
+    // TODO replace with ldaptive 2.0 FilterUtils.escape after ldaptive upgrade
+    if (s == null) {
+      return s;
+    }
+    final StringBuilder sb = new StringBuilder(s.length());
+    final byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
+    // CheckStyle:MagicNumber OFF
+    // optimize if ASCII
+    if (s.length() == utf8.length) {
+      for (byte b : utf8) {
+        if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+        } else {
+          sb.append((char) b);
+        }
+      }
+    } else {
+      int multiByte = 0;
+      for (byte b : utf8) {
+        if (multiByte > 0) {
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+          multiByte--;
+        } else if ((b & 0x7F) == b) {
+          if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
+            sb.append('\\').append(Hex.encode(new byte[] {b}));
+          } else {
+            sb.append((char) b);
+          }
+        } else {
+          // 2 byte character
+          if ((b & 0xE0) == 0xC0) {
+            multiByte = 1;
+            // 3 byte character
+          } else if ((b & 0xF0) == 0xE0) {
+            multiByte = 2;
+            // 4 byte character
+          } else if ((b & 0xF8) == 0xF0) {
+            multiByte = 3;
+          } else {
+            throw new IllegalStateException("Could not read UTF-8 string encoding");
+          }
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+        }
+      }
+    }
+    // CheckStyle:MagicNumber ON
+    return sb.toString();
+  }
+  
+  /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
    * @param checkResponse true if the response from the user should be checked, or just display the prompt
@@ -1478,7 +1530,6 @@ public class GrouperUtil {
       }
       return;
     }
-
 
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");

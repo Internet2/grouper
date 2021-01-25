@@ -1,11 +1,60 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
  */
 public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBase {
+
+  @Override
+  public Object fieldTranslation(Object currentValue, Map<String, Object> elVariableMap,
+      boolean forCreate,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      ProvisioningEntityWrapper provisioningEntityWrapper) {
+
+    Object fieldValue = super.fieldTranslation(currentValue, elVariableMap, forCreate,
+        grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
+        provisioningEntityWrapper);
+
+    if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
+          == GrouperProvisioningConfigurationAttributeType.group
+        && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+        && !grouperProvisioningConfigurationAttribute.isAttribute() && "name".equals(grouperProvisioningConfigurationAttribute.getName())) {
+      
+      String fieldValueString = GrouperUtil.stringValue(fieldValue);
+
+      if (StringUtils.isBlank(fieldValueString)) {
+        throw new RuntimeException("Not expecting null DN part! " + provisioningGroupWrapper.getGrouperProvisioningGroup());
+      }
+      
+      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      String dn = null;
+      
+      if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
+        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", "ou", true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        
+      } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
+        dn = GrouperUtil.ldapEscapeRdn("cn=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        
+      } else {
+        throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());
+      }
+      fieldValue = dn;
+    }
+    return fieldValue;
+  }
 
 //  @Override
 //  public void translateGrouperToCommon() {
