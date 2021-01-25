@@ -27,7 +27,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
         grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
         provisioningEntityWrapper);
 
-    if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
+    if (grouperProvisioningConfigurationAttribute != null 
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
           == GrouperProvisioningConfigurationAttributeType.group
         && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
         && !grouperProvisioningConfigurationAttribute.isAttribute() && "name".equals(grouperProvisioningConfigurationAttribute.getName())) {

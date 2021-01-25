@@ -417,7 +417,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               
               GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
               String value = targetGroup.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-              searchFilter = "(" + grouperProvisioningConfigurationAttribute + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+              searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
 
             } else {
               throw new RuntimeException("Why is groupSearchFilter empty?");
