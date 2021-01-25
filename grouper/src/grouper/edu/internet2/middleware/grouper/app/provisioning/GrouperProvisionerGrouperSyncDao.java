@@ -989,7 +989,7 @@ public class GrouperProvisionerGrouperSyncDao {
       break;
       case entityAttributes:
       {
-        String entityAttributeNameForMemberships = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getUserAttributeNameForMemberships();
+        String entityAttributeNameForMemberships = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeNameForMemberships();
         
         // get the attribute that holds members
         GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = 

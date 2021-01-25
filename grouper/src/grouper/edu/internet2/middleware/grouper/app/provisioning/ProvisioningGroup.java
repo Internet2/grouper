@@ -53,6 +53,14 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   }
 
   /**
+   * 
+   * @return
+   */
+  public String getExtension() {
+    return GrouperUtil.extensionFromName(this.name);
+  }
+  
+  /**
    * name of group in target system.  could be group system name, extension, or other
    * @return name
    */
@@ -90,6 +98,14 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    */
   public String getDisplayName() {
     return this.displayName;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public String getDisplayExtension() {
+    return GrouperUtil.extensionFromName(this.displayName);
   }
 
   /**

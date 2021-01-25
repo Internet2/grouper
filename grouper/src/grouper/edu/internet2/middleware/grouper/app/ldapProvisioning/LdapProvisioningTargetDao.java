@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
@@ -70,9 +71,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       String groupSearchBaseDn = ldapSyncConfiguration.getGroupSearchBaseDn();
-  
+
       Set<String> groupSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSearchAttributes());
+      groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSelectAttributes());
         
       Set<String> groupAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       if (ldapSyncConfiguration.getGroupAttributesMultivalued() != null) {
@@ -371,13 +372,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
     String groupSearchBaseDn = ldapSyncConfiguration.getGroupSearchBaseDn();
-    String groupSearchFilter = ldapSyncConfiguration.getGroupSearchFilter();
-    if (StringUtils.isEmpty(groupSearchFilter)) {
-      throw new RuntimeException("Why is groupSearchFilter empty?");
-    }
-    
     Set<String> groupSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSearchAttributes());
+    groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSelectAttributes());
       
     Set<String> groupAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
     if (ldapSyncConfiguration.getGroupAttributesMultivalued() != null) {
@@ -399,7 +395,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     
     List<ProvisioningGroup> targetGroups = targetDaoRetrieveGroupsRequest.getTargetGroups();
-    int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();;
+    int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups.size(), batchSize);
 
     for (int i = 0; i < numberOfBatches; i++) {
@@ -459,7 +455,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
-      String userSearchAllFilter = ldapSyncConfiguration.getUserSearchAllFilter();
+      String userSearchAllFilter = ldapSyncConfiguration.getEntitySearchAllFilter();
       
       if (StringUtils.isEmpty(userSearchAllFilter)) {
         throw new RuntimeException("Why is userSearchAllFilter empty?");
@@ -467,29 +463,29 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
       String userSearchBaseDn = ldapSyncConfiguration.getUserSearchBaseDn();
   
-      Set<String> userSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      userSearchAttributeNames.addAll(ldapSyncConfiguration.getUserSearchAttributes());
+      Set<String> entitySearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+      entitySearchAttributeNames.addAll(ldapSyncConfiguration.getEntitySelectAttributes());
         
       Set<String> userAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-      if (ldapSyncConfiguration.getUserAttributesMultivalued() != null) {
-        userAttributesMultivalued.addAll(ldapSyncConfiguration.getUserAttributesMultivalued());
+      if (ldapSyncConfiguration.getEntityAttributesMultivalued() != null) {
+        userAttributesMultivalued.addAll(ldapSyncConfiguration.getEntityAttributesMultivalued());
       }
       
-      userSearchAttributeNames.add("objectClass");
+      entitySearchAttributeNames.add("objectClass");
       userAttributesMultivalued.add("objectClass");
       
-      String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
+      String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
       if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
         if (includeAllMembershipsIfApplicable) {
-          userSearchAttributeNames.add(userAttributeNameForMemberships);
+          entitySearchAttributeNames.add(userAttributeNameForMemberships);
           userAttributesMultivalued.add(userAttributeNameForMemberships);
         } else {
-          userSearchAttributeNames.remove(userAttributeNameForMemberships);
+          entitySearchAttributeNames.remove(userAttributeNameForMemberships);
           userAttributesMultivalued.remove(userAttributeNameForMemberships);
         }
       }
       
-      List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(userSearchAttributeNames));
+      List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
       
       for (LdapEntry ldapEntry : ldapEntries) {
         ProvisioningEntity targetEntity = new ProvisioningEntity();
@@ -527,23 +523,23 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
     
     String userSearchBaseDn = ldapSyncConfiguration.getUserSearchBaseDn();
-    String userSearchFilter = ldapSyncConfiguration.getUserSearchFilter();
+    String userSearchFilter = ldapSyncConfiguration.getEntitySearchFilter();
     if (StringUtils.isEmpty(userSearchFilter)) {
       throw new RuntimeException("Why is userSearchFilter empty?");
     }
     
     Set<String> userSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    userSearchAttributeNames.addAll(ldapSyncConfiguration.getUserSearchAttributes());
+    userSearchAttributeNames.addAll(ldapSyncConfiguration.getEntitySelectAttributes());
       
     Set<String> userAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-    if (ldapSyncConfiguration.getUserAttributesMultivalued() != null) {
-      userAttributesMultivalued.addAll(ldapSyncConfiguration.getUserAttributesMultivalued());
+    if (ldapSyncConfiguration.getEntityAttributesMultivalued() != null) {
+      userAttributesMultivalued.addAll(ldapSyncConfiguration.getEntityAttributesMultivalued());
     }
     
     userSearchAttributeNames.add("objectClass");
     userAttributesMultivalued.add("objectClass");
     
-    String userAttributeNameForMemberships = ldapSyncConfiguration.getUserAttributeNameForMemberships();
+    String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
     if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
       if (includeAllMembershipsIfApplicable) {
         userSearchAttributeNames.add(userAttributeNameForMemberships);

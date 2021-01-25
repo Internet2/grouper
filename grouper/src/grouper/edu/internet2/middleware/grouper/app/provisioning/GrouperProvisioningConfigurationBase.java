@@ -544,21 +544,61 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
   
   /**
-   * attributes to query when retrieving users, e.g.
-   * dn,cn,uid,mail,samAccountName,uidNumber,
+   * attributes to use when searching, targetId is first if multiple
    */
-  private Set<String> userSearchAttributes = null;
+  private List<GrouperProvisioningConfigurationAttribute> entitySearchAttributes = null;
   
   /**
-   * attributes to query when retrieving groups, e.g.
-   * cn,gidNumber,samAccountName,objectclass
+   * attributes to use when searching, targetId is first if multiple
    */
-  private Set<String> groupSearchAttributes = null;
+  private List<GrouperProvisioningConfigurationAttribute> groupSearchAttributes = null;
+  
+  /**
+   * attributes to use when selecting from target
+   */
+  private Set<String> groupSelectAttributes = null;
+  
+  /**
+   * attributes to use when selecting from target
+   * @return
+   */
+  public Set<String> getGroupSelectAttributes() {
+    return groupSelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @param groupSelectAttributes
+   */
+  public void setGroupSelectAttributes(Set<String> groupSelectAttributes) {
+    this.groupSelectAttributes = groupSelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @return
+   */
+  public Set<String> getEntitySelectAttributes() {
+    return entitySelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @param entitySelectAttributes
+   */
+  public void setEntitySelectAttributes(Set<String> entitySelectAttributes) {
+    this.entitySelectAttributes = entitySelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   */
+  private Set<String> entitySelectAttributes = null;
   
   /**
    * someAttr  everything is assumed to be single valued except objectclass and the provisionedAttributeName optional
    */
-  private Set<String> userAttributesMultivalued = null;
+  private Set<String> entityAttributesMultivalued = null;
   
   /**
    * someAttr  everything is assumed to be single valued except objectclass and the provisionedAttributeName optional
@@ -671,40 +711,40 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * search filter to look up entity if cannot just use the matchingId
    */
-  private String userSearchFilter = null;
+  private String entitySearchFilter = null;
   
   /**
    * search filter to look up entity if cannot just use the matchingId
    * @return
    */
-  public String getUserSearchFilter() {
-    return userSearchFilter;
+  public String getEntitySearchFilter() {
+    return entitySearchFilter;
   }
 
   /**
    * search filter to look up entity if cannot just use the matchingId
    * @param userSearchFilter
    */
-  public void setUserSearchFilter(String userSearchFilter) {
-    this.userSearchFilter = userSearchFilter;
+  public void setEntitySearchFilter(String userSearchFilter) {
+    this.entitySearchFilter = userSearchFilter;
   }
 
-  private String userSearchAllFilter;
+  private String entitySearchAllFilter;
 
   /**
    * search filter to look up all entities
    * @return
    */
-  public String getUserSearchAllFilter() {
-    return userSearchAllFilter;
+  public String getEntitySearchAllFilter() {
+    return entitySearchAllFilter;
   }
 
   /**
    * search filter to look up all entities
    * @param userSearchAllFilter
    */
-  public void setUserSearchAllFilter(String userSearchAllFilter) {
-    this.userSearchAllFilter = userSearchAllFilter;
+  public void setEntitySearchAllFilter(String userSearchAllFilter) {
+    this.entitySearchAllFilter = userSearchAllFilter;
   }
   
   
@@ -914,22 +954,22 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * attribute name in a user object that refers to memberships (if applicable)
    */
-  private String userAttributeNameForMemberships;
+  private String entityAttributeNameForMemberships;
   
   /**
    * attribute name in a user object that refers to memberships (if applicable)
    * @return
    */
-  public String getUserAttributeNameForMemberships() {
-    return userAttributeNameForMemberships;
+  public String getEntityAttributeNameForMemberships() {
+    return entityAttributeNameForMemberships;
   }
 
   /**
    * attribute name in a user object that refers to memberships (if applicable)
    * @param userAttributeNameForMemberships
    */
-  public void setUserAttributeNameForMemberships(String userAttributeNameForMemberships) {
-    this.userAttributeNameForMemberships = userAttributeNameForMemberships;
+  public void setEntityAttributeNameForMemberships(String userAttributeNameForMemberships) {
+    this.entityAttributeNameForMemberships = userAttributeNameForMemberships;
   }
 
   private String membershipAttributeNames;
@@ -961,7 +1001,6 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
     }
 
-    
     for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       
       boolean foundMatchingId = false;
@@ -1233,56 +1272,69 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.scoreConvertToFullSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("scoreConvertToFullSyncThreshold", false), 10000);
     this.membershipsConvertToGroupSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("membershipsConvertToGroupSyncThreshold", false), 500);
     
-    this.userSearchFilter = this.retrieveConfigString("userSearchFilter", false);
-    this.userSearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
+    this.entitySearchFilter = this.retrieveConfigString("userSearchFilter", false);
+    this.entitySearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
-    this.userSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("userSearchAttributes", false), ",");
-    if (this.userSearchAttributes == null) {
-      this.userSearchAttributes = new HashSet<String>();
-    }
-    
-    this.groupSearchAttributes = GrouperUtil.splitTrimToSet(this.retrieveConfigString("groupSearchAttributes", false), ",");
-    if (this.groupSearchAttributes == null) {
-      this.groupSearchAttributes = new HashSet<String>();
-    }
-    
-    if (this.userAttributesMultivalued == null) {
-      this.userAttributesMultivalued = new HashSet<String>();
+    if (this.entityAttributesMultivalued == null) {
+      this.entityAttributesMultivalued = new HashSet<String>();
     }
     
     if (this.groupAttributesMultivalued == null) {
       this.groupAttributesMultivalued = new HashSet<String>(); 
     }
-    
+    this.groupSelectAttributes = new HashSet<String>();
+    this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+
+
     for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
-      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isSelect()) {
-        this.groupSearchAttributes.add(targetGroupAttributeName);
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetGroupAttributeNameToConfig.get(targetGroupAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.groupSelectAttributes.add(targetGroupAttributeName);
       }
       
-      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMembershipAttribute()) {
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
         this.groupAttributeNameForMemberships = targetGroupAttributeName;
         this.attributeNameForMemberships = targetGroupAttributeName;
       }
       
-      if (targetGroupAttributeNameToConfig.get(targetGroupAttributeName).isMultiValued()) {
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
         this.groupAttributesMultivalued.add(targetGroupAttributeName);
       }
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.groupSearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.groupSearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
+      }
+
     }
     
+    this.entitySelectAttributes = new HashSet<String>();
+    this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
-      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isSelect()) {
-        this.userSearchAttributes.add(targetEntityAttributeName);
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetEntityAttributeNameToConfig.get(targetEntityAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.entitySelectAttributes.add(targetEntityAttributeName);
       }
       
-      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMembershipAttribute()) {
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
         this.attributeNameForMemberships = targetEntityAttributeName;
-        this.userAttributeNameForMemberships = targetEntityAttributeName;
+        this.entityAttributeNameForMemberships = targetEntityAttributeName;
       }
       
-      if (targetEntityAttributeNameToConfig.get(targetEntityAttributeName).isMultiValued()) {
-        this.userAttributesMultivalued.add(targetEntityAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.entityAttributesMultivalued.add(targetEntityAttributeName);
+      }
+
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.entitySearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.entitySearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
       }
     }
     
@@ -1296,8 +1348,8 @@ public abstract class GrouperProvisioningConfigurationBase {
       throw new RuntimeException("Should only specify membershipAttribute on one attribute or groupAttributeNameForMemberships");
     }
     
-    if (StringUtils.isEmpty(this.userAttributeNameForMemberships)) {
-      this.userAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
+    if (StringUtils.isEmpty(this.entityAttributeNameForMemberships)) {
+      this.entityAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
     } else if (!StringUtils.isEmpty(this.retrieveConfigString("userAttributeNameForMemberships", false))) {
       throw new RuntimeException("Should only specify membershipAttribute on one attribute or userAttributeNameForMemberships");
     }
@@ -1585,14 +1637,15 @@ public abstract class GrouperProvisioningConfigurationBase {
       //validate the matching attributes come from gcSync objects
       
       if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-        
-        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
-            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
 
-          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
-              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
-              + "' is a matching ID but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
-        }
+// TODO we need to validate that a matching ID is in gc tables
+//        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
+//            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+//
+//          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
+//              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
+//              + "' is a matching ID but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
+//        }
         if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
           hasMemberMatchingId = true;
         }
@@ -1699,33 +1752,32 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.subjectSourcesToProvision = subjectSourcesToProvision;
   }
   
-  public Set<String> getUserSearchAttributes() {
-    return userSearchAttributes;
+  public List<GrouperProvisioningConfigurationAttribute> getEntitySearchAttributes() {
+    return entitySearchAttributes;
   }
 
   
-  public void setUserSearchAttributes(Set<String> userSearchAttributes) {
-    this.userSearchAttributes = userSearchAttributes;
+  public void setEntitySearchAttributes(List<GrouperProvisioningConfigurationAttribute> userSearchAttributes ) {
+    this.entitySearchAttributes = userSearchAttributes;
   }
 
   
-  public Set<String> getGroupSearchAttributes() {
+  public List<GrouperProvisioningConfigurationAttribute> getGroupSearchAttributes() {
     return groupSearchAttributes;
   }
 
-  
-  public void setGroupSearchAttributes(Set<String> groupSearchAttributes) {
+  public void setGroupSearchAttributes(List<GrouperProvisioningConfigurationAttribute> groupSearchAttributes) {
     this.groupSearchAttributes = groupSearchAttributes;
   }
 
   
-  public Set<String> getUserAttributesMultivalued() {
-    return userAttributesMultivalued;
+  public Set<String> getEntityAttributesMultivalued() {
+    return entityAttributesMultivalued;
   }
 
   
-  public void setUserAttributesMultivalued(Set<String> userAttributesMultivalued) {
-    this.userAttributesMultivalued = userAttributesMultivalued;
+  public void setEntityAttributesMultivalued(Set<String> userAttributesMultivalued) {
+    this.entityAttributesMultivalued = userAttributesMultivalued;
   }
 
   
