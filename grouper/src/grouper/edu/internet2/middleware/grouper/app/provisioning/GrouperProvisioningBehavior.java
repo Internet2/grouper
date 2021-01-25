@@ -755,16 +755,10 @@ public class GrouperProvisioningBehavior {
     if (this.groupsRetrieveAll != null) {
       return groupsRetrieveAll;
     }
-    if (GrouperUtil.booleanValue(this.getHasTargetGroupLink(), false)) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
       return true;
     }
     
-    // by default, if we're inserting/updating/deleting groups, then retrieve all groups?
-    if (this.getGroupsInsert() == Boolean.TRUE || this.getGroupsUpdate() == Boolean.TRUE ||
-        this.getGroupsDeleteIfDeletedFromGrouper() == Boolean.TRUE || this.getGroupsDeleteIfNotInGrouper() == Boolean.TRUE ||
-            this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      return true;
-    }
     return null;
   }
 

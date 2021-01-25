@@ -706,8 +706,29 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * if groups should be inserted in target
    */
-  private boolean insertGroups = true;
+  private boolean insertGroups = false;
   
+  /**
+   * if groups should be selected from target
+   */
+  private boolean selectGroups = false;
+  
+  /**
+   * if groups should be selected from target
+   * @return
+   */
+  public boolean isSelectGroups() {
+    return selectGroups;
+  }
+
+  /**
+   * if groups should be selected from target
+   * @param selectGroups
+   */
+  public void setSelectGroups(boolean selectGroups) {
+    this.selectGroups = selectGroups;
+  }
+
   /**
    * search filter to look up entity if cannot just use the matchingId
    */
@@ -1126,6 +1147,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String translateFromGrouperProvisioningEntityField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningEntityField" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningEntityField(translateFromGrouperProvisioningEntityField);
+        }
+        
+        {
           String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);
           attributeConfig.setTranslateFromMemberSyncField(translateFromMemberSyncField);
         }
@@ -1345,7 +1371,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
 
-    this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
+    this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), false);
+
+    this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), false);
 
     if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
       this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
@@ -1361,7 +1389,7 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
 
-    this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), true);
+    this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
 
     this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
     

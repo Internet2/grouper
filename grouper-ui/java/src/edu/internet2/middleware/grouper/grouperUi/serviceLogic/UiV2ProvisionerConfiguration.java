@@ -872,6 +872,10 @@ public class UiV2ProvisionerConfiguration {
           for (MultiKey errorAndSuffix : GrouperUtil.nonNull(errorAndSuffixList)) {
             String error = (String)errorAndSuffix.getKey(0);
             String suffix = errorAndSuffix.size() >= 2 ? (String)errorAndSuffix.getKey(1) : null;
+            if (StringUtils.isBlank(error)) {
+              LOG.error("error is blank!!!! '" + suffix + "'");
+              continue;
+            }
             if (StringUtils.isBlank(suffix)) {
               errorsToDisplay.add(error);
             } else {

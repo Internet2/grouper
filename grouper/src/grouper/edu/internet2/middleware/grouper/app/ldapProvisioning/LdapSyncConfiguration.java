@@ -32,17 +32,18 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
 
     {
-      String groupDnTypeString = this.retrieveConfigString("groupDnType", true);
-      if (StringUtils.equalsIgnoreCase("flat", groupDnTypeString)) {
-        this.groupDnType = LdapSyncGroupDnType.flat;
-      } else if (StringUtils.equalsIgnoreCase("bushy", groupDnTypeString)) {
-        this.groupDnType = LdapSyncGroupDnType.bushy;
-      } else {
-        throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
+      String groupDnTypeString = this.retrieveConfigString("groupDnType", false);
+      if (!StringUtils.isBlank(groupDnTypeString)) {
+        if (StringUtils.equalsIgnoreCase("flat", groupDnTypeString)) {
+          this.groupDnType = LdapSyncGroupDnType.flat;
+        } else if (StringUtils.equalsIgnoreCase("bushy", groupDnTypeString)) {
+          this.groupDnType = LdapSyncGroupDnType.bushy;
+        } else {
+          throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
+        }
       }
     }
   }
-
   
   public String getLdapExternalSystemConfigId() {
     return ldapExternalSystemConfigId;

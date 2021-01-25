@@ -122,6 +122,29 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
+   * grouper provisioning entity field
+   */
+  private String translateFromGrouperProvisioningEntityField;
+  
+
+  /**
+   * grouper provisioning entity field
+   * @return
+   */
+  public String getTranslateFromGrouperProvisioningEntityField() {
+    return translateFromGrouperProvisioningEntityField;
+  }
+
+  /**
+   * grouper provisioning entity field
+   * @param translateFromGrouperProvisioningEntityField
+   */
+  public void setTranslateFromGrouperProvisioningEntityField(
+      String translateFromGrouperProvisioningEntityField) {
+    this.translateFromGrouperProvisioningEntityField = translateFromGrouperProvisioningEntityField;
+  }
+
+  /**
    * grouper provisioning group field
    */
   private String translateFromGrouperProvisioningGroupField;
@@ -319,6 +342,7 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateExpressionCreateOnly;
   
   /**
+   * NOTE: CURRENTLY NOT USED
    * expression when translating a group or entity membership attribute
    */
   private String translateExpressionFromMembership;
@@ -532,6 +556,7 @@ public class GrouperProvisioningConfigurationAttribute {
 
   
   /**
+   * NOTE: CURRENTLY NOT USED
    * @return expression when translating a group or entity membership attribute
    */
   public String getTranslateExpressionFromMembership() {
