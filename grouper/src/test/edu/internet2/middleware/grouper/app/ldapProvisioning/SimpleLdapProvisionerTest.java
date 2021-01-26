@@ -49,7 +49,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFull"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -976,8 +976,8 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.fieldName", "name");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.isFieldElseAttribute", "true");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.select", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateExpressionType", "translationScript");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateExpression", "${'uid=' + grouperProvisioningEntity.subjectId + ',ou=People,dc=example,dc=edu'}");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.valueType", "string");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.isFieldElseAttribute", "false");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.matchingId", "true");
@@ -1012,11 +1012,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
       long started = System.currentTimeMillis();
 
       // ldap specific properties
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.logAllObjectsVerbose", "true");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.logAllObjectsVerbose", "true");
   
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
   
-          
       Stem stem = new StemSave(this.grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
       

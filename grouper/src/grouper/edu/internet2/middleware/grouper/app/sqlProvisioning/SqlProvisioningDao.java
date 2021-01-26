@@ -73,7 +73,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     if (!StringUtils.isBlank(membershipTableName)) {
 
-      String commaSeparatedAttributeNames = sqlProvisioningConfiguration.getMembershipAttributeNames();
+      String commaSeparatedAttributeNames = null;// TODO sqlProvisioningConfiguration.getMembershipAttributeNames();
       
       StringBuilder sqlInitial = new StringBuilder("select " + commaSeparatedAttributeNames + " from "+membershipTableName);
       List<Object[]> membershipAttributeValues = null;
@@ -571,7 +571,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
-    String commaSeparatedAttributeNames = sqlProvisioningConfiguration.getMembershipAttributeNames();
+    String commaSeparatedAttributeNames = null; //sqlProvisioningConfiguration.getMembershipAttributeNames();
     
     
     
@@ -613,7 +613,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
-    String commaSeparatedAttributeNames = sqlProvisioningConfiguration.getMembershipAttributeNames();
+    String commaSeparatedAttributeNames = null;// TODO sqlProvisioningConfiguration.getMembershipAttributeNames();
     
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
     

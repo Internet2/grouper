@@ -790,7 +790,7 @@ public class GrouperProvisioningLogic {
 
   public void createMissingGroupsFull() {
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupsInsert(), false)) {
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
       return;
     }
       
@@ -1035,7 +1035,7 @@ public class GrouperProvisioningLogic {
 
   public void createMissingEntitiesFull() {
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntitiesInsert(), false)) {
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
       return;
     }
       
@@ -1694,7 +1694,7 @@ public class GrouperProvisioningLogic {
   public void retrieveMissingGroupsIncremental() {
     
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupsRetrieveMissingIncremental(), false)) {
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupMissingIncremental()) {
       return;
     }
       

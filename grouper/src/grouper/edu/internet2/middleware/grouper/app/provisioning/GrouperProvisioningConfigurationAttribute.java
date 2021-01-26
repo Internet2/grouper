@@ -275,11 +275,6 @@ public class GrouperProvisioningConfigurationAttribute {
   private boolean insert;
   
   /**
-   * delete this attribute
-   */
-  private boolean delete;
-  
-  /**
    * 
    */
   private Set<Object> ignoreIfMatchesValues = new HashSet<Object>();
@@ -298,22 +293,6 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   public void setIgnoreIfMatchesValue(Set<Object> ignoreIfMatchesValues) {
     this.ignoreIfMatchesValues = ignoreIfMatchesValues;
-  }
-
-  /**
-   * delete this attribute
-   * @return
-   */
-  public boolean isDelete() {
-    return delete;
-  }
-
-  /**
-   * delete this attribute
-   * @param delete
-   */
-  public void setDelete(boolean delete) {
-    this.delete = delete;
   }
 
   /**

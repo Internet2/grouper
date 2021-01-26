@@ -201,18 +201,44 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
 
   @Override
   public boolean canInsertAttribute(String name) {
-    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupInsertAttribute(name);
+
+    GrouperProvisioner grouperProvisioner = this.getProvisioningGroupWrapper().getGrouperProvisioner();
+    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
+      return retrieveGrouperProvisioningBehavior.isInsertMemberships();
+    }
+
+    return retrieveGrouperProvisioningBehavior.canInsertGroupAttribute(name);
   }
 
   @Override
   public boolean canUpdateAttribute(String name) {
-    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupUpdateAttribute(name);
+    GrouperProvisioner grouperProvisioner = this.getProvisioningGroupWrapper().getGrouperProvisioner();
+    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
+      return retrieveGrouperProvisioningBehavior.isUpdateMemberships();
+    }
+    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateGroupAttribute(name);
   }
 
   @Override
-  public boolean canDeleteAttrbute(String name) {
-    return this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canGroupDeleteAttribute(name);
+  public boolean canDeleteAttribute(String name) {
+
+    GrouperProvisioner grouperProvisioner = this.getProvisioningGroupWrapper().getGrouperProvisioner();
+    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
+      return retrieveGrouperProvisioningBehavior.isDeleteMemberships();
+    }
+    // theres no delete
+    return this.canUpdateAttribute(name);
   }
+
 
   /**
    * 
