@@ -578,7 +578,7 @@ public class GrouperProvisioningTranslatorBase {
    * @param field
    * @return the value
    */
-  public static Object translateFromGroupSyncField(GcGrouperSyncGroup gcGrouperSyncGroup, String field) {
+  public Object translateFromGroupSyncField(GcGrouperSyncGroup gcGrouperSyncGroup, String field) {
     
     if (StringUtils.equals("groupId", field)) {
       return gcGrouperSyncGroup.getGroupId();
@@ -613,7 +613,7 @@ public class GrouperProvisioningTranslatorBase {
    * @param field
    * @return the value
    */
-  public static Object translateFromGrouperProvisioningEntityField(ProvisioningEntity provisioningEntity, String field) {
+  public Object translateFromGrouperProvisioningEntityField(ProvisioningEntity provisioningEntity, String field) {
     
     if (StringUtils.equals("id", field)) {
       return provisioningEntity.getId();
@@ -649,7 +649,7 @@ public class GrouperProvisioningTranslatorBase {
    * @param field
    * @return the value
    */
-  public static Object translateFromMemberSyncField(GcGrouperSyncMember gcGrouperSyncMember, String field) {
+  public Object translateFromMemberSyncField(GcGrouperSyncMember gcGrouperSyncMember, String field) {
     
     if (StringUtils.equals("memberId", field)) {
       return gcGrouperSyncMember.getMemberId();
@@ -1005,7 +1005,7 @@ public class GrouperProvisioningTranslatorBase {
    * @param field
    * @return the value
    */
-  public static Object translateFromGrouperProvisioningGroupField(ProvisioningGroup provisioningGroup, String field) {
+  public Object translateFromGrouperProvisioningGroupField(ProvisioningGroup provisioningGroup, String field) {
     
     if (StringUtils.equals("id", field)) {
       return provisioningGroup.getId();

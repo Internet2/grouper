@@ -911,7 +911,7 @@ public class GrouperProvisionerGrouperSyncDao {
           for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
             GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
             if (gcGrouperSyncMember != null) {
-              Object provisioningAttribute  = GrouperProvisioningTranslatorBase.translateFromMemberSyncField(gcGrouperSyncMember, translateFromMemberSyncField);
+              Object provisioningAttribute  = this.getGrouperProvisioner().retrieveGrouperTranslator().translateFromMemberSyncField(gcGrouperSyncMember, translateFromMemberSyncField);
               String provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
               provisioningAttributeToMember.put(provisioningAttributeString, gcGrouperSyncMember);
             }
@@ -1014,7 +1014,7 @@ public class GrouperProvisionerGrouperSyncDao {
             GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
             if (gcGrouperSyncGroup != null) {
               
-              Object provisioningAttribute  = GrouperProvisioningTranslatorBase.translateFromGroupSyncField(gcGrouperSyncGroup, translateFromGroupSyncField);
+              Object provisioningAttribute  = this.getGrouperProvisioner().retrieveGrouperTranslator().translateFromGroupSyncField(gcGrouperSyncGroup, translateFromGroupSyncField);
               String provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
 
               provisioningAttributeToGroup.put(provisioningAttributeString, gcGrouperSyncGroup);

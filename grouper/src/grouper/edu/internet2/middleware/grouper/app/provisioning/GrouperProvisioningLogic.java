@@ -1545,7 +1545,9 @@ public class GrouperProvisioningLogic {
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-        provisioningEntityWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntity(gcGrouperSyncMember)) {
+          provisioningEntityWrapper.setDelete(true);
+        }
         
         memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       }
@@ -1589,7 +1591,9 @@ public class GrouperProvisioningLogic {
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-        provisioningGroupWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroup(gcGrouperSyncGroup)) {
+          provisioningGroupWrapper.setDelete(true);
+        }
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -1666,7 +1670,9 @@ public class GrouperProvisioningLogic {
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-        provisioningMembershipWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembership(gcGrouperSyncMembership)) {
+          provisioningMembershipWrapper.setDelete(true);
+        }
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         

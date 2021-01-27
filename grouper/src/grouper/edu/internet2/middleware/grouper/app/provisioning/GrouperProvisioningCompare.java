@@ -190,6 +190,10 @@ public class GrouperProvisioningCompare {
       Map<String, ProvisioningAttribute> targetProvisioningAttributes,
       ProvisioningUpdatable grouperProvisioningUpdatable) {
     
+    if (grouperProvisioningUpdatable == null) {
+      return;
+    }
+    
     boolean recalc = grouperProvisioningUpdatable.isRecalc();
     
     if (!recalc) {
@@ -605,7 +609,7 @@ public class GrouperProvisioningCompare {
                 grouperTargetEntity);
           }          
         }        
-        compareAttributeValues(provisioningEntitiesToUpdate, grouperTargetEntity.getAttributes(),
+        compareAttributeValues(provisioningEntitiesToUpdate, grouperTargetEntity == null ? null : grouperTargetEntity.getAttributes(),
             targetProvisioningEntity == null ? null : targetProvisioningEntity.getAttributes(), grouperTargetEntity);
         
       }
@@ -819,7 +823,7 @@ public class GrouperProvisioningCompare {
                 grouperTargetGroup);
           }
         }          
-        compareAttributeValues(provisioningGroupsToUpdate, grouperTargetGroup.getAttributes(),
+        compareAttributeValues(provisioningGroupsToUpdate, grouperTargetGroup == null ? null : grouperTargetGroup.getAttributes(),
             targetProvisioningGroup == null ? null : targetProvisioningGroup.getAttributes(), 
                 grouperTargetGroup);
           

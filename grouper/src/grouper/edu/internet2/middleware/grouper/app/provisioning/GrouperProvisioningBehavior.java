@@ -758,7 +758,7 @@ public class GrouperProvisioningBehavior {
     }
 
     //can the provisioner even do this?
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)
       &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)
         ) {
       return false;
@@ -786,7 +786,7 @@ public class GrouperProvisioningBehavior {
     }
 
     //can the provisioner even do this?
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)
       &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)
         ) {
       return false;
@@ -821,7 +821,7 @@ public class GrouperProvisioningBehavior {
     }
     
     // delete if inserted and delete if grouper created
-    return gcGrouperSyncMembership.isInTargetInsertOrExists() && this.isDeleteEntitiesIfGrouperCreated();
+    return gcGrouperSyncMembership.isInTargetInsertOrExists() && this.isDeleteMembershipsIfGrouperCreated();
   }
 
   /**
