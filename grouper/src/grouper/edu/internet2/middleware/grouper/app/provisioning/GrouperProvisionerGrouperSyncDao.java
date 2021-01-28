@@ -640,12 +640,15 @@ public class GrouperProvisionerGrouperSyncDao {
         if (valueToProvisioningMembershipWrapper != null) {
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getNewValue());
-            GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-            gcGrouperSyncMembership.setErrorMessage(null);
-            gcGrouperSyncMembership.setErrorTimestamp(null);
-            gcGrouperSyncMembership.setInTarget(true);
-            gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
-            gcGrouperSyncMembership.setInTargetInsertOrExists(true);
+            // if this is a default value there might not be a membership in place
+            if (provisioningMembershipWrapper != null) {
+              GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+              gcGrouperSyncMembership.setErrorMessage(null);
+              gcGrouperSyncMembership.setErrorTimestamp(null);
+              gcGrouperSyncMembership.setInTarget(true);
+              gcGrouperSyncMembership.setInTargetStart(nowTimestamp);
+              gcGrouperSyncMembership.setInTargetInsertOrExists(true);
+            }
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
             ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
             // if there is a default untracked value, this might be null
