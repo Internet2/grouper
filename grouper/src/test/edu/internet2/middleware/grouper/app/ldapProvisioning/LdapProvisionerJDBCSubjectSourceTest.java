@@ -94,6 +94,9 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   
   private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
     
+    // wait for message cache to clear
+    GrouperUtil.sleep(10000);
+
     if (runChangeLog) {
       ChangeLogTempToEntity.convertRecords();
     }

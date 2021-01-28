@@ -1628,65 +1628,6 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
-    if (this.entityAttributesMultivalued == null) {
-      this.entityAttributesMultivalued = new HashSet<String>();
-    }
-    
-    if (this.groupAttributesMultivalued == null) {
-      this.groupAttributesMultivalued = new HashSet<String>(); 
-    }
-    this.groupSelectAttributes = new HashSet<String>();
-    this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
-
-    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetGroupAttributeNameToConfig.get(targetGroupAttributeName);
-      if (grouperProvisioningConfigurationAttribute.isSelect()) {
-        this.groupSelectAttributes.add(targetGroupAttributeName);
-      }
-      
-      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
-        this.groupAttributeNameForMemberships = targetGroupAttributeName;
-        this.attributeNameForMemberships = targetGroupAttributeName;
-      }
-      
-      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
-        this.groupAttributesMultivalued.add(targetGroupAttributeName);
-      }
-      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-          this.groupSearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
-        } else {
-          this.groupSearchAttributes.add(grouperProvisioningConfigurationAttribute);
-        }
-      }
-    }
-    
-    this.entitySelectAttributes = new HashSet<String>();
-    this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
-    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetEntityAttributeNameToConfig.get(targetEntityAttributeName);
-      if (grouperProvisioningConfigurationAttribute.isSelect()) {
-        this.entitySelectAttributes.add(targetEntityAttributeName);
-      }
-      
-      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
-        this.attributeNameForMemberships = targetEntityAttributeName;
-        this.entityAttributeNameForMemberships = targetEntityAttributeName;
-      }
-      
-      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
-        this.entityAttributesMultivalued.add(targetEntityAttributeName);
-      }
-
-      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-          this.entitySearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
-        } else {
-          this.entitySearchAttributes.add(grouperProvisioningConfigurationAttribute);
-        }
-      }
-    }
-
     this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), false);
 
     this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
@@ -1728,6 +1669,73 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), false);
 
     this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
+
+
+    if (this.entityAttributesMultivalued == null) {
+      this.entityAttributesMultivalued = new HashSet<String>();
+    }
+    
+    if (this.groupAttributesMultivalued == null) {
+      this.groupAttributesMultivalued = new HashSet<String>(); 
+    }
+
+    this.groupSelectAttributes = new HashSet<String>();
+    this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+
+    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetGroupAttributeNameToConfig.get(targetGroupAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.groupSelectAttributes.add(targetGroupAttributeName);
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        this.groupAttributeNameForMemberships = targetGroupAttributeName;
+        this.attributeNameForMemberships = targetGroupAttributeName;
+        grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
+        grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
+        grouperProvisioningConfigurationAttribute.setUpdate(this.isUpdateMemberships());
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.groupAttributesMultivalued.add(targetGroupAttributeName);
+      }
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.groupSearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.groupSearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
+      }
+    }
+    
+    this.entitySelectAttributes = new HashSet<String>();
+    this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetEntityAttributeNameToConfig.get(targetEntityAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.entitySelectAttributes.add(targetEntityAttributeName);
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        this.attributeNameForMemberships = targetEntityAttributeName;
+        this.entityAttributeNameForMemberships = targetEntityAttributeName;
+        grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
+        grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
+        grouperProvisioningConfigurationAttribute.setUpdate(this.isUpdateMemberships());
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.entityAttributesMultivalued.add(targetEntityAttributeName);
+      }
+
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.entitySearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.entitySearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
+      }
+    }
 
     if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
       this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
