@@ -34,7 +34,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <pac4j.version>4.2.0</pac4j.version>
+        <pac4j.version>4.3.1-SNAPSHOT</pac4j.version>
         <jee-pac4j.version>5.0.0</jee-pac4j.version>
     </properties>
 
@@ -60,11 +60,23 @@
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-cas</artifactId>
             <version>${pac4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml-opensamlv3</artifactId>
             <version>${pac4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -80,6 +92,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -109,6 +122,25 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <excludeScope>provided</excludeScope>
+                            <excludeGroupIds>edu.internet2.middleware.grouper,org.apache.tomcat</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
