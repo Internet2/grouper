@@ -1,13 +1,10 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -29,6 +26,9 @@ public class GrouperProvisioningObjectLog {
   
   public void debug(GrouperProvisioningObjectLogType state) {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
+      return;
+    }
+    if (!LOG.isDebugEnabled()) {
       return;
     }
     StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId())
@@ -67,8 +67,6 @@ public class GrouperProvisioningObjectLog {
     }
     if (LOG.isDebugEnabled()) {
       LOG.debug(logMessage);      
-    } else {
-      LOG.error(logMessage);
     }
   }
 
