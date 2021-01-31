@@ -790,7 +790,7 @@ public class GrouperProvisioningLogic {
 
   public void createMissingGroupsFull() {
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupsInsert(), false)) {
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
       return;
     }
       
@@ -1035,7 +1035,7 @@ public class GrouperProvisioningLogic {
 
   public void createMissingEntitiesFull() {
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getEntitiesInsert(), false)) {
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
       return;
     }
       
@@ -1545,7 +1545,9 @@ public class GrouperProvisioningLogic {
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-        provisioningEntityWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntity(gcGrouperSyncMember)) {
+          provisioningEntityWrapper.setDelete(true);
+        }
         
         memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       }
@@ -1589,7 +1591,9 @@ public class GrouperProvisioningLogic {
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-        provisioningGroupWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroup(gcGrouperSyncGroup)) {
+          provisioningGroupWrapper.setDelete(true);
+        }
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -1666,7 +1670,9 @@ public class GrouperProvisioningLogic {
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-        provisioningMembershipWrapper.setDelete(true);
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembership(gcGrouperSyncMembership)) {
+          provisioningMembershipWrapper.setDelete(true);
+        }
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         
@@ -1694,7 +1700,7 @@ public class GrouperProvisioningLogic {
   public void retrieveMissingGroupsIncremental() {
     
     // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGroupsRetrieveMissingIncremental(), false)) {
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupMissingIncremental()) {
       return;
     }
       

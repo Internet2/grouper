@@ -366,17 +366,17 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
 
   @Override
   public boolean canInsertAttribute(String name) {
-    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipInsertAttribute(name);
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canInsertMembershipAttribute(name);
   }
 
   @Override
   public boolean canUpdateAttribute(String name) {
-    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipUpdateAttribute(name);
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateMembershipAttribute(name);
   }
 
   @Override
-  public boolean canDeleteAttrbute(String name) {
-    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canMembershipDeleteAttribute(name);
+  public boolean canDeleteAttribute(String name) {
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateMembershipAttribute(name);
   }
 
 }

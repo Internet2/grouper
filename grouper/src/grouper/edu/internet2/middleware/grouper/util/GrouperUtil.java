@@ -162,8 +162,11 @@ public class GrouperUtil {
 
     GrouperStartup.startup();
 
-    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
-    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
+//    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
+//    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
+
+    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
+    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
 
   }
 

@@ -47,7 +47,7 @@ public class GrouperProvisioningLinkLogic {
    */
   public boolean groupLinkMissing(GcGrouperSyncGroup gcGrouperSyncGroup) {
     
-    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getHasTargetGroupLink(), false)) {
+    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasTargetGroupLink(), false)) {
       return false;
     }
 
@@ -73,7 +73,7 @@ public class GrouperProvisioningLinkLogic {
    */
   public boolean entityLinkMissing(GcGrouperSyncMember gcGrouperSyncMember) {
     
-    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getHasTargetEntityLink(), false)) {
+    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasTargetEntityLink(), false)) {
       return false;
     }
 
@@ -481,7 +481,7 @@ public class GrouperProvisioningLinkLogic {
    */
   public boolean subjectLinkMissing(GcGrouperSyncMember gcGrouperSyncMember) {
     
-    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getHasSubjectLink(), false)) {
+    if (GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isHasSubjectLink(), false)) {
       return false;
     }
   
@@ -521,7 +521,7 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetEntities;
     }
     
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetEntityLink(), false)) {
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isHasTargetEntityLink(), false)) {
       return grouperTargetEntities;
     }
 
@@ -593,7 +593,7 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetGroups;
     }
     
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getHasTargetGroupLink(), false)) {
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isHasTargetGroupLink(), false)) {
       return grouperTargetGroups;
     }
     
