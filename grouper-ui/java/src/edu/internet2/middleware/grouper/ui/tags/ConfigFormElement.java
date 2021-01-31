@@ -303,6 +303,10 @@ public class ConfigFormElement extends SimpleTagSupport {
   public void doTag() throws JspException, IOException {
    
     StringBuilder field = new StringBuilder();
+    if (!shouldShow) {
+      this.getJspContext().getOut().print(field.toString());
+      return;
+    }
     
     field.append("<tr id='configRow_"+configId+"_id' " + (shouldShow ? "" : " style='display:none' ") + ">");
     field.append("<td style='vertical-align: top; white-space: nowrap;'>");

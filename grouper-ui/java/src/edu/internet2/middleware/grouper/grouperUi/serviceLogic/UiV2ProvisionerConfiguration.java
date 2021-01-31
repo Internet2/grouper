@@ -1278,7 +1278,7 @@ public class UiV2ProvisionerConfiguration {
       String elValue = request.getParameter(elCheckboxName);
       
       String value = null;
-      if (attribute.getConfigItemMetadata().getFormElement() == ConfigItemFormElement.CHECKBOX) {
+      if (attribute.getConfigItemMetadata() != null && attribute.getConfigItemMetadata().getFormElement() == ConfigItemFormElement.CHECKBOX) {
         String[] values = request.getParameterValues(name+"[]");
         if (values != null && values.length > 0) {
           value = String.join(",", Arrays.asList(values));

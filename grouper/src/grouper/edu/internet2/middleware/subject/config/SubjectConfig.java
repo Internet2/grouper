@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
-import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
@@ -275,30 +274,45 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
             for (int i=0; i<numberOfAttrs; i++) {
               
               String subjectAttributeNme = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+              boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
+              String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+              
               if (StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
-                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-                source.addInitParam("subjectIdCol", sourceAttribute);
+                if (isTranslation) {
+                  // it will be removed later in GrouperJdbcSourceAdapter2_5 if subjectIdCol is a translation field
+                  String translation = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translation");
+                  source.addInitParam("subjectIdCol", translation);
+                } else {
+                  source.addInitParam("subjectIdCol", sourceAttribute);
+                }
               }
               
               if (StringUtils.equals(subjectNameAttributeName, subjectAttributeNme)) {
-                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-                source.addInitParam("nameCol", sourceAttribute);
-                source.removeInitParam("Name_AttributeType");
+                if (isTranslation) {
+                  source.addInitParam("Name_AttributeType", subjectNameAttributeName);
+                  source.removeInitParam("nameCol");
+                } else {
+                  source.addInitParam("nameCol", sourceAttribute);
+                  source.removeInitParam("Name_AttributeType");
+                }
+                
               }
               
               if (StringUtils.equals(subjectDescriptionAttributeName, subjectAttributeNme)) {
-                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-                source.addInitParam("descriptionCol", sourceAttribute);
-                source.removeInitParam("Description_AttributeType");
+                if (isTranslation) {
+                  source.addInitParam("Description_AttributeType", subjectDescriptionAttributeName);
+                  source.removeInitParam("descriptionCol");
+                } else {
+                  source.addInitParam("descriptionCol", sourceAttribute);
+                  source.removeInitParam("Description_AttributeType");
+                }
               }
               
               if (StringUtils.isNotBlank(subjectEmailAttributeName) && StringUtils.equals(subjectEmailAttributeName, subjectAttributeNme)) {
-                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
                 source.addInitParam("emailAttributeName", sourceAttribute);
               }
               
               if (StringUtils.isNotBlank(subjectNetIdAttributeName) && StringUtils.equals(subjectNetIdAttributeName, subjectAttributeNme)) {
-                String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
                 source.addInitParam("netId", sourceAttribute);
               }
               

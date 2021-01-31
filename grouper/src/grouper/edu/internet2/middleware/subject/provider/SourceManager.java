@@ -160,6 +160,10 @@ public class SourceManager {
     }
   }
   
+  public static void clearAllSources() {
+    manager = null;
+  }
+  
   /**
    * search string from user which represents the status.  e.g. status=active
    */
@@ -249,23 +253,29 @@ public class SourceManager {
   
   private static Set<String> registeredDatabaseCacheNames = Collections.synchronizedSet(new HashSet<String>());
 
+  private static boolean grouperCacheClearDatabaseInitted;
   /**
    * Default constructor.
    */
   private SourceManager() {
     init();
     
-    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource";
-    GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
-            
-      @Override
-      public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
-        String cacheName = grouperCacheDatabaseClearInput.getCacheName();
-        String sourceId = StringUtils.substringAfterLast(cacheName, "____");
-        GrouperConfigHibernate.clearConfigsInMemory();
-        SourceManager.getInstance().reloadSource(sourceId);
-      }
-    });
+    if (!grouperCacheClearDatabaseInitted) {
+      String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource";
+      GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
+              
+        @Override
+        public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
+          String cacheName = grouperCacheDatabaseClearInput.getCacheName();
+          String sourceId = StringUtils.substringAfterLast(cacheName, "____");
+          GrouperConfigHibernate.clearConfigsInMemory();
+          SourceManager.getInstance().reloadSource(sourceId);
+        }
+      });
+      grouperCacheClearDatabaseInitted = true;
+    }
+    
+    
   }
 
   /**

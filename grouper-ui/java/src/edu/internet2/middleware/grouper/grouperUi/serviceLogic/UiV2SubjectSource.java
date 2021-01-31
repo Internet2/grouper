@@ -1,16 +1,17 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -61,10 +62,17 @@ public class UiV2SubjectSource {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          Set<Source> sources = SubjectFinder.getSources();
-          subjectSourceContainer.setSources(sources);
+          List<Source> sortedSources = new ArrayList<Source>(SubjectFinder.getSources());
           
-          // sources.iterator().next().getClass() is assignable from 
+          Collections.sort(sortedSources, new Comparator<Source>() {
+
+            @Override
+            public int compare(Source o1, Source o2) {
+              return GrouperUtil.compare(o1.getId().toLowerCase(), o2.getId().toLowerCase());
+            }
+          });
+          
+          subjectSourceContainer.setSources(sortedSources);
           
           return null;
         }

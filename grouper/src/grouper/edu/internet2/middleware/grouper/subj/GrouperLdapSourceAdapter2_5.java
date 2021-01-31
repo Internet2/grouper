@@ -19,7 +19,6 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.LdapSourceAdapter;
 import edu.internet2.middleware.subject.provider.LdapSubject;
-import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
   
@@ -144,9 +143,6 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
     
     String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
     
-    // if this is the new source config then dereference the subject attributes with the source
-    // columns or ldap attributes
-          
     if (StringUtils.isNotBlank(numberOfAttributes)) {
       
       int numberOfAttrs = Integer.parseInt(numberOfAttributes);

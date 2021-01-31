@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.subj;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,13 +11,18 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JdbcSubjectAttributeSet;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
+import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
 
@@ -84,6 +90,12 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
   @Override
   protected void setupDataSource(Properties props) throws SourceUnavailableException {
     super.setupDataSource(props);
+    
+    if (subjectIdCol.startsWith("$")) {
+      selectCols.remove(subjectIdCol);
+      subjectIdCol = null;
+    }
+    
     
     String extraAttributesFromSource = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".extraAttributesFromSource");
     if (StringUtils.isNotBlank(extraAttributesFromSource)) {
@@ -159,6 +171,163 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
     }
     
     return attributes;
+  }
+  
+  /**
+   * Create a subject from the current row in the resultSet
+   * 
+   * @param resultSet
+   * @param query 
+   * @param identifiersForIdentifierToMap
+   * @param resultIdentifierToSubject
+   * @return subject
+   * @throws SQLException 
+   */
+  protected Subject createSubject(ResultSet resultSet, String query, 
+      Collection<String> identifiersForIdentifierToMap, Map<String, Subject> resultIdentifierToSubject) throws SQLException {
+
+    String name = null;
+    String subjectID = null;
+    String description = null;
+    SubjectImpl subject = null;
+    //lets do this through metadata so caps dont matter
+    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+    if (subjectIdCol != null) {
+      subjectID = retrieveString(resultSet, this.subjectIdCol, "subjectIdCol", query, resultSetMetaData);
+    }
+    
+    if (StringUtils.isNotBlank(this.nameCol)) {
+      name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
+    }
+    
+    if (StringUtils.isNotBlank(this.descriptionCol)) {
+      description = retrieveString(resultSet, this.descriptionCol, "descriptionCol",
+          query, resultSetMetaData);
+    }
+    
+    // if name attribute is present, let's use that.
+    if (StringUtils.isNotBlank(this.nameAttributeName)) {
+      name = null;
+    }
+    
+    // if description attribute is present, let's use that.
+    if (StringUtils.isNotBlank(this.descriptionAttributeName)) {
+      description = null;
+    }
+    
+    Map<String, Object> sourceAttributesToValues = new CaseInsensitiveMap();
+    
+    Map<String, Set<String>> attributes = loadAttributes(resultSet, query, resultSetMetaData);
+    
+    Map<String, Object> translationMap = new CaseInsensitiveMap();
+    
+    for (String attributeName: attributes.keySet()) {
+      
+      Set<String> attributeValues = attributes.get(attributeName);
+      
+      attributeName = attributeName.toLowerCase();
+      
+      if (GrouperUtil.length(attributeValues) > 0) {
+        String singleValue = attributeValues.iterator().next();
+        
+        if (this.getSourceAttributesToLowerCase().containsKey(attributeName) && singleValue != null) {
+          singleValue = singleValue.toLowerCase();
+        }
+        
+        sourceAttributesToValues.put(attributeName, singleValue);
+      }
+      
+      translationMap.put("source_attribute__"+attributeName, sourceAttributesToValues.get(attributeName));
+      
+    }
+    
+    Map<String, Object> subjectAttributesToValues = new CaseInsensitiveMap();
+    
+    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+    
+    if (StringUtils.isNotBlank(numberOfAttributes)) {
+      
+      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+      for (int i=0; i<numberOfAttrs; i++) {
+        
+        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+        
+        if (!isTranslation) {
+          
+          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
+
+          Object value = sourceAttributesToValues.get(sourceAttribute);
+          subjectAttributesToValues.put(subjectAttributeName, value);
+          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), sourceAttributesToValues.get(sourceAttribute));
+        }
+        
+      }
+      
+      String subjectIdField = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".param.SubjectID_AttributeType.value");
+      
+      for (int i=0; i<numberOfAttrs; i++) {
+        
+        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+        
+        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+        
+        if (isTranslation) {
+
+          String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translation");
+          
+          Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, translationMap, true, false, true);
+          valueObject = GrouperUtil.stringValue(valueObject);
+          subjectAttributesToValues.put(subjectAttributeName, valueObject);
+          
+          if (StringUtils.equals(subjectAttributeName, subjectIdField)) {
+           subjectID =  valueObject.toString();
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    
+    subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
+        attributes, this.nameAttributeName, this.descriptionAttributeName);
+    
+    subject.setTranslationMap(translationMap);
+    
+    if (resultIdentifierToSubject != null) {
+      boolean foundValue = false;
+      
+      if (identifiersForIdentifierToMap.contains(subject.getId())) {
+        resultIdentifierToSubject.put(subject.getId(), subject);
+        foundValue = true;
+      } else {
+      
+        for (String identifierCol : this.subjectIdentifierCols) {
+          
+          String identifierValue = retrieveString(resultSet, identifierCol, identifierCol, query, resultSetMetaData);
+          if (!StringUtils.isBlank(identifierValue)) {
+            
+            if (identifiersForIdentifierToMap.contains(identifierValue)) {
+              resultIdentifierToSubject.put(identifierValue, subject);
+              foundValue = true;
+              break;
+            }
+            
+          }
+        }
+        
+      }
+      if (!foundValue) {
+        throw new RuntimeException("Why did a query by identifier return a subject " +
+            "which cant be found by identifier??? " + SubjectApiUtils.subjectToString(subject)
+            + ", " + query + " in source: " + this.getId());
+      }
+    }
+    
+    return subject;
   }
   
   

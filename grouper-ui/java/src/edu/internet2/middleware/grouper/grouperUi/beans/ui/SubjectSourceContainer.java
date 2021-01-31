@@ -1,9 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -13,7 +11,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class SubjectSourceContainer {
   
-  private Set<Source> sources = new HashSet<>();
+  private List<Source> sources = new ArrayList<>();
   
   /**
    * subject source id that is being edited
@@ -36,15 +34,16 @@ public class SubjectSourceContainer {
    */
   private int index;
   
-  public Set<Source> getSources() {
+  
+  public List<Source> getSources() {
     return sources;
   }
 
   
-  public void setSources(Set<Source> sources) {
+  public void setSources(List<Source> sources) {
     this.sources = sources;
   }
-  
+
   /**
    * @return true if can view subject sources
    */
