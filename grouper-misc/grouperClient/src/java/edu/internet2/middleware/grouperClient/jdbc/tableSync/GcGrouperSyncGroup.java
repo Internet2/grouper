@@ -7,8 +7,6 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -1042,13 +1040,13 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * @param result
    */
   public void assignField(String syncField, Object result) {
-    if (StringUtils.equals("groupFromId2", syncField)) {
+    if (GrouperClientUtils.equals("groupFromId2", syncField)) {
       this.setGroupFromId2(GrouperClientUtils.stringValue(result));
-    } else if (StringUtils.equals("groupFromId3", syncField)) {
+    } else if (GrouperClientUtils.equals("groupFromId3", syncField)) {
       this.setGroupFromId3(GrouperClientUtils.stringValue(result));
-    } else if (StringUtils.equals("groupToId2", syncField)) {
+    } else if (GrouperClientUtils.equals("groupToId2", syncField)) {
       this.setGroupToId2(GrouperClientUtils.stringValue(result));
-    } else if (StringUtils.equals("groupToId3", syncField)) {
+    } else if (GrouperClientUtils.equals("groupToId3", syncField)) {
       this.setGroupToId3(GrouperClientUtils.stringValue(result));
     } else {
       throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
