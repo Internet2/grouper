@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -50,32 +51,11 @@ public class GrouperProvisioningObjectMetadata {
   }
 
   /**
-   * list of metadata items for this metadata object
+   * append metadata items from config
    * @param grouperProvisioningObjectMetadataItems
    */
-  public void setGrouperProvisioningObjectMetadataItems(List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems) {
-    this.grouperProvisioningObjectMetadataItems = grouperProvisioningObjectMetadataItems;
-  }
-  
-  
-  /**
-   * build grouper provisioning object metadata object from json string
-   * @param workflowApprovalStates
-   * @return
-   */
-  public static GrouperProvisioningObjectMetadata buildGrouperProvisioningObjectMetadataFromJsonString(
-      String provisioningObjectMetadata) {
-    try {
-      GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = GrouperProvisioningSettings.objectMapper
-          .readValue(provisioningObjectMetadata, GrouperProvisioningObjectMetadata.class);
-      return grouperProvisioningObjectMetadata;
-    } catch (Exception e) {
-      LOG.error("could not convert: " + provisioningObjectMetadata
-          + " to GrouperProvisioningObjectMetadata object");
-      throw new RuntimeException(
-          "could not convert json string to GrouperProvisioningObjectMetadata object", e);
-    }
-
+  public void appendMetadataItemsFromConfig(Collection<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems) {
+    this.grouperProvisioningObjectMetadataItems.addAll(grouperProvisioningObjectMetadataItems);
   }
   
   /**

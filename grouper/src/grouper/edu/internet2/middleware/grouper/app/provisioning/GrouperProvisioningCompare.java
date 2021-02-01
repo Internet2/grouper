@@ -383,11 +383,14 @@ public class GrouperProvisioningCompare {
         deletes.removeAll(grouperCollection);
         if (grouperProvisioningUpdatable.canDeleteAttribute(attributeName)) {
           for (Object deleteValue : deletes) {
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, deleteValue, null)
-                );
-  
+            
+            if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, deleteValue)) {
+            
+              grouperProvisioningUpdatable.addInternal_objectChange(
+                  new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                      ProvisioningObjectChangeAction.delete, deleteValue, null)
+                  );
+            }  
           }
         }
       }        
@@ -404,34 +407,42 @@ public class GrouperProvisioningCompare {
           if (GrouperUtil.isArrayOrCollection(targetValue)) {
             if (targetValue instanceof Collection) {
               for (Object value : (Collection)targetValue) {
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                    new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                        ProvisioningObjectChangeAction.delete, value, null)
-                    );
+                if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, value)) {
+                  grouperProvisioningUpdatable.addInternal_objectChange(
+                      new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                          ProvisioningObjectChangeAction.delete, value, null)
+                      );
+                }
               }
             } else {
               // array
               for (int i=0;i<GrouperUtil.length(targetValue);i++) {
                 Object value = Array.get(targetValue, i);
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                    new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                        ProvisioningObjectChangeAction.delete, value, null)
-                    );
+                if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, value)) {
+                  grouperProvisioningUpdatable.addInternal_objectChange(
+                      new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                          ProvisioningObjectChangeAction.delete, value, null)
+                      );
+                }
               }
             }
             
-            // indicate the attribute itself is gone
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                ProvisioningObjectChangeAction.delete, null, null)
-            );
-            
+            // note for ldap I think we want this as false
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteBlankAttributesFromTarget()) {
+              // indicate the attribute itself is gone
+              grouperProvisioningUpdatable.addInternal_objectChange(
+                  new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                  ProvisioningObjectChangeAction.delete, null, null)
+              );
+            }            
           } else {
             // just a scalar
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, targetValue, null)
-                );
+            if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, targetValue)) {
+              grouperProvisioningUpdatable.addInternal_objectChange(
+                  new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
+                      ProvisioningObjectChangeAction.delete, targetValue, null)
+                  );
+            }
             
           }
         }
@@ -459,7 +470,6 @@ public class GrouperProvisioningCompare {
       }
     }
   }
-
 
   public void compareTargetEntities(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) { 
 

@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GrouperProvisioningObjectMetadataItemValueType {
@@ -62,5 +65,17 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
    */
   public abstract Object convert(Object value);
   
+  /**
+   * 
+   * @param type
+   * @param exceptionOnNotFound
+   * @return field type
+   */
+  public static GrouperProvisioningObjectMetadataItemValueType valueOfIgnoreCase(String type, boolean exceptionOnNotFound) {
+
+    return GrouperUtil.enumValueOfIgnoreCase(GrouperProvisioningObjectMetadataItemValueType.class, type, exceptionOnNotFound);
+    
+  }
+
 }
 

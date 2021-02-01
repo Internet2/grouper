@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObje
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -147,12 +148,13 @@ public class UiV2Provisioning {
           
           for (GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue: guiGrouperProvisioningAttributeValues) {
             
-            GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName());
-            GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
+            GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName());
+            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+            GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
             
             List<GrouperProvisioningObjectMetadataItem> itemsToShow = new ArrayList<GrouperProvisioningObjectMetadataItem>();
             
-            for (GrouperProvisioningObjectMetadataItem metadataItem: grouperProvisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems()) {
+            for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems()) {
               
               if (guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue()
                     .getMetadataNameValues().containsKey(metadataItem.getName())) {
@@ -502,7 +504,11 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMember(gcGrouperSyncMember);
           }
 
-          List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+          GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+          List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+
           List<GrouperProvisioningObjectMetadataItem> itemsToShow = new ArrayList<GrouperProvisioningObjectMetadataItem>();
           
           Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
@@ -832,7 +838,10 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
           }
 
-          List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+          GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+          List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
           List<GrouperProvisioningObjectMetadataItem> itemsToShow = new ArrayList<GrouperProvisioningObjectMetadataItem>();
           
           Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
@@ -1007,7 +1016,10 @@ public class UiV2Provisioning {
         guiGrouperProvisioningAttributeValue.setLastTimeWorkWasDone(gcGrouperSyncGroup.getLastTimeWorkWasDone());
       }
       
-      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = GrouperProvisioner.retrieveProvisioner(provisionerName).retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
       
       List<GrouperProvisioningObjectMetadataItem> itemsToShow = new ArrayList<GrouperProvisioningObjectMetadataItem>();
       
@@ -1126,7 +1138,10 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
-        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           if (metadataItem.isShowForFolder()) {
@@ -1252,9 +1267,10 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
-        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           if (metadataItem.isShowForMembership()) {
@@ -1381,9 +1397,10 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
-        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           if (metadataItem.isShowForMembership()) {
@@ -1506,9 +1523,10 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
-        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           if (metadataItem.isShowForMember()) {
@@ -1648,9 +1666,10 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
-        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           if (metadataItem.isShowForGroup()) {
@@ -1979,9 +1998,11 @@ public class UiV2Provisioning {
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setTargetName(targetName);
       
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForSubject = metadataItems.stream()
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+      List<GrouperProvisioningObjectMetadataItem> metadataItemsForSubject = provisioningObjectMetadataItems.stream()
           .filter(metadataItem -> metadataItem.isShowForMember())
           .collect(Collectors.toList());
       
@@ -2107,9 +2128,11 @@ public class UiV2Provisioning {
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setTargetName(targetName);
       
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForMembership = metadataItems.stream()
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+      List<GrouperProvisioningObjectMetadataItem> metadataItemsForMembership = provisioningObjectMetadataItems.stream()
           .filter(metadataItem -> metadataItem.isShowForMembership())
           .collect(Collectors.toList());
       
@@ -2236,9 +2259,11 @@ public class UiV2Provisioning {
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setTargetName(targetName);
       
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForMembership = metadataItems.stream()
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+      List<GrouperProvisioningObjectMetadataItem> metadataItemsForMembership = provisioningObjectMetadataItems.stream()
           .filter(metadataItem -> metadataItem.isShowForMembership())
           .collect(Collectors.toList());
       
@@ -2372,9 +2397,11 @@ public class UiV2Provisioning {
       attributeValue.setDoProvision(GrouperUtil.booleanValue(shouldDoProvisionString, true));
       attributeValue.setTargetName(targetName);
       
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = GrouperProvisioner.retrieveProvisioner(targetName).retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForGroup = metadataItems.stream()
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+      List<GrouperProvisioningObjectMetadataItem> metadataItemsForGroup = provisioningObjectMetadataItems.stream()
           .filter(metadataItem -> metadataItem.isShowForGroup())
           .collect(Collectors.toList());
       

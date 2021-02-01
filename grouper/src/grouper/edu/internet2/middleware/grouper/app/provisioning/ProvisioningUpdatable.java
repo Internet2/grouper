@@ -32,7 +32,8 @@ public abstract class ProvisioningUpdatable {
   public abstract boolean canInsertAttribute(String name);
   public abstract boolean canUpdateAttribute(String name);
   public abstract boolean canDeleteAttribute(String name);
-  
+  public abstract boolean canDeleteAttributeValue(String name, Object deleteValue);
+
   /**
    * if searching for this object, this is the search filter, translated and ready to use
    */

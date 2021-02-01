@@ -493,6 +493,9 @@ public class GrouperProvisioningTranslatorBase {
               } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
                 result = translateFromGrouperProvisioningGroupField(grouperProvisioningGroup, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
               }
+              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
+                gcGrouperSyncGroup.assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField(), result);
+              }
               grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               if (required && GrouperUtil.isBlank(result)) {
@@ -716,6 +719,11 @@ public class GrouperProvisioningTranslatorBase {
     }
     
     if (translate) {
+      
+      if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
+        provisioningGroupWrapper.getGcGrouperSyncGroup().assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField(), result);
+      }
+      
       return result;
     }
     return currentValue;

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -124,6 +127,8 @@ public class GrouperProvisionerGrouperDao {
       }      
     }
     
+    retrieveGroupMetadata(results, retrieveAll, ids);
+
     return results;
 
   }
@@ -753,6 +758,152 @@ public class GrouperProvisionerGrouperDao {
       debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
     }
     
+  }
+
+  /**
+   * decorate groups with metadata
+   * @param retrieveAll
+   * @param ids
+   * @return the groups
+   */
+  public void retrieveGroupMetadata(List<ProvisioningGroup> grouperProvisioningGroups, boolean retrieveAll, Collection<String> ids) {
+  
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    if (GrouperUtil.length(grouperProvisioningGroups) == 0) {
+      return;
+    }
+    
+    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+    
+    // no metadata
+    if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) == 0) {
+      return;
+    }
+    
+    if (retrieveAll && ids != null) {
+      throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
+    }
+    
+    String sqlInitial = "select gg.id, gaaagv_metadata.value_string " + 
+        "        from grouper_groups gg, grouper_aval_asn_asn_group_v gaaagv_target, " + 
+        "        grouper_aval_asn_asn_group_v gaaagv_do_provision, grouper_aval_asn_asn_group_v gaaagv_metadata" + 
+        "         where gg.id = gaaagv_do_provision.group_id and " + 
+        "          gg.id = gaaagv_target.group_id and " + 
+        "          gg.id = gaaagv_metadata.group_id and " + 
+        "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T' and gaaagv_metadata.enabled2 = 'T'" + 
+        "         and gaaagv_target.attribute_def_name_name1 = ? " + 
+        "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
+        "         and gaaagv_metadata.attribute_def_name_name1 = ?" + 
+        "         and gaaagv_target.attribute_def_name_name2 = ?" + 
+        "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
+        "         and gaaagv_metadata.attribute_def_name_name2 = ?" + 
+        "         and gaaagv_target.value_string = ?" + 
+        "         and gaaagv_do_provision.value_string = 'true'" + 
+        "         ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+  
+    List<String[]> queryResults = null;
+    Map<String, String> groupIdToMetadata = new HashMap<String, String>();
+    if (retrieveAll) {
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(),
+          paramsInitial, typesInitial);
+      Map<String, String> tempResults = getTargetGroupMetadataMapFromQueryResults(queryResults);
+      groupIdToMetadata.putAll(GrouperUtil.nonNull(tempResults));
+    } else {
+      if (GrouperUtil.length(ids) == 0) {
+        return;
+      }
+  
+      List<String> idsList = GrouperUtil.listFromCollection(ids);
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+        
+        List<Object> params = new ArrayList<Object>(paramsInitial);
+        params.addAll(currentBatchIds);
+  
+        List<Type> types = new ArrayList<Type>(typesInitial);
+  
+        for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+          types.add(StringType.INSTANCE);
+        }
+        
+        StringBuilder sql = new StringBuilder(sqlInitial);
+        sql.append(" and gg.id in (");
+        sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+        sql.append(") ");
+        
+        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+        
+        Map<String, String> tempResults = getTargetGroupMetadataMapFromQueryResults(queryResults);
+        groupIdToMetadata.putAll(GrouperUtil.nonNull(tempResults));
+      }      
+    }
+    
+    if (groupIdToMetadata.size() == 0) {
+      return;
+    }
+    
+    for (ProvisioningGroup grouperProvisioningGroup : grouperProvisioningGroups) {
+      
+      String jsonMetadata = groupIdToMetadata.get(grouperProvisioningGroup.getId());
+      if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+        JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+        for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+          if (grouperProvisioningObjectMetadataItem.isShowForGroup() || grouperProvisioningObjectMetadataItem.isShowForFolder()) {
+            
+            String name = grouperProvisioningObjectMetadataItem.getName();
+            if (name.startsWith("md_")) {
+              if (jsonNode.has(name)) {
+                GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                    GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+                String value = GrouperUtil.jsonJacksonGetString(jsonNode, name);
+                grouperProvisioningGroup.assignAttributeValue(name, grouperProvisioningObjectMetadataItemValueType.convert(value));
+              }
+            }
+            
+          }
+        }
+      }
+      
+    }
+    
+  }
+
+  private Map<String, String> getTargetGroupMetadataMapFromQueryResults(List<String[]> queryResults) {
+    
+    Map<String, String> results = new HashMap<String, String>();
+  
+    for (String[] queryResult : queryResults) {
+      String id = queryResult[0];
+      String metadata = queryResult[1];
+      
+      results.put(id, metadata);
+    }
+    
+    return results;
   }
 
 }

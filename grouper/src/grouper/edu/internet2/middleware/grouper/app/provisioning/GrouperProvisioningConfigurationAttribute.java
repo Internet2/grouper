@@ -36,6 +36,29 @@ public class GrouperProvisioningConfigurationAttribute {
   public GrouperProvisioningConfigurationAttribute() {
   }
 
+  /**
+   * After calculating the Grouper value store that in a sync field
+   */
+  private String translateGrouperToGroupSyncField;
+  
+  
+  
+  /**
+   * After calculating the Grouper value store that in a sync field
+   * @return
+   */
+  public String getTranslateGrouperToGroupSyncField() {
+    return translateGrouperToGroupSyncField;
+  }
+
+  /**
+   * After calculating the Grouper value store that in a sync field
+   * @param translateGrouperToGroupSyncField
+   */
+  public void setTranslateGrouperToGroupSyncField(String translateGrouperToGroupSyncField) {
+    this.translateGrouperToGroupSyncField = translateGrouperToGroupSyncField;
+  }
+
   @Override
   public String toString() {
     

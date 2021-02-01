@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
  * tuple of group and entity in target system
@@ -379,4 +380,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateMembershipAttribute(name);
   }
 
+  @Override
+  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
+    //if can delete attribute name, then all good, assume that has been checked already
+    return true;
+  }
 }

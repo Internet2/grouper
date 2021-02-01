@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -950,13 +951,32 @@ public abstract class GrouperConfigurationModuleBase {
     String optionValueFromClassString = grouperConfigModuleAttribute.getConfigItemMetadata().getOptionValuesFromClass();
     
     if (StringUtils.isNotBlank(optionValueFromClassString)) {
-    
-      Class<OptionValueDriver> klass = GrouperUtil.forName(optionValueFromClassString);
-      OptionValueDriver driver = GrouperUtil.newInstance(klass);
-      driver.setConfigSuffixToConfigModuleAttribute(attributesSoFar);
+
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       valuesAndLabels.add(new MultiKey("", ""));
-      valuesAndLabels.addAll(driver.retrieveKeysAndLabels());
+    
+      Class theClassRaw = GrouperUtil.forName(optionValueFromClassString);
+      if (OptionValueDriver.class.isAssignableFrom(theClassRaw)) {
+        Class<OptionValueDriver> klass = theClassRaw;
+        OptionValueDriver driver = GrouperUtil.newInstance(klass);
+        driver.setConfigSuffixToConfigModuleAttribute(attributesSoFar);
+        valuesAndLabels.addAll(driver.retrieveKeysAndLabels());
+      } else if (theClassRaw.isEnum()) {
+        Set<String> values = new TreeSet<String>();
+        for (Enum theEnum : (List<Enum>)EnumUtils.getEnumList(theClassRaw)) {
+          String name = theEnum.name();
+          // dont use all caps, assume parser doesnt care about case
+          if (name.equals(name.toUpperCase())) {
+            name = name.toLowerCase();
+          }
+          values.add(name);
+        }
+        for (String value: values) {
+          valuesAndLabels.add(new MultiKey(value, value));
+        }
+      } else {
+        throw new RuntimeException("Option value driver needs to be OptionValueDriver or enum: " + theClassRaw);
+      }
       grouperConfigModuleAttribute.setDropdownValuesAndLabels(valuesAndLabels);
       
     }
