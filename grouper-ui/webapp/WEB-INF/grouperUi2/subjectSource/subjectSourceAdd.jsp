@@ -23,6 +23,9 @@
            <div class="row-fluid">
 	  <div class="span12">
 	   <div id="messages"></div>
+
+         ${textContainer.text['miscellaneousSubjectSourcesMainDescriptionBelow'] }
+         <br /><br />
          
          <form class="form-inline form-small form-filter" id="sourceConfigDetails">
          	<input type="hidden" name="previousSubjectSourceConfigId" value="${grouperRequestContainer.subjectSourceContainer.guiSubjectSourceConfiguration.subjectSourceConfiguration.configId}" />
