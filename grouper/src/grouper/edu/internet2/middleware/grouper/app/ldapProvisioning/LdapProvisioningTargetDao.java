@@ -105,15 +105,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         targetGroup.setName(ldapEntry.getDn());
         
         for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-          targetGroup.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
-          Object value = null;
-          if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
-            value = new HashSet<Object>(ldapAttribute.getValues());
-          } else if (ldapAttribute.getValues().size() == 1) {
-            value = ldapAttribute.getValues().iterator().next();
+          if (ldapAttribute.getValues().size() > 0) {
+            Object value = null;
+            if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
+              value = new HashSet<Object>(ldapAttribute.getValues());
+            } else if (ldapAttribute.getValues().size() == 1) {
+              value = ldapAttribute.getValues().iterator().next();
+            }
+            
+            targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
           }
-          
-          targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
         }
         
         //targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
@@ -444,15 +445,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           targetGroup.setName(ldapEntry.getDn());
           
           for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-            targetGroup.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
-            Object value = null;
-            if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
-              value = new HashSet<Object>(ldapAttribute.getValues());
-            } else if (ldapAttribute.getValues().size() == 1) {
-              value = ldapAttribute.getValues().iterator().next();
+            if (ldapAttribute.getValues().size() > 0) {
+              Object value = null;
+              if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
+                value = new HashSet<Object>(ldapAttribute.getValues());
+              } else if (ldapAttribute.getValues().size() == 1) {
+                value = ldapAttribute.getValues().iterator().next();
+              }
+              
+              targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
             }
-            
-            targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
           }
           
           //targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
@@ -515,15 +517,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         targetEntity.setName(ldapEntry.getDn());
         
         for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-          targetEntity.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
-          Object value = null;
-          if (userAttributesMultivalued.contains(ldapAttribute.getName())) {
-            value = new HashSet<Object>(ldapAttribute.getValues());
-          } else if (ldapAttribute.getValues().size() == 1) {
-            value = ldapAttribute.getValues().iterator().next();
+          if (ldapAttribute.getValues().size() > 0) {
+            Object value = null;
+            if (userAttributesMultivalued.contains(ldapAttribute.getName())) {
+              value = new HashSet<Object>(ldapAttribute.getValues());
+            } else if (ldapAttribute.getValues().size() == 1) {
+              value = ldapAttribute.getValues().iterator().next();
+            }
+            
+            targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
-          
-          targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
         }
         
         //targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
@@ -615,15 +618,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntity.setName(ldapEntry.getDn());
           
           for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-            targetEntity.assignAttributeValue(ldapAttribute.getName(), ldapAttribute.getValues());
-            Object value = null;
-            if (userAttributesMultivalued.contains(ldapAttribute.getName())) {
-              value = new HashSet<Object>(ldapAttribute.getValues());
-            } else if (ldapAttribute.getValues().size() == 1) {
-              value = ldapAttribute.getValues().iterator().next();
+            if (ldapAttribute.getValues().size() > 0) {
+              Object value = null;
+              if (userAttributesMultivalued.contains(ldapAttribute.getName())) {
+                value = new HashSet<Object>(ldapAttribute.getValues());
+              } else if (ldapAttribute.getValues().size() == 1) {
+                value = ldapAttribute.getValues().iterator().next();
+              }
+              
+              targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
             }
-            
-            targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
           
           //targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
@@ -784,7 +788,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningObjectChangeAction action = provisionObjectChange.getProvisioningObjectChangeAction();
         Object newValue = provisionObjectChange.getNewValue();
         Object oldValue = provisionObjectChange.getOldValue();
-        
+
         if (newValue != null && !(newValue instanceof byte[])) {
           newValue = GrouperUtil.stringValue(newValue);
           if (StringUtils.isEmpty((String)newValue)) {
