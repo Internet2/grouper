@@ -1,8 +1,14 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperProvisioningObjectMetadataItem {
@@ -27,6 +33,41 @@ public class GrouperProvisioningObjectMetadataItem {
   private boolean showForMembership;
   private boolean showForFolder;
   
+  @Override
+  public String toString() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    Set<String> fieldNames = GrouperUtil.fieldNames(GrouperProvisioningObjectMetadataItem.class, null, false);
+        
+    fieldNames = new TreeSet<String>(fieldNames);
+    boolean firstField = true;
+    for (String fieldName : fieldNames) {
+      // call getter
+      Object value = GrouperUtil.propertyValue(this, fieldName);
+      if (!GrouperUtil.isBlank(value)) {
+        
+        if ((value instanceof Collection) && ((Collection)value).size() == 0) {
+          continue;
+        }
+        if ((value instanceof Map) && ((Map)value).size() == 0) {
+          continue;
+        }
+        if ((value.getClass().isArray()) && Array.getLength(value) == 0) {
+          continue;
+        }
+        
+        if (!firstField) {
+          result.append(", ");
+        }
+        firstField = false;
+        result.append(fieldName).append(" = '").append(GrouperUtil.toStringForLog(value, false)).append("'");
+      }
+    }
+    
+    return result.toString();
+  }
+
   public String getName() {
     return name;
   }

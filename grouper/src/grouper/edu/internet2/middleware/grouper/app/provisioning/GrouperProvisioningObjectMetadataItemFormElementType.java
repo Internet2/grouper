@@ -15,12 +15,12 @@ public enum GrouperProvisioningObjectMetadataItemFormElementType {
    * do a case-insensitive matching
    * 
    * @param string
-   * @param exceptionOnNull will not allow null or blank entries
+   * @param exceptionOnNotFound will not allow null or blank entries
    * @return the enum or null or exception if not found
    */
-  public static GrouperProvisioningObjectMetadataItemFormElementType valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+  public static GrouperProvisioningObjectMetadataItemFormElementType valueOfIgnoreCase(String string, boolean exceptionOnNotFound) {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperProvisioningObjectMetadataItemFormElementType.class, 
-        string, exceptionOnNull);
+        string, exceptionOnNotFound);
 
   }
 

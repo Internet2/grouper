@@ -22,6 +22,27 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class GrouperProvisioningBehavior {
 
   /**
+   * set to true if blank (empty) valued attributes on target should be treated differently than attribute not being assigned on target
+   */
+  private boolean deleteBlankAttributesFromTarget = false;
+
+  /**
+   * set to true if blank (empty) valued attributes on target should be treated differently than attribute not being assigned on target
+   * @return
+   */
+  public boolean isDeleteBlankAttributesFromTarget() {
+    return deleteBlankAttributesFromTarget;
+  }
+
+  /**
+   * set to true if blank (empty) valued attributes on target should be treated differently than attribute not being assigned on target
+   * @param deleteBlankAttributesFromTarget1
+   */
+  public void setDeleteBlankAttributesFromTarget(boolean deleteBlankAttributesFromTarget1) {
+    this.deleteBlankAttributesFromTarget = deleteBlankAttributesFromTarget1;
+  }
+
+  /**
    * If the subject API is needed to resolve attribute on subject  required, drives requirements of other configurations. defaults to false.
    */
   private Boolean hasSubjectLink = null;

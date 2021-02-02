@@ -10,12 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -42,7 +44,29 @@ public abstract class GrouperProvisioningConfigurationBase {
    * field name to config
    */
   private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  /**
+   * metadata name to metadata item
+   */
+  private Map<String, GrouperProvisioningObjectMetadataItem> metadataNameToMetadataItem = new TreeMap<String, GrouperProvisioningObjectMetadataItem>();
   
+  /**
+   * metadata name to metadata item
+   * @return
+   */
+  public Map<String, GrouperProvisioningObjectMetadataItem> getMetadataNameToMetadataItem() {
+    return metadataNameToMetadataItem;
+  }
+
+  /**
+   * metadata name to metadata item
+   * @param metadataNameToMetadataItem
+   */
+  public void setMetadataNameToMetadataItem(
+      Map<String, GrouperProvisioningObjectMetadataItem> metadataNameToMetadataItem) {
+    this.metadataNameToMetadataItem = metadataNameToMetadataItem;
+  }
+
   /**
    * field name to config
    * @return
@@ -1067,6 +1091,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     fieldNames.remove("targetMembershipAttributeNameToConfig");
     fieldNames.remove("targetMembershipFieldNameToConfig");
     fieldNames.remove("grouperProvisioningToTargetTranslation");
+    fieldNames.remove("metadataNameToMetadataItem");
+    
     
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;
@@ -1090,6 +1116,13 @@ public abstract class GrouperProvisioningConfigurationBase {
         firstField = false;
         result.append(fieldName).append(" = '").append(GrouperUtil.toStringForLog(value, false)).append("'");
       }
+    }
+    for (String key : new TreeSet<String>(this.metadataNameToMetadataItem.keySet())) {
+      if (result.charAt(result.length()-1) != '\n') {
+        result.append("\n");
+      }
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = this.metadataNameToMetadataItem.get(key);
+      result.append(" - metadata item: " + key + ": " + grouperProvisioningObjectMetadataItem.toString());
     }
     for (String key : new TreeSet<String>(this.grouperProvisioningToTargetTranslation.keySet())) {
       List<String> translations = this.grouperProvisioningToTargetTranslation.get(key);
@@ -1330,10 +1363,31 @@ public abstract class GrouperProvisioningConfigurationBase {
   public abstract void configureSpecificSettings();
 
   private GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType;
+
+  /**
+   * number of metadata
+   */
+  private int numberOfMetadata;
   
   
   
   
+  /**
+   * number of metadata
+   * @return
+   */
+  public int getNumberOfMetadata() {
+    return numberOfMetadata;
+  }
+
+  /**
+   * number of metadata
+   * @param numberOfMetadata
+   */
+  public void setNumberOfMetadata(int numberOfMetadata) {
+    this.numberOfMetadata = numberOfMetadata;
+  }
+
   public GrouperProvisioningBehaviorMembershipType getGrouperProvisioningBehaviorMembershipType() {
     return grouperProvisioningBehaviorMembershipType;
   }
@@ -1351,6 +1405,99 @@ public abstract class GrouperProvisioningConfigurationBase {
       this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
     }
 
+    this.numberOfMetadata = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMetadata", false), 0);
+    
+    for (int i=0;i<this.numberOfMetadata;i++) {
+      
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+      {
+        String name = this.retrieveConfigString("metadata."+i+".name", false);
+        if (!name.startsWith("md_")) {
+          //TODO validate this
+          this.debugMap.put("invalid_metadataName_" + name, true);
+          continue;
+        }
+        grouperProvisioningObjectMetadataItem.setName(name);
+        if (this.metadataNameToMetadataItem.containsKey(name)) {
+          throw new RuntimeException("Conflicting metadata names! " + name);
+        }
+        this.metadataNameToMetadataItem.put(name, grouperProvisioningObjectMetadataItem);
+      }
+      
+      grouperProvisioningObjectMetadataItem.setLabelKey(grouperProvisioningObjectMetadataItem.getName() + "_" + this.getGrouperProvisioner().getConfigId() + "_label");
+      grouperProvisioningObjectMetadataItem.setDescriptionKey(grouperProvisioningObjectMetadataItem.getName() + "_" + this.getGrouperProvisioner().getConfigId() + "_description");
+      
+      {
+        boolean showForFolder = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForFolder", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForFolder(showForFolder);
+      }
+      
+      {
+        boolean showForGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForGroup", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForGroup(showForGroup);
+      }
+      
+      {
+        boolean showForMember = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMember", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForMember(showForMember);
+      }
+      
+      {
+        boolean showForMembership = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMembership", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForMembership(showForMembership);
+      }
+
+      {
+        String valueType = this.retrieveConfigString("metadata."+i+".valueType", false);
+        GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+            StringUtils.isBlank(valueType) ? GrouperProvisioningObjectMetadataItemValueType.STRING 
+                : GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(valueType, true);
+        grouperProvisioningObjectMetadataItem.setValueType(grouperProvisioningObjectMetadataItemValueType);
+      }
+      
+      {
+        String defaultValue = this.retrieveConfigString("metadata."+i+".defaultValue", false);
+        grouperProvisioningObjectMetadataItem.setDefaultValue(defaultValue);
+      }
+      
+      {
+        String formElementType = this.retrieveConfigString("metadata."+i+".formElementType", false);
+        GrouperProvisioningObjectMetadataItemFormElementType grouperProvisioningObjectMetadataItemFormElementType =
+            StringUtils.isBlank(formElementType) ? GrouperProvisioningObjectMetadataItemFormElementType.TEXT 
+                : GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
+        grouperProvisioningObjectMetadataItem.setFormElementType(grouperProvisioningObjectMetadataItemFormElementType);
+      }
+      
+      {
+        String dropdownValues = this.retrieveConfigString("metadata."+i+".dropdownValues", false);
+        if (!StringUtils.isBlank(dropdownValues)) {
+          String[] dropdownValuesArray = GrouperUtil.splitTrim(dropdownValues, ",");
+          List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+          for (String dropdownValue : dropdownValuesArray) {
+            dropdownValue = GrouperUtil.replace(dropdownValue, "&#x2c;", ",");
+            MultiKey keyAndLabel = new MultiKey(dropdownValue, dropdownValue);
+            keysAndLabels.add(keyAndLabel);
+          }
+          grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(keysAndLabels);
+        }
+      }
+      
+      {
+        boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".required", false), false);
+        grouperProvisioningObjectMetadataItem.setRequired(required);
+      }
+
+      {
+        String groupIdThatCanView = this.retrieveConfigString("metadata."+i+".groupIdThatCanView", false);
+        grouperProvisioningObjectMetadataItem.setGroupIdThatCanView(groupIdThatCanView);
+      }
+      {
+        String groupIdThatCanUpdate = this.retrieveConfigString("metadata."+i+".groupIdThatCanUpdate", false);
+        grouperProvisioningObjectMetadataItem.setGroupIdThatCanUpdate(groupIdThatCanUpdate);
+      }
+      
+    }
+    
     for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
       
       boolean foundMatchingId = false;
@@ -1487,6 +1634,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         {
           String translateToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateToMemberSyncField" , false);
           attributeConfig.setTranslateToMemberSyncField(translateToMemberSyncField);
+        }
+        
+        {
+          String translateGrouperToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToGroupSyncField" , false);
+          attributeConfig.setTranslateGrouperToGroupSyncField(translateGrouperToGroupSyncField);
         }
         
         {
@@ -1786,7 +1938,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       
     }
     
-
+    //register metadata
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
+    
   }
   
   

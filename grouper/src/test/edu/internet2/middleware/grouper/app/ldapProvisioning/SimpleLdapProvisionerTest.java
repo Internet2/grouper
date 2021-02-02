@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -12,6 +14,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
@@ -22,7 +25,11 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationResult;
+import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -50,7 +57,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityMetadataProvisionerFull"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -111,7 +118,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.personLdapSource.attributes", "cn, uid, eduPersonAffiliation, givenName, sn");
     SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.personLdapSource.internalAttributes", "searchAttribute0");
     SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.personLdapSource.param.subjectIdentifierAttribute0.value", "uid");
-    
+    SourceManager.getInstance().reloadSource("personLdapSource");
     SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("personLdapSource"));
   }
 
@@ -1004,7 +1011,6 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.userSearchBaseDn", "ou=People,dc=example,dc=edu");
 
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.deleteMemberships", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperCreated", "false");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperDeleted", "true");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.insertMemberships", "true");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.ldapExternalSystemConfigId", "personLdap");
@@ -1130,5 +1136,228 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
       
       assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());  
     }
+
+    //  /**
+    //   * simple provisioning of subject ids to ldap group
+    //   */
+    //  public void testSimpleLdapProvisionerFullLegacyConfig_1() {
+    //        
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupSearchAttributes", "cn, gidNumber");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeNameForMemberships", "description");
+    //    
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupMatchingIdExpression", "${targetGroup.retrieveAttributeValueString('gidNumber')}");
+    //    
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.scriptCount", "4");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.0.script", "${grouperTargetGroup.setName('cn=' + javax.naming.ldap.Rdn.escapeValue(grouperProvisioningGroup.getName()) + ',ou=Groups,dc=example,dc=edu')}");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.1.script", "${grouperTargetGroup.assignAttributeValue('gidNumber', grouperProvisioningGroup.getIdIndex().toString())}");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.2.script", "${grouperTargetGroup.assignAttributeValue('cn', grouperProvisioningGroup.getName())}");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationGroup.3.script", "${grouperTargetGroup.assignAttributeValue('objectClass', grouperUtil.toSet('top', 'posixGroup'))}");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationMembership.scriptCount", "1");
+    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.grouperToTargetTranslationMembership.0.script", "${grouperTargetGroup.addAttributeValueForMembership('description', grouperProvisioningEntity.getSubjectId())}");
+    //
+    //    internal_testSimpleLdapProvisionerFull_1();
+    //  }
+      
+      /**
+       * simple provisioning of subject ids to ldap group
+       */
+      public void testSimpleLdapEntityMetadataProvisionerFull() {
+        
+        
+        
+        LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "somethingExisting"));
+        List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
+        ldapModificationItems.add(item);
+
+        new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
+
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.class", "edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync");
+    
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.configureMetadata", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.deleteMemberships", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperDeleted", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.insertMemberships", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.ldapExternalSystemConfigId", "personLdap");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.metadata.0.formElementType", "text");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.metadata.0.name", "md_entitlementValue");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.metadata.0.showForGroup", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.metadata.0.valueType", "string");
+
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.numberOfEntityAttributes", "3");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.numberOfGroupAttributes", "1");
+
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.numberOfMetadata", "1");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.operateOnGrouperEntities", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.operateOnGrouperGroups", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.operateOnGrouperMemberships", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.provisioningType", "entityAttributes");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.selectEntities", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.selectMemberships", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.subjectSourcesToProvision", "personLdapSource");
+
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.fieldName", "name");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.isFieldElseAttribute", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.select", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateExpressionType", "translationScript");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.translateExpression", "${'uid=' + grouperProvisioningEntity.subjectId + ',ou=People,dc=example,dc=edu'}");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.0.valueType", "string");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.isFieldElseAttribute", "false");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.matchingId", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.name", "uid");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.searchAttribute", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.select", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.1.valueType", "string");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.isFieldElseAttribute", "false");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.membershipAttribute", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.multiValued", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.name", "eduPersonEntitlement");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.select", "true");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.translateFromGroupSyncField", "groupFromId2");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetEntityAttribute.2.valueType", "string");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.isFieldElseAttribute", "false");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.name", "entitlement");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.translateExpression", 
+            "${grouperUtil.defaultIfBlank(grouperProvisioningGroup.retrieveAttributeValueString('md_entitlementValue') , grouperProvisioningGroup.extension )}");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.translateExpressionType", "translationScript");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupFromId2");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.targetGroupAttribute.0.valueType", "string");
+
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.userSearchAllFilter", "(uid=*)");
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.userSearchBaseDn", "ou=People,dc=example,dc=edu");
+    
+        long started = System.currentTimeMillis();
+    
+        // ldap specific properties
+        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.logAllObjectsVerbose", "true");
+    
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+    
+        Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+        Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+        
+        // mark some folders to provision
+        Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+        Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
+        Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+        
+        Subject jsmith = SubjectFinder.findById("jsmith", true);
+        Subject banderson = SubjectFinder.findById("banderson", true);
+        Subject kwhite = SubjectFinder.findById("kwhite", true);
+        Subject whenderson = SubjectFinder.findById("whenderson", true);
+    
+    
+        testGroup.addMember(jsmith, false);
+        testGroup.addMember(banderson, false);
+        
+        testGroup3.addMember(banderson, false);
+        testGroup3.addMember(kwhite, false);
+        
+        testGroup2.addMember(kwhite, false);
+        testGroup2.addMember(whenderson, false);
+        
+        GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+        attributeValue.setDirectAssignment(true);
+        attributeValue.setDoProvision(true);
+        attributeValue.setTargetName("eduPersonEntitlement");
+        attributeValue.setStemScopeString("sub");
+    
+        GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+        attributeValue = new GrouperProvisioningAttributeValue();
+        attributeValue.setDirectAssignment(true);
+        attributeValue.setDoProvision(true);
+        attributeValue.setTargetName("eduPersonEntitlement");
+        attributeValue.setMetadataNameValues((Map<String, Object>)(Object)GrouperUtil.toMap("md_entitlementValue","student"));
+
+        GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
+    
+        
+        //lets sync these over
+        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("eduPersonEntitlement");
+        
+        assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(eduPersonEntitlement=*)", new String[] {"uid"}, null).size());
+        
+        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+        assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+        // see that the entitlement value is on groupFromId2
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "eduPersonEntitlement");
+        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+        assertEquals("student", gcGrouperSyncGroup.getGroupFromId2());
+
+        
+        List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=banderson)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        LdapEntry ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(3, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=jsmith)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=kwhite)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=whenderson)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        
+        // try update
+        testGroup.deleteMember(jsmith);
+        grouperProvisioner = GrouperProvisioner.retrieveProvisioner("eduPersonEntitlement");
+        grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+        assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=banderson)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(3, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=jsmith)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=kwhite)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+        assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+        
+        ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=whenderson)", new String[] {"eduPersonEntitlement"}, null);
+        assertEquals(1, ldapEntries.size());
+        
+        ldapEntry = ldapEntries.get(0);
+        
+        assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());  
+      }
   
 }

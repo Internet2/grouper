@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
  * entity is a member of a group which is typically a user/account or person
@@ -290,6 +291,44 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     }
     // theres no delete
     return this.canUpdateAttribute(name);
+  }
+  @Override
+  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
+
+    GrouperProvisioner grouperProvisioner = this.getProvisioningEntityWrapper().getGrouperProvisioner();
+    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
+      
+      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfNotExistInGrouper()) {
+        return true;
+      }
+      
+      ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+      if (provisioningAttribute == null) {
+        return false;
+      }
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(deleteValue);
+      if (provisioningMembershipWrapper == null) {
+        return false;
+      }
+      
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      if (gcGrouperSyncMembership == null) {
+        return false;
+      }
+      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperDeleted()) {
+        return true;
+      }
+      if (gcGrouperSyncMembership.isInTargetInsertOrExists() && retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperCreated()) {
+        return true;
+      }
+      return false;
+    }
+    // regular delete was already checked
+    return true;
   }
 
 }
