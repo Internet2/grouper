@@ -18,7 +18,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.LdapSourceAdapter;
-import edu.internet2.middleware.subject.provider.LdapSubject;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
   
@@ -105,8 +105,6 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
     String multivaluedLdapAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".multivaluedLdapAttributes");
     Set<String> multivaluedLdapAttributesSet = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(multivaluedLdapAttributes, ","));
     
-    Map<String, Object> translationMap = new CaseInsensitiveMap();
-    
     for (LdapAttribute attribute: GrouperUtil.nonNull(entry.getAttributes())) {
       String attributeName = attribute.getName().toLowerCase();
       
@@ -135,8 +133,12 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
         }
       }
       
-      translationMap.put("source_attribute__"+attributeName, sourceAttributesToValues.get(attributeName));
-      
+    }
+    
+    Map<String, Object> translationMap = new CaseInsensitiveMap();
+    
+    for (String sourceAttribute: sourceAttributesToValues.keySet()) {
+      translationMap.put("source_attribute__"+sourceAttribute, sourceAttributesToValues.get(sourceAttribute));
     }
     
     Map<String, Object> subjectAttributesToValues = new CaseInsensitiveMap();
@@ -149,15 +151,23 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
       for (int i=0; i<numberOfAttrs; i++) {
         
         String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
         
-        if (!isTranslation) {
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+        
+        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+        
+        if (isSourceAttributeSameAsSubjectAttribute) {
+          Object value = sourceAttributesToValues.get(subjectAttributeName);
+          subjectAttributesToValues.put(subjectAttributeName, value);
+          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
+        } else if (isSourceAttribute) {
           
           String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
 
           Object value = sourceAttributesToValues.get(sourceAttribute);
           subjectAttributesToValues.put(subjectAttributeName, value);
-          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), sourceAttributesToValues.get(sourceAttribute));
+          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
         }
         
       }
@@ -166,7 +176,10 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
       for (int i=0; i<numberOfAttrs; i++) {
         
         String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+        
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+        
+        boolean isTranslation = StringUtils.equals(translationType, "translation");
         
         if (isTranslation) {
 
@@ -192,8 +205,9 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
     if (this.subjectIDFormatToLowerCase) {
       subjectID = subjectID.toLowerCase();
     }
-    
-    LdapSubject subject = new LdapSubject(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
+
+     
+    SubjectImpl subject = new SubjectImpl(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
     subject.setTranslationMap(translationMap);
     
     // add the attributes

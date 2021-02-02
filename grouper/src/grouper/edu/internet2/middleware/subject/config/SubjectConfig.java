@@ -265,7 +265,6 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
             subjectNetIdAttributeName = subjectNetIdAttribute.getValueOrExpressionEvaluation();
           }
           
-          
           String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
                 
           if (StringUtils.isNotBlank(numberOfAttributes)) {
@@ -274,46 +273,40 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
             for (int i=0; i<numberOfAttrs; i++) {
               
               String subjectAttributeNme = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-              boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
-              String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
               
-              if (StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
-                if (isTranslation) {
-                  // it will be removed later in GrouperJdbcSourceAdapter2_5 if subjectIdCol is a translation field
-                  String translation = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translation");
-                  source.addInitParam("subjectIdCol", translation);
+              String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+              
+              boolean isTranslation = StringUtils.equals(translationType, "translation");
+              boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+              
+              if(StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
+                
+                //source.addInitParam("subjectIDAttributeName", subjectAttributeNme);
+                
+                if (isSourceAttributeSameAsSubjectAttribute) {
+                  source.addInitParam("subjectIdCol", subjectAttributeNme);
+                } else if (isTranslation) {
+                  throw new RuntimeException("subjectId cannot be a translation field");
                 } else {
+                  String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
                   source.addInitParam("subjectIdCol", sourceAttribute);
                 }
               }
               
               if (StringUtils.equals(subjectNameAttributeName, subjectAttributeNme)) {
-                if (isTranslation) {
-                  source.addInitParam("Name_AttributeType", subjectNameAttributeName);
-                  source.removeInitParam("nameCol");
-                } else {
-                  source.addInitParam("nameCol", sourceAttribute);
-                  source.removeInitParam("Name_AttributeType");
-                }
-                
+                source.addInitParam("Name_AttributeType", subjectAttributeNme);
               }
               
               if (StringUtils.equals(subjectDescriptionAttributeName, subjectAttributeNme)) {
-                if (isTranslation) {
-                  source.addInitParam("Description_AttributeType", subjectDescriptionAttributeName);
-                  source.removeInitParam("descriptionCol");
-                } else {
-                  source.addInitParam("descriptionCol", sourceAttribute);
-                  source.removeInitParam("Description_AttributeType");
-                }
+                source.addInitParam("Description_AttributeType", subjectAttributeNme);
               }
               
               if (StringUtils.isNotBlank(subjectEmailAttributeName) && StringUtils.equals(subjectEmailAttributeName, subjectAttributeNme)) {
-                source.addInitParam("emailAttributeName", sourceAttribute);
+                source.addInitParam("emailAttributeName", subjectAttributeNme);
               }
               
               if (StringUtils.isNotBlank(subjectNetIdAttributeName) && StringUtils.equals(subjectNetIdAttributeName, subjectAttributeNme)) {
-                source.addInitParam("netId", sourceAttribute);
+                source.addInitParam("netId", subjectAttributeNme);
               }
               
             }
@@ -359,15 +352,22 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         Set<String> subjectIdentifiers = new TreeSet<String>();
         for (int i=0; i<numberOfAttrs; i++) {
           
-          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
-          if (!isTranslation) {
-            String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+          boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".subjectIdentifier", false);
+          
+          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+          boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+          
+          if (isSubjectIdentifier) {
             String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-            boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".subjectIdentifier", false);
-            
-            if (isSubjectIdentifier) {
+            if (isSourceAttribute) {
+              String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
               subjectIdentifiers.add(subjectAttributeName);
               source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), sourceAttributeName);
+              source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+            } else if (isSourceAttributeSameAsSubjectAttribute) {
+              subjectIdentifiers.add(subjectAttributeName);
+              source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), subjectAttributeName);
               source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
             }
           }
@@ -377,9 +377,6 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         source.addInitParam("identifierAttributes", GrouperUtil.join(subjectIdentifiers.iterator(), ","));
         
       }
-      
-      
-      
       
     }
 
@@ -406,14 +403,20 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         int numberOfAttrs = Integer.parseInt(numberOfAttributes);
         for (int i=0; i<numberOfAttrs; i++) {
           
-          boolean isTranslation = propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".isTranslation", false);
-          if (!isTranslation) {
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+          
+          String subjectAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+          
+          boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+          
+          if (isSourceAttributeSameAsSubjectAttribute) {
+            source.addAttribute(subjectAttributeName);
+          } else if (isSourceAttribute) {
             String sourceAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-            if (StringUtils.isNotBlank(sourceAttributeName)) {
-              source.addAttribute(sourceAttributeName);
-            }
+            source.addAttribute(sourceAttributeName);
           }
-        
+          
         }
         
       }

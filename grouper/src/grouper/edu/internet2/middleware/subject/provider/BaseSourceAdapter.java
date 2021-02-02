@@ -75,14 +75,24 @@ public abstract class BaseSourceAdapter implements Source {
         int numberOfAttrs = Integer.parseInt(numberOfAttributes);
         for (int i=0; i<numberOfAttrs; i++) {
                     
-          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
           boolean formatToLowerCase = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".formatToLowerCase", false);
           
-          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
-          if (!isTranslation && formatToLowerCase) {
-            temp.put(sourceAttribute, null);
-          }
-         
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+          
+          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+          boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+          
+          if (formatToLowerCase) {
+            if (isSourceAttributeSameAsSubjectAttribute) {
+              String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+              temp.put(subjectAttributeName, null);
+            } else if (isSourceAttribute) {
+              String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
+              temp.put(sourceAttribute, null);
+            }
+            
+          } 
+       
         }
         
       }
@@ -99,8 +109,6 @@ public abstract class BaseSourceAdapter implements Source {
     
     String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
     
-    // if this is the new source config then dereference the subject attributes with the source
-    // columns or ldap attributes
     if (this.isEditable()) {
           
       if (StringUtils.isNotBlank(numberOfAttributes)) {
@@ -109,10 +117,14 @@ public abstract class BaseSourceAdapter implements Source {
         for (int i=0; i<numberOfAttrs; i++) {
           
           String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-          boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+          
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+          
+          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+          
           String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
           if (StringUtils.equals(nameOfSubjectAttribute, subjectAttributeName)) {
-            if (!isTranslation) {
+            if (isSourceAttribute) {
               return sourceAttribute;
             }
           }
@@ -131,8 +143,6 @@ public abstract class BaseSourceAdapter implements Source {
     
     String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
     
-    // if this is the new source config then dereference the subject attributes with the source
-    // columns or ldap attributes
     if (this.isEditable()) {
           
       if (StringUtils.isNotBlank(numberOfAttributes)) {
@@ -142,8 +152,12 @@ public abstract class BaseSourceAdapter implements Source {
           
           String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
           if (StringUtils.equals(nameOfSourceAttribute, sourceAttribute)) {
-            boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
-            if (!isTranslation) {
+            
+            String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+            
+            boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+            
+            if (isSourceAttribute) {
               return SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
             }
           }

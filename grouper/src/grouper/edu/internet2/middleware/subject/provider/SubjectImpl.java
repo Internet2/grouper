@@ -373,9 +373,6 @@ public class SubjectImpl implements Subject {
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
 
-    //TODO I think we need to do some work inside virtualAttributeVariablesForSource
-    // to populate the variables for virtual attributes
-    // ask Chris
     Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSource(source);
     if (SubjectUtils.length(virtualAttributeVariables) > 0) {
       for (String name : virtualAttributeVariables.keySet()) {
@@ -483,7 +480,10 @@ public class SubjectImpl implements Subject {
           
           String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
           
-          boolean isTranslation  = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".attribute."+i+".isTranslation", false);
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translationType");
+          
+          boolean isTranslation = StringUtils.equals(translationType, "translation");
+          
           if (isTranslation) {
             String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translation");
             virtualAttributes.put(subjectAttributeName, translation);

@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -919,12 +918,15 @@ public abstract class GrouperConfigurationModuleBase {
             String defaultValue = configItemMetadata.getDefaultValue();
             Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
             
+            List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+            
             String defaultValueStr = "";
+
             if (booleanObjectValue != null) {
               defaultValueStr = booleanObjectValue ? "("+trueLabel+")" : "("+falseLabel+")"; 
+              valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
             }
-            List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
-            valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
+            
             
             valuesAndLabels.add(new MultiKey("true", trueLabel));
             valuesAndLabels.add(new MultiKey("false", falseLabel));

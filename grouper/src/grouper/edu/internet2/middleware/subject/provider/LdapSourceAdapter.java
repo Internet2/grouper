@@ -289,8 +289,6 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       if (debugLog != null) {
         debugLog.put("searchSubjectByIdentifierAttributesNotNull", search!=null);
       }
-      if (search == null)
-        ((LdapSubject) subject).setAttributesGotten(true);
       return subject;
 
     } finally {
@@ -372,7 +370,6 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         Subject subject = createSubject(si);
 
         if (subject != null) {
-          if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
           result.add(subject);
         } else {
           log.error("Failed to create subject with attributes: " + si.toString());  
@@ -421,7 +418,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     if (this.subjectIDFormatToLowerCase) {
       subjectID = subjectID.toLowerCase();
     }
-    LdapSubject subject = new LdapSubject(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
+
+    SubjectImpl subject = new SubjectImpl(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
 
     // add the attributes
 
@@ -454,7 +452,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
    * Try to get more attributes for the subject.
    * @param subject
    */
-  protected Map<String, Set<String>> getAllAttributes(LdapSubject subject) {
+  protected Map<String, Set<String>> getAllAttributes(SubjectImpl subject) {
     Map<String, Set<String>> attributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
     if (log.isDebugEnabled()) {
       log.debug("getAllAttributes for " + subject.getName());

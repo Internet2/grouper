@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
@@ -91,12 +92,6 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
   protected void setupDataSource(Properties props) throws SourceUnavailableException {
     super.setupDataSource(props);
     
-    if (subjectIdCol.startsWith("$")) {
-      selectCols.remove(subjectIdCol);
-      subjectIdCol = null;
-    }
-    
-    
     String extraAttributesFromSource = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".extraAttributesFromSource");
     if (StringUtils.isNotBlank(extraAttributesFromSource)) {
       for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
@@ -111,21 +106,30 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       Set<String> subjectIdentifiers = new TreeSet<String>();
       for (int i=0; i<numberOfAttrs; i++) {
         
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
-        if (!isTranslation) {
-          String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
-          String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+        
+        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+        
+        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+
+        if (isSourceAttributeSameAsSubjectAttribute) {
+          selectCols.add(subjectAttributeName);
           boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+          if (isSubjectIdentifier) {
+            subjectIdentifiers.add(subjectAttributeName);
+          }
+        } else if (isSourceAttribute) {
+          String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
           if (StringUtils.isNotBlank(sourceAttributeName)) {
             selectCols.add(sourceAttributeName);
           }
-          
+          boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
           if (isSubjectIdentifier) {
             subjectIdentifiers.add(subjectAttributeName);
-            // param.subjectIdentifierCol0.value
           }
         }
-      
+        
       }
       
     }
@@ -134,7 +138,7 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
   
   
   /**
-   * Loads attributes for the argument subject.
+   * Loads source attributes from the result set
    * @param resultSet 
    * @param query for logging
    * @param resultSetMetaData 
@@ -143,31 +147,46 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
    */
   protected Map<String, Set<String>> loadAttributes(ResultSet resultSet, String query,
       ResultSetMetaData resultSetMetaData) throws SQLException {
+    
     Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
+//    Map<String, Void> columnNames = new CaseInsensitiveMap();
+//    
+//    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+//    if (StringUtils.isNotBlank(numberOfAttributes)) {
+//      
+//      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+//      for (int i=0; i<numberOfAttrs; i++) {
+//        
+//        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+//        
+//        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+//        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+//        
+//        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+//
+//        if (isSourceAttributeSameAsSubjectAttribute) {
+//          
+//          columnNames.put(subjectAttributeName, null);
+//          
+//        } else if (isSourceAttribute) {
+//          String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
+//          
+//          columnNames.put(sourceAttributeName, null);
+//          
+//        }
+//        
+//      }
+//      
+//    }
+//    
+//    for (String columnName: columnNames.keySet()) {
+//      String value = retrieveString(resultSet, columnName, columnName, query, resultSetMetaData);
+//      attributes.put(columnName, new JdbcSubjectAttributeSet(value));
+//    }
     
-    
-    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-    if (StringUtils.isNotBlank(numberOfAttributes)) {
-      
-      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
-        if (!isTranslation) {
-          String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
-          if (StringUtils.isNotBlank(sourceAttributeName)) {
-            
-            String value = retrieveString(resultSet, sourceAttributeName, sourceAttributeName,
-                query, resultSetMetaData);
-            
-            //String attributeName = this.subjectAttributeColToName.get(colName);
-            attributes.put(sourceAttributeName, new JdbcSubjectAttributeSet(value));
-            
-          }
-        }
-      
-      }
-      
+    for (String colName: selectCols) {
+      String value = retrieveString(resultSet, colName, colName, query, resultSetMetaData);
+      attributes.put(colName, new JdbcSubjectAttributeSet(value));
     }
     
     return attributes;
@@ -192,53 +211,34 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
     SubjectImpl subject = null;
     //lets do this through metadata so caps dont matter
     ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
+    
     if (subjectIdCol != null) {
       subjectID = retrieveString(resultSet, this.subjectIdCol, "subjectIdCol", query, resultSetMetaData);
     }
     
-    if (StringUtils.isNotBlank(this.nameCol)) {
-      name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
-    }
-    
-    if (StringUtils.isNotBlank(this.descriptionCol)) {
-      description = retrieveString(resultSet, this.descriptionCol, "descriptionCol",
-          query, resultSetMetaData);
-    }
-    
-    // if name attribute is present, let's use that.
-    if (StringUtils.isNotBlank(this.nameAttributeName)) {
-      name = null;
-    }
-    
-    // if description attribute is present, let's use that.
-    if (StringUtils.isNotBlank(this.descriptionAttributeName)) {
-      description = null;
-    }
-    
     Map<String, Object> sourceAttributesToValues = new CaseInsensitiveMap();
     
-    Map<String, Set<String>> attributes = loadAttributes(resultSet, query, resultSetMetaData);
+    Map<String, Set<String>> sourceAttributes = loadAttributes(resultSet, query, resultSetMetaData);
     
     Map<String, Object> translationMap = new CaseInsensitiveMap();
     
-    for (String attributeName: attributes.keySet()) {
+    for (String sourceAttributeName: sourceAttributes.keySet()) {
       
-      Set<String> attributeValues = attributes.get(attributeName);
+      Set<String> attributeValues = sourceAttributes.get(sourceAttributeName);
       
-      attributeName = attributeName.toLowerCase();
+      sourceAttributeName = sourceAttributeName.toLowerCase();
       
       if (GrouperUtil.length(attributeValues) > 0) {
         String singleValue = attributeValues.iterator().next();
         
-        if (this.getSourceAttributesToLowerCase().containsKey(attributeName) && singleValue != null) {
+        if (this.getSourceAttributesToLowerCase().containsKey(sourceAttributeName) && singleValue != null) {
           singleValue = singleValue.toLowerCase();
         }
         
-        sourceAttributesToValues.put(attributeName, singleValue);
+        sourceAttributesToValues.put(sourceAttributeName, singleValue);
       }
       
-      translationMap.put("source_attribute__"+attributeName, sourceAttributesToValues.get(attributeName));
+      translationMap.put("source_attribute__"+sourceAttributeName, sourceAttributesToValues.get(sourceAttributeName));
       
     }
     
@@ -252,9 +252,17 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       for (int i=0; i<numberOfAttrs; i++) {
         
         String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
         
-        if (!isTranslation) {
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+        
+        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+        
+        if (isSourceAttributeSameAsSubjectAttribute) {
+          Object value = sourceAttributesToValues.get(subjectAttributeName);
+          subjectAttributesToValues.put(subjectAttributeName, value);
+          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
+        } else if (isSourceAttribute) {
           
           String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
 
@@ -265,13 +273,13 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
         
       }
       
-      String subjectIdField = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".param.SubjectID_AttributeType.value");
-      
       for (int i=0; i<numberOfAttrs; i++) {
         
         String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
         
-        boolean isTranslation = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".isTranslation", false);
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
+        
+        boolean isTranslation = StringUtils.equals(translationType, "translation");
         
         if (isTranslation) {
 
@@ -281,19 +289,26 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
           valueObject = GrouperUtil.stringValue(valueObject);
           subjectAttributesToValues.put(subjectAttributeName, valueObject);
           
-          if (StringUtils.equals(subjectAttributeName, subjectIdField)) {
-           subjectID =  valueObject.toString();
-          }
-          
         }
         
       }
       
     }
     
+    // add the attributes
+    Map<String, Set<String>> mySubjectAttributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
+
+    for (String subjectAttributeName: subjectAttributesToValues.keySet()) {
+      Object value = subjectAttributesToValues.get(subjectAttributeName);
+      if (value instanceof Set) {
+        mySubjectAttributes.put(subjectAttributeName, (Set<String>)value);
+      } else {
+        mySubjectAttributes.put(subjectAttributeName, GrouperUtil.toSetObject((String)value));
+      }
+    }
     
     subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
-        attributes, this.nameAttributeName, this.descriptionAttributeName);
+        mySubjectAttributes, this.nameAttributeName, this.descriptionAttributeName);
     
     subject.setTranslationMap(translationMap);
     
