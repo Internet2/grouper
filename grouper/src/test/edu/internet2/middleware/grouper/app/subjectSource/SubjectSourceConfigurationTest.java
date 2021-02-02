@@ -20,7 +20,7 @@ public class SubjectSourceConfigurationTest extends GrouperTest {
 
   public static void main(String[] args) {
    
-    TestRunner.run(new SubjectSourceConfigurationTest("testSqlSubjectSourceConfig"));
+    TestRunner.run(new SubjectSourceConfigurationTest("testLdapSubjectSourceConfig"));
   }
   
   /**
@@ -95,11 +95,11 @@ public class SubjectSourceConfigurationTest extends GrouperTest {
       .assignIdentifier("name"+i+"@test.com").assignEmail("test"+i+"@example.com").save();
     }
     
-    SourceManager.getInstance().reloadSource("testSubjectSourceId");
+    SourceManager.getInstance().reloadSource("sqlSubjectSourceIdAnother");
     
     try {      
-      Subject subject = SubjectFinder.findByIdentifierAndSource("vivek@test.com", "testSubjectSourceId", true);
-      assertEquals("vivek ("+subject.getId()+") - test@example.com", subject.getDescription());
+      Subject subject = SubjectFinder.findByIdentifierAndSource("vivek@test.com", "sqlSubjectSourceIdAnother", true);
+      assertEquals("vivek ("+subject.getId()+") - vivek@test.com", subject.getDescription());
       assertEquals("vivek", subject.getName());
     } catch (Exception e) {
       e.printStackTrace();

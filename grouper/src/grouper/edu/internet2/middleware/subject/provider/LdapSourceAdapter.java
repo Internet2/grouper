@@ -76,10 +76,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
   private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
 
   private Properties props;
-  protected String nameAttributeName = null;
   protected String subjectIDAttributeName = null;
   protected boolean subjectIDFormatToLowerCase = false;
-  protected String descriptionAttributeName = null;
   private String ldapServerId = null;
 
   private boolean multipleResults = false;

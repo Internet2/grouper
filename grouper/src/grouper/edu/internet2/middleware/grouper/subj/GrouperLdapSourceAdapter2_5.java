@@ -15,10 +15,8 @@ import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.LdapSourceAdapter;
-import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
   
@@ -93,7 +91,6 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
    */
   @Override
   public Subject createSubject(LdapEntry entry) {
-    String subjectID = "";
     
     Map<String, Object> sourceAttributesToValues = new CaseInsensitiveMap();
 
@@ -135,67 +132,7 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
       
     }
     
-    Map<String, Object> translationMap = new CaseInsensitiveMap();
-    
-    for (String sourceAttribute: sourceAttributesToValues.keySet()) {
-      translationMap.put("source_attribute__"+sourceAttribute, sourceAttributesToValues.get(sourceAttribute));
-    }
-    
-    Map<String, Object> subjectAttributesToValues = new CaseInsensitiveMap();
-    
-    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-    
-    if (StringUtils.isNotBlank(numberOfAttributes)) {
-      
-      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        
-        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-        
-        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
-        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-        
-        if (isSourceAttributeSameAsSubjectAttribute) {
-          Object value = sourceAttributesToValues.get(subjectAttributeName);
-          subjectAttributesToValues.put(subjectAttributeName, value);
-          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
-        } else if (isSourceAttribute) {
-          
-          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
-
-          Object value = sourceAttributesToValues.get(sourceAttribute);
-          subjectAttributesToValues.put(subjectAttributeName, value);
-          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
-        }
-        
-      }
-      
-      
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        
-        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-        
-        boolean isTranslation = StringUtils.equals(translationType, "translation");
-        
-        if (isTranslation) {
-
-          String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translation");
-          
-          Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, translationMap, true, false, true);
-          valueObject = GrouperUtil.stringValue(valueObject);
-          subjectAttributesToValues.put(subjectAttributeName, valueObject);
-          
-        }
-        
-      }
-      
-    }
-          
-    subjectID = (String) sourceAttributesToValues.get(subjectIDAttributeName);
+    String subjectID = (String) sourceAttributesToValues.get(subjectIDAttributeName);
     
     if (StringUtils.isBlank(subjectID)) {
       log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".\".  Subject's problematic attributes : " + entry.toString());
@@ -206,24 +143,8 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
       subjectID = subjectID.toLowerCase();
     }
 
-     
-    SubjectImpl subject = new SubjectImpl(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
-    subject.setTranslationMap(translationMap);
+    Subject subject = createSubject(sourceAttributesToValues, subjectID);
     
-    // add the attributes
-    Map<String, Set<String>> myAttributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
-
-    for (String subjectAttributeName: subjectAttributesToValues.keySet()) {
-      Object value = subjectAttributesToValues.get(subjectAttributeName);
-      if (value instanceof Set) {
-        myAttributes.put(subjectAttributeName, (Set<String>)value);
-      } else {
-        myAttributes.put(subjectAttributeName, GrouperUtil.toSetObject((String)value));
-      }
-    }
-
-    subject.setAttributes(myAttributes);
-
     return subject;
   }
   

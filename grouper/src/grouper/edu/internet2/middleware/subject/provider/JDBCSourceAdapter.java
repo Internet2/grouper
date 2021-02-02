@@ -65,14 +65,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** logger */
   private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 
-  /** name attribute name */
-  protected String nameAttributeName;
-
   /** subject id attribute name */
   protected String subjectIDAttributeName;
-
-  /** decsription attribute name */
-  protected String descriptionAttributeName;
 
   /** subject type string */
   protected String subjectTypeString;

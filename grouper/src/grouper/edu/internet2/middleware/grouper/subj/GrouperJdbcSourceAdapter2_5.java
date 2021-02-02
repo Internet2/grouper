@@ -17,12 +17,10 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JdbcSubjectAttributeSet;
-import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
@@ -149,40 +147,6 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       ResultSetMetaData resultSetMetaData) throws SQLException {
     
     Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
-//    Map<String, Void> columnNames = new CaseInsensitiveMap();
-//    
-//    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-//    if (StringUtils.isNotBlank(numberOfAttributes)) {
-//      
-//      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-//      for (int i=0; i<numberOfAttrs; i++) {
-//        
-//        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-//        
-//        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
-//        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-//        
-//        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-//
-//        if (isSourceAttributeSameAsSubjectAttribute) {
-//          
-//          columnNames.put(subjectAttributeName, null);
-//          
-//        } else if (isSourceAttribute) {
-//          String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
-//          
-//          columnNames.put(sourceAttributeName, null);
-//          
-//        }
-//        
-//      }
-//      
-//    }
-//    
-//    for (String columnName: columnNames.keySet()) {
-//      String value = retrieveString(resultSet, columnName, columnName, query, resultSetMetaData);
-//      attributes.put(columnName, new JdbcSubjectAttributeSet(value));
-//    }
     
     for (String colName: selectCols) {
       String value = retrieveString(resultSet, colName, colName, query, resultSetMetaData);
@@ -205,10 +169,7 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
   protected Subject createSubject(ResultSet resultSet, String query, 
       Collection<String> identifiersForIdentifierToMap, Map<String, Subject> resultIdentifierToSubject) throws SQLException {
 
-    String name = null;
     String subjectID = null;
-    String description = null;
-    SubjectImpl subject = null;
     //lets do this through metadata so caps dont matter
     ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
     
@@ -242,75 +203,7 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       
     }
     
-    Map<String, Object> subjectAttributesToValues = new CaseInsensitiveMap();
-    
-    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-    
-    if (StringUtils.isNotBlank(numberOfAttributes)) {
-      
-      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        
-        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-        
-        boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
-        boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-        
-        if (isSourceAttributeSameAsSubjectAttribute) {
-          Object value = sourceAttributesToValues.get(subjectAttributeName);
-          subjectAttributesToValues.put(subjectAttributeName, value);
-          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
-        } else if (isSourceAttribute) {
-          
-          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
-
-          Object value = sourceAttributesToValues.get(sourceAttribute);
-          subjectAttributesToValues.put(subjectAttributeName, value);
-          translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), sourceAttributesToValues.get(sourceAttribute));
-        }
-        
-      }
-      
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        
-        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-        
-        boolean isTranslation = StringUtils.equals(translationType, "translation");
-        
-        if (isTranslation) {
-
-          String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translation");
-          
-          Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, translationMap, true, false, true);
-          valueObject = GrouperUtil.stringValue(valueObject);
-          subjectAttributesToValues.put(subjectAttributeName, valueObject);
-          
-        }
-        
-      }
-      
-    }
-    
-    // add the attributes
-    Map<String, Set<String>> mySubjectAttributes = new  SubjectCaseInsensitiveMapImpl<String, Set<String>>();
-
-    for (String subjectAttributeName: subjectAttributesToValues.keySet()) {
-      Object value = subjectAttributesToValues.get(subjectAttributeName);
-      if (value instanceof Set) {
-        mySubjectAttributes.put(subjectAttributeName, (Set<String>)value);
-      } else {
-        mySubjectAttributes.put(subjectAttributeName, GrouperUtil.toSetObject((String)value));
-      }
-    }
-    
-    subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
-        mySubjectAttributes, this.nameAttributeName, this.descriptionAttributeName);
-    
-    subject.setTranslationMap(translationMap);
+    Subject subject = createSubject(sourceAttributesToValues, subjectID);
     
     if (resultIdentifierToSubject != null) {
       boolean foundValue = false;
