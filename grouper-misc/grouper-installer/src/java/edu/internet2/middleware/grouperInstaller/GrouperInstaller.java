@@ -9509,6 +9509,17 @@ public class GrouperInstaller {
     
     File logsDirectoryOnly = new File(path+File.separator+"logs");
     
+    // run chmod o+w for logs directory
+    contentToWrite = new StringBuilder();
+    contentToWrite.append("Run chmod o+w for "+logsDirectoryOnly.getAbsolutePath());
+    contentToWrite.append("\n\n");
+    contentToWrite.append("\n\n");
+    try {      
+      Files.write(Paths.get(readmeFile.getAbsolutePath()), contentToWrite.toString().getBytes(), StandardOpenOption.APPEND);
+    } catch (Exception e) {
+      System.out.println("Could not write to README.txt file.");
+    }
+    
     List<String> openWriteCommands = GrouperInstallerUtils.toList("chmod", "o+w", 
         logsDirectoryOnly.getAbsolutePath() + File.separator);
     
