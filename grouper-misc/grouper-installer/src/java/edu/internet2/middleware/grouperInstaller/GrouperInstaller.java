@@ -9507,6 +9507,37 @@ public class GrouperInstaller {
     File logsDirectory = new File(path+File.separator+"logs"+File.separator+"nothing");
     GrouperInstallerUtils.createParentDirectories(logsDirectory);
     
+    File logsDirectoryOnly = new File(path+File.separator+"logs");
+    
+    List<String> openWriteCommands = GrouperInstallerUtils.toList("chmod", "o+w", 
+        logsDirectoryOnly.getAbsolutePath() + File.separator);
+    
+    System.out.println("Making logs directory o+w so that logs can be written from inside the container: " + convertCommandsIntoCommand(openWriteCommands) + "\n");
+
+    String errorMessageOnChangingLogsDirectoryPermissions = "";
+    boolean errorOnChangingLogsDirectoryPermissions = false;
+    try {
+      CommandResult openWriteCommandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(openWriteCommands, String.class), true, true, null, 
+          new File("."), null, true);
+      
+      if (openWriteCommandResult.getExitCode() != 0) {
+        errorMessageOnChangingLogsDirectoryPermissions = openWriteCommandResult.getErrorText();
+        errorOnChangingLogsDirectoryPermissions = true;
+      } 
+      
+    } catch (Throwable e) {
+      errorOnChangingLogsDirectoryPermissions = true;
+    }
+    
+    if (errorOnChangingLogsDirectoryPermissions) {
+      System.out.println("Could not change permissions on logs directory at "+logsDirectoryOnly.getAbsolutePath());
+      if (GrouperInstallerUtils.isNotBlank(errorMessageOnChangingLogsDirectoryPermissions)) {
+        System.out.println("Received error message: "+errorMessageOnChangingLogsDirectoryPermissions+ " ");
+      }
+      return;
+    }
+    
     // create log4j.properties file in <path>/slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes
     File classesDir = new File(path+File.separator+"slashRoot"+File.separator+"opt"+File.separator+"grouper"
         +File.separator+"grouperWebapp"+File.separator+"WEB-INF"+File.separator+"classes");
