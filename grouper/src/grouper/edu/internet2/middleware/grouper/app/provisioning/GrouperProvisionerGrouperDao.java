@@ -61,29 +61,44 @@ public class GrouperProvisionerGrouperDao {
 
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
-    String sqlInitial = "select gg.id, gg.name, gg.display_name, gg.description, gg.id_index " + 
-        "        from grouper_groups gg, grouper_aval_asn_asn_group_v gaaagv_target, " + 
-        "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
-        "         where gg.id = gaaagv_do_provision.group_id and " + 
-        "          gg.id = gaaagv_target.group_id and " + 
-        "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
-        "         and gaaagv_target.attribute_def_name_name1 = ? " + 
-        "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
-        "         and gaaagv_target.attribute_def_name_name2 = ?" + 
-        "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
-        "         and gaaagv_target.value_string = ?" + 
-        "         and gaaagv_do_provision.value_string = 'true'" + 
-        "         ";
+    String sqlInitial = "select " + 
+        "    gg.id, " + 
+        "    gg.name, " + 
+        "    gg.display_name, " + 
+        "    gg.description, " + 
+        "    gg.id_index " + 
+        "from " + 
+        "    grouper_groups gg, " + 
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign gaa_do_provision, " + 
+        "    grouper_attribute_assign_value gaav_do_provision, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_do_provision, " + 
+        "    grouper_attribute_def_name gadn_target " + 
+        "where " + 
+        "    gg.id = gaa_marker.owner_group_id " + 
+        "    and gaa_target.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
+        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    and gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
+        "    and gadn_marker.name = ? " + 
+        "    and gadn_target.name = ? " + 
+        "    and gadn_do_provision.name = ? " + 
+        "    and gaav_target.value_string = ? " + 
+        "    and gaav_do_provision.value_string = 'true' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
     paramsInitial.add(this.grouperProvisioner.getConfigId());
 
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
@@ -144,21 +159,40 @@ public class GrouperProvisionerGrouperDao {
     }
 
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
-
-    StringBuilder sqlInitial = new StringBuilder("select gm.id, gm.subject_source, gm.subject_id, gm.subject_identifier0, gm.name, gm.description " +
-        "from grouper_members gm, grouper_memberships_all_v gmav," +  
-     " grouper_aval_asn_asn_group_v gaaagv_target, " + 
-    "        grouper_aval_asn_asn_group_v gaaagv_do_provision" + 
-    "         where gmav.member_id = gm.id and gmav.owner_group_id = gaaagv_do_provision.group_id and " + 
-    "          gmav.owner_group_id = gaaagv_target.group_id and " + 
-    "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
-    "         and gaaagv_target.attribute_def_name_name1 = ? " + 
-    "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
-    "         and gaaagv_target.attribute_def_name_name2 = ?" + 
-    "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
-    "         and gaaagv_target.value_string = ?" + 
-    "         and gaaagv_do_provision.value_string = 'true'");
     
+    StringBuilder sqlInitial = new StringBuilder("select " + 
+        "    gm.id, " +
+        "    gm.subject_source, " + 
+        "    gm.subject_id, " + 
+        "    gm.subject_identifier0, " + 
+        "    gm.name, " + 
+        "    gm.description " + 
+        "from " + 
+        "    grouper_members gm, " + 
+        "    grouper_memberships_all_v gmav, " +
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign gaa_do_provision, " + 
+        "    grouper_attribute_assign_value gaav_do_provision, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_do_provision, " + 
+        "    grouper_attribute_def_name gadn_target " + 
+        "where " + 
+        "    gmav.member_id = gm.id " +
+        "    and gmav.owner_group_id = gaa_marker.owner_group_id " + 
+        "    and gaa_target.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
+        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    and gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
+        "    and gadn_marker.name = ? " + 
+        "    and gadn_target.name = ? " + 
+        "    and gadn_do_provision.name = ? " + 
+        "    and gaav_target.value_string = ? " + 
+        "    and gaav_do_provision.value_string = 'true' ");
     
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
@@ -183,17 +217,14 @@ public class GrouperProvisionerGrouperDao {
     List<Object> paramsInitial = new ArrayList<Object>();
     
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    
     paramsInitial.add(this.grouperProvisioner.getConfigId());
+    
     paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
@@ -271,21 +302,47 @@ public class GrouperProvisionerGrouperDao {
     List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
     
 
-    StringBuilder sqlInitial = new StringBuilder("select gmav.membership_id, gg.id, gm.id, gm.subject_id, gm.subject_source, gm.subject_identifier0, "
-        + "gm.name, gm.description, gg.name, gg.display_name, gg.description, gg.id_index " +
-        "from grouper_groups gg, grouper_memberships_all_v gmav, grouper_members gm, grouper_aval_asn_asn_group_v gaaagv_target, grouper_aval_asn_asn_group_v gaaagv_do_provision " + 
-        "where " +
-        " gmav.owner_group_id = gg.id " +
-        "and gmav.member_id = gm.id " +
-    "         and gg.id = gaaagv_do_provision.group_id and " + 
-    "          gg.id = gaaagv_target.group_id and " + 
-    "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T'" + 
-    "         and gaaagv_target.attribute_def_name_name1 = ? " + 
-    "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
-    "         and gaaagv_target.attribute_def_name_name2 = ?" + 
-    "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
-    "         and gaaagv_target.value_string = ?" + 
-    "         and gaaagv_do_provision.value_string = 'true' ");
+    StringBuilder sqlInitial = new StringBuilder("select " + 
+        "    gmav.membership_id, " + 
+        "    gg.id, " + 
+        "    gm.id, " + 
+        "    gm.subject_id, " + 
+        "    gm.subject_source, " + 
+        "    gm.subject_identifier0, " + 
+        "    gm.name, " +
+        "    gm.description, " +
+        "    gg.name, " + 
+        "    gg.display_name, " +
+        "    gg.description, " + 
+        "    gg.id_index " + 
+        "from " + 
+        "    grouper_groups gg, " +
+        "    grouper_members gm, " + 
+        "    grouper_memberships_all_v gmav, " +
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign gaa_do_provision, " + 
+        "    grouper_attribute_assign_value gaav_do_provision, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_do_provision, " + 
+        "    grouper_attribute_def_name gadn_target " + 
+        "where " + 
+        "    gmav.owner_group_id = gg.id " +
+        "    and gmav.member_id = gm.id " +
+        "    and gg.id = gaa_marker.owner_group_id " + 
+        "    and gaa_target.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
+        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    and gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
+        "    and gadn_marker.name = ? " + 
+        "    and gadn_target.name = ? " + 
+        "    and gadn_do_provision.name = ? " + 
+        "    and gaav_target.value_string = ? " + 
+        "    and gaav_do_provision.value_string = 'true' ");
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
     
@@ -309,16 +366,13 @@ public class GrouperProvisionerGrouperDao {
     List<Object> paramsInitial = new ArrayList<Object>();
     
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    
     paramsInitial.add(this.grouperProvisioner.getConfigId());
     paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
@@ -788,26 +842,42 @@ public class GrouperProvisionerGrouperDao {
       throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
     }
     
-    String sqlInitial = "select gg.id, gaaagv_metadata.value_string " + 
-        "        from grouper_groups gg, grouper_aval_asn_asn_group_v gaaagv_target, " + 
-        "        grouper_aval_asn_asn_group_v gaaagv_do_provision, grouper_aval_asn_asn_group_v gaaagv_metadata" + 
-        "         where gg.id = gaaagv_do_provision.group_id and " + 
-        "          gg.id = gaaagv_target.group_id and " + 
-        "          gg.id = gaaagv_metadata.group_id and " + 
-        "         gaaagv_do_provision.enabled2 = 'T' and gaaagv_target.enabled2 = 'T' and gaaagv_metadata.enabled2 = 'T'" + 
-        "         and gaaagv_target.attribute_def_name_name1 = ? " + 
-        "         and gaaagv_do_provision.attribute_def_name_name1 = ?" + 
-        "         and gaaagv_metadata.attribute_def_name_name1 = ?" + 
-        "         and gaaagv_target.attribute_def_name_name2 = ?" + 
-        "         and gaaagv_do_provision.attribute_def_name_name2 = ?" + 
-        "         and gaaagv_metadata.attribute_def_name_name2 = ?" + 
-        "         and gaaagv_target.value_string = ?" + 
-        "         and gaaagv_do_provision.value_string = 'true'" + 
-        "         ";
+    String sqlInitial = "select " + 
+        "    gg.id, " + 
+        "    gaav_metadata.value_string " + 
+        "from " + 
+        "    grouper_groups gg, " + 
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign gaa_do_provision, " + 
+        "    grouper_attribute_assign_value gaav_do_provision, " + 
+        "    grouper_attribute_assign gaa_metadata, " + 
+        "    grouper_attribute_assign_value gaav_metadata, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_do_provision, " + 
+        "    grouper_attribute_def_name gadn_target, " + 
+        "    grouper_attribute_def_name gadn_metadata " + 
+        "where " + 
+        "    gg.id = gaa_marker.owner_group_id " + 
+        "    and gaa_target.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaa_metadata.owner_attribute_assign_id = gaa_marker.id " + 
+        "    and gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
+        "    and gaav_metadata.attribute_assign_id = gaa_metadata.id " + 
+        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    and gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
+        "    and gaa_metadata.attribute_def_name_id = gadn_metadata.id " + 
+        "    and gadn_marker.name = ? " + 
+        "    and gadn_target.name = ? " + 
+        "    and gadn_do_provision.name = ? " + 
+        "    and gadn_metadata.name = ? " + 
+        "    and gaav_target.value_string = ? " + 
+        "    and gaav_do_provision.value_string = 'true' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
@@ -815,8 +885,6 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.add(this.grouperProvisioner.getConfigId());
   
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
