@@ -60,7 +60,9 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    */
   public static void testConvertDnToSpecificValue() {
     assertEquals("someapp", LoaderLdapElUtils.convertDnToSpecificValue("cn=someapp,ou=groups,dc=upenn,dc=edu"));
-    
+
+    assertEquals("hyzer, chris", LoaderLdapElUtils.convertDnToSpecificValue("cn=hyzer\\, chris,ou=groups,dc=upenn,dc=edu"));
+
     Map<String, Object> envVars = new HashMap<String, Object>();
     envVars.put("subjectId", "cn=someapp,ou=groups,dc=upenn,dc=edu");
     
@@ -90,6 +92,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   public static void testConvertDnToSubpath() {
     assertEquals("a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=upenn,dc=edu", "ou=groups"));
     assertEquals("groups:a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=edu", "dc=upenn"));
+    assertEquals("gr,oups:a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=gr\\,oups,dc=upenn,dc=edu", "dc=edu", "dc=upenn"));
     
   }
   

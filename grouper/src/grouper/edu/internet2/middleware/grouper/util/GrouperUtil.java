@@ -122,6 +122,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
@@ -158,7 +160,7 @@ import net.sf.json.util.PropertyFilter;
  */
 public class GrouperUtil {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     GrouperStartup.startup();
 
@@ -167,7 +169,11 @@ public class GrouperUtil {
 
     System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
     System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
-
+    
+    String dn = "cn=First\\, Last,ou=whatever,ou=edu";
+    String cn = new javax.naming.ldap.LdapName(dn).getRdn(
+        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
+    System.out.println(cn);
   }
 
   /**
@@ -1385,6 +1391,81 @@ public class GrouperUtil {
     String user = trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
 
     promptUserAboutChanges(reason, checkResponse, "db", url, user);
+  }
+
+  /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * baseDn is edu
+   * searchDn is myschool
+   * to people:someapp
+   * i.e. take apart a bushy dns
+   * @param dn
+   * @param baseDn if there is one, take it off
+   * @param searchDn if there is one after the baseDn is off, take it off
+   * @return the subpath
+   */
+  public static String ldapConvertDnToSubPath(String dn, String baseDn, String searchDn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    if (!StringUtils.isBlank(baseDn)) {
+      if (dn.endsWith(baseDn)) {
+        dn = dn.substring(0, dn.length() - (baseDn.length()+1));
+      }
+    }
+    if (!StringUtils.isBlank(searchDn)) {
+      if (dn.endsWith(searchDn)) {
+        dn = dn.substring(0, dn.length() - (searchDn.length()+1));
+      }
+    }
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    DN theDn = null;
+    try {
+      theDn = new DN(dn);
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
+    
+    RDN[] rdns = theDn.getRDNs();
+    StringBuilder path = new StringBuilder();
+    for (int i=rdns.length-1;i>=0;i--) {
+      RDN rdn = rdns[i];
+      path.append(rdn.getAttributeValues()[0]);
+      if (i != 0) {
+        path.append(":");
+      }
+      
+    }
+    return path.toString();
+  }
+
+  /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * to someapp
+   * @param dn
+   * @return
+   */
+  public static String ldapConvertDnToSpecificValue(String dn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+    try {
+      DN theDn = new DN(dn);
+      RDN[] rdns = theDn.getRDNs();
+      RDN firstRdn = rdns[0];
+      return firstRdn.getAttributeValues()[0];
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
   }
 
   /**
