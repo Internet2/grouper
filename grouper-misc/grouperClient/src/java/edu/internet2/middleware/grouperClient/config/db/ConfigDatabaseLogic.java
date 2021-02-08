@@ -256,7 +256,7 @@ public class ConfigDatabaseLogic {
           // If so, then do a full refresh of all configs in DB
           debugMap.put("secondsBetweenFullRefresh", secondsBetweenFullRefresh);
           
-          int secondsSinceLastRefresh = (int)(System.currentTimeMillis() - currentDatabaseConfigCache) / 1000;
+          long secondsSinceLastRefresh = (System.currentTimeMillis() - currentDatabaseConfigCache) / 1000L;
           debugMap.put("secondsSinceLastRefresh", secondsSinceLastRefresh);
           
           final boolean needsFullRefresh = secondsSinceLastRefresh > secondsBetweenFullRefresh;
