@@ -144,7 +144,7 @@ public class SubjectCheckConfig {
       } catch (SubjectNotFoundException snfe) {
         //good!
       } catch (Exception e) {
-        String theError = error + "problem with getSubject by identifier, in subject.properties: serachType searchSubjectByIdentifier: ";
+        String theError = error + "problem with getSubject by identifier, in subject.properties: searchType searchSubjectByIdentifier: ";
         if (ExceptionUtils.getRootCause(e) != null && ExceptionUtils.getRootCause(e) instanceof NameNotFoundException) {
           theError += "The underlying exception is NameNotFoundException.  Be sure that the base dn values in your subject.properties are correct and relative to the base dn specified in the LDAP url in your grouper-loader.properties configuration.  Note that if your LDAP url in grouper-loader.properties has a base dn, then that base dn should not be included in subject.properties.  See subject.base.properties for documentation and examples.";
         }
