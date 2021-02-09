@@ -1490,6 +1490,21 @@ public class GrouperUtil {
   }
 
   /**
+   * This takes a string of value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN value: value
+   * @return the escaped value
+   */
+  public static String ldapEscapeRdnValue(String rdnValue) {
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    //add a sample prefix, and then strip it off
+    RDN rdn = new RDN("cn", rdnValue);
+    return rdn.toMinimallyEncodedString().substring("cn=".length());
+  }
+
+  /**
    * 
    * @param groupName
    * @param rdnAttributeName

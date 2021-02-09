@@ -219,7 +219,7 @@ public class LdapLookup {
         if (StringUtils.equals("%TERM%", this.searchDn)) {
           this.searchDn = this.term;
         } else {
-          this.searchDn = GrouperUtil.replace(this.searchDn, "%TERM%", GrouperUtil.ldapEscapeRdn(this.term));
+          this.searchDn = GrouperUtil.replace(this.searchDn, "%TERM%", GrouperUtil.ldapEscapeRdnValue(this.term));
         }
       }
       if (!StringUtils.isBlank(this.filter)) {
