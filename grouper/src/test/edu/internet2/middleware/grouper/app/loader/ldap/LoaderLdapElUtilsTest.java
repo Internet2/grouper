@@ -19,19 +19,14 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.ldaptive.io.Hex;
-
-import com.unboundid.ldap.sdk.RDN;
-
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -46,7 +41,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -61,7 +55,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderLdapLookupByFilterCache"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderLdapBulkLookupByFilterCache"));
   }
   
   /**
@@ -280,8 +274,6 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
       attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
       attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), 
-//          "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameResult('uid').assignBulkLookup(false).assignCacheForMinutes(-1).assignSearchDn('%TERM%')"
-//              + ".assignSearchScope('OBJECT_SCOPE').assignTerm(subjectId).assignFilter(null).doLookup()}");
           "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameResult('uid').assignCacheForMinutes(24*60).assignSearchDn('%TERM%')"
           + ".assignTerm(subjectId).doLookup()}");
       attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
@@ -422,41 +414,12 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   }
 
   /**
-   * This takes a string of attribute=value and makes sure that special, dn-relevant characters
-   * are escaped, particularly commas, pluses, etc
-   * @param rdnString An RDN: attribute=value
-   * @return
-   */
-  public String ldapEscapeRdn(String rdnString) {
-    return GrouperUtil.ldapEscapeRdn(rdnString);
-  }
-
-  /**
-   * This takes a string of value and makes sure that special, dn-relevant characters
-   * are escaped, particularly commas, pluses, etc
-   * @param rdnString An RDN value: value
-   * @return the escaped value
-   */
-  public String ldapEscapeRdnValue(String rdnValue) {
-    return GrouperUtil.ldapEscapeRdnValue(rdnValue);
-  }
-
-  /**
-   * escape an ldap filter
-   * @param s
-   * @return the filter
-   */
-  public String ldapFilterEscape(String s) {
-    return GrouperUtil.ldapFilterEscape(s);
-  }
-
-  /**
    * 
    */
   public void testLoaderLdapLookupByFilterCache() {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
   
     try {
       
@@ -502,6 +465,71 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       ldapLookupFilterCount = LdapLookup.test_filterCount;
       
       GrouperLoader.runJobOnceForGroup(grouperSession, group);
+  
+      assertEquals(0, LdapLookup.test_filterCount - ldapLookupFilterCount);
+  
+    } finally {
+      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testLoaderLdapBulkLookupByFilterCache() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+  
+    try {
+      
+      Group loaderGroup = new GroupSave(grouperSession).assignName("test:testLdapBulkLookupFilterCache").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = loaderGroup.getMembers();
+      assertEquals(0, members.size());
+  
+      AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(cn=*)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), "test:ldap:%");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "ldap:${loaderLdapElUtils.convertDnToSpecificValue(groupAttributes['dn'])}");
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), 
+          "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameQuery('dn').assignTerm(subjectId)"
+          + ".assignSearchDn('ou=People,dc=example,dc=edu').assignSearchScope('SUBTREE_SCOPE').assignFilter('(uid=*)')"
+          + ".assignAttributeNameResult('uid').assignBulkLookup(true).assignCacheForMinutes(24*60).doLookup()}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUP_LIST");
+  
+      int ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+  
+      assertEquals(1, LdapLookup.test_filterCount - ldapLookupFilterCount);
+      Group loadedGroup = GroupFinder.findByName(grouperSession, "test:ldap:users", true);
+      members = loadedGroup.getMembers();
+      assertEquals(2, members.size());
+      
+      Subject banderson = SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true);
+      Subject jsmith = SubjectFinder.findByIdAndSource("jsmith", "personLdapSource", true);
+  
+      Member bandersonMember = MemberFinder.findBySubject(grouperSession, banderson, true); 
+      Member jsmithMember = MemberFinder.findBySubject(grouperSession, jsmith, true); 
+  
+      assertTrue(members.contains(bandersonMember));
+      assertTrue(members.contains(jsmithMember));
+  
+      ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
   
       assertEquals(0, LdapLookup.test_filterCount - ldapLookupFilterCount);
   

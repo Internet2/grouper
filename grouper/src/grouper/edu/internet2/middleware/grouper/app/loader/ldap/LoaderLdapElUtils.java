@@ -39,6 +39,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LoaderLdapElUtils {
 
+  /**
+   * This takes a string of attribute=value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN: attribute=value
+   * @return
+   */
+  public static String ldapEscapeRdn(String rdnString) {
+    return GrouperUtil.ldapEscapeRdn(rdnString);
+  }
+
+  /**
+   * This takes a string of value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN value: value
+   * @return the escaped value
+   */
+  public static String ldapEscapeRdnValue(String rdnValue) {
+    return GrouperUtil.ldapEscapeRdnValue(rdnValue);
+  }
+
+  /**
+   * escape an ldap filter term
+   * @param s
+   * @return the filter
+   */
+  public static String ldapFilterEscape(String s) {
+    return GrouperUtil.ldapFilterEscape(s);
+  }
+
+
   public static void main(String[] args) {
     String someString = "abc&def";
     System.out.println(someString.replaceAll("[^a-zA-Z0-9_-]", "_"));

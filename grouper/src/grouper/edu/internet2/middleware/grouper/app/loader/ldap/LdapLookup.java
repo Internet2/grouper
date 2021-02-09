@@ -259,8 +259,7 @@ public class LdapLookup {
         this.filter,
         this.ldapConfigId,
         this.searchDn,
-        this.searchScope,
-        this.term}) : null;
+        this.searchScope}) : null;
 
     // if we arent caching then do the filter
     if (needsCache) {
@@ -366,8 +365,8 @@ public class LdapLookup {
       
       String query = retrieveResult(ldapEntry, this.attributeNameQuery);
       String result = retrieveResult(ldapEntry, this.attributeNameResult);
-      if (!StringUtils.isBlank(query) && !StringUtils.isBlank(result)) {
-        termToSubjectIdOrIdentifier.put(query, result);
+      if (!StringUtils.isBlank(query)) {
+        termToSubjectIdOrIdentifier.put(query, massageEntryToCache(result));
       }
     }
 
