@@ -74,6 +74,10 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
       throw new RuntimeException(e);
     }
     
+    setupLdapAndSubjectSource();
+  }
+
+  public static void setupLdapAndSubjectSource() {
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
     

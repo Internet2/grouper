@@ -19,10 +19,28 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerIncrementalTest;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationType;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 
@@ -36,7 +54,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testConvertDnToSubpath"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderLdapLookupCache"));
   }
   
   /**
@@ -58,7 +76,245 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public static void testConvertDnToSpecificValue() {
+  public void testLoaderLdapSimpleConvertDn() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    try {
+      
+      Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleConvertDn").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = group.getMembers();
+      assertEquals(0, members.size());
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(cn=users)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), 
+          "${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      members = group.getMembers();
+      assertEquals(2, members.size());
+      
+      Subject banderson = SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true);
+      Subject jsmith = SubjectFinder.findByIdAndSource("jsmith", "personLdapSource", true);
+
+      Member bandersonMember = MemberFinder.findBySubject(grouperSession, banderson, true); 
+      Member jsmithMember = MemberFinder.findBySubject(grouperSession, jsmith, true); 
+
+      assertTrue(members.contains(bandersonMember));
+      assertTrue(members.contains(jsmithMember));
+      
+    } finally {
+      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public void testLoaderLdapReverse() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    try {
+
+      LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("description", "cn=users,ou=Groups,dc=example,dc=edu"));
+      List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
+      ldapModificationItems.add(item);
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("description", "cn=employees,ou=Groups,dc=example,dc=edu"));
+      ldapModificationItems.add(item);
+
+      new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("description", "cn=users,ou=Groups,dc=example,dc=edu"));
+      ldapModificationItems = new ArrayList<LdapModificationItem>();
+      ldapModificationItems.add(item);
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("description", "cn=students,ou=Groups,dc=example,dc=edu"));
+      ldapModificationItems.add(item);
+
+      new LdapSyncDaoForLdap().modify("personLdap", "uid=jsmith,ou=People,dc=example,dc=edu", ldapModificationItems);
+
+      
+      Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleReverse").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = group.getMembers();
+      assertEquals(0, members.size());
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(description=cn=users,ou=Groups,dc=example,dc=edu)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=People,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uid");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      members = group.getMembers();
+      assertEquals(2, members.size());
+      
+      Subject banderson = SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true);
+      Subject jsmith = SubjectFinder.findByIdAndSource("jsmith", "personLdapSource", true);
+
+      Member bandersonMember = MemberFinder.findBySubject(grouperSession, banderson, true); 
+      Member jsmithMember = MemberFinder.findBySubject(grouperSession, jsmith, true); 
+
+      assertTrue(members.contains(bandersonMember));
+      assertTrue(members.contains(jsmithMember));
+      
+    } finally {
+      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * 
+   */
+  public void testLoaderLdapLookup() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+
+    try {
+      
+      Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleLookup").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = group.getMembers();
+      assertEquals(0, members.size());
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(cn=users)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), 
+          "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameResult('uid').assignSearchDn('%TERM%')"
+          + ".assignTerm(subjectId).doLookup()}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
+
+      int ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      assertEquals(2, LdapLookup.test_filterCount - ldapLookupFilterCount);
+      
+      members = group.getMembers();
+      assertEquals(2, members.size());
+      
+      Subject banderson = SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true);
+      Subject jsmith = SubjectFinder.findByIdAndSource("jsmith", "personLdapSource", true);
+
+      Member bandersonMember = MemberFinder.findBySubject(grouperSession, banderson, true); 
+      Member jsmithMember = MemberFinder.findBySubject(grouperSession, jsmith, true); 
+
+      assertTrue(members.contains(bandersonMember));
+      assertTrue(members.contains(jsmithMember));
+
+      ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      assertEquals(2, LdapLookup.test_filterCount - ldapLookupFilterCount);
+
+    } finally {
+      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testLoaderLdapLookupCache() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+
+    try {
+      
+      Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleLookupCache").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = group.getMembers();
+      assertEquals(0, members.size());
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(cn=users)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), 
+//          "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameResult('uid').assignBulkLookup(false).assignCacheForMinutes(-1).assignSearchDn('%TERM%')"
+//              + ".assignSearchScope('OBJECT_SCOPE').assignTerm(subjectId).assignFilter(null).doLookup()}");
+          "${ldapLookup.assignLdapConfigId('personLdap').assignAttributeNameResult('uid').assignCacheForMinutes(24*60).assignSearchDn('%TERM%')"
+          + ".assignTerm(subjectId).doLookup()}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
+
+      int ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      assertEquals(2, LdapLookup.test_filterCount - ldapLookupFilterCount);
+      
+      members = group.getMembers();
+      assertEquals(2, members.size());
+      
+      Subject banderson = SubjectFinder.findByIdAndSource("banderson", "personLdapSource", true);
+      Subject jsmith = SubjectFinder.findByIdAndSource("jsmith", "personLdapSource", true);
+
+      Member bandersonMember = MemberFinder.findBySubject(grouperSession, banderson, true); 
+      Member jsmithMember = MemberFinder.findBySubject(grouperSession, jsmith, true); 
+
+      assertTrue(members.contains(bandersonMember));
+      assertTrue(members.contains(jsmithMember));
+
+      ldapLookupFilterCount = LdapLookup.test_filterCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      assertEquals(0, LdapLookup.test_filterCount - ldapLookupFilterCount);
+
+    } finally {
+      //LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testConvertDnToSpecificValue() {
     assertEquals("someapp", LoaderLdapElUtils.convertDnToSpecificValue("cn=someapp,ou=groups,dc=upenn,dc=edu"));
 
     assertEquals("hyzer, chris", LoaderLdapElUtils.convertDnToSpecificValue("cn=hyzer\\, chris,ou=groups,dc=upenn,dc=edu"));
@@ -73,7 +329,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public static void testConvertGroupNameAttributes() {
+  public void testConvertGroupNameAttributes() {
     
     Map<String, Object> envVars = new HashMap<String, Object>();
     
@@ -89,7 +345,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public static void testConvertDnToSubpath() {
+  public void testConvertDnToSubpath() {
     assertEquals("a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=upenn,dc=edu", "ou=groups"));
     assertEquals("groups:a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=groups,dc=upenn,dc=edu", "dc=edu", "dc=upenn"));
     assertEquals("gr,oups:a:b:c", LoaderLdapElUtils.convertDnToSubPath("cn=a:b:c,ou=gr\\,oups,dc=upenn,dc=edu", "dc=edu", "dc=upenn"));
