@@ -34,7 +34,10 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
@@ -47,6 +50,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -1109,19 +1113,13 @@ public class GrouperProvisioningService {
     
     Set<String> targetsToRemove = new HashSet<String>(assignedTargets);
     targetsToRemove.removeAll(validTargets.keySet());
-    
+        
     for (String targetToRemove: targetsToRemove) {
       
-      Map<String, AttributeAssign> idToAttributeAssignMap = new AttributeAssignFinder().assignAttributeCheckReadOnAttributeDef(false)
-      .assignIdOfAttributeDefNameOnAssignment0(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId())
-      .assignAttributeValuesOnAssignment0(GrouperUtil.toSet(targetToRemove))
-      .addAttributeDefNameId(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase().getId())
-      .findAttributeAssignFinderResults().getIdToAttributeAssignMap();
-      
-      for (AttributeAssign attributeAssign: idToAttributeAssignMap.values()) {
-        attributeAssign.delete();
+      Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId(), targetToRemove, null);
+      for (AttributeAssign assignment : assignments) {
+        assignment.getOwnerAttributeAssign().delete();
       }
-            
     }
   }
   

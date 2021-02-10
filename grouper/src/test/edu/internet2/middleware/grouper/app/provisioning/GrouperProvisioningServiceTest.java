@@ -543,6 +543,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
     
     saveProvisioningAttributeMetadata(stem0, true, "ldap-1");
+    saveProvisioningAttributeMetadata(stem0, true, "ldap");
     
     GrouperProvisioningAttributeValue attributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem0, "ldap-1");
     
@@ -554,10 +555,10 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     //Then
     attributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem0, "ldap-1");
-    
     assertNull(attributeValue);
     
-    
+    attributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem0, "ldap");
+    assertNotNull(attributeValue);
   }
   
   public void testGetProvisioningAttributeValue() {
