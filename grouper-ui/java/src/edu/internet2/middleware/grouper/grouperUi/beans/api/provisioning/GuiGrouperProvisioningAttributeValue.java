@@ -109,7 +109,7 @@ public class GuiGrouperProvisioningAttributeValue {
     
     for (GrouperProvisioningAttributeValue singleAttributeValue: attributeValues) {
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(singleAttributeValue);
-      guiGrouperProvisioningAttributeValue.setProvisionable(singleAttributeValue.isDoProvision());
+      guiGrouperProvisioningAttributeValue.setProvisionable(singleAttributeValue.getDoProvision() != null);
       guiGrouperProvisioningAttributeValues.add(guiGrouperProvisioningAttributeValue);
     }
     

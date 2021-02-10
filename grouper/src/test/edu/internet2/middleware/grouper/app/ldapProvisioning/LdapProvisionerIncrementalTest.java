@@ -250,7 +250,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
 
@@ -469,7 +469,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -563,7 +563,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=bwilliams466,ou=People,dc=example,dc=edu"));
     
     // try delete, not configured to
-    attributeValue.setDoProvision(false);
+    attributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
     runJobs(true, true);

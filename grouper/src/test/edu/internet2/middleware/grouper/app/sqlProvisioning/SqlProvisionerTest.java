@@ -261,7 +261,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("sqlProvTest");
     attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
@@ -607,7 +607,7 @@ public class SqlProvisionerTest extends GrouperTest {
       
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision(true);
+      attributeValue.setDoProvision("sqlProvTest");
       attributeValue.setTargetName("sqlProvTest");
       attributeValue.setStemScopeString("sub");
   
@@ -726,7 +726,7 @@ public class SqlProvisionerTest extends GrouperTest {
         
         final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
         attributeValue.setDirectAssignment(true);
-        attributeValue.setDoProvision(true);
+        attributeValue.setDoProvision("sqlProvTest");
         attributeValue.setTargetName("sqlProvTest");
         attributeValue.setStemScopeString("sub");
     
@@ -897,7 +897,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("sqlProvTest");
     attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -1211,7 +1211,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("sqlProvTest");
     attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -1380,7 +1380,7 @@ public class SqlProvisionerTest extends GrouperTest {
       
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision(true);
+      attributeValue.setDoProvision("sqlProvTest");
       attributeValue.setTargetName("sqlProvTest");
       attributeValue.setStemScopeString("sub");
     
@@ -1848,7 +1848,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("pspng_oneprod");
     attributeValue.setTargetName("pspng_oneprod");
     attributeValue.setStemScopeString("sub");
 
@@ -2180,7 +2180,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("pspng_oneprod");
     attributeValue.setTargetName("pspng_oneprod");
     attributeValue.setStemScopeString("sub");
 
@@ -2334,7 +2334,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("pspng_oneprod");
     attributeValue.setTargetName("pspng_oneprod");
     attributeValue.setStemScopeString("sub");
 

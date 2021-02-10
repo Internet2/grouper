@@ -214,7 +214,7 @@ public class PspngToNewProvisioningAttributeConversion {
       GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
       grouperProvisioningAttributeValue.setTargetName(provisioningConfigId);
       grouperProvisioningAttributeValue.setDirectAssignment(true);
-      grouperProvisioningAttributeValue.setDoProvision(false);
+      grouperProvisioningAttributeValue.setDoProvision(null);
       grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
       
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, doNotProvisionToStem);
@@ -231,7 +231,7 @@ public class PspngToNewProvisioningAttributeConversion {
       GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
       grouperProvisioningAttributeValue.setTargetName(provisioningConfigId);
       grouperProvisioningAttributeValue.setDirectAssignment(true);
-      grouperProvisioningAttributeValue.setDoProvision(false);
+      grouperProvisioningAttributeValue.setDoProvision(null);
       grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
       
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, doNotProvisionToGroup);
@@ -248,7 +248,7 @@ public class PspngToNewProvisioningAttributeConversion {
       GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
       grouperProvisioningAttributeValue.setTargetName(provisioningConfigId);
       grouperProvisioningAttributeValue.setDirectAssignment(true);
-      grouperProvisioningAttributeValue.setDoProvision(true);
+      grouperProvisioningAttributeValue.setDoProvision(provisioningConfigId);
       grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
       
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, provisionToStem);
@@ -265,7 +265,7 @@ public class PspngToNewProvisioningAttributeConversion {
       GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
       grouperProvisioningAttributeValue.setTargetName(provisioningConfigId);
       grouperProvisioningAttributeValue.setDirectAssignment(true);
-      grouperProvisioningAttributeValue.setDoProvision(true);
+      grouperProvisioningAttributeValue.setDoProvision(provisioningConfigId);
       grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
       
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, provisionToGroup);

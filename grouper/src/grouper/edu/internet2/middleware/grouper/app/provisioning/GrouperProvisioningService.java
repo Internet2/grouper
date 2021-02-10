@@ -590,8 +590,7 @@ public class GrouperProvisioningService {
     result.setStemScopeString(stemScopeAssignValue != null ? stemScopeAssignValue.getValueString(): null);
     
     AttributeAssignValue doProvisionAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_DO_PROVISION);
-    String doProvisionStr = doProvisionAssignValue != null ? doProvisionAssignValue.getValueString(): null;
-    boolean doProvision = BooleanUtils.toBoolean(doProvisionStr);
+    String doProvision = doProvisionAssignValue != null ? doProvisionAssignValue.getValueString(): null;
     result.setDoProvision(doProvision);
     
     AttributeAssignValue ownerStemIdAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID);
@@ -629,7 +628,7 @@ public class GrouperProvisioningService {
       return true;
     }
     
-    if (one.isDoProvision() != two.isDoProvision()) {
+    if (!StringUtils.equals(one.getDoProvision(), two.getDoProvision())) {
       return true;
     }
     
@@ -737,7 +736,11 @@ public class GrouperProvisioningService {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getTargetName());
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_DO_PROVISION, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(grouperProvisioningAttributeValue.isDoProvision()));
+    if (grouperProvisioningAttributeValue.getDoProvision() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getDoProvision());
+    }
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.isDirectAssignment() ? null: grouperProvisioningAttributeValue.getOwnerStemId());
@@ -935,7 +938,7 @@ public class GrouperProvisioningService {
       if (attributeValue == null) {
         GrouperProvisioningAttributeValue childValueToSave = new GrouperProvisioningAttributeValue();
         childValueToSave.setDirectAssignment(false);
-        childValueToSave.setDoProvision(parentAttributeValue.isDoProvision());
+        childValueToSave.setDoProvision(parentAttributeValue.getDoProvision());
         childValueToSave.setOwnerStemId(parent.getId());
         childValueToSave.setTargetName(targetName);
         childValueToSave.setMetadataNameValues(parentAttributeValue.getMetadataNameValues());
@@ -999,7 +1002,7 @@ public class GrouperProvisioningService {
         if (attributeValue.getStemScope() == Stem.Scope.SUB || (attributeValue.getStemScope() == Stem.Scope.ONE && distanceFromParent < 2 )) {
           savedValue = new GrouperProvisioningAttributeValue();
           savedValue.setDirectAssignment(false);
-          savedValue.setDoProvision(attributeValue.isDoProvision());
+          savedValue.setDoProvision(attributeValue.getDoProvision());
           savedValue.setOwnerStemId(parent.getId());
           savedValue.setTargetName(attributeValue.getTargetName());
           savedValue.setMetadataNameValues(attributeValue.getMetadataNameValues());
