@@ -90,7 +90,10 @@ public class GrouperProvisionerGrouperDao {
         "    and gadn_target.name = ? " + 
         "    and gadn_do_provision.name = ? " + 
         "    and gaav_target.value_string = ? " + 
-        "    and gaav_do_provision.value_string = 'true' ";
+        "    and gaav_do_provision.value_string = 'true' " + 
+        "    and gaa_marker.enabled='T' " +
+        "    and gaa_target.enabled='T' " + 
+        "    and gaa_do_provision.enabled='T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
@@ -192,7 +195,11 @@ public class GrouperProvisionerGrouperDao {
         "    and gadn_target.name = ? " + 
         "    and gadn_do_provision.name = ? " + 
         "    and gaav_target.value_string = ? " + 
-        "    and gaav_do_provision.value_string = 'true' ");
+        "    and gaav_do_provision.value_string = 'true' " +
+        "    and gaa_marker.enabled='T' " +
+        "    and gaa_target.enabled='T' " +
+        "    and gaa_do_provision.enabled='T' " +
+        "    and gmav.immediate_mship_enabled='T' ");
     
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
@@ -342,7 +349,11 @@ public class GrouperProvisionerGrouperDao {
         "    and gadn_target.name = ? " + 
         "    and gadn_do_provision.name = ? " + 
         "    and gaav_target.value_string = ? " + 
-        "    and gaav_do_provision.value_string = 'true' ");
+        "    and gaav_do_provision.value_string = 'true' " +
+        "    and gaa_marker.enabled='T' " +
+        "    and gaa_target.enabled='T' " +
+        "    and gaa_do_provision.enabled='T' " +
+        "    and gmav.immediate_mship_enabled='T' ");
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
     
@@ -875,7 +886,11 @@ public class GrouperProvisionerGrouperDao {
         "    and gadn_do_provision.name = ? " + 
         "    and gadn_metadata.name = ? " + 
         "    and gaav_target.value_string = ? " + 
-        "    and gaav_do_provision.value_string = 'true' ";
+        "    and gaav_do_provision.value_string = 'true' " +
+        "    and gaa_marker.enabled='T' " +
+        "    and gaa_target.enabled='T' " +
+        "    and gaa_do_provision.enabled='T' " +
+        "    and gaa_metadata.enabled='T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
