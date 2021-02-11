@@ -1071,6 +1071,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheRegion(KLASS);
 
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
+          int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxPageSize", 500);
 
           {
             boolean pageMembers = queryOptionsForMember != null && queryOptionsForMember.getQueryPaging() != null;
@@ -1078,8 +1079,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             if (pageMembers) {
 
               //cant page too much...
-              if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
-                throw new RuntimeException("Cant get a page size greater then 500! " 
+              if (queryOptionsForMember.getQueryPaging().getPageSize() > maxPageSize) {
+                throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                     + queryOptionsForMember.getQueryPaging().getPageSize());
               }
   
@@ -1186,8 +1187,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               }
 
               //cant page too much...
-              if (queryOptionsForGroup.getQueryPaging().getPageSize() > 500) {
-                throw new RuntimeException("Cant get a page size greater then 500! " 
+              if (queryOptionsForGroup.getQueryPaging().getPageSize() > maxPageSize) {
+                throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                     + queryOptionsForGroup.getQueryPaging().getPageSize());
               }
 
@@ -4161,7 +4162,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheRegion(KLASS);
   
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
-          
+          int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxPageSize", 500);
+
           boolean pageMembers = queryOptionsForMember != null;
           
           if (pageMembers) {
@@ -4171,8 +4173,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
 
             //cant page too much...
-            if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
-              throw new RuntimeException("Cant get a page size greater then 500! " 
+            if (queryOptionsForMember.getQueryPaging().getPageSize() > maxPageSize) {
+              throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                   + queryOptionsForMember.getQueryPaging().getPageSize());
             }
 
@@ -4274,8 +4276,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               }
 
               //cant page too much...
-              if (queryOptionsForStem.getQueryPaging().getPageSize() > 500) {
-                throw new RuntimeException("Cant get a page size greater then 500! " 
+              if (queryOptionsForStem.getQueryPaging().getPageSize() > maxPageSize) {
+                throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                     + queryOptionsForStem.getQueryPaging().getPageSize());
               }
 
@@ -4708,7 +4710,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheRegion(KLASS);
 
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
-          
+          int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxPageSize", 500);
+
           boolean pageMembers = queryOptionsForMember != null;
           
           if (pageMembers) {
@@ -4718,8 +4721,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
 
             //cant page too much...
-            if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
-              throw new RuntimeException("Cant get a page size greater then 500! " 
+            if (queryOptionsForMember.getQueryPaging().getPageSize() > maxPageSize) {
+              throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                   + queryOptionsForMember.getQueryPaging().getPageSize());
             }
 
@@ -4818,8 +4821,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               }
 
               //cant page too much...
-              if (queryOptionsForAttributeDef.getQueryPaging().getPageSize() > 500) {
-                throw new RuntimeException("Cant get a page size greater then 500! " 
+              if (queryOptionsForAttributeDef.getQueryPaging().getPageSize() > maxPageSize) {
+                throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
                     + queryOptionsForAttributeDef.getQueryPaging().getPageSize());
               }
 
