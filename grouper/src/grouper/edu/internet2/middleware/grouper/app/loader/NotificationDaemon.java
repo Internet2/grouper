@@ -382,7 +382,7 @@ public class NotificationDaemon extends OtherJobBase {
     debugMap.put("subjectIdsNullCount", subjectIdsNullCount);
     debugMap.put("ineligibleSubjectCount", ineligibleSubjectCount);
     debugMap.put("subjectsNotFoundCount", subjectsNotFoundCount);
-    debugMap.put("listOfRecordMapsCount", listOfRecordMaps);
+    debugMap.put("listOfRecordMapsCount", GrouperUtil.length(listOfRecordMaps));
 
     if (!emailSummaryOnlyIfRecordsExist || GrouperUtil.length(listOfRecordMaps) > 0) {
 
