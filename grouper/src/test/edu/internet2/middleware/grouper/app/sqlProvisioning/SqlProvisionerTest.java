@@ -292,7 +292,7 @@ public class SqlProvisionerTest extends GrouperTest {
   /**
    * @param tableName
    */
-  public void dropTableSyncTable(final String tableName) {
+  public static void dropTableSyncTable(final String tableName) {
     try {
       // if you cant connrc to it, its not there
       HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);

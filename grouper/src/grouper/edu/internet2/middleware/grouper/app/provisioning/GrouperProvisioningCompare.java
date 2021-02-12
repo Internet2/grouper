@@ -605,7 +605,7 @@ public class GrouperProvisioningCompare {
         ProvisioningEntity targetProvisioningEntity = targetMatchingIdToTargetEntity.get(entityIdToUpdate);
         
         if (grouperProvisioningBehavior.isUpdateEntities()) {
-          if (grouperTargetEntity.getProvisioningEntityWrapper().isRecalc()) {
+          if (grouperTargetEntity != null && targetProvisioningEntity != null && grouperTargetEntity.getProvisioningEntityWrapper().isRecalc()) {
             compareFieldValue(provisioningEntitiesToUpdate, "name",
                 grouperTargetEntity.getName() , targetProvisioningEntity.getName(),
                 grouperTargetEntity);
@@ -817,9 +817,9 @@ public class GrouperProvisioningCompare {
       for (Object groupIdToUpdate: groupIdsToUpdate) {
         ProvisioningGroup grouperTargetGroup = grouperMatchingIdToTargetGroup.get(groupIdToUpdate);
         ProvisioningGroup targetProvisioningGroup = targetMatchingIdToTargetGroup.get(groupIdToUpdate);
-        
+                
         if (grouperProvisioningBehavior.isUpdateGroups()) {
-          if (grouperTargetGroup.getProvisioningGroupWrapper().isRecalc()) {
+          if (grouperTargetGroup != null && targetProvisioningGroup != null && grouperTargetGroup.getProvisioningGroupWrapper().isRecalc()) {
             compareFieldValue(provisioningGroupsToUpdate, "displayName",
                 grouperTargetGroup.getDisplayName(), targetProvisioningGroup.getDisplayName(),
                 grouperTargetGroup);
@@ -837,8 +837,8 @@ public class GrouperProvisioningCompare {
             targetProvisioningGroup == null ? null : targetProvisioningGroup.getAttributes(), 
                 grouperTargetGroup);
           
-        this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
       }  
+      this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
     }
     
     
@@ -1040,12 +1040,15 @@ public class GrouperProvisioningCompare {
           ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(matchingIdToUpdate);
           ProvisioningMembership targetProvisioningMembership = targetMatchingIdToTargetMembership.get(matchingIdToUpdate);
           
-          compareFieldValue(provisioningMembershipsToUpdate, "id",
-              grouperTargetMembership.getId(), targetProvisioningMembership.getId(),
-              grouperTargetMembership);
-          
-          compareAttributeValues(provisioningMembershipsToUpdate, grouperTargetMembership.getAttributes(),
-              targetProvisioningMembership.getAttributes(), grouperTargetMembership);
+          //if one is null its not an update
+          if (grouperTargetMembership != null && targetProvisioningMembership != null) {
+            compareFieldValue(provisioningMembershipsToUpdate, "id",
+                grouperTargetMembership.getId(), targetProvisioningMembership.getId(),
+                grouperTargetMembership);
+          }
+
+          compareAttributeValues(provisioningMembershipsToUpdate, grouperTargetMembership == null ? null : grouperTargetMembership.getAttributes(),
+              targetProvisioningMembership == null ? null : targetProvisioningMembership.getAttributes(), grouperTargetMembership);
           
         }
         

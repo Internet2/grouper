@@ -19,11 +19,15 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -36,11 +40,18 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerIncr
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerTest;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -55,7 +66,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderLdapBulkLookupByFilterCache"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderCopyLdapToSql"));
   }
   
   /**
@@ -481,7 +492,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   public void testLoaderLdapBulkLookupByFilterCache() {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
   
     try {
       
@@ -534,10 +545,85 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       assertEquals(0, LdapLookup.test_filterCount - ldapLookupFilterCount);
   
     } finally {
-      //LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
       GrouperSession.stopQuietly(grouperSession);
     }
     
   }
+
+  /**
+   * 
+   */
+  public void testLoaderCopyLdapToSql() {
   
+    final String tableName = "testgrouper_ldapsql_single";
+  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+    
+          
+          Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "the_dn", Types.VARCHAR, "200", true, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "mail", Types.VARCHAR, "10", false, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "description", Types.VARCHAR, "1024", false, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "some_int", Types.BIGINT, "12", false, false);
+        }
+        
+      });
+    }
+
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+  
+    try {
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.class", "edu.internet2.middleware.grouper.app.ldapToSql.LdapToSqlSyncDaemon");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.0.ldapName", "dn");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.0.sqlColumn", "the_dn");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.0.uniqueKey", "true");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.1.ldapName", "mail");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.1.sqlColumn", "mail");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.2.sqlColumn", "description");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.2.translation", "${ldapAttribute__givenname + ', ' + ldapAttribute__uid}");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.3.sqlColumn", "some_int");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.3.translation", "${123}");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlBaseDn", "ou=People,dc=example,dc=edu");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlDbConnection", "grouper");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlExtraAttributes", "uid,givenName");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlFilter", "(uid=aa*)");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlLdapConnection", "personLdap");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlNumberOfAttributes", "4");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlSearchScope", "SUBTREE_SCOPE");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlTableName", "testgrouper_ldapsql_single");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.quartzCron", "0 03 5 * * ?");
+
+      int ldapLookupFilterCount = LdapLookup.test_filterCount;
+
+      GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_ldapToSqlSingleValued");
+  
+      List<Object[]> sqlRows = new GcDbAccess().connectionName("grouper").sql("select the_dn, mail, description, some_int from testgrouper_ldapsql_single order by 1").selectList(Object[].class);
+
+      assertEquals(2, sqlRows.size());
+      assertEquals(0, LdapLookup.test_filterCount - ldapLookupFilterCount);
+  
+    } finally {
+      //LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    SqlProvisionerTest.dropTableSyncTable(tableName);
+  }
+
 }

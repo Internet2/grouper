@@ -197,6 +197,12 @@ public abstract class ProvisioningUpdatable {
    * @param provisioningObjectChange
    */
   public void addInternal_objectChange(ProvisioningObjectChange provisioningObjectChange) {
+    
+    if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert
+        && provisioningObjectChange.getNewValue() == null) {
+      return;
+    }
+    
     if (this.internal_objectChanges == null) {
       this.internal_objectChanges = new LinkedHashSet<ProvisioningObjectChange>();
     }

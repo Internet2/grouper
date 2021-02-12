@@ -387,6 +387,9 @@ public class GrouperRequestContainer {
     }
     
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    if (httpServletRequest == null) {
+      throw new RuntimeException("This is not a UI environment.  Either pass the env var: GROUPER_UI=true, or set in grouper.hibernate.properties: grouper.is.ui=true");
+    }
     String attributeName = "grouperRequestContainer";
     GrouperRequestContainer grouperRequestContainer = 
       (GrouperRequestContainer)httpServletRequest.getAttribute(attributeName);
