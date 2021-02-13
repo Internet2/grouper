@@ -614,6 +614,53 @@ TODO update for 1.5
       String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
       boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
       CompositeType customCompositeType, Group customCompositeGroup);
+  
+  /**
+   * find memberships by group owner and other options.  
+   * @param groupIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param fields if finding one field, list here, otherwise all list fields will be returned
+   * @param privilegesTheUserHas check to make sure the user has these privileges on the records
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType field type of of memberships
+   * @param serviceId 
+   * @param serviceRole 
+   * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
+   * @param filterForMember if paging for member, then also filter for member 
+   * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param queryOptionsForGroup 
+   * @param scopeForGroup 
+   * @param splitScopeForGroup 
+   * @param hasFieldForGroup 
+   * @param hasMembershipTypeForGroup 
+   * @param memberHasMembershipForGroup makes sure this member has a membership in the group before returning any results
+   * @param hasEnabledDate 
+   * @param hasDisabledDate 
+   * @param customCompositeType 
+   * @param customCompositeGroup 
+   * @param queryOptionsForMembership
+   * @return a set of membership, group, and member objects
+   * @since v2.5
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> fields,  Collection<Privilege> privilegesTheUserHas,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
+      FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
+      String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, Group customCompositeGroup, QueryOptions queryOptionsForMembership);
 
   
   /**

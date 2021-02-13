@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -62,6 +63,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMembershipView;
@@ -102,7 +104,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindMembersInStemPIT"));
+    TestRunner.run(new TestMembershipFinder("testMembershipPaging"));
   }
 
   /**
@@ -1815,6 +1817,65 @@ public class TestMembershipFinder extends GrouperTest {
       .assignSplitScopeForMember(true).assignScopeForMember("subj").assignPointInTimeFrom(new Timestamp(afterDelete0_1)).assignPointInTimeTo(new Timestamp(System.currentTimeMillis())).findPITMembershipsMembers());
     assertEquals(2, listResult.size());
     assertEquals(4, queryOptions.getQueryPaging().getTotalRecordCount());
+  }
+  
+  public void testMembershipPaging() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    RegistrySubject.add(grouperSession, "testAnotherSubject", "person", "testAnotherSubject");
+    RegistrySubject.add(grouperSession, "andAnother", "person", "andAnother");
+    
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+    Subject subj3 = SubjectFinder.findById("test.subject.3", true);
+    Subject subj4 = SubjectFinder.findById("test.subject.4", true);
+    Subject subj5 = SubjectFinder.findById("test.subject.5", true);
+    Subject subj6 = SubjectFinder.findById("test.subject.6", true);
+    Subject subj7 = SubjectFinder.findById("test.subject.7", true);
+    Subject subj8 = SubjectFinder.findById("test.subject.8", true);
+    Subject subj9 = SubjectFinder.findById("test.subject.9", true);
+    Subject testAnotherSubject = SubjectFinder.findById("testAnotherSubject", true);
+    Subject andAnother = SubjectFinder.findById("andAnother", true);
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.addMember(testAnotherSubject);
+    group.addMember(andAnother);
+    group.addMember(subj0);
+    group.addMember(subj1);
+    group.addMember(subj2);
+    group.addMember(subj3);
+    group.addMember(subj4);
+    group.addMember(subj9);
+    group.addMember(subj8);
+    group.addMember(subj7);
+    group.addMember(subj6);
+    group.addMember(subj5);
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.retrieveCount(true).retrieveResults(true);
+    queryOptions.paging(3, 3, false);
+    queryOptions.sort(new QuerySort("ms.createTimeLong, ms.immediateMembershipId", true));
+    
+    MembershipFinder membershipFinder = new MembershipFinder();
+    membershipFinder.addGroup(group);
+    membershipFinder.addField(Group.getDefaultList());
+    membershipFinder.assignCheckSecurity(true);
+    membershipFinder.assignEnabled(true);
+    membershipFinder.assignScopeForMember("test");
+    membershipFinder.assignQueryOptionsForMembership(queryOptions);
+    membershipFinder.assignMembershipType(MembershipType.IMMEDIATE);
+    Set<Object[]> results = membershipFinder.findMembershipsMembers();
+    List<Membership> memberships = new ArrayList<Membership>();
+    for (Object[] result : results) {
+      Membership membership = (Membership)result[0];
+      memberships.add(membership);
+    }
+
+    assertEquals(11, queryOptions.getCount().intValue());
+    assertEquals(3, memberships.size());
+    assertEquals("test.subject.9", memberships.get(0).getMember().getSubjectId());
+    assertEquals("test.subject.8", memberships.get(1).getMember().getSubjectId());
+    assertEquals("test.subject.7", memberships.get(2).getMember().getSubjectId());
   }
 }
 

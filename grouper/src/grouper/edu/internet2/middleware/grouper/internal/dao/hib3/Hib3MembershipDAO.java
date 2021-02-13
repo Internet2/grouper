@@ -590,7 +590,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, GrouperUtil.toSet(field), null, sources, 
         scope, stem, stemScope, enabled, checkSecurity, null, null, null, null, null, false, 
-        false, false, null, null, false, false, false, null, null, null, null, null);
+        false, false, null, null, false, false, false, null, null, null, null, null, null);
   }
 
   /**
@@ -606,7 +606,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, GrouperUtil.toSet(field), null, sources, 
         scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false, 
-        null, null, false, false, false, null, null, null, null, null);
+        null, null, false, false, false, null, null, null, null, null, null);
     
   }
 
@@ -627,7 +627,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         fields, privilegesTheUserHas, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
         serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
         hasFieldForMember, hasMembershipTypeForMember, queryOptionsForGroup, scopeForGroup, 
-        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, null, null, null, null);
+        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, null, null, null, null, null);
   }
   
   /**
@@ -649,7 +649,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
         hasFieldForMember, hasMembershipTypeForMember, queryOptionsForGroup, scopeForGroup, 
         splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, hasEnabledDate, hasDisabledDate,
-        customCompositeType, customCompositeGroup);
+        customCompositeType, customCompositeGroup, null);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, java.util.Collection, java.util.Collection, java.util.Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, java.lang.Boolean, edu.internet2.middleware.grouper.FieldType, java.lang.String, edu.internet2.middleware.grouper.service.ServiceRole, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, boolean, edu.internet2.middleware.grouper.Member, java.lang.Boolean, java.lang.Boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Collection<Field> fields,  Collection<Privilege> privilegesTheUserHas,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
+      String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
+      CompositeType customCompositeType, Group customCompositeGroup, QueryOptions queryOptionsForMembership) {
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds,
+        totalMembershipIds, membershipType,
+        fields, privilegesTheUserHas, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
+        serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
+        hasFieldForMember, hasMembershipTypeForMember, queryOptionsForGroup, scopeForGroup, 
+        splitScopeForGroup, hasFieldForGroup, hasMembershipTypeForGroup, memberHasMembershipForGroup, hasEnabledDate, hasDisabledDate,
+        customCompositeType, customCompositeGroup, queryOptionsForMembership);
   }
 
   /**
@@ -682,6 +704,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param memberHasMembershipForGroup 
    * @param hasEnabledDate
    * @param hasDisabledDate
+   * @param customCompositeType
+   * @param customCompositeGroup
+   * @param queryOptionsForMembership
    * @return results
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Collection, Set, String, Stem, Scope, Boolean, Boolean, FieldType, String, ServiceRole, QueryOptions, String, boolean, boolean, boolean, QueryOptions, String, boolean, boolean, boolean, Member)
    */
@@ -693,7 +718,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
       String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
       boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup, Boolean hasEnabledDate, Boolean hasDisabledDate,
-      CompositeType customCompositeType, final Group customCompositeGroup) {
+      CompositeType customCompositeType, final Group customCompositeGroup, QueryOptions queryOptionsForMembership) {
 
     QueryOptions.initTotalCount(queryOptionsForGroup);
     QueryOptions.initTotalCount(queryOptionsForMember);
@@ -718,7 +743,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
 
-    Set<Object[]> totalResults = new HashSet<Object[]>();
+    Set<Object[]> totalResults = new LinkedHashSet<Object[]>();
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -1074,6 +1099,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxPageSize", 500);
 
           {
+            
             boolean pageMembers = queryOptionsForMember != null && queryOptionsForMember.getQueryPaging() != null;
             
             if (pageMembers) {
@@ -1098,12 +1124,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               
             }
   
-            if (!StringUtils.isBlank(filterForMember) && !pageMembers) {
-              throw new RuntimeException("If you are filtering by member, then you must page members");
-            }
+            // should be fine to filter on member without paging
+            //if (!StringUtils.isBlank(filterForMember) && !pageMembers) {
+            //  throw new RuntimeException("If you are filtering by member, then you must page members");
+            //}
   
             //if -1, lets not check
-            if (maxMemberships >= 0 && !pageMembers && queryOptionsForGroup == null) {
+            if (maxMemberships >= 0 && !pageMembers && queryOptionsForGroup == null && queryOptionsForMembership == null) {
     
               long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
               
@@ -1153,7 +1180,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(totalGroupIds, theMemberIds,
                   totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, hasFieldForMember ? null : fields,  privilegesTheUserHas,
                   sources, scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, 
-                  null, null, false, false, false, null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
+                  null, null, false, false, false, null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup, null);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -1265,7 +1292,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(theGroupIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForGroup ? null : membershipType, hasFieldForGroup ? null : fields, privilegesTheUserHas, 
                   sources, scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false, 
-                  null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup);
+                  null, null, false, false, false, null, hasEnabledDate, hasDisabledDate, customCompositeType, customCompositeGroup, null);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -1291,6 +1318,40 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             
           }
           
+          boolean pageMemberships = queryOptionsForMembership != null && queryOptionsForGroup == null && queryOptionsForMember == null;
+
+          {
+            //sort for memberships            
+            if (pageMemberships) {
+
+              if (queryOptionsForMembership.getQueryPaging() == null) {
+                throw new RuntimeException("If paging by membership, then paging must be set in the query options");
+              }
+              
+              if (queryOptionsForMembership.getQuerySort() == null) {
+                throw new RuntimeException("If paging by membership, then sorting must be set in the query options");
+              }
+
+              //cant page too much...
+              if (queryOptionsForMembership.getQueryPaging().getPageSize() > maxPageSize) {
+                throw new RuntimeException("Cant get a page size greater then " + maxPageSize + "! " 
+                    + queryOptionsForMembership.getQueryPaging().getPageSize());
+              }
+
+              if (groupBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 groupBatch if paging memberships");
+              }
+              
+              if (memberBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 memberBatch if paging memberships");
+              }
+              
+              if (membershipBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 membershipBatch if paging memberships");
+              }              
+            }
+          }
+          
           //if -1, lets not check
           if (maxMemberships >= 0) {
 
@@ -1311,6 +1372,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           }
                    
           if (queryOptionsForMember == null || queryOptionsForMember.isRetrieveResults()) {
+            if (pageMemberships) {
+              byHqlStatic.options(queryOptionsForMembership);
+            }
+            
             Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
 
             totalResults.addAll(results);
