@@ -13207,35 +13207,48 @@ public class GrouperUtil {
    * in a map get a value if there and increment or set a value
    * @param map
    * @param key
-   * @param numberToAdd int or long
+   * @param numberToAdd long
    */
-  public static void mapAddValue(Map<String, Object> map, String key, Object numberToAdd) {
-    if (map == null || numberToAdd == null) {
+  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+    if (map == null) {
       return;
     }
-    if (numberToAdd instanceof Integer) {
-
-      Integer intValue = intObjectValue(numberToAdd, false);
-      Object currentValue = map.get(key);
-      if (currentValue != null) {
-        Integer currentIntValue = intObjectValue(currentValue, false);
-        intValue += currentIntValue;
-      }
-      map.put(key, intValue);
-
-    } if (numberToAdd instanceof Long) {
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
       
-      Long longValue = longObjectValue(numberToAdd, false);
-      Object currentValue = map.get(key);
-      if (currentValue != null) {
-        Long currentLongValue = longObjectValue(currentValue, false);
-        longValue += currentLongValue;
-      }
-      map.put(key, longValue);
-        
-    } else {
-      throw new RuntimeException("Not expecting type: " + numberToAdd.getClass());
+      currentValue = 0L;
     }
+
+    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int
+   */
+  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0;
+    }
+
+    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+
   }
 
   /**
