@@ -481,9 +481,12 @@ public class GrouperLoaderResultset {
 
     this.dataIndex = null;
     
-    //small security check (not failsafe, but better than nothing)
-    if (!query.toLowerCase().trim().startsWith("select")) {
-      throw new RuntimeException("Invalid query, must start with select: " + query);
+    {
+      //small security check (not failsafe, but better than nothing)
+      String trimQuery = query.toLowerCase().trim();
+      if (trimQuery.startsWith("insert") || trimQuery.startsWith("update") || trimQuery.startsWith("delete")) {
+        throw new RuntimeException("Invalid query, should start with select: " + query);
+      }
     }
     Connection connection = null;
     Statement statement = null;
