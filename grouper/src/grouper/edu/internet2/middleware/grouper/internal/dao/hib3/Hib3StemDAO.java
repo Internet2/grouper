@@ -2380,7 +2380,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       //we want to put these in in order...
       for (String name : namePageList) {
         name = StringUtils.equals(":", name) ? Stem.ROOT_NAME : name;
-        stems.add(GrouperUtil.retrieveByProperty(currentList, Stem.FIELD_NAME, name));
+        Stem stem = GrouperUtil.retrieveByProperty(currentList, Stem.FIELD_NAME, name);
+        if (stem != null) {
+          stems.add(stem);
+        }
       }
       
     }

@@ -77,6 +77,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -131,6 +132,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -167,13 +170,42 @@ public class GrouperUtil {
 //    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
 //    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
 
-    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
-    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
+//    
+//    String dn = "cn=First\\, Last,ou=whatever,ou=edu";
+//    String cn = new javax.naming.ldap.LdapName(dn).getRdn(
+//        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
+//    System.out.println(cn);
     
-    String dn = "cn=First\\, Last,ou=whatever,ou=edu";
-    String cn = new javax.naming.ldap.LdapName(dn).getRdn(
-        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
-    System.out.println(cn);
+    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+    grouperProvisioningGroup.setName("org:flint:app:Flint_AD:service:policy:Flint_AD_Alumni_Folder:Flint_AD_Alumni");
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'org:flint:'), 'cn', 'ou', true, false) +  ',OU=Grouper,DC=ads,DC=umflint,DC=net'}"
+//        , variableMap, true, false, false);
+
+    grouperProvisioningGroup.assignAttributeValue("gidNumber", "123456");
+    variableMap.put("targetGroup", grouperProvisioningGroup);
+    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+      "${'(&(gidNumber='+targetGroup.retrieveAttributeValue('gidNumber')+')(objectClass=posixGroup))'}"
+      , variableMap, true, false, false);
+
+    
+    
+//    edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@10253![33,110]: ''(samAccountLink=' + grouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')';' unknown, ambiguous or inaccessible method 
+    
+    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    targetEntity.assignAttributeValue("samAccountName", "mchyzer");
+    variableMap.put("targetEntity", targetEntity);
+    
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//      "${'(samAccountName=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')'}"
+//      , variableMap, true, false, false);
+    
+    System.out.println(result);
+    
   }
 
   /**
@@ -6939,6 +6971,8 @@ public class GrouperUtil {
       return null;
     } else if (input instanceof java.sql.Timestamp) {
       return (Timestamp) input;
+    } else if (input instanceof Long) {
+      return new Timestamp((Long)input);
     } else if (input instanceof String) {
       return stringToTimestamp((String) input);
     } else if (input instanceof Date) {
@@ -7364,6 +7398,61 @@ public class GrouperUtil {
     return intObjectValue(input, false);
   }
 
+  /**
+   * if these are the stems to sync: a:b:c, a:b, a:d, a:b:d, then the top level are: a:b, a:d
+   * @return
+   */
+  public static Set<String> stemCalculateTopLevelStems(Set<String> stems) {
+
+    Set<String> topLevelStems = new TreeSet<String>();
+    
+    if (GrouperUtil.isBlank(stems)) {
+      return topLevelStems;
+    }
+    
+    //lets see if any are root
+    if (stems.contains(":")) {
+      topLevelStems.add(":");
+      return topLevelStems;
+    }
+    
+    
+    // none of these are root stems
+    SYNC_STEMS: 
+    for (String stem : stems) {
+      
+      // loop through the current top level and two do things, remove ones that are covered here, and if this is covered, remove it
+      CURRENT_STEM_PARENT_STEM: 
+      for (String parentStem : GrouperUtil.findParentStemNames(stem)) {
+        if (StringUtils.equals(":", parentStem) || StringUtils.isBlank(parentStem)) {
+          continue CURRENT_STEM_PARENT_STEM;
+        }
+        
+        if (topLevelStems.contains(parentStem)) {
+          continue SYNC_STEMS;
+        }
+        
+      }
+    
+      // remove any in the list which are covered by this one
+      Iterator<String> iterator = topLevelStems.iterator();
+      
+      String syncFolderToAddWithColon = stem + ":";
+      
+      while (iterator.hasNext()) {
+        String currentTopLevelStemToSync = iterator.next();
+        if (currentTopLevelStemToSync.startsWith(syncFolderToAddWithColon)) {
+          iterator.remove();
+        }
+      }
+      
+      //add it
+      topLevelStems.add(stem);
+      
+    }
+    return topLevelStems;
+  }
+  
   /**
    * remove stems that are children of the top level stem
    * @param stems
