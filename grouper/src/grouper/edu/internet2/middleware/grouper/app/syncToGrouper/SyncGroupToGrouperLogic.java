@@ -239,14 +239,6 @@ public class SyncGroupToGrouperLogic {
 
   /**
    * 
-   * @param stemInserts
-   */
-  public void setGroupInserts(List<SyncGroupToGrouperBean> stemInserts) {
-    this.groupInserts = stemInserts;
-  }
-
-  /**
-   * 
    */
   private List<SyncGroupToGrouperBean> groupUpdates = new ArrayList<SyncGroupToGrouperBean>();
   
@@ -256,14 +248,6 @@ public class SyncGroupToGrouperLogic {
    */
   public List<SyncGroupToGrouperBean> getGroupUpdates() {
     return groupUpdates;
-  }
-
-  /**
-   * 
-   * @param groupUpdates
-   */
-  public void setGroupUpdates(List<SyncGroupToGrouperBean> groupUpdates) {
-    this.groupUpdates = groupUpdates;
   }
 
   private void compareGroups() {
@@ -403,14 +387,6 @@ public class SyncGroupToGrouperLogic {
    */
   public List<Group> getGroupDeletes() {
     return groupDeletes;
-  }
-
-  /**
-   * group deletes
-   * @param groupDeletes
-   */
-  public void setGroupDeletes(List<Group> groupDeletes) {
-    this.groupDeletes = groupDeletes;
   }
 
 }

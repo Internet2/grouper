@@ -11,6 +11,7 @@ public class SyncToGrouper {
 
   public SyncToGrouper() {
     
+    this.syncCompositeToGrouperLogic = new SyncCompositeToGrouperLogic(this);
     this.syncGroupToGrouperLogic = new SyncGroupToGrouperLogic(this);
     this.syncStemToGrouperLogic = new SyncStemToGrouperLogic(this);
     this.syncToGrouperReport = new SyncToGrouperReport(this);
@@ -170,6 +171,41 @@ public class SyncToGrouper {
    * group logic for sync
    */
   private SyncGroupToGrouperLogic syncGroupToGrouperLogic = null;
+
+  /**
+   * composites to sync to grouper
+   */
+  private List<SyncCompositeToGrouperBean> syncCompositeToGrouperBeans = null;
+
+  /**
+   * composites to sync to grouper
+   * @return
+   */
+  public List<SyncCompositeToGrouperBean> getSyncCompositeToGrouperBeans() {
+    return syncCompositeToGrouperBeans;
+  }
+
+  /**
+   * composites to sync to grouper
+   * @param syncCompositeToGrouperBeans
+   */
+  public void setSyncCompositeToGrouperBeans(
+      List<SyncCompositeToGrouperBean> syncCompositeToGrouperBeans) {
+    this.syncCompositeToGrouperBeans = syncCompositeToGrouperBeans;
+  }
+
+  /**
+   * composite logic
+   * @return
+   */
+  public SyncCompositeToGrouperLogic getSyncCompositeToGrouperLogic() {
+    return syncCompositeToGrouperLogic;
+  }
+
+  /**
+   * 
+   */
+  private SyncCompositeToGrouperLogic syncCompositeToGrouperLogic = null;
   
   /**
    * generate a report about the sync
@@ -187,6 +223,7 @@ public class SyncToGrouper {
         
         SyncToGrouper.this.syncStemToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncGroupToGrouperLogic.syncLogic();
+        SyncToGrouper.this.syncCompositeToGrouperLogic.syncLogic();
 
         return null;
       }

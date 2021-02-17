@@ -73,6 +73,19 @@ public class SyncStemToGrouperLogic {
 
   /**
    * top level stems to retrieve from database (and substems), as specified by the called
+   * @return top level stems to sync
+   */
+  public boolean isTopLevelStemsHaveRoot() {
+    for (Stem stem : GrouperUtil.nonNull(this.getTopLevelStemsToSync())) {
+      if (stem.isRootStem()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * top level stems to retrieve from database (and substems), as specified by the called
    */
   private Set<String> topLevelStemNamesToSync = new TreeSet<String>();
   
@@ -261,14 +274,6 @@ public class SyncStemToGrouperLogic {
 
   /**
    * 
-   * @param stemInserts
-   */
-  public void setStemInserts(List<SyncStemToGrouperBean> stemInserts) {
-    this.stemInserts = stemInserts;
-  }
-
-  /**
-   * 
    */
   private List<SyncStemToGrouperBean> stemUpdates = new ArrayList<SyncStemToGrouperBean>();
   
@@ -278,14 +283,6 @@ public class SyncStemToGrouperLogic {
    */
   public List<SyncStemToGrouperBean> getStemUpdates() {
     return stemUpdates;
-  }
-
-  /**
-   * 
-   * @param stemUpdates
-   */
-  public void setStemUpdates(List<SyncStemToGrouperBean> stemUpdates) {
-    this.stemUpdates = stemUpdates;
   }
 
   private void compareStems() {
@@ -399,14 +396,6 @@ public class SyncStemToGrouperLogic {
    */
   public List<Stem> getStemDeletes() {
     return stemDeletes;
-  }
-
-  /**
-   * stem deletes
-   * @param stemDeletes
-   */
-  public void setStemDeletes(List<Stem> stemDeletes) {
-    this.stemDeletes = stemDeletes;
   }
 
 }

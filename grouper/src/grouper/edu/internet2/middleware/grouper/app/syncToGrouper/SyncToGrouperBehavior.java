@@ -246,6 +246,27 @@ public class SyncToGrouperBehavior {
   private boolean groupSyncFromStems;
 
   /**
+   * should we sync composites from stems or pass in the composites to sync
+   */
+  private boolean compositeSyncFromStems;
+
+  /**
+   * should we sync composites from stems or pass in the composites to sync
+   * @return
+   */
+  public boolean isCompositeSyncFromStems() {
+    return compositeSyncFromStems;
+  }
+
+  /**
+   * should we sync composites from stems or pass in the composites to sync
+   * @param compositeSyncFromStems
+   */
+  public void setCompositeSyncFromStems(boolean compositeSyncFromStems) {
+    this.compositeSyncFromStems = compositeSyncFromStems;
+  }
+
+  /**
    * should we sync groups from stems or pass in the groups to sync
    * @return
    */
@@ -401,7 +422,112 @@ public class SyncToGrouperBehavior {
    * if should sync field type of group
    */
   private boolean groupSyncFieldTypeOfGroup;
+
+  /**
+   * delete extra composites in the ones managed
+   */
+  private boolean compositeDeleteExtra;
+
+  /**
+   * insert composites
+   */
+  private boolean compositeInsert;
+
+  /**
+   * should we sync composites
+   */
+  private boolean compositeSync;
+
+  /**
+   * update composites
+   */
+  private boolean compositeUpdate;
+
+  /**
+   * sync id on insert
+   */
+  private boolean compositeSyncFieldIdOnInsert;
   
+  /**
+   * sync id on insert
+   * @return
+   */
+  public boolean isCompositeSyncFieldIdOnInsert() {
+    return compositeSyncFieldIdOnInsert;
+  }
+
+  /**
+   * sync id on insert
+   * @param compositeSyncFieldIdOnInsert
+   */
+  public void setCompositeSyncFieldIdOnInsert(boolean compositeSyncFieldIdOnInsert) {
+    this.compositeSyncFieldIdOnInsert = compositeSyncFieldIdOnInsert;
+  }
+
+  /**
+   * delete extra composites in the ones managed
+   * @return
+   */
+  public boolean isCompositeDeleteExtra() {
+    return compositeDeleteExtra;
+  }
+
+  /**
+   * delete extra composites in the ones managed
+   * @param compositeDeleteExtra
+   */
+  public void setCompositeDeleteExtra(boolean compositeDeleteExtra) {
+    this.compositeDeleteExtra = compositeDeleteExtra;
+  }
+
+  /**
+   * insert composites
+   * @return
+   */
+  public boolean isCompositeInsert() {
+    return compositeInsert;
+  }
+
+  /**
+   * insert composites
+   * @param compositeInsert
+   */
+  public void setCompositeInsert(boolean compositeInsert) {
+    this.compositeInsert = compositeInsert;
+  }
+
+  /**
+   * should we sync composites
+   * @return
+   */
+  public boolean isCompositeSync() {
+    return compositeSync;
+  }
+
+  /**
+   * should we sync composites
+   * @param compositeSync
+   */
+  public void setCompositeSync(boolean compositeSync) {
+    this.compositeSync = compositeSync;
+  }
+
+  /**
+   * update composites
+   * @return
+   */
+  public boolean isCompositeUpdate() {
+    return compositeUpdate;
+  }
+
+  /**
+   * update composites
+   * @param compositeUpdate
+   */
+  public void setCompositeUpdate(boolean compositeUpdate) {
+    this.compositeUpdate = compositeUpdate;
+  }
+
   /**
    * if should sync field type of group
    * @return

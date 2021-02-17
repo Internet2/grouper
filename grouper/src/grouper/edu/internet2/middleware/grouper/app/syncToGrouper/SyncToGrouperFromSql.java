@@ -235,6 +235,27 @@ public class SyncToGrouperFromSql {
   private String groupSql;
 
   /**
+   * sql to get composites
+   */
+  private String compositeSql;
+
+  /**
+   * sql to get composites
+   * @return
+   */
+  public String getCompositeSql() {
+    return compositeSql;
+  }
+
+  /**
+   * sql to get composites
+   * @param compositeSql
+   */
+  public void setCompositeSql(String compositeSql) {
+    this.compositeSql = compositeSql;
+  }
+
+  /**
    * sql to get groups
    * @return
    */
@@ -449,6 +470,117 @@ public class SyncToGrouperFromSql {
       }
     }
     
+  }
+
+  /**
+   * 
+   */
+  public void loadCompositeDataFromSql() {
+    
+    GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
+    
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSync()) {
+      
+      GcDbAccess compositeDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
+      List<Object> bindVars = new ArrayList<Object>();
+      if (StringUtils.isBlank(this.compositeSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+  
+        this.compositeSql = buildGrouperCompositeQuery(bindVars);
+        
+        compositeDbAccess.bindVars(bindVars);
+      }
+      
+      GrouperUtil.assertion(StringUtils.isNotBlank(this.compositeSql), "If syncing composites, then compositeSql is required!");
+  
+      try {
+        GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, this.compositeSql, bindVars);
+        
+        GcTableSyncColumnMetadata idColumn = 
+            gcTableSyncTableMetadata.lookupColumn("id", this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSyncFieldIdOnInsert());
+        GcTableSyncColumnMetadata ownerNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("owner_name", true);
+        GcTableSyncColumnMetadata leftFactorNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("left_factor_name", true);
+        GcTableSyncColumnMetadata rightFactorNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("right_factor_name", true);
+        GcTableSyncColumnMetadata typeColumn = 
+            gcTableSyncTableMetadata.lookupColumn("type", true);
+        
+        List<Object[]> comopsiteArrayList = compositeDbAccess.sql(this.compositeSql).selectList(Object[].class);
+            
+        List<SyncCompositeToGrouperBean> syncCompositeToGrouperBeans = new ArrayList<SyncCompositeToGrouperBean>();
+        for (Object[] compositeArray : GrouperUtil.nonNull(comopsiteArrayList)) {
+          String ownerName = (String)compositeArray[ownerNameColumn.getColumnIndexZeroIndexed()];
+          String leftFactorName = (String)compositeArray[leftFactorNameColumn.getColumnIndexZeroIndexed()];
+          String rightFactorName = (String)compositeArray[rightFactorNameColumn.getColumnIndexZeroIndexed()];
+          String type = (String)compositeArray[typeColumn.getColumnIndexZeroIndexed()];
+          SyncCompositeToGrouperBean syncCompositeToGrouperBean = new SyncCompositeToGrouperBean();
+          syncCompositeToGrouperBean.assignOwnerName(ownerName);
+          syncCompositeToGrouperBean.assignLeftFactorName(leftFactorName);
+          syncCompositeToGrouperBean.assignRightFactorName(rightFactorName);
+          syncCompositeToGrouperBean.assignType(type);
+          
+          if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSyncFieldIdOnInsert()) {
+            String id = (String)compositeArray[idColumn.getColumnIndexZeroIndexed()];
+            if (!StringUtils.isBlank(id)) {
+              syncCompositeToGrouperBean.assignId(id);
+            }
+          }
+          
+          syncCompositeToGrouperBeans.add(syncCompositeToGrouperBean);
+        }
+        this.syncToGrouper.setSyncCompositeToGrouperBeans(syncCompositeToGrouperBeans);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "sql: '" + this.compositeSql + "', ");
+        throw re;
+      }
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  private String buildGrouperCompositeQuery(List<Object> bindVars) {
+
+    String schema = "";
+    if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+      schema = StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+      if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+        schema += ".";
+      }
+    }
+
+    StringBuilder theStemSql = new StringBuilder(
+        "SELECT group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
+        + "FROM " + schema + "grouper_composites gc, " + schema + "grouper_groups group_owner, " + schema + "grouper_groups group_left_factor, "
+            + schema + "grouper_groups group_right_factor "
+        + "WHERE gc.owner = group_owner.id AND gc.left_factor = group_left_factor.id AND gc.right_factor = group_right_factor.id");
+
+    GrouperUtil.assertion(GrouperUtil.length(this.databaseSyncFromAnotherGrouperTopLevelStems) > 0, 
+        "If syncing grouper and folders then the top level folders are required or : for all");
+    
+    Set<String> topLevelStemSet = new TreeSet<String>(this.databaseSyncFromAnotherGrouperTopLevelStems);
+    if (!topLevelStemSet.contains(":")) {
+      
+      topLevelStemSet = GrouperUtil.stemCalculateTopLevelStems(topLevelStemSet);
+  
+      boolean addedOne = false;
+      
+      GrouperUtil.assertion(GrouperUtil.length(topLevelStemSet) < 400, "Cannot have more than 400 top level stems to sync");
+      theStemSql.append(" and ( ");
+      for (String topLevelStemName : topLevelStemSet) {
+        if (addedOne) {
+          theStemSql.append(" or ");
+        }
+        addedOne = true;
+        // the exact name or the children
+        theStemSql.append("group_owner.name like ?");
+        bindVars.add(topLevelStemName + ":%");
+      }
+      theStemSql.append(" ) ");
+    }
+    return theStemSql.toString();
   }
   
 }

@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * sync to grouper report
@@ -47,7 +48,8 @@ public class SyncToGrouperReport {
    */
   public int getDifferenceCountOverall() {
     return this.getStemInserts() + this.getStemUpdates() + this.getStemDeletes()
-      + this.getGroupInserts() + this.getGroupUpdates() + this.getGroupDeletes();
+      + this.getGroupInserts() + this.getGroupUpdates() + this.getGroupDeletes()
+      + this.getCompositeInserts() + this.getCompositeUpdates() + this.getCompositeDeletes();
   }
 
   /**
@@ -217,6 +219,62 @@ public class SyncToGrouperReport {
       groupUpdatesNames.add(syncGroupToGrouperBean.getName());
     }
     return groupUpdatesNames;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getCompositeDeletes() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeDeletes());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of Composite names which are deletes
+   */
+  public Set<String> getCompositeDeletesNames() {
+    Set<String> compositeDeletesNames = new TreeSet<String>();
+    for (MultiKey composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeDeletes()))) {
+      compositeDeletesNames.add((String)composite.getKey(0));
+    }
+    return compositeDeletesNames;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getCompositeInserts() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeInserts());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of composites names which are inserts
+   */
+  public Set<String> getCompositeInsertsNames() {
+    Set<String> compositeInsertsNames = new TreeSet<String>();
+    for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeInserts()))) {
+      compositeInsertsNames.add(composite.getOwnerName());
+    }
+    return compositeInsertsNames;
+  }
+
+  public int getCompositeUpdates() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeUpdates());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of composite names which are updates
+   */
+  public Set<String> getCompositeUpdatesNames() {
+    Set<String> stemUpdatesNames = new TreeSet<String>();
+    for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeUpdates()))) {
+      stemUpdatesNames.add(composite.getOwnerName());
+    }
+    return stemUpdatesNames;
   }
 
 }

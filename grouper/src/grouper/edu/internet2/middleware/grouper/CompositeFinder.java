@@ -37,11 +37,15 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
@@ -51,9 +55,75 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class CompositeFinder {
 
   /**
+   * parent stem id of owner group of composites to find
+   */
+  private String parentStemId;
+  
+  /**
+   * 
+   * @param parentStemId1
+   * @return this for chaining
+   */
+  public CompositeFinder assignParentStemId(String parentStemId1) {
+    this.parentStemId = parentStemId1;
+    return this;
+  }
+  
+  /**
+   * stem scope of parent stem id
+   */
+  private Scope stemScope;
+  /**
+   * find groups where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+  /**
+   * this is the subject that has certain memberships
+   */
+  private Subject subject;
+
+  /**
+   * 
+   * @param theScope
+   * @return this for chaining
+   */
+  public CompositeFinder assignStemScope(Scope theScope) {
+    this.stemScope = theScope;
+    return this;
+  }
+  
+  /**
+   * find composites
+   * @return composites
+   */
+  public Set<Composite> findComposites() {
+    return GrouperDAOFactory.getFactory().getComposite().find(GrouperSession.staticGrouperSession(), this.parentStemId, this.stemScope, this.subject, this.privileges);
+  }
+  
+  /**
+   * assign privileges to filter by that the subject has on the owner group
+   * @param theGroups
+   * @return this for chaining
+   */
+  public CompositeFinder assignPrivileges(Set<Privilege> theGroups) {
+    this.privileges = theGroups;
+    return this;
+  }
+
+  /**
+   * this is the subject that has certain memberships in the query on owner group
+   * @param theSubject
+   * @return this for chaining
+   */
+  public CompositeFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+
+  /**
    * 
    */
-  private CompositeFinder() {
+  public CompositeFinder() {
     super();
   } 
 

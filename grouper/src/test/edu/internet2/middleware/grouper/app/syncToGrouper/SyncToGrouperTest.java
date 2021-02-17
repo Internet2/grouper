@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
+import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -33,7 +34,7 @@ public class SyncToGrouperTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new SyncToGrouperTest("testSyncFromGrouper"));
+    TestRunner.run(new SyncToGrouperTest("testSyncCompositeDb"));
     
   }
   
@@ -64,7 +65,6 @@ public class SyncToGrouperTest extends GrouperTest {
     syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
     syncToGrouperReport = syncToGrouper.syncLogic();
 
-    
     assertFalse(syncToGrouperReport.getOutputLines().contains(SyncStemToGrouperLogic.STEM_SYNC_FALSE));
     assertTrue(syncToGrouperReport.getOutputLines().contains(SyncStemToGrouperLogic.NO_FOLDERS_TO_SYNC));
     assertEquals(0, syncToGrouperReport.getStemInserts());
@@ -281,11 +281,13 @@ public class SyncToGrouperTest extends GrouperTest {
   public void dropTables() {
     SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_stem");
     SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_group");
+    SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_composite");
   }
 
   public void createTables() {
     createTableStem();
     createTableGroup();
+    createTableComposite();
   }
 
   /**
@@ -1304,6 +1306,303 @@ public class SyncToGrouperTest extends GrouperTest {
     assertTrue(syncToGrouper.isSuccess());
   
   
+  }
+
+  public void testSyncComposites() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    SyncToGrouper syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeUpdate(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFieldIdOnInsert(true);
+    
+    String testComposite1uuid = GrouperUuid.getUuid();
+    String testComposite2uuid = GrouperUuid.getUuid();
+    
+    new StemSave(grouperSession).assignName("test").save();
+    Group test_composite_owner1 = new GroupSave(grouperSession).assignName("test:composite_owner1").save();
+    Group test_composite_owner2 = new GroupSave(grouperSession).assignName("test:composite_owner2").save();
+    Group test_composite_owner3 = new GroupSave(grouperSession).assignName("test:composite_owner3").save();
+    Group test_composite_left1 = new GroupSave(grouperSession).assignName("test:composite_left1").save();
+    Group test_composite_left2 = new GroupSave(grouperSession).assignName("test:composite_left2").save();
+    Group test_composite_left3 = new GroupSave(grouperSession).assignName("test:composite_left3").save();
+    Group test_composite_right1 = new GroupSave(grouperSession).assignName("test:composite_right1").save();
+    Group test_composite_right2 = new GroupSave(grouperSession).assignName("test:composite_right2").save();
+    Group test_composite_right3 = new GroupSave(grouperSession).assignName("test:composite_right3").save();
+    
+    new CompositeSave().assignOwnerName(test_composite_owner3.getName())
+      .assignLeftFactorName(test_composite_left3.getName()).assignRightFactorName(test_composite_right3.getName()).assignType("complement").save();
+    
+    syncToGrouper.setSyncStemToGrouperBeans(
+        GrouperUtil.toList(new SyncStemToGrouperBean("test")));
+    syncToGrouper.setSyncCompositeToGrouperBeans(
+        GrouperUtil.toList(
+            new SyncCompositeToGrouperBean().assignId(testComposite1uuid)
+              .assignOwnerName("test:composite_owner1")
+              .assignLeftFactorName("test:composite_left1").assignRightFactorName("test:composite_right1")
+              .assignType("complement"),
+            new SyncCompositeToGrouperBean().assignId(testComposite2uuid)
+            .assignOwnerName("test:composite_owner2")
+              .assignLeftFactorName("test:composite_left2").assignRightFactorName("test:composite_right2")
+              .assignType("intersection")));
+
+    SyncToGrouperReport syncToGrouperReport = syncToGrouper.syncLogic();
+
+    assertEquals(1, GrouperUtil.length(syncToGrouper.getSyncCompositeToGrouperLogic().getGrouperCompositeOwnerLeftRightTypeToComposite()));
+
+    assertEquals(2, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(2, syncToGrouperReport.getCompositeInserts());
+    assertEquals(2, GrouperUtil.length(syncToGrouperReport.getCompositeInsertsNames()));
+    assertTrue(syncToGrouperReport.getCompositeInsertsNames().contains("test:composite_owner1"));
+    assertTrue(syncToGrouperReport.getCompositeInsertsNames().contains("test:composite_owner2"));
+    assertEquals(2, syncToGrouperReport.getChangeCountOverall());
+    assertEquals(0, syncToGrouperReport.getErrorLines().size());
+    
+    assertTrue(test_composite_owner1.hasComposite());
+    assertEquals("test:composite_left1", test_composite_owner1.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right1", test_composite_owner1.getComposite(true).getRightGroup().getName());
+    assertEquals("complement", test_composite_owner1.getComposite(true).getTypeDb());
+    assertEquals(testComposite1uuid, test_composite_owner1.getComposite(true).getUuid());
+    assertTrue(test_composite_owner2.hasComposite());
+    assertEquals("test:composite_left2", test_composite_owner2.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right2", test_composite_owner2.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner2.getComposite(true).getTypeDb());
+    assertEquals(testComposite2uuid, test_composite_owner2.getComposite(true).getUuid());
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+    // #############################
+    
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeUpdate(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeDeleteExtra(true);
+    
+    syncToGrouper.setSyncStemToGrouperBeans(
+        GrouperUtil.toList(new SyncStemToGrouperBean("test")));
+    syncToGrouper.setSyncCompositeToGrouperBeans(
+        GrouperUtil.toList(
+            new SyncCompositeToGrouperBean().assignId(testComposite1uuid)
+              .assignOwnerName("test:composite_owner1")
+              .assignLeftFactorName("test:composite_left1").assignRightFactorName("test:composite_right1")
+              .assignType("intersection"),
+            new SyncCompositeToGrouperBean().assignId(testComposite1uuid)
+            .assignOwnerName("test:composite_owner2")
+              .assignLeftFactorName("test:composite_left2").assignRightFactorName("test:composite_right2")
+              .assignType("intersection")));
+
+    syncToGrouperReport = syncToGrouper.syncLogic();
+
+    assertEquals(3, GrouperUtil.length(syncToGrouper.getSyncCompositeToGrouperLogic().getGrouperCompositeOwnerLeftRightTypeToComposite()));
+
+    assertEquals(0, syncToGrouperReport.getErrorLines().size());
+    assertEquals(1, syncToGrouperReport.getCompositeUpdates());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getCompositeUpdatesNames()));
+    assertTrue(syncToGrouperReport.getCompositeUpdatesNames().contains("test:composite_owner1"));
+    assertEquals(1, syncToGrouperReport.getCompositeDeletes());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getCompositeDeletesNames()));
+    assertTrue(syncToGrouperReport.getCompositeDeletesNames().contains("test:composite_owner3"));
+    assertEquals(2, syncToGrouperReport.getChangeCountOverall());
+    assertEquals(2, syncToGrouperReport.getDifferenceCountOverall());
+    
+    assertTrue(test_composite_owner1.hasComposite());
+    assertEquals("test:composite_left1", test_composite_owner1.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right1", test_composite_owner1.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner1.getComposite(true).getTypeDb());
+    assertFalse(StringUtils.equals(testComposite1uuid, test_composite_owner1.getComposite(true).getUuid()));
+    assertTrue(test_composite_owner2.hasComposite());
+    assertEquals("test:composite_left2", test_composite_owner2.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right2", test_composite_owner2.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner2.getComposite(true).getTypeDb());
+    assertEquals(testComposite2uuid, test_composite_owner2.getComposite(true).getUuid());
+    assertFalse(test_composite_owner3.hasComposite());
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+  }
+
+  public void testSyncCompositeDb() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    dropTables();
+    createTables();
+    
+    SyncToGrouper syncToGrouper = new SyncToGrouper();
+    
+    // ##############
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
+    syncToGrouper.getSyncToGrouperFromSql().setStemSql("select * from testgrouper_syncgr_stem");
+    syncToGrouper.getSyncToGrouperFromSql().setGroupSql("select * from testgrouper_syncgr_group");
+    syncToGrouper.getSyncToGrouperFromSql().setCompositeSql("select * from testgrouper_syncgr_composite");
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeUpdate(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFieldIdOnInsert(true);
+
+    SyncStemToGrouperBean syncStemToGrouperBeanTest = new SyncStemToGrouperBean("test");
+    syncStemToGrouperBeanTest.store();
+    
+    new StemSave(grouperSession).assignName("test").save();
+  
+    String testComposite1uuid = GrouperUuid.getUuid();
+    String testComposite2uuid = GrouperUuid.getUuid();
+    
+    new StemSave(grouperSession).assignName("test").save();
+    Group test_composite_owner1 = new GroupSave(grouperSession).assignName("test:composite_owner1").save();
+    Group test_composite_owner2 = new GroupSave(grouperSession).assignName("test:composite_owner2").save();
+    Group test_composite_owner3 = new GroupSave(grouperSession).assignName("test:composite_owner3").save();
+    Group test_composite_left1 = new GroupSave(grouperSession).assignName("test:composite_left1").save();
+    Group test_composite_left2 = new GroupSave(grouperSession).assignName("test:composite_left2").save();
+    Group test_composite_left3 = new GroupSave(grouperSession).assignName("test:composite_left3").save();
+    Group test_composite_right1 = new GroupSave(grouperSession).assignName("test:composite_right1").save();
+    Group test_composite_right2 = new GroupSave(grouperSession).assignName("test:composite_right2").save();
+    Group test_composite_right3 = new GroupSave(grouperSession).assignName("test:composite_right3").save();
+  
+    new CompositeSave().assignOwnerName(test_composite_owner3.getName())
+      .assignLeftFactorName(test_composite_left3.getName()).assignRightFactorName(test_composite_right3.getName()).assignType("complement").save();
+
+    SyncCompositeToGrouperBean syncCompositeToGrouperBean1 = new SyncCompositeToGrouperBean().assignIdForInsert(testComposite1uuid)
+      .assignOwnerName("test:composite_owner1")
+      .assignLeftFactorName("test:composite_left1").assignRightFactorName("test:composite_right1")
+      .assignType("complement");
+    syncCompositeToGrouperBean1.store();    
+
+    SyncCompositeToGrouperBean syncCompositeToGrouperBean2 = new SyncCompositeToGrouperBean().assignIdForInsert(testComposite2uuid)
+      .assignOwnerName("test:composite_owner2")
+      .assignLeftFactorName("test:composite_left2").assignRightFactorName("test:composite_right2")
+      .assignType("intersection");
+    syncCompositeToGrouperBean2.store();    
+
+    SyncToGrouperReport syncToGrouperReport = syncToGrouper.syncLogic();
+
+    assertEquals(1, GrouperUtil.length(syncToGrouper.getSyncCompositeToGrouperLogic().getGrouperCompositeOwnerLeftRightTypeToComposite()));
+
+    assertEquals(2, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(2, syncToGrouperReport.getCompositeInserts());
+    assertEquals(2, GrouperUtil.length(syncToGrouperReport.getCompositeInsertsNames()));
+    assertTrue(syncToGrouperReport.getCompositeInsertsNames().contains("test:composite_owner1"));
+    assertTrue(syncToGrouperReport.getCompositeInsertsNames().contains("test:composite_owner2"));
+    assertEquals(2, syncToGrouperReport.getChangeCountOverall());
+    assertEquals(0, syncToGrouperReport.getErrorLines().size());
+    
+    assertTrue(test_composite_owner1.hasComposite());
+    assertEquals("test:composite_left1", test_composite_owner1.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right1", test_composite_owner1.getComposite(true).getRightGroup().getName());
+    assertEquals("complement", test_composite_owner1.getComposite(true).getTypeDb());
+    assertEquals(testComposite1uuid, test_composite_owner1.getComposite(true).getUuid());
+    assertTrue(test_composite_owner2.hasComposite());
+    assertEquals("test:composite_left2", test_composite_owner2.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right2", test_composite_owner2.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner2.getComposite(true).getTypeDb());
+    assertEquals(testComposite2uuid, test_composite_owner2.getComposite(true).getUuid());
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+    // #############################
+    
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
+    syncToGrouper.getSyncToGrouperFromSql().setStemSql("select * from testgrouper_syncgr_stem");
+    syncToGrouper.getSyncToGrouperFromSql().setGroupSql("select * from testgrouper_syncgr_group");
+    syncToGrouper.getSyncToGrouperFromSql().setCompositeSql("select * from testgrouper_syncgr_composite");
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeUpdate(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFieldIdOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeDeleteExtra(true);
+
+    
+    syncCompositeToGrouperBean1.assignType("intersection");
+    syncCompositeToGrouperBean1.store();
+    
+    syncToGrouperReport = syncToGrouper.syncLogic();
+
+    assertEquals(3, GrouperUtil.length(syncToGrouper.getSyncCompositeToGrouperLogic().getGrouperCompositeOwnerLeftRightTypeToComposite()));
+
+    assertEquals(0, syncToGrouperReport.getErrorLines().size());
+    assertEquals(1, syncToGrouperReport.getCompositeUpdates());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getCompositeUpdatesNames()));
+    assertTrue(syncToGrouperReport.getCompositeUpdatesNames().contains("test:composite_owner1"));
+    assertEquals(1, syncToGrouperReport.getCompositeDeletes());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getCompositeDeletesNames()));
+    assertTrue(syncToGrouperReport.getCompositeDeletesNames().contains("test:composite_owner3"));
+    assertEquals(2, syncToGrouperReport.getChangeCountOverall());
+    assertEquals(2, syncToGrouperReport.getDifferenceCountOverall());
+    
+    assertTrue(test_composite_owner1.hasComposite());
+    assertEquals("test:composite_left1", test_composite_owner1.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right1", test_composite_owner1.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner1.getComposite(true).getTypeDb());
+    assertFalse(StringUtils.equals(testComposite1uuid, test_composite_owner1.getComposite(true).getUuid()));
+    assertTrue(test_composite_owner2.hasComposite());
+    assertEquals("test:composite_left2", test_composite_owner2.getComposite(true).getLeftGroup().getName());
+    assertEquals("test:composite_right2", test_composite_owner2.getComposite(true).getRightGroup().getName());
+    assertEquals("intersection", test_composite_owner2.getComposite(true).getTypeDb());
+    assertEquals(testComposite2uuid, test_composite_owner2.getComposite(true).getUuid());
+    assertFalse(test_composite_owner3.hasComposite());
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+  
+  }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public void createTableComposite() {
+  
+    final String tableName = "testgrouper_syncgr_composite";
+  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+    
+          
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "owner_name", Types.VARCHAR, "1024", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "left_factor_name", Types.VARCHAR, "1024", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "right_factor_name", Types.VARCHAR, "1024", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "type", Types.VARCHAR, "20", false, true);
+  
+        }
+        
+      });
+    }
   }
 
 
