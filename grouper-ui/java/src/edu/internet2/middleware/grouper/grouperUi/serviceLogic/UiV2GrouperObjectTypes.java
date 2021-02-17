@@ -558,6 +558,7 @@ public class UiV2GrouperObjectTypes {
             return false;
           }
           
+          // likely unreachable code; UiV2Stem.retrieveStemHelper() has already checked for stem admin
           if (!objectTypeContainer.isCanWriteObjectType()) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("grouperObjectTypeNotAllowedToWriteStem")));
