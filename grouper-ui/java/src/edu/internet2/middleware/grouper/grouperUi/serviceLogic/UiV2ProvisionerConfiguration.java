@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +24,6 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguratio
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerDiagnosticsContainer;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -781,7 +779,7 @@ public class UiV2ProvisionerConfiguration {
           // provisioner config type changed
           // let's get values from config files/database
         } else {
-          populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+          provisionerConfiguration.populateConfigurationValuesFromUi(request);
         }
         
         GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
@@ -844,7 +842,7 @@ public class UiV2ProvisionerConfiguration {
       ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
-      populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+      provisionerConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -973,7 +971,7 @@ public class UiV2ProvisionerConfiguration {
         provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
       } else {
         // change was made on the form
-        populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+        provisionerConfiguration.populateConfigurationValuesFromUi(request);
         GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
         provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
       }
@@ -1030,7 +1028,7 @@ public class UiV2ProvisionerConfiguration {
       ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
-      populateProvisionerConfigurationFromUi(request, provisionerConfiguration);
+      provisionerConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -1270,40 +1268,5 @@ public class UiV2ProvisionerConfiguration {
         });
 
   }
-  
-  private void populateProvisionerConfigurationFromUi(final HttpServletRequest request, ProvisionerConfiguration provisionerConfiguration) {
     
-    Map<String, GrouperConfigurationModuleAttribute> attributes = provisionerConfiguration.retrieveAttributes();
-    
-    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      String name = "config_"+attribute.getConfigSuffix();
-      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
-      
-      String elValue = request.getParameter(elCheckboxName);
-      
-      String value = null;
-      if (attribute.getConfigItemMetadata() != null && attribute.getConfigItemMetadata().getFormElement() == ConfigItemFormElement.CHECKBOX) {
-        String[] values = request.getParameterValues(name+"[]");
-        if (values != null && values.length > 0) {
-          value = String.join(",", Arrays.asList(values));
-        }
-      } else {
-        value = request.getParameter(name);
-      }
-      
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
-        attribute.setExpressionLanguage(true);
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
-        attribute.setExpressionLanguageScript(value);
-      } else {
-        attribute.setExpressionLanguage(false);
-        attribute.setValue(value);
-      }
-        
-    }
-    
-  }
-
-  
-  
 }

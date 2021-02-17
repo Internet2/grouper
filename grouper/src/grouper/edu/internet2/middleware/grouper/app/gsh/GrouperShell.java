@@ -45,6 +45,7 @@ import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -355,7 +356,12 @@ private static boolean handleSpecialCase(String[] args) {
         }
       });
       
-      int code = shell.run(body.toString());
+      int code = 0;
+      try {        
+        code = shell.run(body.toString());
+      } catch (GshTemplateReturnException e) {
+        
+      }
 
       System.exit(code);
     }
@@ -366,6 +372,9 @@ private static boolean handleSpecialCase(String[] args) {
    * @param t
    */
   public static void handleFileLoadError(String command, Throwable t) {
+    if (t instanceof GshTemplateReturnException) {
+      return;
+    }
     // This gets called when loading a file.
     // Note that this gets invoked (mostly) during a caught exception.  If an exception is thrown here, the gsh error handle (displayError) will end up being called.
     // If we just print the error, then the processing will continue (e.g. next line of gsh file).

@@ -62,7 +62,7 @@
   			<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                	property="index"
                	value="${attribute.repeatGroupIndex}" />	
-        <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+        	<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                 property="currentConfigSuffix"
                 value="${attribute.configSuffix}" />  
   			

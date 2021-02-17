@@ -360,6 +360,7 @@ public class ConfigItemMetadata {
     copy.required = this.required;
     copy.sensitive = this.sensitive;
     copy.valueType = this.valueType;
+    copy.saveToDb = this.saveToDb;
 //    copy.rawMetadataJson = this.rawMetadataJson;
 //    copy.repeatCount = this.repeatCount;
 //    copy.value = this.valueType;
@@ -389,6 +390,7 @@ public class ConfigItemMetadata {
     this.optionValuesFromClass = null;
     this.checkboxValuesFromClass = null;
     this.readOnly = false;
+    this.saveToDb = true;
     this.repeatGroup = null;
     this.defaultValue = null;
     this.defaultValueEl = null;
@@ -457,6 +459,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("readOnly")) {
         this.readOnly = jsonObject.getBoolean("readOnly");
         jsonObject.remove("readOnly");
+      }
+      
+      if (jsonObject.containsKey("saveToDb")) {
+        this.saveToDb = jsonObject.getBoolean("saveToDb");
+        jsonObject.remove("saveToDb");
       }
       
       if (jsonObject.containsKey("requiresRestart")) {
@@ -842,6 +849,27 @@ public class ConfigItemMetadata {
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
+  }
+  
+  /**
+   * should this propery be saved to database?
+   */
+  private boolean saveToDb = true;
+
+  /**
+   * should this propery be saved to database?
+   * @return
+   */
+  public boolean isSaveToDb() {
+    return this.saveToDb;
+  }
+
+  /**
+   * should this propery be saved to database?
+   * @param readOnly
+   */
+  public void setSaveToDb(boolean saveToDb) {
+    this.saveToDb = saveToDb;
   }
   
   /**

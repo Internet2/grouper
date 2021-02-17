@@ -71,9 +71,14 @@
                       >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
                     
-                    <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
+                    <c:if test="${grouperRequestContainer.subjectSourceContainer.canViewSubjectSources}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources');" style="white-space: nowrap;"
                       >${textContainer.text['subjectSourcesMainLink'] }</a>
+                    </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
+                      >${textContainer.text['gshTemplatesMainLink'] }</a>
                     </c:if>
                     
                     </div>

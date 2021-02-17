@@ -11,10 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -118,7 +116,7 @@ public class UiV2ExternalSystem {
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       } else {
         // change was made on the form
-        populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+        grouperExternalSystem.populateConfigurationValuesFromUi(request);
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       }
@@ -174,7 +172,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.setConfigId(externalSystemConfigId);
       
-      populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+      grouperExternalSystem.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -263,7 +261,7 @@ public class UiV2ExternalSystem {
         }
         
         grouperExternalSystem.setConfigId(externalSystemConfigId);
-        populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+        grouperExternalSystem.populateConfigurationValuesFromUi(request);
         
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
@@ -322,7 +320,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.setConfigId(externalSystemConfigId);
       
-      populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+      grouperExternalSystem.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -684,29 +682,4 @@ public class UiV2ExternalSystem {
     }
   }
   
-  private void populateGrouperExternalSystemFromUi(final HttpServletRequest request, GrouperExternalSystem externalSystem) {
-    
-    Map<String, GrouperConfigurationModuleAttribute> attributes = externalSystem.retrieveAttributes();
-    
-    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      String name = "config_"+attribute.getConfigSuffix();
-      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
-      
-      String elValue = request.getParameter(elCheckboxName);
-      
-      String value = request.getParameter(name);
-      
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
-        attribute.setExpressionLanguage(true);
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
-        attribute.setExpressionLanguageScript(value);
-      } else {
-        attribute.setExpressionLanguage(false);
-        attribute.setValue(value);
-      }
-        
-    }
-    
-  }
-
 }

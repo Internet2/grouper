@@ -150,7 +150,6 @@ public class UiV2SubjectSource {
           // let's get values from config files/database
         } else {
           subjectSourceConfiguration.populateConfigurationValuesFromUi(request);
-          //populateSubjectSourceConfigurationFromUi(request, subjectSourceConfiguration);
         }
         
         GuiSubjectSourceConfiguration guiSubjectSourceConfiguration = GuiSubjectSourceConfiguration.convertFromSubjectSourceConfiguration(subjectSourceConfiguration);
@@ -216,7 +215,6 @@ public class UiV2SubjectSource {
       
       subjectSourceConfiguration.setConfigId(subjectSourceConfigId);
       subjectSourceConfiguration.populateConfigurationValuesFromUi(request);
-      //populateSubjectSourceConfigurationFromUi(request, subjectSourceConfiguration);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();

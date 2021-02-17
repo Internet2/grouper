@@ -52,11 +52,9 @@ import org.quartz.impl.matchers.GroupMatcher;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -485,7 +483,7 @@ public class UiV2Admin extends UiServiceLogicBase {
           // daemon config type changed
           // let's get values from config files/database
         } else {
-          populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+          grouperDaemonConfiguration.populateConfigurationValuesFromUi(request);
         }
   
         GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(grouperDaemonConfiguration);
@@ -560,7 +558,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("enable value can be true or false only");
       }
       
-      populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+      grouperDaemonConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -694,7 +692,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       // change was made on the form
       if (StringUtils.isNotBlank(previousJobName)) {
-        populateDaemonConfigFromUi(request, configToEdit);
+        configToEdit.populateConfigurationValuesFromUi(request);
       }
       
       GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(configToEdit);
@@ -754,7 +752,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         configToEdit.setConfigId(configId);
       }
       
-      populateDaemonConfigFromUi(request, configToEdit);
+      configToEdit.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -800,31 +798,6 @@ public class UiV2Admin extends UiServiceLogicBase {
     
   }
   
-  private void populateDaemonConfigFromUi(HttpServletRequest request, GrouperDaemonConfiguration grouperDaemonConfig) {
-    
-    Map<String, GrouperConfigurationModuleAttribute> attributes = grouperDaemonConfig.retrieveAttributes();
-    
-    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      String name = "config_"+attribute.getConfigSuffix();
-      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
-      
-      String elValue = request.getParameter(elCheckboxName);
-      
-      String value = request.getParameter(name);
-      
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
-        attribute.setExpressionLanguage(true);
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
-        attribute.setExpressionLanguageScript(value);
-      } else {
-        attribute.setExpressionLanguage(false);
-        attribute.setValue(value);
-      }
-        
-    }
-    
-  }
-
   public void jobHistoryChart(HttpServletRequest request, HttpServletResponse response) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 

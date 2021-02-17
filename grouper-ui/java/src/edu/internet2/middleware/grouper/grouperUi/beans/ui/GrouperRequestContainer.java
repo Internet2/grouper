@@ -695,6 +695,23 @@ public class GrouperRequestContainer {
   }
   
   /**
+   * container for gsh templates
+   */
+  private GshTemplateContainer gshTemplateContainer;
+  
+  /**
+   * container for gsh templates
+   * @return the container
+   */
+  public GshTemplateContainer getGshTemplateContainer() {
+    if (this.gshTemplateContainer == null) {
+      this.gshTemplateContainer = new GshTemplateContainer();
+    }
+    
+    return this.gshTemplateContainer;
+  }
+
+  /**
    * container for provisioner configuration
    */
   private ProvisionerConfigurationContainer provisionerConfigurationContainer;

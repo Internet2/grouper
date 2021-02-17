@@ -331,12 +331,52 @@ public abstract class GrouperConfigurationModuleBase {
     return this.objectValueSubstituteMap;
   }
   
+  private static final Pattern otherSuffixPattern = Pattern.compile("^(.*)<otherSuffix_([^>]+)>(.*)$");
   
   public void populateConfigurationValuesFromUi(final HttpServletRequest request) {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
+      
+      if (attribute.isReadOnly()) {
+        
+        if (StringUtils.isNotBlank(attribute.getValue())) {
+          String newValue = attribute.getValue().replace("<configId>", this.getConfigId());
+          attribute.setValue(newValue);
+          
+          if (attribute.getValue().contains("<otherSuffix_")) {
+            
+            Matcher otherSuffixMatcher = otherSuffixPattern.matcher(attribute.getValue());
+            if (otherSuffixMatcher.matches()) {
+              
+              String otherSuffixPrefix = otherSuffixMatcher.group(1);
+              String otherSuffix = otherSuffixMatcher.group(2);
+              String otherSuffixPost = otherSuffixMatcher.group(3);
+              
+              String key = attribute.getConfigSuffix();
+              int lastDotIndex = key.lastIndexOf('.');
+              key = key.substring(0, lastDotIndex);
+              key = key +  "."+otherSuffix;
+              GrouperConfigurationModuleAttribute nameAttribute = attributes.get(key);
+              if (nameAttribute != null) {
+                String nameValue = nameAttribute.getValueOrExpressionEvaluation();
+                if (StringUtils.isNotBlank(nameValue)) {
+                  newValue = otherSuffixPrefix + nameValue + otherSuffixPost;
+                  attribute.setValue(newValue);
+                }
+              }
+            }
+            
+            
+               
+          }
+        }
+        
+        
+        continue;
+      }
+      
       String name = "config_"+attribute.getConfigSuffix();
       String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
       
@@ -1019,7 +1059,7 @@ public abstract class GrouperConfigurationModuleBase {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
       
-      if (grouperConfigModuleAttribute.isHasValue()) {
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
         
         StringBuilder localMessage = new StringBuilder();
         
@@ -1127,6 +1167,10 @@ public abstract class GrouperConfigurationModuleBase {
     for (String suffix : attributesToSave.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributesToSave.get(suffix);
+      
+      if (!grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
+        continue;
+      }
       
       StringBuilder localMessage = new StringBuilder();
       

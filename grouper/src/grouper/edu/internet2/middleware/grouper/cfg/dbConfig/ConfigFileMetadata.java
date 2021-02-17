@@ -180,6 +180,11 @@ public class ConfigFileMetadata {
                 + "defaultValue = "+configItemMetadata.getDefaultValue() +" and defaultValueEl ("+configItemMetadata.getDefaultValueEl() + ") is not blank. Only one property can be set.");
           }
           
+          if (!configItemMetadata.isReadOnly() && !configItemMetadata.isSaveToDb()) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "readOnly = false and saveToDb = false. saveToDb must be true if readOnly is set to false.");
+          }
+          
           rawMetadataJson = null;
           
           if (configLineIsComment) {
