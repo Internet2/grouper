@@ -3,10 +3,13 @@ package edu.internet2.middleware.grouper.app.config;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperConfigurationModuleSubSection {
   
@@ -39,12 +42,18 @@ public class GrouperConfigurationModuleSubSection {
   }
 
   /**
+   * match ldapToSqlAttribute.0
+   */
+  private static Pattern repeatGroupPattern = Pattern.compile("^.*\\.([0-9]+).*$");
+  
+  /**
    * if label blank, there is no heading
    * @return
    */
   public String getTitle() {
     String configPrefix = getConfiguration().getConfigurationTypePrefix();
-    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title");
+    String specificKey = configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title";
+    String title = GrouperTextContainer.textOrNull(specificKey);
     
     if (StringUtils.isBlank(title)) {
       String key = "config.GenericConfiguration.subSection." + this.label + ".title";
@@ -52,12 +61,16 @@ public class GrouperConfigurationModuleSubSection {
     }
     
     if (StringUtils.isBlank(title)) {   
-      if (this.label.matches(".*[0-9].*")) {
+      Matcher matcher = repeatGroupPattern.matcher(this.label);
+      if (matcher.matches()) {
+        int index = GrouperUtil.intValue(matcher.group(1));
         String key = "config.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".title";
         
         //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerTitle");
         
         title = GrouperTextContainer.textOrNull(key);
+        title = StringUtils.replace(title, "__i+1__", (index+1)+"");
+        title = StringUtils.replace(title, "__i__", (index)+"");
       } 
     }
     
@@ -81,12 +94,16 @@ public class GrouperConfigurationModuleSubSection {
     }
     
     if (StringUtils.isBlank(title)) { 
-      if (this.label.matches(".*[0-9].*")) {
+      Matcher matcher = repeatGroupPattern.matcher(this.label);
+      if (matcher.matches()) {
+        int index = GrouperUtil.intValue(matcher.group(1));
         String key = "config.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".description";
 
         //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerDescription");
         
         title = GrouperTextContainer.textOrNull(key);
+        title = StringUtils.replace(title, "__i+1__", (index+1)+"");
+        title = StringUtils.replace(title, "__i__", (index)+"");
       } 
     }
     

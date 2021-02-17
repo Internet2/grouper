@@ -363,6 +363,9 @@ public class GrouperProvisioningTranslatorBase {
                 result = translateFromGrouperProvisioningEntityField(grouperProvisioningEntity, 
                     grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
               }
+              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
+                gcGrouperSyncMember.assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField(), result);
+              }
               grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               if (required && GrouperUtil.isBlank(result)) {
@@ -722,6 +725,9 @@ public class GrouperProvisioningTranslatorBase {
       
       if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
         provisioningGroupWrapper.getGcGrouperSyncGroup().assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField(), result);
+      }
+      if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
+        provisioningEntityWrapper.getGcGrouperSyncMember().assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField(), result);
       }
       
       return result;

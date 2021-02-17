@@ -12,6 +12,13 @@ public class GuiGrouperDaemonConfiguration {
   private String jobName;
   
   private boolean enabled = true;
+
+  private String currentConfigSuffix;
+
+  /**
+   * current grouped config index we are looping through
+   */
+  private int index;
   
   private GuiGrouperDaemonConfiguration(GrouperDaemonConfiguration grouperDaemonConfiguration) {
     this.grouperDaemonConfiguration = grouperDaemonConfiguration;
@@ -55,6 +62,22 @@ public class GuiGrouperDaemonConfiguration {
   
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public String getCurrentConfigSuffix() {
+    return currentConfigSuffix;
+  }
+
+  public void setCurrentConfigSuffix(String currentConfigSuffix) {
+    this.currentConfigSuffix = currentConfigSuffix;
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
   }
   
   

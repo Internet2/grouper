@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.app.provisioning.AllProvisioningTests;
 import edu.internet2.middleware.grouper.app.reports.AllReportsTests;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.AllServiceLifecycleTests;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.AllSqlProvisioningTests;
+import edu.internet2.middleware.grouper.app.subjectSource.AllSubjectSourceTests;
+import edu.internet2.middleware.grouper.app.syncToGrouper.AllSyncToGrouperTests;
 import edu.internet2.middleware.grouper.app.tableSync.AllTableSyncTests;
 import edu.internet2.middleware.grouper.app.upgradeTasks.AllUpgradeTasksTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
@@ -69,6 +71,8 @@ public class AllAppTests {
     suite.addTest(AllReportsTests.suite());
     suite.addTest(AllServiceLifecycleTests.suite());
     suite.addTest(AllSqlProvisioningTests.suite());
+    suite.addTest(AllSubjectSourceTests.suite());
+    suite.addTest(AllSyncToGrouperTests.suite());
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllUpgradeTasksTests.suite());
     suite.addTest(AllDaemonTests.suite());

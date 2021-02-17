@@ -241,7 +241,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -516,7 +516,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -785,7 +785,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
   
@@ -1029,7 +1029,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision(true);
+    attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
   

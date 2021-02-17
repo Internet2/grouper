@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.ldapToSql.GrouperDaemonOtherJobLdapToSqlConfiguration;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -47,6 +48,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDeprovisioningConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobFindBadMembershipsConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobInstrumentationConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobLdapToSqlConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobNotificationConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobProvisioningConfiguration.class.getName());

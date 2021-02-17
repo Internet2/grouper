@@ -579,22 +579,22 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
     assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
     assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    assertNull(grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(true, grouperProvisioningAttributeValue.isDoProvision());
+    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
     
     groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
     assertEquals(3, GrouperUtil.length(groups));
@@ -646,22 +646,22 @@ public class ProvisioningToSyncTest extends GrouperTest {
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    assertNull(grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
     assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
     assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    assertNull(grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    assertNull(grouperProvisioningAttributeValue.getDoProvision());
     
     grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
     assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
     assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals(false, grouperProvisioningAttributeValue.isDoProvision());
+    assertNull(grouperProvisioningAttributeValue.getDoProvision());
     
     groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
     assertEquals(0, GrouperUtil.length(groups));

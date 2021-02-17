@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -994,7 +995,7 @@ public class RelationGraph {
           try {
             List<GrouperProvisioningAttributeValue> provisionerAttrValues = GrouperProvisioningService.getProvisioningAttributeValues(theGroup);
             for (GrouperProvisioningAttributeValue v : provisionerAttrValues) {
-              if (v.isDoProvision()) {
+              if (!StringUtils.isEmpty(v.getDoProvision())) {
                 provTargets.add(new GrouperObjectProvisionerWrapper(v.getTargetName()));
               }
             }

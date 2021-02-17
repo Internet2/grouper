@@ -1642,6 +1642,11 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String translateGrouperToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToMemberSyncField" , false);
+          attributeConfig.setTranslateGrouperToMemberSyncField(translateGrouperToMemberSyncField);
+        }
+        
+        {
           boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
           attributeConfig.setUpdate(update);
         }

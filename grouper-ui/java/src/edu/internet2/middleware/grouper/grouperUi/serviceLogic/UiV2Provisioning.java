@@ -138,7 +138,7 @@ public class UiV2Provisioning {
           for (String targetNotConfigured: allTargetNames) {
             GrouperProvisioningAttributeValue notConfiguredAttributeValue = new GrouperProvisioningAttributeValue();
             notConfiguredAttributeValue.setTargetName(GrouperProvisioningSettings.getTargets(true).get(targetNotConfigured).getName());
-            notConfiguredAttributeValue.setDoProvision(false);
+            notConfiguredAttributeValue.setDoProvision(null);
             allProvisioningAttributeValues.add(notConfiguredAttributeValue);
           }
           
@@ -1829,7 +1829,8 @@ public class UiV2Provisioning {
        
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(isDirect);
-      attributeValue.setDoProvision(GrouperUtil.booleanValue(shouldDoProvisionString, true));
+      boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+      attributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
       attributeValue.setTargetName(targetName);
       attributeValue.setStemScopeString(stemScopeString);
       
@@ -2394,7 +2395,8 @@ public class UiV2Provisioning {
        
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(isDirect);
-      attributeValue.setDoProvision(GrouperUtil.booleanValue(shouldDoProvisionString, true));
+      boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+      attributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);      
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);

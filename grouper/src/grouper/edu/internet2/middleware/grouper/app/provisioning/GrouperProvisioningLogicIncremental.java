@@ -2015,10 +2015,13 @@ public class GrouperProvisioningLogicIncremental {
         grouperTargetGroupsRecalcForGroupOnly.addAll(grouperTargetGroupsToRetrieveForLinks);
       }
       if (grouperTargetGroupsRecalcForMembershipSync.size() > 0) {
+        //collapse these into unique
+        grouperTargetGroupsRecalcForMembershipSync = new ArrayList<ProvisioningGroup>(new HashSet<ProvisioningGroup>(grouperTargetGroupsRecalcForMembershipSync));
         targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupMembershipSync(grouperTargetGroupsRecalcForMembershipSync);
         needsData = true;
       }
       if (grouperTargetGroupsRecalcForGroupOnly.size() > 0) {
+        grouperTargetGroupsRecalcForGroupOnly = new ArrayList<ProvisioningGroup>(new HashSet<ProvisioningGroup>(grouperTargetGroupsRecalcForGroupOnly));
         targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(grouperTargetGroupsRecalcForGroupOnly);
         needsData = true;
       }
@@ -2053,10 +2056,12 @@ public class GrouperProvisioningLogicIncremental {
         grouperTargetEntitiesRecalcForEntityOnly.addAll(grouperTargetEntitiesToRetrieveForLinks);
       }
       if (grouperTargetEntitiesRecalcForMembershipSync.size() > 0) {
+        grouperTargetEntitiesRecalcForMembershipSync = new ArrayList<ProvisioningEntity>(new HashSet<ProvisioningEntity>(grouperTargetEntitiesRecalcForMembershipSync));
         targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityMembershipSync(grouperTargetEntitiesRecalcForMembershipSync);
         needsData = true;
       }
       if (grouperTargetEntitiesRecalcForEntityOnly.size() > 0) {
+        grouperTargetEntitiesRecalcForEntityOnly = new ArrayList<ProvisioningEntity>(new HashSet<ProvisioningEntity>(grouperTargetEntitiesRecalcForEntityOnly));
         targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(grouperTargetEntitiesRecalcForEntityOnly);
         needsData = true;
       }
@@ -2149,6 +2154,7 @@ public class GrouperProvisioningLogicIncremental {
                 + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
       }
       if (provisioningObjectsRecalcForMembershipSync.size() > 0) {
+        provisioningObjectsRecalcForMembershipSync = new ArrayList<Object>(new HashSet<Object>(provisioningObjectsRecalcForMembershipSync));
         targetDaoRetrieveIncrementalDataRequest.setTargetMembershipObjectsForMembershipSync(provisioningObjectsRecalcForMembershipSync);
         needsData = true;
       }

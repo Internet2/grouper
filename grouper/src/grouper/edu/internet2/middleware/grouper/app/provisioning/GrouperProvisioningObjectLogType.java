@@ -57,9 +57,9 @@ public enum GrouperProvisioningObjectLogType {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group mships", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupMembershipSync(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity only", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityOnly(), "groups");
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityOnly(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityMembershipSync(), "groups");
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityMembershipSync(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request mships", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync(), "memberships");
 

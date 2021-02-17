@@ -246,6 +246,16 @@ public class GcTableSyncTableMetadata {
    * @return the metadata for a connection, table, and query
    */
   public static GcTableSyncTableMetadata retrieveQueryMetadataFromDatabase(String theConnectionName, String query) {
+    return retrieveQueryMetadataFromDatabase(theConnectionName, query, null);
+  }
+
+  /**
+   * get metadata for table
+   * @param theConnectionName
+   * @param tableName
+   * @return the metadata for a connection, table, and query
+   */
+  public static GcTableSyncTableMetadata retrieveQueryMetadataFromDatabase(String theConnectionName, String query, List<Object> bindVars) {
     
     if (GrouperClientUtils.isBlank(query)) {
       throw new RuntimeException("query cannot be blank");
@@ -283,7 +293,13 @@ public class GcTableSyncTableMetadata {
     
     try {
       // go to database from and look up metadata
-      new GcDbAccess().connectionName(theConnectionName).sql(query).callbackResultSet(new GcResultSetCallback() {
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(theConnectionName).sql(query);
+      
+      if (bindVars != null) {
+        gcDbAccess.bindVars(bindVars);
+      }
+      
+      gcDbAccess.callbackResultSet(new GcResultSetCallback() {
   
         @Override
         public Object callback(ResultSet resultSet) throws Exception {

@@ -77,6 +77,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -122,6 +123,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
@@ -130,6 +133,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -159,16 +164,49 @@ import net.sf.json.util.PropertyFilter;
  */
 public class GrouperUtil {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     GrouperStartup.startup();
 
 //    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
 //    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
 
-    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
-    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
+//    
+//    String dn = "cn=First\\, Last,ou=whatever,ou=edu";
+//    String cn = new javax.naming.ldap.LdapName(dn).getRdn(
+//        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
+//    System.out.println(cn);
+    
+    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+    grouperProvisioningGroup.setName("org:flint:app:Flint_AD:service:policy:Flint_AD_Alumni_Folder:Flint_AD_Alumni");
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'org:flint:'), 'cn', 'ou', true, false) +  ',OU=Grouper,DC=ads,DC=umflint,DC=net'}"
+//        , variableMap, true, false, false);
 
+    grouperProvisioningGroup.assignAttributeValue("gidNumber", "123456");
+    variableMap.put("targetGroup", grouperProvisioningGroup);
+    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+      "${'(&(gidNumber='+targetGroup.retrieveAttributeValue('gidNumber')+')(objectClass=posixGroup))'}"
+      , variableMap, true, false, false);
+
+    
+    
+//    edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@10253![33,110]: ''(samAccountLink=' + grouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')';' unknown, ambiguous or inaccessible method 
+    
+    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    targetEntity.assignAttributeValue("samAccountName", "mchyzer");
+    variableMap.put("targetEntity", targetEntity);
+    
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//      "${'(samAccountName=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')'}"
+//      , variableMap, true, false, false);
+    
+    System.out.println(result);
+    
   }
 
   /**
@@ -1389,6 +1427,81 @@ public class GrouperUtil {
   }
 
   /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * baseDn is edu
+   * searchDn is myschool
+   * to people:someapp
+   * i.e. take apart a bushy dns
+   * @param dn
+   * @param baseDn if there is one, take it off
+   * @param searchDn if there is one after the baseDn is off, take it off
+   * @return the subpath
+   */
+  public static String ldapConvertDnToSubPath(String dn, String baseDn, String searchDn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    if (!StringUtils.isBlank(baseDn)) {
+      if (dn.endsWith(baseDn)) {
+        dn = dn.substring(0, dn.length() - (baseDn.length()+1));
+      }
+    }
+    if (!StringUtils.isBlank(searchDn)) {
+      if (dn.endsWith(searchDn)) {
+        dn = dn.substring(0, dn.length() - (searchDn.length()+1));
+      }
+    }
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    DN theDn = null;
+    try {
+      theDn = new DN(dn);
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
+    
+    RDN[] rdns = theDn.getRDNs();
+    StringBuilder path = new StringBuilder();
+    for (int i=rdns.length-1;i>=0;i--) {
+      RDN rdn = rdns[i];
+      path.append(rdn.getAttributeValues()[0]);
+      if (i != 0) {
+        path.append(":");
+      }
+      
+    }
+    return path.toString();
+  }
+
+  /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * to someapp
+   * @param dn
+   * @return
+   */
+  public static String ldapConvertDnToSpecificValue(String dn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+    try {
+      DN theDn = new DN(dn);
+      RDN[] rdns = theDn.getRDNs();
+      RDN firstRdn = rdns[0];
+      return firstRdn.getAttributeValues()[0];
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
+  }
+
+  /**
    * This takes a string of attribute=value and makes sure that special, dn-relevant characters
    * are escaped, particularly commas, pluses, etc
    * @param rdnString An RDN: attribute=value
@@ -1407,6 +1520,21 @@ public class GrouperUtil {
     // all the dn-relevant characters (eg: ,+;) as escaped
     RDN rdn = new RDN(rdnAttribute, rdnValue);
     return rdn.toMinimallyEncodedString();
+  }
+
+  /**
+   * This takes a string of value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN value: value
+   * @return the escaped value
+   */
+  public static String ldapEscapeRdnValue(String rdnValue) {
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    //add a sample prefix, and then strip it off
+    RDN rdn = new RDN("cn", rdnValue);
+    return rdn.toMinimallyEncodedString().substring("cn=".length());
   }
 
   /**
@@ -6844,6 +6972,8 @@ public class GrouperUtil {
       return null;
     } else if (input instanceof java.sql.Timestamp) {
       return (Timestamp) input;
+    } else if (input instanceof Long) {
+      return new Timestamp((Long)input);
     } else if (input instanceof String) {
       return stringToTimestamp((String) input);
     } else if (input instanceof Date) {
@@ -7269,6 +7399,61 @@ public class GrouperUtil {
     return intObjectValue(input, false);
   }
 
+  /**
+   * if these are the stems to sync: a:b:c, a:b, a:d, a:b:d, then the top level are: a:b, a:d
+   * @return
+   */
+  public static Set<String> stemCalculateTopLevelStems(Set<String> stems) {
+
+    Set<String> topLevelStems = new TreeSet<String>();
+    
+    if (GrouperUtil.isBlank(stems)) {
+      return topLevelStems;
+    }
+    
+    //lets see if any are root
+    if (stems.contains(":")) {
+      topLevelStems.add(":");
+      return topLevelStems;
+    }
+    
+    
+    // none of these are root stems
+    SYNC_STEMS: 
+    for (String stem : stems) {
+      
+      // loop through the current top level and two do things, remove ones that are covered here, and if this is covered, remove it
+      CURRENT_STEM_PARENT_STEM: 
+      for (String parentStem : GrouperUtil.findParentStemNames(stem)) {
+        if (StringUtils.equals(":", parentStem) || StringUtils.isBlank(parentStem)) {
+          continue CURRENT_STEM_PARENT_STEM;
+        }
+        
+        if (topLevelStems.contains(parentStem)) {
+          continue SYNC_STEMS;
+        }
+        
+      }
+    
+      // remove any in the list which are covered by this one
+      Iterator<String> iterator = topLevelStems.iterator();
+      
+      String syncFolderToAddWithColon = stem + ":";
+      
+      while (iterator.hasNext()) {
+        String currentTopLevelStemToSync = iterator.next();
+        if (currentTopLevelStemToSync.startsWith(syncFolderToAddWithColon)) {
+          iterator.remove();
+        }
+      }
+      
+      //add it
+      topLevelStems.add(stem);
+      
+    }
+    return topLevelStems;
+  }
+  
   /**
    * remove stems that are children of the top level stem
    * @param stems
@@ -13112,35 +13297,48 @@ public class GrouperUtil {
    * in a map get a value if there and increment or set a value
    * @param map
    * @param key
-   * @param numberToAdd int or long
+   * @param numberToAdd long
    */
-  public static void mapAddValue(Map<String, Object> map, String key, Object numberToAdd) {
-    if (map == null || numberToAdd == null) {
+  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+    if (map == null) {
       return;
     }
-    if (numberToAdd instanceof Integer) {
-
-      Integer intValue = intObjectValue(numberToAdd, false);
-      Object currentValue = map.get(key);
-      if (currentValue != null) {
-        Integer currentIntValue = intObjectValue(currentValue, false);
-        intValue += currentIntValue;
-      }
-      map.put(key, intValue);
-
-    } if (numberToAdd instanceof Long) {
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
       
-      Long longValue = longObjectValue(numberToAdd, false);
-      Object currentValue = map.get(key);
-      if (currentValue != null) {
-        Long currentLongValue = longObjectValue(currentValue, false);
-        longValue += currentLongValue;
-      }
-      map.put(key, longValue);
-        
-    } else {
-      throw new RuntimeException("Not expecting type: " + numberToAdd.getClass());
+      currentValue = 0L;
     }
+
+    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int
+   */
+  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0;
+    }
+
+    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+
   }
 
   /**

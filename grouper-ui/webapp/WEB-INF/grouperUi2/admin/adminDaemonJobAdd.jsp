@@ -95,25 +95,54 @@
                     
                     <c:if test="${guiGrouperDaemonConfiguration != null}">
 						
-	                    <c:forEach items="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configAttributes}" var="attribute">
-        	  				
-        			  				<grouper:configFormElement 
-        			  					formElementType="${attribute.formElement}"
-        			  					configId="${attribute.configSuffix}" 
-        			  					label="${attribute.label}"
-                          readOnly="${attribute.readOnly}"
-        			  					helperText="${attribute.description}"
-        			  					helperTextDefaultValue="${attribute.defaultValue}"
-        			  					required="${attribute.required}"
-        			  					shouldShow="${attribute.show}"
-        			  					value="${attribute.valueOrExpressionEvaluation}"
-        			  					hasExpressionLanguage="${attribute.expressionLanguage}"
-        			  					valuesAndLabels="${attribute.dropdownValuesAndLabels}"
-        			  					ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
-                          checkboxAttributes="${attribute.checkboxAttributes}"
-        			  				/>
-        			  				  				
-        			  			</c:forEach>
+                      <c:forEach items="${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.subSections}" var="subSection">
+                          <tbody>
+                            <c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
+                              <tr>
+                                <th colspan="3">
+                                  <%-- the header needs to be on a field to subsitute the name in the label if there --%>
+                                  <c:set target="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration}"
+                                          property="currentConfigSuffix"
+                                          value="${subSection.label}.header" />  
+                                  <h4>${subSection.title}</h4>
+                                  <p style="font-weight: normal;">${subSection.description} </p>
+                                </th>
+                              </tr>
+                            
+                            </c:if>
+                                    
+                            <c:forEach items="${subSection.attributesValues}" var="attribute">  
+                            
+                              <c:set target="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration}"
+                                      property="index"
+                                      value="${attribute.repeatGroupIndex}" />  
+                              <c:set target="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration}"
+                                      property="currentConfigSuffix"
+                                      value="${attribute.configSuffix}" />  
+
+                              <%--  ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;" --%>
+                              <grouper:configFormElement 
+                                formElementType="${attribute.formElement}" 
+                                configId="${attribute.configSuffix}" 
+                                label="${attribute.label}"
+                                readOnly="${attribute.readOnly}"
+                                helperText="${attribute.description}"
+                                helperTextDefaultValue="${attribute.defaultValue}"
+                                required="${attribute.required}"
+                                shouldShow="${attribute.show}"
+                                value="${attribute.valueOrExpressionEvaluation}"
+                                hasExpressionLanguage="${attribute.expressionLanguage}"
+                                ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
+                                valuesAndLabels="${attribute.dropdownValuesAndLabels }"
+                                checkboxAttributes="${attribute.checkboxAttributes}"
+                              />
+                              
+                            </c:forEach>
+                            
+                          </tbody>
+                    
+                      </c:forEach>
+            
                     </c:if>
                     </tbody>
                     

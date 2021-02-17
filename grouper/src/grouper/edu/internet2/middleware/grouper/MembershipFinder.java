@@ -878,7 +878,7 @@ public class MembershipFinder {
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
-        this.hasMembershipTypeForGroup, memberHasMembershipForGroup, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup);  
+        this.hasMembershipTypeForGroup, memberHasMembershipForGroup, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup, this.queryOptionsForMembership);  
 
 
   }
@@ -1972,6 +1972,11 @@ public class MembershipFinder {
   private QueryOptions queryOptionsForMember;
 
   /**
+   * query options for membership.  must include paging and sorting
+   */
+  private QueryOptions queryOptionsForMembership;
+  
+  /**
    * if paging for member, then also filter for member
    */
   private String scopeForMember;
@@ -2217,6 +2222,16 @@ public class MembershipFinder {
    */
   public MembershipFinder assignQueryOptionsForMember(QueryOptions theQueryOptions) {
     this.queryOptionsForMember = theQueryOptions;
+    return this;
+  }
+  
+  /**
+   * 
+   * @param theQueryOptions
+   * @return
+   */
+  public MembershipFinder assignQueryOptionsForMembership(QueryOptions theQueryOptions) {
+    this.queryOptionsForMembership = theQueryOptions;
     return this;
   }
   
@@ -2705,6 +2720,5 @@ public class MembershipFinder {
     
     return result;
   }
-
 } // public class MembershipFinder
 
