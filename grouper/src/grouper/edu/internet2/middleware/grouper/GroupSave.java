@@ -502,7 +502,26 @@ public class GroupSave {
                   throws GrouperSessionException {
                 
                 String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
-                
+
+                // delete
+                if (saveMode == SaveMode.DELETE) {
+                  Group group = null;
+                  if (!StringUtils.isBlank(uuid)) {
+                    group = GroupFinder.findByUuid(grouperSession, uuid, false, new QueryOptions().secondLevelCache(false));
+                  } else if (!StringUtils.isBlank(groupNameToEdit)) {
+                    group = GroupFinder.findByName(grouperSession, groupNameToEdit, false, new QueryOptions().secondLevelCache(false));
+                  } else {
+                    throw new RuntimeException("Need uuid or name to delete group!");
+                  }
+                  if (group == null) {
+                    GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                    return null;
+                  }
+                  group.delete();
+                  GroupSave.this.saveResultType = SaveResultType.DELETE;
+                  return group;
+                }
+
                 int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
                 boolean topLevelGroup = lastColonIndex < 0;
         

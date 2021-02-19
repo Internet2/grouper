@@ -284,6 +284,25 @@ public class StemSave {
               try {
                 String stemNameForError = GrouperUtil.defaultIfBlank(stemNameToEdit, name);
                 
+                // delete
+                if (saveMode == SaveMode.DELETE) {
+                  Stem stem = null;
+                  if (!StringUtils.isBlank(uuid)) {
+                    stem = StemFinder.findByUuid(grouperSession, uuid, false, new QueryOptions().secondLevelCache(false));
+                  } else if (!StringUtils.isBlank(stemNameToEdit)) {
+                    stem = StemFinder.findByName(grouperSession, stemNameToEdit, false, new QueryOptions().secondLevelCache(false));
+                  } else {
+                    throw new RuntimeException("Need uuid or name to delete stem!");
+                  }
+                  if (stem == null) {
+                    StemSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                    return null;
+                  }
+                  stem.obliterate(false, false);
+                  StemSave.this.saveResultType = SaveResultType.DELETE;
+                  return stem;
+                }
+
                 int lastColonIndex = name.lastIndexOf(':');
                 boolean topLevelStem = lastColonIndex < 0;
         

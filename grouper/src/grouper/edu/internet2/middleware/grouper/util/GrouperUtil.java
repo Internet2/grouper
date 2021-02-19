@@ -133,8 +133,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -209,10 +209,12 @@ public class GrouperUtil {
 //    System.out.println(result);
 
     // 5341, 3120
-    long startMillis = System.currentTimeMillis();
-    String result = GrouperUtil.gshRunScript("if (true) {\n  System.err.println('true');\n} else {\n  System.out.println('false');\n}", false);
-    System.out.println("Result: " + result);
-    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
+//    long startMillis = System.currentTimeMillis();
+//    String result = GrouperUtil.gshRunScript("if (true) {\n  System.err.println('true');\n} else {\n  System.out.println('false');\n}", false);
+//    System.out.println("Result: " + result);
+//    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
+
+    
   }
 
   /**

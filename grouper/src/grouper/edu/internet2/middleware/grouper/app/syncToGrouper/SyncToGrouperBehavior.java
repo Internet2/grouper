@@ -447,7 +447,155 @@ public class SyncToGrouperBehavior {
    * sync id on insert
    */
   private boolean compositeSyncFieldIdOnInsert;
+
+  /**
+   * delete extra memberships in the ones managed
+   */
+  private boolean membershipDeleteExtra;
+
+  /**
+   * insert memberships
+   */
+  private boolean membershipInsert;
+
+  /**
+   * should we sync memberships
+   */
+  private boolean membershipSync;
+
+  /**
+   * sync id on insert
+   */
+  private boolean membershipSyncFieldIdOnInsert;
+
+  /**
+   * sync enabled and disabled times (millis since 1970)
+   */
+  private boolean membershipSyncFieldsEnabledDisabled;
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   */
+  private boolean membershipSyncFromStems;
+
+  /**
+   * update memberships
+   */
+  private boolean membershipUpdate;
   
+  /**
+   * delete extra memberships in the ones managed
+   * @return
+   */
+  public boolean isMembershipDeleteExtra() {
+    return membershipDeleteExtra;
+  }
+
+  /**
+   * delete extra memberships in the ones managed
+   * @param membershipDeleteExtra
+   */
+  public void setMembershipDeleteExtra(boolean membershipDeleteExtra) {
+    this.membershipDeleteExtra = membershipDeleteExtra;
+  }
+
+  /**
+   * insert memberships
+   * @return
+   */
+  public boolean isMembershipInsert() {
+    return membershipInsert;
+  }
+
+  /**
+   * insert memberships
+   * @param membershipInsert
+   */
+  public void setMembershipInsert(boolean membershipInsert) {
+    this.membershipInsert = membershipInsert;
+  }
+
+  /**
+   * should we sync memberships
+   * @return
+   */
+  public boolean isMembershipSync() {
+    return membershipSync;
+  }
+
+  /**
+   * should we sync memberships
+   * @param membershipSync
+   */
+  public void setMembershipSync(boolean membershipSync) {
+    this.membershipSync = membershipSync;
+  }
+
+  /**
+   * sync id on insert
+   * @return
+   */
+  public boolean isMembershipSyncFieldIdOnInsert() {
+    return membershipSyncFieldIdOnInsert;
+  }
+
+  /**
+   * sync id on insert
+   * @param membershipSyncFieldIdOnInsert
+   */
+  public void setMembershipSyncFieldIdOnInsert(boolean membershipSyncFieldIdOnInsert) {
+    this.membershipSyncFieldIdOnInsert = membershipSyncFieldIdOnInsert;
+  }
+
+  /**
+   * sync enabled and disabled times (millis since 1970)
+   * @return
+   */
+  public boolean isMembershipSyncFieldsEnabledDisabled() {
+    return membershipSyncFieldsEnabledDisabled;
+  }
+
+  /**
+   * sync enabled and disabled times (millis since 1970)
+   * @param membershipSyncFieldsEnabledDisabled
+   */
+  public void setMembershipSyncFieldsEnabledDisabled(
+      boolean membershipSyncFieldsEnabledDisabled) {
+    this.membershipSyncFieldsEnabledDisabled = membershipSyncFieldsEnabledDisabled;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @return
+   */
+  public boolean isMembershipSyncFromStems() {
+    return membershipSyncFromStems;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @param membershipSyncFromStems
+   */
+  public void setMembershipSyncFromStems(boolean membershipSyncFromStems) {
+    this.membershipSyncFromStems = membershipSyncFromStems;
+  }
+
+  /**
+   * update memberships
+   * @return
+   */
+  public boolean isMembershipUpdate() {
+    return membershipUpdate;
+  }
+
+  /**
+   * update memberships
+   * @param membershipUpdate
+   */
+  public void setMembershipUpdate(boolean membershipUpdate) {
+    this.membershipUpdate = membershipUpdate;
+  }
+
   /**
    * sync id on insert
    * @return

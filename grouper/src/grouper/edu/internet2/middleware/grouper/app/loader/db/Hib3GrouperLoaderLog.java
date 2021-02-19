@@ -53,7 +53,20 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public static final String COLUMN_CONTEXT_ID = "context_id";
 
-
+  /**
+   * 
+   * @param jobName
+   * @return
+   */
+  public static Hib3GrouperLoaderLog retrieveMostRecentLog(String jobName) {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperLoaderLog theLoaderLog1 " +
+        "where theLoaderLog1.jobName = :jobName1 and theLoaderLog1.endedTime = "
+        + "(select max(theLoaderLog2.endedTime) from Hib3GrouperLoaderLog theLoaderLog2 where theLoaderLog2.jobName = theLoaderLog1.jobName)")
+        .setString("jobName", jobName)
+        .uniqueResult(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog.class);
+    return hib3GrouperLoaderLog;
+  }
+  
   /**
    * default constructor
    */

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -49,7 +51,8 @@ public class SyncToGrouperReport {
   public int getDifferenceCountOverall() {
     return this.getStemInserts() + this.getStemUpdates() + this.getStemDeletes()
       + this.getGroupInserts() + this.getGroupUpdates() + this.getGroupDeletes()
-      + this.getCompositeInserts() + this.getCompositeUpdates() + this.getCompositeDeletes();
+      + this.getCompositeInserts() + this.getCompositeUpdates() + this.getCompositeDeletes()
+      + this.getMembershipInserts() + this.getMembershipUpdates() + this.getMembershipDeletes();
   }
 
   /**
@@ -275,6 +278,71 @@ public class SyncToGrouperReport {
       stemUpdatesNames.add(composite.getOwnerName());
     }
     return stemUpdatesNames;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getMembershipDeletes() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipDeletes());
+  }
+
+  /**
+   * this is dynamically built for a report, of size ten
+   * @return the set of Membership names which are deletes
+   */
+  public Set<String> getMembershipDeleteNames() {
+    Set<String> membershipDeletesNames = new TreeSet<String>();
+    for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipDeletes()))) {
+      membershipDeletesNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
+      if (membershipDeletesNames.size() >= 10) {
+        break;
+      }
+    }
+    return membershipDeletesNames;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getMembershipInserts() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipInserts());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of composites names which are inserts
+   */
+  public Set<String> getMembershipInsertsNames() {
+    Set<String> membershipInsertNames = new TreeSet<String>();
+    for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipInserts()))) {
+      membershipInsertNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
+      if (membershipInsertNames.size() >= 10) {
+        break;
+      }
+    }
+    return membershipInsertNames;
+  }
+
+  public int getMembershipUpdates() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipUpdates());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of composite names which are updates
+   */
+  public Set<String> getMembershipUpdatesNames() {
+    Set<String> membershipUpdatesNames = new TreeSet<String>();
+    for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipUpdates()))) {
+      membershipUpdatesNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
+      if (membershipUpdatesNames.size() >= 10) {
+        break;
+      }
+    }
+    return membershipUpdatesNames;
   }
 
 }

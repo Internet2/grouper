@@ -240,6 +240,27 @@ public class SyncToGrouperFromSql {
   private String compositeSql;
 
   /**
+   * sql to get memberships
+   */
+  private String membershipSql;
+
+  /**
+   * sql to get memberships
+   * @return
+   */
+  public String getMembershipSql() {
+    return membershipSql;
+  }
+
+  /**
+   * sql to get memberships
+   * @param membershipSql
+   */
+  public void setMembershipSql(String membershipSql) {
+    this.membershipSql = membershipSql;
+  }
+
+  /**
    * sql to get composites
    * @return
    */
@@ -551,7 +572,7 @@ public class SyncToGrouperFromSql {
       }
     }
 
-    StringBuilder theStemSql = new StringBuilder(
+    StringBuilder theCompositeSql = new StringBuilder(
         "SELECT group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
         + "FROM " + schema + "grouper_composites gc, " + schema + "grouper_groups group_owner, " + schema + "grouper_groups group_left_factor, "
             + schema + "grouper_groups group_right_factor "
@@ -568,19 +589,148 @@ public class SyncToGrouperFromSql {
       boolean addedOne = false;
       
       GrouperUtil.assertion(GrouperUtil.length(topLevelStemSet) < 400, "Cannot have more than 400 top level stems to sync");
-      theStemSql.append(" and ( ");
+      theCompositeSql.append(" and ( ");
       for (String topLevelStemName : topLevelStemSet) {
         if (addedOne) {
-          theStemSql.append(" or ");
+          theCompositeSql.append(" or ");
         }
         addedOne = true;
         // the exact name or the children
-        theStemSql.append("group_owner.name like ?");
+        theCompositeSql.append("group_owner.name like ?");
         bindVars.add(topLevelStemName + ":%");
       }
-      theStemSql.append(" ) ");
+      theCompositeSql.append(" ) ");
     }
-    return theStemSql.toString();
+    return theCompositeSql.toString();
+  }
+
+  /**
+   * 
+   */
+  private String buildGrouperMembershipQuery(List<Object> bindVars) {
+  
+    String schema = "";
+    if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+      schema = StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+      if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+        schema += ".";
+      }
+    }
+  
+    
+    
+    StringBuilder theMembershipSql = new StringBuilder(
+        "SELECT gmav.immediate_membership_id AS immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
+    
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
+      theMembershipSql.append(", gmav.immediate_mship_disabled_time, gmav.immediate_mship_enabled_time");
+    }
+
+    theMembershipSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_groups gg, " + schema + "grouper_fields gf "
+        + "WHERE gmav.mship_type = 'immediate'");
+    
+    if (!this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
+      theMembershipSql.append(" AND gmav.immediate_mship_enabled = 'T'");
+    }
+    theMembershipSql.append(" AND gmav.owner_group_id = gg.id AND gmav.member_id = gm.id AND gmav.field_id = gf.id AND gf.name = 'members'");
+          
+    GrouperUtil.assertion(GrouperUtil.length(this.databaseSyncFromAnotherGrouperTopLevelStems) > 0, 
+        "If syncing grouper and folders then the top level folders are required or : for all");
+    
+    Set<String> topLevelStemSet = new TreeSet<String>(this.databaseSyncFromAnotherGrouperTopLevelStems);
+    if (!topLevelStemSet.contains(":")) {
+      
+      topLevelStemSet = GrouperUtil.stemCalculateTopLevelStems(topLevelStemSet);
+  
+      boolean addedOne = false;
+      GrouperUtil.assertion(GrouperUtil.length(topLevelStemSet) < 400, "Cannot have more than 400 top level stems to sync");
+      theMembershipSql.append(" and ( ");
+      for (String topLevelStemName : topLevelStemSet) {
+        if (addedOne) {
+          theMembershipSql.append(" or ");
+        }
+        addedOne = true;
+        // the exact name or the children
+        theMembershipSql.append("gg.name like ?");
+        bindVars.add(topLevelStemName + ":%");
+      }
+      theMembershipSql.append(" ) ");
+    }
+    return theMembershipSql.toString();
+  }
+
+  /**
+   * 
+   */
+  public void loadMembershipDataFromSql() {
+    
+    GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
+    
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSync()) {
+      
+      GcDbAccess membershipDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
+      List<Object> bindVars = new ArrayList<Object>();
+      if (StringUtils.isBlank(this.membershipSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+  
+        this.membershipSql = buildGrouperMembershipQuery(bindVars);
+        
+        membershipDbAccess.bindVars(bindVars);
+      }
+      
+      GrouperUtil.assertion(StringUtils.isNotBlank(this.membershipSql), "If syncing memberships, then membershipSql is required!");
+  
+      try {
+        GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, this.membershipSql, bindVars);
+        
+        GcTableSyncColumnMetadata immediateMembershipIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("immediate_membership_id", this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert());
+        GcTableSyncColumnMetadata groupNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("group_name", true);
+        GcTableSyncColumnMetadata subjectSourceIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_source_id", true);
+        GcTableSyncColumnMetadata subjectIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_id", true);
+        GcTableSyncColumnMetadata subjectIdentifierColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_identifier", true);
+        GcTableSyncColumnMetadata immediateMshipDisabledTimeColumn = 
+            gcTableSyncTableMetadata.lookupColumn("immediate_mship_disabled_time", this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled());
+        GcTableSyncColumnMetadata immediateMshipEnabledTimeColumn = 
+            gcTableSyncTableMetadata.lookupColumn("immediate_mship_enabled_time", this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled());
+        
+        List<Object[]> membershipArrayList = membershipDbAccess.sql(this.membershipSql).selectList(Object[].class);
+            
+        List<SyncMembershipToGrouperBean> syncMembershipToGrouperBeans = new ArrayList<SyncMembershipToGrouperBean>();
+        for (Object[] membershipArray : GrouperUtil.nonNull(membershipArrayList)) {
+          String immediateMembershipId = this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert() ? (String)membershipArray[groupNameColumn.getColumnIndexZeroIndexed()] : null;
+          String groupName = (String)membershipArray[groupNameColumn.getColumnIndexZeroIndexed()];
+          String subjectSourceId = (String)membershipArray[subjectSourceIdColumn.getColumnIndexZeroIndexed()];
+          String subjectId = (String)membershipArray[subjectIdColumn.getColumnIndexZeroIndexed()];
+          String subjectIdentifier = (String)membershipArray[subjectIdentifierColumn.getColumnIndexZeroIndexed()];
+          Long immediateMshipDisabledTime = null;
+          Long immediateMshipEnabledTime = null;
+          if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
+            immediateMshipDisabledTime = GrouperUtil.longObjectValue(membershipArray[immediateMshipDisabledTimeColumn.getColumnIndexZeroIndexed()], true);
+            immediateMshipEnabledTime = GrouperUtil.longObjectValue(membershipArray[immediateMshipEnabledTimeColumn.getColumnIndexZeroIndexed()], true);
+          }
+          
+          SyncMembershipToGrouperBean syncMembershipToGrouperBean = new SyncMembershipToGrouperBean();
+          syncMembershipToGrouperBean.assignImmediateMembershipId(immediateMembershipId);
+          syncMembershipToGrouperBean.assignGroupName(groupName);
+          syncMembershipToGrouperBean.assignSubjectSourceId(subjectSourceId);
+          syncMembershipToGrouperBean.assignSubjectId(subjectId);
+          syncMembershipToGrouperBean.assignSubjectIdentifier(subjectIdentifier);
+          syncMembershipToGrouperBean.assignImmediateMshipDisabledTime(immediateMshipDisabledTime);
+          syncMembershipToGrouperBean.assignImmediateMshipEnabledTime(immediateMshipEnabledTime);
+          
+          syncMembershipToGrouperBeans.add(syncMembershipToGrouperBean);
+        }
+        this.syncToGrouper.setSyncMembershipToGrouperBeans(syncMembershipToGrouperBeans);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "sql: '" + this.membershipSql + "', ");
+        throw re;
+      }
+    }
+    
   }
   
 }

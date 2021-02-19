@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class CompositeSave {
   
   /**
-   * create a new stem save
+   * create a new membership save
    * @param theGrouperSession
    */
   public CompositeSave() {
@@ -52,21 +52,6 @@ public class CompositeSave {
    */
   private String type;
 
-  /**
-   * if should delete composite
-   */
-  private boolean deleteComposite;
-  
-  /**
-   * if should delete composite
-   * @param theRemoveComposite
-   * @return this for chaining
-   */
-  public CompositeSave assignDeleteComposite(boolean theRemoveComposite) {
-    this.deleteComposite = theRemoveComposite;
-    return this;
-  }
-  
   /**
    * uuid of composite on insert
    */
@@ -168,7 +153,10 @@ public class CompositeSave {
     GrouperUtil.assertion(!StringUtils.isBlank(this.ownerName), "ownerName is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.leftFactorName), "leftFactorName is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.rightFactorName), "rightFactorName is required");
-    if (!this.deleteComposite) {
+    //default to insert or update
+    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
+
+    if (saveMode != SaveMode.DELETE) {
       GrouperUtil.assertion(!StringUtils.isBlank(this.type), "type is required");
     }
     
@@ -188,9 +176,6 @@ public class CompositeSave {
 
           Composite composite = hasComposite ? ownerGroup.getComposite(true) : null;
           
-          //default to insert or update
-          saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-
           if (saveMode == SaveMode.INSERT && hasComposite) {
             throw new RuntimeException("Inserting composite but it already exists!");
           }
@@ -199,7 +184,7 @@ public class CompositeSave {
           }
 
           // delete
-          if (CompositeSave.this.deleteComposite) {
+          if (saveMode == SaveMode.DELETE) {
             if (!hasComposite) {
               CompositeSave.this.saveResultType = SaveResultType.NO_CHANGE;
               return null;

@@ -31,4 +31,8 @@ public enum SaveResultType {
   
   /** group didnt need an update */
   NO_CHANGE;
+  
+  public boolean isChanged() {
+    return this!=NO_CHANGE;
+  }
 }

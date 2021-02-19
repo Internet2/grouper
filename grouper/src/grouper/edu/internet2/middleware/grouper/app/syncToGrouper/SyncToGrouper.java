@@ -206,7 +206,42 @@ public class SyncToGrouper {
    * 
    */
   private SyncCompositeToGrouperLogic syncCompositeToGrouperLogic = null;
+
+  /**
+   * memberships to sync to grouper
+   */
+  private List<SyncMembershipToGrouperBean> syncMembershipToGrouperBeans = null;
+
+  /**
+   * 
+   */
+  private SyncMembershipToGrouperLogic syncMembershipToGrouperLogic = null;
   
+  /**
+   * memberships to sync to grouper
+   * @return
+   */
+  public List<SyncMembershipToGrouperBean> getSyncMembershipToGrouperBeans() {
+    return syncMembershipToGrouperBeans;
+  }
+
+  /**
+   * memberships to sync to grouper
+   * @param syncMembershipToGrouperBeans
+   */
+  public void setSyncMembershipToGrouperBeans(
+      List<SyncMembershipToGrouperBean> syncMembershipToGrouperBeans) {
+    this.syncMembershipToGrouperBeans = syncMembershipToGrouperBeans;
+  }
+
+  /**
+   * membership sync logic
+   * @return
+   */
+  public SyncMembershipToGrouperLogic getSyncMembershipToGrouperLogic() {
+    return syncMembershipToGrouperLogic;
+  }
+
   /**
    * generate a report about the sync
    * @return the report

@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -102,7 +103,7 @@ public class SyncCompositeToGrouperLogic {
         compositeSave.assignLeftFactorName((String)composite.getKey(1));
         compositeSave.assignRightFactorName((String)composite.getKey(2));
         compositeSave.assignType((String)composite.getKey(3));
-        compositeSave.assignDeleteComposite(true);
+        compositeSave.assignSaveMode(SaveMode.DELETE);
         compositeSave.save();
         this.syncToGrouper.getSyncToGrouperReport().addChangeOverall();
         this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success deleting composite '" + composite.getKey(0) + "'");
@@ -247,7 +248,7 @@ public class SyncCompositeToGrouperLogic {
 
   private void retrieveCompositesFromGrouper() {
     
-    StringBuilder theCompositeSql = new StringBuilder(
+    StringBuilder theCompositeSqlBase = new StringBuilder(
         "SELECT group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
         + "FROM grouper_composites gc, grouper_groups group_owner, grouper_groups group_left_factor, "
             + "grouper_groups group_right_factor "
@@ -261,23 +262,23 @@ public class SyncCompositeToGrouperLogic {
       GrouperUtil.assertion(GrouperUtil.length(topLevelStems) < 400, "Cannot have more than 400 top level stems to sync");
 
       if (GrouperUtil.length(topLevelStems) > 0) {
-        theCompositeSql.append(" and ( ");
+        theCompositeSqlBase.append(" and ( ");
         boolean addedOne = false;
         GcDbAccess gcDbAccess = new GcDbAccess();
         List<Object> bindVars = new ArrayList<Object>();
         
         for (Stem topLevelStem : topLevelStems) {
           if (addedOne) {
-            theCompositeSql.append(" or ");
+            theCompositeSqlBase.append(" or ");
           }
           addedOne = true;
           // children
-          theCompositeSql.append("group_owner.name like ?");
+          theCompositeSqlBase.append("group_owner.name like ?");
           bindVars.add(topLevelStem.getName() + ":%");
         }
   
-        theCompositeSql.append(" ) ");
-        gcDbAccess.sql(theCompositeSql.toString()).bindVars(bindVars);
+        theCompositeSqlBase.append(" ) ");
+        gcDbAccess.sql(theCompositeSqlBase.toString()).bindVars(bindVars);
   
         List<Object[]> compositeRows = gcDbAccess.selectList(Object[].class);
         
@@ -290,35 +291,46 @@ public class SyncCompositeToGrouperLogic {
 
       List<SyncCompositeToGrouperBean> syncCompositeToGrouperBeans = this.syncToGrouper.getSyncCompositeToGrouperBeans();
 
-      GrouperUtil.assertion(GrouperUtil.length(syncCompositeToGrouperBeans) < 800, "Cannot have more than 800 composites to sync");
-
       if (GrouperUtil.length(syncCompositeToGrouperBeans) > 0) {
-        
-        theCompositeSql.append(" and ( ");
-  
-        boolean addedOne = false;
-        GcDbAccess gcDbAccess = new GcDbAccess();
-        List<Object> bindVars = new ArrayList<Object>();
-  
-        for (SyncCompositeToGrouperBean syncCompositeToGrouperBean : GrouperUtil.nonNull(syncCompositeToGrouperBeans)) {
-          if (addedOne) {
-            theCompositeSql.append(" or ");
+        int batchSize = 800;
+
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(syncCompositeToGrouperBeans, batchSize);
+
+        for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+          
+          List<SyncCompositeToGrouperBean> batchSyncCompositeToGrouperBeans = GrouperUtil.batchList(syncCompositeToGrouperBeans, batchSize, batchIndex);
+
+          StringBuilder theCompositeSql = new StringBuilder(theCompositeSqlBase);
+          theCompositeSql.append(" and ( ");
+    
+          boolean addedOne = false;
+          GcDbAccess gcDbAccess = new GcDbAccess();
+          List<Object> bindVars = new ArrayList<Object>();
+    
+          for (SyncCompositeToGrouperBean syncCompositeToGrouperBean : GrouperUtil.nonNull(batchSyncCompositeToGrouperBeans)) {
+            if (addedOne) {
+              theCompositeSql.append(" or ");
+            }
+            addedOne = true;
+            // the exact name
+            theCompositeSql.append("group_owner.name = ?");
+            bindVars.add(syncCompositeToGrouperBean.getOwnerName());
           }
-          addedOne = true;
-          // the exact name
-          theCompositeSql.append("group_owner.name = ?");
-          bindVars.add(syncCompositeToGrouperBean.getOwnerName());
+          theCompositeSql.append(" ) ");
+          gcDbAccess.sql(theCompositeSql.toString()).bindVars(bindVars);
+    
+          List<Object[]> compositeRows = gcDbAccess.selectList(Object[].class);
+          
+          for (Object[] compositeRow : compositeRows) {
+            MultiKey compositeMultiKey = new MultiKey(compositeRow);
+            this.grouperCompositeOwnerLeftRightTypeToComposite.add(compositeMultiKey);
+          }
+          
         }
-        theCompositeSql.append(" ) ");
-        gcDbAccess.sql(theCompositeSql.toString()).bindVars(bindVars);
-  
-        List<Object[]> compositeRows = gcDbAccess.selectList(Object[].class);
         
-        for (Object[] compositeRow : compositeRows) {
-          MultiKey compositeMultiKey = new MultiKey(compositeRow);
-          this.grouperCompositeOwnerLeftRightTypeToComposite.add(compositeMultiKey);
-        }
-      }      
+
+      }
+        
     }
     
   }
