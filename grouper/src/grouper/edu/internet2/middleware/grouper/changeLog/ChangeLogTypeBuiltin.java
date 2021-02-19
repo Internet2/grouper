@@ -612,7 +612,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * @see edu.internet2.middleware.grouper.changeLog.ChangeLogTypeIdentifier#getChangeLogCategory()
    */
   public String getChangeLogCategory() {
-    return this.getChangeLogType().getChangeLogCategory();
+    ChangeLogType changeLogType = this.getChangeLogType();
+    // i dont know why this would be null GRP-3156
+    return changeLogType == null ? null : changeLogType.getChangeLogCategory();
   }
 
   /**
