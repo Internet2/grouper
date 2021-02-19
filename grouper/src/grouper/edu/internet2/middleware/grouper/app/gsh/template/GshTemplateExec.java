@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -12,10 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.codehaus.groovy.control.CompilerConfiguration;
-import org.codehaus.groovy.tools.shell.Groovysh;
-import org.codehaus.groovy.tools.shell.IO;
-import org.codehaus.groovy.tools.shell.util.Logger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -26,12 +19,12 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import jline.TerminalFactory;
 
 public class GshTemplateExec {
   
@@ -291,7 +284,10 @@ public class GshTemplateExec {
     
   }
   
-  // execute the gsh template
+  /**
+   * execute the gsh template
+   * @return
+   */
   public GshTemplateExecOutput execute() {
     
     GshTemplateExecOutput execOutput = new GshTemplateExecOutput();
@@ -412,53 +408,15 @@ public class GshTemplateExec {
     Calendar calendar = new GregorianCalendar();
     calendar.setTimeInMillis(System.currentTimeMillis());
     
-    String tempFileParentDirPath = GrouperUtil.tmpDir(true) + "gshTemplates";
-    //make sure the dir exists
-    GrouperUtil.mkdirs(new File(tempFileParentDirPath));
-    // $$timestamp$$ translates to current time in this format: yyyy_mm_dd_hh24_mi_ss
-    String filename = configId + "_" + calendar.get(Calendar.YEAR) + "_"
-        + StringUtils.leftPad(""+(calendar.get(Calendar.MONTH)+1), 2, '0') + "_" + StringUtils.leftPad(""+calendar.get(Calendar.DAY_OF_MONTH), 2, '0')
-        + "_" + GrouperUtil.uniqueId();
-    
-    final File theFile = new File(tempFileParentDirPath + File.separator + filename);
-    GrouperUtil.fileCreateNewFile(theFile);
-    
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(baos);
-    PrintStream old = System.out;
-    
     try {     
       GshTemplateOutput.assignThreadLocalGshTemplateOutput(gshTemplateOutput);
       GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(gshTemplateRuntime);
       grouperSession = GrouperSession.start(grouperSessionSubject);
       gshTemplateRuntime.setGrouperSession(grouperSession);
-      
-      GrouperUtil.saveStringIntoFile(theFile, scriptToRun.toString());
-      
-      StringBuilder body = new StringBuilder();
-      body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
-      body.append("\n" + ":gshFileLoad '" + theFile.getAbsolutePath() + "'");
-      body.append("\n:exit");
-      
-      boolean exitOnError = true;
-      
-      org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.AUTO, false);
-      IO io = new IO();
-      CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
-      Logger.io = io;
-      compilerConfiguration.setParameters(false);
 
-      final Groovysh shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
+      GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true);
       
-      System.setOut(ps);
-      
-      int code = 0;
-      try {
-        code = shell.run(body.toString());
-      } catch (GshTemplateReturnException e) {
-        
-      }
-      if (code != 0) {
+      if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
         execOutput.setSuccess(false);
       } else {
         if (gshTemplateOutput.isError()) {
@@ -470,7 +428,7 @@ public class GshTemplateExec {
       
       System.out.flush();
      
-      execOutput.setGshScriptOutput(baos.toString());
+      execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
       
     } catch (RuntimeException e) {
       execOutput.setSuccess(false);
@@ -480,10 +438,6 @@ public class GshTemplateExec {
       GshTemplateOutput.removeThreadLocalGshTemplateOutput();
       GshTemplateRuntime.removeThreadLocalGshTemplateRuntime();
       
-      GrouperUtil.deleteFile(theFile);
-      System.setOut(old);
-      GrouperUtil.closeQuietly(ps);
-      GrouperUtil.closeQuietly(baos);
     }
     
     return execOutput;

@@ -224,7 +224,9 @@ public class GshTemplateConfig {
     }
     
     gshTemplate = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"gshTemplate");
-    
+
+    gshLightweight = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"gshLightweight", false);
+
     int numberOfInputs = GrouperConfig.retrieveConfig().propertyValueInt(configPrefix+"numberOfInputs", 0);
     
     for (int i=0; i<numberOfInputs; i++) {
@@ -270,6 +272,19 @@ public class GshTemplateConfig {
       
     }
     
+  }
+
+  /**
+   * this will not have imports built in, so have imports in script or fully qualify classes.  Saves 3 seconds of execution
+   */
+  private boolean gshLightweight = false;
+
+  /**
+   * this will not have imports built in, so have imports in script or fully qualify classes.  Saves 3 seconds of execution
+   * @return
+   */
+  public boolean isGshLightweight() {
+    return gshLightweight;
   }
 
 }

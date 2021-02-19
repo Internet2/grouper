@@ -179,34 +179,40 @@ public class GrouperUtil {
 //        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
 //    System.out.println(cn);
     
-    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
-    grouperProvisioningGroup.setName("org:flint:app:Flint_AD:service:policy:Flint_AD_Alumni_Folder:Flint_AD_Alumni");
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//    grouperProvisioningGroup.setName("org:flint:app:Flint_AD:service:policy:Flint_AD_Alumni_Folder:Flint_AD_Alumni");
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+
 //    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
 //        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'org:flint:'), 'cn', 'ou', true, false) +  ',OU=Grouper,DC=ads,DC=umflint,DC=net'}"
 //        , variableMap, true, false, false);
 
-    grouperProvisioningGroup.assignAttributeValue("gidNumber", "123456");
-    variableMap.put("targetGroup", grouperProvisioningGroup);
-    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
-      "${'(&(gidNumber='+targetGroup.retrieveAttributeValue('gidNumber')+')(objectClass=posixGroup))'}"
-      , variableMap, true, false, false);
+//    grouperProvisioningGroup.assignAttributeValue("gidNumber", "123456");
+//    variableMap.put("targetGroup", grouperProvisioningGroup);
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//      "${'(&(gidNumber='+targetGroup.retrieveAttributeValue('gidNumber')+')(objectClass=posixGroup))'}"
+//      , variableMap, true, false, false);
 
     
     
 //    edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@10253![33,110]: ''(samAccountLink=' + grouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')';' unknown, ambiguous or inaccessible method 
     
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
-    targetEntity.assignAttributeValue("samAccountName", "mchyzer");
-    variableMap.put("targetEntity", targetEntity);
+//    ProvisioningEntity targetEntity = new ProvisioningEntity();
+//    targetEntity.assignAttributeValue("samAccountName", "mchyzer");
+//    variableMap.put("targetEntity", targetEntity);
     
 //    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
 //      "${'(samAccountName=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')'}"
 //      , variableMap, true, false, false);
     
-    System.out.println(result);
-    
+//    System.out.println(result);
+
+    // 5341, 3120
+    long startMillis = System.currentTimeMillis();
+    String result = GrouperUtil.gshRunScript("if (true) {\n  System.err.println('true');\n} else {\n  System.out.println('false');\n}", false);
+    System.out.println("Result: " + result);
+    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
   }
 
   /**
@@ -229,15 +235,9 @@ public class GrouperUtil {
    */
   public static String gshRunScript(String script, boolean lightWeight) {
     try {
-      GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+      GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight, true);
       String output = grouperGroovyResult.getOutString();
   
-      // [32mGroovy Shell[m (2.5.0-beta-2, JVM: 1.8.0_161)
-      output = GrouperUtil.replace(output, "[32mGroovy Shell[m ", "");
-      
-      // Type '[1m:help[m' or '[1m:h[m' for help.
-      output = GrouperUtil.replace(output, "[1m", "");
-      output = GrouperUtil.replace(output, "[m", "");
       return output;
     } catch (RuntimeException re) {
       injectInException(re, "Script: '" + script + "', ");
@@ -7572,6 +7572,9 @@ public class GrouperUtil {
     }
     if (input instanceof Number) {
       return ((Number)input).longValue();
+    }
+    if (input instanceof Timestamp) {
+      return ((Timestamp)input).getTime();
     }
     throw new RuntimeException("Cannot convert to long: " + className(input));
   }

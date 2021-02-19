@@ -17,10 +17,12 @@ package edu.internet2.middleware.grouper.app.gsh;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import jline.TerminalFactory;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.tools.shell.Groovysh;
@@ -28,15 +30,93 @@ import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
 import org.codehaus.groovy.tools.shell.Main;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import groovy.lang.MissingPropertyException;
+import jline.TerminalFactory;
 
 /**
  * @author shilen
  */
 public class GrouperGroovysh extends Groovysh {
 
+  /**
+   * hold the script so the GSH GSHScriptLoad can get the lines
+   */
+  private static ThreadLocal<List<String>> threadLocalScriptLines = new InheritableThreadLocal<List<String>>();
+
+  /**
+   * print out each line number in gsh script run from inside grouper
+   * @param lineNumber
+   * @param line
+   */
+  public static void printGshScriptLine(int lineNumber, String it) {
+    System.out.println("groovy:" + StringUtils.leftPad(""+lineNumber, 3, "0") + "> " + it);
+  }
+  
+  /**
+   * hold the script so the GSH GSHScriptLoad can get the lines
+   * @param script
+   */
+  public static void threadLocalScriptAssign(String script) {
+    
+    List<String> lines = new ArrayList<String>();
+    
+    if (script != null) {
+      // harmonize line endings
+      script = StringUtils.replace(script, "\r\n", "\n");
+      script = StringUtils.replace(script, "\r", "\n");
+      lines = GrouperUtil.toList(GrouperUtil.nonNull(GrouperUtil.split(script, "\n"), String.class));
+    }
+
+    threadLocalScriptLines.set(lines);
+  }
+  
+  /**
+   * remove the script so the GSH GSHScriptLoad is done
+   * @param script
+   */
+  public static void threadLocalScriptRemove() {
+    threadLocalScriptLines.remove();
+  }  
+  
+  /**
+   * if running through a script, need to exit script
+   * @param lineNumber
+   * @param line
+   * @return true if exit script
+   */
+  public static boolean scriptLineExit(int lineNumber, String it) {
+    if (it == null) {
+      return false;
+    }
+    it = it.trim();
+    if (lineNumber == 1 && it.startsWith("#!")) {
+      return true;
+    }
+
+    if (it.equals("exit") || it.startsWith("exit ") || it.startsWith("exit;") || it.equals("quit") || it.startsWith("quit ") || it.startsWith("quit;")) {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * if running through a script, need to ignore line
+   * @param lineNumber
+   * @param line
+   * @return true if skip line
+   */
+  public static boolean scriptLineIgnore(int lineNumber, String it) {
+    if (it == null) {
+      return true;
+    }
+    it = it.trim();
+    if (it.startsWith("#") || it.startsWith("//")) {
+      return true;
+    }
+    return false;
+  }
+  
   public static class GrouperGroovyResult {
     
     private Integer resultCode;
@@ -104,7 +184,19 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script) {
-    return runScript(script, false);
+    return runScript(script, false, true);
+  }
+
+  /**
+   * hold the script so the GSH GSHScriptLoad can get the lines
+   * @return
+   */
+  public static List<String> scriptLines() {
+    List<String> lines = threadLocalScriptLines.get();
+    if (lines == null) {
+      throw new RuntimeException("script lines not set in threadlocal!");
+    }
+    return lines;
   }
 
   /**
@@ -116,11 +208,28 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script, boolean lightWeight) {
+    return runScript(script, lightWeight, true);
+  }
+
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   */
+  public static GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut) {
     
     GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
     
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-    ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+    ByteArrayOutputStream errStream = sendErrToOut ? outStream : new ByteArrayOutputStream();
+    
+    PrintStream oldOut = System.out;
+    PrintStream newOut = null;
+    PrintStream oldErr = System.err;
+    PrintStream newErr = null;
     
     // we dont need an input stream
     ByteArrayInputStream inStream = new ByteArrayInputStream(new byte[0]);
@@ -129,40 +238,107 @@ public class GrouperGroovysh extends Groovysh {
     Throwable throwable = null;
     GrouperGroovysh shell = null;
     try {    
+      StringBuilder body = new StringBuilder();
+      if (lightWeight) {
+        body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh_lightWeightWithFile.profile").getAbsolutePath() + "'\n");
+      } else {
+        body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'\n");
+      }
+
       Main.setTerminalType(TerminalFactory.AUTO, false);
+
       IO io = new IO(inStream, outStream, errStream);
       CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
       compilerConfiguration.setTolerance(0);
 //      Logger.io = io;
       compilerConfiguration.setParameters(false);
-      boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
-      shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
-      StringBuilder body = new StringBuilder(script);
-      String profile = "groovysh.profile";
-      if (lightWeight) {
-        if (script.contains("gshFileLoad")) {
-          profile = "groovysh_lightWeightWithFile.profile";
-        } else {
-          profile = "groovysh_lightWeight.profile";
-        }
-      }
-      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName(profile).getAbsolutePath() + "'\n");
-      body.append("\n:exit");
+      shell = new GrouperGroovysh(io, compilerConfiguration, true);
+      threadLocalScriptAssign(script);
+      
+      // this means pull the script lines from a threadlocal and push into gsh into the same shell object so conditionals work
+      body.append(":gshScriptLoad\n");
+      
+      body.append(":exit");
+      
+      // capture system out
+      newOut = new PrintStream(outStream);
+      System.setOut(newOut);
+      newErr = new PrintStream(errStream);
+      System.setErr(newErr);
+      
       int code = shell.run(body.toString());
       grouperGroovyResult.setResultCode(code);
     } catch (RuntimeException e) {
       throwable = e;
     } finally {
+      
+      // revert system back
+      System.setOut(oldOut);
+      System.setErr(oldErr);
+      
+      threadLocalScriptRemove();
       grouperGroovyResult.setMillis((System.nanoTime() - startNanos) / 1000000);
       try {
-        grouperGroovyResult.setOutString(new String(outStream.toByteArray()));
+        String outString = new String(outStream.toByteArray());
+        // [32mGroovy Shell[m (2.5.0-beta-2, JVM: 1.8.0_161)
+        outString = GrouperUtil.replace(outString, "[32mGroovy Shell[m ", "");
+        
+        // Type '[1m:help[m' or '[1m:h[m' for help.
+        outString = GrouperUtil.replace(outString, "[1m", "");
+        outString = GrouperUtil.replace(outString, "[m", "");
+        // escape char 27
+        outString = GrouperUtil.replace(outString, "", "");
+
+        //  remove unneeded output
+        //  (2.5.0-beta-2, JVM: 1.8.0_265)
+        //  Type ':help' or ':h' for help.
+        //  -------------------------------------------------------------------------------
+        //  groovy:000> :gshScriptLoad
+        //  groovy:001> if (true) {
+        //  groovy:002>   System.err.println('true');
+        //  groovy:003> } else {
+        //  groovy:004>   System.out.println('false');
+        //  groovy:005> }
+        //  true
+        //  ===> null
+        //  groovy:000> :exit
+
+        outString = GrouperUtil.replace(outString, "\r\n", "\n");
+        outString = GrouperUtil.replace(outString, "\r", "\n");
+        
+        List<String> outStrings = GrouperUtil.toList(GrouperUtil.nonNull(GrouperUtil.split(outString, "\n"), String.class));
+        Iterator<String> outStringIterator = outStrings.iterator();
+        int lineNumber = 0;
+        while (outStringIterator.hasNext()) {
+          String line = StringUtils.defaultString(outStringIterator.next());
+          if (lineNumber == 0 && line.startsWith("(")) {
+            outStringIterator.remove();
+          } else if (lineNumber == 1 && "Type ':help' or ':h' for help.".equals(line)) {
+            outStringIterator.remove();
+          } else if (lineNumber == 2 && line.startsWith("----------------------")) {
+            outStringIterator.remove();
+          } else if (line.startsWith("groovy:000>")) {
+            outStringIterator.remove();
+          } else if ("===> null".equals(line)) {
+            outStringIterator.remove();
+          }
+          lineNumber++;
+        }
+        outString = GrouperUtil.join(outStrings.iterator(), '\n');
+        
+        grouperGroovyResult.setOutString(outString);
       } catch (Exception e) {
         
       }
+
+      GrouperUtil.closeQuietly(newOut);
       GrouperUtil.closeQuietly(outStream);
-      
-      // ignore err since its in the exception
-      // GrouperUtil.closeQuietly(errStream);
+
+      if (!sendErrToOut) {
+        GrouperUtil.closeQuietly(newErr);
+        // do we need to not do this?
+        GrouperUtil.closeQuietly(errStream);
+      }
 
       GrouperUtil.closeQuietly(inStream);
 
@@ -171,7 +347,7 @@ public class GrouperGroovysh extends Groovysh {
       throwable = shell.getThrowable();
     }
     if (throwable != null) {
-      GrouperUtil.injectInException(throwable, "Script: " + GrouperUtil.abbreviate(script, 2000) + ", Output: " + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
+      GrouperUtil.injectInException(throwable, "Script: " + GrouperUtil.abbreviate(script, 8000) + ", Output: " + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
       if (throwable instanceof RuntimeException) {
         throw (RuntimeException)throwable;
       }

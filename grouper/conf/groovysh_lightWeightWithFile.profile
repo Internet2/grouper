@@ -42,19 +42,15 @@ class GSHFileLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
     }
 
     url.eachLine { String it, int lineNumber ->
-      if (lineNumber == 1 && it.startsWith('#!')) {
+      if (edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineExit(lineNumber, it)) {
         return
       }
 
-      if (it.equals("exit") || it.startsWith("exit ") || it.startsWith("exit;") || it.equals("quit") || it.startsWith("quit ") || it.startsWith("quit;")) {
-        return
-      }
-
-      if (!it.startsWith("#")) {
+      if (!edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineIgnore(lineNumber, it)) {
         try {
           shell << it as String
         } catch (Throwable t) {
-          GrouperShell.handleFileLoadError(it, t);
+          edu.internet2.middleware.grouper.app.gsh.GrouperShell.handleFileLoadError(it, t);
         }
       }
     }
@@ -62,6 +58,41 @@ class GSHFileLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
 }
 
 :register GSHFileLoad
+
+class GSHScriptLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
+  protected GSHScriptLoad(final org.codehaus.groovy.tools.shell.Groovysh shell) {
+    super(shell, ':gshScriptLoad', ':gshsl')
+  }
+
+  @Override
+  Object execute(final List<String> args) {
+    if (args != null && args.size() > 0) {
+      throw new RuntimeException("Command 'gshScriptLoad' requires no arguments")
+    }
+    int lineNumber = 1;
+    for (String it : edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLines()) {
+
+      edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.printGshScriptLine(lineNumber, it);
+
+      if (edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineExit(lineNumber, it)) {
+        return
+      }
+
+      if (!edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineIgnore(lineNumber, it)) {
+        try {
+          shell << it as String
+        } catch (Throwable t) {
+          edu.internet2.middleware.grouper.app.gsh.GrouperShell.handleScriptLoadError(lineNumber, it, t);
+        }
+      }
+    
+      lineNumber++;
+    }
+  }
+}
+
+:register GSHScriptLoad
+
 
 GrouperSession.startRootSession()
 
