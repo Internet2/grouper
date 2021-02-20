@@ -681,7 +681,9 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
+      GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      // configToEdit.clearAttributeCache();
       
       String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
       if (configToEdit.isMultiple()) {
