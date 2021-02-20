@@ -398,7 +398,10 @@ private static boolean handleSpecialCase(String[] args) {
     if (t instanceof GshTemplateReturnException) {
       return;
     }
-    String error = "Error while running line number " + lineNumber + " command (" + command +  ")";
+    String error = "Error while running line number " + lineNumber + " command (" + command +  "), ";
+    GrouperUtil.injectInException(t, error);
+    // this will print to the stdout which is in the script
+    t.printStackTrace();
     throw new RuntimeException(error, t);
   }
   

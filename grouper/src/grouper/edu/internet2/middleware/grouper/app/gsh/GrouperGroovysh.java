@@ -309,6 +309,9 @@ public class GrouperGroovysh extends Groovysh {
         List<String> outStrings = GrouperUtil.toList(GrouperUtil.nonNull(GrouperUtil.split(outString, "\n"), String.class));
         Iterator<String> outStringIterator = outStrings.iterator();
         int lineNumber = 0;
+        boolean currentLineComment = false;
+        boolean previousLineComment = false;
+        
         while (outStringIterator.hasNext()) {
           String line = StringUtils.defaultString(outStringIterator.next());
           if (lineNumber == 0 && line.startsWith("(")) {
@@ -321,8 +324,16 @@ public class GrouperGroovysh extends Groovysh {
             outStringIterator.remove();
           } else if ("===> null".equals(line)) {
             outStringIterator.remove();
+          } else if (line.startsWith("groovy:") && line.matches(".*>\\s+import .*")) {
+            currentLineComment = true;
+            // groovy:001> import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;  
+            // ===> org.codehaus.groovy.tools.shell.CommandSupport, org.codehaus.groovy.tools.shell.Groovysh, edu.internet2.middleware.grouper.*, edu.in
+          } else if (line.startsWith("===> ") && previousLineComment) {
+             outStringIterator.remove();
           }
           lineNumber++;
+          previousLineComment = currentLineComment;
+          currentLineComment = false;
         }
         outString = GrouperUtil.join(outStrings.iterator(), '\n');
         
@@ -347,7 +358,7 @@ public class GrouperGroovysh extends Groovysh {
       throwable = shell.getThrowable();
     }
     if (throwable != null) {
-      GrouperUtil.injectInException(throwable, "Script: " + GrouperUtil.abbreviate(script, 8000) + ", Output: " + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
+      GrouperUtil.injectInException(throwable, "Script (8k max):\n" + GrouperUtil.abbreviate(script, 8000) + ", Output (10k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
       if (throwable instanceof RuntimeException) {
         throw (RuntimeException)throwable;
       }
