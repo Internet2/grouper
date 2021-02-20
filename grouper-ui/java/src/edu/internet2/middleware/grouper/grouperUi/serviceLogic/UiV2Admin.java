@@ -681,14 +681,15 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
+      // clear cache since the EL variables need to be cleared and other things
       GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
-      // configToEdit.clearAttributeCache();
-      
-      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-      if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(configId);
-      }
+
+      // daemon is already set config id in retrieveImplementationFromJobName()
+      //  String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      //  if (configToEdit.isMultiple()) {
+      //    configToEdit.setConfigId(configId);
+      //  }
         
       String previousJobName = request.getParameter("previousJobName");
       
@@ -746,13 +747,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
-      
+
+      // clear cache since the EL variables need to be cleared and other things
+      GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
       
-      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-      if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(configId);
-      }
+      //  String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      //  if (configToEdit.isMultiple()) {
+      //    configToEdit.setConfigId(configId);
+      //  }
       
       configToEdit.populateConfigurationValuesFromUi(request);
       

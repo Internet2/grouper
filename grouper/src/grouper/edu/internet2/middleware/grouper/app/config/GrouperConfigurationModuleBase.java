@@ -413,7 +413,14 @@ public abstract class GrouperConfigurationModuleBase {
     
     
   }
-  
+
+  /**
+   * clear the attribute cache which also clears the expression language cache
+   */
+  public void clearAttributeCache() {
+    this.attributeCache = null;
+  }
+
   
   /**
    * retrieve attributes based on the instance

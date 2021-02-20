@@ -118,7 +118,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     }
   }
   
-  private static ExpirableCache<String, GrouperDaemonConfiguration> jobNameToGrouperDaemonConfigCache = new ExpirableCache<String, GrouperDaemonConfiguration>(10);
+  private static ExpirableCache<String, GrouperDaemonConfiguration> jobNameToGrouperDaemonConfigCache = new ExpirableCache<String, GrouperDaemonConfiguration>(1);
 
   public static GrouperDaemonConfiguration retrieveImplementationFromJobName(String jobName) {
     
@@ -128,77 +128,93 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
       return result;
     }
     
-    for (String className: grouperDaemonConfigClassNames) {
+    synchronized (GrouperDaemonConfiguration.class) {
+      result = jobNameToGrouperDaemonConfigCache.get(jobName);
       
-      Class<GrouperDaemonConfiguration> grouperDaemonConfigurationClass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(className);
-      GrouperDaemonConfiguration grouperDaemonConfig = GrouperUtil.newInstance(grouperDaemonConfigurationClass);
-      if (jobName.startsWith(grouperDaemonConfig.getDaemonJobPrefix())) {
-        if (grouperDaemonConfig.isMultiple()) {
-          String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonConfig.getDaemonJobPrefix());
-          grouperDaemonConfig.setConfigId(configId);
+      if (result != null) {
+        return result;
+      }
+      for (String className: grouperDaemonConfigClassNames) {
+        
+        Class<GrouperDaemonConfiguration> grouperDaemonConfigurationClass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(className);
+        GrouperDaemonConfiguration grouperDaemonConfig = GrouperUtil.newInstance(grouperDaemonConfigurationClass);
+        if (jobName.startsWith(grouperDaemonConfig.getDaemonJobPrefix())) {
+          if (grouperDaemonConfig.isMultiple()) {
+            String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonConfig.getDaemonJobPrefix());
+            grouperDaemonConfig.setConfigId(configId);
+          }
+        } else {
+            continue;
         }
-      } else {
+        if (grouperDaemonConfig instanceof GrouperDaemonOtherJobConfiguration) {
           continue;
-      }
-      if (grouperDaemonConfig instanceof GrouperDaemonOtherJobConfiguration) {
-        continue;
-      }
-      if (grouperDaemonConfig instanceof GrouperDaemonChangeLogConsumerConfiguration) {
-        continue;
-      }
-      if (grouperDaemonConfig instanceof GrouperDaemonMessagingListenerConfiguration) {
-        continue;
-      }
-      if (grouperDaemonConfig instanceof GrouperDaemonChangeLogEsbConfiguration) {
-        continue;
-      }
-      if (grouperDaemonConfig.matchesQuartzJobName(jobName)) {          
-        if (result != null) {
-          throw new RuntimeException(jobName + " matches "+ grouperDaemonConfig + " and also " + result);
         }
-        result = grouperDaemonConfig;
+        if (grouperDaemonConfig instanceof GrouperDaemonChangeLogConsumerConfiguration) {
+          continue;
+        }
+        if (grouperDaemonConfig instanceof GrouperDaemonMessagingListenerConfiguration) {
+          continue;
+        }
+        if (grouperDaemonConfig instanceof GrouperDaemonChangeLogEsbConfiguration) {
+          continue;
+        }
+        if (grouperDaemonConfig.matchesQuartzJobName(jobName)) {          
+          if (result != null) {
+            throw new RuntimeException(jobName + " matches "+ grouperDaemonConfig + " and also " + result);
+          }
+          result = grouperDaemonConfig;
+        }
       }
-    }
+        
+      if (result != null) {
+        jobNameToGrouperDaemonConfigCache.put(jobName, result);
+        return result;
+      }
+
+      GrouperDaemonMessagingListenerConfiguration grouperDaemonMessagingListenerConfiguration = new GrouperDaemonMessagingListenerConfiguration();
+      String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonMessagingListenerConfiguration.getDaemonJobPrefix());
+      grouperDaemonMessagingListenerConfiguration.setConfigId(configId);
+      if (grouperDaemonMessagingListenerConfiguration.matchesQuartzJobName(jobName)) {
+        jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonMessagingListenerConfiguration);
+        return grouperDaemonMessagingListenerConfiguration;
+      }
+
+      GrouperDaemonOtherJobConfiguration grouperDaemonOtherJobConfiguration = new GrouperDaemonOtherJobConfiguration();
+      configId = GrouperUtil.stripPrefix(jobName, grouperDaemonOtherJobConfiguration.getDaemonJobPrefix());
+      grouperDaemonOtherJobConfiguration.setConfigId(configId);
+      if (grouperDaemonOtherJobConfiguration.matchesQuartzJobName(jobName)) {
+        jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonOtherJobConfiguration);
+        return grouperDaemonOtherJobConfiguration;
+      }
+
+      // note ESB needs to be above the generic change log below
+      GrouperDaemonChangeLogEsbConfiguration grouperDaemonChangeLogEsbConfiguration = new GrouperDaemonChangeLogEsbConfiguration();
+      configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogEsbConfiguration.getDaemonJobPrefix());
+      grouperDaemonChangeLogEsbConfiguration.setConfigId(configId);
+      if (grouperDaemonChangeLogEsbConfiguration.matchesQuartzJobName(jobName)) {
+        jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogEsbConfiguration);
+        return grouperDaemonChangeLogEsbConfiguration;
+      }
+
+      GrouperDaemonChangeLogConsumerConfiguration grouperDaemonChangeLogConsumerConfiguration = new GrouperDaemonChangeLogConsumerConfiguration();
+      configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogConsumerConfiguration.getDaemonJobPrefix());
+      grouperDaemonChangeLogConsumerConfiguration.setConfigId(configId);
+      if (grouperDaemonChangeLogConsumerConfiguration.matchesQuartzJobName(jobName)) {
+        jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogConsumerConfiguration);
+        return grouperDaemonChangeLogConsumerConfiguration;
+      }
+
+      throw new RuntimeException("Can't find daemon config for jobName "+jobName);
       
-    if (result != null) {
-      jobNameToGrouperDaemonConfigCache.put(jobName, result);
-      return result;
     }
+    
+  }
 
-    GrouperDaemonMessagingListenerConfiguration grouperDaemonMessagingListenerConfiguration = new GrouperDaemonMessagingListenerConfiguration();
-    String configId = GrouperUtil.stripPrefix(jobName, grouperDaemonMessagingListenerConfiguration.getDaemonJobPrefix());
-    grouperDaemonMessagingListenerConfiguration.setConfigId(configId);
-    if (grouperDaemonMessagingListenerConfiguration.matchesQuartzJobName(jobName)) {
-      jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonMessagingListenerConfiguration);
-      return grouperDaemonMessagingListenerConfiguration;
-    }
-
-    GrouperDaemonOtherJobConfiguration grouperDaemonOtherJobConfiguration = new GrouperDaemonOtherJobConfiguration();
-    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonOtherJobConfiguration.getDaemonJobPrefix());
-    grouperDaemonOtherJobConfiguration.setConfigId(configId);
-    if (grouperDaemonOtherJobConfiguration.matchesQuartzJobName(jobName)) {
-      jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonOtherJobConfiguration);
-      return grouperDaemonOtherJobConfiguration;
-    }
-
-    // note ESB needs to be above the generic change log below
-    GrouperDaemonChangeLogEsbConfiguration grouperDaemonChangeLogEsbConfiguration = new GrouperDaemonChangeLogEsbConfiguration();
-    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogEsbConfiguration.getDaemonJobPrefix());
-    grouperDaemonChangeLogEsbConfiguration.setConfigId(configId);
-    if (grouperDaemonChangeLogEsbConfiguration.matchesQuartzJobName(jobName)) {
-      jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogEsbConfiguration);
-      return grouperDaemonChangeLogEsbConfiguration;
-    }
-
-    GrouperDaemonChangeLogConsumerConfiguration grouperDaemonChangeLogConsumerConfiguration = new GrouperDaemonChangeLogConsumerConfiguration();
-    configId = GrouperUtil.stripPrefix(jobName, grouperDaemonChangeLogConsumerConfiguration.getDaemonJobPrefix());
-    grouperDaemonChangeLogConsumerConfiguration.setConfigId(configId);
-    if (grouperDaemonChangeLogConsumerConfiguration.matchesQuartzJobName(jobName)) {
-      jobNameToGrouperDaemonConfigCache.put(jobName, grouperDaemonChangeLogConsumerConfiguration);
-      return grouperDaemonChangeLogConsumerConfiguration;
-    }
-
-    throw new RuntimeException("Can't find daemon config for jobName "+jobName);
+  /**
+   * 
+   */
+  public static void clearImplementationJobNameCache() {
+    jobNameToGrouperDaemonConfigCache.clear();
     
   }
 
