@@ -132,7 +132,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -13523,10 +13522,6 @@ public class GrouperUtil {
         }
       }
     }
-  }
-  
-  public static void gshReturn() {
-    throw new GshTemplateReturnException();
   }
   
 }
