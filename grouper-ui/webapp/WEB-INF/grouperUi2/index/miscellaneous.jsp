@@ -61,14 +61,15 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>
                     </c:if>
+
+                    <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
+                      >${textContainer.text['gshTemplatesMainLink'] }</a>
+                    </c:if>
+                    
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                       	${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
-                    </c:if>
-                    
-                    <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
-                      >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
                     
                     <c:if test="${grouperRequestContainer.subjectSourceContainer.canViewSubjectSources}">
@@ -76,9 +77,9 @@
                       >${textContainer.text['subjectSourcesMainLink'] }</a>
                     </c:if>
                     
-                    <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
-                      >${textContainer.text['gshTemplatesMainLink'] }</a>
+                    <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
+                      >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
                     
                     </div>
