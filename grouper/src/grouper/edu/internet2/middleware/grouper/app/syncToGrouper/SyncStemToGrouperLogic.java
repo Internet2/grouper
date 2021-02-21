@@ -59,38 +59,14 @@ public class SyncStemToGrouperLogic {
   }
 
   /**
-   * top level stems to retrieve from database (and substems), as specified by the called
-   */
-  private Set<Stem> topLevelStemsToSync = new TreeSet<Stem>();
-  
-  /**
-   * top level stems to retrieve from database (and substems), as specified by the called
-   * @return top level stems to sync
-   */
-  public Set<Stem> getTopLevelStemsToSync() {
-    return topLevelStemsToSync;
-  }
-
-  /**
-   * top level stems to retrieve from database (and substems), as specified by the called
-   * @return top level stems to sync
-   */
-  public boolean isTopLevelStemsHaveRoot() {
-    for (Stem stem : GrouperUtil.nonNull(this.getTopLevelStemsToSync())) {
-      if (stem.isRootStem()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * top level stems to retrieve from database (and substems), as specified by the called
+   * top level stems to retrieve from database (and substems), as specified by the called.
+   * Note: you should probably use the one from SyncToGrouper
    */
   private Set<String> topLevelStemNamesToSync = new TreeSet<String>();
   
   /**
    * top level stems to retrieve from database (and substems), as specified by the called
+   * Note: you should probably use the one from SyncToGrouper
    * @return top level stems to sync
    */
   public Set<String> getTopLevelStemNamesToSync() {
@@ -99,7 +75,6 @@ public class SyncStemToGrouperLogic {
 
   /**
    * if these are the stems to sync: a:b:c, a:b, a:d, a:b:d, then the top level are: a:b, a:d
-   * @return
    */
   private void calculateTopLevelStemsToSync() {
 
@@ -109,12 +84,6 @@ public class SyncStemToGrouperLogic {
     }
     
     this.topLevelStemNamesToSync = GrouperUtil.stemCalculateTopLevelStems(stemsToSync);
-
-    if (GrouperUtil.length(this.topLevelStemNamesToSync) > 0) {
-
-      this.topLevelStemsToSync = GrouperDAOFactory.getFactory().getStem().findByNames(this.topLevelStemNamesToSync, false);
-      
-    }
 
   }
 
@@ -294,10 +263,14 @@ public class SyncStemToGrouperLogic {
       
     Map<String, SyncStemToGrouperBean> stemNamesToSyncBeans = new TreeMap<String, SyncStemToGrouperBean>();
     
-    for (SyncStemToGrouperBean syncStemToGrouperBean : this.syncToGrouper.getSyncStemToGrouperBeans()) {
+    for (SyncStemToGrouperBean syncStemToGrouperBean : GrouperUtil.nonNull(this.syncToGrouper.getSyncStemToGrouperBeans())) {
       stemNamesToSyncBeans.put(syncStemToGrouperBean.getName(), syncStemToGrouperBean);
     }
 
+    if (GrouperUtil.length(this.syncToGrouper.getSyncStemToGrouperBeans()) == 0) {
+      this.syncToGrouper.getSyncToGrouperReport().addOutputLine(NO_FOLDERS_TO_SYNC);
+    }
+    
     if (this.syncToGrouper.getSyncToGrouperBehavior().isStemInsert()) {
       Set<String> stemNamesToInsert = new TreeSet<String>();
       
@@ -357,27 +330,47 @@ public class SyncStemToGrouperLogic {
           this.stemUpdates.add(stemNamesToSyncBeans.get(stemName));
         }
       }
-    }    
+    }
+    
   }
 
   private void retrieveStemsFromGrouper() {
     
-    if (GrouperUtil.length(this.topLevelStemsToSync) == 0) {
-      return;
+    Set<Stem> topLevelStems = null;
+    
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isStemSyncFromStems()) {
+      
+      // get all the parent stems
+      topLevelStems = this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput();
+
+      if (GrouperUtil.length(topLevelStems) == 0) {
+        return;
+      }
+      
+    } else {
+
+      List<SyncStemToGrouperBean> syncStemToGrouperBeans = this.syncToGrouper.getSyncStemToGrouperBeans();
+      Set<String> stemNames = new TreeSet<String>();
+      for (SyncStemToGrouperBean syncStemToGrouperBean : GrouperUtil.nonNull(syncStemToGrouperBeans)) {
+        stemNames.add(syncStemToGrouperBean.getName());
+      }
+      stemNames = GrouperUtil.stemCalculateTopLevelStems(stemNames);
+      if (GrouperUtil.length(stemNames) > 0) {
+        topLevelStems = GrouperDAOFactory.getFactory().getStem().findByNames(stemNames, false);
+      }
+      
     }
     
-    Set<Stem> stems = new HashSet<Stem>(); 
-    stems.addAll(this.topLevelStemsToSync);
-    
-    for (Stem topLevelStem : this.topLevelStemsToSync) {
-      StemFinder stemFinder = new StemFinder();
-      stemFinder.assignParentStemId(topLevelStem.getId());
-      stemFinder.assignStemScope(Scope.SUB);
-      Set<Stem> descendentStems = stemFinder.findStems();
-      stems.addAll(descendentStems);
+    Set<Stem> stems = new TreeSet<Stem>();
+
+    for (Stem topLevelStem : GrouperUtil.nonNull(topLevelStems)) {
+      stems.add(topLevelStem);
+      Set<Stem> theStems = new StemFinder().assignParentStemId(topLevelStem.getId())
+          .assignStemScope(Scope.SUB).findStems();
+      stems.addAll(GrouperUtil.nonNull(theStems));
     }
-    
-    for (Stem stem : stems) {
+
+    for (Stem stem : GrouperUtil.nonNull(stems)) {
       this.grouperStemNameToStem.put(stem.getName(), stem);
       this.grouperStemUuidToStem.put(stem.getUuid(), stem);
     }

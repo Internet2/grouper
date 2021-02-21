@@ -701,7 +701,7 @@ public class SyncToGrouperFromSql {
             
         List<SyncMembershipToGrouperBean> syncMembershipToGrouperBeans = new ArrayList<SyncMembershipToGrouperBean>();
         for (Object[] membershipArray : GrouperUtil.nonNull(membershipArrayList)) {
-          String immediateMembershipId = this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert() ? (String)membershipArray[groupNameColumn.getColumnIndexZeroIndexed()] : null;
+          String immediateMembershipId = this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert() ? (String)membershipArray[immediateMembershipIdColumn.getColumnIndexZeroIndexed()] : null;
           String groupName = (String)membershipArray[groupNameColumn.getColumnIndexZeroIndexed()];
           String subjectSourceId = (String)membershipArray[subjectSourceIdColumn.getColumnIndexZeroIndexed()];
           String subjectId = (String)membershipArray[subjectIdColumn.getColumnIndexZeroIndexed()];

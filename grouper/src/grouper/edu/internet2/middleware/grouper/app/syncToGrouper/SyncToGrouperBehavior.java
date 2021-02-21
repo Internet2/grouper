@@ -246,6 +246,27 @@ public class SyncToGrouperBehavior {
   private boolean groupSyncFromStems;
 
   /**
+   * should we sync stems from top level stems or pass in the stems to sync
+   */
+  private boolean stemSyncFromStems;
+
+  /**
+   * should we sync stems from top level stems or pass in the stems to sync
+   * @return
+   */
+  public boolean isStemSyncFromStems() {
+    return stemSyncFromStems;
+  }
+
+  /**
+   * should we sync stems from top level stems or pass in the stems to sync
+   * @param stemSyncFromStems
+   */
+  public void setStemSyncFromStems(boolean stemSyncFromStems) {
+    this.stemSyncFromStems = stemSyncFromStems;
+  }
+
+  /**
    * should we sync composites from stems or pass in the composites to sync
    */
   private boolean compositeSyncFromStems;

@@ -70,6 +70,51 @@ public class MembershipSave {
   }
   
   /**
+   * group
+   */
+  private Group group;
+  
+  /**
+   * assign a group
+   * @param theGroup
+   * @return this for chaining
+   */
+  public MembershipSave assignGroup(Group theGroup) {
+    this.group = theGroup;
+    return this;
+  }
+
+  /**
+   * subject to add
+   */
+  private Subject subject = null;
+  
+  /**
+   * subject to add
+   * @param theSubject
+   * @return this for chaining
+   */
+  public MembershipSave assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+  
+  /**
+   * member to add
+   */
+  private Member member = null;
+  
+  /**
+   * member to add
+   * @param member
+   * @return this for chaining
+   */
+  public MembershipSave assignMember(Member theMember) {
+    this.member = theMember;
+    return this;
+  }
+  
+  /**
    * group name to add to, mutually exclusive with group id
    */
   private String groupName;
@@ -247,58 +292,50 @@ public class MembershipSave {
           
           // start by finding existing membership
           Membership membership = null;
-          Group group = null;
-          Member member = null;
-          Subject subject = null;
-          
-          if (!StringUtils.isBlank(MembershipSave.this.immediateMembershipId)) {
-            membership = MembershipFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.immediateMembershipId, false, false);
-          } else {
-            if (!StringUtils.isBlank(MembershipSave.this.groupId)) {
-              group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.groupId, false, new QueryOptions().secondLevelCache(false));
-            } else if (!StringUtils.isBlank(MembershipSave.this.groupName)) {
-              group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), MembershipSave.this.groupName, false, new QueryOptions().secondLevelCache(false));
-            } else {
-              throw new RuntimeException("Group id or name is required");
-            }
-            
-            if (!StringUtils.isBlank(MembershipSave.this.memberId)) {
-              member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.groupId, false);
-            } else {
-              GrouperUtil.assertion(StringUtils.isNotBlank(MembershipSave.this.subjectSourceId), "subjectSourceId is required");
 
-              if (!StringUtils.isBlank(MembershipSave.this.subjectId)) {
-                subject = SubjectFinder.findByIdAndSource(MembershipSave.this.subjectId, MembershipSave.this.subjectSourceId, false);
-              } else if (!StringUtils.isBlank(MembershipSave.this.subjectIdentifier)) {
-                subject = SubjectFinder.findByIdentifierAndSource(MembershipSave.this.subjectIdentifier, MembershipSave.this.subjectSourceId, false);
-              } else {
-                throw new RuntimeException("Subject id or identifier is required");
-              }
-              
-              if (subject != null) {
-                member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
-              }
-              if (subject == null && member != null) {
-                subject = member.getSubject();
-              }
-            }
-            
-            if (group != null && member != null) {
-              membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-                  group.getId(), member.getId(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
-            }
+          if (membership == null && !StringUtils.isBlank(MembershipSave.this.immediateMembershipId)) {
+            membership = MembershipFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.immediateMembershipId, false, false);
           }
-          
-          // check security
+
+          if (group == null && !StringUtils.isBlank(MembershipSave.this.groupId)) {
+            group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.groupId, false, new QueryOptions().secondLevelCache(false));
+          } 
+          if (group == null && !StringUtils.isBlank(MembershipSave.this.groupName)) {
+            group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), MembershipSave.this.groupName, false, new QueryOptions().secondLevelCache(false));
+          }
           if (membership != null && group == null) {
             group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), membership.getOwnerGroupId(), true, new QueryOptions().secondLevelCache(false));
           }
+          GrouperUtil.assertion(group!=null,  "Group not found");
 
-          GrouperUtil.assertion(group!=null, 
-              "Group not found");
+          if (member == null && !StringUtils.isBlank(MembershipSave.this.memberId)) {
+            member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.memberId, false);
+          }
 
-          GrouperUtil.assertion(group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.UPDATE.getName(), false), 
-              "Subject '" + SubjectUtils.subjectToString(GrouperSession.staticGrouperSession().getSubject()) + "' cannot UPDATE group '" + group.getName() + "'");
+          if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findByIdAndSource(MembershipSave.this.subjectId, MembershipSave.this.subjectSourceId, false);
+          }            
+          if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findByIdentifierAndSource(MembershipSave.this.subjectIdentifier, MembershipSave.this.subjectSourceId, false);
+          }
+          if (subject == null && member != null) {
+            subject = member.getSubject();
+          }
+          if (member == null && subject != null) {
+            member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, saveMode!=SaveMode.DELETE);
+          }
+          GrouperUtil.assertion(member!=null,  "Member not found");
+          GrouperUtil.assertion(subject!=null,  "Subject not found");
+          
+          if (membership == null && group != null && member != null) {
+            membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+                group.getId(), member.getId(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), false, true);
+          }
+
+          if (!group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.UPDATE.getName(), false)) {
+            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
+              + "' cannot UPDATE group '" + group.getName() + "'");
+          }
           
 
           // handle deletes
@@ -322,21 +359,19 @@ public class MembershipSave {
 
           // insert
           if (membership == null) {
-            group.internal_addMember(subject, Group.getDefaultList(), false, MembershipSave.this.immediateMembershipId, new Timestamp(MembershipSave.this.immediateMshipEnabledTime), 
-                new Timestamp(MembershipSave.this.immediateMshipDisabledTime), false);
+            group.internal_addMember(subject, Group.getDefaultList(), false, MembershipSave.this.immediateMembershipId, 
+                GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipEnabledTime, true), 
+                GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipDisabledTime, true), false);
             MembershipSave.this.saveResultType = SaveResultType.INSERT;
           } else if (GrouperUtil.equals(MembershipSave.this.immediateMshipDisabledTime, GrouperUtil.longObjectValue(membership.getDisabledTime(), true))
               && GrouperUtil.equals(MembershipSave.this.immediateMshipEnabledTime, GrouperUtil.longObjectValue(membership.getEnabledTime(), true))) {
             MembershipSave.this.saveResultType = SaveResultType.NO_CHANGE;
             return membership;
           } else {
-            membership.setEnabledTime(MembershipSave.this.immediateMshipEnabledTime == null ? null : new Timestamp(MembershipSave.this.immediateMshipEnabledTime));
-            membership.setDisabledTime(MembershipSave.this.immediateMshipDisabledTime == null ? null : new Timestamp(MembershipSave.this.immediateMshipDisabledTime));
+            membership.setEnabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipEnabledTime, true));
+            membership.setDisabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipDisabledTime, true));
             GrouperDAOFactory.getFactory().getMembership().update(membership);
             MembershipSave.this.saveResultType = SaveResultType.UPDATE;
-          }
-          if (membership == null) {
-            
           }
           return membership;
         }

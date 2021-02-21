@@ -5,7 +5,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 
 import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -74,9 +73,9 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
       .append(this.subjectSourceId, that.subjectSourceId);
     
     if (StringUtils.equals("g:gsa", this.subjectSourceId)) {
-      equalsBuilder.append(this.subjectId, that.subjectId);
-    } else {
       equalsBuilder.append(this.subjectIdentifier, that.subjectIdentifier);
+    } else {
+      equalsBuilder.append(this.subjectId, that.subjectId);
     }
     equalsBuilder.append(this.immediateMshipDisabledTime, that.immediateMshipDisabledTime);
     equalsBuilder.append(this.immediateMshipEnabledTime, that.immediateMshipDisabledTime);
@@ -198,7 +197,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @return this for chaining
    */
   public SyncMembershipToGrouperBean assignImmediateMembershipIdForInsert(String theImmediateMembershipIdForInsert) {
-    this.immediateMembershipId = theImmediateMembershipIdForInsert;
+    this.immediateMembershipIdForInsert = theImmediateMembershipIdForInsert;
     return this;
   }
   

@@ -200,7 +200,7 @@ public class SyncMembershipToGrouperLogic {
     }    
 
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipDeleteExtra()) {
-      Set<MultiKey> membershipsToDelete = new TreeSet<MultiKey>();
+      Set<MultiKey> membershipsToDelete = new HashSet<MultiKey>();
       
       membershipsToDelete.addAll(grouperGroupNameSourceIdSubjectIdOrIdentifierToMembership.keySet());
       
@@ -211,7 +211,7 @@ public class SyncMembershipToGrouperLogic {
     }    
 
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipUpdate()) {
-      Set<MultiKey> membershipsToUpdate = new TreeSet<MultiKey>();
+      Set<MultiKey> membershipsToUpdate = new HashSet<MultiKey>();
       
       membershipsToUpdate.addAll(membershipMultiKeysToSyncBeansIncoming.keySet());
       
@@ -240,7 +240,7 @@ public class SyncMembershipToGrouperLogic {
     
     StringBuilder theMembershipSqlBase = new StringBuilder(
         // we dont need immediate membership id
-        "SELECT gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
+        "SELECT gmav.immediate_membership_id as immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
     
     if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
       theMembershipSqlBase.append(", gmav.immediate_mship_disabled_time, gmav.immediate_mship_enabled_time");
@@ -254,24 +254,24 @@ public class SyncMembershipToGrouperLogic {
     }
     theMembershipSqlBase.append(" AND gmav.owner_group_id = gg.id AND gmav.member_id = gm.id AND gmav.field_id = gf.id AND gf.name = 'members'");
           
-    GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperTopLevelStems()) > 0, 
-        "If syncing grouper and folders then the top level folders are required or : for all");
-    
     List<Object[]> membershipRows = new ArrayList<Object[]>();
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFromStems()) {
 
-      Set<String> topLevelStemSet = new TreeSet<String>(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperTopLevelStems());
+      GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput()) > 0, 
+          "If syncing grouper and folders then the top level folders are required or : for all");
+      
+      Set<String> topLevelStemSet = this.getSyncToGrouper().getTopLevelStemNamesFlattenedFromSqlOrInput();
 
       if (GrouperUtil.length(topLevelStemSet) == 0) {
         return;
       }
 
       GcDbAccess gcDbAccess = new GcDbAccess();
-      if (!topLevelStemSet.contains(":")) {
+      if (!this.getSyncToGrouper().isTopLevelStemsHaveRoot()) {
 
         // get all the parent stems
-        Set<Stem> topLevelStems = this.syncToGrouper.getSyncStemToGrouperLogic().getTopLevelStemsToSync();
+        Set<Stem> topLevelStems = this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput();
   
         GrouperUtil.assertion(GrouperUtil.length(topLevelStems) < 400, "Cannot have more than 400 top level stems to sync");
 
@@ -285,7 +285,7 @@ public class SyncMembershipToGrouperLogic {
           }
           addedOne = true;
           // children
-          theMembershipSqlBase.append("group_owner.name like ?");
+          theMembershipSqlBase.append("gg.name like ?");
           bindVars.add(topLevelStem.getName() + ":%");
         }
 
@@ -334,7 +334,7 @@ public class SyncMembershipToGrouperLogic {
           }
           addedOne = true;
           // the exact name
-          theMembershipSql.append("group_owner.name = ?");
+          theMembershipSql.append("gg..name = ?");
           bindVars.add(batchGroupName);
         }
         theMembershipSql.append(" ) ");
@@ -349,13 +349,14 @@ public class SyncMembershipToGrouperLogic {
     for (Object[] membershipRow : membershipRows) {
       
       SyncMembershipToGrouperBean syncMembershipToGrouperBean = new SyncMembershipToGrouperBean();
-      syncMembershipToGrouperBean.assignGroupName((String)membershipRow[0]);
-      syncMembershipToGrouperBean.assignSubjectSourceId((String)membershipRow[1]);
-      syncMembershipToGrouperBean.assignSubjectId((String)membershipRow[2]);
-      syncMembershipToGrouperBean.assignSubjectIdentifier((String)membershipRow[3]);
+      syncMembershipToGrouperBean.assignImmediateMembershipId((String)membershipRow[0]);
+      syncMembershipToGrouperBean.assignGroupName((String)membershipRow[1]);
+      syncMembershipToGrouperBean.assignSubjectSourceId((String)membershipRow[2]);
+      syncMembershipToGrouperBean.assignSubjectId((String)membershipRow[3]);
+      syncMembershipToGrouperBean.assignSubjectIdentifier((String)membershipRow[4]);
       if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
-        syncMembershipToGrouperBean.assignImmediateMshipDisabledTime(GrouperUtil.longObjectValue(membershipRow[4], true));
-        syncMembershipToGrouperBean.assignImmediateMshipEnabledTime(GrouperUtil.longObjectValue(membershipRow[5], true));
+        syncMembershipToGrouperBean.assignImmediateMshipDisabledTime(GrouperUtil.longObjectValue(membershipRow[5], true));
+        syncMembershipToGrouperBean.assignImmediateMshipEnabledTime(GrouperUtil.longObjectValue(membershipRow[6], true));
       }
       MultiKey groupNameSubjectSourceIdSubjectIdOrIdentifier = syncMembershipToGrouperBean.convertToMultikey();
       

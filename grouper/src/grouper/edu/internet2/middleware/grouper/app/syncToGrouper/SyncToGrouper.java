@@ -1,9 +1,13 @@
 package edu.internet2.middleware.grouper.app.syncToGrouper;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -12,6 +16,7 @@ public class SyncToGrouper {
   public SyncToGrouper() {
     
     this.syncCompositeToGrouperLogic = new SyncCompositeToGrouperLogic(this);
+    this.syncMembershipToGrouperLogic = new SyncMembershipToGrouperLogic(this);
     this.syncGroupToGrouperLogic = new SyncGroupToGrouperLogic(this);
     this.syncStemToGrouperLogic = new SyncStemToGrouperLogic(this);
     this.syncToGrouperReport = new SyncToGrouperReport(this);
@@ -19,6 +24,70 @@ public class SyncToGrouper {
     
   }
 
+  /**
+   * 
+   * @return the stems
+   */
+  private Set<String> topLevelStemNamesFlattenedFromSqlOrInput = null;
+  
+  /**
+   * calculate stop level stems and flatten them, this is cached
+   * @return
+   */
+  public Set<String> getTopLevelStemNamesFlattenedFromSqlOrInput() {
+    if (topLevelStemNamesFlattenedFromSqlOrInput == null) {
+
+      Set<String> topLevelStems = null;
+      
+      // is this logic right? :)
+      if (this.getSyncToGrouperBehavior().isSqlLoad() && GrouperUtil.length(this.syncToGrouperFromSql.getDatabaseSyncFromAnotherGrouperTopLevelStems()) > 0) {
+        topLevelStems = new TreeSet<String>(this.syncToGrouperFromSql.getDatabaseSyncFromAnotherGrouperTopLevelStems());
+      } else if (GrouperUtil.length(this.syncStemToGrouperLogic.getTopLevelStemNamesToSync()) > 0) {
+        topLevelStems = new TreeSet<String>(this.syncStemToGrouperLogic.getTopLevelStemNamesToSync());
+      }
+
+      if (GrouperUtil.length(topLevelStems) > 0) {
+        GrouperUtil.stemCalculateTopLevelStems(topLevelStems);
+        topLevelStemNamesFlattenedFromSqlOrInput = topLevelStems;
+      }
+    }
+    return this.topLevelStemNamesFlattenedFromSqlOrInput;
+  }
+  
+  /**
+   * top level stems to retrieve from database (and substems), as specified by the called
+   * @return top level stems to sync
+   */
+  public boolean isTopLevelStemsHaveRoot() {
+    return GrouperUtil.nonNull(this.getTopLevelStemNamesFlattenedFromSqlOrInput()).contains(":");
+  }
+
+  /**
+   * top level stems to retrieve from database (and substems), as specified by the called
+   */
+  private Set<Stem> topLevelStemsFlattenedFromSqlOrInput = null;
+  
+  /**
+   * if these are the stems to sync: a:b:c, a:b, a:d, a:b:d, then the top level are: a:b, a:d
+   * @return
+   */
+  public Set<Stem> getTopLevelStemsFlattenedFromSqlOrInput() {
+
+    if (this.topLevelStemsFlattenedFromSqlOrInput == null) {
+      
+      if (GrouperUtil.length(this.getTopLevelStemNamesFlattenedFromSqlOrInput()) > 0) {
+  
+        this.topLevelStemsFlattenedFromSqlOrInput = GrouperDAOFactory.getFactory().getStem().findByNames(this.getTopLevelStemNamesFlattenedFromSqlOrInput(), false);
+        
+      } else {
+        
+        this.topLevelStemsFlattenedFromSqlOrInput = new TreeSet<Stem>();
+        
+      }
+    }
+    return this.topLevelStemsFlattenedFromSqlOrInput;
+  }
+  
   /**
    * holds queries and settings for sql load
    */
@@ -259,11 +328,17 @@ public class SyncToGrouper {
         SyncToGrouper.this.syncStemToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncGroupToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncCompositeToGrouperLogic.syncLogic();
+        SyncToGrouper.this.syncMembershipToGrouperLogic.syncLogic();
 
         return null;
       }
     });
     return this.syncToGrouperReport;
+  }
+
+  public void resetTopLevelStems() {
+    // TODO Auto-generated method stub
+    
   }
   
 }

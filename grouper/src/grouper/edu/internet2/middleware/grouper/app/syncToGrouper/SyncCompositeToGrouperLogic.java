@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
@@ -257,7 +256,7 @@ public class SyncCompositeToGrouperLogic {
     if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSyncFromStems()) {
       
       // get all the parent stems
-      Set<Stem> topLevelStems = this.syncToGrouper.getSyncStemToGrouperLogic().getTopLevelStemsToSync();
+      Set<Stem> topLevelStems = this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput();
 
       GrouperUtil.assertion(GrouperUtil.length(topLevelStems) < 400, "Cannot have more than 400 top level stems to sync");
 
