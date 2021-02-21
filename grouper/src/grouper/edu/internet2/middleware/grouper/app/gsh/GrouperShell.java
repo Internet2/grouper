@@ -686,6 +686,9 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "args: -h,               Prints this message"                            + GrouperConfig.NL
 	            + "args: <filename>,       Execute commands in specified file"             + GrouperConfig.NL
 	            + "no args:                Enters an interactive shell"                    + GrouperConfig.NL
+	            + "args: -lightWeightProfile"                                              + GrouperConfig.NL
+	            + "       Use alternate init script (classes/groovysh_lightWeight.profile)" + GrouperConfig.NL
+	            + "       which has less imports and may improve startup performance"      + GrouperConfig.NL
 	            + "args: -nocheck,         Skips startup check and enters an "          + GrouperConfig.NL
 	            + "                        interactive shell"                              + GrouperConfig.NL
 	            + "args: -runarg <command> Run command (use \\\\n to separate commands)"   + GrouperConfig.NL
