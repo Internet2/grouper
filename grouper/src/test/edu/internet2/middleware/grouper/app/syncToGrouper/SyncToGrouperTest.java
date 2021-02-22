@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
@@ -38,7 +39,7 @@ public class SyncToGrouperTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new SyncToGrouperTest("testSyncPrivilegeGroupDb"));
+    TestRunner.run(new SyncToGrouperTest("testSyncPrivilegeStemDb"));
     
   }
   
@@ -284,6 +285,7 @@ public class SyncToGrouperTest extends GrouperTest {
     SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_composite");
     SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_membership");
     SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_priv_group");
+    SqlProvisionerTest.dropTableSyncTable("testgrouper_syncgr_priv_stem");
     
   }
 
@@ -293,6 +295,7 @@ public class SyncToGrouperTest extends GrouperTest {
     createTableComposite();
     createTableMembership();
     createTablePrivilegeGroup();
+    createTablePrivilegeStem();
   }
 
   /**
@@ -2142,6 +2145,267 @@ public class SyncToGrouperTest extends GrouperTest {
     assertTrue(syncToGrouper.isSuccess());
   
   
+  }
+
+  public void testSyncPrivilegesStem() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    SyncToGrouper syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFieldIdOnInsert(true);
+    
+    String testPrivilegeStem1uuid = GrouperUuid.getUuid();
+    String testPrivilegeStem2uuid = GrouperUuid.getUuid();
+    
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup1 = new GroupSave(grouperSession).assignName("test:group1").save();
+    Stem testStem1 = new StemSave(grouperSession).assignName("test:stem1").save();
+    Stem testStem2 = new StemSave(grouperSession).assignName("test:stem2").save();
+  
+    testStem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_UPDATE);
+    
+    syncToGrouper.setSyncStemToGrouperBeans(
+        GrouperUtil.toList(new SyncStemToGrouperBean("test")));
+    syncToGrouper.setSyncPrivilegeStemToGrouperBeans(
+        GrouperUtil.toList(
+            new SyncPrivilegeStemToGrouperBean().assignImmediateMembershipId(testPrivilegeStem1uuid)
+              .assignStemName("test:stem1").assignSubjectId(SubjectTestHelper.SUBJ1_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ1.getSourceId()).assignFieldName("stemAttrReaders")
+              ,
+            new SyncPrivilegeStemToGrouperBean()
+              .assignStemName("test:stem1").assignSubjectIdentifier("test:group1").assignSubjectSourceId("g:gsa").assignFieldName("creators")
+              ,
+            new SyncPrivilegeStemToGrouperBean().assignImmediateMembershipId(testPrivilegeStem2uuid)
+              .assignStemName("test:stem2").assignSubjectId(SubjectTestHelper.SUBJ2_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ2.getSourceId()).assignFieldName("stemAdmins")));
+  
+    SyncToGrouperReport syncToGrouperReport = syncToGrouper.syncLogic();
+  
+    assertEquals(1, GrouperUtil.length(syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
+  
+    assertEquals(GrouperUtil.toStringForLog(syncToGrouperReport.getErrorLines()), 0, syncToGrouperReport.getErrorLines().size());
+    assertEquals(3, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(3, syncToGrouperReport.getPrivilegeStemInserts());
+    assertEquals(3, GrouperUtil.length(syncToGrouperReport.getPrivilegeStemInsertsNames()));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem1 - " + SubjectTestHelper.SUBJ1_ID + " - stemAttrReaders"));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem2 - " + SubjectTestHelper.SUBJ2_ID + " - stemAdmins"));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem1 - test:group1 - creators"));
+    assertEquals(3, syncToGrouperReport.getChangeCountOverall());
+    
+    assertTrue(testStem1.hasCreate(testGroup1.toSubject()));
+    assertTrue(testStem2.hasStemAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(testStem1.hasStemAttrRead(SubjectTestHelper.SUBJ1));
+    assertEquals(testPrivilegeStem1uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem1, SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_READ.getField(), true).getImmediateMembershipId());
+    assertTrue(testStem2.hasStemAdmin(SubjectTestHelper.SUBJ2));
+    assertEquals(testPrivilegeStem2uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem2, SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ADMIN.getField(), true).getImmediateMembershipId());
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+    // #############################
+    
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemDeleteExtra(true);
+    
+    syncToGrouper.setSyncStemToGrouperBeans(
+        GrouperUtil.toList(new SyncStemToGrouperBean("test")));
+    syncToGrouper.setSyncPrivilegeStemToGrouperBeans(
+        GrouperUtil.toList(
+            new SyncPrivilegeStemToGrouperBean().assignImmediateMembershipId(testPrivilegeStem1uuid)
+            .assignStemName("test:stem1").assignSubjectId(SubjectTestHelper.SUBJ1_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ1.getSourceId()).assignFieldName("stemAttrReaders")
+            ,
+          new SyncPrivilegeStemToGrouperBean()
+            .assignStemName("test:stem1").assignSubjectIdentifier("test:group1").assignSubjectSourceId("g:gsa").assignFieldName("creators")
+            ,
+          new SyncPrivilegeStemToGrouperBean().assignImmediateMembershipId(testPrivilegeStem2uuid)
+            .assignStemName("test:stem2").assignSubjectId(SubjectTestHelper.SUBJ2_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ2.getSourceId()).assignFieldName("stemAdmins")));
+  
+    syncToGrouperReport = syncToGrouper.syncLogic();
+  
+    assertEquals(GrouperUtil.toStringForLog(syncToGrouperReport.getErrorLines()), 0, syncToGrouperReport.getErrorLines().size());
+  
+    assertEquals(4, GrouperUtil.length(syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
+    
+    assertEquals(1, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(0, syncToGrouperReport.getPrivilegeStemInserts());
+    assertEquals(1, syncToGrouperReport.getPrivilegeStemDeletes());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getPrivilegeStemDeleteNames()));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemDeleteNames()), syncToGrouperReport.getPrivilegeStemDeleteNames().contains("test:stem2 - " + SubjectTestHelper.SUBJ0_ID + " - stemAttrUpdaters"));
+    assertEquals(1, syncToGrouperReport.getChangeCountOverall());
+    
+    assertTrue(testStem1.hasCreate(testGroup1.toSubject()));
+    assertFalse(testStem2.hasStemAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(testStem1.hasStemAttrRead(SubjectTestHelper.SUBJ1));
+    assertEquals(testPrivilegeStem1uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem1, SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_READ.getField(), true).getImmediateMembershipId());
+    assertTrue(testStem2.hasStemAdmin(SubjectTestHelper.SUBJ2));
+    assertEquals(testPrivilegeStem2uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem2, SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ADMIN.getField(), true).getImmediateMembershipId());
+
+    assertTrue(syncToGrouper.isSuccess());
+  
+  }
+
+  public void testSyncPrivilegeStemDb() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    dropTables();
+    createTables();
+    
+    SyncToGrouper syncToGrouper = new SyncToGrouper();
+    
+    // ##############
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
+    syncToGrouper.getSyncToGrouperFromSql().setStemSql("select * from testgrouper_syncgr_stem");
+    syncToGrouper.getSyncToGrouperFromSql().setGroupSql("select * from testgrouper_syncgr_group");
+    syncToGrouper.getSyncToGrouperFromSql().setPrivilegeStemSql("select * from testgrouper_syncgr_priv_stem");
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseSyncFromAnotherGrouperTopLevelStems(GrouperUtil.toList("test"));
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFieldIdOnInsert(true);
+  
+    SyncStemToGrouperBean syncStemToGrouperBeanTest = new SyncStemToGrouperBean("test");
+    syncStemToGrouperBeanTest.store();
+    
+    new StemSave(grouperSession).assignName("test").save();
+  
+    String testPrivilegeStem1uuid = GrouperUuid.getUuid();
+    String testPrivilegeStem2uuid = GrouperUuid.getUuid();
+    String testPrivilegeStem2Auuid = GrouperUuid.getUuid();
+    
+    Group testGroup1 = new GroupSave(grouperSession).assignName("test:group1").save();
+    Stem testStem1 = new StemSave(grouperSession).assignName("test:stem1").save();
+    Stem testStem2 = new StemSave(grouperSession).assignName("test:stem2").save();
+    
+    testStem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_UPDATE);
+
+    SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean1 = new SyncPrivilegeStemToGrouperBean()
+        .assignImmediateMembershipIdForInsert(testPrivilegeStem1uuid).assignFieldName("stemAttrReaders").assignSubjectIdentifier(SubjectTestHelper.SUBJ1_IDENTIFIER)
+        .assignStemName("test:stem1").assignSubjectId(SubjectTestHelper.SUBJ1_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ1.getSourceId());
+    syncPrivilegeStemToGrouperBean1.store();    
+    SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean2 = new SyncPrivilegeStemToGrouperBean()
+        .assignImmediateMembershipIdForInsert(testPrivilegeStem2Auuid).assignFieldName("creators").assignSubjectId(testGroup1.getId())
+        .assignStemName("test:stem1").assignSubjectIdentifier("test:group1").assignSubjectSourceId("g:gsa");
+    syncPrivilegeStemToGrouperBean2.store();    
+    SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean3 = new SyncPrivilegeStemToGrouperBean()
+        .assignImmediateMembershipIdForInsert(testPrivilegeStem2uuid).assignFieldName("stemAdmins").assignSubjectIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER)
+        .assignStemName("test:stem2").assignSubjectId(SubjectTestHelper.SUBJ2_ID).assignSubjectSourceId(SubjectTestHelper.SUBJ2.getSourceId());
+    syncPrivilegeStemToGrouperBean3.store();    
+  
+    SyncToGrouperReport syncToGrouperReport = syncToGrouper.syncLogic();
+  
+    assertEquals(1, GrouperUtil.length(syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
+  
+    assertEquals(GrouperUtil.toStringForLog(syncToGrouperReport.getErrorLines()), 0, syncToGrouperReport.getErrorLines().size());
+    assertEquals(3, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(3, syncToGrouperReport.getPrivilegeStemInserts());
+    assertEquals(3, GrouperUtil.length(syncToGrouperReport.getPrivilegeStemInsertsNames()));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem1 - " + SubjectTestHelper.SUBJ1_ID + " - stemAttrReaders"));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem2 - " + SubjectTestHelper.SUBJ2_ID + " - stemAdmins"));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemInsertsNames()), syncToGrouperReport.getPrivilegeStemInsertsNames().contains("test:stem1 - test:group1 - creators"));
+    assertEquals(3, syncToGrouperReport.getChangeCountOverall());
+    
+    assertTrue(testStem1.hasCreate(testGroup1.toSubject()));
+    assertTrue(testStem2.hasStemAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(testStem1.hasStemAttrRead(SubjectTestHelper.SUBJ1));
+    assertEquals(testPrivilegeStem1uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem1, SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_READ.getField(), true).getImmediateMembershipId());
+    assertTrue(testStem2.hasStemAdmin(SubjectTestHelper.SUBJ2));
+    assertEquals(testPrivilegeStem2uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem2, SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ADMIN.getField(), true).getImmediateMembershipId());
+
+    
+    assertTrue(syncToGrouper.isSuccess());
+  
+    // #############################
+    
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
+    syncToGrouper.getSyncToGrouperFromSql().setStemSql("select * from testgrouper_syncgr_stem");
+    syncToGrouper.getSyncToGrouperFromSql().setGroupSql("select * from testgrouper_syncgr_group");
+    syncToGrouper.getSyncToGrouperFromSql().setPrivilegeStemSql("select * from testgrouper_syncgr_priv_stem");
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFromStems(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFieldIdOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemDeleteExtra(true);
+  
+    syncToGrouperReport = syncToGrouper.syncLogic();
+  
+    assertEquals(GrouperUtil.toStringForLog(syncToGrouperReport.getErrorLines()), 0, syncToGrouperReport.getErrorLines().size());
+  
+    assertEquals(4, GrouperUtil.length(syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
+    
+    assertEquals(1, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(0, syncToGrouperReport.getPrivilegeStemInserts());
+    assertEquals(1, syncToGrouperReport.getPrivilegeStemDeletes());
+    assertEquals(1, GrouperUtil.length(syncToGrouperReport.getPrivilegeStemDeleteNames()));
+    assertTrue(GrouperUtil.toStringForLog(syncToGrouperReport.getPrivilegeStemDeleteNames()), syncToGrouperReport.getPrivilegeStemDeleteNames().contains("test:stem2 - " + SubjectTestHelper.SUBJ0_ID + " - stemAttrUpdaters"));
+    assertEquals(1, syncToGrouperReport.getChangeCountOverall());
+    
+    assertTrue(testStem1.hasCreate(testGroup1.toSubject()));
+    assertFalse(testStem2.hasStemAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(testStem1.hasStemAttrRead(SubjectTestHelper.SUBJ1));
+    assertEquals(testPrivilegeStem1uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem1, SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_READ.getField(), true).getImmediateMembershipId());
+    assertTrue(testStem2.hasStemAdmin(SubjectTestHelper.SUBJ2));
+    assertEquals(testPrivilegeStem2uuid, MembershipFinder.findImmediateMembership(grouperSession, testStem2, SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ADMIN.getField(), true).getImmediateMembershipId());
+
+    assertTrue(syncToGrouper.isSuccess());
+  
+  
+  }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public void createTablePrivilegeStem() {
+  
+    final String tableName = "testgrouper_syncgr_priv_stem";
+  
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+          
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "immediate_membership_id", Types.VARCHAR, "40", true, true);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "stem_name", Types.VARCHAR, "1024", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_source_id", Types.VARCHAR, "40", false, true);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "40", false, false);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_identifier", Types.VARCHAR, "1024", false, false);
+  
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "field_name", Types.VARCHAR, "20", false, false);
+          
+        }
+        
+      });
+    }
   }
 
 

@@ -53,7 +53,9 @@ public class SyncToGrouperReport {
       + this.getGroupInserts() + this.getGroupUpdates() + this.getGroupDeletes()
       + this.getCompositeInserts() + this.getCompositeUpdates() + this.getCompositeDeletes()
       + this.getMembershipInserts() + this.getMembershipUpdates() + this.getMembershipDeletes()
-      + this.getPrivilegeGroupInserts() + this.getPrivilegeGroupDeletes();
+      + this.getPrivilegeGroupInserts() + this.getPrivilegeGroupDeletes()
+      + this.getPrivilegeStemInserts() + this.getPrivilegeStemDeletes()
+      ;
   }
 
   /**
@@ -390,6 +392,52 @@ public class SyncToGrouperReport {
       }
     }
     return privilegeGroupInsertNames;
+  }
+
+  /**
+   * this is dynamically built for a report, of size ten
+   * @return the set of Membership names which are deletes
+   */
+  public Set<String> getPrivilegeStemDeleteNames() {
+    Set<String> privilegeStemDeletesNames = new TreeSet<String>();
+    for (SyncPrivilegeStemToGrouperBean privilegeStem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemDeletes()))) {
+      privilegeStemDeletesNames.add(privilegeStem.getStemName() + " - " + (StringUtils.equals("g:gsa", privilegeStem.getSubjectSourceId()) ? privilegeStem.getSubjectIdentifier() : privilegeStem.getSubjectId()) + " - " + privilegeStem.getFieldName());
+      if (privilegeStemDeletesNames.size() >= 10) {
+        break;
+      }
+    }
+    return privilegeStemDeletesNames;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getPrivilegeStemDeletes() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemDeletes());
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public int getPrivilegeStemInserts() {
+    return GrouperUtil.length(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemInserts());
+  }
+
+  /**
+   * this is dynamically built for a report
+   * @return the set of composites names which are inserts
+   */
+  public Set<String> getPrivilegeStemInsertsNames() {
+    Set<String> privilegeStemInsertNames = new TreeSet<String>();
+    for (SyncPrivilegeStemToGrouperBean privilegeStem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemInserts()))) {
+      privilegeStemInsertNames.add(privilegeStem.getStemName() + " - " + (StringUtils.equals("g:gsa", privilegeStem.getSubjectSourceId()) ? privilegeStem.getSubjectIdentifier() : privilegeStem.getSubjectId()) + " - " + privilegeStem.getFieldName());
+      if (privilegeStemInsertNames.size() >= 10) {
+        break;
+      }
+    }
+    return privilegeStemInsertNames;
   }
 
 }

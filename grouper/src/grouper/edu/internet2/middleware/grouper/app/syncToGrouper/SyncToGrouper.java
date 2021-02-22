@@ -18,6 +18,7 @@ public class SyncToGrouper {
     this.syncCompositeToGrouperLogic = new SyncCompositeToGrouperLogic(this);
     this.syncMembershipToGrouperLogic = new SyncMembershipToGrouperLogic(this);
     this.syncPrivilegeGroupToGrouperLogic = new SyncPrivilegeGroupToGrouperLogic(this);
+    this.syncPrivilegeStemToGrouperLogic = new SyncPrivilegeStemToGrouperLogic(this);
     this.syncGroupToGrouperLogic = new SyncGroupToGrouperLogic(this);
     this.syncStemToGrouperLogic = new SyncStemToGrouperLogic(this);
     this.syncToGrouperReport = new SyncToGrouperReport(this);
@@ -288,6 +289,41 @@ public class SyncToGrouper {
   private SyncMembershipToGrouperLogic syncMembershipToGrouperLogic = null;
 
   /**
+   * privilege stems to sync to grouper
+   */
+  private List<SyncPrivilegeStemToGrouperBean> syncPrivilegeStemToGrouperBeans = null;
+
+  /**
+   * privilege stems to sync to grouper
+   */
+  private SyncPrivilegeStemToGrouperLogic syncPrivilegeStemToGrouperLogic = null;
+
+  /**
+   * privilege stems to sync to grouper
+   * @return
+   */
+  public List<SyncPrivilegeStemToGrouperBean> getSyncPrivilegeStemToGrouperBeans() {
+    return syncPrivilegeStemToGrouperBeans;
+  }
+
+  /**
+   * privilege stems to sync to grouper
+   * @param syncPrivilegeStemToGrouperBeans
+   */
+  public void setSyncPrivilegeStemToGrouperBeans(
+      List<SyncPrivilegeStemToGrouperBean> syncPrivilegeStemToGrouperBeans) {
+    this.syncPrivilegeStemToGrouperBeans = syncPrivilegeStemToGrouperBeans;
+  }
+
+  /**
+   * privilege stems to sync to grouper
+   * @return
+   */
+  public SyncPrivilegeStemToGrouperLogic getSyncPrivilegeStemToGrouperLogic() {
+    return syncPrivilegeStemToGrouperLogic;
+  }
+
+  /**
    * privilege groups to sync to grouper
    */
   private List<SyncPrivilegeGroupToGrouperBean> syncPrivilegeGroupToGrouperBeans = null;
@@ -366,6 +402,7 @@ public class SyncToGrouper {
         SyncToGrouper.this.syncCompositeToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncMembershipToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncPrivilegeGroupToGrouperLogic.syncLogic();
+        SyncToGrouper.this.syncPrivilegeStemToGrouperLogic.syncLogic();
 
         return null;
       }
@@ -373,9 +410,4 @@ public class SyncToGrouper {
     return this.syncToGrouperReport;
   }
 
-  public void resetTopLevelStems() {
-    // TODO Auto-generated method stub
-    
-  }
-  
 }

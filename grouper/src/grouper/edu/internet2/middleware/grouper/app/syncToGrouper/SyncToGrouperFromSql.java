@@ -250,6 +250,27 @@ public class SyncToGrouperFromSql {
   private String privilegeGroupSql;
 
   /**
+   * sql to get privilege stems
+   */
+  private String privilegeStemSql;
+
+  /**
+   * sql to get privilege stems
+   * @return
+   */
+  public String getPrivilegeStemSql() {
+    return privilegeStemSql;
+  }
+
+  /**
+   * sql to get privilege stems
+   * @param privilegeStemSql
+   */
+  public void setPrivilegeStemSql(String privilegeStemSql) {
+    this.privilegeStemSql = privilegeStemSql;
+  }
+
+  /**
    * sql to get privilege groups
    * @return
    */
@@ -858,6 +879,122 @@ public class SyncToGrouperFromSql {
           syncPrivilegeGroupToGrouperBeans.add(syncPrivilegeGroupToGrouperBean);
         }
         this.syncToGrouper.setSyncPrivilegeGroupToGrouperBeans(syncPrivilegeGroupToGrouperBeans);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "sql: '" + this.privilegeGroupSql + "', ");
+        throw re;
+      }
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  private String buildGrouperPrivilegeStemQuery(List<Object> bindVars) {
+  
+    String schema = "";
+    if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+      schema = StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+      if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+        schema += ".";
+      }
+    }
+    
+    StringBuilder thePrivilegeSql = new StringBuilder(
+        "SELECT gmav.immediate_membership_id AS immediate_membership_id, gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
+    
+    thePrivilegeSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_stems gs, " + schema + "grouper_fields gf "
+        + "WHERE gmav.mship_type = 'immediate'");
+    
+    thePrivilegeSql.append(" AND gmav.immediate_mship_enabled = 'T'");
+  
+    thePrivilegeSql.append(" AND gmav.owner_stem_id = gs.id AND gmav.member_id = gm.id AND gmav.field_id = gf.id AND gf.type = 'naming'");
+          
+    GrouperUtil.assertion(GrouperUtil.length(this.databaseSyncFromAnotherGrouperTopLevelStems) > 0, 
+        "If syncing grouper and folders then the top level folders are required or : for all");
+    
+    Set<String> topLevelStemSet = new TreeSet<String>(this.databaseSyncFromAnotherGrouperTopLevelStems);
+    if (!topLevelStemSet.contains(":")) {
+      
+      topLevelStemSet = GrouperUtil.stemCalculateTopLevelStems(topLevelStemSet);
+  
+      boolean addedOne = false;
+      GrouperUtil.assertion(GrouperUtil.length(topLevelStemSet) < 400, "Cannot have more than 400 top level stems to sync");
+      thePrivilegeSql.append(" and ( ");
+      for (String topLevelStemName : topLevelStemSet) {
+        if (addedOne) {
+          thePrivilegeSql.append(" or ");
+        }
+        addedOne = true;
+        // the exact name or the children
+        thePrivilegeSql.append("gs.name = ? or ");
+        bindVars.add(topLevelStemName);
+        thePrivilegeSql.append("gs.name like ?");
+        bindVars.add(topLevelStemName + ":%");
+      }
+      thePrivilegeSql.append(" ) ");
+    }
+    return thePrivilegeSql.toString();
+  }
+
+  /**
+   * 
+   */
+  public void loadPrivilegeStemDataFromSql() {
+    
+    GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
+    
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSync()) {
+      
+      GcDbAccess privilegeStemDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
+      List<Object> bindVars = new ArrayList<Object>();
+      if (StringUtils.isBlank(this.privilegeStemSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+  
+        this.privilegeStemSql = buildGrouperPrivilegeStemQuery(bindVars);
+        
+        privilegeStemDbAccess.bindVars(bindVars);
+      }
+      
+      GrouperUtil.assertion(StringUtils.isNotBlank(this.privilegeStemSql), "If syncing stem privileges, then privilegeStemSql is required!");
+  
+      try {
+        GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, this.privilegeStemSql, bindVars);
+        
+        GcTableSyncColumnMetadata immediateMembershipIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("immediate_membership_id", this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSyncFieldIdOnInsert());
+        GcTableSyncColumnMetadata stemNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("stem_name", true);
+        GcTableSyncColumnMetadata subjectSourceIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_source_id", true);
+        GcTableSyncColumnMetadata subjectIdColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_id", true);
+        GcTableSyncColumnMetadata subjectIdentifierColumn = 
+            gcTableSyncTableMetadata.lookupColumn("subject_identifier", true);
+        GcTableSyncColumnMetadata fieldNameColumn = 
+            gcTableSyncTableMetadata.lookupColumn("field_name", true);
+        
+        List<Object[]> privilegeStemArrayList = privilegeStemDbAccess.sql(this.privilegeStemSql).selectList(Object[].class);
+            
+        List<SyncPrivilegeStemToGrouperBean> syncPrivilegeStemToGrouperBeans = new ArrayList<SyncPrivilegeStemToGrouperBean>();
+        for (Object[] privilegeStemArray : GrouperUtil.nonNull(privilegeStemArrayList)) {
+          String immediateMembershipId = this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSyncFieldIdOnInsert() ? (String)privilegeStemArray[immediateMembershipIdColumn.getColumnIndexZeroIndexed()] : null;
+          String stemName = (String)privilegeStemArray[stemNameColumn.getColumnIndexZeroIndexed()];
+          String subjectSourceId = (String)privilegeStemArray[subjectSourceIdColumn.getColumnIndexZeroIndexed()];
+          String subjectId = (String)privilegeStemArray[subjectIdColumn.getColumnIndexZeroIndexed()];
+          String subjectIdentifier = (String)privilegeStemArray[subjectIdentifierColumn.getColumnIndexZeroIndexed()];
+          String fieldName = (String)privilegeStemArray[fieldNameColumn.getColumnIndexZeroIndexed()];
+          
+          SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean = new SyncPrivilegeStemToGrouperBean();
+          syncPrivilegeStemToGrouperBean.assignImmediateMembershipId(immediateMembershipId);
+          syncPrivilegeStemToGrouperBean.assignStemName(stemName);
+          syncPrivilegeStemToGrouperBean.assignSubjectSourceId(subjectSourceId);
+          syncPrivilegeStemToGrouperBean.assignSubjectId(subjectId);
+          syncPrivilegeStemToGrouperBean.assignSubjectIdentifier(subjectIdentifier);
+          syncPrivilegeStemToGrouperBean.assignFieldName(fieldName);
+          
+          syncPrivilegeStemToGrouperBeans.add(syncPrivilegeStemToGrouperBean);
+        }
+        this.syncToGrouper.setSyncPrivilegeStemToGrouperBeans(syncPrivilegeStemToGrouperBeans);
       } catch (RuntimeException re) {
         GrouperUtil.injectInException(re, "sql: '" + this.privilegeGroupSql + "', ");
         throw re;

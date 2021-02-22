@@ -616,6 +616,112 @@ public class SyncToGrouperBehavior {
   private boolean privilegeGroupSyncFromStems;
 
   /**
+   * delete extra privilege stem in the ones managed
+   */
+  private boolean privilegeStemDeleteExtra;
+
+  /**
+   * delete extra privilege stem in the ones managed
+   * @return
+   */
+  public boolean isPrivilegeStemDeleteExtra() {
+    return privilegeStemDeleteExtra;
+  }
+
+  /**
+   * delete extra privilege stem in the ones managed
+   * @param privilegeStemDeleteExtra
+   */
+  public void setPrivilegeStemDeleteExtra(boolean privilegeStemDeleteExtra) {
+    this.privilegeStemDeleteExtra = privilegeStemDeleteExtra;
+  }
+
+  /**
+   * privilege group memberships
+   */
+  private boolean privilegeStemInsert;
+
+  /**
+   * privilege group memberships
+   * @return
+   */
+  public boolean isPrivilegeStemInsert() {
+    return privilegeStemInsert;
+  }
+
+  /**
+   * privilege group memberships
+   * @param privilegeStemInsert
+   */
+  public void setPrivilegeStemInsert(boolean privilegeStemInsert) {
+    this.privilegeStemInsert = privilegeStemInsert;
+  }
+
+  /**
+   * should we sync privileges on groups
+   * @return
+   */
+  public boolean isPrivilegeStemSync() {
+    return privilegeStemSync;
+  }
+
+  /**
+   * should we sync privileges on groups
+   * @param privilegeStemSync
+   */
+  public void setPrivilegeStemSync(boolean privilegeStemSync) {
+    this.privilegeStemSync = privilegeStemSync;
+  }
+
+  /**
+   * should we sync privileges on groups
+   */
+  private boolean privilegeStemSync;
+
+  /**
+   * sync id on insert
+   */
+  private boolean privilegeStemSyncFieldIdOnInsert;
+
+  /**
+   * sync id on insert
+   * @return
+   */
+  public boolean isPrivilegeStemSyncFieldIdOnInsert() {
+    return privilegeStemSyncFieldIdOnInsert;
+  }
+
+  /**
+   * sync id on insert
+   * @param privilegeStemSyncFieldIdOnInsert
+   */
+  public void setPrivilegeStemSyncFieldIdOnInsert(
+      boolean privilegeStemSyncFieldIdOnInsert) {
+    this.privilegeStemSyncFieldIdOnInsert = privilegeStemSyncFieldIdOnInsert;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @return
+   */
+  public boolean isPrivilegeStemSyncFromStems() {
+    return privilegeStemSyncFromStems;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @param privilegeStemSyncFromStems
+   */
+  public void setPrivilegeStemSyncFromStems(boolean privilegeStemSyncFromStems) {
+    this.privilegeStemSyncFromStems = privilegeStemSyncFromStems;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   */
+  private boolean privilegeStemSyncFromStems;
+
+  /**
    * should we sync memberships from stems or pass in the composites to sync
    * @return
    */
