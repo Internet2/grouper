@@ -17,6 +17,7 @@ public class SyncToGrouper {
     
     this.syncCompositeToGrouperLogic = new SyncCompositeToGrouperLogic(this);
     this.syncMembershipToGrouperLogic = new SyncMembershipToGrouperLogic(this);
+    this.syncPrivilegeGroupToGrouperLogic = new SyncPrivilegeGroupToGrouperLogic(this);
     this.syncGroupToGrouperLogic = new SyncGroupToGrouperLogic(this);
     this.syncStemToGrouperLogic = new SyncStemToGrouperLogic(this);
     this.syncToGrouperReport = new SyncToGrouperReport(this);
@@ -285,7 +286,42 @@ public class SyncToGrouper {
    * 
    */
   private SyncMembershipToGrouperLogic syncMembershipToGrouperLogic = null;
+
+  /**
+   * privilege groups to sync to grouper
+   */
+  private List<SyncPrivilegeGroupToGrouperBean> syncPrivilegeGroupToGrouperBeans = null;
+
+  /**
+   * privilege groups to sync to grouper
+   */
+  private SyncPrivilegeGroupToGrouperLogic syncPrivilegeGroupToGrouperLogic = null;
   
+  /**
+   * privilege groups to sync to grouper
+   * @return
+   */
+  public List<SyncPrivilegeGroupToGrouperBean> getSyncPrivilegeGroupToGrouperBeans() {
+    return syncPrivilegeGroupToGrouperBeans;
+  }
+
+  /**
+   * privilege groups to sync to grouper
+   * @param syncPrivilegeGroupToGrouperBeans
+   */
+  public void setSyncPrivilegeGroupToGrouperBeans(
+      List<SyncPrivilegeGroupToGrouperBean> syncPrivilegeGroupToGrouperBeans) {
+    this.syncPrivilegeGroupToGrouperBeans = syncPrivilegeGroupToGrouperBeans;
+  }
+
+  /**
+   * privilege groups to sync to grouper
+   * @return
+   */
+  public SyncPrivilegeGroupToGrouperLogic getSyncPrivilegeGroupToGrouperLogic() {
+    return syncPrivilegeGroupToGrouperLogic;
+  }
+
   /**
    * memberships to sync to grouper
    * @return
@@ -329,6 +365,7 @@ public class SyncToGrouper {
         SyncToGrouper.this.syncGroupToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncCompositeToGrouperLogic.syncLogic();
         SyncToGrouper.this.syncMembershipToGrouperLogic.syncLogic();
+        SyncToGrouper.this.syncPrivilegeGroupToGrouperLogic.syncLogic();
 
         return null;
       }

@@ -503,7 +503,134 @@ public class SyncToGrouperBehavior {
    * update memberships
    */
   private boolean membershipUpdate;
+
+  /**
+   * update memberships
+   * @return
+   */
+  public boolean isMembershipUpdate() {
+    return membershipUpdate;
+  }
+
+  /**
+   * update memberships
+   * @param membershipUpdate
+   */
+  public void setMembershipUpdate(boolean membershipUpdate) {
+    this.membershipUpdate = membershipUpdate;
+  }
+
   
+
+  /**
+   * delete extra privilege group in the ones managed
+   */
+  private boolean privilegeGroupDeleteExtra;
+
+  /**
+   * delete extra privilege group in the ones managed
+   * @return
+   */
+  public boolean isPrivilegeGroupDeleteExtra() {
+    return privilegeGroupDeleteExtra;
+  }
+
+  /**
+   * delete extra privilege group in the ones managed
+   * @param privilegeGroupDeleteExtra
+   */
+  public void setPrivilegeGroupDeleteExtra(boolean privilegeGroupDeleteExtra) {
+    this.privilegeGroupDeleteExtra = privilegeGroupDeleteExtra;
+  }
+
+
+  /**
+   * privilege group memberships
+   */
+  private boolean privilegeGroupInsert;
+  
+  /**
+   * privilege group memberships
+   * @return
+   */
+  public boolean isPrivilegeGroupInsert() {
+    return privilegeGroupInsert;
+  }
+
+  /**
+   * privilege group memberships
+   * @param privilegeGroupInsert
+   */
+  public void setPrivilegeGroupInsert(boolean privilegeGroupInsert) {
+    this.privilegeGroupInsert = privilegeGroupInsert;
+  }
+
+
+  /**
+   * should we sync privileges on groups
+   */
+  private boolean privilegeGroupSync;
+  
+  /**
+   * should we sync privileges on groups
+   * @return
+   */
+  public boolean isPrivilegeGroupSync() {
+    return privilegeGroupSync;
+  }
+
+  /**
+   * should we sync privileges on groups
+   * @param privilegeGroupSync
+   */
+  public void setPrivilegeGroupSync(boolean privilegeGroupSync) {
+    this.privilegeGroupSync = privilegeGroupSync;
+  }
+
+
+  /**
+   * sync id on insert
+   */
+  private boolean privilegeGroupSyncFieldIdOnInsert;
+  
+  /**
+   * sync id on insert
+   * @return
+   */
+  public boolean isPrivilegeGroupSyncFieldIdOnInsert() {
+    return privilegeGroupSyncFieldIdOnInsert;
+  }
+
+  /**
+   * sync id on insert
+   * @param privilegeGroupSyncFieldIdOnInsert
+   */
+  public void setPrivilegeGroupSyncFieldIdOnInsert(
+      boolean privilegeGroupSyncFieldIdOnInsert) {
+    this.privilegeGroupSyncFieldIdOnInsert = privilegeGroupSyncFieldIdOnInsert;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   */
+  private boolean privilegeGroupSyncFromStems;
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @return
+   */
+  public boolean isPrivilegeGroupSyncFromStems() {
+    return privilegeGroupSyncFromStems;
+  }
+
+  /**
+   * should we sync memberships from stems or pass in the composites to sync
+   * @param privilegeGroupSyncFromStems
+   */
+  public void setPrivilegeGroupSyncFromStems(boolean privilegeGroupSyncFromStems) {
+    this.privilegeGroupSyncFromStems = privilegeGroupSyncFromStems;
+  }
+
   /**
    * delete extra memberships in the ones managed
    * @return
@@ -599,22 +726,6 @@ public class SyncToGrouperBehavior {
    */
   public void setMembershipSyncFromStems(boolean membershipSyncFromStems) {
     this.membershipSyncFromStems = membershipSyncFromStems;
-  }
-
-  /**
-   * update memberships
-   * @return
-   */
-  public boolean isMembershipUpdate() {
-    return membershipUpdate;
-  }
-
-  /**
-   * update memberships
-   * @param membershipUpdate
-   */
-  public void setMembershipUpdate(boolean membershipUpdate) {
-    this.membershipUpdate = membershipUpdate;
   }
 
   /**

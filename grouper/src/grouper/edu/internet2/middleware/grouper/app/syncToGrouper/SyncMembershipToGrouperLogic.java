@@ -123,11 +123,11 @@ public class SyncMembershipToGrouperLogic {
         membershipSave.save();
         if (membershipSave.getSaveResultType().isChanged()) {
           this.syncToGrouper.getSyncToGrouperReport().addChangeOverall();
-          this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success inserting membership '" + membershipLabel + "'");
+          this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success inserting " + membershipLabel);
           
         }
       } catch (Exception e) {
-        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting '" + membershipLabel + "', " + GrouperUtil.getFullStackTrace(e));
+        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting " + membershipLabel + ", " + GrouperUtil.getFullStackTrace(e));
       }
       
     }
@@ -139,10 +139,10 @@ public class SyncMembershipToGrouperLogic {
         membershipSave.save();
         if (membershipSave.getSaveResultType().isChanged()) {
           this.syncToGrouper.getSyncToGrouperReport().addChangeOverall();
-          this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success updating membership '" + membershipLabel + "'");
+          this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success updating " + membershipLabel);
         }
       } catch (Exception e) {
-        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error updating '" + membershipLabel + "', " + GrouperUtil.getFullStackTrace(e));
+        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error updating " + membershipLabel + ", " + GrouperUtil.getFullStackTrace(e));
       }
       
     }
@@ -334,7 +334,7 @@ public class SyncMembershipToGrouperLogic {
           }
           addedOne = true;
           // the exact name
-          theMembershipSql.append("gg..name = ?");
+          theMembershipSql.append("gg.name = ?");
           bindVars.add(batchGroupName);
         }
         theMembershipSql.append(" ) ");
