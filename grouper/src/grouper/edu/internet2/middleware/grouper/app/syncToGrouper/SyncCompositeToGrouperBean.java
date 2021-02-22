@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.syncToGrouper;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -19,6 +20,19 @@ public class SyncCompositeToGrouperBean implements GcSqlAssignPrimaryKey {
   
   public String getOwnerName() {
     return ownerName;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public CompositeSave convertToCompositeSave() {
+    return new CompositeSave()
+        .assignId(this.id)
+        .assignOwnerName(this.ownerName)
+        .assignLeftFactorName(this.leftFactorName)
+        .assignRightFactorName(this.rightFactorName)
+        .assignType(this.type);
   }
 
   /**

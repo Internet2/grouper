@@ -205,6 +205,27 @@ public class SyncToGrouperBehavior {
   private boolean sqlLoad = false;
   
   /**
+   * load from sql auto configure columns
+   */
+  private boolean sqlLoadAutoConfigureColumns = false;
+  
+  /**
+   * load from sql auto configure columns
+   * @return
+   */
+  public boolean isSqlLoadAutoConfigureColumns() {
+    return sqlLoadAutoConfigureColumns;
+  }
+
+  /**
+   * load from sql auto configure columns
+   * @param sqlLoadAutoConfigureColumns1
+   */
+  public void setSqlLoadAutoConfigureColumns(boolean sqlLoadAutoConfigureColumns1) {
+    this.sqlLoadAutoConfigureColumns = sqlLoadAutoConfigureColumns1;
+  }
+
+  /**
    * load from sql
    * @param b
    */
@@ -398,45 +419,24 @@ public class SyncToGrouperBehavior {
   }
 
   /**
-   * if should sync field disabled timestamp
-   */
-  private boolean groupSyncFieldDisabledTimestamp;
-  
-  /**
-   * if should sync field disabled timestamp
-   * @return
-   */
-  public boolean isGroupSyncFieldDisabledTimestamp() {
-    return groupSyncFieldDisabledTimestamp;
-  }
-
-  /**
-   * if should sync field disabled timestamp
-   * @param groupSyncFieldDisabledTimestamp
-   */
-  public void setGroupSyncFieldDisabledTimestamp(boolean groupSyncFieldDisabledTimestamp) {
-    this.groupSyncFieldDisabledTimestamp = groupSyncFieldDisabledTimestamp;
-  }
-
-  /**
    * if should sync field enabled timestamp
    */
-  private boolean groupSyncFieldEnabledTimestamp;
+  private boolean groupSyncFieldEnabledDisabled;
   
   /**
    * if should sync field enabled timestamp
    * @return
    */
-  public boolean isGroupSyncFieldEnabledTimestamp() {
-    return groupSyncFieldEnabledTimestamp;
+  public boolean isGroupSyncFieldEnabledDisabled() {
+    return groupSyncFieldEnabledDisabled;
   }
 
   /**
    * if should sync field enabled timestamp
    * @param groupSyncFieldEnabledTimestamp
    */
-  public void setGroupSyncFieldEnabledTimestamp(boolean groupSyncFieldEnabledTimestamp) {
-    this.groupSyncFieldEnabledTimestamp = groupSyncFieldEnabledTimestamp;
+  public void setGroupSyncFieldEnabledDisabled(boolean groupSyncFieldEnabledDisabled) {
+    this.groupSyncFieldEnabledDisabled = groupSyncFieldEnabledDisabled;
   }
   
   /**

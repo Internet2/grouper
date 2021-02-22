@@ -39,7 +39,7 @@ public class SyncToGrouperTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new SyncToGrouperTest("testSyncPrivilegeStemDb"));
+    TestRunner.run(new SyncToGrouperTest("testSyncCompositeDb"));
     
   }
   
@@ -805,7 +805,7 @@ public class SyncToGrouperTest extends GrouperTest {
       
   }
 
-  public void testSyncFromGrouper() {
+  public void testSyncFromGrouperAutoConfigure() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -815,23 +815,21 @@ public class SyncToGrouperTest extends GrouperTest {
     // ##############
     syncToGrouper = new SyncToGrouper();
     syncToGrouper.setReadWrite(true);
-    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
-    syncToGrouper.getSyncToGrouperBehavior().setStemInsert(true);
-    syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdOnInsert(true);
-    syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdIndexOnInsert(true);
     syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
     syncToGrouper.getSyncToGrouperBehavior().setSqlLoadFromAnotherGrouper(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoadAutoConfigureColumns(true);
     syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
     syncToGrouper.getSyncToGrouperFromSql().setDatabaseSyncFromAnotherGrouperTopLevelStems(GrouperUtil.toList("test"));
     
     syncToGrouper.getSyncToGrouperBehavior().setGroupSync(true);
     syncToGrouper.getSyncToGrouperBehavior().setGroupInsert(true);
     syncToGrouper.getSyncToGrouperBehavior().setGroupUpdate(true);
-    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdOnInsert(true);
-    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDisplayName(true);
-    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDescription(true);
-    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldAlternateName(true);
-    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdIndexOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setCompositeSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setMembershipSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeGroupSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemInsert(true);
 
 
     new StemSave(grouperSession).assignName("test").save();
@@ -856,12 +854,22 @@ public class SyncToGrouperTest extends GrouperTest {
     assertEquals(0, GrouperUtil.length(syncToGrouperReport.getStemInsertsNames()));
     assertEquals(0, GrouperUtil.length(syncToGrouperReport.getGroupInsertsNames()));
     
-    Stem stemTest = StemFinder.findByName(grouperSession, "test", true);
-  
-    Stem stemTestStem = StemFinder.findByName(grouperSession, "test:testStem", true);
-  
-    Group groupTestGroup1 = GroupFinder.findByName(grouperSession, "test:testGroup1", true);
-    Group groupTestGroup2 = GroupFinder.findByName(grouperSession, "test:testGroup2", true);
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isCompositeSyncFieldIdOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldAlternateName());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDescription());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisplayName());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldIdIndexOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldTypeOfGroup());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isPrivilegeGroupSyncFieldIdOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSyncFieldIdOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isStemSyncFieldAlternateName());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isStemSyncFieldDescription());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isStemSyncFieldDisplayName());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isStemSyncFieldIdIndexOnInsert());
+    assertTrue(syncToGrouper.getSyncToGrouperBehavior().isStemSyncFieldIdOnInsert());
 
     assertTrue(syncToGrouper.isSuccess());
   
@@ -2406,6 +2414,68 @@ public class SyncToGrouperTest extends GrouperTest {
         
       });
     }
+  }
+
+  public void testSyncFromGrouper() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    SyncToGrouper syncToGrouper = new SyncToGrouper();
+    SyncToGrouperReport syncToGrouperReport = syncToGrouper.syncLogic();
+    
+    // ##############
+    syncToGrouper = new SyncToGrouper();
+    syncToGrouper.setReadWrite(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdIndexOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoad(true);
+    syncToGrouper.getSyncToGrouperBehavior().setSqlLoadFromAnotherGrouper(true);
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseConfigId("grouper");
+    syncToGrouper.getSyncToGrouperFromSql().setDatabaseSyncFromAnotherGrouperTopLevelStems(GrouperUtil.toList("test"));
+    
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSync(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupUpdate(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdOnInsert(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDisplayName(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDescription(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldAlternateName(true);
+    syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdIndexOnInsert(true);
+  
+  
+    new StemSave(grouperSession).assignName("test").save();
+    new StemSave(grouperSession).assignName("test:testStem").save();
+        
+    new GroupSave(grouperSession).assignName("test:testGroup1").save();
+    new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    
+    syncToGrouperReport = syncToGrouper.syncLogic();
+    
+    assertEquals(1, GrouperUtil.length(syncToGrouper.getSyncStemToGrouperLogic().getTopLevelStemNamesToSync().size()));
+    assertTrue(syncToGrouper.getSyncStemToGrouperLogic().getTopLevelStemNamesToSync().contains("test"));
+  
+    assertEquals(2, GrouperUtil.length(syncToGrouper.getSyncStemToGrouperLogic().getGrouperStemNameToStem()));
+    assertEquals(2, GrouperUtil.length(syncToGrouper.getSyncGroupToGrouperLogic().getGrouperGroupNameToGroup()));
+  
+    assertEquals(0, syncToGrouperReport.getDifferenceCountOverall());
+    assertEquals(0, syncToGrouperReport.getChangeCountOverall());
+    assertEquals(0, syncToGrouperReport.getErrorLines().size());
+    assertEquals(0, syncToGrouperReport.getStemInserts());
+    assertEquals(0, syncToGrouperReport.getGroupInserts());
+    assertEquals(0, GrouperUtil.length(syncToGrouperReport.getStemInsertsNames()));
+    assertEquals(0, GrouperUtil.length(syncToGrouperReport.getGroupInsertsNames()));
+    
+    Stem stemTest = StemFinder.findByName(grouperSession, "test", true);
+  
+    Stem stemTestStem = StemFinder.findByName(grouperSession, "test:testStem", true);
+  
+    Group groupTestGroup1 = GroupFinder.findByName(grouperSession, "test:testGroup1", true);
+    Group groupTestGroup2 = GroupFinder.findByName(grouperSession, "test:testGroup2", true);
+  
+    assertTrue(syncToGrouper.isSuccess());
+  
   }
 
 

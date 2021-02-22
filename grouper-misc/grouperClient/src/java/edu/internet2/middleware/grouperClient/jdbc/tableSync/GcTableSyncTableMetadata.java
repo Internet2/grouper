@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcResultSetCallback;
@@ -31,6 +33,11 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class GcTableSyncTableMetadata {
 
+  /**
+   * keep this for error handling
+   */
+  private String metadataQuery = null;
+  
   /**
    * append the primary key where clause
    * @param sql
@@ -179,7 +186,8 @@ public class GcTableSyncTableMetadata {
     GcTableSyncColumnMetadata gcTableSyncColumnMetadata = this.columnUpperNameToGcColumnMetadata.get(columnName.toUpperCase());
     
     if (gcTableSyncColumnMetadata == null && exceptionOnNotFound) {
-      throw new RuntimeException("Cant find " + this.connectionName + " -> " + this.tableName + " -> " + columnName);
+      throw new RuntimeException("Cant find " + this.connectionName + " -> " 
+          + (StringUtils.isBlank(this.tableName) ? ("(" + this.metadataQuery + ")") : this.tableName) + " -> " + columnName);
     }
     
     return gcTableSyncColumnMetadata;
@@ -267,7 +275,7 @@ public class GcTableSyncTableMetadata {
     // does it already have no records?
     // this isnt going to be perfect and is meant for simple queries without weird whitespace etc
     if (!query.contains("1!=1") && !query.contains("1 != 1")
-        && !query.contains("0 = 1") && !query.contains("0=1")) {
+        && !query.contains("0 = 1") && !query.contains("0=1") && !query.contains("1 = 0") && !query.contains("1=0")) {
       // if union just run query
       if (!query.toLowerCase().contains(" union ")) {
         // does it have a where?
@@ -286,6 +294,7 @@ public class GcTableSyncTableMetadata {
     }
     
     GcTableSyncTableMetadata gcTableSyncTableMetadata = new GcTableSyncTableMetadata();
+    gcTableSyncTableMetadata.metadataQuery = query;
     gcTableSyncTableMetadata.setConnectionName(theConnectionName);
     
     final ArrayList<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas = new ArrayList<GcTableSyncColumnMetadata>();
@@ -308,16 +317,17 @@ public class GcTableSyncTableMetadata {
   
           for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
             GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
-            gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
-            
-            String columnName = resultSetMetaData.getColumnName(i+1);
+            // label is the alias and column name is the column name
+            String columnName = StringUtils.defaultIfBlank(resultSetMetaData.getColumnLabel(i+1), resultSetMetaData.getColumnName(i+1));
             int dataType = resultSetMetaData.getColumnType(i+1);
             String typeName = resultSetMetaData.getColumnTypeName(i+1);
   
             gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(i);
             
             gcTableSyncColumnMetadata.setColumnName(columnName);
-            
+            // dont add to set until the column name is set since it orders by that
+            gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
+
             switch (dataType) {
               case Types.BIGINT: 
               case Types.DECIMAL:
@@ -399,6 +409,11 @@ public class GcTableSyncTableMetadata {
     return gcTableSyncTableMetadata;
   }
 
+
+  
+  public String getMetadataQuery() {
+    return metadataQuery;
+  }
 
   /**
    * @return the connectionName

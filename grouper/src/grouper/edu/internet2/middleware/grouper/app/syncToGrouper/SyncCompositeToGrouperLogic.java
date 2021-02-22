@@ -60,13 +60,13 @@ public class SyncCompositeToGrouperLogic {
   /**
    * set of composites
    */
-  private Set<MultiKey> grouperCompositeOwnerLeftRightTypeToComposite = new HashSet<MultiKey>();
+  private Map<MultiKey, SyncCompositeToGrouperBean> grouperCompositeOwnerLeftRightTypeToComposite = new HashMap<MultiKey, SyncCompositeToGrouperBean>();
 
   /**
    * set of composites
    * @return multikeys
    */
-  public Set<MultiKey> getGrouperCompositeOwnerLeftRightTypeToComposite() {
+  public Map<MultiKey, SyncCompositeToGrouperBean> getGrouperCompositeOwnerLeftRightTypeToComposite() {
     return grouperCompositeOwnerLeftRightTypeToComposite;
   }
 
@@ -95,19 +95,16 @@ public class SyncCompositeToGrouperLogic {
       return;
     }
 
-    for (MultiKey composite : GrouperUtil.nonNull(this.compositeDeletes)) {
+    for (SyncCompositeToGrouperBean composite : GrouperUtil.nonNull(this.compositeDeletes)) {
 
       try {
-        CompositeSave compositeSave = new CompositeSave().assignOwnerName((String)composite.getKey(0));
-        compositeSave.assignLeftFactorName((String)composite.getKey(1));
-        compositeSave.assignRightFactorName((String)composite.getKey(2));
-        compositeSave.assignType((String)composite.getKey(3));
+        CompositeSave compositeSave = composite.convertToCompositeSave();
         compositeSave.assignSaveMode(SaveMode.DELETE);
         compositeSave.save();
         this.syncToGrouper.getSyncToGrouperReport().addChangeOverall();
-        this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success deleting composite '" + composite.getKey(0) + "'");
+        this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success deleting composite '" + composite.getOwnerName() + "'");
       } catch (Exception e) {
-        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error deleting composite '" + composite.getKey(0) + "', " + GrouperUtil.getFullStackTrace(e));
+        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error deleting composite '" + composite.getOwnerName() + "', " + GrouperUtil.getFullStackTrace(e));
       }
       
     }
@@ -198,9 +195,11 @@ public class SyncCompositeToGrouperLogic {
 
     // owner name to multiKey new
     Map<String, MultiKey> ownerNameToMultiKeyInGrouper = new HashMap<String, MultiKey>();
+    Map<String, SyncCompositeToGrouperBean> ownerNameToSyncCompositeBeanInGrouper = new HashMap<String, SyncCompositeToGrouperBean>();
 
-    for (MultiKey composite : grouperCompositeOwnerLeftRightTypeToComposite) {
+    for (MultiKey composite : grouperCompositeOwnerLeftRightTypeToComposite.keySet()) {
       ownerNameToMultiKeyInGrouper.put((String)composite.getKey(0), composite);
+      ownerNameToSyncCompositeBeanInGrouper.put((String)composite.getKey(0), grouperCompositeOwnerLeftRightTypeToComposite.get(composite));
     }
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeInsert()) {
@@ -222,7 +221,7 @@ public class SyncCompositeToGrouperLogic {
       
       compositeOwnerNamesToDelete.removeAll(ownerNameToMultiKeyIncoming.keySet());
       for (String ownerNameToDelete : compositeOwnerNamesToDelete) {
-        this.compositeDeletes.add(ownerNameToMultiKeyInGrouper.get(ownerNameToDelete));
+        this.compositeDeletes.add(ownerNameToSyncCompositeBeanInGrouper.get(ownerNameToDelete));
       }
     }    
 
@@ -248,11 +247,13 @@ public class SyncCompositeToGrouperLogic {
   private void retrieveCompositesFromGrouper() {
     
     StringBuilder theCompositeSqlBase = new StringBuilder(
-        "SELECT group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
+        "SELECT gc.id, group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
         + "FROM grouper_composites gc, grouper_groups group_owner, grouper_groups group_left_factor, "
             + "grouper_groups group_right_factor "
         + "WHERE gc.owner = group_owner.id AND gc.left_factor = group_left_factor.id AND gc.right_factor = group_right_factor.id");
 
+    List<Object[]> compositeRows = new ArrayList<Object[]>();
+    
     if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSyncFromStems()) {
       
       // get all the parent stems
@@ -279,12 +280,9 @@ public class SyncCompositeToGrouperLogic {
         theCompositeSqlBase.append(" ) ");
         gcDbAccess.sql(theCompositeSqlBase.toString()).bindVars(bindVars);
   
-        List<Object[]> compositeRows = gcDbAccess.selectList(Object[].class);
+        List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+        compositeRows.addAll(rows);
         
-        for (Object[] compositeRow : compositeRows) {
-          MultiKey compositeMultiKey = new MultiKey(compositeRow);
-          this.grouperCompositeOwnerLeftRightTypeToComposite.add(compositeMultiKey);
-        }
       }      
     } else {
 
@@ -318,19 +316,27 @@ public class SyncCompositeToGrouperLogic {
           theCompositeSql.append(" ) ");
           gcDbAccess.sql(theCompositeSql.toString()).bindVars(bindVars);
     
-          List<Object[]> compositeRows = gcDbAccess.selectList(Object[].class);
-          
-          for (Object[] compositeRow : compositeRows) {
-            MultiKey compositeMultiKey = new MultiKey(compositeRow);
-            this.grouperCompositeOwnerLeftRightTypeToComposite.add(compositeMultiKey);
-          }
+          compositeRows.addAll(gcDbAccess.selectList(Object[].class));
           
         }
         
 
       }
         
+    }        
+    for (Object[] compositeRow : compositeRows) {
+      
+      SyncCompositeToGrouperBean syncCompositeToGrouperBean = new SyncCompositeToGrouperBean();
+      syncCompositeToGrouperBean.assignId((String)compositeRow[0]);
+      syncCompositeToGrouperBean.assignOwnerName((String)compositeRow[1]);
+      syncCompositeToGrouperBean.assignLeftFactorName((String)compositeRow[2]);
+      syncCompositeToGrouperBean.assignRightFactorName((String)compositeRow[3]);
+      syncCompositeToGrouperBean.assignType((String)compositeRow[4]);
+      
+      MultiKey compositeMultiKey = new MultiKey(syncCompositeToGrouperBean.getOwnerName(), syncCompositeToGrouperBean.getLeftFactorName(), syncCompositeToGrouperBean.getRightFactorName(), syncCompositeToGrouperBean.getType());
+      this.grouperCompositeOwnerLeftRightTypeToComposite.put(compositeMultiKey, syncCompositeToGrouperBean);
     }
+
     
   }
 
@@ -338,13 +344,13 @@ public class SyncCompositeToGrouperLogic {
   /**
    * composite deletes
    */
-  private List<MultiKey> compositeDeletes = new ArrayList<MultiKey>();
+  private List<SyncCompositeToGrouperBean> compositeDeletes = new ArrayList<SyncCompositeToGrouperBean>();
 
   /**
    * composite deletes
    * @return
    */
-  public List<MultiKey> getCompositeDeletes() {
+  public List<SyncCompositeToGrouperBean> getCompositeDeletes() {
     return compositeDeletes;
   }
 

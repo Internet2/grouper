@@ -241,8 +241,8 @@ public class SyncToGrouperReport {
    */
   public Set<String> getCompositeDeletesNames() {
     Set<String> compositeDeletesNames = new TreeSet<String>();
-    for (MultiKey composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeDeletes()))) {
-      compositeDeletesNames.add((String)composite.getKey(0));
+    for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeDeletes()))) {
+      compositeDeletesNames.add(composite.getOwnerName());
     }
     return compositeDeletesNames;
   }
