@@ -22,6 +22,13 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -414,9 +421,45 @@ public class GshTemplateExec {
       grouperSession = GrouperSession.start(grouperSessionSubject);
       gshTemplateRuntime.setGrouperSession(grouperSession);
 
-      GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true);
+      GrouperGroovyResult grouperGroovyResult = null;
       
-      if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+      execOutput.setTransaction(templateConfig.isRunGshInTransaction());
+      
+      final boolean success[] = {true};
+      
+      grouperGroovyResult = (GrouperGroovyResult) HibernateSession.callbackHibernateSession(
+          templateConfig.isRunGshInTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
+              AuditControl.WILL_NOT_AUDIT, 
+          new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true);
+          
+          for (GshOutputLine gshOutputLine: execOutput.getGshTemplateOutput().getOutputLines()) {
+            if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
+              success[0] = false;
+            }
+          }
+          
+          if (execOutput.getGshTemplateOutput().isError() || execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+            success[0] = false;
+          }
+          
+          if (success[0] == false && templateConfig.isRunGshInTransaction()) {
+            hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+          }
+          
+          return grouperGroovyResult;
+        }
+        
+      });
+      
+      if (execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        execOutput.setValid(false);
+      }
+      
+      if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
         execOutput.setSuccess(false);
       } else {
         if (gshTemplateOutput.isError()) {
@@ -426,8 +469,6 @@ public class GshTemplateExec {
         }
       }
       
-      System.out.flush();
-     
       execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
       
     } catch (RuntimeException e) {

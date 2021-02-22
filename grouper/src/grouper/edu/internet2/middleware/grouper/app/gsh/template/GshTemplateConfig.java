@@ -47,6 +47,8 @@ public class GshTemplateConfig {
   
   private String runAsSpecifiedSubjectId;
   
+  private boolean runGshInTransaction = true;
+  
   private String gshTemplate;
   
   private List<GshTemplateInputConfig> gshTemplateInputConfigs = new ArrayList<GshTemplateInputConfig>();
@@ -166,6 +168,12 @@ public class GshTemplateConfig {
   public List<GshTemplateInputConfig> getGshTemplateInputConfigs() {
     return gshTemplateInputConfigs;
   }
+  
+  
+  public boolean isRunGshInTransaction() {
+    return runGshInTransaction;
+  }
+
 
   public void populateConfiguration() {
     
@@ -196,7 +204,6 @@ public class GshTemplateConfig {
         gshTemplateGroupShowOnDescendants = GshTemplateGroupShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupShowOnDescendants"), true);
       }
       
-      gshTemplateRequireGroupPrivilege =  GshTemplateRequireGroupPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireGroupPrivilege"), true);
     }
     
     showOnFolders = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnFolders", false);
@@ -212,7 +219,6 @@ public class GshTemplateConfig {
         gshTemplateFolderShowOnDescendants = GshTemplateFolderShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowOnDescendants"), true);
       }
       
-      gshTemplateRequireFolderPrivilege =  GshTemplateRequireFolderPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireFolderPrivilege"), true);
     }
     
     gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"securityRunType"), true);
@@ -223,9 +229,19 @@ public class GshTemplateConfig {
       GrouperUtil.assertion(groupThatCanRun != null, "could not find group for groupUuidCanRun: "+groupUuidCanRun);
     }
     
+    if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnGroups) {
+      gshTemplateRequireGroupPrivilege =  GshTemplateRequireGroupPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireGroupPrivilege"), true);
+    }
+    
+    if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnFolders) {
+      gshTemplateRequireFolderPrivilege =  GshTemplateRequireFolderPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireFolderPrivilege"), true);
+    }
+    
     gshTemplate = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"gshTemplate");
 
     gshLightweight = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"gshLightweight", false);
+
+    runGshInTransaction = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"runGshInTransaction", true);
 
     int numberOfInputs = GrouperConfig.retrieveConfig().propertyValueInt(configPrefix+"numberOfInputs", 0);
     

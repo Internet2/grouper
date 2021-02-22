@@ -341,38 +341,37 @@ public abstract class GrouperConfigurationModuleBase {
       
       if (attribute.isReadOnly()) {
         
-        if (StringUtils.isNotBlank(attribute.getValue())) {
-          String newValue = attribute.getValue().replace("<configId>", this.getConfigId());
-          attribute.setValue(newValue);
-          
-          if (attribute.getValue().contains("<otherSuffix_")) {
-            
-            Matcher otherSuffixMatcher = otherSuffixPattern.matcher(attribute.getValue());
-            if (otherSuffixMatcher.matches()) {
-              
-              String otherSuffixPrefix = otherSuffixMatcher.group(1);
-              String otherSuffix = otherSuffixMatcher.group(2);
-              String otherSuffixPost = otherSuffixMatcher.group(3);
-              
-              String key = attribute.getConfigSuffix();
-              int lastDotIndex = key.lastIndexOf('.');
-              key = key.substring(0, lastDotIndex);
-              key = key +  "."+otherSuffix;
-              GrouperConfigurationModuleAttribute nameAttribute = attributes.get(key);
-              if (nameAttribute != null) {
-                String nameValue = nameAttribute.getValueOrExpressionEvaluation();
-                if (StringUtils.isNotBlank(nameValue)) {
-                  newValue = otherSuffixPrefix + nameValue + otherSuffixPost;
-                  attribute.setValue(newValue);
-                }
-              }
-            }
-            
-            
-               
-          }
-        }
-        
+//        if (StringUtils.isNotBlank(attribute.getValue())) {
+//          String newValue = attribute.getValue().replace("<configId>", this.getConfigId());
+//          attribute.setValue(newValue);
+//          
+//          if (attribute.getValue().contains("<otherSuffix_")) {
+//            
+//            Matcher otherSuffixMatcher = otherSuffixPattern.matcher(attribute.getValue());
+//            if (otherSuffixMatcher.matches()) {
+//              
+//              String otherSuffixPrefix = otherSuffixMatcher.group(1);
+//              String otherSuffix = otherSuffixMatcher.group(2);
+//              String otherSuffixPost = otherSuffixMatcher.group(3);
+//              
+//              String key = attribute.getConfigSuffix();
+//              int lastDotIndex = key.lastIndexOf('.');
+//              key = key.substring(0, lastDotIndex);
+//              key = key +  "."+otherSuffix;
+//              GrouperConfigurationModuleAttribute nameAttribute = attributes.get(key);
+//              if (nameAttribute != null) {
+//                String nameValue = nameAttribute.getValueOrExpressionEvaluation();
+//                if (StringUtils.isNotBlank(nameValue)) {
+//                  newValue = otherSuffixPrefix + nameValue + otherSuffixPost;
+//                  attribute.setValue(newValue);
+//                }
+//              }
+//            }
+//            
+//            
+//               
+//          }
+//        }
         
         continue;
       }

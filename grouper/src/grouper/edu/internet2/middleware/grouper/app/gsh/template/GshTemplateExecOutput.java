@@ -12,6 +12,8 @@ public class GshTemplateExecOutput {
   
   private boolean isValid;
   
+  private boolean isTransaction;
+  
   private RuntimeException exception;
 
   public boolean isSuccess() {
@@ -57,8 +59,21 @@ public class GshTemplateExecOutput {
   }
 
 
+  
+  
+  public boolean isTransaction() {
+    return isTransaction;
+  }
+
+
 
   
+  public void setTransaction(boolean isTransaction) {
+    this.isTransaction = isTransaction;
+  }
+
+
+
   public RuntimeException getException() {
     return exception;
   }

@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivile
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
@@ -541,6 +542,28 @@ public enum GrouperWsRestPut {
           + ", " + GrouperUtil.toStringForLog(urlStrings));
     }
   
+  },
+  
+  /** gsh template exec requests **/
+  gshTemplateExec {
+
+    @Override
+    public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+      
+      //url should be: /v1_3_000/gshTemplateExec
+      String identifier = GrouperServiceUtils.popUrlString(urlStrings);
+  
+      if (requestObject instanceof WsRestGshTemplateExecRequest) {
+//        if (!StringUtils.isBlank(identifier)) {
+//          throw new WsInvalidQueryException("Dont pass identifier when saving batch externalSubjects: '" + identifier + "'");
+//        }
+        return GrouperServiceRest.executeGshTemplate(clientVersion, (WsRestGshTemplateExecRequest)requestObject);
+      }
+  
+      throw new RuntimeException("Invalid REST PUT gshTemplateExec request: " + clientVersion + " , " + identifier
+          + ", " + GrouperUtil.toStringForLog(urlStrings));
+    }
   };
     
     

@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
@@ -321,6 +322,12 @@ public class WsRestClassLookup {
     addAliasClass(WsAuditEntry.class);
     addAliasClass(WsAuditEntryColumn.class);
     addAliasClass(WsGetAuditEntriesResults.class);
+    
+    addAliasClass(WsRestGshTemplateExecRequest.class);
+    addAliasClass(WsGshTemplateInput.class);
+    addAliasClass(WsGshOutputLine.class);
+    addAliasClass(WsGshValidationLine.class);
+    addAliasClass(WsGshTemplateExecResult.class);
 
   }
   
