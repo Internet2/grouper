@@ -259,8 +259,12 @@ public class SyncGroupToGrouperLogic {
       
     Map<String, SyncGroupToGrouperBean> groupNamesToSyncBeans = new TreeMap<String, SyncGroupToGrouperBean>();
     
-    for (SyncGroupToGrouperBean syncGroupToGrouperBean : this.syncToGrouper.getSyncGroupToGrouperBeans()) {
+    for (SyncGroupToGrouperBean syncGroupToGrouperBean : GrouperUtil.nonNull(this.syncToGrouper.getSyncGroupToGrouperBeans())) {
       groupNamesToSyncBeans.put(syncGroupToGrouperBean.getName(), syncGroupToGrouperBean);
+    }
+
+    if (GrouperUtil.length(this.syncToGrouper.getSyncGroupToGrouperBeans()) == 0) {
+      this.syncToGrouper.getSyncToGrouperReport().addOutputLine(NO_GROUPS_TO_SYNC);
     }
 
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupInsert()) {
@@ -345,7 +349,7 @@ public class SyncGroupToGrouperLogic {
       groups = new TreeSet<Group>();
       
       // get all the parent stems
-      Set<Stem> topLevelStems = this.syncToGrouper.getSyncStemToGrouperLogic().getTopLevelStemsToSync();
+      Set<Stem> topLevelStems = this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput();
 
       if (GrouperUtil.length(topLevelStems) == 0) {
         return;

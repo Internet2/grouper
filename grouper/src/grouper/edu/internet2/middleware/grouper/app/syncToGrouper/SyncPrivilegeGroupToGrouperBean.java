@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.syncToGrouper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
-import edu.internet2.middleware.grouper.MembershipSave;
+import edu.internet2.middleware.grouper.PrivilegeGroupSave;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -12,14 +12,37 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 
-@GcPersistableClass(tableName="testgrouper_syncgr_membership", defaultFieldPersist=GcPersist.doPersist)
-public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
+@GcPersistableClass(tableName="testgrouper_syncgr_priv_group", defaultFieldPersist=GcPersist.doPersist)
+public class SyncPrivilegeGroupToGrouperBean implements GcSqlAssignPrimaryKey {
 
+  /**
+   * e.g. admins, updaters, readers, optins, groupAttrReaders, etc
+   */
+  private String fieldName;
+  
+  /**
+   * e.g. admins, updaters, readers, optins, groupAttrReaders, etc
+   * @return
+   */
+  public String getFieldName() {
+    return fieldName;
+  }
+
+  /**
+   * e.g. admins, updaters, readers, optins, groupAttrReaders, etc
+   * @param theFieldName
+   * @return this for chaining
+   */
+  public SyncPrivilegeGroupToGrouperBean assignFieldName(String theFieldName) {
+    this.fieldName = theFieldName;
+    return this;
+  }
+  
   public String convertToLabel() {
-    String membershipLabel = "membership '" + this.getGroupName() 
+    String membershipLabel = "privilege group '" + this.getGroupName() 
       + "', '" + this.getSubjectSourceId() + "', '" 
       + (StringUtils.equals("g:gsa", this.getSubjectSourceId()) ? this.getSubjectIdentifier() : this.getSubjectId())
-      + "'";
+      + "', " + this.fieldName;
     return membershipLabel;
   }
 
@@ -32,25 +55,24 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
         this.getSubjectSourceId(), 
         StringUtils.equals("g:gsa", this.getSubjectSourceId()) 
           ? this.getSubjectIdentifier()
-            : this.getSubjectId());
+            : this.getSubjectId(), this.fieldName);
   }
 
   /**
    * 
    * @return
    */
-  public MembershipSave convertToMembershipSave() {
-    return new MembershipSave()
+  public PrivilegeGroupSave convertToPrivilegeGroupSave() {
+    return new PrivilegeGroupSave()
         .assignImmediateMembershipId(this.getImmediateMembershipId())
         .assignGroupName(this.getGroupName())
         .assignSubjectSourceId(this.subjectSourceId)
         .assignSubjectId(this.subjectId)
         .assignSubjectIdentifier(this.subjectIdentifier)
-        .assignImmediateMshipDisabledTime(this.immediateMshipDisabledTime)
-        .assignImmediateMshipEnabledTime(this.immediateMshipEnabledTime);
+        .assignFieldName(this.fieldName);
   }
 
-  public SyncMembershipToGrouperBean() {
+  public SyncPrivilegeGroupToGrouperBean() {
   }
 
   
@@ -63,11 +85,11 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
       return true;
     }
     
-    if (!(other instanceof SyncMembershipToGrouperBean)) {
+    if (!(other instanceof SyncPrivilegeGroupToGrouperBean)) {
       return false;
     }
     
-    SyncMembershipToGrouperBean that = (SyncMembershipToGrouperBean) other;
+    SyncPrivilegeGroupToGrouperBean that = (SyncPrivilegeGroupToGrouperBean) other;
     EqualsBuilder equalsBuilder = new EqualsBuilder()
       .append(this.groupName, that.groupName)
       .append(this.subjectSourceId, that.subjectSourceId);
@@ -77,8 +99,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
     } else {
       equalsBuilder.append(this.subjectId, that.subjectId);
     }
-    equalsBuilder.append(this.immediateMshipDisabledTime, that.immediateMshipDisabledTime);
-    equalsBuilder.append(this.immediateMshipEnabledTime, that.immediateMshipDisabledTime);
+    equalsBuilder.append(this.fieldName, that.fieldName);
     return  equalsBuilder.isEquals();
     
   }
@@ -118,7 +139,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @param theGroupName
    * @return
    */
-  public SyncMembershipToGrouperBean assignGroupName(String theGroupName) {
+  public SyncPrivilegeGroupToGrouperBean assignGroupName(String theGroupName) {
     this.groupName = theGroupName;
     return this;
   }
@@ -136,7 +157,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @param theSourceId
    * @return this for chaining
    */
-  public SyncMembershipToGrouperBean assignSubjectSourceId(String theSourceId) {
+  public SyncPrivilegeGroupToGrouperBean assignSubjectSourceId(String theSourceId) {
     this.subjectSourceId = theSourceId;
     return this;
   }
@@ -154,7 +175,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @param theSubjectId
    * @return this for chaining
    */
-  public SyncMembershipToGrouperBean assignSubjectId(String theSubjectId) {
+  public SyncPrivilegeGroupToGrouperBean assignSubjectId(String theSubjectId) {
     this.subjectId = theSubjectId;
     return this;
   }
@@ -172,7 +193,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @param theSubjectIdentifier
    * @return this for chaining
    */
-  public SyncMembershipToGrouperBean assignSubjectIdentifier(String theSubjectIdentifier) {
+  public SyncPrivilegeGroupToGrouperBean assignSubjectIdentifier(String theSubjectIdentifier) {
     this.subjectIdentifier = theSubjectIdentifier;
     return this;
   }
@@ -196,7 +217,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
    * @param theImmediateMembershipIdForInsert
    * @return this for chaining
    */
-  public SyncMembershipToGrouperBean assignImmediateMembershipIdForInsert(String theImmediateMembershipIdForInsert) {
+  public SyncPrivilegeGroupToGrouperBean assignImmediateMembershipIdForInsert(String theImmediateMembershipIdForInsert) {
     this.immediateMembershipIdForInsert = theImmediateMembershipIdForInsert;
     return this;
   }
@@ -212,7 +233,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
     return immediateMembershipId;
   }
 
-  public SyncMembershipToGrouperBean assignImmediateMembershipId(String id1) {
+  public SyncPrivilegeGroupToGrouperBean assignImmediateMembershipId(String id1) {
     this.immediateMembershipId = id1;
     return this;
   }
@@ -232,52 +253,6 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
       return true;
     }
     return false;
-  }
-  
-  /**
-   * immediate mship disabled time
-   */
-  private Long immediateMshipDisabledTime = null;
-
-  /**
-   * immediate mship disabled time
-   * @return
-   */
-  public Long getImmediateMshipDisabledTime() {
-    return immediateMshipDisabledTime;
-  }
-  
-  /**
-   * immediate mship enabled time
-   */
-  private Long immediateMshipEnabledTime = null;
-
-  /**
-   * immediate mship enabled time
-   * @return
-   */
-  public Long getImmediateMshipEnabledTime() {
-    return immediateMshipEnabledTime;
-  }
-
-  /**
-   * immediate mship disabled time
-   * @param theTime
-   * @return
-   */
-  public SyncMembershipToGrouperBean assignImmediateMshipDisabledTime(Long theTime) {
-    this.immediateMshipDisabledTime = theTime;
-    return this;
-  }
-
-  /**
-   * immediate mship enabled time
-   * @param theTime
-   * @return this for chaining
-   */
-  public SyncMembershipToGrouperBean assignImmediateMshipEnabledTime(Long theTime) {
-    this.immediateMshipEnabledTime = theTime;
-    return this;
   }
   
 }

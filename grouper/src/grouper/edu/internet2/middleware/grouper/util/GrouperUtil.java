@@ -132,8 +132,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -7559,6 +7557,45 @@ public class GrouperUtil {
     }
 
     return Long.valueOf(longValue(input));
+  }
+
+  /**
+   * get the Timestamp value of an object
+   *
+   * @param input
+   *          is a timestamp or long
+   * @param allowNullBlank true if null or blank converts to null
+   *
+   * @return the Long equivalent
+   */
+  public static Timestamp timestampObjectValue(Object input, boolean allowNullBlank) {
+
+    if (input instanceof Timestamp) {
+      return (Timestamp) input;
+    }
+
+    if (input instanceof Long) {
+      return new Timestamp((Long)input);
+    }
+
+    if (input instanceof Date) {
+      return new Timestamp(((Date)input).getTime());
+    }
+
+    if (input instanceof String) {
+      try {
+        Date date = timestampFormat.parse((String)input);
+        return new Timestamp(date.getTime());
+      } catch (Exception e) {
+        throw new RuntimeException("Invalid timestamp '" + input + "', expecting: " + TIMESTAMP_FORMAT);
+      }
+    }
+
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    }
+
+    throw new RuntimeException("Invalid timestamp: '" + input + "'");
   }
 
   /**

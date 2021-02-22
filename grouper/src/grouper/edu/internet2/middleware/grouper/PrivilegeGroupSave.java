@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper;
 
-import java.sql.Timestamp;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -35,23 +33,24 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /**
- * Use this class to insert or update a membership
+ * Use this class to insert or update a group privilege
  */
-public class MembershipSave {
+public class PrivilegeGroupSave {
   
   
   
   /**
-   * create a new membership save
+   * create a new privilege save
    * @param theGrouperSession
    */
-  public MembershipSave() {
+  public PrivilegeGroupSave() {
   }
   
   /**
@@ -64,7 +63,7 @@ public class MembershipSave {
    * @param theGroupId
    * @return this for chaining
    */
-  public MembershipSave assignGroupId(String theGroupId) {
+  public PrivilegeGroupSave assignGroupId(String theGroupId) {
     this.groupId = theGroupId;
     return this;
   }
@@ -79,7 +78,7 @@ public class MembershipSave {
    * @param theGroup
    * @return this for chaining
    */
-  public MembershipSave assignGroup(Group theGroup) {
+  public PrivilegeGroupSave assignGroup(Group theGroup) {
     this.group = theGroup;
     return this;
   }
@@ -94,7 +93,7 @@ public class MembershipSave {
    * @param theSubject
    * @return this for chaining
    */
-  public MembershipSave assignSubject(Subject theSubject) {
+  public PrivilegeGroupSave assignSubject(Subject theSubject) {
     this.subject = theSubject;
     return this;
   }
@@ -109,7 +108,7 @@ public class MembershipSave {
    * @param member
    * @return this for chaining
    */
-  public MembershipSave assignMember(Member theMember) {
+  public PrivilegeGroupSave assignMember(Member theMember) {
     this.member = theMember;
     return this;
   }
@@ -124,7 +123,7 @@ public class MembershipSave {
    * @param theGroupName
    * @return this for chaining
    */
-  public MembershipSave assignGroupName(String theGroupName) {
+  public PrivilegeGroupSave assignGroupName(String theGroupName) {
     this.groupName = theGroupName;
     return this;
   }
@@ -140,7 +139,7 @@ public class MembershipSave {
    * @param theMemberId
    * @return this for chaining
    */
-  public MembershipSave assignMemberId(String theMemberId) {
+  public PrivilegeGroupSave assignMemberId(String theMemberId) {
     this.memberId = theMemberId;
     return this;
   }
@@ -155,7 +154,7 @@ public class MembershipSave {
    * @param theSubjectId
    * @return this for chaining
    */
-  public MembershipSave assignSubjectId(String theSubjectId) {
+  public PrivilegeGroupSave assignSubjectId(String theSubjectId) {
     this.subjectId = theSubjectId;
     return this;
   }
@@ -170,7 +169,7 @@ public class MembershipSave {
    * @param theSubjectSourceId
    * @return this for chaining
    */
-  public MembershipSave assignSubjectSourceId(String theSubjectSourceId) {
+  public PrivilegeGroupSave assignSubjectSourceId(String theSubjectSourceId) {
     this.subjectSourceId = theSubjectSourceId;
     return this;
   }
@@ -185,7 +184,7 @@ public class MembershipSave {
    * @param thesubjectIdentifier
    * @return this for chaining
    */
-  public MembershipSave assignSubjectIdentifier(String theSubjectIdentifier) {
+  public PrivilegeGroupSave assignSubjectIdentifier(String theSubjectIdentifier) {
     this.subjectIdentifier = theSubjectIdentifier;
     return this;
   }
@@ -200,42 +199,11 @@ public class MembershipSave {
    * @param theImmediateMembershipId
    * @return this for chaining
    */
-  public MembershipSave assignImmediateMembershipId(String theImmediateMembershipId) {
+  public PrivilegeGroupSave assignImmediateMembershipId(String theImmediateMembershipId) {
     this.immediateMembershipId = theImmediateMembershipId;
     return this;
   }
 
-  /**
-   * millis since 1970 that immediate mship disabled
-   */
-  private Long immediateMshipDisabledTime;
-
-  /**
-   * millis since 1970 that immediate mship disabled
-   * @param theImmediateMshipDisabledTime
-   * @return this for chaining
-   */
-  public MembershipSave assignImmediateMshipDisabledTime(Long theImmediateMshipDisabledTime) {
-    this.immediateMshipDisabledTime = theImmediateMshipDisabledTime;
-    return this;
-  }
-
-  /**
-   * millis since 1970 that immediate mship disabled
-   */
-  private Long immediateMshipEnabledTime;
-
-  /**
-   * 
-   * @param theImmediateMshipEnabledTime
-   * @return this for chaining
-   */
-  public MembershipSave assignImmediateMshipEnabledTime(Long theImmediateMshipEnabledTime) {
-    this.immediateMshipEnabledTime = theImmediateMshipEnabledTime;
-    return this;
-  }
-
-  
   /** save mode */
   private SaveMode saveMode;
 
@@ -244,7 +212,7 @@ public class MembershipSave {
    * @param theSaveMode
    * @return this for chaining
    */
-  public MembershipSave assignSaveMode(SaveMode theSaveMode) {
+  public PrivilegeGroupSave assignSaveMode(SaveMode theSaveMode) {
     this.saveMode = theSaveMode;
     return this;
   }
@@ -258,6 +226,51 @@ public class MembershipSave {
    */
   public SaveResultType getSaveResultType() {
     return this.saveResultType;
+  }
+  
+  /**
+   * field of privilege
+   */
+  private String fieldId;
+
+  /**
+   * field of privilege
+   * @param theFieldId
+   * @return this for chaining
+   */
+  public PrivilegeGroupSave assignFieldId(String theFieldId) {
+    this.fieldId = theFieldId;
+    return this;
+  }
+
+  /**
+   * field of field name
+   */
+  private String fieldName;
+
+  /**
+   * field of privilege (could be privilege name too)
+   * @param theFieldName
+   * @return this for chaining
+   */
+  public PrivilegeGroupSave assignFieldName(String theFieldName) {
+    this.fieldName = theFieldName;
+    return this;
+  }
+  
+  /**
+   * field of privilege
+   */
+  private Field field;
+
+  /**
+   * field of privilege
+   * @param theFieldId
+   * @return this for chaining
+   */
+  public PrivilegeGroupSave assignField(Field theField) {
+    this.field = theField;
+    return this;
   }
   
   /**
@@ -293,30 +306,30 @@ public class MembershipSave {
           // start by finding existing membership
           Membership membership = null;
 
-          if (membership == null && !StringUtils.isBlank(MembershipSave.this.immediateMembershipId)) {
-            membership = MembershipFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.immediateMembershipId, false, false);
+          if (membership == null && !StringUtils.isBlank(PrivilegeGroupSave.this.immediateMembershipId)) {
+            membership = MembershipFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeGroupSave.this.immediateMembershipId, false, false);
           }
 
-          if (group == null && !StringUtils.isBlank(MembershipSave.this.groupId)) {
-            group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.groupId, false, new QueryOptions().secondLevelCache(false));
+          if (group == null && !StringUtils.isBlank(PrivilegeGroupSave.this.groupId)) {
+            group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeGroupSave.this.groupId, false, new QueryOptions().secondLevelCache(false));
           } 
-          if (group == null && !StringUtils.isBlank(MembershipSave.this.groupName)) {
-            group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), MembershipSave.this.groupName, false, new QueryOptions().secondLevelCache(false));
+          if (group == null && !StringUtils.isBlank(PrivilegeGroupSave.this.groupName)) {
+            group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), PrivilegeGroupSave.this.groupName, false, new QueryOptions().secondLevelCache(false));
           }
           if (membership != null && group == null) {
             group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), membership.getOwnerGroupId(), true, new QueryOptions().secondLevelCache(false));
           }
           GrouperUtil.assertion(group!=null,  "Group not found");
 
-          if (member == null && !StringUtils.isBlank(MembershipSave.this.memberId)) {
-            member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), MembershipSave.this.memberId, false);
+          if (member == null && !StringUtils.isBlank(PrivilegeGroupSave.this.memberId)) {
+            member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeGroupSave.this.memberId, false);
           }
 
           if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
-            subject = SubjectFinder.findByIdAndSource(MembershipSave.this.subjectId, MembershipSave.this.subjectSourceId, false);
+            subject = SubjectFinder.findByIdAndSource(PrivilegeGroupSave.this.subjectId, PrivilegeGroupSave.this.subjectSourceId, false);
           }            
           if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
-            subject = SubjectFinder.findByIdentifierAndSource(MembershipSave.this.subjectIdentifier, MembershipSave.this.subjectSourceId, false);
+            subject = SubjectFinder.findByIdentifierAndSource(PrivilegeGroupSave.this.subjectIdentifier, PrivilegeGroupSave.this.subjectSourceId, false);
           }
           if (subject == null && member != null) {
             subject = member.getSubject();
@@ -327,28 +340,36 @@ public class MembershipSave {
           GrouperUtil.assertion(member!=null,  "Member not found");
           GrouperUtil.assertion(subject!=null,  "Subject not found");
           
-          if (membership == null && group != null && member != null) {
-            membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-                group.getId(), member.getId(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), false, true);
+          if (field == null && !StringUtils.isBlank(fieldId)) {
+            field = FieldFinder.findById(fieldId, true);
           }
-
-          if (!group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.UPDATE.getName(), false)) {
-            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
-              + "' cannot UPDATE group '" + group.getName() + "'");
+          if (field == null && !StringUtils.isBlank(fieldName)) {
+            field = FieldFinder.find(fieldName, true, true);
           }
           
+          GrouperUtil.assertion(field!=null,  "Field not found");
+          GrouperUtil.assertion(field.isGroupAccessField(), "Must be group access field '" + field.getName() + "'");
+          
+          if (membership == null) {
+            membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+                group.getId(), member.getId(), field, MembershipType.IMMEDIATE.getTypeString(), false, true);
+          }
+
+          if (!group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN.getName(), false)) {
+            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
+              + "' cannot ADMIN group '" + group.getName() + "'");
+          }
 
           // handle deletes
           if (saveMode == SaveMode.DELETE) {
             if (membership == null) {
-              MembershipSave.this.saveResultType = SaveResultType.NO_CHANGE;
+              PrivilegeGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
               return null;
             }
-            membership.delete();
-            MembershipSave.this.saveResultType = SaveResultType.DELETE;
+            group.revokePriv(subject, Privilege.listToPriv(field.getName(), true), false);
+            PrivilegeGroupSave.this.saveResultType = SaveResultType.DELETE;
             return membership;
           }
-
           
           if (saveMode == SaveMode.INSERT && membership != null) {
             throw new RuntimeException("Inserting membership but it already exists!");
@@ -359,19 +380,11 @@ public class MembershipSave {
 
           // insert
           if (membership == null) {
-            group.internal_addMember(subject, Group.getDefaultList(), false, MembershipSave.this.immediateMembershipId, 
-                GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipEnabledTime, true), 
-                GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipDisabledTime, true), false);
-            MembershipSave.this.saveResultType = SaveResultType.INSERT;
-          } else if (GrouperUtil.equals(MembershipSave.this.immediateMshipDisabledTime, GrouperUtil.longObjectValue(membership.getDisabledTime(), true))
-              && GrouperUtil.equals(MembershipSave.this.immediateMshipEnabledTime, GrouperUtil.longObjectValue(membership.getEnabledTime(), true))) {
-            MembershipSave.this.saveResultType = SaveResultType.NO_CHANGE;
-            return membership;
+            group.internal_grantPriv(subject, AccessPrivilege.listToPriv(field.getName()), false, PrivilegeGroupSave.this.immediateMembershipId);
+            PrivilegeGroupSave.this.saveResultType = SaveResultType.INSERT;
           } else {
-            membership.setEnabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipEnabledTime, true));
-            membership.setDisabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipDisabledTime, true));
-            GrouperDAOFactory.getFactory().getMembership().update(membership);
-            MembershipSave.this.saveResultType = SaveResultType.UPDATE;
+            PrivilegeGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+            return membership;
           }
           return membership;
         }
