@@ -9,8 +9,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -103,7 +111,26 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
     normalizeNewLines(gshTemplateAttribute);
     
-    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    final String configId = this.getConfigId();
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+       new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        
+        GshTemplateConfiguration.super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+        if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) { 
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_ADD,
+              "gshTemplateConfigId", configId);
+          auditEntry.setDescription("Add gsh template with configId: " + configId); 
+          auditEntry.saveOrUpdate(true);
+          
+        }
+        return null;
+       
+      }
+      
+    });
   }
   
   @Override
@@ -115,9 +142,52 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
     normalizeNewLines(gshTemplateAttribute);
     
-    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    
+      final String configId = this.getConfigId();
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+         new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+          GshTemplateConfiguration.super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+          if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) { 
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_UPDATE,
+                "gshTemplateConfigId", configId);
+            auditEntry.setDescription("Update gsh template with configId: " + configId); 
+            auditEntry.saveOrUpdate(true);
+            
+          }
+          return null;
+          
+        }
+        
+      });
+    
   }
   
+  @Override
+  public void deleteConfig(boolean fromUi) {
+    
+    final String configId = this.getConfigId();
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+       new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        GshTemplateConfiguration.super.deleteConfig(fromUi);
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_DELETE,
+            "gshTemplateConfigId", configId);
+        auditEntry.setDescription("Delete gsh template with configId: " + configId); 
+        auditEntry.saveOrUpdate(true);
+        return null;
+        
+      }
+      
+    });
+    
+  }
+
   private void normalizeNewLines(GrouperConfigurationModuleAttribute gshTemplateAttribute) {
     
     if (gshTemplateAttribute != null) {

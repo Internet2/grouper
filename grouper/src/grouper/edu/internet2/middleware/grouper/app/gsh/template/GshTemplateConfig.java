@@ -19,6 +19,8 @@ public class GshTemplateConfig {
   
   private boolean enabled;
   
+  private boolean useIndividualAudits;
+  
   private boolean showOnGroups;
   
   private GshTemplateGroupShowType gshTemplateGroupShowType;
@@ -75,8 +77,13 @@ public class GshTemplateConfig {
     return enabled;
   }
 
-
   
+  
+  public boolean isUseIndividualAudits() {
+    return useIndividualAudits;
+  }
+
+
   public boolean isShowOnGroups() {
     return showOnGroups;
   }
@@ -182,6 +189,7 @@ public class GshTemplateConfig {
     String configPrefix = "grouperGshTemplate."+configId+".";
     
     enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
+    useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
     
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
     gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);

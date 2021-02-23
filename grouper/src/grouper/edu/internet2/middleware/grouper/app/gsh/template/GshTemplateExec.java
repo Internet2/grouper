@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.commons.text.StringEscapeUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -20,6 +23,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -34,6 +39,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateExec {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GshTemplateExec.class);
   
   private GshTemplateOwnerType gshTemplateOwnerType;
   
@@ -425,11 +433,21 @@ public class GshTemplateExec {
       
       execOutput.setTransaction(templateConfig.isRunGshInTransaction());
       
+      StringBuilder inputsStringBuilder = new StringBuilder();
+      for (GshTemplateInput input: this.gshTemplateInputs) {
+        String valueString = "";
+        if (StringUtils.isNotBlank(input.getValueString()) && input.getValueString().length() > 50) {
+          valueString = input.getValueString().substring(0, 50);
+          valueString = valueString + ".....";
+        }
+        inputsStringBuilder.append(input.getName() + " = " + valueString + ";");
+      }
+      
       final boolean success[] = {true};
       
       grouperGroovyResult = (GrouperGroovyResult) HibernateSession.callbackHibernateSession(
           templateConfig.isRunGshInTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
-              AuditControl.WILL_NOT_AUDIT, 
+              templateConfig.isUseIndividualAudits() ? AuditControl.WILL_NOT_AUDIT: AuditControl.WILL_AUDIT,
           new HibernateHandler() {
   
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -450,13 +468,36 @@ public class GshTemplateExec {
             hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
           }
           
+          if (!templateConfig.isRunGshInTransaction() || (success[0] == true && templateConfig.isRunGshInTransaction())) {
+            
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
+                "gshTemplateConfigId", configId, "status",
+                success[0] ? "success": "error");
+            auditEntry.setDescription("Execute gsh template with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString()); 
+            auditEntry.saveOrUpdate(true);
+          }
+          
           return grouperGroovyResult;
         }
         
       });
       
+      
+      
       if (execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
         execOutput.setValid(false);
+        
+        Set<String> configuredInputNames = new HashSet<String>();
+        for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
+          configuredInputNames.add(inputConfig.getName());
+        }
+        
+        for (GshValidationLine gshValidationLine: execOutput.getGshTemplateOutput().getValidationLines()) {
+          if (StringUtils.isNotBlank(gshValidationLine.getInputName()) && !configuredInputNames.contains(gshValidationLine.getInputName())) {
+            LOG.error(gshValidationLine.getInputName() + " is not in list of configured input names");
+          }
+         }
+        
       }
       
       if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
@@ -470,6 +511,7 @@ public class GshTemplateExec {
       }
       
       execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
+      
       
     } catch (RuntimeException e) {
       execOutput.setSuccess(false);

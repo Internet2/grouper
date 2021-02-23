@@ -701,7 +701,28 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * provisioner sync run for a provisioner for all configured groups and stems
    */
-  PROVISIONER_SYNC_RUN(new AuditType("provisionerSync", "provisionerSync", null, "provisionerName"));
+  PROVISIONER_SYNC_RUN(new AuditType("provisionerSync", "provisionerSync", null, "provisionerName")),
+  
+  /**
+   * gsh template execute
+   */
+  GSH_TEMPLATE_EXEC(new AuditType("gshTemplate", "gshTemplateExec", null, "gshTemplateConfigId", "status")),
+  
+  /**
+   * add gsh template
+   */
+  GSH_TEMPLATE_ADD(new AuditType("gshTemplate", "gshTemplateAdd", null, "gshTemplateConfigId")),
+  
+  /**
+   * update gsh template
+   */
+  GSH_TEMPLATE_UPDATE(new AuditType("gshTemplate", "gshTemplateUpdate", null, "gshTemplateConfigId")),
+  
+  /**
+   * delete gsh template
+   */
+  GSH_TEMPLATE_DELETE(new AuditType("gshTemplate", "gshTemplateDelete", null, "gshTemplateConfigId"))
+  ;
 
   /**
    * defaults for audit type, though doesnt hold the id
