@@ -138,15 +138,13 @@ public class SyncGroupToGrouperLogic {
         if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDescription()) {
           groupSave.assignDescription(syncGroupToGrouperBean.getDescription());
         }
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp()) {
-          groupSave.assignDisabledTime(syncGroupToGrouperBean.getDisabledTimestamp());
-        }
         if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisplayName()
             && !StringUtils.isBlank(syncGroupToGrouperBean.getDisplayName())) {
           groupSave.assignDisplayName(syncGroupToGrouperBean.getDisplayName());
         }
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp()) {
+        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
           groupSave.assignEnabledTime(syncGroupToGrouperBean.getEnabledTimestamp());
+          groupSave.assignDisabledTime(syncGroupToGrouperBean.getDisabledTimestamp());
         }
         if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldIdOnInsert() && !StringUtils.isBlank(syncGroupToGrouperBean.getId())) {
           groupSave.assignUuid(syncGroupToGrouperBean.getId());
@@ -190,10 +188,12 @@ public class SyncGroupToGrouperLogic {
           groupSave.assignDescription(groupInGrouper.getDescription());
         }
         
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp()) {
+        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
           groupSave.assignDisabledTimestamp(GrouperUtil.toTimestamp(syncGroupToGrouperBean.getDisabledTimestamp()));
+          groupSave.assignEnabledTimestamp(GrouperUtil.toTimestamp(syncGroupToGrouperBean.getEnabledTimestamp()));
         } else {
           groupSave.assignDisabledTimestamp(groupInGrouper.getDisabledTime());
+          groupSave.assignEnabledTimestamp(groupInGrouper.getEnabledTime());
         }
 
         if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisplayName() && !StringUtils.isBlank(syncGroupToGrouperBean.getDisplayName())) {
@@ -202,12 +202,6 @@ public class SyncGroupToGrouperLogic {
           groupSave.assignDisplayName(groupInGrouper.getDisplayName());
         }
         
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp()) {
-          groupSave.assignEnabledTimestamp(GrouperUtil.toTimestamp(syncGroupToGrouperBean.getEnabledTimestamp()));
-        } else {
-          groupSave.assignEnabledTimestamp(groupInGrouper.getEnabledTime());
-        }
-
         if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldTypeOfGroup()) {
           groupSave.assignTypeOfGroup(TypeOfGroup.valueOfIgnoreCase(syncGroupToGrouperBean.getTypeOfGroup(), false));
         } else {
@@ -314,7 +308,7 @@ public class SyncGroupToGrouperLogic {
             && !StringUtils.equals(StringUtils.trimToNull(groupInGrouper.getDescription()), StringUtils.trimToNull(groupToUpdate.getDescription()))) {
           needsUpdate = true;
         }
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp()
+        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()
             && !GrouperUtil.equals(groupInGrouper.getDisabledTimeDb(), groupToUpdate.getDisabledTimestamp())) {
           needsUpdate = true;
         }
@@ -325,7 +319,7 @@ public class SyncGroupToGrouperLogic {
                 StringUtils.trimToNull(GrouperUtil.extensionFromName(groupToUpdate.getDisplayName())))) {
           needsUpdate = true;
         }
-        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp()
+        if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()
             && !GrouperUtil.equals(groupInGrouper.getEnabledTimeDb(), groupToUpdate.getEnabledTimestamp())) {
           needsUpdate = true;
         }

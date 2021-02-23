@@ -90,8 +90,11 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isStemSync()) {
       
+      sqlLoadAutoConfigureColumnsStem();
+
       GcDbAccess stemDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
+            
       if (StringUtils.isBlank(this.stemSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
 
         this.stemSql = buildGrouperStemQuery(bindVars);
@@ -160,6 +163,99 @@ public class SyncToGrouperFromSql {
       }
     }
     
+  }
+
+  private void sqlLoadAutoConfigureColumnsStem() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.stemSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_stems gs where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata idColumn = gcTableSyncTableMetadata.lookupColumn("id", false);
+      if (idColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdOnInsert(true);
+      }
+      GcTableSyncColumnMetadata descriptionColumn = gcTableSyncTableMetadata.lookupColumn("description", false);
+      if (descriptionColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldDescription(true);
+      }
+      GcTableSyncColumnMetadata displayNameColumn = gcTableSyncTableMetadata.lookupColumn("display_name", false);
+      if (displayNameColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldDisplayName(true);
+      }
+      GcTableSyncColumnMetadata alternateNameColumn = gcTableSyncTableMetadata.lookupColumn("alternate_name", false);
+      if (alternateNameColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldAlternateName(true);
+      }
+      GcTableSyncColumnMetadata idIndexColumn = gcTableSyncTableMetadata.lookupColumn("id_index", false);
+      if (idIndexColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setStemSyncFieldIdIndexOnInsert(true);
+      }
+    }
+  }
+
+  private void sqlLoadAutoConfigureColumnsGroup() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.groupSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_groups gs where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata alternateNameColumn = gcTableSyncTableMetadata.lookupColumn("alternate_name", false);
+      if (alternateNameColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldAlternateName(true);
+      }
+      GcTableSyncColumnMetadata descriptionColumn = gcTableSyncTableMetadata.lookupColumn("description", false);
+      if (descriptionColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDescription(true);
+      }
+
+      GcTableSyncColumnMetadata disabledTimestampColumn = gcTableSyncTableMetadata.lookupColumn("disabled_timestamp", false);
+      GcTableSyncColumnMetadata enabledTimestampColumn = gcTableSyncTableMetadata.lookupColumn("enabled_timestamp", false);
+      if (disabledTimestampColumn != null && enabledTimestampColumn!= null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldEnabledDisabled(true);
+      }
+
+      GcTableSyncColumnMetadata displayNameColumn = gcTableSyncTableMetadata.lookupColumn("display_name", false);
+      if (displayNameColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldDisplayName(true);
+      }
+      GcTableSyncColumnMetadata idColumn = gcTableSyncTableMetadata.lookupColumn("id", false);
+      if (idColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdOnInsert(true);
+      }
+      GcTableSyncColumnMetadata idIndexColumn = gcTableSyncTableMetadata.lookupColumn("id_index", false);
+      if (idIndexColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldIdIndexOnInsert(true);
+      }
+      GcTableSyncColumnMetadata typeOfGroupColumn = gcTableSyncTableMetadata.lookupColumn("type_of_group", false);
+      if (typeOfGroupColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setGroupSyncFieldTypeOfGroup(true);
+      }
+    }
   }
 
   /**
@@ -380,13 +476,13 @@ public class SyncToGrouperFromSql {
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDescription()) {
       theGroupSql.append(", description");
     }
-    if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp()) {
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
       theGroupSql.append(", disabled_timestamp");
     }
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisplayName()) {
       theGroupSql.append(", display_name");
     }
-    if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp()) {
+    if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
       theGroupSql.append(", enabled_timestamp");
     }
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldIdOnInsert()) {
@@ -442,6 +538,8 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSync()) {
       
+      sqlLoadAutoConfigureColumnsGroup();
+
       GcDbAccess groupDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
       if (StringUtils.isBlank(this.groupSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
@@ -462,11 +560,11 @@ public class SyncToGrouperFromSql {
         GcTableSyncColumnMetadata descriptionColumn = 
             gcTableSyncTableMetadata.lookupColumn("description", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDescription());
         GcTableSyncColumnMetadata disabledTimestampColumn = 
-            gcTableSyncTableMetadata.lookupColumn("disabled_timestamp", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp());
+            gcTableSyncTableMetadata.lookupColumn("disabled_timestamp", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled());
         GcTableSyncColumnMetadata displayNameColumn = 
             gcTableSyncTableMetadata.lookupColumn("display_name", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisplayName());
         GcTableSyncColumnMetadata enabledTimestampColumn = 
-            gcTableSyncTableMetadata.lookupColumn("enabled_timestamp", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp());
+            gcTableSyncTableMetadata.lookupColumn("enabled_timestamp", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled());
         GcTableSyncColumnMetadata idColumn = 
             gcTableSyncTableMetadata.lookupColumn("id", this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldIdOnInsert());
         GcTableSyncColumnMetadata idIndexColumn =
@@ -492,7 +590,7 @@ public class SyncToGrouperFromSql {
             syncGroupToGrouperBean.assignDescription(description);
           }
           
-          if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldDisabledTimestamp()) {
+          if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
             Long disabledTimestamp = GrouperUtil.longObjectValue(groupArray[disabledTimestampColumn.getColumnIndexZeroIndexed()], true);
             syncGroupToGrouperBean.assignDisabledTimestamp(disabledTimestamp);
           }
@@ -502,7 +600,7 @@ public class SyncToGrouperFromSql {
             syncGroupToGrouperBean.assignDisplayName(displayName);
           }
           
-          if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledTimestamp()) {
+          if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFieldEnabledDisabled()) {
             Long enabledTimestamp = GrouperUtil.longObjectValue(groupArray[enabledTimestampColumn.getColumnIndexZeroIndexed()], true);
             syncGroupToGrouperBean.assignEnabledTimestamp(enabledTimestamp);
           }
@@ -544,6 +642,8 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSync()) {
       
+      sqlLoadAutoConfigureColumnsComposite();
+ 
       GcDbAccess compositeDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
       if (StringUtils.isBlank(this.compositeSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
@@ -615,7 +715,8 @@ public class SyncToGrouperFromSql {
     }
 
     StringBuilder theCompositeSql = new StringBuilder(
-        "SELECT group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
+        "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isCompositeSyncFieldIdOnInsert() ? "gc.id, " : "") 
+        + "group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
         + "FROM " + schema + "grouper_composites gc, " + schema + "grouper_groups group_owner, " + schema + "grouper_groups group_left_factor, "
             + schema + "grouper_groups group_right_factor "
         + "WHERE gc.owner = group_owner.id AND gc.left_factor = group_left_factor.id AND gc.right_factor = group_right_factor.id");
@@ -660,7 +761,9 @@ public class SyncToGrouperFromSql {
     }
     
     StringBuilder theMembershipSql = new StringBuilder(
-        "SELECT gmav.immediate_membership_id AS immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
+        "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert() ?
+            "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
+        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
     
     if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
       theMembershipSql.append(", gmav.immediate_mship_disabled_time, gmav.immediate_mship_enabled_time");
@@ -708,6 +811,8 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSync()) {
       
+      sqlLoadAutoConfigureColumnsMembership();
+
       GcDbAccess membershipDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
       if (StringUtils.isBlank(this.membershipSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
@@ -787,7 +892,9 @@ public class SyncToGrouperFromSql {
     }
     
     StringBuilder thePrivilegeSql = new StringBuilder(
-        "SELECT gmav.immediate_membership_id AS immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
+        "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isPrivilegeGroupSyncFieldIdOnInsert() ?
+            "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
+        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
     
     thePrivilegeSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_groups gg, " + schema + "grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
@@ -830,6 +937,8 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeGroupSync()) {
       
+      sqlLoadAutoConfigureColumnsPrivilegeGroup();
+
       GcDbAccess privilegeGroupDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
       if (StringUtils.isBlank(this.privilegeGroupSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
@@ -901,7 +1010,9 @@ public class SyncToGrouperFromSql {
     }
     
     StringBuilder thePrivilegeSql = new StringBuilder(
-        "SELECT gmav.immediate_membership_id AS immediate_membership_id, gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
+        "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isPrivilegeStemSyncFieldIdOnInsert() ?
+            "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
+        + "gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
     
     thePrivilegeSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_stems gs, " + schema + "grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
@@ -946,6 +1057,8 @@ public class SyncToGrouperFromSql {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSync()) {
       
+      sqlLoadAutoConfigureColumnsPrivilegeStem();
+
       GcDbAccess privilegeStemDbAccess = new GcDbAccess().connectionName(this.databaseConfigId);
       List<Object> bindVars = new ArrayList<Object>();
       if (StringUtils.isBlank(this.privilegeStemSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
@@ -1001,6 +1114,119 @@ public class SyncToGrouperFromSql {
       }
     }
     
+  }
+
+  private void sqlLoadAutoConfigureColumnsComposite() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.compositeSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_composites gc where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+  
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata idColumn = gcTableSyncTableMetadata.lookupColumn("id", false);
+      if (idColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setCompositeSyncFieldIdOnInsert(true);
+      }
+    }
+  }
+
+  private void sqlLoadAutoConfigureColumnsMembership() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.membershipSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_memberships_all_v gmav where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+  
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata immediateMembershipIdColumn = 
+          gcTableSyncTableMetadata.lookupColumn("immediate_membership_id", false);
+      if (immediateMembershipIdColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setMembershipSyncFieldIdOnInsert(true);
+      }
+      GcTableSyncColumnMetadata immediateMshipDisabledTimeColumn = 
+          gcTableSyncTableMetadata.lookupColumn("immediate_mship_disabled_time", false);
+      GcTableSyncColumnMetadata immediateMshipEnabledTimeColumn = 
+          gcTableSyncTableMetadata.lookupColumn("immediate_mship_enabled_time", false);
+      if (immediateMshipDisabledTimeColumn != null && immediateMshipEnabledTimeColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setMembershipSyncFieldsEnabledDisabled(true);
+      }
+
+    }
+  }
+
+  private void sqlLoadAutoConfigureColumnsPrivilegeGroup() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.privilegeGroupSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_memberships_all_v gmav where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+  
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata immediateMembershipIdColumn = 
+          gcTableSyncTableMetadata.lookupColumn("immediate_membership_id", false);
+      if (immediateMembershipIdColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setPrivilegeGroupSyncFieldIdOnInsert(true);
+      }
+  
+    }
+  }
+
+  private void sqlLoadAutoConfigureColumnsPrivilegeStem() {
+    if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoadAutoConfigureColumns()) {
+      
+      String autoConfigureSql = this.privilegeStemSql;
+      if (StringUtils.isBlank(autoConfigureSql) && this.syncToGrouper.getSyncToGrouperBehavior().isSqlLoadFromAnotherGrouper()) {
+        autoConfigureSql = "select * from ";
+        if (!StringUtils.isBlank(this.databaseSyncFromAnotherGrouperSchema)) {
+          autoConfigureSql += StringUtils.trim(this.databaseSyncFromAnotherGrouperSchema);
+          if (!this.databaseSyncFromAnotherGrouperSchema.contains(".")) {
+            autoConfigureSql += ".";
+          }
+        }
+        autoConfigureSql += "grouper_memberships_all_v gmav where 1=0";
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(autoConfigureSql), "Auto configure sql is null!");
+  
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(this.databaseConfigId, autoConfigureSql, null);
+      
+      GcTableSyncColumnMetadata immediateMembershipIdColumn = 
+          gcTableSyncTableMetadata.lookupColumn("immediate_membership_id", false);
+      if (immediateMembershipIdColumn != null) {
+        this.syncToGrouper.getSyncToGrouperBehavior().setPrivilegeStemSyncFieldIdOnInsert(true);
+      }
+  
+    }
   }
   
 }
