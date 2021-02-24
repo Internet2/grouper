@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper;
 
-import java.sql.Timestamp;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -268,18 +266,6 @@ public class MembershipSave {
    */
   public Membership save() throws InsufficientPrivilegeException, GroupNotFoundException {
 
-    boolean canIdentifyMembership = StringUtils.isNotBlank(this.immediateMembershipId);
-
-    if (!canIdentifyMembership) {
-      GrouperUtil.assertion(StringUtils.isNotBlank(this.groupId) || StringUtils.isNotBlank(this.groupName), "immediateMembershipId or groupId or groupName is required");
-      
-      boolean canIdentifyMember = StringUtils.isNotBlank(this.memberId);
-      if (!canIdentifyMember) {
-        GrouperUtil.assertion(StringUtils.isNotBlank(this.subjectSourceId), "immediateMembershipId or memberId or subjectSourceId is required");
-        GrouperUtil.assertion(StringUtils.isNotBlank(this.subjectId) || StringUtils.isNotBlank(this.subjectIdentifier), "immediateMembershipId or memberId or subjectId or subjectIdentifier is required");
-      }
-      
-    }
     //default to insert or update
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
 

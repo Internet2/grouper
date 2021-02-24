@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.ldapToSql.GrouperDaemonOtherJobLdapToSqlConfiguration;
+import edu.internet2.middleware.grouper.app.syncToGrouper.GrouperDaemonOtherJobSyncToGrouperFromSqlConfiguration;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -55,6 +56,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobReportClearConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobScriptConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSchedulerCheckConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSyncToGrouperFromSqlConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobTimeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUpgradeTasksConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobUsduConfiguration.class.getName());

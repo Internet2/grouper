@@ -258,7 +258,7 @@ public class SyncMembershipToGrouperLogic {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSyncFromStems()) {
 
-      GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput()) > 0, 
+      GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getTopLevelStemNamesFlattenedFromSqlOrInput()) > 0, 
           "If syncing grouper and folders then the top level folders are required or : for all");
       
       Set<String> topLevelStemSet = this.getSyncToGrouper().getTopLevelStemNamesFlattenedFromSqlOrInput();
@@ -275,6 +275,10 @@ public class SyncMembershipToGrouperLogic {
   
         GrouperUtil.assertion(GrouperUtil.length(topLevelStems) < 400, "Cannot have more than 400 top level stems to sync");
 
+        if (GrouperUtil.length(this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput()) == 0) {
+          return;
+        }
+        
         theMembershipSqlBase.append(" and ( ");
         boolean addedOne = false;
         List<Object> bindVars = new ArrayList<Object>();

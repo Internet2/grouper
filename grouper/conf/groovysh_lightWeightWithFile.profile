@@ -75,7 +75,7 @@ class GSHScriptLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
       edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.printGshScriptLine(lineNumber, it);
 
       if (edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineExit(lineNumber, it)) {
-        return
+        it = "edu.internet2.middleware.grouper.util.GrouperUtil.gshReturn();";
       }
 
       if (!edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineIgnore(lineNumber, it)) {

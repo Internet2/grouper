@@ -211,12 +211,10 @@ public class SyncPrivilegeGroupToGrouperLogic {
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeGroupSyncFromStems()) {
 
-      GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput()) > 0, 
+      GrouperUtil.assertion(GrouperUtil.length(this.syncToGrouper.getTopLevelStemNamesFlattenedFromSqlOrInput()) > 0, 
           "If syncing grouper and folders then the top level folders are required or : for all");
       
-      Set<String> topLevelStemSet = this.getSyncToGrouper().getTopLevelStemNamesFlattenedFromSqlOrInput();
-
-      if (GrouperUtil.length(topLevelStemSet) == 0) {
+      if (GrouperUtil.length(this.getSyncToGrouper().getTopLevelStemsFlattenedFromSqlOrInput()) == 0) {
         return;
       }
 

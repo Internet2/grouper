@@ -8,7 +8,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 public class GshOutputLine {
 
   /**
-   * success, info, error
+   * success (default), info, error
    */
   private String messageType;
   
@@ -21,6 +21,11 @@ public class GshOutputLine {
     this.messageType = "success";
   }
   
+  /**
+   * success (default), info, error
+   * @param messageType
+   * @param text
+   */
   public GshOutputLine(String messageType, String text) {
     if (StringUtils.isBlank(messageType)) {
       messageType = "success";

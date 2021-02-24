@@ -78,7 +78,7 @@ public class SyncMembershipToGrouperBean implements GcSqlAssignPrimaryKey {
       equalsBuilder.append(this.subjectId, that.subjectId);
     }
     equalsBuilder.append(this.immediateMshipDisabledTime, that.immediateMshipDisabledTime);
-    equalsBuilder.append(this.immediateMshipEnabledTime, that.immediateMshipDisabledTime);
+    equalsBuilder.append(this.immediateMshipEnabledTime, that.immediateMshipEnabledTime);
     return  equalsBuilder.isEquals();
     
   }

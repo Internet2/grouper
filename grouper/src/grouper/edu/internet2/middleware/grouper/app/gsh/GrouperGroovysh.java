@@ -358,7 +358,7 @@ public class GrouperGroovysh extends Groovysh {
       throwable = shell.getThrowable();
     }
     if (throwable != null) {
-      GrouperUtil.injectInException(throwable, "Script (8k max):\n" + GrouperUtil.abbreviate(script, 8000) + ", Output (10k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
+      GrouperUtil.injectInException(throwable, "Script (100k max):\n" + GrouperUtil.abbreviate(script, 100000) + ", Output (1000k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 1000000));
       if (throwable instanceof RuntimeException) {
         throw (RuntimeException)throwable;
       }

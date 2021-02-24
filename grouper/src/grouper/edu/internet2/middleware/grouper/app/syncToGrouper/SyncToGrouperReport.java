@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * sync to grouper report
@@ -82,6 +81,10 @@ public class SyncToGrouperReport {
     Set<String> stemInsertsNames = new TreeSet<String>();
     for (SyncStemToGrouperBean syncStemToGrouperBean : (GrouperUtil.nonNull(this.syncToGrouper.getSyncStemToGrouperLogic().getStemInserts()))) {
       stemInsertsNames.add(syncStemToGrouperBean.getName());
+      if (stemInsertsNames.size() >= 50) {
+        break;
+      }
+
     }
     return stemInsertsNames;
   }
@@ -94,6 +97,10 @@ public class SyncToGrouperReport {
     Set<String> stemUpdatesNames = new TreeSet<String>();
     for (SyncStemToGrouperBean syncStemToGrouperBean : (GrouperUtil.nonNull(this.syncToGrouper.getSyncStemToGrouperLogic().getStemUpdates()))) {
       stemUpdatesNames.add(syncStemToGrouperBean.getName());
+      if (stemUpdatesNames.size() >= 50) {
+        break;
+      }
+
     }
     return stemUpdatesNames;
   }
@@ -129,7 +136,12 @@ public class SyncToGrouperReport {
    * @param outputLines1
    */
   public void addOutputLine(String outputLine) {
-    this.outputLines.add(outputLine);
+    if (this.outputLines.size() < 20000) {
+      this.outputLines.add(outputLine);
+      if (this.outputLines.size() == 19999) {
+        this.outputLines.add("Too many outputLines, not adding more!");
+      }
+    }
   }
 
   /**
@@ -137,7 +149,12 @@ public class SyncToGrouperReport {
    * @param errorLine
    */
   public void addErrorLine(String errorLine) {
-    this.errorLines.add(errorLine);
+    if (this.errorLines.size() < 20000) {
+      this.errorLines.add(errorLine);
+      if (this.errorLines.size() == 19999) {
+        this.errorLines.add("Too many errorLines, not adding more!");
+      }
+    }
   }
 
   /**
@@ -167,6 +184,10 @@ public class SyncToGrouperReport {
     Set<String> stemDeletesNames = new TreeSet<String>();
     for (Stem stem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncStemToGrouperLogic().getStemDeletes()))) {
       stemDeletesNames.add(stem.getName());
+      if (stemDeletesNames.size() >= 50) {
+        break;
+      }
+
     }
     return stemDeletesNames;
   }
@@ -184,11 +205,15 @@ public class SyncToGrouperReport {
    * @return the set of Group names which are deletes
    */
   public Set<String> getGroupDeletesNames() {
-    Set<String> stemDeletesNames = new TreeSet<String>();
+    Set<String> groupDeletesNames = new TreeSet<String>();
     for (Group stem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncGroupToGrouperLogic().getGroupDeletes()))) {
-      stemDeletesNames.add(stem.getName());
+      groupDeletesNames.add(stem.getName());
+      if (groupDeletesNames.size() >= 50) {
+        break;
+      }
+
     }
-    return stemDeletesNames;
+    return groupDeletesNames;
   }
 
   /**
@@ -207,6 +232,10 @@ public class SyncToGrouperReport {
     Set<String> stemInsertsNames = new TreeSet<String>();
     for (SyncGroupToGrouperBean syncGroupToGrouperBean : (GrouperUtil.nonNull(this.syncToGrouper.getSyncGroupToGrouperLogic().getGroupInserts()))) {
       stemInsertsNames.add(syncGroupToGrouperBean.getName());
+      if (stemInsertsNames.size() >= 50) {
+        break;
+      }
+
     }
     return stemInsertsNames;
   }
@@ -223,6 +252,10 @@ public class SyncToGrouperReport {
     Set<String> groupUpdatesNames = new TreeSet<String>();
     for (SyncGroupToGrouperBean syncGroupToGrouperBean : (GrouperUtil.nonNull(this.syncToGrouper.getSyncGroupToGrouperLogic().getGroupUpdates()))) {
       groupUpdatesNames.add(syncGroupToGrouperBean.getName());
+      if (groupUpdatesNames.size() >= 50) {
+        break;
+      }
+
     }
     return groupUpdatesNames;
   }
@@ -243,6 +276,10 @@ public class SyncToGrouperReport {
     Set<String> compositeDeletesNames = new TreeSet<String>();
     for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeDeletes()))) {
       compositeDeletesNames.add(composite.getOwnerName());
+      if (compositeDeletesNames.size() >= 50) {
+        break;
+      }
+
     }
     return compositeDeletesNames;
   }
@@ -263,6 +300,10 @@ public class SyncToGrouperReport {
     Set<String> compositeInsertsNames = new TreeSet<String>();
     for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeInserts()))) {
       compositeInsertsNames.add(composite.getOwnerName());
+      if (compositeInsertsNames.size() >= 50) {
+        break;
+      }
+
     }
     return compositeInsertsNames;
   }
@@ -276,11 +317,15 @@ public class SyncToGrouperReport {
    * @return the set of composite names which are updates
    */
   public Set<String> getCompositeUpdatesNames() {
-    Set<String> stemUpdatesNames = new TreeSet<String>();
+    Set<String> compositeUpdatesNames = new TreeSet<String>();
     for (SyncCompositeToGrouperBean composite : (GrouperUtil.nonNull(this.syncToGrouper.getSyncCompositeToGrouperLogic().getCompositeUpdates()))) {
-      stemUpdatesNames.add(composite.getOwnerName());
+      compositeUpdatesNames.add(composite.getOwnerName());
+      if (compositeUpdatesNames.size() >= 50) {
+        break;
+      }
+
     }
-    return stemUpdatesNames;
+    return compositeUpdatesNames;
   }
 
   /**
@@ -299,7 +344,7 @@ public class SyncToGrouperReport {
     Set<String> membershipDeletesNames = new TreeSet<String>();
     for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipDeletes()))) {
       membershipDeletesNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
-      if (membershipDeletesNames.size() >= 10) {
+      if (membershipDeletesNames.size() >= 50) {
         break;
       }
     }
@@ -322,7 +367,7 @@ public class SyncToGrouperReport {
     Set<String> membershipInsertNames = new TreeSet<String>();
     for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipInserts()))) {
       membershipInsertNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
-      if (membershipInsertNames.size() >= 10) {
+      if (membershipInsertNames.size() >= 50) {
         break;
       }
     }
@@ -341,7 +386,7 @@ public class SyncToGrouperReport {
     Set<String> membershipUpdatesNames = new TreeSet<String>();
     for (SyncMembershipToGrouperBean membership : (GrouperUtil.nonNull(this.syncToGrouper.getSyncMembershipToGrouperLogic().getMembershipUpdates()))) {
       membershipUpdatesNames.add(membership.getGroupName() + " - " + (StringUtils.equals("g:gsa", membership.getSubjectSourceId()) ? membership.getSubjectIdentifier() : membership.getSubjectId()));
-      if (membershipUpdatesNames.size() >= 10) {
+      if (membershipUpdatesNames.size() >= 50) {
         break;
       }
     }
@@ -356,7 +401,7 @@ public class SyncToGrouperReport {
     Set<String> privilegeGroupDeletesNames = new TreeSet<String>();
     for (SyncPrivilegeGroupToGrouperBean privilegeGroup : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeGroupToGrouperLogic().getPrivilegeGroupDeletes()))) {
       privilegeGroupDeletesNames.add(privilegeGroup.getGroupName() + " - " + (StringUtils.equals("g:gsa", privilegeGroup.getSubjectSourceId()) ? privilegeGroup.getSubjectIdentifier() : privilegeGroup.getSubjectId()) + " - " + privilegeGroup.getFieldName());
-      if (privilegeGroupDeletesNames.size() >= 10) {
+      if (privilegeGroupDeletesNames.size() >= 50) {
         break;
       }
     }
@@ -387,7 +432,7 @@ public class SyncToGrouperReport {
     Set<String> privilegeGroupInsertNames = new TreeSet<String>();
     for (SyncPrivilegeGroupToGrouperBean privilegeGroup : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeGroupToGrouperLogic().getPrivilegeGroupInserts()))) {
       privilegeGroupInsertNames.add(privilegeGroup.getGroupName() + " - " + (StringUtils.equals("g:gsa", privilegeGroup.getSubjectSourceId()) ? privilegeGroup.getSubjectIdentifier() : privilegeGroup.getSubjectId()) + " - " + privilegeGroup.getFieldName());
-      if (privilegeGroupInsertNames.size() >= 10) {
+      if (privilegeGroupInsertNames.size() >= 50) {
         break;
       }
     }
@@ -402,7 +447,7 @@ public class SyncToGrouperReport {
     Set<String> privilegeStemDeletesNames = new TreeSet<String>();
     for (SyncPrivilegeStemToGrouperBean privilegeStem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemDeletes()))) {
       privilegeStemDeletesNames.add(privilegeStem.getStemName() + " - " + (StringUtils.equals("g:gsa", privilegeStem.getSubjectSourceId()) ? privilegeStem.getSubjectIdentifier() : privilegeStem.getSubjectId()) + " - " + privilegeStem.getFieldName());
-      if (privilegeStemDeletesNames.size() >= 10) {
+      if (privilegeStemDeletesNames.size() >= 50) {
         break;
       }
     }
@@ -433,7 +478,7 @@ public class SyncToGrouperReport {
     Set<String> privilegeStemInsertNames = new TreeSet<String>();
     for (SyncPrivilegeStemToGrouperBean privilegeStem : (GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeStemToGrouperLogic().getPrivilegeStemInserts()))) {
       privilegeStemInsertNames.add(privilegeStem.getStemName() + " - " + (StringUtils.equals("g:gsa", privilegeStem.getSubjectSourceId()) ? privilegeStem.getSubjectIdentifier() : privilegeStem.getSubjectId()) + " - " + privilegeStem.getFieldName());
-      if (privilegeStemInsertNames.size() >= 10) {
+      if (privilegeStemInsertNames.size() >= 50) {
         break;
       }
     }

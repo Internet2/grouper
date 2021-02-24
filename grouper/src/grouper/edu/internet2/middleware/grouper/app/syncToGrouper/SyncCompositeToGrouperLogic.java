@@ -261,6 +261,10 @@ public class SyncCompositeToGrouperLogic {
 
       GrouperUtil.assertion(GrouperUtil.length(topLevelStems) < 400, "Cannot have more than 400 top level stems to sync");
 
+      if (GrouperUtil.length(this.syncToGrouper.getTopLevelStemsFlattenedFromSqlOrInput()) == 0) {
+        return;
+      }
+
       if (GrouperUtil.length(topLevelStems) > 0) {
         theCompositeSqlBase.append(" and ( ");
         boolean addedOne = false;

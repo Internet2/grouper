@@ -37,6 +37,12 @@ public class GshTemplateOutput {
     return this;
   }
   
+  /**
+   * 
+   * @param messageType success (default), info, error
+   * @param outputLine
+   * @return
+   */
   public GshTemplateOutput addOutputLine(String messageType, String outputLine) {
     outputLines.add(new GshOutputLine(messageType, outputLine));
     return this;

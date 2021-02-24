@@ -43,7 +43,8 @@ public enum GshTemplateInputType {
       
       String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
       
-      return "String "+gshTemplateInputConfig.getName() + " = \"" + StringEscapeUtils.escapeJava(valueToUse) + "\";\n";
+      return "String "+gshTemplateInputConfig.getName() + " = " 
+        + (valueFromUser == null ? "null" : ("\"" + StringEscapeUtils.escapeJava(valueToUse) + "\"")) + ";\n";
     }
     
     @Override

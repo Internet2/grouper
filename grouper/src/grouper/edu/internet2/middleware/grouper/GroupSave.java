@@ -171,6 +171,14 @@ public class GroupSave {
     return this;
   }
 
+  /**
+   * create a new group save
+   * @param theGrouperSession
+   */
+  public GroupSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+  }
 
   /**
    * create a new group save
@@ -178,6 +186,7 @@ public class GroupSave {
    */
   public GroupSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
+    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
   }
   
   /** grouper session is required */

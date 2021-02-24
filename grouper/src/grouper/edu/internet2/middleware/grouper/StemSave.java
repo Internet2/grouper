@@ -55,6 +55,14 @@ public class StemSave {
     return this;
   }
 
+  /**
+   * create a new stem save
+   * @param theGrouperSession
+   */
+  public StemSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+  }
 
   /**
    * create a new stem save
@@ -62,6 +70,7 @@ public class StemSave {
    */
   public StemSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
+    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
   }
   
   /** grouper session is required */
