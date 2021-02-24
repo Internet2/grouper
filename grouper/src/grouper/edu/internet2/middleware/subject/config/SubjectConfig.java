@@ -27,6 +27,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
@@ -155,6 +158,12 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
           }
         }
       }
+    }
+    //didnt find source, is it grouper external?
+    if (StringUtils.equals(sourceId, ExternalSubject.sourceId()) 
+        && GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+      return ExternalSubjectAutoSourceAdapter.instance();
+
     }
     
     return null;

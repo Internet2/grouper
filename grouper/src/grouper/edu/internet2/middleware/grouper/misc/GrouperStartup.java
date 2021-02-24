@@ -387,12 +387,6 @@ public class GrouperStartup {
 
         printConfigFollowupOnce();
         
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
-          
-          SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
-          
-        }
-        
         if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldaptiveEncodeControlChars", false)) {
           System.setProperty("org.ldaptive.response.ENCODE_CNTRL_CHARS", "true");
         }

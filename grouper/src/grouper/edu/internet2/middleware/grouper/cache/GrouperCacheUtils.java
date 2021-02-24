@@ -26,7 +26,6 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -45,8 +44,6 @@ public class GrouperCacheUtils {
     ConfigDatabaseLogic.clearCache();
 
     ExpirableCache.clearAll();
-    
-    SourceManager.clearAllSources();
     
     SubjectSourceCache.clearCache();
 

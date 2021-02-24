@@ -42,7 +42,9 @@ import org.xml.sax.SAXException;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -347,6 +349,14 @@ public class SourceManager {
   private void init() throws RuntimeException {
     try {
       parseConfig();
+      
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+        
+        this.loadSource(ExternalSubjectAutoSourceAdapter.instance());
+        
+      }
+      
+
     } catch (Exception ex) {
       log.error("Error initializing SourceManager: " + ex.getMessage(), ex);
       throw new RuntimeException("Error initializing SourceManager", ex);
