@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcResultSetCallback;
@@ -187,7 +185,7 @@ public class GcTableSyncTableMetadata {
     
     if (gcTableSyncColumnMetadata == null && exceptionOnNotFound) {
       throw new RuntimeException("Cant find " + this.connectionName + " -> " 
-          + (StringUtils.isBlank(this.tableName) ? ("(" + this.metadataQuery + ")") : this.tableName) + " -> " + columnName);
+          + (GrouperClientUtils.isBlank(this.tableName) ? ("(" + this.metadataQuery + ")") : this.tableName) + " -> " + columnName);
     }
     
     return gcTableSyncColumnMetadata;
@@ -318,7 +316,7 @@ public class GcTableSyncTableMetadata {
           for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
             GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
             // label is the alias and column name is the column name
-            String columnName = StringUtils.defaultIfBlank(resultSetMetaData.getColumnLabel(i+1), resultSetMetaData.getColumnName(i+1));
+            String columnName = GrouperClientUtils.defaultIfBlank(resultSetMetaData.getColumnLabel(i+1), resultSetMetaData.getColumnName(i+1));
             int dataType = resultSetMetaData.getColumnType(i+1);
             String typeName = resultSetMetaData.getColumnTypeName(i+1);
   
