@@ -506,6 +506,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       conn = jdbcConnectionBean.connection();
       
       stmt = conn.prepareStatement(query);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = null;
 
       rs = stmt.executeQuery();
@@ -1059,6 +1061,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
       
       stmt = conn.prepareStatement(query);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = null;
 
       for (int i = 0; i < SubjectUtils.length(args); i++) {

@@ -109,6 +109,7 @@ public class BySqlStatic {
           //we dont close this connection or anything since could be pooled
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
+          preparedStatement.setFetchSize(1000);
       
           attachParams(preparedStatement, params, types);
           
@@ -179,6 +180,7 @@ public class BySqlStatic {
           //we dont close this connection or anything since could be pooled
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
+          preparedStatement.setFetchSize(1000);
       
           attachParams(preparedStatement, params);
           
@@ -339,6 +341,7 @@ public class BySqlStatic {
           //we dont close this connection or anything since could be pooled
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
+          preparedStatement.setFetchSize(1000);
       
           attachParams(preparedStatement, params, types);
           

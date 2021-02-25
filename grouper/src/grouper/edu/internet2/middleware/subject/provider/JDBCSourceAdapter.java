@@ -128,6 +128,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       queryCountforTesting++;
       
       stmt = conn.prepareStatement(sql);
+      stmt.setFetchSize(1000);
       
       ResultSet rs = stmt.executeQuery();
       Set<String> subjectIds = new HashSet<String>();
@@ -332,6 +333,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       queryCountforTesting++;
       
       stmt = prepareStatement(search, conn, false, false);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = getSqlResults(id1, stmt, search);
       subject = createUniqueSubject(rs, search, id1, search.getParam("sql"));
       jdbcConnectionBean.doneWithConnection();
@@ -424,6 +427,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       queryCountforTesting++;
       
       stmt = prepareStatement(search, conn, true, firstPageOnly);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = getSqlResults(searchValue, stmt, search);
       if (rs == null) {
         return new SearchPageResult(false, result);
@@ -659,6 +664,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     }
     
     PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setFetchSize(1000);
+
     return stmt;
   }
 
@@ -1351,6 +1358,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           aggregateSql = uniqueSearchBatchSql(sql, inclause, batchIdsOrIdentifiers);
           
           stmt = conn.prepareStatement(aggregateSql);
+          stmt.setFetchSize(1000);
           
           ResultSet rs = getSqlResults(batchIdsOrIdentifiers, stmt, numParameters, aggregateSql);
           Map<String, Subject> resultBatch = createUniqueSubjects(rs, search, batchIdsOrIdentifiers, aggregateSql, useIdentifiersInMatch);
