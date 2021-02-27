@@ -35,6 +35,7 @@ public class AllProvisioningTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.loader.db");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperProvisioningJobTest.class);
+    suite.addTestSuite(GrouperProvisioningObjectMetadataTest.class);
     suite.addTestSuite(GrouperProvisioningServiceTest.class);
     suite.addTestSuite(ProvisionerConfigurationTest.class);
     suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);

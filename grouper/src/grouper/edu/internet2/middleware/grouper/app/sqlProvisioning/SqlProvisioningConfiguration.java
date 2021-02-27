@@ -371,8 +371,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
     this.dbExternalSystemConfigId = this.retrieveConfigString("dbExternalSystemConfigId", true);
     
-    String sqlProvisioningTypeString = this.retrieveConfigString("sqlProvisioningType", true);
-    this.sqlProvisioningType = SqlProvisioningType.valueOfIgnoreCase(sqlProvisioningTypeString, true);
+    String sqlProvisioningTypeString = this.retrieveConfigString("provisioningType", true);
+    // TODO
+    //this.sqlProvisioningType = SqlProvisioningType.valueOfIgnoreCase(sqlProvisioningTypeString, true);
     
     
     //TODO validate sql config id

@@ -32,6 +32,67 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
 
+  /**
+   * Only provision policy groups
+   */
+  private Boolean onlyProvisionPolicyGroups;
+  
+  /**
+   * Only provision policy groups, default false
+   * @return 
+   */
+  public boolean isOnlyProvisionPolicyGroups() {
+    if (this.onlyProvisionPolicyGroups != null) {
+      return this.onlyProvisionPolicyGroups;
+    }
+    return false;
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   */
+  private Boolean allowPolicyGroupOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   * @return
+   */
+  public boolean isAllowPolicyGroupOverride() {
+    if (this.allowPolicyGroupOverride != null) {
+      return this.allowPolicyGroupOverride;
+    }
+    return true;
+  }
+  
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   */
+  private String provisionableRegex;
+
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   * @return
+   */
+  public String getProvisionableRegex() {
+    return this.provisionableRegex;
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   */
+  private Boolean allowProvisionableRegexOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   * @return
+   */
+  public boolean isAllowProvisionableRegexOverride() {
+    if (this.allowProvisionableRegexOverride != null) {
+      return this.allowProvisionableRegexOverride;
+    }
+    return true;
+  }
+  
   /** if the target should be checked before sending actions.  e.g. if an addMember is made to a provisionable group, then check the target to see if the entity is already a member first. */
   private boolean recalculateAllOperations;
 
@@ -1400,6 +1461,14 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   public void configureGenericSettings() {
 
+    this.onlyProvisionPolicyGroups = this.retrieveConfigBoolean("onlyProvisionPolicyGroups", false);
+
+    this.allowPolicyGroupOverride = this.retrieveConfigBoolean("allowPolicyGroupOverride", false);
+
+    this.allowProvisionableRegexOverride = this.retrieveConfigBoolean("allowProvisionableRegexOverride", false);
+
+    this.provisionableRegex = this.retrieveConfigString("provisionableRegex", false);
+
     {
       String provisioningTypeString = this.retrieveConfigString("provisioningType", true);
       this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
@@ -1749,7 +1818,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     
-    this.subjectSourcesToProvision = GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ",");
+    this.subjectSourcesToProvision = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ","));
 
     for (String sourceId : this.subjectSourcesToProvision) {
       if (null == SourceManager.getInstance().getSource(sourceId)) {

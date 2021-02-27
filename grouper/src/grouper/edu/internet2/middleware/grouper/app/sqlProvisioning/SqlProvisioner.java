@@ -18,7 +18,8 @@ public class SqlProvisioner extends GrouperProvisioner {
     if (!this.retrieveGrouperProvisioningConfiguration().isConfigured()) {
       throw new RuntimeException("Why is provisioner not configured???");
     }
-    return this.retrieveSqlProvisioningConfiguration().getSqlProvisioningType().sqlTargetDaoClass();
+    // TODO fix this
+    return SqlProvisioningType.sqlLikeLdapGroupMemberships.sqlTargetDaoClass();
   }
 
   public SqlProvisioningConfiguration retrieveSqlProvisioningConfiguration() {
@@ -34,8 +35,9 @@ public class SqlProvisioner extends GrouperProvisioner {
   public void registerProvisioningBehaviors(
       GrouperProvisioningBehavior grouperProvisioningBehavior) {
 
-    this.retrieveSqlProvisioningConfiguration().getSqlProvisioningType().registerProvisioningBehaviors(
-        grouperProvisioningBehavior);
+  // TODO
+  //  this.retrieveSqlProvisioningConfiguration().getSqlProvisioningType().registerProvisioningBehaviors(
+  //      grouperProvisioningBehavior);
     
   }
 

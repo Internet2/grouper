@@ -22,6 +22,89 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class GrouperProvisioningBehavior {
 
   /**
+   * Only provision policy groups
+   */
+  private Boolean onlyProvisionPolicyGroups;
+  
+  /**
+   * Only provision policy groups
+   * @return
+   */
+  public boolean isOnlyProvisionPolicyGroups() {
+    if (this.onlyProvisionPolicyGroups != null) {
+      return this.onlyProvisionPolicyGroups;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyProvisionPolicyGroups();
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   */
+  private Boolean allowPolicyGroupOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   * @return
+   */
+  public boolean isAllowPolicyGroupOverride() {
+    if (this.allowPolicyGroupOverride != null) {
+      return this.allowPolicyGroupOverride;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowPolicyGroupOverride();
+  }
+  
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   */
+  private String provisionableRegex;
+
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   * @return
+   */
+  public String getProvisionableRegex() {
+    if (this.provisionableRegex != null) {
+      return this.provisionableRegex;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getProvisionableRegex();
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   */
+  private Boolean allowProvisionableRegexOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   * @return
+   */
+  public boolean isAllowProvisionableRegexOverride() {
+    if (this.allowProvisionableRegexOverride != null) {
+      return this.allowProvisionableRegexOverride;
+    }
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowProvisionableRegexOverride();
+  }
+
+  
+  
+//  # Only provision policy groups
+//  # {valueType: "boolean", order: 86700, defaultValue: "false", subSection: "assigningProvisioning"}
+//  # provisioner.genericProvisioner.onlyProvisionPolicyGroups =
+//
+//  # If you want a metadata item on folders for specifying if provision only policy groups
+//  # {valueType: "boolean", order: 86750, defaultValue: "true", subSection: "assigningProvisioning"}
+//  # provisioner.genericProvisioner.allowPolicyGroupOverride =
+//
+//  # If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+//  # {valueType: "boolean", order: 86775, subSection: "assigningProvisioning"}
+//  # provisioner.genericProvisioner.provisionableRegex =
+//
+//  # If you want a metadata item on folders for specifying regex of names of objects to provision
+//  # {valueType: "boolean", order: 86800, subSection: "assigningProvisioning"}
+//  # provisioner.genericProvisioner. =
+
+  
+  /**
    * set to true if blank (empty) valued attributes on target should be treated differently than attribute not being assigned on target
    */
   private boolean deleteBlankAttributesFromTarget = false;

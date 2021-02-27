@@ -459,6 +459,8 @@ public abstract class GrouperProvisioner {
           this.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
           );
 
+      this.retrieveGrouperProvisioningObjectMetadata().initBuiltInMetadata();
+
       // let the provisioner tell the framework how the provisioner should behave with respect to the target
       this.registerProvisioningBehaviors(this.retrieveGrouperProvisioningBehavior());
 
@@ -850,7 +852,7 @@ public abstract class GrouperProvisioner {
    * @param grouperProvisioningBehavior
    */
   public void registerProvisioningBehaviors(GrouperProvisioningBehavior grouperProvisioningBehavior) {
-    
+        
   }
 
   /**
