@@ -174,6 +174,18 @@ public class GrouperGroovysh extends Groovysh {
     public void setMillis(long millis1) {
       this.millis = millis1;
     }
+
+    public void setException(RuntimeException exception) {
+      this.exception = exception;
+    }
+    
+    private RuntimeException exception;
+
+    
+    public RuntimeException getException() {
+      return exception;
+    }
+    
     
   }
   
@@ -270,6 +282,10 @@ public class GrouperGroovysh extends Groovysh {
       grouperGroovyResult.setResultCode(code);
     } catch (RuntimeException e) {
       throwable = e;
+      if (grouperGroovyResult.getResultCode() == 0) {
+        grouperGroovyResult.setResultCode(1);
+      }
+      grouperGroovyResult.setException(e);
     } finally {
       
       // revert system back
@@ -359,10 +375,6 @@ public class GrouperGroovysh extends Groovysh {
     }
     if (throwable != null) {
       GrouperUtil.injectInException(throwable, "Script (100k max):\n" + GrouperUtil.abbreviate(script, 100000) + ", Output (1000k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 1000000));
-      if (throwable instanceof RuntimeException) {
-        throw (RuntimeException)throwable;
-      }
-      throw new RuntimeException("error", throwable);
     }
     return grouperGroovyResult;
   }

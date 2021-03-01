@@ -421,13 +421,14 @@ public class UiV2Configure {
         if (grouperConfigHibernateMap.containsKey(property) &&
             grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
           value = "*******";
-        } 
+        }
+        value = GrouperUtil.replace(value, "\r\n", "\n");
+        value = GrouperUtil.replace(value, "\r", "\n");
+        value = GrouperUtil.replace(value, "\n", "\\\n");
         
         contents.append(property + " = " + value);
         contents.append("\n");
       }
-      
-      
       
       response.setContentType("application/octet-stream");
       response.setHeader ("Content-Disposition", "inline;filename=\"" + configFileName.getConfigFileName() + "\"");

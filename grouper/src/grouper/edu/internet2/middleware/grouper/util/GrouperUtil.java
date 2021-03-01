@@ -7768,6 +7768,20 @@ public class GrouperUtil {
   }
   
   /**
+   * normalize new lines to unix
+   * @param input
+   * @return new string
+   */
+  public static String whitespaceNormalizeNewLines(String input) {
+    if (StringUtils.isBlank(input)) {
+      return input;
+    }
+    String modifiedInput = input.replaceAll("\r\n", "\n");
+    modifiedInput = modifiedInput.replaceAll("\r", "\n");
+    return modifiedInput;
+  }
+  
+  /**
    * save a string into a file, file does not have to exist
    *
    * @param file

@@ -19,6 +19,12 @@ public class WsRestGshTemplateExecRequest implements WsRequestBean {
   
   private WsStemLookup ownerStemLookup;
   
+  /**
+   * if the template config has an actAsGroupUUID and if the principal user calling the webservice is in that group, then specify a user to run the template as. 
+   * An external UI could run template as other users. 
+   */
+  private WsSubjectLookup gshTemplateActAsSubjectLookup;
+  
   
   private WsGshTemplateInput[] inputs;
   
@@ -138,7 +144,26 @@ public class WsRestGshTemplateExecRequest implements WsRequestBean {
   public void setParams(WsParam[] params) {
     this.params = params;
   }
+  
 
+  /**
+   * if the template config has an actAsGroupUUID and if the principal user calling the webservice is in that group, then specify a user to run the template as. 
+   * An external UI could run template as other users.
+   * @return
+   */
+  public WsSubjectLookup getGshTemplateActAsSubjectLookup() {
+    return gshTemplateActAsSubjectLookup;
+  }
+
+
+  /**
+   * if the template config has an actAsGroupUUID and if the principal user calling the webservice is in that group, then specify a user to run the template as. 
+   * An external UI could run template as other users.
+   * @param gshTemplateActAsSubjectLookup
+   */
+  public void setGshTemplateActAsSubjectLookup(WsSubjectLookup gshTemplateActAsSubjectLookup) {
+    this.gshTemplateActAsSubjectLookup = gshTemplateActAsSubjectLookup;
+  }
 
 
   @Override

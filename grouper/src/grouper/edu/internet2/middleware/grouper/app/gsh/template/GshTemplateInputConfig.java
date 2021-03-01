@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GshTemplateInputConfig {
   
@@ -22,8 +23,102 @@ public class GshTemplateInputConfig {
   private boolean trimWhitespace = true;
   
   private String defaultValue;
+  
+  private String validationMessage;
+  
+  private String validationMessageExternalizedTextKey;
+  
+  private Integer maxLength;
+  
+  private GshTemplateFormElementType gshTemplateFormElementType;
+  
+  private GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType;
+  
+  private String dropdownCsvValue;
+  
+  private String dropdownJsonValue;
+  
+  private String dropdownJavaClassValue;
+  
+
+  public String getDropdownValueBasedOnType() {
+    
+    if (StringUtils.isNotBlank(dropdownCsvValue)) {
+      return dropdownCsvValue;
+    } else if (StringUtils.isNotBlank(dropdownJsonValue)) {
+      return dropdownJsonValue;
+    } else {
+      return dropdownJavaClassValue;
+    }
+    
+  }
+  
+  
+  public String getDropdownCsvValue() {
+    return dropdownCsvValue;
+  }
+
+
 
   
+  public void setDropdownCsvValue(String dropdownCsvValue) {
+    this.dropdownCsvValue = dropdownCsvValue;
+  }
+
+
+
+  
+  public String getDropdownJsonValue() {
+    return dropdownJsonValue;
+  }
+
+
+
+  
+  public void setDropdownJsonValue(String dropdownJsonValue) {
+    this.dropdownJsonValue = dropdownJsonValue;
+  }
+
+
+
+  
+  public String getDropdownJavaClassValue() {
+    return dropdownJavaClassValue;
+  }
+
+
+
+  
+  public void setDropdownJavaClassValue(String dropdownJavaClassValue) {
+    this.dropdownJavaClassValue = dropdownJavaClassValue;
+  }
+
+
+
+  public GshTemplateFormElementType getGshTemplateFormElementType() {
+    return gshTemplateFormElementType;
+  }
+
+
+  
+  public void setGshTemplateFormElementType(
+      GshTemplateFormElementType gshTemplateFormElementType) {
+    this.gshTemplateFormElementType = gshTemplateFormElementType;
+  }
+
+
+  
+  public GshTemplateDropdownValueFormatType getGshTemplateDropdownValueFormatType() {
+    return gshTemplateDropdownValueFormatType;
+  }
+
+
+  
+  public void setGshTemplateDropdownValueFormatType(GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType) {
+    this.gshTemplateDropdownValueFormatType = gshTemplateDropdownValueFormatType;
+  }
+
+
   public GshTemplateConfig getGshTemplateConfig() {
     return gshTemplateConfig;
   }
@@ -126,6 +221,43 @@ public class GshTemplateInputConfig {
   
   public void setTrimWhitespace(boolean trimWhitespace) {
     this.trimWhitespace = trimWhitespace;
+  }
+
+
+  
+  public String getValidationMessage() {
+    return validationMessage;
+  }
+
+
+  
+  public void setValidationMessage(String validationMessage) {
+    this.validationMessage = validationMessage;
+  }
+
+
+  
+  public String getValidationMessageExternalizedTextKey() {
+    return validationMessageExternalizedTextKey;
+  }
+
+
+  
+  public void setValidationMessageExternalizedTextKey(
+      String validationMessageExternalizedTextKey) {
+    this.validationMessageExternalizedTextKey = validationMessageExternalizedTextKey;
+  }
+
+
+  
+  public Integer getMaxLength() {
+    return maxLength;
+  }
+
+
+  
+  public void setMaxLength(Integer maxLength) {
+    this.maxLength = maxLength;
   }
   
   

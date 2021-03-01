@@ -53,6 +53,8 @@ public class GshTemplateConfig {
   
   private String gshTemplate;
   
+  private String actAsGroupUUID;
+  
   private List<GshTemplateInputConfig> gshTemplateInputConfigs = new ArrayList<GshTemplateInputConfig>();
   
 
@@ -180,6 +182,12 @@ public class GshTemplateConfig {
   public boolean isRunGshInTransaction() {
     return runGshInTransaction;
   }
+  
+
+  
+  public String getActAsGroupUUID() {
+    return actAsGroupUUID;
+  }
 
 
   public void populateConfiguration() {
@@ -190,6 +198,8 @@ public class GshTemplateConfig {
     
     enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
     useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
+
+    actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
     
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
     gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
@@ -260,6 +270,9 @@ public class GshTemplateConfig {
       String inputName = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "name");
       
       GshTemplateInputConfig gshTemplateInputConfig = new GshTemplateInputConfig();
+      
+      gshTemplateInputConfig.setGshTemplateConfig(this);
+      
       gshTemplateInputConfig.setName(inputName);
       
       String valueType = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "type", "string");
@@ -269,6 +282,12 @@ public class GshTemplateConfig {
       
       GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
       gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
+      
+      String validationMessage = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessage");
+      gshTemplateInputConfig.setValidationMessage(validationMessage);
+      
+      String validationMessageExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessageExternalizedTextKey");
+      gshTemplateInputConfig.setValidationMessageExternalizedTextKey(validationMessageExternalizedTextKey);
       
       if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
         String validationRegex = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationRegex");
@@ -292,6 +311,32 @@ public class GshTemplateConfig {
       
       gshTemplateInputConfig.setTrimWhitespace(GrouperConfig.retrieveConfig().propertyValueBoolean(inputPrefix+"trimWhitespace", true));
       
+      
+      GshTemplateFormElementType gshTemplateFormElementType = GshTemplateFormElementType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "textfield"), true);
+      gshTemplateInputConfig.setGshTemplateFormElementType(gshTemplateFormElementType);
+      
+      if (gshTemplateInputConfig.getGshTemplateFormElementType() == GshTemplateFormElementType.dropdown) {
+        
+        GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType = GshTemplateDropdownValueFormatType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "dropdownValueFormat", "csv"), true);
+        gshTemplateInputConfig.setGshTemplateDropdownValueFormatType(gshTemplateDropdownValueFormatType);
+        
+        if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.csv) {
+         String dropdownCsvValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownCsvValue");
+         gshTemplateInputConfig.setDropdownCsvValue(dropdownCsvValue);
+        } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.json) {
+          String dropdownJsonValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJsonValue");
+          gshTemplateInputConfig.setDropdownJsonValue(dropdownJsonValue);
+        } else {
+          String dropdownJavaClassValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJavaClassValue");
+          gshTemplateInputConfig.setDropdownJavaClassValue(dropdownJavaClassValue);
+        }
+      } else {
+        int maxLength = GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix + "maxLength", 500);
+        maxLength = Math.min(maxLength, 10000);
+        gshTemplateInputConfig.setMaxLength(maxLength);
+      }
+      
+      
       gshTemplateInputConfigs.add(gshTemplateInputConfig);
       
     }
@@ -310,5 +355,7 @@ public class GshTemplateConfig {
   public boolean isGshLightweight() {
     return gshLightweight;
   }
+  
+  
 
 }

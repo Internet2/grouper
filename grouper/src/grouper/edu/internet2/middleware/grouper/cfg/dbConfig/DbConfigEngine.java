@@ -169,7 +169,7 @@ public class DbConfigEngine {
         grouperConfigHibernate.setConfigKey(propertyNameToUse);
         
     //    grouperConfigHibernate.setConfigComment(comment);
-        
+        valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
         grouperConfigHibernate.setValueToSave(valueString);
         if (added[0] != null) {
           grouperConfigHibernate.saveOrUpdate(added[0]);

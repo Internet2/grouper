@@ -74,8 +74,7 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
    */
   private WsResponseMeta responseMetadata = new WsResponseMeta();
   
-  private boolean transaction;
-  
+  private Boolean transaction;
   
   private WsGshValidationLine[] gshValidationLines;
   
@@ -84,12 +83,12 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
   private String gshScriptOutput;
   
   
-  public boolean isTransaction() {
+  public Boolean getTransaction() {
     return transaction;
   }
 
   
-  public void setTransaction(boolean transaction) {
+  public void setTransaction(Boolean transaction) {
     this.transaction = transaction;
   }
   

@@ -17,10 +17,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateInput;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
-public class WsSampleGshTemplateExecRest {
+public class WsSampleGshTemplateExecRest implements WsSampleRest {
   
   
   /**
@@ -56,6 +57,7 @@ public class WsSampleGshTemplateExecRest {
       
       templateExecRequest.setConfigId("testGshTemplateConfig");
       templateExecRequest.setOwnerType("stem");
+      templateExecRequest.setGshTemplateActAsSubjectLookup(null);
       
       WsStemLookup ownerStemLookup = new WsStemLookup();
       ownerStemLookup.setStemName("test2");
@@ -73,8 +75,8 @@ public class WsSampleGshTemplateExecRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
+      StringRequestEntity requestEntity = new StringRequestEntity(requestDocument, contentType, "UTF-8");
+      method.setRequestEntity(requestEntity);
       int httpStatusCode = httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -120,6 +122,20 @@ public class WsSampleGshTemplateExecRest {
 
   public static void main(String[] args) {
     executeGshTemplate(WsSampleRestType.json);
+  }
+
+  @Override
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    executeGshTemplate(wsSampleRestType);
+    
+  }
+
+  @Override
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    if (wsSampleRestType == WsSampleRestType.json) {
+      return true;
+    }
+    return false;
   }
 
 }

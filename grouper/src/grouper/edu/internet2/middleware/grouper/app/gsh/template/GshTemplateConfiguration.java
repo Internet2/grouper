@@ -106,11 +106,6 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
   public void insertConfig(boolean fromUi, StringBuilder message,
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
-    GrouperConfigurationModuleAttribute gshTemplateAttribute = attributes.getOrDefault("gshTemplate", null);
-    
-    normalizeNewLines(gshTemplateAttribute);
-    
     final String configId = this.getConfigId();
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
        new HibernateHandler() {
@@ -136,12 +131,6 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
   @Override
   public void editConfig(boolean fromUi, StringBuilder message,
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
-    GrouperConfigurationModuleAttribute gshTemplateAttribute = attributes.getOrDefault("gshTemplate", null);
-    
-    normalizeNewLines(gshTemplateAttribute);
-    
     
       final String configId = this.getConfigId();
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -185,20 +174,6 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
     });
-    
-  }
-
-  private void normalizeNewLines(GrouperConfigurationModuleAttribute gshTemplateAttribute) {
-    
-    if (gshTemplateAttribute != null) {
-      String value = gshTemplateAttribute.getValue();
-      if (StringUtils.isNotBlank(value)) {
-        
-        value = value.replaceAll("\r\n", "\n");
-        value = value.replaceAll("\r", "\n");
-        gshTemplateAttribute.setValue(value);
-      }
-    }
     
   }
 

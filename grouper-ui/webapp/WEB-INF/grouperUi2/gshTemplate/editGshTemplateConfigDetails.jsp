@@ -69,7 +69,7 @@
 					  					shouldShow="${attribute.show}"
 					  					value="${attribute.valueOrExpressionEvaluation}"
 					  					hasExpressionLanguage="${attribute.expressionLanguage}"
-					  					ajaxCallback="ajax('../app/UiV2GshTemplateConfig.editGshTemplate?gshTemplateConfigId=${grouperRequestContainer.gshTemplateContainer.guiGshTemplateConfiguration.gshTemplateConfiguration.configId}}', {formIds: 'gshTemplateConfigDetails'}); return false;"
+					  					ajaxCallback="ajax('../app/UiV2GshTemplateConfig.editGshTemplate?gshTemplateConfigId=${grouperRequestContainer.gshTemplateContainer.guiGshTemplateConfiguration.gshTemplateConfiguration.configId}', {formIds: 'gshTemplateConfigDetails'}); return false;"
 					  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 					  					checkboxAttributes="${attribute.checkboxAttributes}"
 					  				/>

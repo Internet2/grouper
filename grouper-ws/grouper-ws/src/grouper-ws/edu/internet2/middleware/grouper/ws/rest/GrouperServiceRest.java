@@ -2824,9 +2824,6 @@ public class GrouperServiceRest {
         "Body of request must contain an instance of "
             + WsRestGshTemplateExecRequest.class.getSimpleName() + " in json");
   
-//    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
-//        GrouperVersion.stringValueOrNull(wsRestGshTemplateExecRequest.getClientVersion()), false, "clientVersion");
-  
     WsGshTemplateExecResult wsGshTemplateExecResult = new WsGshTemplateExecResult();
 
     try {
@@ -2836,6 +2833,7 @@ public class GrouperServiceRest {
       wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(clientVersion, wsRestGshTemplateExecRequest.getConfigId(),
           templateOwnerType, wsRestGshTemplateExecRequest.getOwnerGroupLookup(), wsRestGshTemplateExecRequest.getOwnerStemLookup(),
           wsRestGshTemplateExecRequest.getInputs(),
+          wsRestGshTemplateExecRequest.getGshTemplateActAsSubjectLookup(),
           wsRestGshTemplateExecRequest.getActAsSubjectLookup(), wsRestGshTemplateExecRequest.getParams());
     } catch (Exception e) {
       wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getFullStackTrace(e), clientVersion);

@@ -186,6 +186,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSamp
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesListRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.gshTemplate.WsSampleGshTemplateExecRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite;
@@ -314,7 +315,8 @@ public class SampleCapture {
 ////    captureSendMessage();
 ////    captureStemDelete();
 ////    captureStemSave();
-        captureGetAuditEntries();
+//        captureGetAuditEntries();
+    captureExecuteGshTemplate();
     
 
   }
@@ -1398,6 +1400,13 @@ public class SampleCapture {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetAuditEntriesRestLite.class, "getAuditEntries", "_withInput");
     
+  }
+  
+  /**
+   * execute gsh template captures
+   */
+  public static void captureExecuteGshTemplate() {
+    captureSample(WsSampleClientType.REST_BEANS, WsSampleGshTemplateExecRest.class, "executeGshTemplate", null);
   }
 
   /**

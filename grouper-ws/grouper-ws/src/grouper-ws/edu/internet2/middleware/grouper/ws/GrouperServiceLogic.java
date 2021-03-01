@@ -10985,6 +10985,7 @@ public class GrouperServiceLogic {
   public static WsGshTemplateExecResult executeGshTemplate(final GrouperVersion clientVersion,
       String configId, GshTemplateOwnerType ownerType, WsGroupLookup ownerGroupLookup, WsStemLookup ownerStemLookup,
       final WsGshTemplateInput[] inputs,
+      final WsSubjectLookup gshTemplateActAsSubjectLookup,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
@@ -11022,6 +11023,10 @@ public class GrouperServiceLogic {
       final String THE_SUMMARY = theSummary;
       
       GshTemplateExec exec = new GshTemplateExec();
+      
+      if (gshTemplateActAsSubjectLookup != null) {
+        exec.assignActAsSubject(gshTemplateActAsSubjectLookup.retrieveSubject());
+      }
       exec.assignConfigId(configId);
       exec.assignCurrentUser(session.getSubject());
       
