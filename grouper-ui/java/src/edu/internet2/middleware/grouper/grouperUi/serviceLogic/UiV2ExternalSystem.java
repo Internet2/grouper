@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
@@ -26,6 +28,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.except
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2ExternalSystem {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(UiV2ExternalSystem.class);
   
   /**
    * view all external systems
@@ -514,9 +519,10 @@ public class UiV2ExternalSystem {
             TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionNotSupported")));
         return;
       } catch (Exception e) {
+        LOG.error("error testing external system: '" + externalSystemConfigId + "'", e);
         String stackTrace = ExceptionUtils.getStackTrace(e);
         String error = TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionTestException");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + " " + stackTrace));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + "<pre>" + stackTrace + "</pre>"));
         return;
       }
       

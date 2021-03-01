@@ -78,6 +78,8 @@ public class SyncStemToGrouperLogic {
    */
   private void calculateTopLevelStemsToSync() {
 
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("calculateTopLevelStemsToSync");
+
     Set<String> stemsToSync = new HashSet<String>();
     for (SyncStemToGrouperBean syncStemToGrouperBean : GrouperUtil.nonNull(this.syncToGrouper.getSyncStemToGrouperBeans())) {
       stemsToSync.add(syncStemToGrouperBean.getName());
@@ -101,19 +103,6 @@ public class SyncStemToGrouperLogic {
   }
 
   /**
-   * map of stem uuid to stem
-   * @return
-   */
-  public Map<String, Stem> getGrouperStemUuidToStem() {
-    return this.grouperStemUuidToStem;
-  }
-
-  /**
-   * map of stem uuid to stem
-   */
-  private Map<String, Stem> grouperStemUuidToStem = new TreeMap<String, Stem>();
-  
-  /**
    * 
    */
   public void syncLogic() {
@@ -130,11 +119,18 @@ public class SyncStemToGrouperLogic {
 
     this.changeGrouper();
 
+    // reclaim some memory
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncStemToGrouperBeans()));
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperStemNameToStem()));
+    this.getSyncToGrouper().setSyncStemToGrouperBeans(null);
+    this.grouperStemNameToStem = null;
   }
 
 
   private void changeGrouper() {
-    
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperStems");
+
     if (!this.syncToGrouper.isReadWrite()) {
       return;
     }
@@ -255,6 +251,8 @@ public class SyncStemToGrouperLogic {
   }
 
   private void compareStems() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("compareStems");
     
     if (!this.syncToGrouper.getSyncToGrouperBehavior().isStemSync()) {
       this.syncToGrouper.getSyncToGrouperReport().addOutputLine(STEM_SYNC_FALSE);
@@ -335,6 +333,8 @@ public class SyncStemToGrouperLogic {
   }
 
   private void retrieveStemsFromGrouper() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("retrieveStemsFromGrouper");
     
     Set<Stem> topLevelStems = null;
     
@@ -372,7 +372,6 @@ public class SyncStemToGrouperLogic {
 
     for (Stem stem : GrouperUtil.nonNull(stems)) {
       this.grouperStemNameToStem.put(stem.getName(), stem);
-      this.grouperStemUuidToStem.put(stem.getUuid(), stem);
     }
     
   }

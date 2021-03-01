@@ -18,6 +18,67 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class SyncToGrouperReport {
 
+  /**
+   * 
+   */
+  private int totalCount = 0;
+  
+  
+  
+  
+  public int getTotalCount() {
+    return totalCount;
+  }
+
+  
+  public void setTotalCount(int totalCount) {
+    this.totalCount = totalCount;
+  }
+
+  public int getInserts() {
+    return this.getStemInserts() + this.getGroupInserts() + this.getCompositeInserts() 
+    + this.getMembershipInserts() + this.getPrivilegeGroupInserts() + this.getPrivilegeStemInserts();
+  }
+
+  public int getUpdates() {
+    return this.getStemUpdates() + this.getGroupUpdates() + this.getCompositeUpdates() 
+    + this.getMembershipUpdates();
+  }
+
+  public int getDeletes() {
+    return this.getStemDeletes() + this.getGroupDeletes() + this.getCompositeDeletes() 
+    + this.getMembershipDeletes() + this.getPrivilegeGroupDeletes() + this.getPrivilegeStemDeletes();
+  }
+
+  /**
+   * 
+   * @param amountToAdd
+   */
+  public void addTotalCount(int amountToAdd) {
+    this.totalCount += amountToAdd;
+  }
+  
+  /**
+   * state for logging
+   */
+  private String state = "starting";
+  
+  /**
+   * state for logging
+   * @return
+   */
+  public String getState() {
+    return state;
+  }
+
+  /**
+   * state for logging
+   * @param state
+   */
+  public void setState(String state) {
+    this.state = state;
+  }
+
   public SyncToGrouperReport() {
   }
 
@@ -483,6 +544,22 @@ public class SyncToGrouperReport {
       }
     }
     return privilegeStemInsertNames;
+  }
+
+  /**
+   * count of subject not found
+   */
+  private int subjectNotFound;
+
+  
+  public int getSubjectNotFound() {
+    return subjectNotFound;
+  }
+
+
+  public void addSubjectNotFound() {
+    this.subjectNotFound++;
+    
   }
 
 }

@@ -86,6 +86,8 @@ public class SyncToGrouperFromSql {
    */
   public void loadStemDataFromSql() {
     
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadStemDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isStemSync()) {
@@ -533,7 +535,8 @@ public class SyncToGrouperFromSql {
    * 
    */
   public void loadGroupDataFromSql() {
-    
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadGroupDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSync()) {
@@ -637,7 +640,8 @@ public class SyncToGrouperFromSql {
    * 
    */
   public void loadCompositeDataFromSql() {
-    
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadCompositeDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSync()) {
@@ -763,7 +767,7 @@ public class SyncToGrouperFromSql {
     StringBuilder theMembershipSql = new StringBuilder(
         "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldIdOnInsert() ?
             "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
-        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
+        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, (select gg2.name from " + schema + "grouper_groups gg2 where gm.subject_source='g:gsa' and gg2.id = gm.subject_id) as subject_identifier");
     
     if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
       theMembershipSql.append(", gmav.immediate_mship_disabled_time, gmav.immediate_mship_enabled_time");
@@ -806,7 +810,9 @@ public class SyncToGrouperFromSql {
    * 
    */
   public void loadMembershipDataFromSql() {
-    
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadMembershipDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSync()) {
@@ -894,7 +900,7 @@ public class SyncToGrouperFromSql {
     StringBuilder thePrivilegeSql = new StringBuilder(
         "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isPrivilegeGroupSyncFieldIdOnInsert() ?
             "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
-        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
+        + "gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, (select gg2.name from " + schema + "grouper_groups gg2 where gm.subject_source='g:gsa' and gg2.id = gm.subject_id) as subject_identifier, gf.name as field_name");
     
     thePrivilegeSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_groups gg, " + schema + "grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
@@ -932,7 +938,9 @@ public class SyncToGrouperFromSql {
    * 
    */
   public void loadPrivilegeGroupDataFromSql() {
-    
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadPrivilegeGroupDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeGroupSync()) {
@@ -1012,7 +1020,7 @@ public class SyncToGrouperFromSql {
     StringBuilder thePrivilegeSql = new StringBuilder(
         "SELECT " + (this.getSyncToGrouper().getSyncToGrouperBehavior().isPrivilegeStemSyncFieldIdOnInsert() ?
             "gmav.immediate_membership_id AS immediate_membership_id, " : "" ) 
-        + "gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name as field_name");
+        + "gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, (select gg2.name from " + schema + "grouper_groups gg2 where gm.subject_source='g:gsa' and gg2.id = gm.subject_id) as subject_identifier, gf.name as field_name");
     
     thePrivilegeSql.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_stems gs, " + schema + "grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
@@ -1053,6 +1061,8 @@ public class SyncToGrouperFromSql {
    */
   public void loadPrivilegeStemDataFromSql() {
     
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("loadPrivilegeStemDataFromSql");
+
     GrouperUtil.assertion(StringUtils.isNotBlank(this.databaseConfigId), "Database config ID is required!");
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSync()) {

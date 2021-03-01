@@ -80,7 +80,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   /** job that ran in loader, might have group name in it */
   private String jobName;
   
-  /** STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus */
+  /** STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus */
   private String status;
   
   /** when the job started */
@@ -415,7 +415,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus
+   * STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus
    * @return the status
    */
   public String getStatus() {
@@ -424,7 +424,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus
+   * STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus
    * @param status1 the status to set
    */
   public void setStatus(String status1) {
@@ -817,8 +817,6 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void store() {
     
-    this.truncate();
-
     if (GrouperLoaderLogger.isLoggerEnabled()) {
       String logLabel = StringUtils.isBlank(this.getParentJobId()) ? "overallLog" : "subjobLog";
       GrouperLoaderLogger.addLogEntry(logLabel, "dryRun", GrouperLoader.isDryRun());
@@ -925,6 +923,8 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void onPreSave(HibernateSession hibernateSession) {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
+    this.truncate();
+
   }
 
   /**
@@ -932,5 +932,6 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void onPreUpdate(HibernateSession hibernateSession) {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
+    this.truncate();
   }
 }

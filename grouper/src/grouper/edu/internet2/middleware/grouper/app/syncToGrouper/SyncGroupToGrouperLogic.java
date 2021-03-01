@@ -73,19 +73,6 @@ public class SyncGroupToGrouperLogic {
   }
 
   /**
-   * map of stem uuid to stem
-   * @return
-   */
-  public Map<String, Group> getGrouperGroupUuidToGroup() {
-    return this.grouperGroupUuidToGroup;
-  }
-
-  /**
-   * map of stem uuid to stem
-   */
-  private Map<String, Group> grouperGroupUuidToGroup = new TreeMap<String, Group>();
-  
-  /**
    * 
    */
   public void syncLogic() {
@@ -100,14 +87,22 @@ public class SyncGroupToGrouperLogic {
 
     this.changeGrouper();
 
+    // reclaim some memory
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncGroupToGrouperBeans()));
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperGroupNameToGroup()));
+    this.getSyncToGrouper().setSyncGroupToGrouperBeans(null);
+    this.grouperGroupNameToGroup = null;
+
   }
 
 
   private void changeGrouper() {
-    
+
     if (!this.syncToGrouper.isReadWrite()) {
       return;
     }
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperGroups");
 
     for (Group group : GrouperUtil.nonNull(this.groupDeletes)) {
       
@@ -245,7 +240,9 @@ public class SyncGroupToGrouperLogic {
   }
 
   private void compareGroups() {
-    
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("compareGroups");
+
     if (!this.syncToGrouper.getSyncToGrouperBehavior().isGroupSync()) {
       this.syncToGrouper.getSyncToGrouperReport().addOutputLine(GROUP_SYNC_FALSE);
       return;
@@ -336,6 +333,8 @@ public class SyncGroupToGrouperLogic {
 
   private void retrieveGroupsFromGrouper() {
 
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("retrieveGroupsFromGrouper");
+
     Set<Group> groups = null;
     
     if (this.syncToGrouper.getSyncToGrouperBehavior().isGroupSyncFromStems()) {
@@ -369,7 +368,6 @@ public class SyncGroupToGrouperLogic {
     
     for (Group group : GrouperUtil.nonNull(groups)) {
       this.grouperGroupNameToGroup.put(group.getName(), group);
-      this.grouperGroupUuidToGroup.put(group.getUuid(), group);
     }
 
   }

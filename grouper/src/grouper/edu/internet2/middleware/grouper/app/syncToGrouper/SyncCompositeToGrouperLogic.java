@@ -86,10 +86,18 @@ public class SyncCompositeToGrouperLogic {
 
     this.changeGrouper();
 
+    // reclaim some memory
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncCompositeToGrouperBeans()));
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperCompositeOwnerLeftRightTypeToComposite()));
+    this.getSyncToGrouper().setSyncCompositeToGrouperBeans(null);
+    this.grouperCompositeOwnerLeftRightTypeToComposite = null;
+
   }
 
 
   private void changeGrouper() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperComposites");
     
     if (!this.syncToGrouper.isReadWrite()) {
       return;
@@ -171,6 +179,8 @@ public class SyncCompositeToGrouperLogic {
   }
 
   private void compareComposites() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("compareComposites");
     
     if (!this.syncToGrouper.getSyncToGrouperBehavior().isCompositeSync()) {
       this.syncToGrouper.getSyncToGrouperReport().addOutputLine(COMPOSITE_SYNC_FALSE);
@@ -245,6 +255,8 @@ public class SyncCompositeToGrouperLogic {
   }
 
   private void retrieveCompositesFromGrouper() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("retrieveCompositesFromGrouper");
     
     StringBuilder theCompositeSqlBase = new StringBuilder(
         "SELECT gc.id, group_owner.name AS owner_name, group_left_factor.name AS left_factor_name, group_right_factor.name AS right_factor_name, gc.type "
