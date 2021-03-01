@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.syncToGrouper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * 
@@ -70,6 +72,17 @@ public class SyncPrivilegeStemToGrouperLogic {
     return grouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership;
   }
 
+  private void convertStemmersToStemAdmin() {
+    // if stemmers then stemAdmins
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("convertStemmersToStemAdmin");
+
+    for (SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean :  GrouperUtil.nonNull(this.syncToGrouper.getSyncPrivilegeStemToGrouperBeans())) {
+      if (StringUtils.equals("stemmers", syncPrivilegeStemToGrouperBean.getFieldName())) {
+        syncPrivilegeStemToGrouperBean.assignFieldName("stemAdmins");
+      }
+    }
+  }
+  
 
   /**
    * 
@@ -80,16 +93,26 @@ public class SyncPrivilegeStemToGrouperLogic {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadPrivilegeStemDataFromSql();
     }
     
+    this.convertStemmersToStemAdmin();
+    
     this.retrievePrivilegeStemsFromGrouper();
 
     this.comparePrivilegeStems();
 
     this.changeGrouper();
 
+    // reclaim some memory
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncPrivilegeStemToGrouperBeans()));
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
+    this.getSyncToGrouper().setSyncPrivilegeStemToGrouperBeans(null);
+    this.grouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership = null;
+
   }
 
 
   private void changeGrouper() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperPrivilegeStem");
     
     if (!this.syncToGrouper.isReadWrite()) {
       return;
@@ -124,8 +147,10 @@ public class SyncPrivilegeStemToGrouperLogic {
         if (privilegeStemSave.getSaveResultType().isChanged()) {
           this.syncToGrouper.getSyncToGrouperReport().addChangeOverall();
           this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success inserting " + privilegeStemLabel);
-          
         }
+      } catch (SubjectNotFoundException snfe) {
+        this.syncToGrouper.getSyncToGrouperReport().addSubjectNotFound();
+        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting " + privilegeStemLabel + ", " + snfe.getMessage());
       } catch (Exception e) {
         this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting " + privilegeStemLabel + ", " + GrouperUtil.getFullStackTrace(e));
       }
@@ -149,6 +174,8 @@ public class SyncPrivilegeStemToGrouperLogic {
   }
 
   private void comparePrivilegeStems() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("comparePrivilegeStems");
     
     if (!this.syncToGrouper.getSyncToGrouperBehavior().isPrivilegeStemSync()) {
       this.syncToGrouper.getSyncToGrouperReport().addOutputLine(PRIVILEGE_STEM_SYNC_FALSE);
@@ -187,20 +214,14 @@ public class SyncPrivilegeStemToGrouperLogic {
   }
 
   private void retrievePrivilegeStemsFromGrouper() {
-    
-    String schema = "";
-    if (!StringUtils.isBlank(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema())) {
-      schema = StringUtils.trim(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema());
-      if (!this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema().contains(".")) {
-        schema += ".";
-      }
-    }
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("retrievePrivilegeStemsFromGrouper");
     
     StringBuilder thePrivilegeStemSqlBase = new StringBuilder(
         // we dont need immediate membership id
-        "SELECT gmav.immediate_membership_id as immediate_membership_id, gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier, gf.name field_name");
+        "SELECT gmav.immediate_membership_id as immediate_membership_id, gs.name AS stem_name, gm.subject_source AS subject_source_id, gm.subject_id, (select gg2.name from grouper_groups gg2 where gm.subject_source='g:gsa' and gg2.id = gm.subject_id) as subject_identifier, gf.name field_name");
     
-    thePrivilegeStemSqlBase.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_stems gs, " + schema + "grouper_fields gf "
+    thePrivilegeStemSqlBase.append(" FROM grouper_memberships_all_v gmav, grouper_members gm, grouper_stems gs, grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
     
     thePrivilegeStemSqlBase.append(" AND gmav.immediate_mship_enabled = 'T'");

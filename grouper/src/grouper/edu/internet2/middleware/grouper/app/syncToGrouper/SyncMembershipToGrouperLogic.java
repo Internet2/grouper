@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * 
@@ -86,10 +87,18 @@ public class SyncMembershipToGrouperLogic {
 
     this.changeGrouper();
 
+    // reclaim some memory
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncMembershipToGrouperBeans()));
+    this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperGroupNameSourceIdSubjectIdOrIdentifierToMembership()));
+    this.getSyncToGrouper().setSyncMembershipToGrouperBeans(null);
+    this.grouperGroupNameSourceIdSubjectIdOrIdentifierToMembership = null;
+
   }
 
 
   private void changeGrouper() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperMemberships");
     
     if (!this.syncToGrouper.isReadWrite()) {
       return;
@@ -126,6 +135,9 @@ public class SyncMembershipToGrouperLogic {
           this.syncToGrouper.getSyncToGrouperReport().addOutputLine("Success inserting " + membershipLabel);
           
         }
+      } catch (SubjectNotFoundException snfe) {
+        this.syncToGrouper.getSyncToGrouperReport().addSubjectNotFound();
+        this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting " + membershipLabel + ", " + snfe.getMessage());
       } catch (Exception e) {
         this.syncToGrouper.getSyncToGrouperReport().addErrorLine("Error inserting " + membershipLabel + ", " + GrouperUtil.getFullStackTrace(e));
       }
@@ -176,6 +188,8 @@ public class SyncMembershipToGrouperLogic {
   }
 
   private void compareMemberships() {
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("compareMemberships");
     
     if (!this.syncToGrouper.getSyncToGrouperBehavior().isMembershipSync()) {
       this.syncToGrouper.getSyncToGrouperReport().addOutputLine(MEMBERSHIP_SYNC_FALSE);
@@ -229,24 +243,18 @@ public class SyncMembershipToGrouperLogic {
   }
 
   private void retrieveMembershipsFromGrouper() {
-    
-    String schema = "";
-    if (!StringUtils.isBlank(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema())) {
-      schema = StringUtils.trim(this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema());
-      if (!this.syncToGrouper.getSyncToGrouperFromSql().getDatabaseSyncFromAnotherGrouperSchema().contains(".")) {
-        schema += ".";
-      }
-    }
+
+    this.getSyncToGrouper().getSyncToGrouperReport().setState("retrieveMembershipsFromGrouper");
     
     StringBuilder theMembershipSqlBase = new StringBuilder(
         // we dont need immediate membership id
-        "SELECT gmav.immediate_membership_id as immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, gm.subject_identifier0 AS subject_identifier");
+        "SELECT gmav.immediate_membership_id as immediate_membership_id, gg.name AS group_name, gm.subject_source AS subject_source_id, gm.subject_id, (select gg2.name from grouper_groups gg2 where gm.subject_source='g:gsa' and gg2.id = gm.subject_id) as subject_identifier");
     
     if (this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {
       theMembershipSqlBase.append(", gmav.immediate_mship_disabled_time, gmav.immediate_mship_enabled_time");
     }
 
-    theMembershipSqlBase.append(" FROM " + schema + "grouper_memberships_all_v gmav, " + schema + "grouper_members gm, " + schema + "grouper_groups gg, " + schema + "grouper_fields gf "
+    theMembershipSqlBase.append(" FROM grouper_memberships_all_v gmav, grouper_members gm, grouper_groups gg, grouper_fields gf "
         + "WHERE gmav.mship_type = 'immediate'");
     
     if (!this.getSyncToGrouper().getSyncToGrouperBehavior().isMembershipSyncFieldsEnabledDisabled()) {

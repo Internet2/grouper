@@ -11,7 +11,10 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.OtherJobLogUpdater;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -51,7 +54,7 @@ public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
   private boolean logOutput = false;
   
   @Override
-  public OtherJobOutput run(OtherJobInput theOtherJobInput) {
+  public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
     
     this.otherJobInput = theOtherJobInput;
     
@@ -69,14 +72,27 @@ public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
         configureSync();
 
         RuntimeException runtimeException = null;
-        // pricess report even if exception
-        
+        // process report even if exception
+
+        syncToGrouperReport = syncToGrouper.getSyncToGrouperReport();
+
+        OtherJobLogUpdater otherJobLogUpdater = new OtherJobLogUpdater() {
+          
+          @Override
+          public void changeLoaderLogJavaObjectWithoutStoringToDb() {
+            Hib3GrouperLoaderLog hib3GrouperLoaderLog = theOtherJobInput.getHib3GrouperLoaderLog();
+            String logMessage = SyncToGrouperFromSqlDaemon.this.generateAbbreviatedReport();
+            hib3GrouperLoaderLog.setJobMessage(logMessage);
+          }
+        };
         try {
+          SyncToGrouperFromSqlDaemon.this.otherJobLogUpdaterRegister(otherJobLogUpdater);
           syncToGrouper.syncLogic();
         } catch (RuntimeException re) {
           runtimeException = re;
+        } finally {
+          SyncToGrouperFromSqlDaemon.this.otherJobLogUpdaterDeregister(otherJobLogUpdater);
         }
-        syncToGrouperReport = syncToGrouper.getSyncToGrouperReport();
         
         generateReports();
             
@@ -89,6 +105,11 @@ public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
         if (runtimeException != null) {
           throw runtimeException;
         }
+        
+        if (GrouperUtil.length(syncToGrouperReport.getErrorLines())>0) {
+          otherJobInput.getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
+        }
+        
         return null;
       }
     });
@@ -96,58 +117,58 @@ public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
     return null;
   }
 
-  public void generateReports() {
+  public String generateAbbreviatedReport() {
+    
+    this.abbreviatedReport = new StringBuilder();
+    this.fullReport = new StringBuilder();
+
+    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(syncToGrouperReport.getInserts());
+    otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(syncToGrouperReport.getUpdates());
+    otherJobInput.getHib3GrouperLoaderLog().setDeleteCount(syncToGrouperReport.getDeletes());
+    otherJobInput.getHib3GrouperLoaderLog().setUnresolvableSubjectCount(syncToGrouperReport.getSubjectNotFound());
+    otherJobInput.getHib3GrouperLoaderLog().setTotalCount(syncToGrouperReport.getTotalCount());
+
+    appendToReports(true, true, -1, "state", syncToGrouperReport.getState());
     appendToReports(true, true, "differences", syncToGrouperReport.getDifferenceCountOverall(), false);
     appendToReports(true, true, "changeCount", syncToGrouperReport.getChangeCountOverall(), false);
     appendToReports(true, true, "errors", GrouperUtil.length(syncToGrouperReport.getErrorLines()), false);
+    appendToReports(true, true, "subjectNotFound", syncToGrouperReport.getSubjectNotFound(), false);
+    appendToReports(true, true, "totalCount", syncToGrouperReport.getTotalCount(), false);
+    appendToReports(true, true, "inserts", syncToGrouperReport.getInserts(), false);
+    appendToReports(true, true, "updates", syncToGrouperReport.getUpdates(), false);
+    appendToReports(true, true, "deletes", syncToGrouperReport.getDeletes(), false);
     
     appendToReports(true, true, "stemInserts", syncToGrouperReport.getStemInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getStemInserts());
     appendToReports(true, true, "stemUpdates", syncToGrouperReport.getStemUpdates(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(syncToGrouperReport.getStemUpdates());
     appendToReports(true, true, "stemDeletes", syncToGrouperReport.getStemDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getStemDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncStemToGrouperBeans()));
-
     
     appendToReports(true, true, "groupInserts", syncToGrouperReport.getGroupInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getGroupInserts());
     appendToReports(true, true, "groupUpdates", syncToGrouperReport.getGroupUpdates(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(syncToGrouperReport.getGroupUpdates());
     appendToReports(true, true, "groupDeletes", syncToGrouperReport.getGroupDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getGroupDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncGroupToGrouperBeans()));
 
     appendToReports(true, true, "compositeInserts", syncToGrouperReport.getCompositeInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getCompositeInserts());
     appendToReports(true, true, "compositeUpdates", syncToGrouperReport.getCompositeUpdates(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(syncToGrouperReport.getCompositeUpdates());
     appendToReports(true, true, "compositeDeletes", syncToGrouperReport.getCompositeDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getCompositeDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncCompositeToGrouperBeans()));
 
     appendToReports(true, true, "membershipInserts", syncToGrouperReport.getMembershipInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getMembershipInserts());
     appendToReports(true, true, "membershipUpdates", syncToGrouperReport.getMembershipUpdates(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(syncToGrouperReport.getMembershipUpdates());
     appendToReports(true, true, "membershipDeletes", syncToGrouperReport.getMembershipDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getMembershipDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncMembershipToGrouperBeans()));
 
     appendToReports(true, true, "groupPrivInserts", syncToGrouperReport.getPrivilegeGroupInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getPrivilegeGroupInserts());
     appendToReports(true, true, "groupPrivDeletes", syncToGrouperReport.getPrivilegeGroupDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getPrivilegeGroupDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncPrivilegeGroupToGrouperBeans()));
 
     appendToReports(true, true, "stemPrivInserts", syncToGrouperReport.getPrivilegeStemInserts(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addInsertCount(syncToGrouperReport.getPrivilegeStemInserts());
     appendToReports(true, true, "stemPrivDeletes", syncToGrouperReport.getPrivilegeStemDeletes(), true);
-    otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(syncToGrouperReport.getPrivilegeStemDeletes());
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(syncToGrouper.getSyncPrivilegeStemToGrouperBeans()));
 
     appendToReports(true, true, 500, "errors", GrouperUtil.toStringForLog(syncToGrouperReport.getErrorLines()));
     appendToReports(true, true, 500, "output", GrouperUtil.toStringForLog(syncToGrouperReport.getOutputLines()));
+    
+    return this.abbreviatedReport.toString();
+  }
+
+  public void generateReports() {
+      
+    this.generateAbbreviatedReport();
 
     appendToReports(true, true, 100, "stemInsertNames", GrouperUtil.toStringForLog(syncToGrouperReport.getStemInsertsNames()));
     appendToReports(true, true, 100, "stemUpdateNames", GrouperUtil.toStringForLog(syncToGrouperReport.getStemUpdatesNames()));
@@ -425,7 +446,7 @@ public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
     }
   }
   
-  private StringBuilder abbreviatedReport = new StringBuilder();
-  private StringBuilder fullReport = new StringBuilder();
+  private StringBuilder abbreviatedReport = null;
+  private StringBuilder fullReport = null;
 
 }

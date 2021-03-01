@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 
@@ -337,8 +338,12 @@ public class PrivilegeStemSave {
           if (member == null && subject != null) {
             member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, saveMode!=SaveMode.DELETE);
           }
-          GrouperUtil.assertion(member!=null,  "Member not found");
-          GrouperUtil.assertion(subject!=null,  "Subject not found");
+          if (subject == null) {
+            throw new SubjectNotFoundException("Cant find subject" + (subjectId != null && subjectSourceId != null ? (": " + subjectSourceId + ", " + subjectId) : ""));
+          }
+          if (member == null) {
+            throw new SubjectNotFoundException("Cant find member" + (subjectId != null && subjectSourceId != null ? (": " + subjectSourceId + ", " + subjectId) : ""));
+          }
           
           if (field == null && !StringUtils.isBlank(fieldId)) {
             field = FieldFinder.findById(fieldId, true);
