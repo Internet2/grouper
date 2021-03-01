@@ -675,6 +675,7 @@ public class ConfigDatabaseLogic {
       String query = "select * from grouper_config where config_file_hierarchy = ?";
       
       preparedStatement = theConnection.prepareStatement(query);
+      preparedStatement.setFetchSize(1000);
       preparedStatement.setString(1, "INSTITUTION");
   
       resultSet = preparedStatement.executeQuery();

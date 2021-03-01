@@ -2104,6 +2104,7 @@ public class GcDbAccess {
       
       // Create the callable statement.
       callableStatement = this.connection.prepareCall(callableStatementCallback.getQuery());
+      callableStatement.setFetchSize(1000);
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
@@ -2152,6 +2153,7 @@ public class GcDbAccess {
 
       // Create the callable statement.
       preparedStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
+      preparedStatement.setFetchSize(1000);
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
@@ -2250,6 +2252,7 @@ public class GcDbAccess {
 
       // Get the statement object that we are going to use.
       preparedStatement = this.connection.prepareStatement(this.sql);
+      preparedStatement.setFetchSize(1000);
       String sqltoRecord = this.sql;
 
 
