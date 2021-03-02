@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -1834,6 +1835,12 @@ public class GrouperProvisioningService {
           
           if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
             provisioningAttributesGroupsAddedOrUpdated++;
+            
+            Group group =(Group)object;
+            ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+            provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
+            provisioningMessage.setBlocking(true);
+            provisioningMessage.send(actualTarget);
           } else {
             provisioningAttributesFoldersAddedOrUpdated++;
           }
