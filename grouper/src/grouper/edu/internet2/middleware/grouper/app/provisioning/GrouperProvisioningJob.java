@@ -35,8 +35,6 @@ public class GrouperProvisioningJob extends OtherJobBase {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         GrouperProvisioningService.deleteInvalidConfigs();
-        updateMetadataOnDirectStemsChildren();
-        updateMetadataOnIndirectGrouperObjects();
         return null;
       }
     });
@@ -75,58 +73,5 @@ public class GrouperProvisioningJob extends OtherJobBase {
         return null;
       }
     });
-      
   }
-  
-  protected static List<Stem> updateMetadataOnDirectStemsChildren() {
-    
-    if (!GrouperProvisioningSettings.provisioningInUiEnabled()) {
-      return new ArrayList<Stem>();
-    }
-    
-    List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true").findStems());
-    
-    
-    for (Stem stem: stems) {
-      
-      GrouperProvisioningService.fixGrouperProvisioningAttributeValuesForChildrenOfDirectStem(stem);
-      
-//      List<GrouperProvisioningAttributeValue> attributeValues = GrouperProvisioningService.getProvisioningAttributeValues(stem);
-//      
-//      for (GrouperProvisioningAttributeValue attributeValue: attributeValues) {
-//        GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);      
-//      }
-      
-    }
-    
-    return stems;
-    
-  }
-  
-  
-  protected static void updateMetadataOnIndirectGrouperObjects() {
-    
-    if (!GrouperProvisioningSettings.provisioningInUiEnabled()) {
-      return;
-    }
-    
-    Set<GrouperObject> indirectGrouperObjects = new HashSet<GrouperObject>();
-    
-    List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("false").findStems());
-    
-    List<Group> groups = new ArrayList<Group>(new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
-        .assignNameOfAttributeDefName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("false").findGroups());
-    
-    indirectGrouperObjects.addAll(stems);
-    indirectGrouperObjects.addAll(groups);
-    
-    for (GrouperObject grouperObject: indirectGrouperObjects) {
-      //GrouperProvisioningService.copyConfigFromParent(grouperObject);
-      GrouperProvisioningService.fixGrouperProvisioningAttributeValueForIndirectGrouperObject(grouperObject);
-    }
-    
-  }
-
 }

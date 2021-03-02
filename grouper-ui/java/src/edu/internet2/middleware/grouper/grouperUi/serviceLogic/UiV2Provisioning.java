@@ -1912,7 +1912,6 @@ public class UiV2Provisioning {
             }
             
           } else {
-            GrouperProvisioningService.copyConfigFromParent(STEM, targetName);
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=" + STEM.getId() + "')"));
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
                 TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
@@ -2434,8 +2433,6 @@ public class UiV2Provisioning {
           
           if (isDirect) {
             GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
-          } else {
-            GrouperProvisioningService.copyConfigFromParent(GROUP, targetName);
           }
           
           return null;

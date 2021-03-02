@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -43,8 +44,17 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import junit.textui.TestRunner;
 
 public class GrouperProvisioningServiceTest extends GrouperTest {
+  
+  public GrouperProvisioningServiceTest(String name) {
+    super(name);
+  }
+  
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperProvisioningServiceTest("testSaveOrUpdateProvisioningAttributes"));
+  }
   
   @Override
   protected void setUp() {
@@ -55,7 +65,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.class", "LdapProvisioner");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.class", LdapSync.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.box.class", "BoxProvisioner");
     
   }
@@ -618,6 +628,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
     attributeValue.setTargetName("ldap");
+    attributeValue.setDoProvision("ldap");
     Map<String, Object> metadataNameValues = new HashMap<String, Object>();
     metadataNameValues.put("string", "string");
     metadataNameValues.put("int", 2);
@@ -628,6 +639,8 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     
     //When
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem0);
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldap");
+    grouperProvisioner.propagateProvisioningAttributes();
     
     //Then
     GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(stemTest1, "ldap");
@@ -711,27 +724,6 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     assertEquals(3.14, metadata.get("float"));
     assertEquals(true, metadata.get("boolean"));
     assertTrue(metadata.containsKey("timestamp"));
-  }
-  
-  public void testCopyConfigFromParent() {
-    
-    //Given
-    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
-    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
-    
-    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
-    Stem stemTest1 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
-    
-    saveProvisioningAttributeMetadata(stem0, true, "ldap");
-    
-    //When
-    GrouperProvisioningService.copyConfigFromParent(stemTest1);
-    
-    //Then
-    GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(stemTest1, "ldap");
-    assertFalse(attributeValue1.isDirectAssignment());
-    assertEquals("ldap", attributeValue1.getTargetName());
-    
   }
   
   public void testTargetNotEditableWhenReadOnlyIsTrue() {
