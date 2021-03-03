@@ -70,6 +70,14 @@ public class AttributeDefSave {
     this.grouperSession = theGrouperSession;
   }
   
+  /**
+   * create a new attribute def save
+   * @param theGrouperSession
+   */
+  public AttributeDefSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+  }
+  
   /** grouper session is required */
   private GrouperSession grouperSession;
 
