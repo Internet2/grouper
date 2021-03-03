@@ -158,6 +158,8 @@ public class UiV2Attestation {
             GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId().getName());
         String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate().retrieveValueString(
             GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
+     //   String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+     //       GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId().getName());
     
         Group attestationAuthorizedGroup = null;
         if (attestationAuthorizedGroupId != null) {
@@ -1592,7 +1594,7 @@ public class UiV2Attestation {
                     TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
     
                 auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId", STEM.getId(), "stemName", STEM.getName());
-                auditEntry.setDescription("Update stem attestation: "+STEM.getName());
+                auditEntry.setDescription("Delete stem attestation: "+STEM.getName());
     
                 attestationSaveAudit(auditEntry);
     

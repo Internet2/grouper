@@ -68,7 +68,7 @@
                           </tr>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateNeedsRecertifyLabel'] }</strong></td>
-                            <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateNeedsCertify}
+                            <td>${grouperRequestContainer.attestationContainer.directOrParentDateNeedsCertify}
                               <br />
                               <span class="description">${textContainer.text['attestationDateNeedsRecertifyDescription']}</span>
                             </td>
@@ -125,8 +125,7 @@
                             </tr>
                             <c:if test="${grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationEmailAddresses != null}">
                               <tr>
-                                <td style="vertical-align: top; white-space: nowrap;"><strong><label
-                                    for="grouperAttestationEmailAddressesId">${textContainer.text['attestationEmailAddressesLabel']}</label></strong></td>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationEmailAddressesLabel']}</strong></td>
                                 <td>
                                 ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.directOrParentGrouperAttestationEmailAddresses)}
                                   <br /> <span class="description">${textContainer.text['grouperAttestationEmailAddressesDescription']}</span>
