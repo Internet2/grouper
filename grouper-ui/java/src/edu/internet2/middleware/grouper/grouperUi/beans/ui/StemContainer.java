@@ -15,11 +15,22 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -44,6 +55,9 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class StemContainer {
+  
+  
+  private static final Log LOG = GrouperUtil.getLog(StemContainer.class);
 
   /**
    * if can view privilege inheritance
@@ -742,5 +756,48 @@ public class StemContainer {
     }
     
     return customCompositeIndexesAndUiKeys;
+  }
+  
+  /**
+   * get templates to show in more actions. map of configId to template name
+   * @return
+   */
+  public Map<String, String> getTemplatesToShowInMoreActions() {
+    
+    Map<String, String> configsToShowInStemMoreActions = new HashMap<String, String>();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+    for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
+      if (gshTemplateConfiguration.isEnabled()) {
+        
+        GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
+        gshTemplateConfig.populateConfiguration();
+        
+        if (!gshTemplateConfig.canFolderRunTemplate(this.getGuiStem().getStem())) {
+          continue;
+        }
+        
+        GshTemplateExec gshTemplateExec = new GshTemplateExec()
+          .assignConfigId(gshTemplateConfiguration.getConfigId())
+          .assignCurrentUser(loggedInSubject)
+          .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
+          .assignOwnerStemName(this.getGuiStem().getStem().getName());
+        
+        
+        
+        if (gshTemplateConfig.isShowInMoreActions() && gshTemplateExec.canSubjectExecuteTemplate(gshTemplateConfig)) {
+          configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
+        }
+        
+      }
+    }
+    
+    // sort map by value because we want the template names to show in alphabetical order
+    Map<String, String> sortedMap = configsToShowInStemMoreActions.entrySet().stream()
+        .sorted(Entry.comparingByValue())
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    
+    return sortedMap;
   }
 }

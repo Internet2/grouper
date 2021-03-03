@@ -81,6 +81,11 @@ public class ConfigFormElement extends SimpleTagSupport {
   private Boolean shouldShow = true;
   
   /**
+   * should show EL checkbox
+   */
+  private Boolean shouldShowElCheckbox = true;
+  
+  /**
    * does the value have expression language
    */
   private Boolean hasExpressionLanguage = false;
@@ -147,6 +152,22 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   public void setShouldShow(Boolean shouldShow) {
     this.shouldShow = shouldShow;
+  }
+  
+  /**
+   * should show EL checkbox
+   * @return
+   */
+  public Boolean getShouldShowElCheckbox() {
+    return shouldShowElCheckbox;
+  }
+
+  /**
+   * should show EL checkbox
+   * @param shouldShowElCheckbox
+   */
+  public void setShouldShowElCheckbox(Boolean shouldShowElCheckbox) {
+    this.shouldShowElCheckbox = shouldShowElCheckbox;
   }
 
   /**
@@ -314,22 +335,24 @@ public class ConfigFormElement extends SimpleTagSupport {
     field.append(label);
     field.append("</label></strong></td>");
     
-    field.append("<td style='vertical-align: top; white-space: nowrap;' >");
-    
-    if (!readOnly) {
-      field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
-      field.append("name='config_el_"+configId+"' ");
+    if (shouldShowElCheckbox) {
+      field.append("<td style='vertical-align: top; white-space: nowrap;' >");
       
-      if (hasExpressionLanguage) {
-        field.append(" checked ");
+      if (!readOnly) {
+        field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
+        field.append("name='config_el_"+configId+"' ");
+        
+        if (hasExpressionLanguage) {
+          field.append(" checked ");
+        }
+            
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
+        field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
+        field.append("</span>");
       }
-          
-      field.append("onchange=\""+ajaxCallback+"\"");
-      field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
-      field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
-      field.append("</span>");
+      field.append("</td>");
     }
-    field.append("</td>");
     
     field.append("<td><span style=\"white-space: nowrap\" id=\"config_"+configId+"_spanid\">");
     

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyRes
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -220,6 +221,10 @@ public class GshTemplateExec {
         return false;
       }
       
+      if (!templateConfig.canFolderRunTemplate(ownerStem)) {
+        throw new RuntimeException("ownerStem "+ownerStem.getName() + " is not allowed to run this gsh template");
+      }
+      
     } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
       String ownerGroupString = this.getOwnerGroupName();
       if (StringUtils.isBlank(ownerGroupString)) {
@@ -242,6 +247,44 @@ public class GshTemplateExec {
       execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
       return false;
     }
+    
+    return true;
+  }
+  
+  public boolean canSubjectExecuteTemplate(GshTemplateConfig templateConfig) {
+    
+    if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
+      Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
+      return templateConfig.getGroupThatCanRun().getMembers().contains(currentUserMember);
+    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
+      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
+      if (StringUtils.isBlank(wheelGroupName)) {
+        return false;
+      } 
+      Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
+      Group wheelGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), wheelGroupName, true);
+      return wheelGroup.getMembers().contains(currentUserMember);
+      
+    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
+      
+      if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
+        String ownerStemString = this.getOwnerStemName();
+        Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, true);
+        
+        GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege = templateConfig.getGshTemplateRequireFolderPrivilege();
+        
+        return ownerStem.canHavePrivilege(currentUser, gshTemplateRequireFolderPrivilege.getPrivilege().getName(), true);
+        
+      } else {
+        String ownerGroupString = this.getOwnerGroupName();
+        Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
+        
+        GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
+        return ownerGroup.canHavePrivilege(currentUser, gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
+      }
+     
+    }
+    
     
     return true;
   }
@@ -336,6 +379,36 @@ public class GshTemplateExec {
     
     Map<String, GshTemplateInputConfig> inputConfigs = GrouperUtil.listToMap(templateConfig.getGshTemplateInputConfigs(), String.class, GshTemplateInputConfig.class, "name");
     
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    
+    variableMap.put("grouperUtil", new GrouperUtil());
+    
+    for (GshTemplateInput gshTemplateInput: gshTemplateInputs) {
+      variableMap.put(gshTemplateInput.getName(), StringUtils.isNotBlank(gshTemplateInput.getValueString())? gshTemplateInput.getValueString(): "");
+    }
+    
+    //remove the ones where showEL is evaluated to false
+    for (GshTemplateInputConfig gshTemplateInputConfig: templateConfig.getGshTemplateInputConfigs()) {
+      
+      String showElScript = gshTemplateInputConfig.getShowEl();
+      if (StringUtils.isNotBlank(showElScript)) {
+        try {
+          Object substituteExpressionLanguageScript = GrouperUtil.substituteExpressionLanguageScript(showElScript, variableMap, true, false, false);
+          Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(substituteExpressionLanguageScript);
+          if (booleanObjectValue == null || !booleanObjectValue) {
+            inputConfigs.remove(gshTemplateInputConfig.getName());
+          }
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, ", script: '" + showElScript + "', ");
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(variableMap));
+          throw re;
+        }
+
+      }
+      
+    }
+    
+    
     for (GshTemplateInput gshTemplateInput: gshTemplateInputs) {
       
       {
@@ -362,7 +435,7 @@ public class GshTemplateExec {
         if (gshTemplateInputConfig.isRequired() && StringUtils.isBlank(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.required.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInput.getName());
+          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
           execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
           
           return false;
@@ -371,9 +444,9 @@ public class GshTemplateExec {
       
       {
         //max length
-        if (StringUtils.isNotBlank(valueFromUser) && gshTemplateInputConfig.getGshTemplateFormElementType() == GshTemplateFormElementType.textfield && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
+        if (StringUtils.isNotBlank(valueFromUser) && gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.maxLength.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInput.getName());
+          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$maxLength$$", gshTemplateInputConfig.getMaxLength()+"");
           execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
           return false;
@@ -432,7 +505,7 @@ public class GshTemplateExec {
             } else {
               
               String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.jexl.message");
-              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInput.getName());
+              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
               errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$jexl$$", gshTemplateInputConfig.getValidationJexl());
               execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
               
@@ -459,14 +532,14 @@ public class GshTemplateExec {
         }
         
         // dropdown value
-        if (gshTemplateInputConfig.getGshTemplateFormElementType() == GshTemplateFormElementType.dropdown) {
+        if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
           List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig.getDropdownValueBasedOnType());
           
           if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
             // get only keys out of list of multiKeys and convert to comma separated string  
             String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysValues.stream().map(multikey -> multikey.getKey(0)).collect(Collectors.toSet()));
             String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.invalidDropdownValue.message");
-            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInput.getName());
+            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
             errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validValues$$", validValuesCommaSeparated);
             execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
           }
@@ -736,6 +809,12 @@ public class GshTemplateExec {
       
       execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
       execOutput.setException(grouperGroovyResult.getException());
+      
+      if (!execOutput.isSuccess()) {
+        LOG.error(grouperGroovyResult.getOutString(), grouperGroovyResult.getException());
+      } else {
+        LOG.debug(grouperGroovyResult.getOutString(), grouperGroovyResult.getException());
+      }
       
     } catch (RuntimeException e) {
       execOutput.setSuccess(false);

@@ -3,15 +3,23 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GshTemplateConfig {
+  
+  private static final Log LOG = GrouperUtil.getLog(GshTemplateConfig.class);
   
   private String configId;
   
@@ -41,6 +49,12 @@ public class GshTemplateConfig {
   
   private Group groupThatCanRun;
   
+  private boolean useExternalizedText;
+  
+  private String moreActionsLabelExternalizedTextKey;
+  
+  private String moreActionsLabel;
+  
   private GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege;
   
   private GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege;
@@ -55,6 +69,10 @@ public class GshTemplateConfig {
   
   private String actAsGroupUUID;
   
+  private boolean showInMoreActions;
+  
+  private boolean displayErrorOutput;
+  
   private List<GshTemplateInputConfig> gshTemplateInputConfigs = new ArrayList<GshTemplateInputConfig>();
   
 
@@ -67,8 +85,24 @@ public class GshTemplateConfig {
     return configId;
   }
 
+  
+  
+  public boolean isUseExternalizedText() {
+    return useExternalizedText;
+  }
+
+
+  public String getMoreActionsLabelExternalizedTextKey() {
+    return moreActionsLabelExternalizedTextKey;
+  }
+
 
   
+  public String getMoreActionsLabel() {
+    return moreActionsLabel;
+  }
+
+
   public GshTemplateRunAsType getGshTemplateRunAsType() {
     return gshTemplateRunAsType;
   }
@@ -114,8 +148,13 @@ public class GshTemplateConfig {
     return showOnFolders;
   }
 
-
   
+  
+  public boolean isShowInMoreActions() {
+    return showInMoreActions;
+  }
+
+
   public GshTemplateFolderShowType getGshTemplateFolderShowType() {
     return gshTemplateFolderShowType;
   }
@@ -189,6 +228,21 @@ public class GshTemplateConfig {
     return actAsGroupUUID;
   }
 
+  public String getShowInMoreActionsLabel() {
+    
+    if (useExternalizedText) {
+      return GrouperTextContainer.textOrNull(moreActionsLabelExternalizedTextKey);
+    } else {
+      return moreActionsLabel;
+    }
+    
+  }
+  
+  
+  public boolean isDisplayErrorOutput() {
+    return displayErrorOutput;
+  }
+
 
   public void populateConfiguration() {
     
@@ -198,7 +252,20 @@ public class GshTemplateConfig {
     
     enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
     useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
+    
+    useExternalizedText = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"externalizedText", false);
+    
+    showInMoreActions = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showInMoreActions", false);
+    if (showInMoreActions) {
+      if (useExternalizedText) {
+        moreActionsLabelExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabelExternalizedTextKey");
+      } else {
+        moreActionsLabel = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabel");
+      }
+    }
 
+    displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"displayErrorOutput", false);
+    
     actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
     
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
@@ -278,27 +345,40 @@ public class GshTemplateConfig {
       String valueType = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "type", "string");
       GshTemplateInputType gshTemplateInputType = GshTemplateInputType.valueOfIgnoreCase(valueType, true);
       
+      if (useExternalizedText) {
+        gshTemplateInputConfig.setLabelExternalizedTextKey(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "labelExternalizedTextKey"));
+        gshTemplateInputConfig.setDescriptionExternalizedTextKey(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "descriptionExternalizedTextKey"));
+      } else {
+        gshTemplateInputConfig.setLabel(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "label"));
+        gshTemplateInputConfig.setDescription(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "description"));
+      }
+      
       gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
       
-      GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationType"), false);
-      gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
+      ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
+      gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
       
-      String validationMessage = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessage");
-      gshTemplateInputConfig.setValidationMessage(validationMessage);
-      
-      String validationMessageExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessageExternalizedTextKey");
-      gshTemplateInputConfig.setValidationMessageExternalizedTextKey(validationMessageExternalizedTextKey);
-      
-      if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
-        String validationRegex = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationRegex");
-        gshTemplateInputConfig.setValidationRegex(validationRegex);
-      } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl) {
-        String validationJexl = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationJexl");
-        gshTemplateInputConfig.setValidationJexl(validationJexl);
-      } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin) {
-        String validationBuiltinTypeString = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationBuiltin");
-        ValidationBuiltinType validationBuiltinType = ValidationBuiltinType.valueOfIgnoreCase(validationBuiltinTypeString, true);
-        gshTemplateInputConfig.setValidationBuiltinType(validationBuiltinType);
+      if (configItemFormElement == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
+        GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
+        gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
+        
+        String validationMessage = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessage");
+        gshTemplateInputConfig.setValidationMessage(validationMessage);
+        
+        String validationMessageExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessageExternalizedTextKey");
+        gshTemplateInputConfig.setValidationMessageExternalizedTextKey(validationMessageExternalizedTextKey);
+        
+        if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
+          String validationRegex = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationRegex");
+          gshTemplateInputConfig.setValidationRegex(validationRegex);
+        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl) {
+          String validationJexl = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationJexl");
+          gshTemplateInputConfig.setValidationJexl(validationJexl);
+        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin) {
+          String validationBuiltinTypeString = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationBuiltin");
+          ValidationBuiltinType validationBuiltinType = ValidationBuiltinType.valueOfIgnoreCase(validationBuiltinTypeString, true);
+          gshTemplateInputConfig.setValidationBuiltinType(validationBuiltinType);
+        }
       }
       
       boolean required = GrouperConfig.retrieveConfig().propertyValueBoolean(inputPrefix+"required", false);
@@ -310,12 +390,10 @@ public class GshTemplateConfig {
       }
       
       gshTemplateInputConfig.setTrimWhitespace(GrouperConfig.retrieveConfig().propertyValueBoolean(inputPrefix+"trimWhitespace", true));
+      gshTemplateInputConfig.setShowEl(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix+"showEl", null));
+      gshTemplateInputConfig.setIndex(GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix+"index", 0));
       
-      
-      GshTemplateFormElementType gshTemplateFormElementType = GshTemplateFormElementType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "textfield"), true);
-      gshTemplateInputConfig.setGshTemplateFormElementType(gshTemplateFormElementType);
-      
-      if (gshTemplateInputConfig.getGshTemplateFormElementType() == GshTemplateFormElementType.dropdown) {
+      if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
         
         GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType = GshTemplateDropdownValueFormatType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "dropdownValueFormat", "csv"), true);
         gshTemplateInputConfig.setGshTemplateDropdownValueFormatType(gshTemplateDropdownValueFormatType);
@@ -356,6 +434,59 @@ public class GshTemplateConfig {
     return gshLightweight;
   }
   
+  /**
+   * check if the given folder can run this gsh template
+   * @param folder
+   * @return
+   */
+  public boolean canFolderRunTemplate(Stem folder) {
+    
+    if (!isShowOnFolders()) {
+      return false;
+    }
+    
+    Stem folderToShow = getFolderToShow();
+    if (folderToShow == null) {
+      LOG.error("folderToShow is not configured correctly for template with config id: "+getConfigId());
+      return false;
+    }
+    
+    GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants = getGshTemplateFolderShowOnDescendants();
+    if (GshTemplateFolderShowOnDescendants.certainFolder == gshTemplateFolderShowOnDescendants && 
+        !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {
+      return false;
+    }
+    
+    if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants && 
+        !folderToShow.getChildStems(Scope.ONE).contains(folder)) {
+      return false;
+    }
+    
+    if (GshTemplateFolderShowOnDescendants.certainFolderAndOneChildLevel == gshTemplateFolderShowOnDescendants) {
+      
+      if (!folderToShow.getChildStems(Scope.ONE).contains(folder) &&
+          !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
+        return false;
+      }
+      
+    }
+    
+    if (GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants &&
+        !folderToShow.getChildStems().contains(folder)) {
+      return false;
+    }
+    
+    if (GshTemplateFolderShowOnDescendants.certainFolderAndDescendants == gshTemplateFolderShowOnDescendants) {
+      
+      if (!folderToShow.getChildStems(Scope.SUB).contains(folder) &&
+          !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
+        return false;
+      }
+      
+    }
+    
+    return true;
+  }
   
 
 }
