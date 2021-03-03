@@ -22,6 +22,8 @@ package edu.internet2.middleware.grouper.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -35,8 +37,17 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
 /**
@@ -44,6 +55,82 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperEmail {
 
+  /**
+   * get an email address for a subject or null
+   * @param subject
+   * @return email address
+   */
+  public static String retrieveEmailAddress(Subject subject) {
+    if (subject != null) {
+      if (!StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.GROUP.getName())) { 
+        String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+        if (!StringUtils.isBlank(emailAttributeName)) {
+          String emailAddress = subject.getAttributeValue(emailAttributeName);
+          if (!StringUtils.isBlank(emailAddress)) {
+            return emailAddress;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * secure? method that retrieves email addresses from a group
+   * @param group name
+   * @return the email addresses found for users in the group
+   */
+  public static Set<String> retrieveEmailAddresses(final String groupName, boolean secure, boolean exceptionIfNotFound) {
+    
+    Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GroupFinder.findByName(grouperSession, groupName, exceptionIfNotFound);
+      }
+    });
+    
+    return retrieveEmailAddresses(group, secure);
+    
+  }
+
+  /**
+   * secure? method that retrieves email addresses from a group
+   * @param group
+   * @return the email addresses found for users in the group
+   */
+  public static Set<String> retrieveEmailAddresses(final Group group, boolean secure) {
+    
+    final Set<String> emailAddresses = new TreeSet<String>();
+    if (group != null) {
+      
+      if (!group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), "readers", false)) {
+        throw new RuntimeException("User '" + SubjectHelper.getPretty(GrouperSession.staticGrouperSession().getSubject()) + "' cannot read: " + group.getName());
+      }
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          for (Member member : GrouperUtil.nonNull(group.getMembers())) {
+            
+            Subject subject = member.getSubject();
+            String emailAddress = GrouperEmail.retrieveEmailAddress(subject);
+            if (!StringUtils.isBlank(emailAddress)) {
+              emailAddresses.add(emailAddress);
+            }
+            
+          }
+          return null;
+        }
+      });
+      
+    }
+    return emailAddresses;
+  }
+  
+  
   /**
    * keep list emails (max 100) if testing...
    */

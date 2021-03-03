@@ -1663,9 +1663,9 @@ public class UiV2Attestation {
                   GrouperSession.startRootSession();
                   
                   if (ancestorAttributeAssign != null) {
-                    GrouperAttestationJob.stemAttestationProcessHelper(ancestorAttributeAssign.getOwnerStem(), ancestorAttributeAssign);
+                    GrouperAttestationJob.stemAttestationProcessHelper(ancestorAttributeAssign.getOwnerStem(), ancestorAttributeAssign, null, null);
                   } else {
-                    GrouperAttestationJob.stemAttestationProcessHelper(STEM, attributeAssign);
+                    GrouperAttestationJob.stemAttestationProcessHelper(STEM, attributeAssign, null, null);
                   }
                   FINISHED[0] = true;
                 } catch (RuntimeException re) {
