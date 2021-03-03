@@ -75,7 +75,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    * @param isDelete
    * @return true if finished, false if thread still running
    */
-  public static boolean stemAttestationProcess(Stem stem, AttributeAssign markerAssignment, boolean isDelete, final String newDateCertified) {
+  public static boolean stemAttestationProcess(Stem stem, AttributeAssign markerAssignment, boolean isDelete, final String newDateCertified, boolean useThreadToPropagate) {
 
     String stemName = stem.getName();
     
@@ -92,7 +92,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
     final boolean[] FINISHED = new boolean[]{false};
-    Thread thread = new Thread(new Runnable() {
+    Runnable runnable = new Runnable() {
   
       public void run() {
         
@@ -110,7 +110,13 @@ public class GrouperAttestationJob extends OtherJobBase {
         
       }
       
-    });
+    };
+    if (!useThreadToPropagate) {
+      runnable.run();
+      return true;
+    }
+    
+    Thread thread = new Thread();
   
     thread.start();
     

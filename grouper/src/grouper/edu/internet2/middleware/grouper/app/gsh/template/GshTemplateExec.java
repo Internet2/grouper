@@ -37,12 +37,72 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateExec {
+  
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    GrouperSession.startRootSession();
+     
+    GshTemplateExec exec = new GshTemplateExec();
+    exec.assignConfigId("createNewWorkingGroup");
+    Subject subject = SubjectFinder.findRootSubject();
+    exec.assignCurrentUser(subject);
+     
+    exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+    exec.assignOwnerStemName("ref:incommon-collab"); // run the script from test2 folder
+     
+    GshTemplateInput input = new GshTemplateInput();
+    input.assignName("gsh_input_workingGroupExtension");
+    input.assignValueString("myGroup");
+    exec.addGshTemplateInput(input);
+    input = new GshTemplateInput();
+    input.assignName("gsh_input_workingGroupDisplayExtension");
+    input.assignValueString("My group");
+    exec.addGshTemplateInput(input);
+    input = new GshTemplateInput();
+    input.assignName("gsh_input_workingGroupDescription");
+    input.assignValueString("My working group will do a lot of group work");
+    exec.addGshTemplateInput(input);
+    input = new GshTemplateInput();
+    input.assignName("gsh_input_isSympa");
+    input.assignValueString("true");
+    exec.addGshTemplateInput(input);
+    input = new GshTemplateInput();
+    input.assignName("gsh_input_sympaDomain");
+    input.assignValueString("internet2");
+    exec.addGshTemplateInput(input);
+    input = new GshTemplateInput();
+    input.assignName("gsh_input_isSympaModerated");
+    input.assignValueString("true");
+    exec.addGshTemplateInput(input);
+     
+    // when
+    GshTemplateExecOutput output = exec.execute();
+     
+    // then
+    System.out.println("Success: " + output.isSuccess());
+    if (!output.isSuccess() && output.getException() != null) {
+      System.out.println(output.getExceptionStack());
+    }
+    System.out.println("Valid: " + output.isValid());
+    System.out.println("Validation:");
+    for (GshValidationLine gshValidationLine : output.getGshTemplateOutput().getValidationLines()) {
+      System.out.println(gshValidationLine.getInputName() + ": " + gshValidationLine.getText());
+    }
+    System.out.println("Output from script:");
+    for (GshOutputLine gshOutputLine : output.getGshTemplateOutput().getOutputLines()) {
+      System.out.println(gshOutputLine.getMessageType() + ": " + gshOutputLine.getText());
+    }
+    System.out.println("Script output:");
+    System.out.println(output.getGshScriptOutput());
+  }
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GshTemplateExec.class);
@@ -187,6 +247,10 @@ public class GshTemplateExec {
   }
   
   private boolean validateSecurityRunType(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
+    
+    if (PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+      return true;
+    }
     
     Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
     // validate current user

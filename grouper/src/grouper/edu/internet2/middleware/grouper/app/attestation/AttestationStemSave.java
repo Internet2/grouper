@@ -207,7 +207,18 @@ public class AttestationStemSave {
 
   private boolean replaceAllSettings = false;
 
+  private boolean useThreadForPropagation = false;
 
+  /**
+   * 
+   * @param theUseThreadForPropagation
+   * @return this for chaining
+   */
+  public AttestationStemSave assignUseThreadForPropagation(boolean theUseThreadForPropagation) {
+    this.useThreadForPropagation = theUseThreadForPropagation;
+    return this;
+  }
+  
   /**
    * 
    * @return this for chaining
@@ -492,7 +503,7 @@ public class AttestationStemSave {
     
     this.finished = GrouperAttestationJob.stemAttestationProcess(stem, 
         this.saveResultType == SaveResultType.DELETE ? null : attributeAssign, 
-        this.saveResultType == SaveResultType.DELETE, newDateCertified);
+        this.saveResultType == SaveResultType.DELETE, newDateCertified, this.useThreadForPropagation);
     
     return attributeAssign;
     

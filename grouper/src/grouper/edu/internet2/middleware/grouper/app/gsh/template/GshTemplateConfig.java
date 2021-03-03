@@ -280,7 +280,7 @@ public class GshTemplateConfig {
       
       gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
       
-      GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
+      GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationType"), false);
       gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
       
       String validationMessage = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessage");
