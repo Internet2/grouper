@@ -908,7 +908,8 @@ public abstract class GrouperProvisioner {
     Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningFolderAttributes.values());
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributes.values());
+    Set<String> policyGroupIds = this.retrieveGrouperDao().retrieveAllProvisioningGroupIdsThatArePolicyGroups();
     
-    GrouperProvisioningService.propagateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes);
+    GrouperProvisioningService.propagateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
   }
 }

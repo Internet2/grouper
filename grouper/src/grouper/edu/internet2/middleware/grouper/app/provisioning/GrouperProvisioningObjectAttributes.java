@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author shilen
  */
@@ -17,6 +20,7 @@ public class GrouperProvisioningObjectAttributes {
   private boolean isOwnedByGroup;
   private boolean isOwnedByStem;
   
+  private Map<String, Object> metadataNameValues = null;
   
   public GrouperProvisioningObjectAttributes(String id, String name) {
     this.id = id;
@@ -105,5 +109,22 @@ public class GrouperProvisioningObjectAttributes {
   
   public void setOwnedByStem(boolean isOwnedByStem) {
     this.isOwnedByStem = isOwnedByStem;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> getMetadataNameValues() {
+    if (this.provisioningMetadataJson == null) {
+      return new HashMap<String, Object>();
+    }
+
+    if (metadataNameValues == null) {
+      try {
+        this.metadataNameValues = GrouperProvisioningSettings.objectMapper.readValue(provisioningMetadataJson, Map.class);
+      } catch(Exception e) {
+        throw new RuntimeException("could not convert json string " + provisioningMetadataJson + " to Map object", e);
+      }
+    }
+    
+    return metadataNameValues;
   }
 }

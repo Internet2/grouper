@@ -959,8 +959,15 @@ public class GrouperProvisioningLogicIncremental {
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningFolderAttributesToProcess.values());
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributesToProcess.values());
     
+    Set<String> groupIds = new HashSet<String>();
+    for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes : grouperProvisioningGroupAttributesToProcess.values()) {
+      groupIds.add(grouperProvisioningObjectAttributes.getId());
+    }
+    
+    Set<String> policyGroupIds = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupIdsThatArePolicyGroups(groupIds);
+    
     if (grouperProvisioningObjectAttributesToProcess.size() > 0) {
-      GrouperProvisioningService.propagateProvisioningAttributes(this.getGrouperProvisioner(), grouperProvisioningObjectAttributesToProcess, allAncestorProvisioningGroupAttributes);
+      GrouperProvisioningService.propagateProvisioningAttributes(this.getGrouperProvisioner(), grouperProvisioningObjectAttributesToProcess, allAncestorProvisioningGroupAttributes, policyGroupIds);
     }
   }
 

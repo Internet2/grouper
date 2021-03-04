@@ -15,6 +15,8 @@ import org.hibernate.type.Type;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1713,5 +1715,169 @@ public class GrouperProvisionerGrouperDao {
     }
     
     return null;
+  }
+  
+  /**
+   * get all group ids that are policy groups
+   * @return group ids
+   */
+  public Set<String> retrieveAllProvisioningGroupIdsThatArePolicyGroups() {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Set<String> groupIds = new HashSet<String>();
+    
+    {
+      String sql = "SELECT distinct " + 
+          "    gg.id " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_direct, " + 
+          "    grouper_attribute_assign gaa_type_marker, " + 
+          "    grouper_attribute_assign gaa_type_name, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_direct, " + 
+          "    grouper_attribute_assign_value gaav_type_name, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_direct, " + 
+          "    grouper_attribute_def_name gadn_type_marker, " + 
+          "    grouper_attribute_def_name gadn_type_name, " + 
+          "    grouper_stem_set gss, " + 
+          "    grouper_groups gg " + 
+          "WHERE " + 
+          "    gs.id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_direct.owner_attribute_assign_id " + 
+          "    AND gaa_direct.attribute_def_name_id = gadn_direct.id " + 
+          "    AND gadn_direct.name = ? " + 
+          "    AND gaav_direct.attribute_assign_id = gaa_direct.id " + 
+          "    AND gaav_direct.value_string = 'true' " + 
+          "    AND gs.id = gss.then_has_stem_id " + 
+          "    AND gss.if_has_stem_id = gg.parent_stem " +          
+          "    AND gg.id = gaa_type_marker.owner_group_id " +
+          "    AND gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
+          "    AND gadn_type_marker.name = ? " +
+          "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
+          "    AND gaa_type_name.attribute_def_name_id = gadn_type_name.id " + 
+          "    AND gadn_type_name.name = ? " + 
+          "    AND gaav_type_name.attribute_assign_id = gaa_type_name.id " + 
+          "    AND gaav_type_name.value_string = 'policy' " + 
+          "    AND gaa_type_marker.enabled = 'T' " +
+          "    AND gaa_type_name.enabled = 'T' " +
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_direct.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+      paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
+
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        groupIds.add(groupId);
+      }
+    }
+    
+    return groupIds;
+  }
+  
+  /**
+   * get all group ids that are policy groups from the list passed in
+   * @return group ids
+   */
+  public Set<String> retrieveProvisioningGroupIdsThatArePolicyGroups(Set<String> groupIds) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Set<String> policyGroupIds = new HashSet<String>();
+    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return policyGroupIds;
+    }
+    
+    String sqlInitial = "SELECT " + 
+        "    gaa_type_marker.owner_group_id " + 
+        "FROM " + 
+        "    grouper_attribute_assign gaa_type_marker, " + 
+        "    grouper_attribute_assign gaa_type_name, " + 
+        "    grouper_attribute_assign_value gaav_type_name, " + 
+        "    grouper_attribute_def_name gadn_type_marker, " + 
+        "    grouper_attribute_def_name gadn_type_name " + 
+        "WHERE " +      
+        "    gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
+        "    AND gadn_type_marker.name = ? " +
+        "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
+        "    AND gaa_type_name.attribute_def_name_id = gadn_type_name.id " + 
+        "    AND gadn_type_name.name = ? " + 
+        "    AND gaav_type_name.attribute_assign_id = gaa_type_name.id " + 
+        "    AND gaav_type_name.value_string = 'policy' " + 
+        "    AND gaa_type_marker.enabled = 'T' " +
+        "    AND gaa_type_name.enabled = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    
+    List<String[]> queryResults = null;
+
+    List<String> idsList = GrouperUtil.listFromCollection(policyGroupIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+      
+      List<Object> params = new ArrayList<Object>(paramsInitial);
+      params.addAll(currentBatchIds);
+
+      List<Type> types = new ArrayList<Type>(typesInitial);
+
+      for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+        types.add(StringType.INSTANCE);
+      }
+      
+      StringBuilder sql = new StringBuilder(sqlInitial);
+      sql.append(" AND gaa_type_marker.owner_group_id in (");
+      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+      sql.append(") ");
+      
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+      
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        policyGroupIds.add(groupId);
+      }
+    }
+    
+    return policyGroupIds;
   }
 }

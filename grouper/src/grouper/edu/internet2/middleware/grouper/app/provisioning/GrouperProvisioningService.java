@@ -1650,8 +1650,9 @@ public class GrouperProvisioningService {
    * @param grouperProvisioner
    * @param grouperProvisioningObjectAttributesToProcess
    * @param grouperProvisioningFolderAttributes
+   * @param policyGroupIds
    */
-  public static void propagateProvisioningAttributes(GrouperProvisioner grouperProvisioner, Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess, Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes) {
+  public static void propagateProvisioningAttributes(GrouperProvisioner grouperProvisioner, Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess, Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes, Set<String> policyGroupIds) {
     String configId = grouperProvisioner.getConfigId();
     AttributeDefName attributeDefNameBase = GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase();
     AttributeDefName attributeDefNameDirectAssign = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT, true);
@@ -1716,7 +1717,22 @@ public class GrouperProvisioningService {
             break;
           }
           
-          // TODO check policy and jexl restrictions here
+          if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
+            if (isOnlyProvisionPolicyGroups(grouperProvisioner, currGrouperProvisioningObjectAttribute)) {
+              if (!policyGroupIds.contains(grouperProvisioningObjectAttribute.getId())) {
+                // not provisioning group that isn't a policy group
+                break;
+              }
+            }
+            
+            String provisionableRegex = getProvisionableRegex(grouperProvisioner, currGrouperProvisioningObjectAttribute);
+            if (!GrouperUtil.isEmpty(provisionableRegex)) {
+              if (!GrouperProvisioningObjectMetadata.groupNameMatchesRegex(grouperProvisioningObjectAttribute.getName(), provisionableRegex)) {
+                // not provisioning group that doesn't match regex
+                break;
+              }
+            }
+          }
           
           ancestorGrouperProvisioningObjectAttribute = currGrouperProvisioningObjectAttribute;
           break;
@@ -1863,5 +1879,27 @@ public class GrouperProvisioningService {
     if (provisioningAttributesFoldersDeleted > 0) {
       grouperProvisioner.getDebugMap().put("provisioningAttributesFoldersDeleted", provisioningAttributesFoldersDeleted);
     }
+  }
+  
+  private static boolean isOnlyProvisionPolicyGroups(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
+    if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowPolicyGroupOverride()) {
+      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("isOnlyProvisionPolicyGroups");
+      if (!GrouperUtil.isEmpty(override)) {
+        return GrouperUtil.booleanValue(override);
+      }
+    }
+    
+    return grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyProvisionPolicyGroups();
+  }
+  
+  private static String getProvisionableRegex(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
+    if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowProvisionableRegexOverride()) {
+      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("provisionableRegex");
+      if (!GrouperUtil.isEmpty(override)) {
+        return override;
+      }
+    }
+    
+    return grouperProvisioner.retrieveGrouperProvisioningConfiguration().getProvisionableRegex();
   }
 }
