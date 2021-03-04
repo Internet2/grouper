@@ -1883,7 +1883,7 @@ public class GrouperProvisioningService {
   
   private static boolean isOnlyProvisionPolicyGroups(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
     if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowPolicyGroupOverride()) {
-      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("isOnlyProvisionPolicyGroups");
+      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowPolicyGroupOverride");
       if (!GrouperUtil.isEmpty(override)) {
         return GrouperUtil.booleanValue(override);
       }
@@ -1894,7 +1894,7 @@ public class GrouperProvisioningService {
   
   private static String getProvisionableRegex(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
     if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowProvisionableRegexOverride()) {
-      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("provisionableRegex");
+      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowProvisionableRegexOverride");
       if (!GrouperUtil.isEmpty(override)) {
         return override;
       }
