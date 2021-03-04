@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
@@ -52,6 +53,21 @@ public class ProvisioningContainer {
    * list of all grouper provisioning attribute values for a given group/stem
    */
   private List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
+
+  
+  private GuiGrouperProvisioningAttributeValue currentGuiGrouperProvisioningAttributeValue = null;
+  
+  
+  public GuiGrouperProvisioningAttributeValue getCurrentGuiGrouperProvisioningAttributeValue() {
+    return currentGuiGrouperProvisioningAttributeValue;
+  }
+
+  
+  public void setCurrentGuiGrouperProvisioningAttributeValue(
+      GuiGrouperProvisioningAttributeValue currentGuiGrouperProvisioningAttributeValue) {
+    this.currentGuiGrouperProvisioningAttributeValue = currentGuiGrouperProvisioningAttributeValue;
+  }
+
 
   /**
    * number of groups in a folder for a provisioner target 
@@ -521,6 +537,18 @@ public class ProvisioningContainer {
   
   public void setGuiGrouperSyncObject(GuiGrouperSyncObject guiGrouperSyncObject) {
     this.guiGrouperSyncObject = guiGrouperSyncObject;
+  }
+
+  private GrouperProvisioner grouperProvisioner;
+  
+  public void setGrouperProvisioner(GrouperProvisioner provisioner) {
+    grouperProvisioner = provisioner;
+    
+  }
+
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
   }
   
 }

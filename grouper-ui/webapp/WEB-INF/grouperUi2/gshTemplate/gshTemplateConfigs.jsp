@@ -57,7 +57,6 @@
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplateConfigDetails&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableViewDetailsActionOption'] }</a></li>
 			                             <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
 			                             
 			                             <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == true}">

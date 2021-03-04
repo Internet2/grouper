@@ -69,6 +69,71 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 public class GrouperAttestationJob extends OtherJobBase {
   
   /**
+   * process attestation for a stem or its ancestor
+   * @param stem
+   * @param markerAssignment
+   * @param isDelete
+   * @return true if finished, false if thread still running
+   */
+  public static boolean stemAttestationProcess(Stem stem, AttributeAssign markerAssignment, boolean isDelete, final String newDateCertified, boolean useThreadToPropagate) {
+
+    String stemName = stem.getName();
+    
+    if (isDelete) {
+      // TODO this is not efficient, it should just recalc this one and then the subs...  but maybe wont happen too often
+      final AttributeAssign ancestorAttributeAssign = GrouperAttestationJob.findParentFolderAssign(stem);
+      if (ancestorAttributeAssign != null) {
+        markerAssignment = ancestorAttributeAssign;
+        stem = markerAssignment.getOwnerStem();
+      }
+    }
+    final Stem STEM = stem;
+    final AttributeAssign ATTRIBUTE_ASSIGN = markerAssignment;
+    
+    final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+    final boolean[] FINISHED = new boolean[]{false};
+    Runnable runnable = new Runnable() {
+  
+      public void run() {
+        
+        try {
+          GrouperSession.startRootSession();
+          
+          GrouperAttestationJob.stemAttestationProcessHelper(STEM, ATTRIBUTE_ASSIGN, stemName, newDateCertified);
+
+          FINISHED[0] = true;
+        } catch (RuntimeException re) {
+          //log incase thread didnt finish when screen was drawing
+          LOG.error("Error updating attestation stem parts", re);
+          RUNTIME_EXCEPTION[0] = re;
+        }
+        
+      }
+      
+    };
+    if (!useThreadToPropagate) {
+      runnable.run();
+      return true;
+    }
+    
+    Thread thread = new Thread();
+  
+    thread.start();
+    
+    try {
+      thread.join(30000);
+    } catch (InterruptedException ie) {
+      throw new RuntimeException(ie);
+    }
+  
+    if (RUNTIME_EXCEPTION[0] != null) {
+      throw RUNTIME_EXCEPTION[0];
+    }
+    
+    return FINISHED[0];
+  }
+  
+  /**
    * two weeks days left
    */
   public static Set<Object> TWO_WEEKS_DAYS_LEFT = GrouperUtil.toSetObjectType("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
@@ -541,7 +606,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     
     String configuredAttestationDaysUntilRecertify = parentFolderAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDaysUntilRecertify().getName());
     
-    updateCalculatedDaysLeft(attributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, resetCalculatedDaysLeft);
+    updateCalculatedDaysLeft(attributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, resetCalculatedDaysLeft, null);
   }
 
   /**
@@ -549,11 +614,11 @@ public class GrouperAttestationJob extends OtherJobBase {
    * @param attributeAssign
    * @param attestationDateCertified
    * @param configuredAttestationDaysUntilRecertify
-   * @param resetCalculatedDaysLeft
+   * @param resetDateCertified
    * @return days needed until recertify
    */
-  private static int updateCalculatedDaysLeft(AttributeAssign attributeAssign,
-      String attestationDateCertified, String configuredAttestationDaysUntilRecertify, boolean resetCalculatedDaysLeft) {
+  public static int updateCalculatedDaysLeft(AttributeAssign attributeAssign,
+      String attestationDateCertified, String configuredAttestationDaysUntilRecertify, boolean resetDateCertified, boolean[] madeChange) {
     int configuredDaysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
     if (! StringUtils.isBlank(configuredAttestationDaysUntilRecertify)) {
       configuredDaysUntilRecertify = Integer.valueOf(configuredAttestationDaysUntilRecertify);
@@ -578,7 +643,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       }
     }
     
-    if (resetCalculatedDaysLeft) {
+    if (resetDateCertified) {
       daysUntilNeedsCertify = configuredDaysUntilRecertify;
       
       String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
@@ -586,9 +651,16 @@ public class GrouperAttestationJob extends OtherJobBase {
           GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
 
     }
+    String currentDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
     
-    attributeAssign.getAttributeValueDelegate().assignValueString(
-        GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), "" + daysUntilNeedsCertify);
+    
+    String newDaysUntilRecertify = "" + daysUntilNeedsCertify;
+    
+    boolean changed = attributeAssign.getAttributeValueDelegate().assignValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), newDaysUntilRecertify).isChanged();
+    if (madeChange != null) {
+      madeChange[0] = changed;
+    }
     return daysUntilNeedsCertify;
   }
 
@@ -727,7 +799,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       stemAttributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft());
     } else {
       String configuredAttestationDaysUntilRecertify = stemAttributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameDaysUntilRecertify().getName());
-      updateCalculatedDaysLeft(stemAttributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, false);
+      updateCalculatedDaysLeft(stemAttributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, false, null);
     }
   }
   
@@ -799,7 +871,7 @@ public class GrouperAttestationJob extends OtherJobBase {
           debugMap.put("configuredDaysUntilRecertify", configuredDaysUntilRecertify);
         }
 
-        int daysUntilNeedsCertify = updateCalculatedDaysLeft(groupAttributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, false);
+        int daysUntilNeedsCertify = updateCalculatedDaysLeft(groupAttributeAssign, attestationDateCertified, configuredAttestationDaysUntilRecertify, false, null);
 
         if (LOG.isDebugEnabled()) {
           debugMap.put("assigningCalculatedDaysLeft",daysUntilNeedsCertify);
@@ -1369,7 +1441,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       
       String attestationSendEmail = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameSendEmail().getName());
       
-      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign.getOwnerStem(), attributeAssign);
+      Map<String, Set<EmailObject>> localEmailMap = stemAttestationProcessHelper(attributeAssign.getOwnerStem(), attributeAssign, null, null);
 
       boolean sendEmailAttributeValue = GrouperUtil.booleanValue(attestationSendEmail, true);
       
@@ -1443,7 +1515,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    * @param stemAttributeAssign
    * @return the email objects
    */
-  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(Stem stem, AttributeAssign stemAttributeAssign) {
+  public static Map<String, Set<EmailObject>> stemAttestationProcessHelper(Stem stem, AttributeAssign stemAttributeAssign, 
+      final String stemNameNewDateCertified, final String newDateCertified) {
     
     Map<String, Set<EmailObject>> emails = new HashMap<String, Set<EmailObject>>();
     
@@ -1465,6 +1538,8 @@ public class GrouperAttestationJob extends OtherJobBase {
     }
         
     Set<Group> childGroups = stem.getChildGroups(Scope.SUB);
+    
+    String stemNamePrefixNewDate = !StringUtils.isBlank(newDateCertified) ? (stemNameNewDateCertified + ":") : null;
     
     for (Group group: childGroups) {
       
@@ -1516,6 +1591,10 @@ public class GrouperAttestationJob extends OtherJobBase {
         continue;
       }
 
+      if (!StringUtils.isBlank(newDateCertified) && group.getName().startsWith(stemNamePrefixNewDate)) {
+        groupAttributeAssign.getAttributeValueDelegate().assignValueString(retrieveAttributeDefNameDateCertified().getName(), newDateCertified);
+      }
+      
       Set<AttributeAssign> singleGroupAttributeAssign = new HashSet<AttributeAssign>();
       singleGroupAttributeAssign.add(groupAttributeAssign);
       

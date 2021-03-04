@@ -249,6 +249,15 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+
+    <attribute>
+      <description>
+      	Should the EL checkbox be shown? default is true.
+      </description>
+      <name>shouldShowElCheckbox</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
     
     <attribute>
       <description>

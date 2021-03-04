@@ -10053,6 +10053,28 @@ public class GrouperUtil {
   }
 
   /**
+   * see if two sets are deep equals using the equals() method on each item
+   * @param set1
+   * @param set2
+   * @return if lists are equal or empty
+   */
+  public static boolean equalsSet(Set<?> set1, Set<?> set2) {
+    if (length(set1) == length(set2) && length(set1) == 0) {
+      return true;
+    }
+    if (set1 == null || set2 == null) {
+      return false;
+    }
+    
+    if (set1.size() != set2.size()) {
+      return false;
+    }
+    Set<?> newSet = new HashSet(set1);
+    newSet.removeAll(set2);
+    return newSet.size() == 0;
+  }
+
+  /**
    * see if two lists are deep equals using the equals() method on each item
    * @param list1
    * @param list2

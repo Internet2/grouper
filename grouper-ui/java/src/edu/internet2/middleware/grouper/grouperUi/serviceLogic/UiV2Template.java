@@ -1,7 +1,11 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +18,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateLogicBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateConfig;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateInputConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -69,15 +84,21 @@ public class UiV2Template {
 	    
 	    String templateType = request.getParameter("templateType");
 	    
-	    
 	    if (StringUtils.isNotBlank(templateType)) {
+	      
+	      templateContainer.setTemplateType(templateType);
 	      
 	      GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
 	      
-	      templateContainer.setTemplateLogic(templateLogic);
-	      templateContainer.setTemplateType(templateType);
+	      if (templateLogic == null) {
+	        // must be gsh custom template
+	        populateCustomTemplateInputs(request, templateType);
+	        
+	      } else {
+	        templateContainer.setTemplateLogic(templateLogic);
+	        templateLogic.initScreen();
+	      }
 	      
-	      templateLogic.initScreen();
 	    }
 	    
 	    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -162,6 +183,186 @@ public class UiV2Template {
     } finally {
         GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  private Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
+   
+    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateConfigId);
+    gshTemplateConfig.populateConfiguration();
+    
+    GuiGshTemplateConfig guiGshTemplateConfig = new GuiGshTemplateConfig();
+    guiGshTemplateConfig.setGshTemplateConfig(gshTemplateConfig);
+    
+    Map<String, GuiGshTemplateInputConfig> guiTemplateInputConfigsMap = new LinkedHashMap<String, GuiGshTemplateInputConfig>();
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    
+    variableMap.put("grouperUtil", new GrouperUtil());
+    
+    Collections.sort(gshTemplateConfig.getGshTemplateInputConfigs(), new Comparator<GshTemplateInputConfig>() {
+
+      @Override
+      public int compare(GshTemplateInputConfig o1, GshTemplateInputConfig o2) {
+        return new Integer(o1.getIndex()).compareTo(new Integer(o2.getIndex()));
+      }
+    });
+    
+    for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
+      GuiGshTemplateInputConfig guiGshTemplateInputConfig = new GuiGshTemplateInputConfig();
+      guiGshTemplateInputConfig.setGshTemplateInputConfig(gshTemplateInputConfig);
+      
+      String value = request.getParameter("config_"+gshTemplateInputConfig.getName());
+      guiGshTemplateInputConfig.setValue(value);
+      
+      variableMap.put(gshTemplateInputConfig.getName(), StringUtils.isBlank(value) ? "": value);
+      guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), guiGshTemplateInputConfig);
+      
+    }
+    
+    //for showEL, loop again and remove the ones where showEL is evaluated to false
+    for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
+      
+      String showElScript = gshTemplateInputConfig.getShowEl();
+      if (StringUtils.isNotBlank(showElScript)) {
+        try {
+          Object substituteExpressionLanguageScript = GrouperUtil.substituteExpressionLanguageScript(showElScript, variableMap, true, false, false);
+          Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(substituteExpressionLanguageScript);
+          if (booleanObjectValue == null || !booleanObjectValue) {
+            guiTemplateInputConfigsMap.remove(gshTemplateInputConfig.getName());
+          }
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, ", script: '" + showElScript + "', ");
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(variableMap));
+          throw re;
+        }
+        
+      }
+      
+    }
+    
+    guiGshTemplateConfig.setGuiGshTemplateInputConfigs(guiTemplateInputConfigsMap);
+    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+    templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
+    
+    return guiTemplateInputConfigsMap;
+    
+  }
+  
+  /**
+   * Execute custom gsh template
+   * @param request
+   * @param response
+   */
+  public void customTemplateExecute(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      
+      String templateType = request.getParameter("templateType");
+      
+      if (StringUtils.isBlank(templateType)) {
+        throw new RuntimeException("templateType cannot be blank.");
+      }
+      
+      templateContainer.setTemplateType(templateType);
+      
+      GshTemplateExec exec = new GshTemplateExec();
+      exec.assignConfigId(templateType);
+      exec.assignCurrentUser(loggedInSubject);
+      
+      exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+      exec.assignOwnerStemName(stem.getName());
+      
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+      gshTemplateConfig.populateConfiguration();
+      
+      Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
+      
+      for (String inputName: gshTemplateInputs.keySet()) {
+        
+        String value = request.getParameter("config_"+inputName);
+        
+        GshTemplateInput input = new GshTemplateInput();
+        input.assignName(inputName);
+        input.assignValueString(value);
+        exec.addGshTemplateInput(input);
+        
+      }
+      
+      
+      GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        
+        for (GshValidationLine gshValidationLIne: gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {
+          if (StringUtils.isNotBlank(gshValidationLIne.getInputName())) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshValidationLIne.getInputName()+"_id", 
+                gshValidationLIne.getText()));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gshValidationLIne.getText()));
+          }
+          
+        }
+        
+      }
+      
+      for (GshOutputLine outputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
+        
+        GuiMessageType guiMessageType = GuiMessageType.valueOf(GrouperUtil.defaultIfBlank(GrouperUtil.defaultString(outputLine.getMessageType()).toLowerCase(), "success"));
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(guiMessageType, outputLine.getText()));
+      }
+      
+      if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        return;
+      }
+      
+      if (!gshTemplateExecOutput.isSuccess()) {
+        
+        if (gshTemplateConfig.isDisplayErrorOutput()) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
+          
+          String exceptionMessage = null; 
+          if (gshTemplateExecOutput.getException() != null) {        
+            exceptionMessage = ExceptionUtils.getStackTrace(gshTemplateExecOutput.getException());
+          }
+          
+          if (StringUtils.isNotBlank(exceptionMessage)) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, "<pre>"+exceptionMessage+"</pre>"));
+          }
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteError")));
+        }
+        
+      }  else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+        //lets show a success message on the new screen
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteSuccess")));
+        
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+    
   }
   
   /**
@@ -405,10 +606,6 @@ public class UiV2Template {
 
       return templateLogic;
     } catch(Exception e) {
-      LOG.error("Could not load the logic implementation class.");
-      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-          "#templateTypeId",
-          TextContainer.retrieveFromRequest().getText().get("stemTemplateImplementationClassConfigError")));
       return null;
     }
     
@@ -460,6 +657,10 @@ public class UiV2Template {
         
       }
     }
+    
+    // add custom gsh templates
+    Map<String, String> customGshTemplates = templateContainer.getCustomGshTemplates();
+    templateContainer.getTemplateOptions().putAll(customGshTemplates);
   }
   
   

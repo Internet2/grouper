@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -102,6 +103,28 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     ConfigPropertiesCascadeBase.clearCache();
   }
 
+  @Override
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    GrouperConfigurationModuleAttribute numberOfInputsAttribute = attributes.get("numberOfInputs");
+    
+    int numberOfInputs = Integer.valueOf(numberOfInputsAttribute.getValueOrExpressionEvaluation());
+    
+    for (int i=0; i<numberOfInputs; i++) {
+      GrouperConfigurationModuleAttribute nameAttribute = attributes.get("input."+i+".name");
+      String nameAttributeValue = nameAttribute.getValueOrExpressionEvaluation();
+      if (!nameAttributeValue.startsWith("gsh_input_") || !nameAttributeValue.matches("^[a-zA-Z0-9_]+$")) {
+        String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputNotValidFormat");
+        validationErrorsToDisplay.put(nameAttribute.getHtmlForElementIdHandle(), error);
+      }
+    }
+    
+  }
+  
   @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {

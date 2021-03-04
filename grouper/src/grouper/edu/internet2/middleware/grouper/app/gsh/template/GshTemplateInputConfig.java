@@ -1,5 +1,11 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GshTemplateInputConfig {
@@ -30,7 +36,7 @@ public class GshTemplateInputConfig {
   
   private Integer maxLength;
   
-  private GshTemplateFormElementType gshTemplateFormElementType;
+  private ConfigItemFormElement configItemFormElement;
   
   private GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType;
   
@@ -40,6 +46,17 @@ public class GshTemplateInputConfig {
   
   private String dropdownJavaClassValue;
   
+  private String labelExternalizedTextKey;
+  
+  private String label;
+  
+  private String descriptionExternalizedTextKey;
+  
+  private String description;
+  
+  private String showEl;
+  
+  private int index;
 
   public String getDropdownValueBasedOnType() {
     
@@ -54,6 +71,83 @@ public class GshTemplateInputConfig {
   }
   
   
+  public String getLabelForUi() {
+    if (StringUtils.isNotBlank(this.label)) {
+      return this.label;
+    } else {
+      return GrouperTextContainer.textOrNull(labelExternalizedTextKey);
+    }
+  }
+  
+  public String getDescriptionForUi() {
+    if (StringUtils.isNotBlank(this.description)) {
+      return this.label;
+    } else {
+      return GrouperTextContainer.textOrNull(descriptionExternalizedTextKey);
+    }
+  }
+  
+  
+  public List<MultiKey> getDropdownKeysAndLabels() {
+    if (this.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
+      List<MultiKey> dropdownKeysAndLabels = new ArrayList<MultiKey>();
+      dropdownKeysAndLabels.add(new MultiKey("", ""));
+      dropdownKeysAndLabels.addAll(this.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(this.getDropdownValueBasedOnType()));
+      return dropdownKeysAndLabels;
+    }
+    return new ArrayList<MultiKey>();
+  }
+  
+  public String getDescriptionExternalizedTextKey() {
+    return descriptionExternalizedTextKey;
+  }
+
+
+  
+  public void setDescriptionExternalizedTextKey(String descriptionExternalizedTextKey) {
+    this.descriptionExternalizedTextKey = descriptionExternalizedTextKey;
+  }
+
+
+  
+  public String getDescription() {
+    return description;
+  }
+
+
+  
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+
+  public String getLabelExternalizedTextKey() {
+    return labelExternalizedTextKey;
+  }
+
+
+
+  
+  public void setLabelExternalizedTextKey(String labelExternalizedTextKey) {
+    this.labelExternalizedTextKey = labelExternalizedTextKey;
+  }
+
+
+
+  
+  public String getLabel() {
+    return label;
+  }
+
+
+
+  
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+
+
   public String getDropdownCsvValue() {
     return dropdownCsvValue;
   }
@@ -93,27 +187,22 @@ public class GshTemplateInputConfig {
     this.dropdownJavaClassValue = dropdownJavaClassValue;
   }
 
-
-
-  public GshTemplateFormElementType getGshTemplateFormElementType() {
-    return gshTemplateFormElementType;
-  }
-
-
-  
-  public void setGshTemplateFormElementType(
-      GshTemplateFormElementType gshTemplateFormElementType) {
-    this.gshTemplateFormElementType = gshTemplateFormElementType;
-  }
-
-
-  
   public GshTemplateDropdownValueFormatType getGshTemplateDropdownValueFormatType() {
     return gshTemplateDropdownValueFormatType;
   }
 
+  
+  public ConfigItemFormElement getConfigItemFormElement() {
+    return configItemFormElement;
+  }
+
 
   
+  public void setConfigItemFormElement(ConfigItemFormElement configItemFormElement) {
+    this.configItemFormElement = configItemFormElement;
+  }
+
+
   public void setGshTemplateDropdownValueFormatType(GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType) {
     this.gshTemplateDropdownValueFormatType = gshTemplateDropdownValueFormatType;
   }
@@ -258,6 +347,28 @@ public class GshTemplateInputConfig {
   
   public void setMaxLength(Integer maxLength) {
     this.maxLength = maxLength;
+  }
+
+
+  
+  public String getShowEl() {
+    return showEl;
+  }
+  
+  public void setShowEl(String showEl) {
+    this.showEl = showEl;
+  }
+
+
+  
+  public int getIndex() {
+    return index;
+  }
+
+
+  
+  public void setIndex(int index) {
+    this.index = index;
   }
   
   

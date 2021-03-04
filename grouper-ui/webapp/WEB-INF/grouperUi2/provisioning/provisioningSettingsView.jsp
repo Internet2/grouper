@@ -2,6 +2,8 @@
                 <c:choose>
                   <c:when test="${grouperRequestContainer.provisioningContainer.hasProvisioningOnThisObjectOrParent}">
                     <c:forEach items="${grouperRequestContainer.provisioningContainer.guiGrouperProvisioningAttributeValues}" var="guiGrouperProvisioningAttributeValue" >
+
+                      ${grouperRequestContainer.provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue)} 
                     
 	                    <c:set var="grouperProvisioningAttributeValue" 
 	                        value="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue}" />

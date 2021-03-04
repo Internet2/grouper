@@ -72,6 +72,16 @@ public class AttributeDefNameSave {
     this.attributeDef = theAttributeDef;
   }
   
+  /**
+   * create a new attribute def name save
+   * @param theGrouperSession
+   * @param theAttributeDef
+   */
+  public AttributeDefNameSave(AttributeDef theAttributeDef) {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+    this.attributeDef = theAttributeDef;
+  }
+  
   /** grouper session is required */
   private GrouperSession grouperSession;
 

@@ -7,20 +7,10 @@
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
     	
-    	<c:choose>    	
-	    	<c:when test="${not empty guiGshTemplateConfiguration.gshTemplateConfiguration['class'].name}">
-	    		${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}
-	    		<input type="hidden" style="width: 30em" value="${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}"
-		         name="gshTemplateConfigId" id="configId" />
-	    	</c:when>
-	    	
-	    	<c:otherwise>
-	    		<input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}"
-		         name="gshTemplateConfigId" id="configId" />
-		      <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-		        data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-	    	</c:otherwise>
-    	</c:choose>
+   		<input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}"
+         name="gshTemplateConfigId" id="configId" />
+        <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+        data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
     	
       <br />
       <span class="description">${textContainer.text['gshTemplateConfigIdHint']}</span>

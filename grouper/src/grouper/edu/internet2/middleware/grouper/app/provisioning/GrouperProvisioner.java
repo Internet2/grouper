@@ -444,7 +444,7 @@ public abstract class GrouperProvisioner {
 
   private boolean initialized = false;
 
-  public void initialize(GrouperProvisioningType grouperProvisioningType1) {
+  public GrouperProvisioner initialize(GrouperProvisioningType grouperProvisioningType1) {
 
     if (!this.initialized) {
 
@@ -468,6 +468,7 @@ public abstract class GrouperProvisioner {
 
     }
     this.initialized = true;
+    return this;
   }
   
   /**
