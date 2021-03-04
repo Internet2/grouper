@@ -124,7 +124,7 @@ public class GrouperProvisioningObjectMetadata {
     
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isAllowPolicyGroupOverride() && !this.containsMetadataItemByName("md_grouper_allowPolicyGroupOverride")) {
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
-      grouperProvisioningObjectMetadataItem.setDefaultValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isOnlyProvisionPolicyGroups() ? "true" : "false");
+      //grouperProvisioningObjectMetadataItem.setDefaultValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isOnlyProvisionPolicyGroups() ? "true" : "false");
       grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningObjectMetadataProvisionOnlyPolicyGroupsDescription");
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningObjectMetadataProvisionOnlyPolicyGroupsLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowPolicyGroupOverride");
@@ -136,7 +136,7 @@ public class GrouperProvisioningObjectMetadata {
     
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isAllowProvisionableRegexOverride() && !this.containsMetadataItemByName("md_grouper_allowProvisionableRegexOverride")) {
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
-      grouperProvisioningObjectMetadataItem.setDefaultValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getProvisionableRegex());
+      //grouperProvisioningObjectMetadataItem.setDefaultValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getProvisionableRegex());
       grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningObjectMetadataProvisionableRegexDescription");
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningObjectMetadataProvisionableRegexLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowProvisionableRegexOverride");

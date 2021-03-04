@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperSyncLogWithOwner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerDiagnosticsContainer;
@@ -122,7 +123,6 @@ public class UiV2ProvisionerConfiguration {
       if (provisioner == null) {
         throw new RuntimeException("No provisioner found for "+provisionerConfigId);
       }
-      
       diagnosticsThreadProgress.put(diagnosticsMultiKey, provisioner);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

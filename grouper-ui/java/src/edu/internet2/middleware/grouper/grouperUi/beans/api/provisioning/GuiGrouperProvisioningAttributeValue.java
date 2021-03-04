@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -20,6 +21,18 @@ public class GuiGrouperProvisioningAttributeValue {
     this.grouperProvisioningAttributeValue = grouperProvisioningAttributeValue;
   }
   
+  private GrouperProvisioner grouperProvisioner;
+  
+  public void setGrouperProvisioner(GrouperProvisioner provisioner) {
+    grouperProvisioner = provisioner;
+    
+  }
+
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
   private GrouperProvisioningAttributeValue grouperProvisioningAttributeValue;
   
   private Timestamp lastTimeWorkWasDone;
