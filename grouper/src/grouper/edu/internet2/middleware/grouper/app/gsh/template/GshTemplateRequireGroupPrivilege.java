@@ -30,14 +30,6 @@ public enum GshTemplateRequireGroupPrivilege {
     }
   }, 
   
-  read_and_update {
-
-    @Override
-    public Privilege getPrivilege() {
-      return AccessPrivilege.UPDATE;
-    }
-  }, 
-  
   optin {
 
     @Override

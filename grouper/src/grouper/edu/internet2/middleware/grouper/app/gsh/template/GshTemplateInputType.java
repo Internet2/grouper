@@ -31,7 +31,11 @@ public enum GshTemplateInputType {
       }
       
       return true;
-      
+    }
+    
+    @Override
+    public Integer converToType(String valueFromUser) {
+      return GrouperUtil.intObjectValue(valueFromUser, true);
     }
     
   },
@@ -50,6 +54,11 @@ public enum GshTemplateInputType {
     @Override
     public boolean canConvertToCorrectType(String valueFromUser) {
       return true;
+    }
+    
+    @Override
+    public String converToType(String valueFromUser) {
+      return valueFromUser;
     }
     
   }, 
@@ -81,6 +90,11 @@ public enum GshTemplateInputType {
       return true;
     }
     
+    @Override
+    public Boolean converToType(String valueFromUser) {
+      return GrouperUtil.booleanObjectValue(valueFromUser);
+    }
+    
   };
   
   /**
@@ -98,6 +112,8 @@ public enum GshTemplateInputType {
   public abstract String generateGshVariable(GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
 
   public abstract boolean canConvertToCorrectType(String valueFromUser);
+  
+  public abstract Object converToType(String valueFromUser);
 
 }
 

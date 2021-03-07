@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -17,17 +16,11 @@ import org.apache.commons.text.StringEscapeUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -39,10 +32,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateExec {
@@ -188,397 +179,10 @@ public class GshTemplateExec {
 
   
   
-  private boolean validateEnabled(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
-    if (!templateConfig.isEnabled()) {
-      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.configId.notEnabled.message");
-      errorMessage = errorMessage.replace("$$configId$$", configId);
-      execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-      return false;
-    }
-    return true;
-  }
-  
-  
   public Subject getActAsSubject() {
     return actAsSubject;
   }
 
-  private boolean validateOwnerType(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
-    if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
-      String ownerStemString = this.getOwnerStemName();
-      if (StringUtils.isBlank(ownerStemString)) {
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerTypeStem.blank.message");
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-      }
-      
-      
-      Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, false);
-      if (ownerStem == null) {
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerStem.notFound.message");
-        errorMessage = errorMessage.replace("$$ownerStemName$$", ownerStemString);
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-      }
-      
-      if (!templateConfig.canFolderRunTemplate(ownerStem)) {
-        throw new RuntimeException("ownerStem "+ownerStem.getName() + " is not allowed to run this gsh template");
-      }
-      
-    } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
-      String ownerGroupString = this.getOwnerGroupName();
-      if (StringUtils.isBlank(ownerGroupString)) {
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerTypeGroup.blank.message");
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-      }
-      
-      
-      Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, false);
-      if (ownerGroup == null) {
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerGroup.notFound.message");
-        errorMessage = errorMessage.replace("$$ownerGroupName$$", ownerGroupString);
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-      }
-      
-    } else {
-      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
-      execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-      return false;
-    }
-    
-    return true;
-  }
-  
-  public boolean canSubjectExecuteTemplate(GshTemplateConfig templateConfig) {
-    
-    if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
-      Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
-      return templateConfig.getGroupThatCanRun().getMembers().contains(currentUserMember);
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
-      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
-      if (StringUtils.isBlank(wheelGroupName)) {
-        return false;
-      } 
-      Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
-      Group wheelGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), wheelGroupName, true);
-      return wheelGroup.getMembers().contains(currentUserMember);
-      
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
-      
-      if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
-        String ownerStemString = this.getOwnerStemName();
-        Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, true);
-        
-        GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege = templateConfig.getGshTemplateRequireFolderPrivilege();
-        
-        return ownerStem.canHavePrivilege(currentUser, gshTemplateRequireFolderPrivilege.getPrivilege().getName(), true);
-        
-      } else {
-        String ownerGroupString = this.getOwnerGroupName();
-        Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
-        
-        GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
-        return ownerGroup.canHavePrivilege(currentUser, gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
-      }
-     
-    }
-    
-    
-    return true;
-  }
-  
-  private boolean validateSecurityRunType(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
-    
-    if (PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
-      return true;
-    }
-    
-    Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
-    // validate current user
-    if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
-      if (!templateConfig.getGroupThatCanRun().getMembers().contains(currentUserMember)) {
-        
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.notMemberOfGroupThatCanRunTemplate.message");
-        errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", currentUser.getId());
-        errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$groupName$$", templateConfig.getGroupThatCanRun().getName());
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-        
-      }
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
-      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
-      if (StringUtils.isBlank(wheelGroupName)) {
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.wheelGroupMissing.message");
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        return false;
-      } 
-      
-      Group wheelGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), wheelGroupName, true);
-      if (!wheelGroup.getMembers().contains(currentUserMember)) {
-        
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.notMemberOfWheelGroup.message");
-        errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", currentUser.getId());
-        errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$groupName$$", wheelGroup.getName());
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        
-        return false;
-      }
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
-      
-      if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
-        String ownerStemString = this.getOwnerStemName();
-        Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, true);
-        
-        GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege = templateConfig.getGshTemplateRequireFolderPrivilege();
-        
-        if (!ownerStem.canHavePrivilege(currentUser, gshTemplateRequireFolderPrivilege.getPrivilege().getName(), true)) {
-          
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.noPrivilegeOnOwnerStem.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", currentUser.getId());
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$ownerStemName$$", ownerStemString);
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$privilege$$", gshTemplateRequireFolderPrivilege.getPrivilege().getName());
-          execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-          
-          return false;
-        }
-        
-      } else {
-        String ownerGroupString = this.getOwnerGroupName();
-        Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
-        
-        GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
-        if (!ownerGroup.canHavePrivilege(currentUser, gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true)) {
-          
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.noPrivilegeOnOwnerGroup.message");
-          
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", currentUser.getId());
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$ownerGroupName$$", ownerGroupString);
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$privilege$$", gshTemplateRequireGroupPrivilege.getPrivilege().getName());
-          
-          execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-          
-          return false;
-        }
-        
-      }
-     
-    }
-    
-    return true;
-    
-  }
-  
-  private String substituteHtmlInErrorMessage(String errorMessage, String key, String value) {
-    errorMessage = errorMessage.replace(key, GrouperUtil.escapeHtml(value, true));
-    return errorMessage;
-  }
-  
-  private boolean validateInputs(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
-    
-    Map<String, GshTemplateInputConfig> inputConfigs = GrouperUtil.listToMap(templateConfig.getGshTemplateInputConfigs(), String.class, GshTemplateInputConfig.class, "name");
-    
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    
-    variableMap.put("grouperUtil", new GrouperUtil());
-    
-    for (GshTemplateInput gshTemplateInput: gshTemplateInputs) {
-      variableMap.put(gshTemplateInput.getName(), StringUtils.isNotBlank(gshTemplateInput.getValueString())? gshTemplateInput.getValueString(): "");
-    }
-    
-    //remove the ones where showEL is evaluated to false
-    for (GshTemplateInputConfig gshTemplateInputConfig: templateConfig.getGshTemplateInputConfigs()) {
-      
-      String showElScript = gshTemplateInputConfig.getShowEl();
-      if (StringUtils.isNotBlank(showElScript)) {
-        try {
-          Object substituteExpressionLanguageScript = GrouperUtil.substituteExpressionLanguageScript(showElScript, variableMap, true, false, false);
-          Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(substituteExpressionLanguageScript);
-          if (booleanObjectValue == null || !booleanObjectValue) {
-            inputConfigs.remove(gshTemplateInputConfig.getName());
-          }
-        } catch (RuntimeException re) {
-          GrouperUtil.injectInException(re, ", script: '" + showElScript + "', ");
-          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(variableMap));
-          throw re;
-        }
-
-      }
-      
-    }
-    
-    
-    for (GshTemplateInput gshTemplateInput: gshTemplateInputs) {
-      
-      {
-        // make sure names passed in the input at runtime do exist in the config input names
-        if (!inputConfigs.containsKey(gshTemplateInput.getName())) {
-          
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.notConfiguredInTemplate.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInput.getName());
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validInputNames$$", GrouperUtil.collectionToString(inputConfigs.keySet()));
-          execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-          
-          return false;
-        }
-      }
-      
-      GshTemplateInputConfig gshTemplateInputConfig = inputConfigs.get(gshTemplateInput.getName());
-      String valueFromUser = gshTemplateInput.getValueString();
-      if (gshTemplateInputConfig.isTrimWhitespace() && StringUtils.isNotBlank(valueFromUser)) {
-        valueFromUser = valueFromUser.trim();
-      }
-      
-      {
-        // required
-        if (gshTemplateInputConfig.isRequired() && StringUtils.isBlank(valueFromUser)) {
-          
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.required.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
-          execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-          
-          return false;
-        }
-      }
-      
-      {
-        //max length
-        if (StringUtils.isNotBlank(valueFromUser) && gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.maxLength.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$maxLength$$", gshTemplateInputConfig.getMaxLength()+"");
-          execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-          return false;
-        }
-      }
-      
-      {
-        // validate data type (string, int, boolean)
-        GshTemplateInputType gshTemplateInputType = gshTemplateInputConfig.getGshTemplateInputType();
-        boolean canBeConverted = gshTemplateInputType.canConvertToCorrectType(valueFromUser);
-        if (!canBeConverted) {
-          
-          String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$valueFromUser$$", valueFromUser);
-          errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$type$$", gshTemplateInputType.name().toLowerCase());
-          execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-          
-          return false;
-        }
-      }
-      
-      {
-        // validate the value provided by the user
-        GshTemplateInputValidationType gshTemplateInputValidationType = gshTemplateInputConfig.getGshTemplateInputValidationType();
-        if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
-          boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateInputs);
-          if (!valuePasses) {
-            
-            if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessage())) {
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), gshTemplateInputConfig.getValidationMessage());
-              return false;
-            } else if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessageExternalizedTextKey())) {
-              String validationMessage = GrouperTextContainer.textOrNull(gshTemplateInputConfig.getValidationMessageExternalizedTextKey());
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), validationMessage);
-              return false;
-            } else {
-              String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.regex.message");
-              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$valueFromUser$$", valueFromUser);
-              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$regex$$", gshTemplateInputConfig.getValidationRegex());
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-              
-              return false;
-            }            
-          }
-        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl) {
-          boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateInputs);
-          if (!valuePasses) {
-            
-            if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessage())) {
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), gshTemplateInputConfig.getValidationMessage());
-              return false;
-            } else if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessageExternalizedTextKey())) {
-              String validationMessage = GrouperTextContainer.textOrNull(gshTemplateInputConfig.getValidationMessageExternalizedTextKey());
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), validationMessage);
-              return false;
-            } else {
-              
-              String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.jexl.message");
-              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
-              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$jexl$$", gshTemplateInputConfig.getValidationJexl());
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-              
-              return false;
-            }
-            
-          }
-        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin) {
-          boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateInputs);
-          if (!valuePasses) {
-            
-            if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessage())) {
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), gshTemplateInputConfig.getValidationMessage());
-            } else if (StringUtils.isNotBlank(gshTemplateInputConfig.getValidationMessageExternalizedTextKey())) {
-              String validationMessage = GrouperTextContainer.textOrNull(gshTemplateInputConfig.getValidationMessageExternalizedTextKey());
-              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), validationMessage);
-            }
-            
-            String errorMessage = gshTemplateInputConfig.getValidationBuiltinType().getErrorMessage(valueFromUser);
-            execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-            
-            return false;
-          }
-        }
-        
-        // dropdown value
-        if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
-          List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig.getDropdownValueBasedOnType());
-          
-          if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
-            // get only keys out of list of multiKeys and convert to comma separated string  
-            String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysValues.stream().map(multikey -> multikey.getKey(0)).collect(Collectors.toSet()));
-            String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.invalidDropdownValue.message");
-            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
-            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validValues$$", validValuesCommaSeparated);
-            execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
-          }
-        }
-        
-      }
-      
-    }
-    
-    //make sure all the required properties are actually there in the inputs provided by user
-    Map<String, GshTemplateInput> gshTemplateUserInputs = GrouperUtil.listToMap(getGshTemplateInputs(), String.class, GshTemplateInput.class, "name");
-    
-    for (String inputNameFromConfig: inputConfigs.keySet()) {
-      
-      if (inputConfigs.get(inputNameFromConfig).isRequired() && !gshTemplateUserInputs.containsKey(inputNameFromConfig)) {
-        
-        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.requiredNotSent.message");
-        errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", inputNameFromConfig);
-        execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-        
-        return false;
-      }
-      
-    }
-    
-    return true;
-    
-  }
-  
-  private boolean validate(GshTemplateConfig templateConfig, GshTemplateExecOutput execOutput) {
-    
-    boolean isValid = validateEnabled(templateConfig, execOutput);
-    isValid = isValid && validateOwnerType(templateConfig, execOutput);
-    isValid = isValid && validateSecurityRunType(templateConfig, execOutput);
-    isValid = isValid && validateInputs(templateConfig, execOutput);
-    return isValid;
-    
-  }
-  
   /**
    * execute the gsh template
    * @return
@@ -606,6 +210,8 @@ public class GshTemplateExec {
     
     GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
     
+    final GshTemplateExec THIS = this;
+    
     Subject grouperSessionSubject = (Subject) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
@@ -631,8 +237,7 @@ public class GshTemplateExec {
         }
         
         gshTemplateRuntime.setCurrentSubject(currentUser);
-        
-        if (!validate(templateConfig, execOutput)) {
+        if (!new GshTemplateValidationService().validate(templateConfig, THIS, execOutput)) {
           return null;
         }
         
@@ -649,6 +254,8 @@ public class GshTemplateExec {
           
           grouperSessionSubject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
           
+        } else {
+          throw new RuntimeException("Invalid gsh template run as type "+templateConfig.getGshTemplateRunAsType());
         }
         
         return grouperSessionSubject;
@@ -689,9 +296,11 @@ public class GshTemplateExec {
     if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
       scriptToRun.append("String gsh_builtin_ownerStemName = \""+StringEscapeUtils.escapeJava(ownerStemName) + "\";");
       scriptToRun.append("\n");
-    } else {
+    } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
       scriptToRun.append("String gsh_builtin_ownerGroupName = \""+StringEscapeUtils.escapeJava(ownerGroupName) + "\";");
       scriptToRun.append("\n");
+    } else {
+      throw new RuntimeException("Invalid gsh template owner type "+this.gshTemplateOwnerType);
     }
     
     Map<String, GshTemplateInput> gshTemplateInputsMap = new HashMap<String, GshTemplateInput>();
@@ -760,7 +369,7 @@ public class GshTemplateExec {
             success[0] = false;
           }
           
-          if (success[0] == false && templateConfig.isRunGshInTransaction()) {
+          if ( (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) && templateConfig.isRunGshInTransaction()) {
             hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
           }
           
@@ -810,13 +419,14 @@ public class GshTemplateExec {
       execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
       execOutput.setException(grouperGroovyResult.getException());
       
-      if (!execOutput.isSuccess()) {
-        LOG.error(grouperGroovyResult.getOutString(), grouperGroovyResult.getException());
+      if (execOutput.getException() != null) {
+        LOG.error(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
       } else {
-        LOG.debug(grouperGroovyResult.getOutString(), grouperGroovyResult.getException());
+        LOG.debug(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
       }
       
     } catch (RuntimeException e) {
+      LOG.error("Error running template with config id: "+configId, e);
       execOutput.setSuccess(false);
       execOutput.setException(e);
     } finally {

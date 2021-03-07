@@ -9,7 +9,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -445,6 +444,10 @@ public class GshTemplateConfig {
       return false;
     }
     
+    if (this.getGshTemplateFolderShowType() == GshTemplateFolderShowType.allFolders) {
+      return true;
+    }
+    
     Stem folderToShow = getFolderToShow();
     if (folderToShow == null) {
       LOG.error("folderToShow is not configured correctly for template with config id: "+getConfigId());
@@ -458,13 +461,14 @@ public class GshTemplateConfig {
     }
     
     if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants && 
-        !folderToShow.getChildStems(Scope.ONE).contains(folder)) {
+        !folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName()))) {
+      
       return false;
     }
     
     if (GshTemplateFolderShowOnDescendants.certainFolderAndOneChildLevel == gshTemplateFolderShowOnDescendants) {
       
-      if (!folderToShow.getChildStems(Scope.ONE).contains(folder) &&
+      if (!folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName())) &&
           !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
         return false;
       }
@@ -472,13 +476,14 @@ public class GshTemplateConfig {
     }
     
     if (GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants &&
-        !folderToShow.getChildStems().contains(folder)) {
+        !folder.getName().startsWith(folderToShow.getName()+":")) {
+      
       return false;
     }
     
     if (GshTemplateFolderShowOnDescendants.certainFolderAndDescendants == gshTemplateFolderShowOnDescendants) {
       
-      if (!folderToShow.getChildStems(Scope.SUB).contains(folder) &&
+      if (!folder.getName().startsWith(folderToShow.getName()+":") &&
           !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
         return false;
       }

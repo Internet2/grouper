@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -786,7 +787,7 @@ public class StemContainer {
         
         
         
-        if (gshTemplateConfig.isShowInMoreActions() && gshTemplateExec.canSubjectExecuteTemplate(gshTemplateConfig)) {
+        if (gshTemplateConfig.isShowInMoreActions() && new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
           configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
         }
         

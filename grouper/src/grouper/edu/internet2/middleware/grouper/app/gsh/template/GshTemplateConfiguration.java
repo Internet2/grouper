@@ -112,7 +112,9 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     GrouperConfigurationModuleAttribute numberOfInputsAttribute = attributes.get("numberOfInputs");
     
-    int numberOfInputs = Integer.valueOf(numberOfInputsAttribute.getValueOrExpressionEvaluation());
+    String valueOrExpressionEvaluation = numberOfInputsAttribute.getValueOrExpressionEvaluation();
+    
+    int numberOfInputs = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
     
     for (int i=0; i<numberOfInputs; i++) {
       GrouperConfigurationModuleAttribute nameAttribute = attributes.get("input."+i+".name");

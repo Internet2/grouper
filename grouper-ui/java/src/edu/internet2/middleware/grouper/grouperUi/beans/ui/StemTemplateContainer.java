@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 
@@ -263,7 +264,7 @@ public class StemTemplateContainer {
           continue;
         }
         
-        if (gshTemplateExec.canSubjectExecuteTemplate(gshTemplateConfig)) {
+        if (new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
           configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
         }
         
