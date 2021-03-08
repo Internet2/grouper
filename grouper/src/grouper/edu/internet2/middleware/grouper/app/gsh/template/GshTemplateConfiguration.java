@@ -151,6 +151,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
     });
+    ConfigPropertiesCascadeBase.clearCache();
+
   }
   
   @Override
@@ -177,7 +179,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
         }
         
       });
-    
+      ConfigPropertiesCascadeBase.clearCache();
+
   }
   
   @Override
@@ -199,7 +202,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
     });
-    
+    ConfigPropertiesCascadeBase.clearCache();
+
   }
 
 }
