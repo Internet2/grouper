@@ -205,7 +205,7 @@ public class AttestationStemSave {
 
   private boolean stemScopeAssigned = false;
 
-  private boolean replaceAllSettings = false;
+  private boolean replaceAllSettings = true;
 
   private boolean useThreadForPropagation = false;
 

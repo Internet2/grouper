@@ -376,11 +376,31 @@ public class GroupSave {
 
   /**
    * assign save mode
+   * @param theSaveMode
+   * @return this for chaining
+   */
+  public GroupSave assignSaveMode(String theSaveMode) {
+    this.saveMode = SaveMode.valueOfIgnoreCase(theSaveMode);
+    return this;
+  }
+
+  /**
+   * assign save mode
    * @param theTypeOfGroup
    * @return this for chaining
    */
   public GroupSave assignTypeOfGroup(TypeOfGroup theTypeOfGroup) {
     this.typeOfGroup = theTypeOfGroup;
+    return this;
+  }
+
+  /**
+   * assign save mode
+   * @param theTypeOfGroup
+   * @return this for chaining
+   */
+  public GroupSave assignTypeOfGroup(String theTypeOfGroup) {
+    this.typeOfGroup = TypeOfGroup.valueOfIgnoreCase(theTypeOfGroup, false);
     return this;
   }
 
