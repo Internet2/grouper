@@ -1850,7 +1850,7 @@ public class GrouperProvisionerGrouperDao {
     
     List<String[]> queryResults = null;
 
-    List<String> idsList = GrouperUtil.listFromCollection(policyGroupIds);
+    List<String> idsList = GrouperUtil.listFromCollection(groupIds);
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
     for (int i = 0; i < numberOfBatches; i++) {

@@ -1762,6 +1762,12 @@ public class GrouperProvisioningService {
           
           if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
             provisioningAttributesGroupsDeleted++;
+            
+            Group group =(Group)object;
+            ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+            provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
+            provisioningMessage.setBlocking(false);
+            provisioningMessage.send(grouperProvisioningObjectAttribute.getProvisioningTarget());
           } else {
             provisioningAttributesFoldersDeleted++;
           }
@@ -1855,7 +1861,7 @@ public class GrouperProvisioningService {
             Group group =(Group)object;
             ProvisioningMessage provisioningMessage = new ProvisioningMessage();
             provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
-            provisioningMessage.setBlocking(true);
+            provisioningMessage.setBlocking(false);
             provisioningMessage.send(actualTarget);
           } else {
             provisioningAttributesFoldersAddedOrUpdated++;

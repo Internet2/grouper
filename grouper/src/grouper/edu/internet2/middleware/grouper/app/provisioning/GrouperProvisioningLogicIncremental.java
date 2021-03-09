@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
@@ -29,6 +31,7 @@ import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessa
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -939,17 +942,46 @@ public class GrouperProvisioningLogicIncremental {
 
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
 
-        // query pit to see if this is for a folder and for this provisioner and is direct
-        if (!queriedPITAttributeAssignIds.contains(pitAttributeAssign.getOwnerAttributeAssignId())) {
-          queriedPITAttributeAssignIds.add(pitAttributeAssign.getOwnerAttributeAssignId());
-          
-          String stemId = grouperProvisioner.retrieveGrouperDao().getStemIdIfDirectStemAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
+        if (pitAttributeAssign != null) {
+          // query pit to see if this is for a folder and for this provisioner and is direct
+          if (!queriedPITAttributeAssignIds.contains(pitAttributeAssign.getOwnerAttributeAssignId())) {
+            queriedPITAttributeAssignIds.add(pitAttributeAssign.getOwnerAttributeAssignId());
+            
+            String stemId = grouperProvisioner.retrieveGrouperDao().getStemIdIfDirectStemAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
+  
+            if (stemId != null) {
+              Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(stemId);
+              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+              grouperProvisioningFolderAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId));
+              grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
+            }
+          }
+        }
+      } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
+          esbEvent.getAttributeDefNameName().equals(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME) &&
+          ("policy".equals(esbEvent.getPropertyNewValue()) || "policy".equals(esbEvent.getPropertyOldValue()))) {
 
-          if (stemId != null) {
-            Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(stemId);
-            allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
-            grouperProvisioningFolderAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId));
-            grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
+        PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
+        if (pitAttributeAssign != null && pitAttributeAssign.getOwnerAttributeAssignId() != null) {
+          PITAttributeAssign pitAttributeAssignOwner = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAttributeAssign.getOwnerAttributeAssignId(), true);
+
+          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitAttributeAssignOwner.getOwnerGroupId(), true);
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), false);
+
+          if (group != null) {
+            GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
+            if (grouperProvisioningObjectAttributes == null) {
+              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName());
+              grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+            }
+
+            grouperProvisioningGroupAttributesToProcess.put(group.getName(), grouperProvisioningObjectAttributes);
+
+            String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
+            if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
+              Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(group.getParentUuid());
+              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+            }
           }
         }
       }
