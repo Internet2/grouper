@@ -8,8 +8,11 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputType;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -178,6 +181,59 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
       }
       
     }
+  }
+  
+  @Override
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    GrouperConfigurationModuleAttribute numberOfMetadataAttribute = attributes.get("numberOfMetadata");
+    
+    String valueOrExpressionEvaluation = numberOfMetadataAttribute.getValueOrExpressionEvaluation();
+    
+    int numberOfMetadatas = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
+    
+    for (int i=0; i<numberOfMetadatas; i++) {
+      GrouperConfigurationModuleAttribute nameAttribute = attributes.get("metadata."+i+".name");
+      String nameAttributeValue = nameAttribute.getValueOrExpressionEvaluation();
+      if (!nameAttributeValue.startsWith("md_") || !nameAttributeValue.matches("^[a-zA-Z0-9_]+$")) {
+        String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat");
+        validationErrorsToDisplay.put(nameAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+      
+      GrouperConfigurationModuleAttribute defaultValueAttribute = attributes.get("metadata."+i+".defaultValue");
+      if (defaultValueAttribute != null && StringUtils.isNotBlank(defaultValueAttribute.getValueOrExpressionEvaluation())) {
+        String valueBeforeConversion = defaultValueAttribute.getValueOrExpressionEvaluation();
+        GrouperConfigurationModuleAttribute typeAttribute = attributes.get("metadata."+i+".valueType");
+        
+        GrouperProvisioningObjectMetadataItemValueType valueType = null;
+        if (typeAttribute == null || StringUtils.isBlank(typeAttribute.getValueOrExpressionEvaluation())) {
+          valueType = GrouperProvisioningObjectMetadataItemValueType.STRING;
+        } else {
+          valueType = GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(typeAttribute.getValueOrExpressionEvaluation(), true);
+        }
+        
+        if (!valueType.canConvertToCorrectType(valueBeforeConversion)) { 
+          String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataDefaultValueNotCorrectType");
+          error = GrouperUtil.replace(error, "$$defaultValue$$", valueBeforeConversion);
+          error = GrouperUtil.replace(error, "$$selectedType$$", valueType.name().toLowerCase());
+          validationErrorsToDisplay.put(defaultValueAttribute.getHtmlForElementIdHandle(), error);
+          return;
+        }
+        
+      }
+      
+      
+    }
+    
+    
+    
+    
+    
   }
   
 

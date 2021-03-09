@@ -1,9 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public enum GrouperProvisioningObjectMetadataItemValueType {
 
@@ -17,6 +15,11 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       return GrouperUtil.stringValue(value);
     }
     
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      return true;
+    }
+    
   }, 
   
   INTEGER {
@@ -28,6 +31,20 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       }
       return GrouperUtil.intValue(value);
     }
+    
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      
+      if (StringUtils.isNotBlank(valueFromUser)) {
+        try {
+          GrouperUtil.intValue(valueFromUser);
+        } catch(Throwable e) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
   },
   
   FLOAT {
@@ -35,6 +52,20 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     @Override
     public Object convert(Object value) {
       return GrouperUtil.floatObjectValue(value, true);      
+    }
+    
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      
+      if (StringUtils.isNotBlank(valueFromUser)) {
+        try {
+          GrouperUtil.floatValue(valueFromUser);
+        } catch(Throwable e) {
+          return false;
+        }
+      }
+      
+      return true;
     }
    
     
@@ -47,6 +78,19 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       return GrouperUtil.booleanObjectValue(value);
     }
     
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      
+      if (StringUtils.isNotBlank(valueFromUser)) {
+        try {
+          GrouperUtil.booleanValue(valueFromUser);
+        } catch(Throwable e) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
   },
   
   TIMESTAMP {
@@ -54,6 +98,20 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     @Override
     public Object convert(Object value) {
       return GrouperUtil.toTimestamp(value);
+    }
+    
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      
+      if (StringUtils.isNotBlank(valueFromUser)) {
+        try {
+          GrouperUtil.stringToTimestamp(valueFromUser);
+        } catch(Throwable e) {
+          return false;
+        }
+      }
+      
+      return true;
     }
     
   };
@@ -76,6 +134,8 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperProvisioningObjectMetadataItemValueType.class, type, exceptionOnNotFound);
     
   }
+  
+  public abstract boolean canConvertToCorrectType(String valueFromUser);
 
 }
 

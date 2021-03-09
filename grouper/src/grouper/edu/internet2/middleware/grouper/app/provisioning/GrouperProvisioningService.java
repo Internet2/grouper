@@ -747,10 +747,14 @@ public class GrouperProvisioningService {
     }
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_OWNER_STEM_ID, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.isDirectAssignment() ? null: grouperProvisioningAttributeValue.getOwnerStemId());
+    if (grouperProvisioningAttributeValue.getOwnerStemId() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperProvisioningAttributeValue.getOwnerStemId());
+    }
     
     Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
-    if (metadataNameValues != null) {
+    if (metadataNameValues != null && metadataNameValues.size() > 0) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
         String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);

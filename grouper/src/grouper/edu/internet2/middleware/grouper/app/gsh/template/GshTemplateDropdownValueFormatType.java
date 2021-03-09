@@ -24,7 +24,7 @@ public enum GshTemplateDropdownValueFormatType {
       String[] keys = GrouperUtil.splitTrim(configuredValueBasedOnType, ",");
       
       for (String key: keys) {
-        key = key.replace("&#x27;", ",");
+        key = GrouperUtil.replace(key, "&#x2c;", ",");
         keysAndLabels.add(new MultiKey(key, key));
       }
       

@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -1470,8 +1471,16 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.provisionableRegex = this.retrieveConfigString("provisionableRegex", false);
 
     {
-      String provisioningTypeString = this.retrieveConfigString("provisioningType", true);
-      this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
+      Boolean operateOnGrouperMemberships = this.retrieveConfigBoolean("operateOnGrouperMemberships", false);
+      if (operateOnGrouperMemberships == null) {
+        operateOnGrouperMemberships = false;
+      }
+      
+      if (operateOnGrouperMemberships) {
+        String provisioningTypeString = this.retrieveConfigString("provisioningType", true);
+        this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
+      }
+      
     }
 
     this.numberOfMetadata = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMetadata", false), 0);
@@ -1522,6 +1531,36 @@ public abstract class GrouperProvisioningConfigurationBase {
             StringUtils.isBlank(valueType) ? GrouperProvisioningObjectMetadataItemValueType.STRING 
                 : GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(valueType, true);
         grouperProvisioningObjectMetadataItem.setValueType(grouperProvisioningObjectMetadataItemValueType);
+        
+        if (grouperProvisioningObjectMetadataItemValueType == GrouperProvisioningObjectMetadataItemValueType.BOOLEAN) {
+          grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+         
+          String trueLabel = GrouperTextContainer.textOrNull("config.defaultTrueLabel");
+          String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+          
+          String defaultValue = this.retrieveConfigString("metadata."+i+".defaultValue", false);
+          
+          List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+          
+          if (StringUtils.isNotBlank(defaultValue)) {
+            
+            Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
+            if (booleanObjectValue != null) {
+              String defaultValueStr = booleanObjectValue ? "("+trueLabel+")" : "("+falseLabel+")"; 
+              keysAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
+            }
+          }
+          
+          keysAndLabels.add(new MultiKey("true", trueLabel));
+          keysAndLabels.add(new MultiKey("false", falseLabel));
+          grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(keysAndLabels);
+        } else {
+          String formElementType = this.retrieveConfigString("metadata."+i+".formElementType", false);
+          GrouperProvisioningObjectMetadataItemFormElementType grouperProvisioningObjectMetadataItemFormElementType =
+              StringUtils.isBlank(formElementType) ? GrouperProvisioningObjectMetadataItemFormElementType.TEXT 
+                  : GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
+          grouperProvisioningObjectMetadataItem.setFormElementType(grouperProvisioningObjectMetadataItemFormElementType);
+        }
       }
       
       {
@@ -1530,18 +1569,11 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
       
       {
-        String formElementType = this.retrieveConfigString("metadata."+i+".formElementType", false);
-        GrouperProvisioningObjectMetadataItemFormElementType grouperProvisioningObjectMetadataItemFormElementType =
-            StringUtils.isBlank(formElementType) ? GrouperProvisioningObjectMetadataItemFormElementType.TEXT 
-                : GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
-        grouperProvisioningObjectMetadataItem.setFormElementType(grouperProvisioningObjectMetadataItemFormElementType);
-      }
-      
-      {
         String dropdownValues = this.retrieveConfigString("metadata."+i+".dropdownValues", false);
         if (!StringUtils.isBlank(dropdownValues)) {
           String[] dropdownValuesArray = GrouperUtil.splitTrim(dropdownValues, ",");
           List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+          keysAndLabels.add(new MultiKey("", ""));
           for (String dropdownValue : dropdownValuesArray) {
             dropdownValue = GrouperUtil.replace(dropdownValue, "&#x2c;", ",");
             MultiKey keyAndLabel = new MultiKey(dropdownValue, dropdownValue);

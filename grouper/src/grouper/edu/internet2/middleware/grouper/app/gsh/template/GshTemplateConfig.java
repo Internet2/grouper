@@ -22,6 +22,8 @@ public class GshTemplateConfig {
   
   private String configId;
   
+  private String templateName;
+  
   private GshTemplateRunAsType gshTemplateRunAsType;
   
   private boolean enabled;
@@ -85,7 +87,11 @@ public class GshTemplateConfig {
   }
 
   
-  
+  public String getTemplateName() {
+    return templateName;
+  }
+
+
   public boolean isUseExternalizedText() {
     return useExternalizedText;
   }
@@ -267,6 +273,8 @@ public class GshTemplateConfig {
     
     actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
     
+    templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
+    
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
     gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
     
@@ -354,10 +362,14 @@ public class GshTemplateConfig {
       
       gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
       
-      ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
-      gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
+      if (gshTemplateInputType == GshTemplateInputType.BOOLEAN) {
+        gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.RADIOBUTTON);
+      } else {
+        ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
+        gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
+      }
       
-      if (configItemFormElement == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
+      if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
         GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
         gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
         

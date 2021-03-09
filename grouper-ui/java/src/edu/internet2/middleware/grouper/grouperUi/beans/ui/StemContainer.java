@@ -15,13 +15,14 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 
@@ -794,11 +795,24 @@ public class StemContainer {
       }
     }
     
-    // sort map by value because we want the template names to show in alphabetical order
-    Map<String, String> sortedMap = configsToShowInStemMoreActions.entrySet().stream()
-        .sorted(Entry.comparingByValue())
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     
-    return sortedMap;
+    List<Map.Entry<String, String>> list = new LinkedList<Map.Entry<String, String>>(configsToShowInStemMoreActions.entrySet()); 
+
+    // Sort the list 
+    Collections.sort(list, new Comparator<Map.Entry<String, String> >() { 
+     public int compare(Map.Entry<String, String> o1,  
+                        Map.Entry<String, String> o2) { 
+         return (o1.getValue()).compareTo(o2.getValue()); 
+     } 
+    }); 
+    
+    
+    Map<String, String> sortedTemplatesByName = new LinkedHashMap<String, String>();
+    
+    for (Map.Entry<String, String> templateIdAndName : list) { 
+      sortedTemplatesByName.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
+    } 
+    
+    return sortedTemplatesByName;
   }
 }
