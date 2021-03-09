@@ -4,12 +4,13 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 
@@ -241,7 +243,7 @@ public class StemTemplateContainer {
    */
   public Map<String, String> getCustomGshTemplates() {
     
-    Map<String, String> configsToShowInStemMoreActions = new HashMap<String, String>();
+    Map<String, String> configsToShowInTemplateTypeDropdown = new HashMap<String, String>();
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     Stem stem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem().getStem();
@@ -263,19 +265,32 @@ public class StemTemplateContainer {
           continue;
         }
         
-        if (gshTemplateExec.canSubjectExecuteTemplate(gshTemplateConfig)) {
-          configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
+        if (new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
+          configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateName());
         }
         
       }
     }
     
-    // sort map by value because we want the template names to show in alphabetical order
-    Map<String, String> sortedMap = configsToShowInStemMoreActions.entrySet().stream()
-        .sorted(Entry.comparingByValue())
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     
-    return sortedMap;
+    List<Map.Entry<String, String>> list = new LinkedList<Map.Entry<String, String>>(configsToShowInTemplateTypeDropdown.entrySet()); 
+
+    // Sort the list 
+    Collections.sort(list, new Comparator<Map.Entry<String, String> >() { 
+     public int compare(Map.Entry<String, String> o1,  
+                        Map.Entry<String, String> o2) { 
+         return (o1.getValue()).compareTo(o2.getValue()); 
+     } 
+    }); 
+    
+    
+    Map<String, String> sortedTemplatesByName = new LinkedHashMap<String, String>();
+    
+    for (Map.Entry<String, String> templateIdAndName : list) { 
+      sortedTemplatesByName.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
+    } 
+    
+    return sortedTemplatesByName;
   }
 
   

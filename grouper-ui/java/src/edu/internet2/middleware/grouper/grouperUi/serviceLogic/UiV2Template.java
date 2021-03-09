@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -92,7 +93,10 @@ public class UiV2Template {
 	      
 	      if (templateLogic == null) {
 	        // must be gsh custom template
-	        populateCustomTemplateInputs(request, templateType);
+	        Map<String, GuiGshTemplateInputConfig> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+	        if (customTemplateInputs == null) {
+	          return;
+	        }
 	        
 	      } else {
 	        templateContainer.setTemplateLogic(templateLogic);
@@ -206,14 +210,28 @@ public class UiV2Template {
       }
     });
     
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
     for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
       GuiGshTemplateInputConfig guiGshTemplateInputConfig = new GuiGshTemplateInputConfig();
       guiGshTemplateInputConfig.setGshTemplateInputConfig(gshTemplateInputConfig);
       
       String value = request.getParameter("config_"+gshTemplateInputConfig.getName());
+      
+      if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(value)) {
+        
+        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
+        errorMessage = errorMessage.replace("$$valueFromUser$$", GrouperUtil.escapeHtml(value, true));
+        errorMessage = errorMessage.replace("$$type$$", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshTemplateInputConfig.getName()+"_id", 
+            errorMessage));
+        return null;
+      }
+      
       guiGshTemplateInputConfig.setValue(value);
       
-      variableMap.put(gshTemplateInputConfig.getName(), StringUtils.isBlank(value) ? "": value);
+      variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().converToType(value));
       guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), guiGshTemplateInputConfig);
       
     }
@@ -289,6 +307,10 @@ public class UiV2Template {
       gshTemplateConfig.populateConfiguration();
       
       Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
+      
+      if (gshTemplateInputs == null) {
+        return;
+      }
       
       for (String inputName: gshTemplateInputs.keySet()) {
         

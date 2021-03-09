@@ -24,7 +24,7 @@ public class GshTemplateExecTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GshTemplateExecTest("testValidateDropdownValues"));
+    TestRunner.run(new GshTemplateExecTest("testExecuteBasicGsh"));
     
 //    GrouperStartup.startup();
 //    GrouperSession.startRootSession();
@@ -137,7 +137,7 @@ public class GshTemplateExecTest extends GrouperTest {
     // then
     assertEquals(0, output.getGshTemplateOutput().getOutputLines().size());
     assertEquals(1, output.getGshTemplateOutput().getValidationLines().size());
-    assertEquals("'gsh_input_myExtension' is a required input field.", output.getGshTemplateOutput().getValidationLines().get(0).getText());
+    assertEquals("'Test label' is a required input field.", output.getGshTemplateOutput().getValidationLines().get(0).getText());
     assertFalse(output.isSuccess());
     assertFalse(output.isValid());
   }
@@ -534,7 +534,7 @@ public class GshTemplateExecTest extends GrouperTest {
     // then
     assertEquals(0, output.getGshTemplateOutput().getOutputLines().size());
     assertEquals(1, output.getGshTemplateOutput().getValidationLines().size());
-    assertEquals("'gsh_input_myExtension' value cannot be more than '5' character(s).", output.getGshTemplateOutput().getValidationLines().get(0).getText());
+    assertEquals("'Test label' cannot be more than '5' character(s).", output.getGshTemplateOutput().getValidationLines().get(0).getText());
     assertFalse(output.isSuccess());
     assertFalse(output.isValid());
     
@@ -580,7 +580,7 @@ public class GshTemplateExecTest extends GrouperTest {
     // then
     assertEquals(0, output.getGshTemplateOutput().getOutputLines().size());
     assertEquals(1, output.getGshTemplateOutput().getValidationLines().size());
-    assertEquals("'gsh_input_myExtension' value is not valid. Valid values are 'def, ghi'.", output.getGshTemplateOutput().getValidationLines().get(0).getText());
+    assertEquals("'Test label' is not valid. Valid values are 'def, ghi'.", output.getGshTemplateOutput().getValidationLines().get(0).getText());
     assertFalse(output.isSuccess());
     assertFalse(output.isValid());
     

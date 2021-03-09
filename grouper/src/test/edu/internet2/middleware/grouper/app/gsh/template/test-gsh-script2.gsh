@@ -5,7 +5,7 @@ if (!gsh_input_myExtension.startsWith("zoom")) {
 	
 	gsh_builtin_gshTemplateOutput.assignIsError(true); 
 	
-	GrouperUtil.gshReturn();
+	quit;
 
 }
 

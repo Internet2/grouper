@@ -112,7 +112,9 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     GrouperConfigurationModuleAttribute numberOfInputsAttribute = attributes.get("numberOfInputs");
     
-    int numberOfInputs = Integer.valueOf(numberOfInputsAttribute.getValueOrExpressionEvaluation());
+    String valueOrExpressionEvaluation = numberOfInputsAttribute.getValueOrExpressionEvaluation();
+    
+    int numberOfInputs = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
     
     for (int i=0; i<numberOfInputs; i++) {
       GrouperConfigurationModuleAttribute nameAttribute = attributes.get("input."+i+".name");
@@ -120,6 +122,28 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       if (!nameAttributeValue.startsWith("gsh_input_") || !nameAttributeValue.matches("^[a-zA-Z0-9_]+$")) {
         String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputNotValidFormat");
         validationErrorsToDisplay.put(nameAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+      GrouperConfigurationModuleAttribute defaultValueAttribute = attributes.get("input."+i+".defaultValue");
+      if (defaultValueAttribute != null && StringUtils.isNotBlank(defaultValueAttribute.getValueOrExpressionEvaluation())) {
+        String valueBeforeConversion = defaultValueAttribute.getValueOrExpressionEvaluation();
+        GrouperConfigurationModuleAttribute typeAttribute = attributes.get("input."+i+".type");
+        
+        GshTemplateInputType templateInputType = null;
+        if (typeAttribute == null) {
+          templateInputType = GshTemplateInputType.STRING;
+        } else {
+          templateInputType = GshTemplateInputType.valueOfIgnoreCase(typeAttribute.getValueOrExpressionEvaluation(), true);
+        }
+        
+        if (!templateInputType.canConvertToCorrectType(valueBeforeConversion)) {
+          String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputDefaultValueNotCorrectType");
+          error = GrouperUtil.replace(error, "$$defaultValue$$", valueBeforeConversion);
+          error = GrouperUtil.replace(error, "$$selectedType$$", templateInputType.name().toLowerCase());
+          validationErrorsToDisplay.put(defaultValueAttribute.getHtmlForElementIdHandle(), error);
+          return;
+        }
+        
       }
     }
     
@@ -149,6 +173,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
     });
+    ConfigPropertiesCascadeBase.clearCache();
+
   }
   
   @Override
@@ -175,7 +201,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
         }
         
       });
-    
+      ConfigPropertiesCascadeBase.clearCache();
+
   }
   
   @Override
@@ -197,7 +224,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
     });
-    
+    ConfigPropertiesCascadeBase.clearCache();
+
   }
 
 }

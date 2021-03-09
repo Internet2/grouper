@@ -362,38 +362,19 @@ public class GrouperLoader {
       for (String key : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
         if (key.startsWith("org.quartz.")) {
           String value = GrouperLoaderConfig.retrieveConfig().propertyValueString(key);
-          if (value == null) {
-            value = "";
+          if (key.startsWith("org.quartz.dataSource.myDS") 
+              && !(key.equals("org.quartz.dataSource.myDS.connectionProvider.class") && StringUtils.equals(value, GrouperQuartzConnectionProvider.class.getName()))) {
+            LOG.error("Quartz property filtered since uses Grouper datastore now! '" + key + "', value: '" + value + "'");
+          } else {
+            if (value == null) {
+              value = "";
+            }
+            props.put(key, value);
           }
-          props.put(key, value);
         }
       }
-
-      String url = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
-      
-      if (GrouperUtil.isEmpty((String)props.get("org.quartz.dataSource.myDS.driver"))) {
-        String driver = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
-        driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url, driver);
-        props.put("org.quartz.dataSource.myDS.driver", driver);
-      }
-      
-      if (GrouperUtil.isEmpty((String)props.get("org.quartz.jobStore.driverDelegateClass"))) {
-        String driver = GrouperDdlUtils.convertUrlToQuartzDriverDelegateClassIfNeeded(url, null);
-        props.put("org.quartz.jobStore.driverDelegateClass", driver);
-      }
-      
-      if (GrouperUtil.isEmpty((String)props.get("org.quartz.dataSource.myDS.URL"))) {
-        props.put("org.quartz.dataSource.myDS.URL", url);
-      }
-      
-      if (GrouperUtil.isEmpty((String)props.get("org.quartz.dataSource.myDS.user"))) {
-        props.put("org.quartz.dataSource.myDS.user", GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username"));
-      }
-      
-      if (GrouperUtil.isEmpty((String)props.get("org.quartz.dataSource.myDS.password"))) {
-        String pass = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.password");
-        pass = Morph.decryptIfFile(pass);
-        props.put("org.quartz.dataSource.myDS.password", pass);
+      if (!StringUtils.equals("myDS", props.getProperty("org.quartz.jobStore.dataSource"))) {
+        LOG.error("Quartz datasource should be myDS! '" + props.getProperty("org.quartz.jobStore.dataSource") + "'");
       }
       
       try {

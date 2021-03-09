@@ -1755,7 +1755,9 @@ public class UiV2Provisioning {
       if (StringUtils.isNotBlank(value)) {
         try {          
           Object convertedValue = metadataItem.getValueType().convert(value);
-          metadataNameValuesToPopulate.put(name, convertedValue);
+          if (!GrouperUtil.equals(value, metadataItem.getDefaultValue())) {
+            metadataNameValuesToPopulate.put(name, convertedValue);
+          }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
           errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
@@ -1869,7 +1871,9 @@ public class UiV2Provisioning {
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       
       boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder);
-      if (errors) return;
+      if (errors) {
+        return;
+      }
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
       

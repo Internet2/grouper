@@ -245,6 +245,32 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       field.append("</select>");
     }
     
+    if (configItemFormElement == GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON) {
+      
+      boolean firstOption = true;
+      for (MultiKey multiKey: valuesAndLabels) {
+        
+        String key = (String) multiKey.getKey(0);
+        String radioButtonValue = (String) multiKey.getKey(1);
+        boolean checked = StringUtils.equals(key, value);
+
+        field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
+        field.append(checked ? " checked ": "");
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append(">");
+        field.append("</input>");
+        
+        if (firstOption) {
+          firstOption = false;
+          field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+        } else {
+          field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+        }
+      }
+    }
+    
+    
+    
     if (!readOnly && required) {
       field.append("<span class='requiredField' rel='tooltip' data-html='true' data-delay-show='200' data-placement='right'>*");
       field.append("</span>");

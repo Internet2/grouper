@@ -9,7 +9,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -22,6 +21,8 @@ public class GshTemplateConfig {
   private static final Log LOG = GrouperUtil.getLog(GshTemplateConfig.class);
   
   private String configId;
+  
+  private String templateName;
   
   private GshTemplateRunAsType gshTemplateRunAsType;
   
@@ -86,7 +87,11 @@ public class GshTemplateConfig {
   }
 
   
-  
+  public String getTemplateName() {
+    return templateName;
+  }
+
+
   public boolean isUseExternalizedText() {
     return useExternalizedText;
   }
@@ -268,6 +273,8 @@ public class GshTemplateConfig {
     
     actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
     
+    templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
+    
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
     gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
     
@@ -355,10 +362,14 @@ public class GshTemplateConfig {
       
       gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
       
-      ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
-      gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
+      if (gshTemplateInputType == GshTemplateInputType.BOOLEAN) {
+        gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.RADIOBUTTON);
+      } else {
+        ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
+        gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
+      }
       
-      if (configItemFormElement == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
+      if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
         GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
         gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
         
@@ -445,6 +456,10 @@ public class GshTemplateConfig {
       return false;
     }
     
+    if (this.getGshTemplateFolderShowType() == GshTemplateFolderShowType.allFolders) {
+      return true;
+    }
+    
     Stem folderToShow = getFolderToShow();
     if (folderToShow == null) {
       LOG.error("folderToShow is not configured correctly for template with config id: "+getConfigId());
@@ -458,13 +473,14 @@ public class GshTemplateConfig {
     }
     
     if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants && 
-        !folderToShow.getChildStems(Scope.ONE).contains(folder)) {
+        !folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName()))) {
+      
       return false;
     }
     
     if (GshTemplateFolderShowOnDescendants.certainFolderAndOneChildLevel == gshTemplateFolderShowOnDescendants) {
       
-      if (!folderToShow.getChildStems(Scope.ONE).contains(folder) &&
+      if (!folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName())) &&
           !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
         return false;
       }
@@ -472,13 +488,14 @@ public class GshTemplateConfig {
     }
     
     if (GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants &&
-        !folderToShow.getChildStems().contains(folder)) {
+        !folder.getName().startsWith(folderToShow.getName()+":")) {
+      
       return false;
     }
     
     if (GshTemplateFolderShowOnDescendants.certainFolderAndDescendants == gshTemplateFolderShowOnDescendants) {
       
-      if (!folderToShow.getChildStems(Scope.SUB).contains(folder) &&
+      if (!folder.getName().startsWith(folderToShow.getName()+":") &&
           !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
         return false;
       }

@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.app.zoom;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -107,13 +108,23 @@ public class CustomUiZoom {
       variableMap.put("groupNamesSet", groupNamesSet);
       
       // get them all
-      Map<String, Map<String, Object>> groupMap = GrouperZoomCommands.retrieveGroups(configId);
+      Map<String, Map<String, Object>> groupNameToGroupMap = GrouperZoomCommands.retrieveGroups(configId);
+      Map<String, Map<String, Object>> groupIdToGroupMap = new HashMap<String, Map<String, Object>>();
 
+      for (Map<String, Object> group : GrouperUtil.nonNull(groupNameToGroupMap).values()) {
+        String groupId = (String)group.get("id");
+        if (!StringUtils.isBlank(groupId)) {
+          groupIdToGroupMap.put(groupId, group);
+        }
+      }
+      
       for (int i=0;i<GrouperUtil.length(groupIdsArray); i++) {
         String groupId = groupIdsArray[i];
-        Map<String, Object> zoomGroup = groupMap.get(groupId);
-        String groupName = (String)zoomGroup.get("name");
-        groupNamesSet.add(groupName);
+        Map<String, Object> zoomGroup = groupIdToGroupMap.get(groupId);
+        String groupName = zoomGroup == null ? null : (String)zoomGroup.get("name");
+        if (!StringUtils.isBlank(groupName)) {
+          groupNamesSet.add(groupName);
+        }
       }
       
       variableMap.put("groupNamesSet", groupNamesSet);
