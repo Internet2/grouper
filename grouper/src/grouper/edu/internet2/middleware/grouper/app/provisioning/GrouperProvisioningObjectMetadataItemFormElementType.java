@@ -9,7 +9,7 @@ public enum GrouperProvisioningObjectMetadataItemFormElementType {
   Drop down options List the options or get them programmatically
    */
   
-  TEXT, TEXTAREA, DROPDOWN;
+  TEXT, TEXTAREA, DROPDOWN, RADIOBUTTON;
   
   /**
    * do a case-insensitive matching
