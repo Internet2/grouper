@@ -951,9 +951,10 @@ public class GrouperProvisioningLogicIncremental {
   
             if (stemId != null) {
               Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(stemId);
-              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
               grouperProvisioningFolderAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId));
               grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
+              allAncestorProvisioningGroupAttributes.putAll(grouperProvisioningFolderAttributesToProcess);
+              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
             }
           }
         }
