@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -376,7 +377,12 @@ public class GrouperLoader {
       if (!StringUtils.equals("myDS", props.getProperty("org.quartz.jobStore.dataSource"))) {
         LOG.error("Quartz datasource should be myDS! '" + props.getProperty("org.quartz.jobStore.dataSource") + "'");
       }
-      
+      if (StringUtils.isBlank(props.getProperty("org.quartz.jobStore.driverDelegateClass"))) {
+        String driverDelegate = GrouperDdlUtils.convertUrlToQuartzDriverDelegateClass();
+        if (!StringUtils.isBlank(driverDelegate)) {
+          props.put("org.quartz.jobStore.driverDelegateClass", driverDelegate);
+        }
+      }
       try {
         schedulerFactory = new StdSchedulerFactory(props);
       } catch (SchedulerException se) {

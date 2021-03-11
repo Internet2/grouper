@@ -61,6 +61,11 @@ import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.StringType;
+import org.quartz.impl.jdbcjobstore.HSQLDBDelegate;
+import org.quartz.impl.jdbcjobstore.MSSQLDelegate;
+import org.quartz.impl.jdbcjobstore.PostgreSQLDelegate;
+import org.quartz.impl.jdbcjobstore.StdJDBCDelegate;
+import org.quartz.impl.jdbcjobstore.oracle.OracleDelegate;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -453,34 +458,22 @@ public class GrouperDdlUtils {
    * @param driverClassName
    * @return the driver class
    */
-  public static String convertUrlToQuartzDriverDelegateClassIfNeeded(String connectionUrl, String driverClassName) {
-    //default some of the stuff
-    if (StringUtils.isBlank(driverClassName)) {
-      
-      if (GrouperDdlUtils.isHsql(connectionUrl)) {
-        driverClassName = "org.quartz.impl.jdbcjobstore.HSQLDBDelegate";
-      } else if (GrouperDdlUtils.isMysql(connectionUrl)) {
-        driverClassName = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
-      } else if (GrouperDdlUtils.isOracle(connectionUrl)) {
-        driverClassName = "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate";
-      } else if (GrouperDdlUtils.isPostgres(connectionUrl)) { 
-        driverClassName = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate";
-      } else if (GrouperDdlUtils.isSQLServer(connectionUrl)) {
-        driverClassName = "org.quartz.impl.jdbcjobstore.MSSQLDelegate";
-      } else {
-        
-        //if this is blank we will figure it out later
-        if (!StringUtils.isBlank(connectionUrl)) {
-        
-          String error = "Cannot determine the quartz driver class from database URL: " + connectionUrl;
-          System.err.println(error);
-          LOG.error(error);
-          return null;
-        }
-      }
+  public static String convertUrlToQuartzDriverDelegateClass() {
+    if (GrouperDdlUtils.isHsql()) {
+      return HSQLDBDelegate.class.getName();
     }
-    return driverClassName;
+    if (GrouperDdlUtils.isMysql()) {
+      return StdJDBCDelegate.class.getName();
 
+    }
+    if (GrouperDdlUtils.isOracle()) {
+      return OracleDelegate.class.getName();
+
+    }
+    if (GrouperDdlUtils.isPostgres()) {
+      return PostgreSQLDelegate.class.getName();
+    }
+    return null;
   }
   
   /**
