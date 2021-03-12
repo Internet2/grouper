@@ -1893,9 +1893,9 @@ public class GrouperProvisioningService {
   
   private static boolean isOnlyProvisionPolicyGroups(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
     if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowPolicyGroupOverride()) {
-      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowPolicyGroupOverride");
-      if (!GrouperUtil.isEmpty(override)) {
-        return GrouperUtil.booleanValue(override);
+      Boolean override = (Boolean)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowPolicyGroupOverride");
+      if (override != null) {
+        return override;
       }
     }
     

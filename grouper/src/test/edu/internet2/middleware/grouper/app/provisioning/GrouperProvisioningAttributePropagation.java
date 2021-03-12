@@ -636,7 +636,7 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     test2StemAttributeValue.setTargetName("junitProvisioningAttributePropagationTest");
     test2StemAttributeValue.setStemScopeString("sub");
     Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-    metadataNameValues.put("md_grouper_allowPolicyGroupOverride", "false");
+    metadataNameValues.put("md_grouper_allowPolicyGroupOverride", false);
     test2StemAttributeValue.setMetadataNameValues(metadataNameValues);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test2StemAttributeValue, test2Stem);
     
@@ -859,7 +859,7 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     test2StemAttributeValue.setTargetName("junitProvisioningAttributePropagationTest");
     test2StemAttributeValue.setStemScopeString("sub");
     Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-    metadataNameValues.put("md_grouper_allowPolicyGroupOverride", "false");
+    metadataNameValues.put("md_grouper_allowPolicyGroupOverride", false);
     test2StemAttributeValue.setMetadataNameValues(metadataNameValues);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test2StemAttributeValue, test2Stem);
     
