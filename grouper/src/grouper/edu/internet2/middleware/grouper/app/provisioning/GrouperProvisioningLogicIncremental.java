@@ -955,6 +955,25 @@ public class GrouperProvisioningLogicIncremental {
               grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
               allAncestorProvisioningGroupAttributes.putAll(grouperProvisioningFolderAttributesToProcess);
               allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+            } else {
+              String groupId = grouperProvisioner.retrieveGrouperDao().getGroupIdIfDirectGroupAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
+              Group group = groupId != null ? GrouperDAOFactory.getFactory().getGroup().findByUuid(groupId, false) : null;
+
+              if (group != null) {
+                GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
+                if (grouperProvisioningObjectAttributes == null) {
+                  grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName());
+                  grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+                }
+
+                grouperProvisioningGroupAttributesToProcess.put(group.getName(), grouperProvisioningObjectAttributes);
+
+                String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
+                if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
+                  Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(group.getParentUuid());
+                  allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+                }
+              }
             }
           }
         }

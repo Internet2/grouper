@@ -1718,6 +1718,64 @@ public class GrouperProvisionerGrouperDao {
   }
   
   /**
+   * @return group id if is/was a direct group assignment for this provisioner
+   */
+  public String getGroupIdIfDirectGroupAssignmentByPITMarkerAttributeAssignId(String markerAttributeAssignId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    String sql = "SELECT gpg.source_id " +
+        "FROM " + 
+        "    grouper_pit_groups gpg, " +
+        "    grouper_pit_attribute_assign gpaa_marker, " + 
+        "    grouper_pit_attribute_assign gpaa_target, " + 
+        "    grouper_pit_attribute_assign gpaa_direct, " + 
+        "    grouper_pit_attr_assn_value gpaav_target, " + 
+        "    grouper_pit_attr_assn_value gpaav_direct, " + 
+        "    grouper_pit_attr_def_name gpadn_marker, " + 
+        "    grouper_pit_attr_def_name gpadn_target, " + 
+        "    grouper_pit_attr_def_name gpadn_direct " + 
+        "WHERE " + 
+        "    gpaa_marker.id = ? " +
+        "    AND gpaa_marker.owner_group_id = gpg.id " +
+        "    AND gpaa_marker.attribute_def_name_id = gpadn_marker.id " + 
+        "    AND gpadn_marker.name = ? " + 
+        "    AND gpaa_marker.id = gpaa_target.owner_attribute_assign_id " + 
+        "    AND gpaa_target.attribute_def_name_id = gpadn_target.id " + 
+        "    AND gpadn_target.name = ? " + 
+        "    AND gpaav_target.attribute_assign_id = gpaa_target.id " + 
+        "    AND gpaav_target.value_string = ? " + 
+        "    AND gpaa_marker.id = gpaa_direct.owner_attribute_assign_id " + 
+        "    AND gpaa_direct.attribute_def_name_id = gpadn_direct.id " + 
+        "    AND gpadn_direct.name = ? " + 
+        "    AND gpaav_direct.attribute_assign_id = gpaa_direct.id " + 
+        "    AND gpaav_direct.value_string = 'true' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(markerAttributeAssignId);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+
+    List<String> stemIds = HibernateSession.bySqlStatic().listSelect(String.class, sql, paramsInitial, typesInitial);
+    if (stemIds.size() > 0) {
+      return stemIds.get(0);
+    }
+    
+    return null;
+  }
+  
+  /**
    * get all group ids that are policy groups
    * @return group ids
    */
