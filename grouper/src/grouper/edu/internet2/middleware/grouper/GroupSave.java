@@ -46,9 +46,34 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update a group
- * e.g.
- * group = new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+ * 
+ * The GroupSave class is the recommended and support way to insert/update/delete a group.  This class was introduced in v1.4+ , some options added later.
+ * <p>
+ * Sample call
+ * </p>
+ * <pre>
+ * Group groupAbc = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true).save();
+ * </pre>
+ * <p>
+ * Sample using GroupSave results
+ * </p>
+ * <pre>
+ * GroupSave groupSave = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true);
+ * Group groupAbc = groupSave.save();
+ * System.out.println(groupSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * <p>
+ * Sample to delete
+ * </p>
+ * <pre>
+ * new GroupSave().assignName("a:b:c").assignSaveMode("DELETE").save();
+ * </pre>
+ * <p>
+ * To edit just one field (the description) for existing group a:b:c 
+ * </p>
+ * <pre>
+ *  new GroupSave.assignName("a:b:c").assignDescription("new description").assignReplaceAllSettings(false).save();
+ *  </pre>
  */
 public class GroupSave {
   
@@ -100,6 +125,7 @@ public class GroupSave {
    */
   public GroupSave assignPrivAllView(boolean thePrivAllView) {
     this.privAllView = thePrivAllView;
+    this.privAllViewAssigned = true;
     return this;
   }
 
@@ -110,6 +136,7 @@ public class GroupSave {
    */
   public GroupSave assignPrivAllRead(boolean thePrivAllRead) {
     this.privAllRead = thePrivAllRead;
+    this.privAllReadAssigned = true;
     return this;
   }
 
@@ -134,6 +161,7 @@ public class GroupSave {
    */
   public GroupSave assignPrivAllOptin(boolean thePrivAllOptin) {
     this.privAllOptin = thePrivAllOptin;
+    this.privAllOptinAssigned = true;
     return this;
   }
 
@@ -144,6 +172,7 @@ public class GroupSave {
    */
   public GroupSave assignPrivAllOptout(boolean thePrivAllOptout) {
     this.privAllOptout = thePrivAllOptout;
+    this.privAllOptoutAssigned = true;
     return this;
   }
 
@@ -154,6 +183,7 @@ public class GroupSave {
    */
   public GroupSave assignPrivAllAttrRead(boolean thePrivAllAttrRead) {
     this.privAllAttrRead = thePrivAllAttrRead;
+    this.privAllAttrReadAssigned = true;
     return this;
   }
 
@@ -230,6 +260,7 @@ public class GroupSave {
    * @return this for chaining
    */
   public GroupSave assignDisplayName(String theDisplayName) {
+    this.displayExtensionAssigned = true;
     this.displayName = theDisplayName;
     return this;
   }
@@ -254,6 +285,7 @@ public class GroupSave {
    */
   public GroupSave assignDisplayExtension(String theDisplayExtension) {
     this.displayExtension = theDisplayExtension;
+    this.displayExtensionAssigned = true;
     return this;
   }
 
@@ -267,19 +299,34 @@ public class GroupSave {
    */
   public GroupSave assignDescription(String theDescription) {
     this.description = theDescription;
+    this.descriptionAssigned = true;
     return this;
   }
   
   /** alternateName */
   private String alternateName;
   
+  
+  private boolean alternateNameAssigned;
+  private boolean descriptionAssigned;
+  private boolean disabledTimeDbAssigned;
+  private boolean displayExtensionAssigned;
+  private boolean enabledTimeDbAssigned;
+  private boolean privAllAttrReadAssigned;
+  private boolean privAllOptinAssigned;
+  private boolean privAllOptoutAssigned;
+  private boolean privAllReadAssigned;
+  private boolean privAllViewAssigned;
+  private boolean typeOfGroupAssigned;
+  
   /**
-   * assign alternateName
+   * Will save or remove an alternate name for the group e.g. <pre>assignAlternateName("x:y:z")</pre> 
    * @param theAlternateName
    * @return this for chaining
    */
   public GroupSave assignAlternateName(String theAlternateName) {
     this.alternateName = theAlternateName;
+    this.alternateNameAssigned = true;
     return this;
   }
   
@@ -307,6 +354,7 @@ public class GroupSave {
    */
   public GroupSave assignDisabledTime(Long theDisabledTime) {
     this.disabledTimeDb = theDisabledTime;
+    this.disabledTimeDbAssigned = true;
     return this;
   }
 
@@ -317,6 +365,7 @@ public class GroupSave {
    */
   public GroupSave assignDisabledTimestamp(Timestamp theDisabledTimestamp) {
     this.disabledTimeDb = theDisabledTimestamp == null ? null : theDisabledTimestamp.getTime();
+    this.disabledTimeDbAssigned = true;
     return this;
   }
   
@@ -334,6 +383,7 @@ public class GroupSave {
    */
   public GroupSave assignEnabledTime(Long theEnabledTimeDb) {
     this.enabledTimeDb = theEnabledTimeDb;
+    this.enabledTimeDbAssigned = true;
     return this;
   }
 
@@ -345,6 +395,7 @@ public class GroupSave {
    */
   public GroupSave assignEnabledTimestamp(Timestamp theEnabledTimestamp) {
     this.enabledTimeDb = theEnabledTimestamp == null ? null : theEnabledTimestamp.getTime();
+    this.enabledTimeDbAssigned = true;
     return this;
   }
 
@@ -391,6 +442,7 @@ public class GroupSave {
    */
   public GroupSave assignTypeOfGroup(TypeOfGroup theTypeOfGroup) {
     this.typeOfGroup = theTypeOfGroup;
+    this.typeOfGroupAssigned = true;
     return this;
   }
 
@@ -401,6 +453,7 @@ public class GroupSave {
    */
   public GroupSave assignTypeOfGroup(String theTypeOfGroup) {
     this.typeOfGroup = TypeOfGroup.valueOfIgnoreCase(theTypeOfGroup, false);
+    this.typeOfGroupAssigned = true;
     return this;
   }
 
@@ -422,6 +475,9 @@ public class GroupSave {
   
   /** typeOfGroup */
   private TypeOfGroup typeOfGroup = null;
+
+
+  private boolean replaceAllSettings = true;
   
   /**
    * get the save type
@@ -642,6 +698,11 @@ public class GroupSave {
                     }
                   }
                 }
+                
+                if (!isUpdate && !replaceAllSettings) {
+                  throw new RuntimeException("You can only edit certain fields if the object exists.");
+                }
+                
                 //default
                 GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 boolean needsSave = false;
@@ -679,11 +740,16 @@ public class GroupSave {
                     needsSave = true;
                     isRename = true;
                   }
-                  if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
-                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    theGroup.setDisplayExtension(theDisplayExtension);
-                    needsSave = true;
+                  
+                  if (replaceAllSettings || displayExtensionAssigned) {
+                    if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                      theGroup.setDisplayExtension(theDisplayExtension);
+                      needsSave = true;
+                    }
                   }
+                  
+                  
                 }
 
                 if (GroupSave.this.idIndex != null) {
@@ -701,53 +767,65 @@ public class GroupSave {
 
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
-                if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getDescription())), 
-                    StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
-                  needsSave = true;
-                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                  }
-                  theGroup.setDescription(GroupSave.this.description);
-                }
-                
-                if (!isRename) {
-                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getAlternateName())), 
-                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.alternateName)))) {
+                if (replaceAllSettings || descriptionAssigned) {
+                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getDescription())), 
+                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
                     needsSave = true;
                     if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                       GroupSave.this.saveResultType = SaveResultType.UPDATE;
                     }
-                    if (StringUtils.isBlank(GroupSave.this.alternateName)) {
-                      theGroup.setAlternateNameDb(null);
-                    } else {
-                      theGroup.addAlternateName(StringUtils.trim(GroupSave.this.alternateName));
+                    theGroup.setDescription(GroupSave.this.description);
+                  }
+                }
+                
+                if (!isRename) {
+                  
+                  if (replaceAllSettings || alternateNameAssigned) { 
+                    if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getAlternateName())), 
+                        StringUtils.defaultString(StringUtils.trim(GroupSave.this.alternateName)))) {
+                      needsSave = true;
+                      if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                        GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                      }
+                      if (StringUtils.isBlank(GroupSave.this.alternateName)) {
+                        theGroup.setAlternateNameDb(null);
+                      } else {
+                        theGroup.addAlternateName(StringUtils.trim(GroupSave.this.alternateName));
+                      }
                     }
                   }
+                  
                 }
 
                 //compare type of group
-                if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
-                  needsSave = true;
-                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                if (replaceAllSettings || typeOfGroupAssigned) {  
+                  if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
+                    needsSave = true;
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
                   }
-                  theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
                 }
                 
-                if (!GrouperUtil.equals(GroupSave.this.disabledTimeDb, theGroup.getDisabledTimeDb())) {
-                  needsSave = true;
-                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                if (replaceAllSettings || disabledTimeDbAssigned) {
+                  if (!GrouperUtil.equals(GroupSave.this.disabledTimeDb, theGroup.getDisabledTimeDb())) {
+                    needsSave = true;
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theGroup.setDisabledTime(GroupSave.this.disabledTimeDb == null ? null : new Timestamp(GroupSave.this.disabledTimeDb));
                   }
-                  theGroup.setDisabledTime(GroupSave.this.disabledTimeDb == null ? null : new Timestamp(GroupSave.this.disabledTimeDb));
                 }
                 
-                if (!GrouperUtil.equals(GroupSave.this.enabledTimeDb, theGroup.getEnabledTimeDb())) {
-                  needsSave = true;
-                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                if (replaceAllSettings || enabledTimeDbAssigned) {
+                  if (!GrouperUtil.equals(GroupSave.this.enabledTimeDb, theGroup.getEnabledTimeDb())) {
+                    needsSave = true;
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theGroup.setEnabledTime(GroupSave.this.enabledTimeDb == null ? null : new Timestamp(GroupSave.this.enabledTimeDb));
                   }
-                  theGroup.setEnabledTime(GroupSave.this.enabledTimeDb == null ? null : new Timestamp(GroupSave.this.enabledTimeDb));
                 }
 
                 //only store once
@@ -757,50 +835,58 @@ public class GroupSave {
 
                 boolean changedPrivs = false;
                                                 
-                boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
-      
-                boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
-      
-                boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
-      
-                boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
-      
-                boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
-                            
-                if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
-                  if (GroupSave.this.privAllView) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                if (replaceAllSettings || privAllViewAssigned) {
+                  boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
+                  if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
+                    if (GroupSave.this.privAllView) {
+                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                    } else {
+                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                    }
                   }
                 }
-      
-                if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
-                  if (GroupSave.this.privAllRead) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                
+                if (replaceAllSettings || privAllReadAssigned) {
+                  boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
+                  if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
+                    if (GroupSave.this.privAllRead) {
+                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                    } else {
+                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                    }
                   }
                 }
-                if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
-                  if (GroupSave.this.privAllOptin) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                
+                if (replaceAllSettings || privAllOptinAssigned) {
+                  boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
+                  if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
+                    if (GroupSave.this.privAllOptin) {
+                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                    } else {
+                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                    }
                   }
                 }
-                if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
-                  if (GroupSave.this.privAllOptout) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                
+                if (replaceAllSettings || privAllOptoutAssigned) {
+                  boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
+                  if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
+                    if (GroupSave.this.privAllOptout) {
+                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                    } else {
+                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                    }
                   }
                 }
-                if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
-                  if (GroupSave.this.privAllAttrRead) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                
+                if (replaceAllSettings || privAllAttrReadAssigned) {
+                  boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
+                  if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
+                    if (GroupSave.this.privAllAttrRead) {
+                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                    } else {
+                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                    }
                   }
                 }
                 
@@ -843,5 +929,15 @@ public class GroupSave {
       throw re;
     }
 
+  }
+
+  /**
+   * if you want to replace all the settings for the object, send true (that's the default). If you want to update certain fields, send false.
+   * @return this for chaining
+   */
+  public GroupSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+    
+    this.replaceAllSettings = theReplaceAllSettings;
+    return this;
   }
 }
