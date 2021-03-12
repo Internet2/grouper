@@ -42,7 +42,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullDoNotCreateUsers"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalDoNotCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -244,12 +244,14 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     attributeValue.setDoProvision("ldapProvTest");
     attributeValue.setTargetName("ldapProvTest");
     attributeValue.setStemScopeString("sub");
-  
-    // mark some folders to provision
-    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    runJobs(true, true);
+
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     
     RegistrySubject.add(grouperSession, "j-smith", "person", "jsmith name", "jsmith name", "jsmith", null, null);
     RegistrySubject.add(grouperSession, "b-anderson", "person", "banderson name", "banderson name", "banderson", null, null);
@@ -283,7 +285,9 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
   
-    runJobs(true, true);
+    runJobs(true, true); // mark as provisionable
+    try { Thread.sleep(10000); } catch (Exception e) { }  // give some time for the message
+    runJobs(true, true); // actually provision to ldap
     
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());

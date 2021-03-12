@@ -15,11 +15,14 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -27,6 +30,8 @@ import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMembe
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -893,6 +898,111 @@ public class GrouperProvisioningLogicIncremental {
 //  
 //  }
 
+  public void propagateProvisioningAttributes() {
+    List<EsbEventContainer> esbEventContainers = new ArrayList<EsbEventContainer>(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributesToProcess = new HashMap<String, GrouperProvisioningObjectAttributes>();
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributesToProcess = new HashMap<String, GrouperProvisioningObjectAttributes>();
+    Map<String, GrouperProvisioningObjectAttributes> allAncestorProvisioningGroupAttributes = new HashMap<String, GrouperProvisioningObjectAttributes>();
+    
+    Set<String> queriedPITAttributeAssignIds = new HashSet<String>();
+    
+    for (EsbEventContainer esbEventContainer : esbEventContainers) {
+      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
+
+      if (esbEventType == EsbEventType.GROUP_ADD ||
+          (esbEventType == EsbEventType.GROUP_UPDATE && "name".equals(esbEvent.getPropertyChanged()))) {
+        GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(esbEvent.getGroupId());
+        if (grouperProvisioningObjectAttributes == null) {
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getGroupId(), esbEvent.getGroupName());
+          grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+        }
+        
+        grouperProvisioningGroupAttributesToProcess.put(esbEvent.getGroupName(), grouperProvisioningObjectAttributes);
+        
+        String parentFolderName = GrouperUtil.parentStemNameFromName(esbEvent.getGroupName());
+        if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
+          Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(esbEvent.getParentStemId());
+          allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+        }
+      } else if (esbEventType == EsbEventType.STEM_ADD) {
+        Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(esbEvent.getId());
+        allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+        
+        GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = ancestorProvisioningGroupAttributes.get(esbEvent.getName());
+        if (grouperProvisioningObjectAttributes == null) {
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getId(), esbEvent.getName());
+          grouperProvisioningObjectAttributes.setOwnedByStem(true);
+        }
+        
+        grouperProvisioningFolderAttributesToProcess.put(esbEvent.getName(), grouperProvisioningObjectAttributes);
+      } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
+          esbEvent.getAttributeDefNameName().startsWith(GrouperProvisioningSettings.provisioningConfigStemName()+":")) {
+
+        PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
+
+        if (pitAttributeAssign != null) {
+          // query pit to see if this is for a folder and for this provisioner and is direct
+          if (!queriedPITAttributeAssignIds.contains(pitAttributeAssign.getOwnerAttributeAssignId())) {
+            queriedPITAttributeAssignIds.add(pitAttributeAssign.getOwnerAttributeAssignId());
+            
+            String stemId = grouperProvisioner.retrieveGrouperDao().getStemIdIfDirectStemAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
+  
+            if (stemId != null) {
+              Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(stemId);
+              grouperProvisioningFolderAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId));
+              grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
+              allAncestorProvisioningGroupAttributes.putAll(grouperProvisioningFolderAttributesToProcess);
+              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+            }
+          }
+        }
+      } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
+          esbEvent.getAttributeDefNameName().equals(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME) &&
+          ("policy".equals(esbEvent.getPropertyNewValue()) || "policy".equals(esbEvent.getPropertyOldValue()))) {
+
+        PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
+        if (pitAttributeAssign != null && pitAttributeAssign.getOwnerAttributeAssignId() != null) {
+          PITAttributeAssign pitAttributeAssignOwner = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAttributeAssign.getOwnerAttributeAssignId(), true);
+
+          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitAttributeAssignOwner.getOwnerGroupId(), true);
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), false);
+
+          if (group != null) {
+            GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
+            if (grouperProvisioningObjectAttributes == null) {
+              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName());
+              grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+            }
+
+            grouperProvisioningGroupAttributesToProcess.put(group.getName(), grouperProvisioningObjectAttributes);
+
+            String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
+            if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
+              Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(group.getParentUuid());
+              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+            }
+          }
+        }
+      }
+    }
+    
+    Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
+    grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningFolderAttributesToProcess.values());
+    grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributesToProcess.values());
+    
+    Set<String> groupIds = new HashSet<String>();
+    for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes : grouperProvisioningGroupAttributesToProcess.values()) {
+      groupIds.add(grouperProvisioningObjectAttributes.getId());
+    }
+    
+    Set<String> policyGroupIds = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupIdsThatArePolicyGroups(groupIds);
+    
+    if (grouperProvisioningObjectAttributesToProcess.size() > 0) {
+      GrouperProvisioningService.propagateProvisioningAttributes(this.getGrouperProvisioner(), grouperProvisioningObjectAttributesToProcess, allAncestorProvisioningGroupAttributes, policyGroupIds);
+    }
+  }
 
   public void incrementalCheckChangeLog() {
     

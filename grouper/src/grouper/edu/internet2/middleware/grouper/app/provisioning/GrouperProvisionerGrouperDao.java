@@ -15,6 +15,8 @@ import org.hibernate.type.Type;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -945,4 +947,937 @@ public class GrouperProvisionerGrouperDao {
     return results;
   }
 
+  /**
+   * get provisioning attributes for all folders
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveAllProvisioningFolderAttributes() {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    {
+      String sql = "SELECT " + 
+          "    gs.id, " + 
+          "    gs.name, " + 
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gs.id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String stemId = queryResult[0];
+        String stemName = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        
+        if (results.get(stemName) == null) {
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.get(stemName).setOwnedByStem(true);
+        }
+        
+        if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+          results.get(stemName).setProvisioningDirectAssign(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+          results.get(stemName).setProvisioningDoProvision(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+          results.get(stemName).setProvisioningMetadataJson(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+          results.get(stemName).setProvisioningOwnerStemId(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE)) {
+          results.get(stemName).setProvisioningStemScope(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+          results.get(stemName).setProvisioningTarget(configValue);
+        }
+      }
+    }
+    
+    // now see if there are any other folders to add to the map that don't have attributes but are under a parent folder that has a direct assign
+    // they won't necessarily need attributes but they'll need to be checked.
+
+    {
+      String sql = "SELECT distinct " + 
+          "    gs_if_has_stem.id, " + 
+          "    gs_if_has_stem.name " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_direct, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_direct, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_direct, " + 
+          "    grouper_stem_set gss, " + 
+          "    grouper_stems gs_if_has_stem " + 
+          "WHERE " + 
+          "    gs.id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_direct.owner_attribute_assign_id " + 
+          "    AND gaa_direct.attribute_def_name_id = gadn_direct.id " + 
+          "    AND gadn_direct.name = ? " + 
+          "    AND gaav_direct.attribute_assign_id = gaa_direct.id " + 
+          "    AND gaav_direct.value_string = 'true' " + 
+          "    AND gs.id = gss.then_has_stem_id " + 
+          "    AND gss.if_has_stem_id = gs_if_has_stem.id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_direct.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String stemId = queryResult[0];
+        String stemName = queryResult[1];
+        
+        if (results.get(stemName) == null) {
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.get(stemName).setOwnedByStem(true);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  /**
+   * get provisioning attributes for all groups
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveAllProvisioningGroupAttributes() {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    {
+      String sql = "SELECT " + 
+          "    gg.id, " + 
+          "    gg.name, " + 
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string " + 
+          "FROM " + 
+          "    grouper_groups gg, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gg.id = gaa_marker.owner_group_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        String groupName = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        
+        if (results.get(groupName) == null) {
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.get(groupName).setOwnedByGroup(true);
+        }
+        
+        if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+          results.get(groupName).setProvisioningDirectAssign(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+          results.get(groupName).setProvisioningDoProvision(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+          results.get(groupName).setProvisioningMetadataJson(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+          results.get(groupName).setProvisioningOwnerStemId(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+          results.get(groupName).setProvisioningTarget(configValue);
+        }
+      }
+    }
+    
+    // now see if there are any other group to add to the map that don't have attributes but are under a parent folder that has a direct assign
+    // they won't necessarily need attributes but they'll need to be checked.
+
+    {
+      String sql = "SELECT distinct " + 
+          "    gg.id, " + 
+          "    gg.name " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_direct, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_direct, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_direct, " + 
+          "    grouper_stem_set gss, " + 
+          "    grouper_groups gg " + 
+          "WHERE " + 
+          "    gs.id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_direct.owner_attribute_assign_id " + 
+          "    AND gaa_direct.attribute_def_name_id = gadn_direct.id " + 
+          "    AND gadn_direct.name = ? " + 
+          "    AND gaav_direct.attribute_assign_id = gaa_direct.id " + 
+          "    AND gaav_direct.value_string = 'true' " + 
+          "    AND gs.id = gss.then_has_stem_id " + 
+          "    AND gss.if_has_stem_id = gg.parent_stem " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_direct.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        String groupName = queryResult[1];
+        
+        if (results.get(groupName) == null) {
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.get(groupName).setOwnedByGroup(true);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  /**
+   * get provisioning attributes for a single group
+   * @param groupId
+   * @return the attributes
+   */
+  public GrouperProvisioningObjectAttributes retrieveProvisioningGroupAttributesByGroup(String groupId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    GrouperProvisioningObjectAttributes result = null;
+
+    String sql = "SELECT " + 
+        "    gg.name, " + 
+        "    gadn_config.name, " + 
+        "    gaav_config.value_string " + 
+        "FROM " + 
+        "    grouper_groups gg, " + 
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign gaa_config, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign_value gaav_config, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_target, " + 
+        "    grouper_attribute_def_name gadn_config " + 
+        "WHERE " + 
+        "    gg.id = ? " +
+        "    AND gg.id = gaa_marker.owner_group_id " + 
+        "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    AND gadn_marker.name = ? " + 
+        "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+        "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    AND gadn_target.name = ? " + 
+        "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    AND gaav_target.value_string = ? " + 
+        "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+        "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+        "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+        "    AND gaa_marker.enabled = 'T' " + 
+        "    AND gaa_target.enabled = 'T' " + 
+        "    AND gaa_config.enabled = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(groupId);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+
+    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+    for (String[] queryResult : queryResults) {
+      String groupName = queryResult[0];
+      String configName = queryResult[1];
+      String configValue = queryResult[2];
+      
+      if (result == null) {
+        result = new GrouperProvisioningObjectAttributes(groupId, groupName);
+        result.setOwnedByGroup(true);
+      }
+      
+      if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+        result.setProvisioningDirectAssign(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+        result.setProvisioningDoProvision(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+        result.setProvisioningMetadataJson(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+        result.setProvisioningOwnerStemId(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+        result.setProvisioningTarget(configValue);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * get provisioning attributes for a folder and its parents
+   * @param childStemId
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveAncestorProvisioningAttributesByFolder(String childStemId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    String sql = "SELECT " + 
+        "    gs_then_has_stem.id, " + 
+        "    gs_then_has_stem.name, " +
+        "    gadn_config.name, " + 
+        "    gaav_config.value_string " + 
+        "FROM " + 
+        "    grouper_stems gs, " + 
+        "    grouper_stem_set gss, " +
+        "    grouper_stems gs_then_has_stem, " +
+        "    grouper_attribute_assign gaa_marker, " + 
+        "    grouper_attribute_assign gaa_target, " + 
+        "    grouper_attribute_assign gaa_config, " + 
+        "    grouper_attribute_assign_value gaav_target, " + 
+        "    grouper_attribute_assign_value gaav_config, " + 
+        "    grouper_attribute_def_name gadn_marker, " + 
+        "    grouper_attribute_def_name gadn_target, " + 
+        "    grouper_attribute_def_name gadn_config " + 
+        "WHERE " + 
+        "    gs.id = ? " +
+        "    AND gs.id = gss.if_has_stem_id " +
+        "    AND gss.then_has_stem_id = gs_then_has_stem.id " + 
+        "    AND gss.then_has_stem_id = gaa_marker.owner_stem_id " + 
+        "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+        "    AND gadn_marker.name = ? " + 
+        "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+        "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+        "    AND gadn_target.name = ? " + 
+        "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+        "    AND gaav_target.value_string = ? " + 
+        "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+        "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+        "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+        "    AND gaa_marker.enabled = 'T' " + 
+        "    AND gaa_target.enabled = 'T' " + 
+        "    AND gaa_config.enabled = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(childStemId);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+
+    List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+    for (String[] queryResult : queryResults) {
+      String stemId = queryResult[0];
+      String stemName = queryResult[1];
+      String configName = queryResult[2];
+      String configValue = queryResult[3];
+      
+      if (results.get(stemName) == null) {
+        results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+        results.get(stemName).setOwnedByStem(true);
+      }
+      
+      if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+        results.get(stemName).setProvisioningDirectAssign(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+        results.get(stemName).setProvisioningDoProvision(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+        results.get(stemName).setProvisioningMetadataJson(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+        results.get(stemName).setProvisioningOwnerStemId(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE)) {
+        results.get(stemName).setProvisioningStemScope(configValue);
+      } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+        results.get(stemName).setProvisioningTarget(configValue);
+      }
+    }
+    
+    return results;
+  }
+  
+  /**
+   * get provisioning attributes for a folder and its children
+   * @param childStemId
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveChildProvisioningFolderAttributesByFolder(String parentStemId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    {
+      String sql = "SELECT " + 
+          "    gs_if_has_stem.id, " + 
+          "    gs_if_has_stem.name, " +
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_stem_set gss, " +
+          "    grouper_stems gs_if_has_stem, " +
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gs.id = ? " +
+          "    AND gs.id = gss.then_has_stem_id " +
+          "    AND gss.if_has_stem_id = gs_if_has_stem.id " + 
+          "    AND gss.if_has_stem_id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(parentStemId);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String stemId = queryResult[0];
+        String stemName = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        
+        if (results.get(stemName) == null) {
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.get(stemName).setOwnedByStem(true);
+        }
+        
+        if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+          results.get(stemName).setProvisioningDirectAssign(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+          results.get(stemName).setProvisioningDoProvision(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+          results.get(stemName).setProvisioningMetadataJson(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+          results.get(stemName).setProvisioningOwnerStemId(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE)) {
+          results.get(stemName).setProvisioningStemScope(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+          results.get(stemName).setProvisioningTarget(configValue);
+        }
+      }
+    }
+    
+    {
+      String sql = "SELECT " + 
+          "    gs.id, " + 
+          "    gs.name " +
+          "FROM " + 
+          "    grouper_stem_set gss, " +
+          "    grouper_stems gs " + 
+          "WHERE " + 
+          "    gss.then_has_stem_id = ?" +
+          "    AND gss.if_has_stem_id = gs.id ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(parentStemId);
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String stemId = queryResult[0];
+        String stemName = queryResult[1];
+        
+        if (results.get(stemName) == null) {
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.get(stemName).setOwnedByStem(true);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  /**
+   * get provisioning attributes for groups under a folder
+   * @param childStemId
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveChildProvisioningGroupAttributesByFolder(String parentStemId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    {
+      String sql = "SELECT " + 
+          "    gg.id, " + 
+          "    gg.name, " +
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_stem_set gss, " +
+          "    grouper_groups gg, " +
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gs.id = ? " +
+          "    AND gs.id = gss.then_has_stem_id " +
+          "    AND gss.if_has_stem_id = gg.parent_stem " + 
+          "    AND gg.id = gaa_marker.owner_group_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(parentStemId);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        String groupName = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        
+        if (results.get(groupName) == null) {
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.get(groupName).setOwnedByGroup(true);
+        }
+        
+        if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
+          results.get(groupName).setProvisioningDirectAssign(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
+          results.get(groupName).setProvisioningDoProvision(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+          results.get(groupName).setProvisioningMetadataJson(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
+          results.get(groupName).setProvisioningOwnerStemId(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE)) {
+          results.get(groupName).setProvisioningStemScope(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+          results.get(groupName).setProvisioningTarget(configValue);
+        }
+      }
+    }
+    
+    {
+      String sql = "SELECT " + 
+          "    gg.id, " + 
+          "    gg.name " +
+          "FROM " + 
+          "    grouper_stem_set gss, " +
+          "    grouper_groups gg " + 
+          "WHERE " + 
+          "    gss.then_has_stem_id = ?" +
+          "    AND gss.if_has_stem_id = gg.parent_stem ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(parentStemId);
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        String groupName = queryResult[1];
+        
+        if (results.get(groupName) == null) {
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.get(groupName).setOwnedByGroup(true);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  /**
+   * @return stem id if is/was a direct folder assignment for this provisioner
+   */
+  public String getStemIdIfDirectStemAssignmentByPITMarkerAttributeAssignId(String markerAttributeAssignId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    String sql = "SELECT gps.source_id " +
+        "FROM " + 
+        "    grouper_pit_stems gps, " +
+        "    grouper_pit_attribute_assign gpaa_marker, " + 
+        "    grouper_pit_attribute_assign gpaa_target, " + 
+        "    grouper_pit_attribute_assign gpaa_direct, " + 
+        "    grouper_pit_attr_assn_value gpaav_target, " + 
+        "    grouper_pit_attr_assn_value gpaav_direct, " + 
+        "    grouper_pit_attr_def_name gpadn_marker, " + 
+        "    grouper_pit_attr_def_name gpadn_target, " + 
+        "    grouper_pit_attr_def_name gpadn_direct " + 
+        "WHERE " + 
+        "    gpaa_marker.id = ? " +
+        "    AND gpaa_marker.owner_stem_id = gps.id " +
+        "    AND gpaa_marker.attribute_def_name_id = gpadn_marker.id " + 
+        "    AND gpadn_marker.name = ? " + 
+        "    AND gpaa_marker.id = gpaa_target.owner_attribute_assign_id " + 
+        "    AND gpaa_target.attribute_def_name_id = gpadn_target.id " + 
+        "    AND gpadn_target.name = ? " + 
+        "    AND gpaav_target.attribute_assign_id = gpaa_target.id " + 
+        "    AND gpaav_target.value_string = ? " + 
+        "    AND gpaa_marker.id = gpaa_direct.owner_attribute_assign_id " + 
+        "    AND gpaa_direct.attribute_def_name_id = gpadn_direct.id " + 
+        "    AND gpadn_direct.name = ? " + 
+        "    AND gpaav_direct.attribute_assign_id = gpaa_direct.id " + 
+        "    AND gpaav_direct.value_string = 'true' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(markerAttributeAssignId);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+
+    List<String> stemIds = HibernateSession.bySqlStatic().listSelect(String.class, sql, paramsInitial, typesInitial);
+    if (stemIds.size() > 0) {
+      return stemIds.get(0);
+    }
+    
+    return null;
+  }
+  
+  /**
+   * get all group ids that are policy groups
+   * @return group ids
+   */
+  public Set<String> retrieveAllProvisioningGroupIdsThatArePolicyGroups() {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Set<String> groupIds = new HashSet<String>();
+    
+    {
+      String sql = "SELECT distinct " + 
+          "    gg.id " + 
+          "FROM " + 
+          "    grouper_stems gs, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_direct, " + 
+          "    grouper_attribute_assign gaa_type_marker, " + 
+          "    grouper_attribute_assign gaa_type_name, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_direct, " + 
+          "    grouper_attribute_assign_value gaav_type_name, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_direct, " + 
+          "    grouper_attribute_def_name gadn_type_marker, " + 
+          "    grouper_attribute_def_name gadn_type_name, " + 
+          "    grouper_stem_set gss, " + 
+          "    grouper_groups gg " + 
+          "WHERE " + 
+          "    gs.id = gaa_marker.owner_stem_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_direct.owner_attribute_assign_id " + 
+          "    AND gaa_direct.attribute_def_name_id = gadn_direct.id " + 
+          "    AND gadn_direct.name = ? " + 
+          "    AND gaav_direct.attribute_assign_id = gaa_direct.id " + 
+          "    AND gaav_direct.value_string = 'true' " + 
+          "    AND gs.id = gss.then_has_stem_id " + 
+          "    AND gss.if_has_stem_id = gg.parent_stem " +          
+          "    AND gg.id = gaa_type_marker.owner_group_id " +
+          "    AND gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
+          "    AND gadn_type_marker.name = ? " +
+          "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
+          "    AND gaa_type_name.attribute_def_name_id = gadn_type_name.id " + 
+          "    AND gadn_type_name.name = ? " + 
+          "    AND gaav_type_name.attribute_assign_id = gaa_type_name.id " + 
+          "    AND gaav_type_name.value_string = 'policy' " + 
+          "    AND gaa_type_marker.enabled = 'T' " +
+          "    AND gaa_type_name.enabled = 'T' " +
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_direct.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT);
+      paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
+
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        groupIds.add(groupId);
+      }
+    }
+    
+    return groupIds;
+  }
+  
+  /**
+   * get all group ids that are policy groups from the list passed in
+   * @return group ids
+   */
+  public Set<String> retrieveProvisioningGroupIdsThatArePolicyGroups(Set<String> groupIds) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Set<String> policyGroupIds = new HashSet<String>();
+    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return policyGroupIds;
+    }
+    
+    String sqlInitial = "SELECT " + 
+        "    gaa_type_marker.owner_group_id " + 
+        "FROM " + 
+        "    grouper_attribute_assign gaa_type_marker, " + 
+        "    grouper_attribute_assign gaa_type_name, " + 
+        "    grouper_attribute_assign_value gaav_type_name, " + 
+        "    grouper_attribute_def_name gadn_type_marker, " + 
+        "    grouper_attribute_def_name gadn_type_name " + 
+        "WHERE " +      
+        "    gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
+        "    AND gadn_type_marker.name = ? " +
+        "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
+        "    AND gaa_type_name.attribute_def_name_id = gadn_type_name.id " + 
+        "    AND gadn_type_name.name = ? " + 
+        "    AND gaav_type_name.attribute_assign_id = gaa_type_name.id " + 
+        "    AND gaav_type_name.value_string = 'policy' " + 
+        "    AND gaa_type_marker.enabled = 'T' " +
+        "    AND gaa_type_name.enabled = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    
+    List<String[]> queryResults = null;
+
+    List<String> idsList = GrouperUtil.listFromCollection(groupIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+      
+      List<Object> params = new ArrayList<Object>(paramsInitial);
+      params.addAll(currentBatchIds);
+
+      List<Type> types = new ArrayList<Type>(typesInitial);
+
+      for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+        types.add(StringType.INSTANCE);
+      }
+      
+      StringBuilder sql = new StringBuilder(sqlInitial);
+      sql.append(" AND gaa_type_marker.owner_group_id in (");
+      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+      sql.append(") ");
+      
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+      
+      for (String[] queryResult : queryResults) {
+        String groupId = queryResult[0];
+        policyGroupIds.add(groupId);
+      }
+    }
+    
+    return policyGroupIds;
+  }
 }

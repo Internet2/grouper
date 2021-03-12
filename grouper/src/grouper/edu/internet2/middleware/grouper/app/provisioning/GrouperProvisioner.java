@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
@@ -897,5 +899,18 @@ public abstract class GrouperProvisioner {
   protected Class<? extends GrouperProvisioningLinkLogic> grouperProvisioningLinkLogicClass() {
     return GrouperProvisioningLinkLogic.class;
   }
-  
+
+  /**
+   * 
+   */
+  public void propagateProvisioningAttributes() {
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes = this.retrieveGrouperDao().retrieveAllProvisioningFolderAttributes();
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributes = this.retrieveGrouperDao().retrieveAllProvisioningGroupAttributes();
+    Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
+    grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningFolderAttributes.values());
+    grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributes.values());
+    Set<String> policyGroupIds = this.retrieveGrouperDao().retrieveAllProvisioningGroupIdsThatArePolicyGroups();
+    
+    GrouperProvisioningService.propagateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
+  }
 }
