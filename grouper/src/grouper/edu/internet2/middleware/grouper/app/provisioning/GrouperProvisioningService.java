@@ -755,14 +755,16 @@ public class GrouperProvisioningService {
     }
     
     Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
+    attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
     if (metadataNameValues != null && metadataNameValues.size() > 0) {
-      attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
         String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
       }
+    } else {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
     }
     
     if (grouperProvisioningAttributeValue.isDirectAssignment() && grouperObject instanceof Stem) {
