@@ -37,6 +37,8 @@ public class AllAttrAssignTests {
     suite.addTestSuite(AttributeAssignActionSetTest.class);
     suite.addTestSuite(AttributeAssignActionTest.class);
     suite.addTestSuite(AttributeAssignSaveTest.class);
+    suite.addTestSuite(AttributeAssignToGroupSaveTest.class);
+    suite.addTestSuite(AttributeAssignToStemSaveTest.class);
     //$JUnit-END$
     return suite;
   }
