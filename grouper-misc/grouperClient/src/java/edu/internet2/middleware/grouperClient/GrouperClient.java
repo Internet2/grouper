@@ -171,6 +171,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsStemSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.morphString.Crypto;
 
@@ -336,7 +337,7 @@ public class GrouperClient {
       //see where log file came from
       StringBuilder callingLog = new StringBuilder();
       GrouperClientUtils.propertiesFromResourceName("grouper.client.properties", 
-          false, true, GrouperClientCommonUtils.class, callingLog);
+          false, false, GrouperClientCommonUtils.class, callingLog);
       
       //see if the message about where it came from is
       //log.debug(callingLog.toString());
@@ -610,6 +611,7 @@ public class GrouperClient {
       gcLdapSearchAttribute.addReturningAttribute(ldapAttribute);
     }
     
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -709,6 +711,49 @@ public class GrouperClient {
         gcAddMember.addSubjectAttributeName(subjectAttribute);
       }
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcAddMember.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcAddMember.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcAddMember.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcAddMember.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcAddMember.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcAddMember.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -802,6 +847,49 @@ public class GrouperClient {
       gcMemberChangeSubject.addSubjectAttributeName(subjectAttribute);
     }
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcMemberChangeSubject.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcMemberChangeSubject.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcMemberChangeSubject.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcMemberChangeSubject.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcMemberChangeSubject.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcMemberChangeSubject.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -887,10 +975,56 @@ public class GrouperClient {
 
       boolean readOnly = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "readOnly", false, false);
 
+
       failOnArgsNotUsed(argMapNotUsed);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          grouperClientWs.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          grouperClientWs.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          grouperClientWs.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          String encryptKey = GrouperClientUtils.encryptKey();
+          grouperClientWs.assignWsPass(new Crypto(encryptKey).decrypt(wsPassEncrypted));
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          grouperClientWs.assignWsPass(GrouperClientUtils.readFileIntoString(new File(wsPassFile)));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          String encryptKey = GrouperClientUtils.encryptKey();
+          grouperClientWs.assignWsPass(new Crypto(encryptKey).decrypt(GrouperClientUtils.readFileIntoString(new File(wsPassFileEncrypted))));
+        }
+      }
+
+
       if (GrouperClientUtils.isNotBlank(contentType)) {
         grouperClientWs.assignContentType(contentType);
       }
@@ -963,6 +1097,49 @@ public class GrouperClient {
       gcGetGrouperPrivilegesLite.addSubjectAttributeName(subjectAttribute);
     }
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetGrouperPrivilegesLite.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetGrouperPrivilegesLite.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetGrouperPrivilegesLite.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetGrouperPrivilegesLite.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetGrouperPrivilegesLite.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetGrouperPrivilegesLite.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -1070,6 +1247,49 @@ public class GrouperClient {
         gcAssignGrouperPrivilegesLite.addSubjectAttributeName(subjectAttribute);
       }
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcAssignGrouperPrivilegesLite.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcAssignGrouperPrivilegesLite.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcAssignGrouperPrivilegesLite.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcAssignGrouperPrivilegesLite.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcAssignGrouperPrivilegesLite.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcAssignGrouperPrivilegesLite.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -1147,6 +1367,49 @@ public class GrouperClient {
     
     gcGroupDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGroupDelete.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGroupDelete.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGroupDelete.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGroupDelete.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGroupDelete.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGroupDelete.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -1223,6 +1486,49 @@ public class GrouperClient {
       
       gcStemDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcStemDelete.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcStemDelete.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcStemDelete.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcStemDelete.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcStemDelete.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcStemDelete.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -1460,6 +1766,49 @@ public class GrouperClient {
     
     gcGroupSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGroupSave.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGroupSave.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGroupSave.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGroupSave.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGroupSave.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGroupSave.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -1599,6 +1948,49 @@ public class GrouperClient {
       
       gcStemSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcStemSave.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcStemSave.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcStemSave.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcStemSave.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcStemSave.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcStemSave.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -1708,6 +2100,49 @@ public class GrouperClient {
       gcHasMember.assignPointInTimeFrom(pointInTimeFrom);
       gcHasMember.assignPointInTimeTo(pointInTimeTo);
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcHasMember.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcHasMember.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcHasMember.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcHasMember.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcHasMember.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcHasMember.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -1813,6 +2248,49 @@ public class GrouperClient {
         gcDeleteMember.addSubjectAttributeName(subjectAttribute);
       }
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcDeleteMember.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcDeleteMember.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcDeleteMember.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcDeleteMember.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcDeleteMember.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcDeleteMember.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
@@ -2104,6 +2582,50 @@ public class GrouperClient {
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcFindGroups.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcFindGroups.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcFindGroups.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcFindGroups.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcFindGroups.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcFindGroups.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
+
       failOnArgsNotUsed(argMapNotUsed);
     
       WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
@@ -2198,6 +2720,49 @@ public class GrouperClient {
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       
+
+      {
+        String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+        if (!StringUtils.isBlank(wsEndpoint)) {
+          gcFindStems.assignWsEndpoint(wsEndpoint);
+        }
+      }
+
+      {
+        String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+        if (!StringUtils.isBlank(wsUser)) {
+          gcFindStems.assignWsUser(wsUser);
+        }
+      }
+
+      {
+        String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+        if (!StringUtils.isBlank(wsPass)) {
+          gcFindStems.assignWsPass(wsPass);
+        }
+      }
+
+      {
+        String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+        if (!StringUtils.isBlank(wsPassEncrypted)) {
+          gcFindStems.assignWsPassEncrypted(wsPassEncrypted);
+        }
+      }
+
+      {
+        String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+        if (!StringUtils.isBlank(wsPassFile)) {
+          gcFindStems.assignWsPassFile(new File(wsPassFile));
+        }
+      }
+
+      {
+        String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+        if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+          gcFindStems.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+        }
+      }
+
       failOnArgsNotUsed(argMapNotUsed);
 
       WsFindStemsResults wsFindStemsResults = gcFindStems.execute();
@@ -2319,7 +2884,50 @@ public class GrouperClient {
         gcGetMembers.assignPageCursorFieldIncludesLastRetrieved(pageCursorFieldIncludesLastRetrieved);
       }
     }
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetMembers.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetMembers.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetMembers.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetMembers.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetMembers.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetMembers.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
+
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcGetMembers.assignClientVersion(clientVersion);
 
@@ -2373,6 +2981,49 @@ public class GrouperClient {
     gcGetMembers.assignPointInTimeFrom(pointInTimeFrom);
     gcGetMembers.assignPointInTimeTo(pointInTimeTo);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetMembers.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetMembers.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetMembers.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetMembers.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetMembers.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetMembers.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -2542,6 +3193,49 @@ public class GrouperClient {
     gcGetGroups.assignPointInTimeFrom(pointInTimeFrom);
     gcGetGroups.assignPointInTimeTo(pointInTimeTo);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetGroups.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetGroups.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetGroups.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetGroups.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetGroups.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetGroups.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -2987,7 +3681,12 @@ public class GrouperClient {
    */
   public static void usage() {
     //read in the usage file
-    String usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.txt", GrouperClientCommonUtils.class);
+    String usage = null;
+    try {
+      usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.txt", GrouperClientCommonUtils.class);
+    } catch (RuntimeException re) {
+      usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.example.txt", GrouperClientCommonUtils.class);
+    }
     System.err.println(usage);
   }
 
@@ -3262,7 +3961,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetMemberships.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetMemberships.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetMemberships.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetMemberships.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetMemberships.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetMemberships.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsGetMembershipsResults wsGetMembershipsResults = gcGetMemberships.execute();
@@ -3435,7 +4176,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetSubjects.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetSubjects.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetSubjects.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetSubjects.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetSubjects.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetSubjects.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
@@ -3560,6 +4343,49 @@ public class GrouperClient {
       gcAssignGrouperPrivileges.addSubjectAttributeName(subjectAttribute);
     }
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignGrouperPrivileges.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignGrouperPrivileges.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignGrouperPrivileges.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignGrouperPrivileges.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignGrouperPrivileges.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignGrouperPrivileges.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -3954,7 +4780,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetAttributeAssignments.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetAttributeAssignments.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetAttributeAssignments.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetAttributeAssignments.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetAttributeAssignments.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetAttributeAssignments.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsGetAttributeAssignmentsResults wsAttributeAssignmentsResults = gcGetAttributeAssignments.execute();
@@ -4174,6 +5042,49 @@ public class GrouperClient {
 
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetAttributeAssignActions.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetAttributeAssignActions.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetAttributeAssignActions.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetAttributeAssignActions.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetAttributeAssignActions.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetAttributeAssignActions.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
 
     failOnArgsNotUsed(argMapNotUsed);
 
@@ -4535,7 +5446,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignAttributes.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignAttributes.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignAttributes.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignAttributes.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignAttributes.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignAttributes.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsAssignAttributesResults wsAssignAttributesResults = gcAssignAttributes.execute();
@@ -4755,6 +5708,49 @@ public class GrouperClient {
 
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignAttributeDefActions.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignAttributeDefActions.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignAttributeDefActions.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignAttributeDefActions.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignAttributeDefActions.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignAttributeDefActions.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
 
     failOnArgsNotUsed(argMapNotUsed);
 
@@ -5009,7 +6005,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcGetPermissionAssignments.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcGetPermissionAssignments.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcGetPermissionAssignments.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcGetPermissionAssignments.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcGetPermissionAssignments.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcGetPermissionAssignments.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsGetPermissionAssignmentsResults wsPermissionAssignmentsResults = gcGetPermissionAssignments.execute();
@@ -5311,7 +6349,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignPermissions.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignPermissions.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignPermissions.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignPermissions.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignPermissions.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignPermissions.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsAssignPermissionsResults wsAssignPermissionsResults = gcAssignPermissions.execute();
@@ -5512,6 +6592,49 @@ public class GrouperClient {
     
     gcAttributeDefNameSave.assignActAsSubject(actAsSubject);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAttributeDefNameSave.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAttributeDefNameSave.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAttributeDefNameSave.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAttributeDefNameSave.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAttributeDefNameSave.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAttributeDefNameSave.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -5590,6 +6713,49 @@ public class GrouperClient {
     
     gcAttributeDefNameDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAttributeDefNameDelete.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAttributeDefNameDelete.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAttributeDefNameDelete.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAttributeDefNameDelete.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAttributeDefNameDelete.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAttributeDefNameDelete.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -5682,6 +6848,49 @@ public class GrouperClient {
     
     gcAssignAttributeDefNameInheritance.assignActAsSubject(actAsSubject);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignAttributeDefNameInheritance.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignAttributeDefNameInheritance.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignAttributeDefNameInheritance.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignAttributeDefNameInheritance.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignAttributeDefNameInheritance.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignAttributeDefNameInheritance.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -5893,6 +7102,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcFindAttributeDefNames.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcFindAttributeDefNames.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcFindAttributeDefNames.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcFindAttributeDefNames.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcFindAttributeDefNames.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcFindAttributeDefNames.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = gcFindAttributeDefNames.execute();
@@ -6191,7 +7443,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
-    
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAssignAttributesBatch.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAssignAttributesBatch.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAssignAttributesBatch.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAssignAttributesBatch.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAssignAttributesBatch.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAssignAttributesBatch.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsAssignAttributesBatchResults wsAssignAttributesBatchResults = gcAssignAttributesBatch.execute();
@@ -6440,6 +7734,49 @@ public class GrouperClient {
 
     gcAttributeDefSave.assignActAsSubject(actAsSubject);
 
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAttributeDefSave.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAttributeDefSave.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAttributeDefSave.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAttributeDefSave.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAttributeDefSave.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAttributeDefSave.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -6526,6 +7863,49 @@ public class GrouperClient {
     gcAttributeDefDelete.assignActAsSubject(actAsSubject);
 
     gcAttributeDefDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAttributeDefDelete.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAttributeDefDelete.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAttributeDefDelete.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAttributeDefDelete.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAttributeDefDelete.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAttributeDefDelete.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
 
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -6713,6 +8093,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
 
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcFindAttributeDefs.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcFindAttributeDefs.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcFindAttributeDefs.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcFindAttributeDefs.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcFindAttributeDefs.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcFindAttributeDefs.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
 
     WsFindAttributeDefsResults wsFindAttributeDefsResults = gcFindAttributeDefs.execute();
@@ -6801,6 +8224,49 @@ public class GrouperClient {
     
     messageSend.assignActAsSubject(actAsSubject);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        messageSend.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        messageSend.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        messageSend.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        messageSend.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        messageSend.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        messageSend.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -6875,6 +8341,49 @@ public class GrouperClient {
     
     messageReceive.assignActAsSubject(actAsSubject);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        messageReceive.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        messageReceive.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        messageReceive.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        messageReceive.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        messageReceive.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        messageReceive.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -6961,6 +8470,49 @@ public class GrouperClient {
     
     messageAcknowledge.assignActAsSubject(actAsSubject);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        messageAcknowledge.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        messageAcknowledge.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        messageAcknowledge.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        messageAcknowledge.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        messageAcknowledge.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        messageAcknowledge.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -7037,6 +8589,49 @@ public class GrouperClient {
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcFindExternalSubjects.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcFindExternalSubjects.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcFindExternalSubjects.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcFindExternalSubjects.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcFindExternalSubjects.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcFindExternalSubjects.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     failOnArgsNotUsed(argMapNotUsed);
   
     WsFindExternalSubjectsResults wsFindExternalSubjectsResults = gcFindExternalSubjects.execute();
@@ -7119,6 +8714,49 @@ public class GrouperClient {
     
     gcExternalSubjectDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcExternalSubjectDelete.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcExternalSubjectDelete.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcExternalSubjectDelete.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcExternalSubjectDelete.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcExternalSubjectDelete.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcExternalSubjectDelete.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -7269,6 +8907,49 @@ public class GrouperClient {
     
     gcExternalSubjectSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcExternalSubjectSave.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcExternalSubjectSave.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcExternalSubjectSave.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcExternalSubjectSave.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcExternalSubjectSave.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcExternalSubjectSave.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);
@@ -7456,6 +9137,49 @@ public class GrouperClient {
     
     gcAuditEntries.assignToDate(toDate);
     
+
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcAuditEntries.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcAuditEntries.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcAuditEntries.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcAuditEntries.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcAuditEntries.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcAuditEntries.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
     //register that we will use this
     GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
     failOnArgsNotUsed(argMapNotUsed);

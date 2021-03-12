@@ -17,6 +17,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,87 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAttributeDefDeleteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.morphString.Crypto;
 
 /**
  * class to run an attributeDef delete web service call
  */
 public class GcAttributeDefDelete {
+
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   */
+  private String wsEndpoint;
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   * @param theWsEndpoint
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsEndpoint(String theWsEndpoint) {
+    this.wsEndpoint = theWsEndpoint;
+    return this;
+  }
+  
+  /**
+   * ws user
+   */
+  private String wsUser;
+
+  /**
+   * ws user
+   * @param theWsUser
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsUser(String theWsUser) {
+    this.wsUser = theWsUser;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   */
+  private String wsPass;
+
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsPass(String theWsPass) {
+    this.wsPass = theWsPass;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsPassEncrypted(String theWsPassEncrypted) {
+    String encryptKey = GrouperClientUtils.encryptKey();
+    return this.assignWsPass(new Crypto(encryptKey).decrypt(theWsPassEncrypted));
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsPassFile(File theFile) {
+    return this.assignWsPass(GrouperClientUtils.readFileIntoString(theFile));
+  }
+
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcAttributeDefDelete assignWsPassFileEncrypted(File theFile) {
+    return this.assignWsPassEncrypted(GrouperClientUtils.readFileIntoString(theFile));
+  }
 
   /** delete attributeDef lookups */
   private List<WsAttributeDefLookup> attributeDefLookups = new ArrayList<WsAttributeDefLookup>();
@@ -150,6 +227,10 @@ public class GcAttributeDefDelete {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
+      grouperClientWs.assignWsUser(this.wsUser);
+      grouperClientWs.assignWsPass(this.wsPass);
+      grouperClientWs.assignWsEndpoint(this.wsEndpoint);
+      
       //kick off the web service
       wsAttributeDefDeleteResults = (WsAttributeDefDeleteResults) grouperClientWs
           .executeService("attributeDefs", attributeDefDelete, "attributeDefDelete",
