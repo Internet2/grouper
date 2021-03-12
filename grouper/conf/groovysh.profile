@@ -99,7 +99,7 @@ class GSHScriptLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
 :register GSHScriptLoad
 
 
-GrouperSession.startRootSession()
+edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.startRootSessionIfNoSessionRunning();
 
 def addComposite (String group, CompositeType type, String left, String right) {
   new addComposite().invoke(GrouperSession.staticGrouperSession(), group, type, left, right)

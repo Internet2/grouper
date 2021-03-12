@@ -94,7 +94,7 @@ class GSHScriptLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
 :register GSHScriptLoad
 
 
-GrouperSession.startRootSession()
+edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.startRootSessionIfNoSessionRunning();
 
 import edu.internet2.middleware.grouper.util.*
 

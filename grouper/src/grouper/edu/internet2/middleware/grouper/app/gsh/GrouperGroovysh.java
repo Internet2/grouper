@@ -30,6 +30,7 @@ import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
 import org.codehaus.groovy.tools.shell.Main;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import groovy.lang.MissingPropertyException;
 import jline.TerminalFactory;
@@ -431,5 +432,21 @@ public class GrouperGroovysh extends Groovysh {
     }
 
     super.getErrorHook().call(cause);
+  }
+  
+  /**
+   * see if there's a grouper session running; return if it's there otherwise start root session and return that.
+   * @return
+   */
+  public static GrouperSession startRootSessionIfNoSessionRunning() {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    if (grouperSession != null) {
+      return grouperSession;
+    } 
+    
+    return GrouperSession.startRootSession();
+    
   }
 }
