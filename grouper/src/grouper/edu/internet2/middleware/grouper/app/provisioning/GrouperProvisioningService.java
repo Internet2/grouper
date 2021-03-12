@@ -1645,7 +1645,7 @@ public class GrouperProvisioningService {
    * @param grouperObject
    * @param targetName
    */
-  private static void deleteAttributeAssign(GrouperObject grouperObject, String targetName) {
+  public static void deleteAttributeAssign(GrouperObject grouperObject, String targetName) {
     AttributeAssign currentAttributeAssign = getAttributeAssign(grouperObject, targetName);
     if (currentAttributeAssign != null) {
       currentAttributeAssign.delete();
