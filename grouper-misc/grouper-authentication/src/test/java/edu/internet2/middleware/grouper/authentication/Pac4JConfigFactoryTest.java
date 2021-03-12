@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouperAuthentication;
+package edu.internet2.middleware.grouper.authentication;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import junit.framework.TestCase;
