@@ -1942,6 +1942,12 @@ public class UiV2Provisioning {
             }
             
           } else {
+            // if it was direct before but not anymore, then delete the assignment
+            GrouperProvisioningAttributeValue gpav = GrouperProvisioningService.getProvisioningAttributeValue(STEM, targetName);
+            if (gpav != null && gpav.isDirectAssignment()) {
+              GrouperProvisioningService.deleteAttributeAssign(STEM, targetName);
+            }
+            
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=" + STEM.getId() + "')"));
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
                 TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
@@ -2471,6 +2477,12 @@ public class UiV2Provisioning {
           
           if (isDirect) {
             GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
+          } else {
+            // if it was direct before but not anymore, then delete the assignment
+            GrouperProvisioningAttributeValue gpav = GrouperProvisioningService.getProvisioningAttributeValue(GROUP, targetName);
+            if (gpav != null && gpav.isDirectAssignment()) {
+              GrouperProvisioningService.deleteAttributeAssign(GROUP, targetName);
+            }
           }
           
           return null;

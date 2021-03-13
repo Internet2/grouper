@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +33,88 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.morphString.Crypto;
 
 
 /**
  * class to run a group save web service call
  */
 public class GcGroupSave {
+
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   */
+  private String wsEndpoint;
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   * @param theWsEndpoint
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsEndpoint(String theWsEndpoint) {
+    this.wsEndpoint = theWsEndpoint;
+    return this;
+  }
+  
+  /**
+   * ws user
+   */
+  private String wsUser;
+
+  /**
+   * ws user
+   * @param theWsUser
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsUser(String theWsUser) {
+    this.wsUser = theWsUser;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   */
+  private String wsPass;
+
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsPass(String theWsPass) {
+    this.wsPass = theWsPass;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsPassEncrypted(String theWsPassEncrypted) {
+    String encryptKey = GrouperClientUtils.encryptKey();
+    return this.assignWsPass(new Crypto(encryptKey).decrypt(theWsPassEncrypted));
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsPassFile(File theFile) {
+    return this.assignWsPass(GrouperClientUtils.readFileIntoString(theFile));
+  }
+
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGroupSave assignWsPassFileEncrypted(File theFile) {
+    return this.assignWsPassEncrypted(GrouperClientUtils.readFileIntoString(theFile));
+  }
 
   /** client version */
   private String clientVersion;
@@ -158,6 +235,10 @@ public class GcGroupSave {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+      
+      grouperClientWs.assignWsUser(this.wsUser);
+      grouperClientWs.assignWsPass(this.wsPass);
+      grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGroupSaveResults = (WsGroupSaveResults)

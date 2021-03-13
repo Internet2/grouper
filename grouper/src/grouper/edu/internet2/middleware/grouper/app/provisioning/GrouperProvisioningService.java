@@ -755,14 +755,16 @@ public class GrouperProvisioningService {
     }
     
     Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
+    attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
     if (metadataNameValues != null && metadataNameValues.size() > 0) {
-      attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
         String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
       }
+    } else {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
     }
     
     if (grouperProvisioningAttributeValue.isDirectAssignment() && grouperObject instanceof Stem) {
@@ -1643,7 +1645,7 @@ public class GrouperProvisioningService {
    * @param grouperObject
    * @param targetName
    */
-  private static void deleteAttributeAssign(GrouperObject grouperObject, String targetName) {
+  public static void deleteAttributeAssign(GrouperObject grouperObject, String targetName) {
     AttributeAssign currentAttributeAssign = getAttributeAssign(grouperObject, targetName);
     if (currentAttributeAssign != null) {
       currentAttributeAssign.delete();
@@ -1893,9 +1895,9 @@ public class GrouperProvisioningService {
   
   private static boolean isOnlyProvisionPolicyGroups(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    
     if (grouperProvisioner.retrieveGrouperProvisioningConfiguration().isAllowPolicyGroupOverride()) {
-      String override = (String)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowPolicyGroupOverride");
-      if (!GrouperUtil.isEmpty(override)) {
-        return GrouperUtil.booleanValue(override);
+      Boolean override = (Boolean)grouperProvisioningObjectAttributes.getMetadataNameValues().get("md_grouper_allowPolicyGroupOverride");
+      if (override != null) {
+        return override;
       }
     }
     

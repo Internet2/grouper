@@ -29,3 +29,4 @@ test.log
 /.project
 /binary/
 /grouperClientFailoverState.bin
+src/grouper/SampleGrouperMain.java

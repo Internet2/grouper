@@ -135,6 +135,13 @@ public class GrouperProvisioningAttributeValue {
   public String getDoProvision() {
     return doProvision;
   }
+  
+  /**
+   * @return true to provision if doProvision is not null
+   */
+  public boolean isDoProvision() {
+    return doProvision != null;
+  }
 
   /**
    * provisioning target name

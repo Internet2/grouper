@@ -12,10 +12,11 @@
  * permissions and limitations under the License.
  */
 /*
- * @author mchyzer $Id: GcGetMemberships.java,v 1.1 2009-12-19 21:38:27 mchyzer Exp $
+ * @author mchyzer $Id: GcGetAttributeAssignActionships.java,v 1.1 2009-12-19 21:38:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignActio
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.morphString.Crypto;
 
 /**
  * class to run a get attribute assign actions web service call
@@ -169,6 +171,10 @@ public class GcGetAttributeAssignActions {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
+      grouperClientWs.assignWsUser(this.wsUser);
+      grouperClientWs.assignWsPass(this.wsPass);
+      grouperClientWs.assignWsEndpoint(this.wsEndpoint);
+      
       //kick off the web service
       wsGetAttributeAssignActionsResults = (WsGetAttributeAssignActionsResults)
           grouperClientWs.executeService("attributeAssignActions",
@@ -215,6 +221,81 @@ public class GcGetAttributeAssignActions {
   public GcGetAttributeAssignActions addAttributeDefIdIndex(Long idIndexOfATtributeDef) {
     this.idIndexesOfAttributeDefs.add(idIndexOfATtributeDef);
     return this;
+  }
+
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   */
+  private String wsEndpoint;
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   * @param theWsEndpoint
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsEndpoint(String theWsEndpoint) {
+    this.wsEndpoint = theWsEndpoint;
+    return this;
+  }
+  
+  /**
+   * ws user
+   */
+  private String wsUser;
+
+  /**
+   * ws user
+   * @param theWsUser
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsUser(String theWsUser) {
+    this.wsUser = theWsUser;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   */
+  private String wsPass;
+
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsPass(String theWsPass) {
+    this.wsPass = theWsPass;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsPassEncrypted(String theWsPassEncrypted) {
+    String encryptKey = GrouperClientUtils.encryptKey();
+    return this.assignWsPass(new Crypto(encryptKey).decrypt(theWsPassEncrypted));
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsPassFile(File theFile) {
+    return this.assignWsPass(GrouperClientUtils.readFileIntoString(theFile));
+  }
+
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignWsPassFileEncrypted(File theFile) {
+    return this.assignWsPassEncrypted(GrouperClientUtils.readFileIntoString(theFile));
   }
 
 }

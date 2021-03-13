@@ -984,6 +984,7 @@ public abstract class ConfigPropertiesCascadeBase {
             || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-loader.properties")
             || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-ui.properties")
             || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper-ws.properties")
+            || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.client.properties")
             || GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.cache.properties")
             || GrouperClientUtils.equals(overrideConfigString, "classpath:subject.properties")
             || GrouperClientUtils.equals(overrideConfigString, "classpath:grouperText/grouper.text.en.us.properties")
@@ -1394,7 +1395,9 @@ public abstract class ConfigPropertiesCascadeBase {
       
     } catch (Exception e) {
       //I guess this ok
-      logInfo("Problem loading config file: " + resourceName, e); 
+      if (exceptionIfNotExist) {
+        logInfo("Problem loading config file: " + resourceName, e);
+      }
       
     }
 

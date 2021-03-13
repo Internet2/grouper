@@ -15,11 +15,14 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -27,6 +30,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapSessionUtils {
 
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    List<String> uids = LdapSessionUtils.ldapSession().list(String.class, "personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aa*)", "uid");
+    System.out.println(GrouperUtil.toStringForLog(uids));
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(LdapSessionUtils.class);
 
