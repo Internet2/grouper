@@ -42,6 +42,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class StemSave {
   
+  /**
+   * set this to true to run as a root session
+   */
+  private boolean runAsRoot;
+  
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
+  public StemSave assignRunAsRoot(boolean runAsRoot) {
+    this.runAsRoot = runAsRoot;
+    return this;
+  }
+  
   /** id index */
   private Long idIndex;
   
@@ -61,7 +76,7 @@ public class StemSave {
    */
   public StemSave() {
     this.grouperSession = GrouperSession.staticGrouperSession();
-    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
 
   /**
@@ -70,7 +85,7 @@ public class StemSave {
    */
   public StemSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
-    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
   
   /** grouper session is required */
@@ -286,7 +301,8 @@ public class StemSave {
             throws GrouperDAOException {
           
           grouperTransaction.setCachingEnabled(false);
-          return (Stem)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+          
+          GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
     
             public Object callback(GrouperSession grouperSession)
                 throws GrouperSessionException {
@@ -485,7 +501,13 @@ public class StemSave {
               }
             }
           
-          });
+          };
+          
+          if (runAsRoot) {
+            return (Stem)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
+          }
+          
+          return (Stem)GrouperSession.callbackGrouperSession(grouperSession, grouperSessionHandler);
         }
       });
       return stem;

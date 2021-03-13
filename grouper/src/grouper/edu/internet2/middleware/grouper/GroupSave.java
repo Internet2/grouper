@@ -78,6 +78,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GroupSave {
   
   /**
+   * set this to true to run as a root session
+   */
+  private boolean runAsRoot;
+  
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
+  public GroupSave assignRunAsRoot(boolean runAsRoot) {
+    this.runAsRoot = runAsRoot;
+    return this;
+  }
+  
+  /**
    * if the priv read should be different from the defaults
    */
   private Boolean privAllRead;
@@ -207,7 +222,7 @@ public class GroupSave {
    */
   public GroupSave() {
     this.grouperSession = GrouperSession.staticGrouperSession();
-    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
 
   /**
@@ -216,7 +231,7 @@ public class GroupSave {
    */
   public GroupSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
-    GrouperUtil.assertion(this.grouperSession != null, "grouperSession cant be null");
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
   
   /** grouper session is required */
@@ -580,325 +595,330 @@ public class GroupSave {
           
           grouperTransaction.setCachingEnabled(false);
           
-          return (Group)GrouperSession.callbackGrouperSession(GroupSave.this.grouperSession, new GrouperSessionHandler() {
+          GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              
+              String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
 
-              @Override
-              public Object callback(GrouperSession theGrouperSession)
-                  throws GrouperSessionException {
-                
-                String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
-
-                // delete
-                if (saveMode == SaveMode.DELETE) {
-                  Group group = null;
-                  if (!StringUtils.isBlank(uuid)) {
-                    group = GroupFinder.findByUuid(grouperSession, uuid, false, new QueryOptions().secondLevelCache(false));
-                  } else if (!StringUtils.isBlank(groupNameToEdit)) {
-                    group = GroupFinder.findByName(grouperSession, groupNameToEdit, false, new QueryOptions().secondLevelCache(false));
-                  } else {
-                    throw new RuntimeException("Need uuid or name to delete group!");
-                  }
-                  if (group == null) {
-                    GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
-                    return null;
-                  }
-                  group.delete();
-                  GroupSave.this.saveResultType = SaveResultType.DELETE;
-                  return group;
-                }
-
-                int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
-                boolean topLevelGroup = lastColonIndex < 0;
-        
-                //empty is root stem
-                String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
-                
-                //note, this might be blank
-                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.displayName);
-                String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
-                
-                String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
-
-                //figure out the display extension from the extension or the name (or both!)
-                String theDisplayExtension = null;
-                
-                //if blank, and display name blank, then, use extension
-                if (StringUtils.isBlank(GroupSave.this.displayExtension) && StringUtils.isBlank(GroupSave.this.displayName)) {
-                  theDisplayExtension = extensionNew;
-                } else if (!StringUtils.isBlank(GroupSave.this.displayExtension) && !StringUtils.isBlank(GroupSave.this.displayName)) {
-                  //if neither blank
-                  if (!StringUtils.equals(displayExtensionFromDisplayNameNew, GroupSave.this.displayExtension)) {
-                    throw new RuntimeException("The display extension '" + GroupSave.this.displayExtension 
-                        + "' is not consistent with the last part of the group name '" 
-                        + displayExtensionFromDisplayNameNew + "', display name: " + GroupSave.this.displayName);
-                  }
-                  theDisplayExtension = displayExtensionFromDisplayNameNew;
-                } else if (!StringUtils.isBlank(GroupSave.this.displayExtension)) {
-                  theDisplayExtension = GroupSave.this.displayExtension;
-                } else if (!StringUtils.isBlank(GroupSave.this.displayName)) {
-                  theDisplayExtension = displayExtensionFromDisplayNameNew;
+              // delete
+              if (saveMode == SaveMode.DELETE) {
+                Group group = null;
+                if (!StringUtils.isBlank(uuid)) {
+                  group = GroupFinder.findByUuid(grouperSession, uuid, false, new QueryOptions().secondLevelCache(false));
+                } else if (!StringUtils.isBlank(groupNameToEdit)) {
+                  group = GroupFinder.findByName(grouperSession, groupNameToEdit, false, new QueryOptions().secondLevelCache(false));
                 } else {
-                  throw new RuntimeException("Shouldnt get here");
+                  throw new RuntimeException("Need uuid or name to delete group!");
                 }
+                if (group == null) {
+                  GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                  return null;
+                }
+                group.delete();
+                GroupSave.this.saveResultType = SaveResultType.DELETE;
+                return group;
+              }
 
+              int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
+              boolean topLevelGroup = lastColonIndex < 0;
+      
+              //empty is root stem
+              String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
+              
+              //note, this might be blank
+              String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.displayName);
+              String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
+              
+              String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
+
+              //figure out the display extension from the extension or the name (or both!)
+              String theDisplayExtension = null;
+              
+              //if blank, and display name blank, then, use extension
+              if (StringUtils.isBlank(GroupSave.this.displayExtension) && StringUtils.isBlank(GroupSave.this.displayName)) {
+                theDisplayExtension = extensionNew;
+              } else if (!StringUtils.isBlank(GroupSave.this.displayExtension) && !StringUtils.isBlank(GroupSave.this.displayName)) {
+                //if neither blank
+                if (!StringUtils.equals(displayExtensionFromDisplayNameNew, GroupSave.this.displayExtension)) {
+                  throw new RuntimeException("The display extension '" + GroupSave.this.displayExtension 
+                      + "' is not consistent with the last part of the group name '" 
+                      + displayExtensionFromDisplayNameNew + "', display name: " + GroupSave.this.displayName);
+                }
+                theDisplayExtension = displayExtensionFromDisplayNameNew;
+              } else if (!StringUtils.isBlank(GroupSave.this.displayExtension)) {
+                theDisplayExtension = GroupSave.this.displayExtension;
+              } else if (!StringUtils.isBlank(GroupSave.this.displayName)) {
+                theDisplayExtension = displayExtensionFromDisplayNameNew;
+              } else {
+                throw new RuntimeException("Shouldnt get here");
+              }
+
+              
+              //lets find the stem
+              Stem parentStem = null;
+              
+              try {
+                parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
+                    : StemFinder.findByName(grouperSession, parentStemNameNew, true);
+              } catch (StemNotFoundException snfe) {
                 
-                //lets find the stem
-                Stem parentStem = null;
-                
-                try {
-                  parentStem = topLevelGroup ? StemFinder.findRootStem(theGrouperSession) 
-                      : StemFinder.findByName(theGrouperSession, parentStemNameNew, true);
-                } catch (StemNotFoundException snfe) {
+                //see if we should fix this problem
+                if (GroupSave.this.createParentStemsIfNotExist) {
                   
-                  //see if we should fix this problem
-                  if (GroupSave.this.createParentStemsIfNotExist) {
-                    
-                    //at this point the stem should be there (and is equal to currentStem), 
-                    //just to be sure, query again
-                    if (GrouperLoader.isDryRun()) {
-                      parentStem = StemFinder.findByName(theGrouperSession, parentStemNameNew, false);
-                      if (parentStem == null) {
-                        parentStem = new Stem();
-                        parentStem.setNameDb(parentStemNameNew);
-                        parentStem.setExtensionDb(GrouperUtil.extensionFromName(parentStemNameNew));
-                      }
-                    } else {
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(theGrouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                  //at this point the stem should be there (and is equal to currentStem), 
+                  //just to be sure, query again
+                  if (GrouperLoader.isDryRun()) {
+                    parentStem = StemFinder.findByName(grouperSession, parentStemNameNew, false);
+                    if (parentStem == null) {
+                      parentStem = new Stem();
+                      parentStem.setNameDb(parentStemNameNew);
+                      parentStem.setExtensionDb(GrouperUtil.extensionFromName(parentStemNameNew));
                     }
                   } else {
-                    throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
-                        + "' (from update on stem name: '" + groupNameForError + "')"));
+                    parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
                   }
+                } else {
+                  throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
+                      + "' (from update on stem name: '" + groupNameForError + "')"));
                 }
-                
-                Group theGroup = null;
-                //see if update
-                boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit, GroupSave.this.name);
-        
-                if (isUpdate) {
-                  String parentStemNameLookup = GrouperUtil.parentStemNameFromName(GroupSave.this.groupNameToEdit);
-                  if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
-                    throw new GrouperSessionException(new GroupModifyException("Can't move a group.  Existing parentStem: '"
-                        + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
-                }    
-                try {
-                    theGroup = GroupFinder.findByName(theGrouperSession, GroupSave.this.groupNameToEdit, true);
-                    
-                    //while we are here, make sure uuid's match if passed in
-                    if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
-                      throw new RuntimeException("UUID group changes are not supported: new: " + GroupSave.this.uuid + ", old: " 
-                          + theGroup.getUuid() + ", " + groupNameForError);
-                    }
-                    
-                  } catch (GroupNotFoundException gnfe) {
-                    if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
-                      isUpdate = false;
-                    } else {
-                        throw new GrouperSessionException(gnfe);
-                    }
-                  }
-                }
-                
-                if (!isUpdate && !replaceAllSettings) {
-                  throw new RuntimeException("You can only edit certain fields if the object exists.");
-                }
-                
-                //default
-                GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
-                boolean needsSave = false;
-                
-                boolean isRename = false;
-                
-                //if inserting
-                if (!isUpdate) {
-                  GroupSave.this.saveResultType = SaveResultType.INSERT;
-                  if (GroupSave.this.typeOfGroup == null || GroupSave.this.typeOfGroup == TypeOfGroup.group) {
-                    theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.role) {
-                    theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.entity) {
-                    theGroup = (Group)parentStem.internal_addChildEntity(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else {
-                    throw new RuntimeException("Not expecting type of group: " + GroupSave.this.typeOfGroup);
+              }
+              
+              Group theGroup = null;
+              //see if update
+              boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit, GroupSave.this.name);
+      
+              if (isUpdate) {
+                String parentStemNameLookup = GrouperUtil.parentStemNameFromName(GroupSave.this.groupNameToEdit);
+                if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
+                  throw new GrouperSessionException(new GroupModifyException("Can't move a group.  Existing parentStem: '"
+                      + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
+              }    
+              try {
+                  theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
+                  
+                  //while we are here, make sure uuid's match if passed in
+                  if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
+                    throw new RuntimeException("UUID group changes are not supported: new: " + GroupSave.this.uuid + ", old: " 
+                        + theGroup.getUuid() + ", " + groupNameForError);
                   }
                   
+                } catch (GroupNotFoundException gnfe) {
+                  if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
+                    isUpdate = false;
+                  } else {
+                      throw new GrouperSessionException(gnfe);
+                  }
+                }
+              }
+              
+              if (!isUpdate && !replaceAllSettings) {
+                throw new RuntimeException("You can only edit certain fields if the object exists.");
+              }
+              
+              //default
+              GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+              boolean needsSave = false;
+              
+              boolean isRename = false;
+              
+              //if inserting
+              if (!isUpdate) {
+                GroupSave.this.saveResultType = SaveResultType.INSERT;
+                if (GroupSave.this.typeOfGroup == null || GroupSave.this.typeOfGroup == TypeOfGroup.group) {
+                  theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                } else if (GroupSave.this.typeOfGroup == TypeOfGroup.role) {
+                  theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                } else if (GroupSave.this.typeOfGroup == TypeOfGroup.entity) {
+                  theGroup = (Group)parentStem.internal_addChildEntity(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                 } else {
-                  //check if different so it doesnt make unneeded queries
-                  if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
-                      
-                      //lets just confirm that one doesnt exist
-                      String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
-                      
-                      Group existingGroup = GroupFinder.findByName(theGrouperSession.internal_getRootSession(), newName, false);
-                      
-                      if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
-                        throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
-                      }
-                      
-                      theGroup.setExtension(extensionNew, GroupSave.this.setAlternateNameIfRename);
+                  throw new RuntimeException("Not expecting type of group: " + GroupSave.this.typeOfGroup);
+                }
+                
+              } else {
+                //check if different so it doesnt make unneeded queries
+                if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
+                    
+                    //lets just confirm that one doesnt exist
+                    String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
+                    
+                    Group existingGroup = GroupFinder.findByName(grouperSession.internal_getRootSession(), newName, false);
+                    
+                    if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
+                      throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
+                    }
+                    
+                    theGroup.setExtension(extensionNew, GroupSave.this.setAlternateNameIfRename);
+                  GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  needsSave = true;
+                  isRename = true;
+                }
+                
+                if (replaceAllSettings || displayExtensionAssigned) {
+                  if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    theGroup.setDisplayExtension(theDisplayExtension);
                     needsSave = true;
-                    isRename = true;
+                  }
+                }
+                
+                
+              }
+
+              if (GroupSave.this.idIndex != null) {
+                if (GroupSave.this.saveResultType == SaveResultType.INSERT) {
+                  
+                  if (theGroup.assignIdIndex(GroupSave.this.idIndex)) {
+                    needsSave = true;
                   }
                   
-                  if (replaceAllSettings || displayExtensionAssigned) {
-                    if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                      theGroup.setDisplayExtension(theDisplayExtension);
-                      needsSave = true;
-                    }
-                  }
-                  
-                  
+                } else {
+                  //maybe they are equal...
+                  throw new RuntimeException("Cannot update idIndex for an already created group: " + GroupSave.this.idIndex + ", " + theGroup.getName());
                 }
+              }
 
-                if (GroupSave.this.idIndex != null) {
-                  if (GroupSave.this.saveResultType == SaveResultType.INSERT) {
-                    
-                    if (theGroup.assignIdIndex(GroupSave.this.idIndex)) {
-                      needsSave = true;
-                    }
-                    
-                  } else {
-                    //maybe they are equal...
-                    throw new RuntimeException("Cannot update idIndex for an already created group: " + GroupSave.this.idIndex + ", " + theGroup.getName());
-                  }
-                }
-
-                //now compare and put all attributes (then store if needed)
-                //null throws exception? hmmm.  remove attribute if blank
-                if (replaceAllSettings || descriptionAssigned) {
-                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getDescription())), 
-                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
-                    needsSave = true;
-                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    }
-                    theGroup.setDescription(GroupSave.this.description);
-                  }
-                }
-                
-                if (!isRename) {
-                  
-                  if (replaceAllSettings || alternateNameAssigned) { 
-                    if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getAlternateName())), 
-                        StringUtils.defaultString(StringUtils.trim(GroupSave.this.alternateName)))) {
-                      needsSave = true;
-                      if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                        GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                      }
-                      if (StringUtils.isBlank(GroupSave.this.alternateName)) {
-                        theGroup.setAlternateNameDb(null);
-                      } else {
-                        theGroup.addAlternateName(StringUtils.trim(GroupSave.this.alternateName));
-                      }
-                    }
-                  }
-                  
-                }
-
-                //compare type of group
-                if (replaceAllSettings || typeOfGroupAssigned) {  
-                  if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
-                    needsSave = true;
-                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    }
-                    theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
-                  }
-                }
-                
-                if (replaceAllSettings || disabledTimeDbAssigned) {
-                  if (!GrouperUtil.equals(GroupSave.this.disabledTimeDb, theGroup.getDisabledTimeDb())) {
-                    needsSave = true;
-                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    }
-                    theGroup.setDisabledTime(GroupSave.this.disabledTimeDb == null ? null : new Timestamp(GroupSave.this.disabledTimeDb));
-                  }
-                }
-                
-                if (replaceAllSettings || enabledTimeDbAssigned) {
-                  if (!GrouperUtil.equals(GroupSave.this.enabledTimeDb, theGroup.getEnabledTimeDb())) {
-                    needsSave = true;
-                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    }
-                    theGroup.setEnabledTime(GroupSave.this.enabledTimeDb == null ? null : new Timestamp(GroupSave.this.enabledTimeDb));
-                  }
-                }
-
-                //only store once
-                if (needsSave) {
-                  theGroup.store();
-                }
-
-                boolean changedPrivs = false;
-                                                
-                if (replaceAllSettings || privAllViewAssigned) {
-                  boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
-                  if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
-                    if (GroupSave.this.privAllView) {
-                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-                    } else {
-                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-                    }
-                  }
-                }
-                
-                if (replaceAllSettings || privAllReadAssigned) {
-                  boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
-                  if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
-                    if (GroupSave.this.privAllRead) {
-                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-                    } else {
-                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-                    }
-                  }
-                }
-                
-                if (replaceAllSettings || privAllOptinAssigned) {
-                  boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
-                  if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
-                    if (GroupSave.this.privAllOptin) {
-                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
-                    } else {
-                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
-                    }
-                  }
-                }
-                
-                if (replaceAllSettings || privAllOptoutAssigned) {
-                  boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
-                  if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
-                    if (GroupSave.this.privAllOptout) {
-                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
-                    } else {
-                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
-                    }
-                  }
-                }
-                
-                if (replaceAllSettings || privAllAttrReadAssigned) {
-                  boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
-                  if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
-                    if (GroupSave.this.privAllAttrRead) {
-                      changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
-                    } else {
-                      changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
-                    }
-                  }
-                }
-                
-                if (changedPrivs) {
+              //now compare and put all attributes (then store if needed)
+              //null throws exception? hmmm.  remove attribute if blank
+              if (replaceAllSettings || descriptionAssigned) {
+                if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getDescription())), 
+                    StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
+                  needsSave = true;
                   if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
                   }
+                  theGroup.setDescription(GroupSave.this.description);
+                }
+              }
+              
+              if (!isRename) {
+                
+                if (replaceAllSettings || alternateNameAssigned) { 
+                  if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getAlternateName())), 
+                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.alternateName)))) {
+                    needsSave = true;
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    if (StringUtils.isBlank(GroupSave.this.alternateName)) {
+                      theGroup.setAlternateNameDb(null);
+                    } else {
+                      theGroup.addAlternateName(StringUtils.trim(GroupSave.this.alternateName));
+                    }
+                  }
                 }
                 
-			          return theGroup;
               }
-          });
+
+              //compare type of group
+              if (replaceAllSettings || typeOfGroupAssigned) {  
+                if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
+                }
+              }
+              
+              if (replaceAllSettings || disabledTimeDbAssigned) {
+                if (!GrouperUtil.equals(GroupSave.this.disabledTimeDb, theGroup.getDisabledTimeDb())) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setDisabledTime(GroupSave.this.disabledTimeDb == null ? null : new Timestamp(GroupSave.this.disabledTimeDb));
+                }
+              }
+              
+              if (replaceAllSettings || enabledTimeDbAssigned) {
+                if (!GrouperUtil.equals(GroupSave.this.enabledTimeDb, theGroup.getEnabledTimeDb())) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setEnabledTime(GroupSave.this.enabledTimeDb == null ? null : new Timestamp(GroupSave.this.enabledTimeDb));
+                }
+              }
+
+              //only store once
+              if (needsSave) {
+                theGroup.store();
+              }
+
+              boolean changedPrivs = false;
+                                              
+              if (replaceAllSettings || privAllViewAssigned) {
+                boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
+                if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
+                  if (GroupSave.this.privAllView) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  }
+                }
+              }
+              
+              if (replaceAllSettings || privAllReadAssigned) {
+                boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
+                if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
+                  if (GroupSave.this.privAllRead) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  }
+                }
+              }
+              
+              if (replaceAllSettings || privAllOptinAssigned) {
+                boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
+                if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
+                  if (GroupSave.this.privAllOptin) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  }
+                }
+              }
+              
+              if (replaceAllSettings || privAllOptoutAssigned) {
+                boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
+                if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
+                  if (GroupSave.this.privAllOptout) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  }
+                }
+              }
+              
+              if (replaceAllSettings || privAllAttrReadAssigned) {
+                boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
+                if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
+                  if (GroupSave.this.privAllAttrRead) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  }
+                }
+              }
+              
+              if (changedPrivs) {
+                if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                  GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                }
+              }
+              
+              return theGroup;
+            
+            }
+          };
+          if (runAsRoot) {
+            return (Group)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
+          }
+          
+          return (Group)GrouperSession.callbackGrouperSession(grouperSession, grouperSessionHandler);
         }
       });
       return group;

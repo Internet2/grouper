@@ -35,9 +35,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -89,6 +86,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Stem}.
@@ -106,7 +105,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testObliterateLots"));
+    TestRunner.run(new TestStem("testStemSaveRunAsRoot"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -1946,6 +1945,19 @@ public class TestStem extends GrouperTest {
     }
   } // public void testGetPrivsStemmersAndCreatorsAsRoot()
 
+  
+  public void testStemSaveRunAsRoot() {
+    
+    Stem stem = new StemSave().assignRunAsRoot(true).assignName("test78:test79")
+      .assignCreateParentStemsIfNotExist(true).save();
+    
+    GrouperSession rootSession = SessionHelper.getRootSession();
+    Stem foundStem = StemFinder.findByName(rootSession, "test78:test79", true);
+    
+    assertTrue(foundStem != null);
+    
+  }
+  
   /**
    * test static save stem
    * @throws Exception if problem

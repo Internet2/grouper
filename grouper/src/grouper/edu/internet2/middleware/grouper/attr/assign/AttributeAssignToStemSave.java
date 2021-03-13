@@ -14,11 +14,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -30,6 +32,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class AttributeAssignToStemSave {
+  
+  /**
+   * set this to true to run as a root session
+   */
+  private boolean runAsRoot;
+  
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
+  public AttributeAssignToStemSave assignRunAsRoot(boolean runAsRoot) {
+    this.runAsRoot = runAsRoot;
+    return this;
+  }
 
   /**
    * 
@@ -173,55 +190,74 @@ public class AttributeAssignToStemSave {
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
-          grouperTransaction.setCachingEnabled(false);
-          
-          if (stem == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.stemId)) {
-            stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), AttributeAssignToStemSave.this.stemId, false, new QueryOptions().secondLevelCache(false));
-          } 
-          if (stem == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.stemName)) {
-            stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), AttributeAssignToStemSave.this.stemName, false, new QueryOptions().secondLevelCache(false));
-          }
-          GrouperUtil.assertion(stem!=null,  "Stem not found");
-
-          
-          if (attributeDefName == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.nameOfAttributeDefName)) {
-            attributeDefName = AttributeDefNameFinder.findByName(AttributeAssignToStemSave.this.nameOfAttributeDefName, false);
-          } 
-          GrouperUtil.assertion(attributeDefName!=null,  "AttributeDefName not found");
-
-          
-          // handle deletes
-          if (saveMode == SaveMode.DELETE) {
+          GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
             
-            AttributeAssignResult attributeAssignResult = stem.getAttributeDelegate().removeAttribute(attributeDefName);
-            boolean changed = attributeAssignResult.isChanged();
-            
-            AttributeAssignToStemSave.this.saveResultType = changed ? SaveResultType.DELETE : SaveResultType.NO_CHANGE;
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+             
+              grouperTransaction.setCachingEnabled(false);
+              
+              if (stem == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.stemId)) {
+                stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), AttributeAssignToStemSave.this.stemId, false, new QueryOptions().secondLevelCache(false));
+              } 
+              if (stem == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.stemName)) {
+                stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), AttributeAssignToStemSave.this.stemName, false, new QueryOptions().secondLevelCache(false));
+              }
+              GrouperUtil.assertion(stem!=null,  "Stem not found");
 
-            return attributeAssignResult.getAttributeAssign();
+              
+              if (attributeDefName == null && !StringUtils.isBlank(AttributeAssignToStemSave.this.nameOfAttributeDefName)) {
+                attributeDefName = AttributeDefNameFinder.findByName(AttributeAssignToStemSave.this.nameOfAttributeDefName, false);
+              } 
+              GrouperUtil.assertion(attributeDefName!=null,  "AttributeDefName not found");
+
+              
+              // handle deletes
+              if (saveMode == SaveMode.DELETE) {
+                
+                AttributeAssignResult attributeAssignResult = stem.getAttributeDelegate().removeAttribute(attributeDefName);
+                boolean changed = attributeAssignResult.isChanged();
+                
+                AttributeAssignToStemSave.this.saveResultType = changed ? SaveResultType.DELETE : SaveResultType.NO_CHANGE;
+
+                return attributeAssignResult.getAttributeAssign();
+              }
+              
+              AttributeAssign attributeAssign = 
+                  stem.getAttributeDelegate().retrieveAssignment(null, attributeDefName, true, false);
+              
+              AttributeAssignResult attributeAssignResult = null;
+              if (attributeDefName.getAttributeDef().isMultiAssignable()) {            
+                attributeAssignResult = stem.getAttributeDelegate().addAttribute(attributeDefName);
+              } else {
+                attributeAssignResult = stem.getAttributeDelegate().assignAttribute(attributeDefName);
+              }
+              
+              boolean changed = attributeAssignResult.isChanged();
+              
+              if (saveMode == SaveMode.INSERT && !changed) {
+                throw new RuntimeException("Inserting attribute to stem but it already exists!");
+              }
+              if (saveMode == SaveMode.UPDATE && attributeAssign == null) {
+                throw new RuntimeException("Updating membership but it doesnt exist!");
+              }
+              
+              if (attributeAssign == null) {
+                AttributeAssignToStemSave.this.saveResultType = SaveResultType.INSERT;
+              } else {
+                AttributeAssignToStemSave.this.saveResultType = attributeAssignResult.isChanged() ? SaveResultType.UPDATE : SaveResultType.NO_CHANGE;
+              }
+              
+              
+              return attributeAssignResult.getAttributeAssign();
+            }
+          };
+          
+          if (runAsRoot) {
+            return (AttributeAssign) GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
           }
+          return (AttributeAssign) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession(), grouperSessionHandler);
           
-          AttributeAssign attributeAssign = 
-              stem.getAttributeDelegate().retrieveAssignment(null, attributeDefName, true, false);
-          
-          AttributeAssignResult attributeAssignResult = stem.getAttributeDelegate().assignAttribute(attributeDefName);
-          boolean changed = attributeAssignResult.isChanged();
-          
-          if (saveMode == SaveMode.INSERT && !changed) {
-            throw new RuntimeException("Inserting attribute to stem but it already exists!");
-          }
-          if (saveMode == SaveMode.UPDATE && attributeAssign == null) {
-            throw new RuntimeException("Updating membership but it doesnt exist!");
-          }
-          
-          if (attributeAssign == null) {
-            AttributeAssignToStemSave.this.saveResultType = SaveResultType.INSERT;
-          } else {
-            AttributeAssignToStemSave.this.saveResultType = attributeAssignResult.isChanged() ? SaveResultType.UPDATE : SaveResultType.NO_CHANGE;
-          }
-          
-          
-          return attributeAssignResult.getAttributeAssign();
         }
     });
     

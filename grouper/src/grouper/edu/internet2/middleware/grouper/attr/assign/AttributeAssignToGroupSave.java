@@ -158,7 +158,13 @@ public class AttributeAssignToGroupSave {
           AttributeAssign attributeAssign = 
               group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, true, false);
           
-          AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+          AttributeAssignResult attributeAssignResult = null;
+          if (attributeDefName.getAttributeDef().isMultiAssignable()) {            
+            attributeAssignResult = group.getAttributeDelegate().addAttribute(attributeDefName);
+          } else {
+            attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+          }
+          
           boolean changed = attributeAssignResult.isChanged();
           
           if (saveMode == SaveMode.INSERT && !changed) {

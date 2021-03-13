@@ -35,9 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -76,8 +73,8 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -97,10 +94,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
-import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -108,6 +102,8 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Group}.
@@ -674,6 +670,19 @@ public class TestGroup extends GrouperTest {
     
     assertEquals(group.getUuid(), group2.getUuid());
     assertEquals("someNewStem:someGroup2", group2.getName());
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupSaveRunAsRoot() {
+    
+    Group group = new GroupSave()
+        .assignRunAsRoot(true)
+        .assignCreateParentStemsIfNotExist(true).assignName("testStem:testGroupRunAsRoot").save();
+    
+    assertTrue(group != null);
     
   }
   
