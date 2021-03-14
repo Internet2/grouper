@@ -5,7 +5,7 @@
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
            <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');">${textContainer.text['miscellaneousProvisionerConfigurationsBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-           <li class="active">${textContainer.text['miscellaneousProvisionerDiagnosticsBreadcrumb'] }</li>
+           <li class="active">${textContainer.text['miscellaneousGrouperProvisioningDiagnosticsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
                 <h1>${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescription'] }</h1>
@@ -63,17 +63,20 @@
                   </div>
             --%>      
                   
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.diagnostics&provisionerConfigId=${grouperRequestContainer.provisionerDiagnosticsContainer.grouperProvisioner.configId}');"
-                  >${textContainer.text['provisioningDiagnosticsSubmitButton'] }</a> 
-                  &nbsp;
-                  <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
-                          >${textContainer.text['provisioningDiagnosticsCancelButton'] }</a>
-                  </div>
-                  
-                </form>
-                <div id="provisioningDiagnosticsResultsId">
+                <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
+                <input type="hidden" name="provisionerInitted" value="true" />
+                <div class="form-actions"><a href="#" class="btn btn-primary" role="button" 
+                  onclick="ajax('../app/UiV2ProvisionerConfiguration.diagnostics', {formIds: 'provisioningDiagnosticsForm'}); return false;"
+                >${textContainer.text['provisioningDiagnosticsSubmitButton'] }</a> 
+                &nbsp;
+                <a class="btn btn-cancel" role="button"
+                        onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
+                        >${textContainer.text['provisioningDiagnosticsCancelButton'] }</a>
                 </div>
+                
+              </form>
+              <div id="provisioningDiagnosticsResultsId">
               </div>
-           </div>
+            </div>
+         </div>
 

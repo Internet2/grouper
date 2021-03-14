@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperSyncLogWithOwner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerDiagnosticsContainer;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
@@ -74,19 +74,23 @@ public class UiV2ProvisionerConfiguration {
    * @param request
    * @param response
    */
-  public void diagnosticsInit(HttpServletRequest request, HttpServletResponse response) {
-
+  public void diagnostics(HttpServletRequest request, HttpServletResponse response) {
+    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
     GrouperSession grouperSession = null;
-  
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    long startNanos = System.nanoTime();
+    
+    debugMap.put("method", "diagnostics");
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      //if the user allowed
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
       
       if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
@@ -98,19 +102,24 @@ public class UiV2ProvisionerConfiguration {
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
+
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
-      if (grouperProvisioner == null) {
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      if (provisioner == null) {
         throw new RuntimeException("No provisioner found for "+provisionerConfigId);
       }
 
-      ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerDiagnosticsContainer();
-      provisionerDiagnosticsContainer.setGrouperProvisioner(grouperProvisioner);
+      final GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+      
+      grouperRequestContainer.setGrouperProvisioningDiagnosticsContainer(grouperProvisioningDiagnosticsContainer);
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerDiagnosticsInit.jsp"));
-      
-      
+      String initted = request.getParameter("provisionerInitted");
+      if (!GrouperUtil.booleanValue(initted, false)) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/provisionerConfigs/provisionerDiagnosticsInit.jsp"));
+        return;
+      }      
       
 //      String subjectId = null;
 //      String subjectIdentifier = null;
@@ -142,50 +151,10 @@ public class UiV2ProvisionerConfiguration {
 //      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdName", subjectId));
 //      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdentifierName", subjectIdentifier));
 //      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchStringName", searchString));
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
 
-  }
-
-  /**
-   * start diagnostics
-   * @param request
-   * @param response
-   */
-  public void diagnostics(HttpServletRequest request, HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    long startNanos = System.nanoTime();
-    
-    debugMap.put("method", "diagnostics");
-    
-    try {
       
-      grouperSession = GrouperSession.start(loggedInSubject);
       
-      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
-      
-      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
-        throw new RuntimeException("Not allowed!!!!!");
-      }
-      
-      String provisionerConfigId = request.getParameter("provisionerConfigId");
-      
-      if (StringUtils.isBlank(provisionerConfigId)) {
-        throw new RuntimeException("provisionerConfigId cannot be blank");
-      }
-
       String sessionId = request.getSession().getId();
-      
-      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      
-      final ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer = grouperRequestContainer.getProvisionerDiagnosticsContainer();
       
       debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
       
@@ -194,31 +163,25 @@ public class UiV2ProvisionerConfiguration {
   
       debugMap.put("uniqueDiagnosticsId", GrouperUtil.abbreviate(uniqueDiagnosticsId, 8));
   
-      provisionerDiagnosticsContainer.setUniqueDiagnosticsId(uniqueDiagnosticsId);
+      grouperProvisioningDiagnosticsContainer.setUniqueDiagnosticsId(uniqueDiagnosticsId);
       
       MultiKey diagnosticsMultiKey = new MultiKey(sessionId, uniqueDiagnosticsId);
       
-      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
-      if (provisioner == null) {
-        throw new RuntimeException("No provisioner found for "+provisionerConfigId);
-      }
       diagnosticsThreadProgress.put(diagnosticsMultiKey, provisioner);
       
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("provisionerDiagnostics") {
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("grouperProvisioningDiagnostics") {
 
         @Override
         public Void callLogic() {
           try {
-            provisioner.retrieveProvisionerDiagnosticsContainer().runDiagnostics();
+            provisioner.retrieveGrouperProvisioningDiagnosticsContainer().runDiagnostics();
           } catch (RuntimeException re) {
-            provisionerDiagnosticsContainer.getProgressBean().setHasException(true);
+            provisioner.retrieveGrouperProvisioningDiagnosticsContainer().getProgressBean().setHasException(true);
             // log this since the thread will just end and will never get logged
             LOG.error("error", re);
           } finally {
             // we done
-            provisionerDiagnosticsContainer.getProgressBean().setComplete(true);
+            provisioner.retrieveGrouperProvisioningDiagnosticsContainer().getProgressBean().setComplete(true);
           }
           return null;
         }
@@ -311,9 +274,9 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioner provisioner = diagnosticsThreadProgress.get(diagnosticsMultiKey);
       if (provisioner == null) return;
       
-      ProvisionerDiagnosticsContainer diagnosticsContainer = provisioner.retrieveProvisionerDiagnosticsContainer();
+      GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
       
-      GrouperRequestContainer.retrieveFromRequestOrCreate().setProvisionerDiagnosticsContainer(diagnosticsContainer);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().setGrouperProvisioningDiagnosticsContainer(diagnosticsContainer);
   
       //show the diagnostics screen
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueDiagnosticsId, 
@@ -332,7 +295,7 @@ public class UiV2ProvisionerConfiguration {
         
         if (diagnosticsContainer.getProgressBean().isHasException()) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("provisionerDiagnosticsException")));
+              TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsException")));
           // it has an exception, leave it be
           diagnosticsThreadProgress.put(diagnosticsMultiKey, null);
           return;

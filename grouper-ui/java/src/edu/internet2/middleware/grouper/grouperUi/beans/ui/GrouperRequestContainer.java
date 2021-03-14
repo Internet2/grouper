@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerDiagnosticsContainer;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
@@ -177,7 +177,7 @@ public class GrouperRequestContainer {
   /**
    * data for provisioner diagnostics
    */
-  private ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer;
+  private GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer;
 
   /**
    * data for importing members into groups
@@ -201,22 +201,22 @@ public class GrouperRequestContainer {
   
   /**
    * data for provisioner diagnostics
-   * @return provisionerDiagnosticsContainer
+   * @return grouperProvisioningDiagnosticsContainer
    */
-  public ProvisionerDiagnosticsContainer getProvisionerDiagnosticsContainer() {
-    if (this.provisionerDiagnosticsContainer == null) {
-      this.provisionerDiagnosticsContainer = new ProvisionerDiagnosticsContainer();
+  public GrouperProvisioningDiagnosticsContainer getGrouperProvisioningDiagnosticsContainer() {
+    if (this.grouperProvisioningDiagnosticsContainer == null) {
+      throw new RuntimeException("Provisioning diagnostics container needs to be initted!");
     }
-    return this.provisionerDiagnosticsContainer;
+    return this.grouperProvisioningDiagnosticsContainer;
   }
 
   /**
    * data for provisioner diagnostics
-   * @param provisionerDiagnosticsContainer
+   * @param grouperProvisioningDiagnosticsContainer
    */
-  public void setProvisionerDiagnosticsContainer(
-      ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer) {
-    this.provisionerDiagnosticsContainer = provisionerDiagnosticsContainer;
+  public void setGrouperProvisioningDiagnosticsContainer(
+      GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer) {
+    this.grouperProvisioningDiagnosticsContainer = grouperProvisioningDiagnosticsContainer;
   }
 
   /** 

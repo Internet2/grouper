@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 
-public class ProvisionerDiagnosticsContainer {
+public class GrouperProvisioningDiagnosticsContainer {
   
   /**
    * uniquely identifies this diagnostics request as opposed to other diagnostics in other tabs
@@ -35,7 +35,7 @@ public class ProvisionerDiagnosticsContainer {
   }
   
   public String getReport() {
-    return "<p>valid report </p>";
+    return "<pre>valid report</pre>";
   }
 
 
