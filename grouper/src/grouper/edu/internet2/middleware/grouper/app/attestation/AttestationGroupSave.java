@@ -10,10 +10,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -26,45 +24,15 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
-/**
- * use this class to add/edit/delete attestation on folders
- * @author mchyzer
- *
- */
-public class AttestationStemSave {
-
-  /**
-   * 
-   * @param args
-   */
-  public static void main(String[] args) {
-    GrouperStartup.startup();
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    AttestationStemSave attestationStemSave = null;
-    
-//    attestationStemSave = new AttestationStemSave().assignStemName("test");
-//    attestationStemSave.save();
-
-    attestationStemSave = new AttestationStemSave().assignStemName("test").assignDaysBeforeToRemind(15).assignStemScope(Scope.SUB);
-    attestationStemSave.save();
-
-//    attestationStemSave = new AttestationStemSave().assignStemName("test").assignSaveMode(SaveMode.DELETE);
-//    attestationStemSave.save();
-    
-    System.out.println(attestationStemSave.getSaveResultType());
-    
-    GrouperSession.stopQuietly(grouperSession);
-  }
+public class AttestationGroupSave {
   
   /**
    * days before attestation to remind
@@ -75,7 +43,7 @@ public class AttestationStemSave {
    * days before attestation to remind
    * @return this for chaining
    */
-  public AttestationStemSave assignDaysBeforeToRemind(int theDaysBeforeToRemind) {
+  public AttestationGroupSave assignDaysBeforeToRemind(int theDaysBeforeToRemind) {
     daysBeforeToRemindAssigned = true;
     this.daysBeforeToRemind = theDaysBeforeToRemind;
     return this;
@@ -95,7 +63,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignDaysUntilRecertify(int theDaysUntilRecertify) {
+  public AttestationGroupSave assignDaysUntilRecertify(int theDaysUntilRecertify) {
     this.daysUntilRecertify = theDaysUntilRecertify;
     daysUntilRecertifyAssigned = true;
     return this;
@@ -114,7 +82,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignEmailAddresses(String theEmailAddresses) {
+  public AttestationGroupSave assignEmailAddresses(String theEmailAddresses) {
     theEmailAddresses = GrouperUtil.replace(theEmailAddresses, ";", ",");
     this.emailAddresses = GrouperUtil.splitTrimToSet(theEmailAddresses, ",");
     emailAddressesAssigned = true;
@@ -125,7 +93,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave addEmailAddress(String theEmailAddress) {
+  public AttestationGroupSave addEmailAddress(String theEmailAddress) {
     if (this.emailAddresses == null) {
       this.emailAddresses = new TreeSet<String>();
     }
@@ -138,7 +106,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave addEmailAddress(Subject subject) {
+  public AttestationGroupSave addEmailAddress(Subject subject) {
     
     if (this.emailAddresses == null) {
       this.emailAddresses = new TreeSet<String>();
@@ -155,7 +123,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave addEmailAddresses(Group group) {
+  public AttestationGroupSave addEmailAddresses(Group group) {
     
     
     if (this.emailAddresses == null) {
@@ -173,7 +141,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignEmailAddresses(Set<String> theEmailAddresses) {
+  public AttestationGroupSave assignEmailAddresses(Set<String> theEmailAddresses) {
     this.emailAddresses = theEmailAddresses;
     emailAddressesAssigned = true;
     return this;
@@ -181,51 +149,13 @@ public class AttestationStemSave {
 
   private boolean emailAddressesAssigned = false;
 
-  /**
-   * the stem scope of the attestation
-   */
-  private Scope stemScope = null;
-
-  /**
-   * 
-   * @return this for chaining
-   */
-  public AttestationStemSave assignStemScope(String theStemScope) {
-    Scope scope = Scope.valueOfIgnoreCase(theStemScope, true);
-    return this.assignStemScope(scope);
-  }
-
-  /**
-   * 
-   * @return this for chaining
-   */
-  public AttestationStemSave assignStemScope(Scope theStemScope) {
-    stemScopeAssigned = true;
-    this.stemScope = theStemScope;
-    return this;
-  }
-
-  private boolean stemScopeAssigned = false;
-
   private boolean replaceAllSettings = true;
-
-  private boolean useThreadForPropagation = false;
-
-  /**
-   * 
-   * @param theUseThreadForPropagation
-   * @return this for chaining
-   */
-  public AttestationStemSave assignUseThreadForPropagation(boolean theUseThreadForPropagation) {
-    this.useThreadForPropagation = theUseThreadForPropagation;
-    return this;
-  }
   
   /**
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+  public AttestationGroupSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
     
     this.replaceAllSettings = theReplaceAllSettings;
     return this;
@@ -242,7 +172,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignMarkAsAttested(boolean theMarkAsAttested) {
+  public AttestationGroupSave assignMarkAsAttested(boolean theMarkAsAttested) {
     this.markAsAttested = theMarkAsAttested;
     return this;
   }
@@ -257,7 +187,7 @@ public class AttestationStemSave {
    * 
    * @return this for chaining
    */
-  public AttestationStemSave assignAttestationType(AttestationType theAttestationType) {
+  public AttestationGroupSave assignAttestationType(AttestationType theAttestationType) {
     attestationTypeAssigned = true;
     this.attestationType = theAttestationType;
     return this;
@@ -277,83 +207,32 @@ public class AttestationStemSave {
    * @param theSendEmail
    * @return
    */
-  public AttestationStemSave assignSendEmail(boolean theSendEmail) {
+  public AttestationGroupSave assignSendEmail(boolean theSendEmail) {
     this.sendEmail = theSendEmail;
     this.sendEmailAssigned = true;
     return this;
   }
   
   /**
-   * stem
+   * group
    */
-  private Stem stem;
+  private Group group;
   
   /**
-   * stem id to add to, mutually exclusive with stem name
+   * group id to add to, mutually exclusive with group name
    */
-  private String stemId;
+  private String groupId;
   /**
-   * stem name to add to, mutually exclusive with stem id
+   * group name to add to, mutually exclusive with group id
    */
-  private String stemName;
+  private String groupName;
 
   /** save mode */
   private SaveMode saveMode;
   
   /** save type after the save */
   private SaveResultType saveResultType = null;
-
-  public AttestationStemSave() {
-    
-  }
-
-  /**
-   * assign a stem
-   * @param theStem
-   * @return this for chaining
-   */
-  public AttestationStemSave assignStem(Stem theStem) {
-    this.stem = theStem;
-    return this;
-  }
-
-  /**
-   * stem id to add to, mutually exclusive with stem name and stem
-   * @param theStemId
-   * @return this for chaining
-   */
-  public AttestationStemSave assignStemId(String theStemId) {
-    this.stemId = theStemId;
-    return this;
-  }
-
-  /**
-   * stem name to add to, mutually exclusive with stem id and stem
-   * @param theStemName
-   * @return this for chaining
-   */
-  public AttestationStemSave assignStemName(String theStemName) {
-    this.stemName = theStemName;
-    return this;
-  }
-
-  /**
-   * asssign save mode
-   * @param theSaveMode
-   * @return this for chaining
-   */
-  public AttestationStemSave assignSaveMode(SaveMode theSaveMode) {
-    this.saveMode = theSaveMode;
-    return this;
-  }
-
-  /**
-   * get the save type
-   * @return save type
-   */
-  public SaveResultType getSaveResultType() {
-    return this.saveResultType;
-  }
+  
   
   /**
    * set this to true to run as a root session
@@ -365,9 +244,61 @@ public class AttestationStemSave {
    * @param runAsRoot
    * @return
    */
-  public AttestationStemSave assignRunAsRoot(boolean runAsRoot) {
+  public AttestationGroupSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
+  }
+
+  public AttestationGroupSave() {
+    
+  }
+
+  /**
+   * assign a group
+   * @param theGroup
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignGroup(Group theGroup) {
+    this.group = theGroup;
+    return this;
+  }
+
+  /**
+   * group id to add to, mutually exclusive with group name and group
+   * @param theGroupId
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignGroupId(String theGroupId) {
+    this.groupId = theGroupId;
+    return this;
+  }
+
+  /**
+   * group name to add to, mutually exclusive with group id and group
+   * @param theGroupName
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignGroupName(String theGroupName) {
+    this.groupName = theGroupName;
+    return this;
+  }
+
+  /**
+   * assign save mode
+   * @param theSaveMode
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignSaveMode(SaveMode theSaveMode) {
+    this.saveMode = theSaveMode;
+    return this;
+  }
+
+  /**
+   * get the save type
+   * @return save type
+   */
+  public SaveResultType getSaveResultType() {
+    return this.saveResultType;
   }
 
   /**
@@ -381,7 +312,7 @@ public class AttestationStemSave {
     //default to insert or update
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
     
-    final Stem[] STEM = new Stem[1];
+    final Group[] GROUP = new Group[1];
     
     AttributeAssign attributeAssign = (AttributeAssign)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
     
@@ -391,30 +322,29 @@ public class AttestationStemSave {
           grouperTransaction.setCachingEnabled(false);
           
           final Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
-          
+
           return (AttributeAssign) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              if (stem == null && !StringUtils.isBlank(AttestationStemSave.this.stemId)) {
-                stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), AttestationStemSave.this.stemId, false, new QueryOptions().secondLevelCache(false));
+              if (group == null && !StringUtils.isBlank(AttestationGroupSave.this.groupId)) {
+                group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), AttestationGroupSave.this.groupId, false, new QueryOptions().secondLevelCache(false));
               } 
-              if (stem == null && !StringUtils.isBlank(AttestationStemSave.this.stemName)) {
-                stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), AttestationStemSave.this.stemName, false, new QueryOptions().secondLevelCache(false));
+              if (group == null && !StringUtils.isBlank(AttestationGroupSave.this.groupName)) {
+                group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), AttestationGroupSave.this.groupName, false, new QueryOptions().secondLevelCache(false));
               }
-              GrouperUtil.assertion(stem!=null,  "Stem not found");
+              GrouperUtil.assertion(group != null,  "Group not found");
 
-              STEM[0] = stem;
+              GROUP[0] = group;
               
               if (!runAsRoot) {
-                if (!stem.canHavePrivilege(SUBJECT_IN_SESSION, NamingPrivilege.STEM_ADMIN.getName(), false)) {
+                if (!group.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.UPDATE.getName(), false)) {
                   throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
-                    + "' cannot ADMIN stem '" + stem.getName() + "'");
+                    + "' cannot ADMIN group '" + group.getName() + "'");
                 }
               }
               
-
-              AttributeAssign markerAttributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+              AttributeAssign markerAttributeAssign = group.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
               
               boolean hasAttestation = GrouperUtil.booleanValue(
                   markerAttributeAssign == null ? null : markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName()), false);
@@ -426,17 +356,17 @@ public class AttestationStemSave {
               if (saveMode == SaveMode.DELETE) {
 
                 if (!hasAttestation || !directAssignment) {
-                  AttestationStemSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                  AttestationGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                   return null;
                 }
                 
-                stem.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+                group.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
                 
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId", stem.getId(), "stemName", stem.getName());
-                auditEntry.setDescription("Delete stem attestation: "+stem.getName());
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId", group.getId(), "groupName", group.getName());
+                auditEntry.setDescription("Delete group attestation: "+group.getName());
                 auditEntry.saveOrUpdate(true);
                 
-                AttestationStemSave.this.saveResultType = SaveResultType.DELETE;
+                AttestationGroupSave.this.saveResultType = SaveResultType.DELETE;
                 
                 return markerAttributeAssign;
               }
@@ -458,7 +388,7 @@ public class AttestationStemSave {
                 hasChange = true;
                 
                 if (markerAttributeNewlyAssigned) {
-                  markerAttributeAssign = stem.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).getAttributeAssign();
+                  markerAttributeAssign = group.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).getAttributeAssign();
                   
                 }
                 
@@ -479,8 +409,6 @@ public class AttestationStemSave {
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameSendEmail(), sendEmail == null ? null : (sendEmail ? "true" : "false") , sendEmailAssigned);
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
-                  GrouperAttestationJob.retrieveAttributeDefNameStemScope(), stemScope == null ? Stem.Scope.SUB.name().toLowerCase() : stemScope.name().toLowerCase() , stemScopeAssigned);
-              hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses(), GrouperUtil.length(emailAddresses) == 0 ? null : GrouperUtil.join(emailAddresses.iterator(), ','), emailAddressesAssigned);
 
               
@@ -495,29 +423,28 @@ public class AttestationStemSave {
 //              }
 
               if (!markerAttributeNewlyAssigned && !hasChange) {
-                AttestationStemSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                AttestationGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 return markerAttributeAssign;
               }
               
               // insert
               if (markerAttributeNewlyAssigned) {
-                AttestationStemSave.this.saveResultType = SaveResultType.INSERT;
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_ADD, "stemId", stem.getId(), "stemName", stem.getName());
-                auditEntry.setDescription("Add stem attestation: "+ stem.getName());
+                AttestationGroupSave.this.saveResultType = SaveResultType.INSERT;
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId", group.getId(), "groupName", group.getName());
+                auditEntry.setDescription("Add group attestation: "+ group.getName());
       
               } else {
 
-                AttestationStemSave.this.saveResultType = SaveResultType.UPDATE;
+                AttestationGroupSave.this.saveResultType = SaveResultType.UPDATE;
                 
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_UPDATE, "stemId", stem.getId(), "stemName", stem.getName());
-                auditEntry.setDescription("Update stem attestation: "+stem.getName());
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId", group.getId(), "groupName", group.getName());
+                auditEntry.setDescription("Update group attestation: "+group.getName());
               }
 
               return markerAttributeAssign;
             }
           });
           
-
         }
     });
     
@@ -531,27 +458,9 @@ public class AttestationStemSave {
       this.saveResultType = SaveResultType.UPDATE;
     }
     
-    this.finished = GrouperAttestationJob.stemAttestationProcess(stem, 
-        this.saveResultType == SaveResultType.DELETE ? null : attributeAssign, 
-        this.saveResultType == SaveResultType.DELETE, newDateCertified, this.useThreadForPropagation);
-    
     return attributeAssign;
     
   }
-
-  /**
-   * if this is finished
-   */
-  private boolean finished = false;
-  
-  /**
-   * if this is finished
-   * @return if finished
-   */
-  public boolean isFinished() {
-    return finished;
-  }
-
 
   /**
    * 
@@ -600,5 +509,4 @@ public class AttestationStemSave {
     return hasChange;
   }
 
-  
 }
