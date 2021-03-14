@@ -210,12 +210,22 @@ public abstract class GrouperProvisioner {
    */
   protected abstract Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass();
   
-  public ProvisionerDiagnosticsContainer retrieveProvisionerDiagnosticsContainer() {
+  /**
+   * 
+   */
+  private GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = null;
+  
+  /**
+   * @return the diagnostics
+   */
+  public GrouperProvisioningDiagnosticsContainer retrieveGrouperProvisioningDiagnosticsContainer() {
     
-    ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer = new ProvisionerDiagnosticsContainer();
-    provisionerDiagnosticsContainer.setGrouperProvisioner(this);
+    if (this.grouperProvisioningDiagnosticsContainer == null) {
+      this.grouperProvisioningDiagnosticsContainer = new GrouperProvisioningDiagnosticsContainer();
+      this.grouperProvisioningDiagnosticsContainer.setGrouperProvisioner(this);
+    }
     
-    return provisionerDiagnosticsContainer;
+    return this.grouperProvisioningDiagnosticsContainer;
   }
   
   /**
