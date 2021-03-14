@@ -68,7 +68,87 @@ public class UiV2ProvisionerConfiguration {
    * uniquely identifies this diagnostics request as opposed to other diagnostics in other tabs
    */
   private static ExpirableCache<MultiKey, GrouperProvisioner> diagnosticsThreadProgress = new ExpirableCache<MultiKey, GrouperProvisioner>(300);
+
+  /**
+   * start diagnostics
+   * @param request
+   * @param response
+   */
+  public void diagnosticsInit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //if the user allowed
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      if (grouperProvisioner == null) {
+        throw new RuntimeException("No provisioner found for "+provisionerConfigId);
+      }
+
+      ProvisionerDiagnosticsContainer provisionerDiagnosticsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerDiagnosticsContainer();
+      provisionerDiagnosticsContainer.setGrouperProvisioner(grouperProvisioner);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerDiagnosticsInit.jsp"));
+      
+      
+      
+//      String subjectId = null;
+//      String subjectIdentifier = null;
+//      String searchString = null;
+//
+//      if (!StringUtils.isBlank(sourceId)) {
+//
+//        Source source = SourceManager.getInstance().getSource(sourceId);
+//        
+//        if (source == null) {
+//          throw new RuntimeException("Cant find source by id: '" + sourceId + "'");
+//        }
+//        
+//        SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
+//        subjectSourceContainer.setSubjectSourceId(sourceId);
+//        
+//        subjectId = source.getInitParam("subjectIdToFindOnCheckConfig");
+//        subjectId = StringUtils.defaultIfBlank(subjectId, "someSubjectId");
+//
+//        subjectIdentifier = source.getInitParam("subjectIdentifierToFindOnCheckConfig");
+//        subjectIdentifier = StringUtils.defaultIfBlank(subjectIdentifier, "someSubjectIdentifier");
+//
+//        searchString = source.getInitParam("stringToFindOnCheckConfig");
+//        searchString = StringUtils.defaultIfBlank(searchString, "first last");
+//      }
+//      
+//      
+//      // change the textfields
+//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdName", subjectId));
+//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdentifierName", subjectIdentifier));
+//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchStringName", searchString));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
   /**
    * start diagnostics
    * @param request
