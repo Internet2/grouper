@@ -16,18 +16,42 @@
               <div class="span12">
                 <form class="form-horizontal" id="provisioningDiagnosticsForm"
                     onsubmit="return false;">
-        
-        <%--
+
                   <div class="control-group">
-                    <label for="provisioningSourceIdId" class="control-label">${textContainer.text['adminprovisioningDiagnosticsSourceId'] }</label>
+                   
                     <div class="controls">
-            
-            <input type="hidden" name="provisioningSourceIdName" id="provisioningSourceIdId" value="${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}" />                     
-                  ${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}
-                    
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSourceIdLabel'] }</span>
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsGroupsAllSelectName" id="diagnosticsGroupsAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupsAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsDescription'] }</span>                    
                     </div>
                   </div>
+                  <div class="control-group">
+                   
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsEntitiesAllSelectName" id="diagnosticsEntitiesAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsEntitiesAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesDescription'] }</span>                    
+                    </div>
+                  </div>
+                  <div class="control-group">
+                   
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsMembershipsAllSelectName" id="diagnosticsMembershipsAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsMembershipsAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsDescription'] }</span>                    
+                    </div>
+                  </div>
+        
+        <%--
 
                   <div class="control-group">
                     <label for="subjectIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectId'] }</label>

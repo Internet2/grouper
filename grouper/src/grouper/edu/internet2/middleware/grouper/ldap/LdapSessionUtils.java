@@ -39,8 +39,6 @@ public class LdapSessionUtils {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(LdapSessionUtils.class);
 
-  private static LdapSession ldapSession = null;
-
   private static boolean loggedErrorNotLdaptive = false;
   
   /**
@@ -48,21 +46,12 @@ public class LdapSessionUtils {
    * @return the external subject storable
    */
   public static LdapSession ldapSession() {
-    if (ldapSession == null) {
-      synchronized (LdapSessionUtils.class) {
-        if (ldapSession == null) {
-          String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
-          
-          if (!StringUtils.equals(className, LdaptiveSessionImpl.class.getName()) && !loggedErrorNotLdaptive) {
-            LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
-            loggedErrorNotLdaptive = true;
-          }
-          
-          ldapSession = new LdaptiveSessionImpl(); 
-        }
-      }
-    }
+    String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
     
-    return ldapSession;
+    if (!StringUtils.equals(className, LdaptiveSessionImpl.class.getName()) && !loggedErrorNotLdaptive) {
+      LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
+      loggedErrorNotLdaptive = true;
+    }
+    return new LdaptiveSessionImpl(); 
   }
 }

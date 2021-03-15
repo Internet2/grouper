@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperSyncLogWithOwner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
@@ -110,50 +111,22 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("No provisioner found for "+provisionerConfigId);
       }
 
+      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      
       final GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
       
       grouperRequestContainer.setGrouperProvisioningDiagnosticsContainer(grouperProvisioningDiagnosticsContainer);
 
       String initted = request.getParameter("provisionerInitted");
       if (!GrouperUtil.booleanValue(initted, false)) {
+        
+        grouperProvisioningDiagnosticsContainer.setDiagnosticsGroupsAllSelect(provisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsGroupsAllSelect());
+        
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/provisionerConfigs/provisionerDiagnosticsInit.jsp"));
         return;
       }      
-      
-//      String subjectId = null;
-//      String subjectIdentifier = null;
-//      String searchString = null;
-//
-//      if (!StringUtils.isBlank(sourceId)) {
-//
-//        Source source = SourceManager.getInstance().getSource(sourceId);
-//        
-//        if (source == null) {
-//          throw new RuntimeException("Cant find source by id: '" + sourceId + "'");
-//        }
-//        
-//        SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
-//        subjectSourceContainer.setSubjectSourceId(sourceId);
-//        
-//        subjectId = source.getInitParam("subjectIdToFindOnCheckConfig");
-//        subjectId = StringUtils.defaultIfBlank(subjectId, "someSubjectId");
-//
-//        subjectIdentifier = source.getInitParam("subjectIdentifierToFindOnCheckConfig");
-//        subjectIdentifier = StringUtils.defaultIfBlank(subjectIdentifier, "someSubjectIdentifier");
-//
-//        searchString = source.getInitParam("stringToFindOnCheckConfig");
-//        searchString = StringUtils.defaultIfBlank(searchString, "first last");
-//      }
-//      
-//      
-//      // change the textfields
-//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdName", subjectId));
-//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdentifierName", subjectIdentifier));
-//      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchStringName", searchString));
-
-      
-      
+            
       String sessionId = request.getSession().getId();
       
       debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
@@ -164,6 +137,23 @@ public class UiV2ProvisionerConfiguration {
       debugMap.put("uniqueDiagnosticsId", GrouperUtil.abbreviate(uniqueDiagnosticsId, 8));
   
       grouperProvisioningDiagnosticsContainer.setUniqueDiagnosticsId(uniqueDiagnosticsId);
+      
+      {
+        //deal with inputs and configuration
+        {
+          boolean diagnosticsGroupsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsAllSelectName[]"), false);
+          grouperProvisioningDiagnosticsContainer.setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
+        }
+        {
+          boolean diagnosticsEntitiesAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesAllSelectName[]"), false);
+          grouperProvisioningDiagnosticsContainer.setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
+        }
+        {
+          boolean diagnosticsMembershipsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsMembershipsAllSelectName[]"), false);
+          grouperProvisioningDiagnosticsContainer.setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
+        }
+      }
+      
       
       MultiKey diagnosticsMultiKey = new MultiKey(sessionId, uniqueDiagnosticsId);
       

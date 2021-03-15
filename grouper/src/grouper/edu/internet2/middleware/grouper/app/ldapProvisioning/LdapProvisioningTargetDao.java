@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
@@ -98,7 +99,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
-      List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+      LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+      GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer();
+      ldapSyncDaoForLdap.assignDebug(grouperProvisioningDiagnosticsContainer.isInDiagnostics());
+      List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+      if (grouperProvisioningDiagnosticsContainer.isInDiagnostics()) {
+        grouperProvisioningDiagnosticsContainer.appendReportLineIfNotBlank(ldapSyncDaoForLdap.getDebugLog().toString());
+      }
       
       for (LdapEntry ldapEntry : ldapEntries) {
         ProvisioningGroup targetGroup = new ProvisioningGroup();
@@ -510,7 +517,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
+      LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+      GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer();
+      ldapSyncDaoForLdap.assignDebug(grouperProvisioningDiagnosticsContainer.isInDiagnostics());
       List<LdapEntry> ldapEntries = new LdapSyncDaoForLdap().search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
+      if (grouperProvisioningDiagnosticsContainer.isInDiagnostics()) {
+        grouperProvisioningDiagnosticsContainer.appendReportLineIfNotBlank(ldapSyncDaoForLdap.getDebugLog().toString());
+      }
       
       for (LdapEntry ldapEntry : ldapEntries) {
         ProvisioningEntity targetEntity = new ProvisioningEntity();

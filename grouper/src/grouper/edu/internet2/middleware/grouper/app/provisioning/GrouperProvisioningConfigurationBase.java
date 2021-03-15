@@ -34,6 +34,54 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfigurationBase {
 
   /**
+   * if select all groups during diagnostics (default false)
+   */
+  private Boolean diagnosticsGroupsAllSelect;
+
+  /**
+   * if select all groups during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsGroupsAllSelect() {
+    if (this.diagnosticsGroupsAllSelect != null) {
+      return this.diagnosticsGroupsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * if select all entities during diagnostics (default false)
+   */
+  private Boolean diagnosticsEntitiesAllSelect;
+
+  /**
+   * if select all entities during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsEntitiesAllSelect() {
+    if (this.diagnosticsEntitiesAllSelect != null) {
+      return this.diagnosticsEntitiesAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * if select all memberships during diagnostics (default false)
+   */
+  private Boolean diagnosticsMembershipsAllSelect;
+
+  /**
+   * if select all memberships during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsMembershipsAllSelect() {
+    if (this.diagnosticsMembershipsAllSelect != null) {
+      return this.diagnosticsMembershipsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
    * Only provision policy groups
    */
   private Boolean onlyProvisionPolicyGroups;
@@ -2043,6 +2091,12 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
       
     }
+    
+    // diagnostics settings
+    this.diagnosticsGroupsAllSelect = this.retrieveConfigBoolean("selectAllGroupsDuringDiagnostics", false);
+    this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
+    this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
+    
     
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());

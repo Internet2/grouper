@@ -21,6 +21,19 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
 
 public abstract class GrouperProvisioner {
 
+  /**
+   * this is the controller that makes the editing screen work, this is not the provisioning configuration class: retrieveGrouperProvisioningConfiguration()
+   */
+  private ProvisionerConfiguration provisionerConfiguration = null;
+
+  /**
+   * this is the controller that makes the editing screen work, this is not the provisioning configuration class: retrieveGrouperProvisioningConfiguration()
+   * @return provisioner configuration
+   */
+  public ProvisionerConfiguration getProvisionerConfiguration() {
+    return ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
+  }
+  
   private String instanceId = GrouperUtil.uniqueId().toLowerCase();
   
   
