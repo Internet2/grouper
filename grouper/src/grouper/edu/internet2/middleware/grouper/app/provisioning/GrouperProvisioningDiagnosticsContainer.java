@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -7,6 +9,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
@@ -17,6 +20,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperProvisioningDiagnosticsContainer {
 
@@ -132,25 +136,85 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.report = new StringBuilder();
       
       this.appendConfiguration();
+
+      this.appendGeneralInfo();
       
-      this.report.append("<h4>Provisioner</h4><pre>");
-      GrouperProvisioningObjectLogType.appendProvisioner(grouperProvisioner, this.report, "Provisioner");
-      this.report.append("</pre>\n<h4>Configuration analysis</h4><pre>");
-      GrouperProvisioningObjectLogType.appendConfiguration(grouperProvisioner, this.report, "Configuration");
-      this.report.append("</pre>\n<h4>Target Dao capabilities</h4><pre>");
-      GrouperProvisioningObjectLogType.appendTargetDaoCapabilities(grouperProvisioner, this.report, "Target Dao capabilities");
-      this.report.append("</pre>\n<h4>Provisioner behaviors</h4><pre>");
-      GrouperProvisioningObjectLogType.appendTargetDaoBehaviors(grouperProvisioner, this.report, "Provisioner behaviors");
-      this.report.append("</pre>\n");
+      this.appendValidation();
       
       this.appendSelectAllGroups();
       this.appendSelectAllEntities();
       this.appendSelectAllMemberships();
       
+    } catch (Exception e) {
+      LOG.error("error in diagnostics", e);
+      this.report.append("</pre><pre>").append(ExceptionUtils.getFullStackTrace(e)).append("</pre>");
     } finally {
       this.inDiagnostics = false;
     }
   }
+
+  private void appendValidation() {
+    
+    this.report.append("<h4>Validation</h4><pre>");
+
+    {
+      List<String> errorsToDisplay = new ArrayList<String>();
+      
+      Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
+      
+      this.getGrouperProvisioner().getProvisionerConfiguration().validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+  
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+        this.report.append("<font color='red'><b>Error:</b></font> Provisioner config JSON rule violations: ")
+          .append(errorsToDisplay.size() + validationErrorsToDisplay.size()).append("\n");
+        for (String errorToDisplay : errorsToDisplay) {
+          this.report.append("<font color='red'><b>Error:</b></font> " + GrouperUtil.xmlEscape(errorToDisplay)).append("\n");
+        }
+        for (String validationKeyError : validationErrorsToDisplay.keySet()) {
+          this.report.append("<font color='red'><b>Error:</b></font> in config item '" + validationKeyError + "': " + GrouperUtil.xmlEscape(validationErrorsToDisplay.get(validationKeyError))).append("\n");
+        }
+      } else {
+        this.report.append("<font color='green'><b>Success:</b></font> Provisioner config satisfies configuration JSON rules\n");
+      }
+    }
+
+    {
+      List<MultiKey> errors = this.getGrouperProvisioner().retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+      if (errors.size() > 0) {
+        this.report.append("<font color='red'><b>Error:</b></font> Provisioner config validation rule violations: ")
+          .append(errors.size()).append("\n");
+        for (MultiKey errorMultikey : errors) {
+          String error = (String)errorMultikey.getKey(0);
+          if (errorMultikey.size() > 1) {
+            String validationKeyError = (String)errorMultikey.getKey(1);
+            this.report.append("<font color='red'><b>Error:</b></font> in config item '" + validationKeyError + "': " + GrouperUtil.xmlEscape(error)).append("\n");
+          } else {
+            this.report.append("<font color='red'><b>Error:</b></font> " + GrouperUtil.xmlEscape(error)).append("\n");
+          }
+        }
+      } else {
+        this.report.append("<font color='green'><b>Success:</b></font> Provisioner config satisfies validation rules\n");
+      }
+    }
+    
+    this.report.append("</pre>\n");
+    
+  }
+
+
+  private void appendGeneralInfo() {
+    this.report.append("<h4>Provisioner</h4><pre>");
+    GrouperProvisioningObjectLogType.appendProvisioner(grouperProvisioner, this.report, "Provisioner");
+    this.report.append("</pre>\n<h4>Configuration analysis</h4><pre>");
+    GrouperProvisioningObjectLogType.appendConfiguration(grouperProvisioner, this.report, "Configuration");
+    this.report.append("</pre>\n<h4>Target Dao capabilities</h4><pre>");
+    GrouperProvisioningObjectLogType.appendTargetDaoCapabilities(grouperProvisioner, this.report, "Target Dao capabilities");
+    this.report.append("</pre>\n<h4>Provisioner behaviors</h4><pre>");
+    GrouperProvisioningObjectLogType.appendTargetDaoBehaviors(grouperProvisioner, this.report, "Provisioner behaviors");
+    this.report.append("</pre>\n");
+    
+  }
+
 
   /** 
    * get current duration
@@ -271,6 +335,9 @@ public class GrouperProvisioningDiagnosticsContainer {
    * if select all groups during diagnostics
    */
   private boolean diagnosticsGroupsAllSelect;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningDiagnosticsContainer.class);
 
   /**
    * if select all groups during diagnostics

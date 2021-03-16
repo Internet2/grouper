@@ -70,7 +70,7 @@ public class LdapSyncConfigurationValidation
         
         // all good, field with name "name" and type string
         if (StringUtils.equals(name, "name")) {
-          if (!StringUtils.equalsIgnoreCase(type, "string")) {
+          if (!StringUtils.isBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
             result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), nameConfigKey}));
           }
           continue OBJECT_TYPE;

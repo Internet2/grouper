@@ -31,7 +31,11 @@ public abstract class GrouperProvisioner {
    * @return provisioner configuration
    */
   public ProvisionerConfiguration getProvisionerConfiguration() {
-    return ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
+    ProvisionerConfiguration theProvisionerConfiguration = ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
+    
+    theProvisionerConfiguration.setConfigId(this.getConfigId());
+
+    return theProvisionerConfiguration;
   }
   
   private String instanceId = GrouperUtil.uniqueId().toLowerCase();
