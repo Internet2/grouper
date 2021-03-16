@@ -85,7 +85,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
       }
       
-      groupSearchAttributeNames.add("objectClass");
+      //groupSearchAttributeNames.add("objectClass");
       groupAttributesMultivalued.add("objectClass");
       
       String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
@@ -392,7 +392,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
     }
     
-    groupSearchAttributeNames.add("objectClass");
+    //groupSearchAttributeNames.add("objectClass");
     groupAttributesMultivalued.add("objectClass");
     
     String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
@@ -503,7 +503,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         userAttributesMultivalued.addAll(ldapSyncConfiguration.getEntityAttributesMultivalued());
       }
       
-      entitySearchAttributeNames.add("objectClass");
+      //entitySearchAttributeNames.add("objectClass");
       userAttributesMultivalued.add("objectClass");
       
       String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
@@ -571,7 +571,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       userAttributesMultivalued.addAll(ldapSyncConfiguration.getEntityAttributesMultivalued());
     }
     
-    entitySelectAttributeNames.add("objectClass");
+    //entitySelectAttributeNames.add("objectClass");
     userAttributesMultivalued.add("objectClass");
     
     String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
