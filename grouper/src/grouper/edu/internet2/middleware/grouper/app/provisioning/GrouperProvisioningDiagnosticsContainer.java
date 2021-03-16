@@ -11,6 +11,9 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
@@ -18,9 +21,13 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class GrouperProvisioningDiagnosticsContainer {
 
@@ -144,15 +151,151 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendSelectAllGroups();
       this.appendSelectAllEntities();
       this.appendSelectAllMemberships();
-      
+
+      this.appendSelectGroupFromGrouper();
+      this.appendSelectGroupFromTarget();
+
     } catch (Exception e) {
       LOG.error("error in diagnostics", e);
       this.report.append("</pre><pre>").append(ExceptionUtils.getFullStackTrace(e)).append("</pre>");
     } finally {
       this.inDiagnostics = false;
+
+    
     }
   }
 
+  private ProvisioningGroupWrapper provisioningGroupWrapper = null;
+  
+  /**
+   * select a group from grouper
+   */
+  private void appendSelectGroupFromGrouper() {
+
+    this.report.append("<h4>Select group from Grouper</h4><pre>");
+    
+    String groupName = this.getGrouperProvisioningDiagnosticsSettings().getDiagnosticsGroupName();
+    if (StringUtils.isBlank(groupName)) {
+      this.report.append("<font color='orange'><b>Warning:</b></font> Group name for diagnostics is not set\n");
+    } else {
+    
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+      if (group == null) {
+
+        this.report.append("<font color='orange'><b>Warning:</b></font> Group '").append(GrouperUtil.xmlEscape(groupName)).append("' does not exist in Grouper\n");
+        
+      } else {
+
+        this.report.append("<font color='gray'><b>Note:</b></font> Group: ").append(GrouperUtil.xmlEscape(group.toStringDb())).append(this.getCurrentDuration()).append("\n");
+
+        GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
+        if (gcGrouperSyncGroup == null) {
+          this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup record does not exist in database\n");
+          
+        } else {
+          this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup: ").append(GrouperUtil.xmlEscape(gcGrouperSyncGroup.toString())).append(this.getCurrentDuration()).append("\n");
+        }
+        
+        List<ProvisioningGroup> grouperProvisioningGroups = this.grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, GrouperUtil.toList(group.getId()));
+        if (GrouperUtil.length(grouperProvisioningGroups) == 0) {
+          this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningGroup object, perhaps the group is not marked as provisionable\n");
+        } else {
+          GrouperUtil.assertion(grouperProvisioningGroups.size() == 1, "Why is size not 1???? " + grouperProvisioningGroups.size());
+          
+          ProvisioningGroup grouperProvisioningGroup = grouperProvisioningGroups.get(0);
+          this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (unprocessed): ").append(GrouperUtil.xmlEscape(grouperProvisioningGroup.toString())).append(this.getCurrentDuration()).append("\n");
+         
+          this.provisioningGroupWrapper = new ProvisioningGroupWrapper();
+          grouperProvisioningGroup.setProvisioningGroupWrapper(this.provisioningGroupWrapper);
+          this.provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+          this.provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
+          this.provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+          
+          List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetGroups(grouperProvisioningGroups, false, false);
+          
+          if (GrouperUtil.length(grouperTargetGroups) == 0) {
+            this.report.append("<font color='gray'><b>Note:</b></font> Cannot find grouperTargetGroup object after translation, perhaps the group is not supposed to translate\n");
+          } else {
+            GrouperUtil.assertion(grouperTargetGroups.size() == 1, "Why is size not 1???? " + grouperTargetGroups.size());
+            ProvisioningGroup grouperTargetGroup = grouperTargetGroups.get(0);
+            this.provisioningGroupWrapper.setGrouperTargetGroup(grouperTargetGroup);
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (translated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+          
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
+            this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
+
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+          }          
+        }
+      }
+      
+    }
+    this.report.append("</pre>\n");
+
+  }
+
+  /**
+   * select a group from target
+   */
+  private void appendSelectGroupFromTarget() {
+    this.report.append("<h4>Select group from Target</h4><pre>");
+    
+    if (this.provisioningGroupWrapper == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> No provisioningGroupWrapper means no group to select from target\n");
+    } else {
+      if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)
+          && !GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
+        this.report.append("<font color='orange'><b>Warning:</b></font> Target DAO cannot retrieve specific group(s)\n");
+      } else if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+        this.report.append("<font color='orange'><b>Warning:</b></font> Provisioning behavior is to not retrieve specific group(s)\n");
+      } else if (this.provisioningGroupWrapper.getGrouperTargetGroup() == null) {
+        this.report.append("<font color='orange'><b>Warning:</b></font> Grouper target group is null\n");
+      } else {
+
+        try {
+            
+          TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroup(
+              new TargetDaoRetrieveGroupRequest(this.provisioningGroupWrapper.getGrouperTargetGroup(), 
+                  this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()));
+
+          if (targetDaoRetrieveGroupResponse == null) {
+            this.report.append("<font color='red'><b>Error:</b></font> TargetDaoRetrieveGroupResponse is null\n");
+          } else if (targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
+            this.report.append("<font color='gray'><b>Note:</b></font> group is not in target\n");
+          } else {
+            this.provisioningGroupWrapper.setTargetProvisioningGroup(targetDaoRetrieveGroupResponse.getTargetGroup());
+            this.report.append("<font color='gray'><b>Note:</b></font> Target group (unprocessed): ")
+              .append(GrouperUtil.xmlEscape(targetDaoRetrieveGroupResponse.getTargetGroup().toString())).append(this.getCurrentDuration()).append("\n");
+            
+            List<ProvisioningGroup> targetGroupsForOne = GrouperUtil.toList(targetDaoRetrieveGroupResponse.getTargetGroup());
+            
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(
+                targetGroupsForOne, true, false, false);
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(
+                targetGroupsForOne);
+            this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(
+                targetGroupsForOne);
+
+            this.report.append("<font color='gray'><b>Note:</b></font> Target group (filtered, attributes manipulated, matchingId calculated):\n  ")
+              .append(GrouperUtil.xmlEscape(targetDaoRetrieveGroupResponse.getTargetGroup().toString())).append("\n");
+
+          }
+          
+          
+        } catch (RuntimeException re) {
+          this.report.append("<font color='red'><b>Error:</b></font> Selecting specific group(s)").append(this.getCurrentDuration()).append("\n");
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          
+        }
+      }
+    }
+    this.report.append("</pre>\n");
+
+  }
+  
   private void appendValidation() {
     
     this.report.append("<h4>Validation</h4><pre>");
@@ -227,7 +370,7 @@ public class GrouperProvisioningDiagnosticsContainer {
   public void appendSelectAllGroups() {
     this.report.append("<h4>All groups</h4>");
     this.report.append("<pre>");
-    if (!this.diagnosticsGroupsAllSelect) {
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsGroupsAllSelect()) {
       this.report.append("<font color='gray'><b>Note:</b></font> Not configured to retrieve all groups\n");
     } else {
     
@@ -239,7 +382,8 @@ public class GrouperProvisioningDiagnosticsContainer {
 
         try {
             
-          TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(this.diagnosticsMembershipsAllSelect));
+          TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllGroups(
+              new TargetDaoRetrieveAllGroupsRequest(this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()));
           List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
           this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().setProvisioningGroups(targetGroups);
 
@@ -284,78 +428,8 @@ public class GrouperProvisioningDiagnosticsContainer {
     this.report.append("</pre>");
   }
 
-  /**
-   * if select all entities during diagnostics
-   */
-  private boolean diagnosticsEntitiesAllSelect;
-
-  /**
-   * if select all entities during diagnostics
-   * @return
-   */
-  public boolean isDiagnosticsEntitiesAllSelect() {
-    return diagnosticsEntitiesAllSelect;
-  }
-
-
-  /**
-   * if select all entities during diagnostics
-   * @param diagnosticsEntitiesAllSelect
-   */
-  public void setDiagnosticsEntitiesAllSelect(boolean diagnosticsEntitiesAllSelect) {
-    this.diagnosticsEntitiesAllSelect = diagnosticsEntitiesAllSelect;
-  }
-
-  /**
-   * if select all memberships during diagnostics
-   */
-  private boolean diagnosticsMembershipsAllSelect;
-
-
-
-  /**
-   * if select all memberships during diagnostics
-   * @return
-   */
-  public boolean isDiagnosticsMembershipsAllSelect() {
-    return diagnosticsMembershipsAllSelect;
-  }
-
-
-  /**
-   * if select all memberships during diagnostics
-   * @param diagnosticsMembershipsAllSelect
-   */
-  public void setDiagnosticsMembershipsAllSelect(boolean diagnosticsMembershipsAllSelect) {
-    this.diagnosticsMembershipsAllSelect = diagnosticsMembershipsAllSelect;
-  }
-
-
-  /**
-   * if select all groups during diagnostics
-   */
-  private boolean diagnosticsGroupsAllSelect;
-
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningDiagnosticsContainer.class);
-
-  /**
-   * if select all groups during diagnostics
-   * @return
-   */
-  public boolean isDiagnosticsGroupsAllSelect() {
-    return diagnosticsGroupsAllSelect;
-  }
-
-
-  /**
-   * if select all groups during diagnostics
-   * @param selectAllGroupsDuringDiagnostics
-   */
-  public void setDiagnosticsGroupsAllSelect(
-      boolean selectAllGroupsDuringDiagnostics) {
-    this.diagnosticsGroupsAllSelect = selectAllGroupsDuringDiagnostics;
-  }
 
   /**
    * append this to log, and put a not before each line
@@ -383,11 +457,25 @@ public class GrouperProvisioningDiagnosticsContainer {
     
   }
 
+  /**
+   * settings for how diagnostics is going to go
+   */
+  private GrouperProvisioningDiagnosticsSettings grouperProvisioningDiagnosticsSettings = new GrouperProvisioningDiagnosticsSettings();
+  
+  /**
+   * settings for how diagnostics is going to go
+   * @return
+   */
+  public GrouperProvisioningDiagnosticsSettings getGrouperProvisioningDiagnosticsSettings() {
+    return grouperProvisioningDiagnosticsSettings;
+  }
 
+
+  
   public void appendSelectAllEntities() {
     this.report.append("<h4>All entities</h4>");
     this.report.append("<pre>");
-    if (!this.diagnosticsEntitiesAllSelect) {
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsEntitiesAllSelect()) {
       this.report.append("<font color='gray'><b>Note:</b></font> Not configured to retrieve all entities\n");
     } else {
     
@@ -399,7 +487,8 @@ public class GrouperProvisioningDiagnosticsContainer {
   
         try {
             
-          TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest(this.diagnosticsMembershipsAllSelect));
+          TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllEntities(
+              new TargetDaoRetrieveAllEntitiesRequest(this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()));
           List<ProvisioningEntity> targetEntities = targetDaoRetrieveAllEntitiesResponse == null ? null : targetDaoRetrieveAllEntitiesResponse.getTargetEntities();
           this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().setProvisioningEntities(targetEntities);
   
@@ -447,7 +536,7 @@ public class GrouperProvisioningDiagnosticsContainer {
   public void appendSelectAllMemberships() {
     this.report.append("<h4>All memberships</h4>");
     this.report.append("<pre>");
-    if (!this.diagnosticsMembershipsAllSelect) {
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()) {
       this.report.append("<font color='gray'><b>Note:</b></font> Not configured to retrieve all memberships\n");
     } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       this.report.append("<font color='gray'><b>Note:</b></font> Membership type is: " + this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() + "\n");
@@ -504,6 +593,17 @@ public class GrouperProvisioningDiagnosticsContainer {
     }
     
     this.report.append("</pre>");
+  }
+
+  /**
+   * init the config of diagnostics from provisioner configuration
+   */
+  public void initFromConfiguration() {
+    this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsGroupsAllSelect());
+    this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsEntitiesAllSelect());
+    this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsMembershipsAllSelect());
+    this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getDiagnosticsGroupName());
+    
   }
   
   

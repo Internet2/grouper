@@ -66,6 +66,19 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
   
   /**
+   * group name of group to use for diagnostics
+   */
+  private String diagnosticsGroupName;
+
+  /**
+   * group name of group to use for diagnostics
+   * @return the group name
+   */
+  public String getDiagnosticsGroupName() {
+    return diagnosticsGroupName;
+  }
+  
+  /**
    * if select all memberships during diagnostics (default false)
    */
   private Boolean diagnosticsMembershipsAllSelect;
@@ -2096,6 +2109,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.diagnosticsGroupsAllSelect = this.retrieveConfigBoolean("selectAllGroupsDuringDiagnostics", false);
     this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
     this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
+    this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
     
     
     //register metadata

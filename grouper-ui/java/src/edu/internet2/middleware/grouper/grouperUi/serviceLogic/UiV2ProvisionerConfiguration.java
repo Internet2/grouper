@@ -120,13 +120,11 @@ public class UiV2ProvisionerConfiguration {
       String initted = request.getParameter("provisionerInitted");
       if (!GrouperUtil.booleanValue(initted, false)) {
         
-        grouperProvisioningDiagnosticsContainer.setDiagnosticsGroupsAllSelect(provisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsGroupsAllSelect());
-        
+        grouperProvisioningDiagnosticsContainer.initFromConfiguration();
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/provisionerConfigs/provisionerDiagnosticsInit.jsp"));
         return;
       }      
-            
       String sessionId = request.getSession().getId();
       
       debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
@@ -142,15 +140,19 @@ public class UiV2ProvisionerConfiguration {
         //deal with inputs and configuration
         {
           boolean diagnosticsGroupsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsAllSelectName[]"), false);
-          grouperProvisioningDiagnosticsContainer.setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
         }
         {
           boolean diagnosticsEntitiesAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesAllSelectName[]"), false);
-          grouperProvisioningDiagnosticsContainer.setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
         }
         {
           boolean diagnosticsMembershipsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsMembershipsAllSelectName[]"), false);
-          grouperProvisioningDiagnosticsContainer.setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
+        }
+        {
+          String diagnosticsGroupNameName = request.getParameter("diagnosticsGroupNameName");
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName(diagnosticsGroupNameName);
         }
       }
       

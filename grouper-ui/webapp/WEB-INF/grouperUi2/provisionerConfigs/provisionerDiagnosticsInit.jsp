@@ -50,6 +50,15 @@
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsDescription'] }</span>                    
                     </div>
                   </div>
+                  <div class="control-group">
+                    <label for="diagnosticsGroupNameId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupNameLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" id="diagnosticsGroupNameId" name="diagnosticsGroupNameName" 
+                        value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupName}" /> 
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupNameDescription'] }</span>
+                    </div>
+                  </div>
+                  
         
         <%--
 
