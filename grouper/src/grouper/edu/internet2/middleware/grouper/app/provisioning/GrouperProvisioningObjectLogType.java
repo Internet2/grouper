@@ -25,8 +25,8 @@ public enum GrouperProvisioningObjectLogType {
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
       appendProvisioner(grouperProvisioner, logMessage, "Provisioner");
       appendConfiguration(grouperProvisioner, logMessage, "Configuration");
-      appendTargetDaoCapabilities(grouperProvisioner, logMessage, "Target Dao Capabilities");
-      appendTargetDaoBehaviors(grouperProvisioner, logMessage, "Provisioner Behaviors");
+      appendTargetDaoCapabilities(grouperProvisioner, logMessage, "Target Dao capabilities");
+      appendTargetDaoBehaviors(grouperProvisioner, logMessage, "Provisioner behaviors");
       
     }
   }, 
@@ -354,7 +354,7 @@ public enum GrouperProvisioningObjectLogType {
 
   abstract void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage);
 
-  private static void appendConfiguration(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
+  public static void appendConfiguration(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
@@ -363,7 +363,7 @@ public enum GrouperProvisioningObjectLogType {
     logMessage.append(")\n");
   }
 
-  private static void appendProvisioner(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
+  public static void appendProvisioner(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
@@ -584,7 +584,7 @@ public enum GrouperProvisioningObjectLogType {
     }
   }
 
-  private static void appendTargetDaoBehaviors(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
+  public static void appendTargetDaoBehaviors(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
@@ -593,7 +593,7 @@ public enum GrouperProvisioningObjectLogType {
     logMessage.append(")\n");
   }
 
-  private static void appendTargetDaoCapabilities(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
+  public static void appendTargetDaoCapabilities(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }

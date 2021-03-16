@@ -133,6 +133,16 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.appendConfiguration();
       
+      this.report.append("<h4>Provisioner</h4><pre>");
+      GrouperProvisioningObjectLogType.appendProvisioner(grouperProvisioner, this.report, "Provisioner");
+      this.report.append("</pre>\n<h4>Configuration analysis</h4><pre>");
+      GrouperProvisioningObjectLogType.appendConfiguration(grouperProvisioner, this.report, "Configuration");
+      this.report.append("</pre>\n<h4>Target Dao capabilities</h4><pre>");
+      GrouperProvisioningObjectLogType.appendTargetDaoCapabilities(grouperProvisioner, this.report, "Target Dao capabilities");
+      this.report.append("</pre>\n<h4>Provisioner behaviors</h4><pre>");
+      GrouperProvisioningObjectLogType.appendTargetDaoBehaviors(grouperProvisioner, this.report, "Provisioner behaviors");
+      this.report.append("</pre>\n");
+      
       this.appendSelectAllGroups();
       this.appendSelectAllEntities();
       this.appendSelectAllMemberships();
