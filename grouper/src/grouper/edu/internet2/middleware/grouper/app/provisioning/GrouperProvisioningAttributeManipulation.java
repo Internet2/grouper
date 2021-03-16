@@ -362,6 +362,9 @@ public class GrouperProvisioningAttributeManipulation {
           filterGroupFieldsAndAttributesCount[0]++;
         }
       }
+      
+      GrouperUtil.nonNull(provisioningGroup.getAttributes()).keySet().retainAll(groupAttributeNameToConfig.keySet());
+
     }
     if (filterGroupFieldsAndAttributesCount[0] > 0) {
       filterGroupFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("filterGroupFieldsAndAttributesCount"), 0);
@@ -394,6 +397,9 @@ public class GrouperProvisioningAttributeManipulation {
           provisioningEntity.removeAttribute(attributeName);
         }
       }
+      
+      GrouperUtil.nonNull(provisioningEntity.getAttributes()).keySet().retainAll(entityAttributeNameToConfig.keySet());
+      
     }
     if (filterEntityFieldsAndAttributesCount[0] > 0) {
       filterEntityFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("filterEntityFieldsAndAttributesCount"), 0);
@@ -426,6 +432,8 @@ public class GrouperProvisioningAttributeManipulation {
           provisioningMembership.removeAttribute(attributeName);
         }
       }
+      GrouperUtil.nonNull(provisioningMembership.getAttributes()).keySet().retainAll(membershipAttributeNameToConfig.keySet());
+
     }
     if (filterMembershipFieldsAndAttributesCount[0] > 0) {
       filterMembershipFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("filterMembershipFieldsAndAttributesCount"), 0);
@@ -438,7 +446,8 @@ public class GrouperProvisioningAttributeManipulation {
   private Object filterField(Object value,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, boolean filterSelect, boolean filterInsert, boolean filterUpdate, int[] count) {
     if (value == null || grouperProvisioningConfigurationAttribute == null) {
-      return value;
+      // if not configured to have this field, then dont
+      return null;
     }
     if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
         || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
