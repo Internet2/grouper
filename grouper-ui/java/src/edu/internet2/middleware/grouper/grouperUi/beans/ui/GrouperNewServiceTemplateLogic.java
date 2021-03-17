@@ -127,19 +127,19 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       serviceActionsForStem.add(levelTwoServiceAction_One);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_One);
 
-      {
-        //Assign the "policy" type to the "app:Wiki:service:policy" folder?
-        args = new ArrayList<ServiceActionArgument>();
-        args.add(new ServiceActionArgument("stemName", stemNamePolicy));
-        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
-        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.POLICY));
-        ServiceAction policyTypeAction = createNewServiceAction("newAppPolicyType", true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
-        
-        serviceActionsForStem.add(policyTypeAction);
-        if (addFirstNode) {        
-          rootServiceAction.addChildServiceAction(policyTypeAction);
-        }
-      }
+//      {
+//        //Assign the "policy" type to the "app:Wiki:service:policy" folder?
+//        args = new ArrayList<ServiceActionArgument>();
+//        args.add(new ServiceActionArgument("stemName", stemNamePolicy));
+//        args.add(new ServiceActionArgument("stemDisplayName", stemDisplayNamePolicy));
+//        args.add(new ServiceActionArgument("type", GrouperObjectTypesSettings.POLICY));
+//        ServiceAction policyTypeAction = createNewServiceAction("newAppPolicyType", true, 3, "stemServiceFolderTypeConfirmation", ServiceActionType.grouperType, args, null);
+//        
+//        serviceActionsForStem.add(policyTypeAction);
+//        if (addFirstNode) {        
+//          rootServiceAction.addChildServiceAction(policyTypeAction);
+//        }
+//      }
       
       //Do you want a "apps:wiki:service:reference" folder created? (id is "ref", name is "reference")
       args = new ArrayList<ServiceActionArgument>();
