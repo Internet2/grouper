@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
@@ -23,6 +24,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -117,11 +120,21 @@ public class GrouperProvisioningDiagnosticsContainer {
     
     String configPrefix = "provisioner." + this.getGrouperProvisioner().getConfigId() + ".";
     
+    ProvisionerConfiguration provisionerConfiguration = this.getGrouperProvisioner().getProvisionerConfiguration();
+    Map<String, GrouperConfigurationModuleAttribute> suffixToConfigAttribute = provisionerConfiguration.retrieveAttributes();
     for (String propertyName : grouperLoaderConfig.propertyNames()) {
       if (propertyName.startsWith(configPrefix)) {
         String suffix = GrouperUtil.prefixOrSuffix(propertyName, configPrefix, false);
         String lowerKey = suffix.toLowerCase();
         boolean secret = lowerKey.contains("pass") || lowerKey.contains("secret") || lowerKey.contains("private");
+        
+        GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = suffixToConfigAttribute.get(suffix);
+        if (grouperConfigurationModuleAttribute != null) {
+          secret = secret || GrouperConfigHibernate.isPassword(
+              ConfigFileName.GROUPER_LOADER_PROPERTIES, grouperConfigurationModuleAttribute.getConfigItemMetadata(), 
+                propertyName, grouperLoaderConfig.propertyValueString(propertyName), true, null);
+        }
+        
         configuration.put(propertyName, secret ? "****** (redacted)" : grouperLoaderConfig.propertyValueString(propertyName));
       }
     }
@@ -144,6 +157,8 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.appendConfiguration();
 
+      this.appendExternalSystem();
+
       this.appendGeneralInfo();
       
       this.appendValidation();
@@ -163,6 +178,13 @@ public class GrouperProvisioningDiagnosticsContainer {
 
     
     }
+  }
+
+  /**
+   * override this to log the external system
+   */
+  protected void appendExternalSystem() {
+    
   }
 
   private ProvisioningGroupWrapper provisioningGroupWrapper = null;
@@ -228,6 +250,11 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(grouperTargetGroups);
 
             this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+            
+            if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
+              this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
+            }
+
           }          
         }
       }
@@ -282,6 +309,14 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='gray'><b>Note:</b></font> Target group (filtered, attributes manipulated, matchingId calculated):\n  ")
               .append(GrouperUtil.xmlEscape(targetDaoRetrieveGroupResponse.getTargetGroup().toString())).append("\n");
 
+            if (GrouperUtil.isBlank(targetDaoRetrieveGroupResponse.getTargetGroup().getMatchingId())) {
+              this.report.append("<font color='red'><b>Error:</b></font> Target group matching id is blank\n");
+            }
+            
+            if (!GrouperUtil.equals(this.provisioningGroupWrapper.getGrouperTargetGroup().getMatchingId(), targetDaoRetrieveGroupResponse.getTargetGroup().getMatchingId())) {
+              this.report.append("<font color='red'><b>Error:</b></font> Matching id's do not match!\n");
+            }
+            
           }
           
           

@@ -422,7 +422,7 @@ public abstract class GrouperConfigurationModuleBase {
 
   
   /**
-   * retrieve attributes based on the instance
+   * retrieve attributes based on the instance.  Key is the config suffix
    * @return
    */
   public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {

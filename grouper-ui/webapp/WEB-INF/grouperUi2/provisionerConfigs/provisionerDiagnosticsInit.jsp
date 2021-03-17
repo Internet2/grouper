@@ -9,8 +9,10 @@
               </ul>
               <div class="page-header blue-gradient">
                 <h1>${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescription'] }</h1>
+                <p>
+                  ${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescriptionParagraph']}
+                </p>
               </div>
-
             </div>
             <div class="row-fluid">
               <div class="span12">
@@ -18,7 +20,7 @@
                     onsubmit="return false;">
 
                   <div class="control-group">
-                   
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsLargeOperationsLabel'] }</label>
                     <div class="controls">
                       <label class="checkbox">
                         <input type="checkbox" name="diagnosticsGroupsAllSelectName" id="diagnosticsGroupsAllSelectId" 
@@ -60,42 +62,6 @@
                   </div>
                   
         
-        <%--
-
-                  <div class="control-group">
-                    <label for="subjectIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectId'] }</label>
-                    <div class="controls">
-                      <input type="text" id="subjectIdId" name="subjectIdName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjprovisioningnosticsSubjectIdLabel'] }</span>
-                    </div>
-                  </div>
-                  
-                  <div class="control-group">
-                    <label for="subjectIdentifierId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectIdentifier'] }</label>
-                    <div class="controls">
-                      <input type="text" id="subjectIdentifierId" name="subjectIdentifierName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSubjectIdentifierLabel'] }</span>
-                    </div>
-                  </div>
-                  
-                  <div class="control-group">
-                    <label for="searchStringId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSearchString'] }</label>
-                    <div class="controls">
-                      <input type="text" id="searchStringId" name="searchStringName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSearchStringLabel'] }</span>
-                    </div>
-                  </div>
-                  
-                  <div class="control-group">
-                    <label for="actAsComboID" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsActAs'] }</label>
-                    <div class="controls">
-                      <grouper:combobox2 idBase="actAsCombo" style="width: 30em"
-                                      filterOperation="../app/UiV2Admin.provisioningDiagnosticsActAsCombo"/>
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsActAsLabel'] }</span>
-                    </div>
-                  </div>
-            --%>      
-                  
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
                 <input type="hidden" name="provisionerInitted" value="true" />
                 <div class="form-actions"><a href="#" class="btn btn-primary" role="button" 

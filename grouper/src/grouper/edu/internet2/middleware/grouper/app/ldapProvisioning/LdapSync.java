@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -46,6 +47,11 @@ public class LdapSync extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
     return LdapSyncConfigurationValidation.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningDiagnosticsContainer> grouperProvisioningDiagnosticsContainerClass() {
+    return LdapSyncDiagnosticsContainer.class;
   } 
   
 }
