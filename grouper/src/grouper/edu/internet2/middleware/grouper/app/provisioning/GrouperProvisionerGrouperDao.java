@@ -15,6 +15,7 @@ import org.hibernate.type.Type;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -154,6 +155,10 @@ public class GrouperProvisionerGrouperDao {
 
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
     
+    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupIdOfUsersToProvision();
+    boolean retrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
+    
+    
     StringBuilder sqlInitial = new StringBuilder("select " + 
         "    gm.id, " +
         "    gm.subject_source, " + 
@@ -169,6 +174,7 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_attribute_assign_value gaav_do_provision, " + 
         "    grouper_attribute_def_name gadn_marker, " + 
         "    grouper_attribute_def_name gadn_do_provision " + 
+        (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
         "where " + 
         "    gmav.member_id = gm.id " +
         "    and gmav.owner_group_id = gaa_marker.owner_group_id " + 
@@ -181,7 +187,12 @@ public class GrouperProvisionerGrouperDao {
         "    and gaav_do_provision.value_string = ? " +
         "    and gaa_marker.enabled='T' " +
         "    and gaa_do_provision.enabled='T' " +
-        "    and gmav.immediate_mship_enabled='T' ");
+        "    and gmav.immediate_mship_enabled='T' " +
+        (retrictUsersByGroupId ? ("and gmship_to_provision.owner_id = gs_to_provision.member_id " +
+            " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
+            " and gmship_to_provision.field_id = ? " +
+            " and gmship_to_provision.member_id = gm.id " +
+            " and gs_to_provision.owner_group_id = ? "): ""));
     
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
@@ -209,6 +220,11 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
     paramsInitial.add(this.grouperProvisioner.getConfigId());
     
+    if (retrictUsersByGroupId) {
+      paramsInitial.add(Group.getDefaultList().getId());
+      paramsInitial.add(groupIdOfUsersToProvision);
+    }
+    
     paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
     
@@ -216,7 +232,12 @@ public class GrouperProvisionerGrouperDao {
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
-    
+
+    if (retrictUsersByGroupId) {
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+    }
+
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
       typesInitial.add(StringType.INSTANCE);
     }
@@ -288,6 +309,8 @@ public class GrouperProvisionerGrouperDao {
     
     List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
     
+    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupIdOfUsersToProvision();
+    boolean retrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
 
     StringBuilder sqlInitial = new StringBuilder("select " + 
         "    gmav.membership_id, " + 
@@ -311,6 +334,7 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_attribute_assign_value gaav_do_provision, " + 
         "    grouper_attribute_def_name gadn_marker, " + 
         "    grouper_attribute_def_name gadn_do_provision " + 
+        (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
         "where " + 
         "    gmav.owner_group_id = gg.id " +
         "    and gmav.member_id = gm.id " +
@@ -324,7 +348,13 @@ public class GrouperProvisionerGrouperDao {
         "    and gaav_do_provision.value_string = ? " +
         "    and gaa_marker.enabled='T' " +
         "    and gaa_do_provision.enabled='T' " +
-        "    and gmav.immediate_mship_enabled='T' ");
+        "    and gmav.immediate_mship_enabled='T' " +
+        (retrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
+            " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
+            " and gmship_to_provision.field_id = ? " +
+            " and gmship_to_provision.member_id = gm.id " +
+            " and gs_to_provision.owner_group_id = ? "): ""));
+
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
     
@@ -350,6 +380,12 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
     paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
     paramsInitial.add(this.grouperProvisioner.getConfigId());
+
+    if (retrictUsersByGroupId) {
+      paramsInitial.add(Group.getDefaultList().getId());
+      paramsInitial.add(groupIdOfUsersToProvision);
+    }
+
     paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
     
@@ -357,6 +393,11 @@ public class GrouperProvisionerGrouperDao {
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
+    if (retrictUsersByGroupId) {
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+    }
+
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
       typesInitial.add(StringType.INSTANCE);
     }

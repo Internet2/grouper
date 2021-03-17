@@ -34,6 +34,19 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfigurationBase {
 
   /**
+   * if set then only provision users who are in this group
+   */
+  private String groupIdOfUsersToProvision;
+  
+  /**
+   * if set then only provision users who are in this group
+   * @return group id
+   */
+  public String getGroupIdOfUsersToProvision() {
+    return groupIdOfUsersToProvision;
+  }
+
+  /**
    * if select all groups during diagnostics (default false)
    */
   private Boolean diagnosticsGroupsAllSelect;
@@ -1989,7 +2002,11 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 
+    this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
 
+    // init this in the behavior
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);
+    
     if (this.entityAttributesMultivalued == null) {
       this.entityAttributesMultivalued = new HashSet<String>();
     }

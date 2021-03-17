@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -92,6 +94,7 @@ public class GrouperProvisioningConfigurationValidation {
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateNoUnsedConfigs(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeNamesNotReused(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeCount(suffixToConfigValue));
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupIdToProvisionExists(suffixToConfigValue));
     
     return errorMessagesAndConfigSuffixes;
     
@@ -99,7 +102,27 @@ public class GrouperProvisioningConfigurationValidation {
   
   // hasTargetGroupLink
   // if target group link then there should be a copy to sync field or a translation
-  
+
+  /**
+   * 
+   * @param suffixToConfigValue
+   * @return
+   */
+  public MultiKey validateGroupIdToProvisionExists(
+      Map<String, String> suffixToConfigValue) {
+
+    String groupIdOfUsersToProvision = suffixToConfigValue.get("groupIdOfUsersToProvision");
+    
+    if (!StringUtils.isBlank(groupIdOfUsersToProvision)) {
+       if (null == GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, false)) {
+         
+         return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"), "groupIdOfUsersToProvision");
+       }
+    
+    }
+    return null;
+  }
+
   /**
    * if there is a group delete, then there must be one delete type
    * @param suffixToConfigValue
