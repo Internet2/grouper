@@ -190,7 +190,7 @@ public class GrouperProvisionerGrouperDao {
         "    and gmav.immediate_mship_enabled='T' " +
         (retrictUsersByGroupId ? ("and gmship_to_provision.owner_id = gs_to_provision.member_id " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
-            " and gmship_to_provision.field_id = ? " +
+            " and gs_to_provision.field_id = ? " +
             " and gmship_to_provision.member_id = gm.id " +
             " and gs_to_provision.owner_group_id = ? "): ""));
     
@@ -351,7 +351,7 @@ public class GrouperProvisionerGrouperDao {
         "    and gmav.immediate_mship_enabled='T' " +
         (retrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
-            " and gmship_to_provision.field_id = ? " +
+            " and gs_to_provision.field_id = ? " +
             " and gmship_to_provision.member_id = gm.id " +
             " and gs_to_provision.owner_group_id = ? "): ""));
 
