@@ -250,10 +250,20 @@ public class Authentication {
       if (StringUtils.isBlank(grouperPasswordSave.getThePassword())) {
         throw new RuntimeException("password is required");
       }
+      
+      String thePassword = grouperPasswordSave.getThePassword();
+      
+      // if its encrypted, decrypt it, otherwise just use it
+      try {
+        thePassword = Morph.decrypt(thePassword);
+      } catch (Exception e) {
+        // ignore, not encrypted
+      }
+      
       if (null == grouperPasswordSave.getApplication()) {
         throw new RuntimeException("application is required");
       }
-      if (grouperPasswordSave.getUsername().contains(":") && grouperPasswordSave.getThePassword().contains(":")) {
+      if (grouperPasswordSave.getUsername().contains(":") && thePassword.contains(":")) {
         throw new RuntimeException("username and password cannot both contain a colon due to http basic auth");
       }
       
@@ -275,7 +285,7 @@ public class Authentication {
       }
       
       String hexSalt = Hex.encodeHexString(salt);
-      String hashedPassword = encryptionType.generateHash(hexSalt+grouperPasswordSave.getThePassword());
+      String hashedPassword = encryptionType.generateHash(hexSalt+thePassword);
       
       String encryptedPassword = Morph.encrypt(hashedPassword);
       
