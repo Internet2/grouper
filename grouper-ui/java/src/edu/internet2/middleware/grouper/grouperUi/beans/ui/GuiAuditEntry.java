@@ -460,6 +460,12 @@ public class GuiAuditEntry {
             
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE");
 
+        case STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE:
+          
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE");
+
         case GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE:
           
           this.setupGroup();
@@ -1048,10 +1054,90 @@ public class GuiAuditEntry {
           
         case PROVISIONER_SYNC_RUN_GROUP:
           this.setupGroup();
-          String message  = TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_GROUP");
-          message = message.replace("$$provisionerName$$", this.auditEntry.getString02());
-          return message;
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_GROUP");
         
+        case PROVISIONER_SYNC_RUN:
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN");
+
+        case GROUP_DELETE_ALL_MEMBERSHIPS:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DELETE_ALL_MEMBERSHIPS");
+
+        case GROUP_DISABLE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DISABLE");
+          
+        case GROUP_ENABLE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ENABLE");
+          
+        case GROUP_REPORT_CONFIG_ADD:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_ADD");
+          
+        case GROUP_REPORT_CONFIG_DELETE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_DELETE");
+          
+        case GROUP_REPORT_CONFIG_UPDATE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_UPDATE");
+          
+        case GROUP_REPORT_DOWNLONAD:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_DOWNLONAD");
+          
+        case GSH_TEMPLATE_ADD:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_ADD");
+          
+        case GSH_TEMPLATE_DELETE:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_DELETE");
+          
+        case GSH_TEMPLATE_EXEC:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_EXEC");
+          
+        case GSH_TEMPLATE_UPDATE:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_UPDATE");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_ADD:
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_ADD");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_DELETE:
+          
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_DELETE");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_UPDATE:
+          
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_UPDATE");          
+          
+        case STEM_REPORT_CONFIG_ADD:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_ADD");          
+          
+        case STEM_REPORT_CONFIG_DELETE:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_DELETE");          
+          
+        case STEM_REPORT_CONFIG_UPDATE:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_UPDATE");          
+          
+        case STEM_REPORT_DOWNLONAD:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_DOWNLONAD");          
+          
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
           return this.auditEntry.getDescription();
@@ -1076,6 +1162,8 @@ public class GuiAuditEntry {
     String groupIdName = "groupId";
     AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
     if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DISABLE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ENABLE
         || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_UPDATE) {
       groupIdName = "id";

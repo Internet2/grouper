@@ -57,7 +57,6 @@
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
 			                             
 			                             <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == true}">
 					                      <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.disableGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableDisableActionOption'] }</a></li>
@@ -66,7 +65,10 @@
 					                     <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == false}">
 					                      <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.enableGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEnableActionOption'] }</a></li>
 					                     </c:if>
-			                             
+                               
+                               <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
+                               
+<li>&nbsp;</li>			                             
 			                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['gshTemplatesConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2GshTemplateConfig.deleteGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');}">${textContainer.text['gshTemplatesTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
