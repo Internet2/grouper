@@ -221,6 +221,13 @@ public class Authentication {
               String configKey = "grouperPasswordConfigOverride_" + application.name() + "_" + user+ "_pass";
               String configPassword = GrouperHibernateConfig.retrieveConfig().propertyValueString(configKey);
               configPassword = Morph.decryptIfFile(configPassword);
+
+              // if its encrypted, decrypt it
+              try {
+                configPassword = Morph.decrypt(configPassword);
+              } catch (Exception e) {
+                // ignore
+              }
               correctPassword = StringUtils.equals(password, configPassword);
             }
             if (correctPassword && authenticationCache != null) {
