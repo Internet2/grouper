@@ -46,6 +46,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -672,7 +678,6 @@ public class GrouperUserDataApi {
         group = userDataGroupCache().get(groupName);
         
         if (group == null) {
-          
           group = new GroupSave(grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).assignDescription(
               "Internal group for grouper which has user data stored in membership attributes for " + GrouperUtil.extensionFromName(groupName) ).save();
   
@@ -740,9 +745,21 @@ public class GrouperUserDataApi {
               .assignMembershipType(MembershipType.IMMEDIATE).findMembership(false);
           
           if (membership == null) {
-  
-            group.addMember(subject, false);
             
+            // do not audit this
+            HibernateSession.callbackHibernateSession(
+                GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+                new HibernateHandler() {
+
+                  @Override
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    group.addMember(subject, false);
+                    return null;
+                  }
+                  
+                });
+      
             membership = new MembershipFinder().addGroupId(group.getId()).addSubject(subject)
                 .assignMembershipType(MembershipType.IMMEDIATE).findMembership(true);
   

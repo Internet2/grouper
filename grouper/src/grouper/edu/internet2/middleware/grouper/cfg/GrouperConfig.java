@@ -147,7 +147,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // GRP-1695: hard code built in ignore attribute defs and names
                 // $$grouper.attribute.rootStem$$:userData:grouperUserDataValueDef
                 namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF);
-                
+                namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_DEF);
+
                 // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceCountsDef
                 namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF);
     
