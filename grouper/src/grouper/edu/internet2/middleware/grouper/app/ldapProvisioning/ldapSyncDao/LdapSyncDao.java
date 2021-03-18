@@ -285,7 +285,7 @@ public abstract class LdapSyncDao {
     if (attributeHasMoreValues) {
       // remove everything but the last.  the last attribute should have values cleared.
       if (ldapModificationItemsBatch.size() > 1) {
-        ldapModificationItemsBatch.subList(0, ldapModificationItemsBatch.size() - 2).clear();
+        ldapModificationItemsBatch.subList(0, ldapModificationItemsBatch.size() - 1).clear();
       }
       ldapModificationItemsBatch.get(0).getAttribute().clearValues();
     } else {
