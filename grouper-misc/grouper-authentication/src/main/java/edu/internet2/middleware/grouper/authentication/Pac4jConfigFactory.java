@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import org.apache.log4j.Logger;
 import org.pac4j.cas.client.CasClient;
 import org.pac4j.cas.config.CasConfiguration;
 import org.pac4j.core.client.BaseClient;
@@ -9,22 +11,48 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.config.ConfigFactory;
 import org.pac4j.core.matching.matcher.PathMatcher;
-import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.time.Period;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Pac4jConfigFactory implements ConfigFactory {
+    private static final Logger LOGGER = Logger.getLogger(Pac4jConfigFactory.class);
+
     @Override
     public Config build(Object... parameters) {
         Client client;
         String authMechanism = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.mechanism");
         switch (authMechanism) {
+            case "oidc": {
+                OidcConfiguration configuration = new ClaimAsUsernameOidcConfiguration();
+                /*
+                String implementation = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.mechanism.oidc.clientImplementation");
+                if (implementation != null && !implementation.isEmpty()) {
+                    try {
+                        configuration = (OidcConfiguration) Class.forName(implementation).newInstance();
+                    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                        LOGGER.warn("problem loading pac4j client implementation; using a default", e);
+                        configuration = new ClaimAsUsernameOidcConfiguration();
+                    }
+                } else {
+                    configuration = new ClaimAsUsernameOidcConfiguration();
+                }
+
+                 */
+                // setProperties(configuration, authMechanism);
+                client = new OidcClient(configuration);
+                break;
+            }
             case "cas": {
                 final CasConfiguration configuration = new CasConfiguration();
                 setProperties(configuration, authMechanism);
@@ -35,12 +63,6 @@ public class Pac4jConfigFactory implements ConfigFactory {
                 final SAML2Configuration configuration = new SAML2Configuration();
                 setProperties(configuration, authMechanism);
                 client = new SAML2Client(configuration);
-                break;
-            }
-            case "oidc": {
-                final OidcConfiguration configuration = new OidcConfiguration();
-                setProperties(configuration, authMechanism);
-                client = new OidcClient(configuration);
                 break;
             }
             default:
@@ -56,7 +78,6 @@ public class Pac4jConfigFactory implements ConfigFactory {
         config.addMatcher("excludePathServices", new PathMatcher().excludeBranch("/services"));
         config.addMatcher("excludePathServicesRest", new PathMatcher().excludeBranch("/servicesRest"));
         return config;
-
     }
 
     private void setProperties(Object configuration, String authMechanism) {
