@@ -116,7 +116,7 @@
                             </tr>
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationDateNeedsRecertifyLabel'] }</strong></td>
-                              <td>${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationDateNeedsCertify}
+                              <td>${grouperRequestContainer.attestationContainer.directOrParentDateNeedsCertify}
                                 <br />
                                 <span class="description">${textContainer.text['attestationReportDateNeedsRecertifyDescription']}</span>
                               </td>
