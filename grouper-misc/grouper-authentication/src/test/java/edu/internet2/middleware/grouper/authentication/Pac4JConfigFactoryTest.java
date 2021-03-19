@@ -57,6 +57,9 @@ public class Pac4JConfigFactoryTest extends TestCase {
 
         Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
         Config config = pac4jConfigFactory.build();
+
+        Assert.assertTrue(config.getClients().getClients().get(0) instanceof CasClient);
+
         CasConfiguration configuration = ((CasClient) config.getClients().getClients().get(0)).getConfiguration();
 
         Assert.assertEquals(configuration.getEncoding(), properties.get("external.authentication.cas.encoding"));
@@ -129,6 +132,9 @@ public class Pac4JConfigFactoryTest extends TestCase {
 
         Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
         Config config = pac4jConfigFactory.build();
+
+        Assert.assertTrue(config.getClients().getClients().get(0) instanceof  SAML2Client);
+
         SAML2Configuration configuration = ((SAML2Client) config.getClients().getClients().get(0)).getConfiguration();
 
         Assert.assertEquals(configuration.getKeystorePassword(), properties.get("external.authentication.saml.keystorePassword"));
@@ -202,6 +208,9 @@ public class Pac4JConfigFactoryTest extends TestCase {
 
         Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
         Config config = pac4jConfigFactory.build();
+
+        Assert.assertTrue(config.getClients().getClients().get(0) instanceof OidcClient);
+
         OidcConfiguration configuration = ((OidcClient) config.getClients().getClients().get(0)).getConfiguration();
 
         Assert.assertEquals(configuration.getClientId(), properties.get("external.authentication.oidc.clientId"));

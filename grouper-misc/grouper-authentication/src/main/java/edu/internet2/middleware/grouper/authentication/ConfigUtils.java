@@ -18,7 +18,11 @@ public class ConfigUtils {
         for (String name : GrouperUiConfig.retrieveConfig().propertyNames()) {
             if (name.startsWith("external.authentication." + authMechanism)) {
                 try {
-                    Field field = clazz.getDeclaredField(name.substring(name.lastIndexOf('.') + 1, name.length() ));
+                    String fieldName = name.substring(name.lastIndexOf('.') + 1);
+                    Field field = getField(clazz, fieldName);
+
+                    //TODO: prefer setters
+
                     field.setAccessible(true);
                     field.set(configuration, getProperty(field.getType(), name));
                 } catch (NoSuchFieldException e) {
@@ -27,6 +31,17 @@ public class ConfigUtils {
                     throw new IllegalStateException("Unable to access property name: " + name);
                 }
             }
+        }
+    }
+
+    private static Field getField(Class clazz, String name) throws NoSuchFieldException {
+        try {
+            return clazz.getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            if (clazz.equals(Object.class)) {
+                throw new NoSuchFieldException(name);
+            }
+            return getField(clazz.getSuperclass(), name);
         }
     }
 
