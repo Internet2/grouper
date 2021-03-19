@@ -7,10 +7,10 @@
                           ${textContainer.text['provisionerConfigsMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
-                      	<li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
-                              >${textContainer.text['provisionerConfigMoreActionsViewButton'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
                               >${textContainer.text['provisionerConfigMoreActionsAddButton'] }</a></li>
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
+                              >${textContainer.text['provisionerConfigMoreActionsViewButton'] }</a></li>
                       </ul>
 
                     </div>

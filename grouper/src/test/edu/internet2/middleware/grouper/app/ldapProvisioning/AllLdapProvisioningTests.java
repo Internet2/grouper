@@ -33,6 +33,7 @@ public class AllLdapProvisioningTests {
     suite.addTestSuite(SimpleLdapProvisionerTest.class);
     suite.addTestSuite(LdapProvisionerWithGroupAndEntityLinksTest.class);
     suite.addTestSuite(LdapProvisionerIncrementalTest.class);
+    suite.addTestSuite(LdapProvisionerUpdateBatchTest.class);
     suite.addTestSuite(LdapProvisionerJDBCSubjectSourceTest.class);
     //$JUnit-END$
     return suite;

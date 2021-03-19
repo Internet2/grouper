@@ -700,7 +700,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * @param userSelectedPassword
    * @return true if password
    */
-  private static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
+  public static boolean isPasswordHelper(ConfigFileName configFileName, ConfigItemMetadata configItemMetadata, 
       String key, String value, boolean hasValue, Boolean userSelectedPassword) {
   
     if (key != null && key.endsWith(".elConfig")) {

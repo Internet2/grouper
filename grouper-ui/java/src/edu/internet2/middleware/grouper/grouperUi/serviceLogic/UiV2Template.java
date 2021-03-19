@@ -325,18 +325,18 @@ public class UiV2Template {
       
       
       GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
-      
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            
+      List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
       
       if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
         
         for (GshValidationLine gshValidationLIne: gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {
           if (StringUtils.isNotBlank(gshValidationLIne.getInputName())) {
             
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshValidationLIne.getInputName()+"_id", 
+            guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshValidationLIne.getInputName()+"_id", 
                 gshValidationLIne.getText()));
           } else {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gshValidationLIne.getText()));
+            guiScreenActions.add(GuiScreenAction.newMessageAppend(GuiMessageType.error, gshValidationLIne.getText()));
           }
           
         }
@@ -347,18 +347,24 @@ public class UiV2Template {
         
         GuiMessageType guiMessageType = GuiMessageType.valueOf(GrouperUtil.defaultIfBlank(GrouperUtil.defaultString(outputLine.getMessageType()).toLowerCase(), "success"));
         
-        guiResponseJs.addAction(GuiScreenAction.newMessage(guiMessageType, outputLine.getText()));
+        guiScreenActions.add(GuiScreenAction.newMessageAppend(guiMessageType, outputLine.getText()));
       }
       
       if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
         return;
       }
       
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
       if (!gshTemplateExecOutput.isSuccess()) {
+        
+        for (GuiScreenAction guiScreenAction : guiScreenActions) {
+          guiResponseJs.addAction(guiScreenAction);
+        }
         
         if (gshTemplateConfig.isDisplayErrorOutput()) {
           
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
           
           String exceptionMessage = null; 
           if (gshTemplateExecOutput.getException() != null) {        
@@ -366,19 +372,23 @@ public class UiV2Template {
           }
           
           if (StringUtils.isNotBlank(exceptionMessage)) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, "<pre>"+exceptionMessage+"</pre>"));
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+exceptionMessage+"</pre>"));
           }
         } else {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteError")));
         }
         
       }  else {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
-        //lets show a success message on the new screen
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteSuccess")));
-        
+        for (GuiScreenAction guiScreenAction : guiScreenActions) {
+          guiResponseJs.addAction(guiScreenAction);
+        }
+        if (GrouperUtil.length(guiScreenActions) == 0) {
+          //lets show a success message on the new screen
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteSuccess")));
+        }        
       }
       
     } finally {
@@ -449,7 +459,7 @@ public class UiV2Template {
       boolean allGood = templateLogic.validate(selectedServiceActions);
       
       if (!allGood) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error,
             TextContainer.retrieveFromRequest().getText().get("stemTemplateHierarchySelectError")));
         return;
       }
@@ -461,7 +471,7 @@ public class UiV2Template {
       String errorKey = templateLogic.postCreateSelectedActions(selectedServiceActions);
 
       if (!StringUtils.isBlank(errorKey)) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get(errorKey)));
         return;
       }
@@ -469,7 +479,7 @@ public class UiV2Template {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
 
       //lets show a success message on the new screen
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemTemplateCreateSuccess")));
       
       

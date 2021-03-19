@@ -81,15 +81,14 @@ public class GshTemplateValidationService {
   
   public boolean canSubjectExecuteTemplate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec) {
     
+    if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
+      return true;
+    }
+    
     if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
       return templateConfig.getGroupThatCanRun().hasMember(gshTemplateExec.getCurrentUser());
     } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
-      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
-      if (StringUtils.isBlank(wheelGroupName)) {
-        return false;
-      } 
-      Group wheelGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), wheelGroupName, true);
-      return wheelGroup.hasMember(gshTemplateExec.getCurrentUser());
+      return PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser());
       
     } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
       

@@ -9,60 +9,59 @@
               </ul>
               <div class="page-header blue-gradient">
                 <h1>${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescription'] }</h1>
+                <p>
+                  ${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescriptionParagraph']}
+                </p>
               </div>
-
             </div>
             <div class="row-fluid">
               <div class="span12">
                 <form class="form-horizontal" id="provisioningDiagnosticsForm"
                     onsubmit="return false;">
-        
-        <%--
-                  <div class="control-group">
-                    <label for="provisioningSourceIdId" class="control-label">${textContainer.text['adminprovisioningDiagnosticsSourceId'] }</label>
-                    <div class="controls">
-            
-            <input type="hidden" name="provisioningSourceIdName" id="provisioningSourceIdId" value="${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}" />                     
-                  ${grouper:escapeHtml(grouperRequestContainer.subjectSourceContainer.subjectSourceId)}
-                    
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSourceIdLabel'] }</span>
-                    </div>
-                  </div>
 
                   <div class="control-group">
-                    <label for="subjectIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectId'] }</label>
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsLargeOperationsLabel'] }</label>
                     <div class="controls">
-                      <input type="text" id="subjectIdId" name="subjectIdName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjprovisioningnosticsSubjectIdLabel'] }</span>
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsGroupsAllSelectName" id="diagnosticsGroupsAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupsAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsDescription'] }</span>                    
                     </div>
                   </div>
-                  
                   <div class="control-group">
-                    <label for="subjectIdentifierId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectIdentifier'] }</label>
+                   
                     <div class="controls">
-                      <input type="text" id="subjectIdentifierId" name="subjectIdentifierName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSubjectIdentifierLabel'] }</span>
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsEntitiesAllSelectName" id="diagnosticsEntitiesAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsEntitiesAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesDescription'] }</span>                    
                     </div>
                   </div>
-                  
                   <div class="control-group">
-                    <label for="searchStringId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSearchString'] }</label>
+                   
                     <div class="controls">
-                      <input type="text" id="searchStringId" name="searchStringName" value="" /> 
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsSearchStringLabel'] }</span>
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsMembershipsAllSelectName" id="diagnosticsMembershipsAllSelectId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsMembershipsAllSelect ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsLabel']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsDescription'] }</span>                    
                     </div>
                   </div>
-                  
                   <div class="control-group">
-                    <label for="actAsComboID" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsActAs'] }</label>
+                    <label for="diagnosticsGroupNameId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupNameLabel'] }</label>
                     <div class="controls">
-                      <grouper:combobox2 idBase="actAsCombo" style="width: 30em"
-                                      filterOperation="../app/UiV2Admin.provisioningDiagnosticsActAsCombo"/>
-                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsActAsLabel'] }</span>
+                      <input type="text" id="diagnosticsGroupNameId" name="diagnosticsGroupNameName" 
+                        value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupName}" /> 
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupNameDescription'] }</span>
                     </div>
                   </div>
-            --%>      
                   
+        
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
                 <input type="hidden" name="provisionerInitted" value="true" />
                 <div class="form-actions"><a href="#" class="btn btn-primary" role="button" 

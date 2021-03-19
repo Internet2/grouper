@@ -21,8 +21,24 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
 
 public abstract class GrouperProvisioner {
 
-  private String instanceId = GrouperUtil.uniqueId().toLowerCase();
+  /**
+   */
+  private ProvisionerConfiguration provisionerConfiguration = null;
+
+  /**
+   * this is the controller that makes the editing screen work, this is not the provisioning configuration class: retrieveGrouperProvisioningConfiguration()
+   * @return provisioner configuration
+   */
+  public ProvisionerConfiguration getProvisionerConfiguration() {
+    if (this.provisionerConfiguration == null) {
+      this.provisionerConfiguration = ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
+    
+      this.provisionerConfiguration.setConfigId(this.getConfigId());
+    }
+    return this.provisionerConfiguration;
+  }
   
+  private String instanceId = GrouperUtil.uniqueId().toLowerCase();
   
   public String getInstanceId() {
     return instanceId;
@@ -72,6 +88,9 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningDataTarget().getClass().equals(GrouperProvisioningDataTarget.class))) {
       result.append(", DataTarget: ").append(this.retrieveGrouperProvisioningDataTarget().getClass().getName());
     }
+    if (!(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().equals(GrouperProvisioningDiagnosticsContainer.class))) {
+      result.append(", DiagnosticsContainer: ").append(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().getName());
+    }
     if (!GrouperProvisionerGrouperDao.class.equals(this.grouperDaoClass())) {
       result.append(", GrouperDao: ").append(this.grouperDaoClass().getName());
     }
@@ -84,8 +103,14 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningLogic.class.equals(this.grouperProvisioningLogicClass())) {
       result.append(", Logic: ").append(this.grouperProvisioningLogicClass().getName());
     }
+    if (!GrouperProvisioningLogic.class.equals(this.grouperProvisioningLogicIncrementalClass())) {
+      result.append(", LogicIncremental: ").append(this.grouperProvisioningLogicIncrementalClass().getName());
+    }
     if (!GrouperProvisioningMatchingIdIndex.class.equals(this.grouperProvisioningMatchingIdIndexClass())) {
       result.append(", MatchingIdIndex: ").append(this.grouperProvisioningMatchingIdIndexClass().getName());
+    }
+    if (!GrouperProvisioningMatchingIdIndex.class.equals(this.grouperProvisioningObjectMetadataClass())) {
+      result.append(", ObjectMetadata: ").append(this.grouperProvisioningObjectMetadataClass().getName());
     }
     if (!GrouperProvisioningTranslatorBase.class.equals(this.grouperTranslatorClass())) {
       result.append(", Translator: ").append(this.grouperTranslatorClass().getName());
@@ -221,11 +246,19 @@ public abstract class GrouperProvisioner {
   public GrouperProvisioningDiagnosticsContainer retrieveGrouperProvisioningDiagnosticsContainer() {
     
     if (this.grouperProvisioningDiagnosticsContainer == null) {
-      this.grouperProvisioningDiagnosticsContainer = new GrouperProvisioningDiagnosticsContainer();
+      Class<? extends GrouperProvisioningDiagnosticsContainer> grouperProvisioningDiagnosticsContainerClass = this.grouperProvisioningDiagnosticsContainerClass();
+      this.grouperProvisioningDiagnosticsContainer = GrouperUtil.newInstance(grouperProvisioningDiagnosticsContainerClass);
       this.grouperProvisioningDiagnosticsContainer.setGrouperProvisioner(this);
     }
     
     return this.grouperProvisioningDiagnosticsContainer;
+  }
+  
+  /**
+   * return the class of the attribute manipulation
+   */
+  protected Class<? extends GrouperProvisioningDiagnosticsContainer> grouperProvisioningDiagnosticsContainerClass() {
+    return GrouperProvisioningDiagnosticsContainer.class;
   }
   
   /**

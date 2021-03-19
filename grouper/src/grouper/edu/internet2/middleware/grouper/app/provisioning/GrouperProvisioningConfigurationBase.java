@@ -34,6 +34,80 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfigurationBase {
 
   /**
+   * if set then only provision users who are in this group
+   */
+  private String groupIdOfUsersToProvision;
+  
+  /**
+   * if set then only provision users who are in this group
+   * @return group id
+   */
+  public String getGroupIdOfUsersToProvision() {
+    return groupIdOfUsersToProvision;
+  }
+
+  /**
+   * if select all groups during diagnostics (default false)
+   */
+  private Boolean diagnosticsGroupsAllSelect;
+
+  /**
+   * if select all groups during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsGroupsAllSelect() {
+    if (this.diagnosticsGroupsAllSelect != null) {
+      return this.diagnosticsGroupsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * if select all entities during diagnostics (default false)
+   */
+  private Boolean diagnosticsEntitiesAllSelect;
+
+  /**
+   * if select all entities during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsEntitiesAllSelect() {
+    if (this.diagnosticsEntitiesAllSelect != null) {
+      return this.diagnosticsEntitiesAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * group name of group to use for diagnostics
+   */
+  private String diagnosticsGroupName;
+
+  /**
+   * group name of group to use for diagnostics
+   * @return the group name
+   */
+  public String getDiagnosticsGroupName() {
+    return diagnosticsGroupName;
+  }
+  
+  /**
+   * if select all memberships during diagnostics (default false)
+   */
+  private Boolean diagnosticsMembershipsAllSelect;
+
+  /**
+   * if select all memberships during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsMembershipsAllSelect() {
+    if (this.diagnosticsMembershipsAllSelect != null) {
+      return this.diagnosticsMembershipsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
    * Only provision policy groups
    */
   private Boolean onlyProvisionPolicyGroups;
@@ -1928,7 +2002,11 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 
+    this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
 
+    // init this in the behavior
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);
+    
     if (this.entityAttributesMultivalued == null) {
       this.entityAttributesMultivalued = new HashSet<String>();
     }
@@ -2043,6 +2121,13 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
       
     }
+    
+    // diagnostics settings
+    this.diagnosticsGroupsAllSelect = this.retrieveConfigBoolean("selectAllGroupsDuringDiagnostics", false);
+    this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
+    this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
+    this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
+    
     
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());

@@ -15,7 +15,6 @@
            <h1>${textContainer.text['miscellaneousProvisionerConfigurationsDiagnosticsMainDescription'] }</h1>
            
            <h1>
-           	<br />
             <small>
               <c:choose>
                 <c:when test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.progressBean.complete}">
@@ -40,7 +39,7 @@
      
      <div class="row-fluid">
        <div class="span12">
-         ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.report}
+         ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.reportFinal}
        </div>
        
      </div>

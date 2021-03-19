@@ -99,6 +99,45 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class LdaptiveSessionImpl implements LdapSession {
 
+  /**
+   * debug log where lines are separated by newlines
+   */
+  private StringBuilder debugLog = null;
+
+  /**
+   * debug log where lines are separated by newlines
+   * @return
+   */
+  public StringBuilder getDebugLog() {
+    return debugLog;
+  }
+
+  /**
+   * if we are debugging
+   */
+  private boolean debug = false;
+  
+  /**
+   * if we are debugging
+   * @return
+   */
+  public boolean isDebug() {
+    return debug;
+  }
+
+  /**
+   * if we should capture debug info
+   * @param isDebug
+   */
+  public void assignDebug(boolean isDebug) {
+    this.debug = isDebug;
+    if (isDebug) {
+      this.debugLog = new StringBuilder();
+    } else {
+      this.debugLog = null;
+    }
+  }
+
   /** map of connection name to pool */
   private static Map<String, PooledConnectionFactory> poolMap = Collections.synchronizedMap(new HashMap<String, PooledConnectionFactory>());
   
@@ -739,14 +778,21 @@ public class LdaptiveSessionImpl implements LdapSession {
     SearchResult searchResults;
     Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
     
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchRequest: ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
+    }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
       searchResults = search.execute(searchRequest).getResult();
     } else {
       PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-      searchResults = client.executeToCompletion(searchRequest).getResult();
+      Response<SearchResult> response = client.executeToCompletion(searchRequest);
+      client.toString();
+      searchResults = response.getResult();
     }
-    
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchResults: ").append(StringUtils.abbreviate(searchResults.toString(), 2000)).append("\n");
+    }
     return searchResults;
   }
   

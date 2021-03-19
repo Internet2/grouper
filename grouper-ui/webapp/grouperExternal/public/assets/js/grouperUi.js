@@ -1206,7 +1206,11 @@ function guiProcessAction(guiScreenAction) {
     guiFormElementAssignValue(guiScreenAction.formFieldName, guiScreenAction.formFieldValues);
   }
   if (!guiIsEmpty(guiScreenAction.message)) {
-    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
+    if (!guiIsEmpty(guiScreenAction.messageAppend)) {
+      guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message, false);
+    } else {
+      guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
+    }
     guiScrollTop();
   }
   if (!guiIsEmpty(guiScreenAction.validationMessage)) {
