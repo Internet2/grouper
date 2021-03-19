@@ -72,7 +72,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * To edit just one field (the description) for existing group a:b:c 
  * </p>
  * <pre>
- *  new GroupSave.assignName("a:b:c").assignDescription("new description").assignReplaceAllSettings(false).save();
+ *  new GroupSave().assignName("a:b:c").assignDescription("new description").assignReplaceAllSettings(false).save();
  *  </pre>
  */
 public class GroupSave {

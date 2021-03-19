@@ -31,6 +31,8 @@ public class AttestationGroupSaveTest extends GrouperTest {
   
   public void testSaveAttestationAttributesGroupNotFound() {
     
+    boolean exceptionThrown = false;
+    
     try {
       new AttestationGroupSave()
           .assignGroupId("non_existent_groupId")
@@ -42,9 +44,11 @@ public class AttestationGroupSaveTest extends GrouperTest {
           .save();
       fail();
     } catch(Exception e) {
-      assertTrue(true);
+      exceptionThrown = true;
     }
-     
+
+    assertTrue(exceptionThrown);
+    
   }
   
   public void testDeleteAttestationAttributesOnGroupByGroup() {

@@ -45,10 +45,9 @@ import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * manage privilege inheritance
- * @author mchyzer
  *
  */
-public class PrivilegeGroupInheritanceSave {
+public class PrivilegeStemInheritanceSave {
 
   /**
    * 
@@ -57,7 +56,7 @@ public class PrivilegeGroupInheritanceSave {
   public static void main(String[] args) {
     GrouperStartup.startup();
     GrouperSession.startRootSession();
-    SaveResultType saveResultType = new PrivilegeGroupInheritanceSave().assignStemName("test")
+    SaveResultType saveResultType = new PrivilegeStemInheritanceSave().assignStemName("test")
       .addPrivilegeName("admin").assignSubjectSourceId("g:gsa").assignSubjectIdentifier("test:composite_owner2")
       .save();
     System.out.println(saveResultType);
@@ -73,7 +72,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theAttributeAssignId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignAttributeAssignId(String theAttributeAssignId) {
+  public PrivilegeStemInheritanceSave assignAttributeAssignId(String theAttributeAssignId) {
     this.attributeAssignId = theAttributeAssignId;
     return this;
   }
@@ -83,7 +82,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theAttributeAssignId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignAttributeAssign(AttributeAssign theAttributeAssign) {
+  public PrivilegeStemInheritanceSave assignAttributeAssign(AttributeAssign theAttributeAssign) {
     this.attributeAssignId = theAttributeAssign.getId();
     return this;
   }
@@ -154,7 +153,7 @@ public class PrivilegeGroupInheritanceSave {
   /**
    * 
    */
-  public PrivilegeGroupInheritanceSave() {
+  public PrivilegeStemInheritanceSave() {
     
   }
 
@@ -163,7 +162,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theFieldId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave addField(Field theField) {
+  public PrivilegeStemInheritanceSave addField(Field theField) {
     this.addFieldName(theField.getName());
     return this;
   }
@@ -173,7 +172,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theFieldId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave addFieldId(String theFieldId) {
+  public PrivilegeStemInheritanceSave addFieldId(String theFieldId) {
     
     Field field = FieldFinder.findById(theFieldId, true);
     
@@ -186,7 +185,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theFieldName
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave addFieldName(String theFieldName) {
+  public PrivilegeStemInheritanceSave addFieldName(String theFieldName) {
     this.addPrivilegeName(theFieldName);
     return this;
   }
@@ -196,7 +195,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theFieldName
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave addPrivilege(Privilege privilege) {
+  public PrivilegeStemInheritanceSave addPrivilege(Privilege privilege) {
     return this.addPrivilegeHelper(privilege, null);
   }
 
@@ -205,17 +204,13 @@ public class PrivilegeGroupInheritanceSave {
    * @param theFieldName
    * @return this for chaining
    */
-  private PrivilegeGroupInheritanceSave addPrivilegeHelper(Privilege privilege, String searchFor) {
-    if (privilege == null || !privilege.isAccess()) {
+  private PrivilegeStemInheritanceSave addPrivilegeHelper(Privilege privilege, String searchFor) {
+    if (privilege == null || !privilege.isNaming()) {
       throw new RuntimeException("Cant find field" + (StringUtils.isBlank(searchFor) ? "" : " '" + searchFor + "',") + " expecting: " 
-          + Field.FIELD_NAME_ADMINS + ", "
-          + Field.FIELD_NAME_READERS + ", "
-          + Field.FIELD_NAME_UPDATERS + ", "
-          + Field.FIELD_NAME_VIEWERS + ", "
-          + Field.FIELD_NAME_OPTINS + ", "
-          + Field.FIELD_NAME_OPTOUTS + ", "
-          + Field.FIELD_NAME_GROUP_ATTR_READERS + ", "
-          + Field.FIELD_NAME_GROUP_ATTR_UPDATERS);
+          + Field.FIELD_NAME_STEM_ADMINS + ", "
+          + Field.FIELD_NAME_STEM_ATTR_READERS + ", "
+          + Field.FIELD_NAME_STEM_ATTR_UPDATERS + ", "
+          + Field.FIELD_NAME_CREATORS);
     }
     this.privileges.add(privilege);    
     return this;
@@ -226,7 +221,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param thePrivilegeName
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave addPrivilegeName(String thePrivilegeName) {
+  public PrivilegeStemInheritanceSave addPrivilegeName(String thePrivilegeName) {
     Privilege privilege = Privilege.listToPriv(thePrivilegeName, false);
     if (privilege == null) {
       privilege = Privilege.getInstance(thePrivilegeName, false);
@@ -240,7 +235,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param member
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignMember(Member theMember) {
+  public PrivilegeStemInheritanceSave assignMember(Member theMember) {
     this.member = theMember;
     return this;
   }
@@ -250,7 +245,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theMemberId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignMemberId(String theMemberId) {
+  public PrivilegeStemInheritanceSave assignMemberId(String theMemberId) {
     this.memberId = theMemberId;
     return this;
   }
@@ -264,7 +259,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theSaveMode
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignSaveMode(SaveMode theSaveMode) {
+  public PrivilegeStemInheritanceSave assignSaveMode(SaveMode theSaveMode) {
     this.saveMode = theSaveMode;
     return this;
   }
@@ -274,7 +269,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theSubject
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignSubject(Subject theSubject) {
+  public PrivilegeStemInheritanceSave assignSubject(Subject theSubject) {
     this.subject = theSubject;
     return this;
   }
@@ -284,7 +279,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theSubjectId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignSubjectId(String theSubjectId) {
+  public PrivilegeStemInheritanceSave assignSubjectId(String theSubjectId) {
     this.subjectId = theSubjectId;
     return this;
   }
@@ -294,7 +289,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param thesubjectIdentifier
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignSubjectIdentifier(String theSubjectIdentifier) {
+  public PrivilegeStemInheritanceSave assignSubjectIdentifier(String theSubjectIdentifier) {
     this.subjectIdentifier = theSubjectIdentifier;
     return this;
   }
@@ -304,7 +299,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theSubjectSourceId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignSubjectSourceId(String theSubjectSourceId) {
+  public PrivilegeStemInheritanceSave assignSubjectSourceId(String theSubjectSourceId) {
     this.subjectSourceId = theSubjectSourceId;
     return this;
   }
@@ -327,7 +322,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theNameMatchesSqlLikeString
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignNameMatchesSqlLikeString(String theNameMatchesSqlLikeString) {
+  public PrivilegeStemInheritanceSave assignNameMatchesSqlLikeString(String theNameMatchesSqlLikeString) {
     this.nameMatchesSqlLikeString = theNameMatchesSqlLikeString;
     return this;
   }
@@ -342,7 +337,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param runAsRoot
    * @return
    */
-  public PrivilegeGroupInheritanceSave assignRunAsRoot(boolean runAsRoot) {
+  public PrivilegeStemInheritanceSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
@@ -366,32 +361,31 @@ public class PrivilegeGroupInheritanceSave {
           grouperTransaction.setCachingEnabled(false);
           
           final Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
-
+          
           return GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              
               boolean deletingAttributeAssign = saveMode == SaveMode.DELETE && !StringUtils.isBlank(attributeAssignId);
 
-              if (stem == null && !StringUtils.isBlank(PrivilegeGroupInheritanceSave.this.stemId)) {
-                stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeGroupInheritanceSave.this.stemId, false, new QueryOptions().secondLevelCache(false));
+              if (stem == null && !StringUtils.isBlank(PrivilegeStemInheritanceSave.this.stemId)) {
+                stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeStemInheritanceSave.this.stemId, false, new QueryOptions().secondLevelCache(false));
               } 
-              if (stem == null && !StringUtils.isBlank(PrivilegeGroupInheritanceSave.this.stemName)) {
-                stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), PrivilegeGroupInheritanceSave.this.stemName, false, new QueryOptions().secondLevelCache(false));
+              if (stem == null && !StringUtils.isBlank(PrivilegeStemInheritanceSave.this.stemName)) {
+                stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), PrivilegeStemInheritanceSave.this.stemName, false, new QueryOptions().secondLevelCache(false));
               }
               GrouperUtil.assertion(stem!=null,  "Stem not found");
 
               if (!deletingAttributeAssign) {
-                if (member == null && !StringUtils.isBlank(PrivilegeGroupInheritanceSave.this.memberId)) {
-                  member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeGroupInheritanceSave.this.memberId, false);
+                if (member == null && !StringUtils.isBlank(PrivilegeStemInheritanceSave.this.memberId)) {
+                  member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), PrivilegeStemInheritanceSave.this.memberId, false);
                 }
         
                 if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
-                  subject = SubjectFinder.findByIdAndSource(PrivilegeGroupInheritanceSave.this.subjectId, PrivilegeGroupInheritanceSave.this.subjectSourceId, false);
+                  subject = SubjectFinder.findByIdAndSource(PrivilegeStemInheritanceSave.this.subjectId, PrivilegeStemInheritanceSave.this.subjectSourceId, false);
                 }            
                 if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
-                  subject = SubjectFinder.findByIdentifierAndSource(PrivilegeGroupInheritanceSave.this.subjectIdentifier, PrivilegeGroupInheritanceSave.this.subjectSourceId, false);
+                  subject = SubjectFinder.findByIdentifierAndSource(PrivilegeStemInheritanceSave.this.subjectIdentifier, PrivilegeStemInheritanceSave.this.subjectSourceId, false);
                 }
                 if (subject == null && member != null) {
                   subject = member.getSubject();
@@ -409,11 +403,11 @@ public class PrivilegeGroupInheritanceSave {
               if (!runAsRoot) {
                 if (!stem.canHavePrivilege(SUBJECT_IN_SESSION, NamingPrivilege.STEM_ADMIN.getName(), false)) {
                   throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
-                    + "' cannot ADMIN stem '" + stem.getName() + "'");
+                  + "' cannot ADMIN stem '" + stem.getName() + "'");
                 }
               }
-              
-              Set<RuleDefinition> groupRuleDefinitions = RuleFinder.findGroupPrivilegeInheritRules(stem);
+
+              Set<RuleDefinition> stemRuleDefinitions = RuleFinder.findFolderPrivilegeInheritRules(stem);
               
               String inputSubjectString = subjectSourceId + " :::: " + subjectId;
               Subject rootSubject = SubjectFinder.findRootSubject();
@@ -430,7 +424,7 @@ public class PrivilegeGroupInheritanceSave {
 
               Map<RuleDefinition, Set<Privilege>> matchingDefinitionToPrivileges = new HashMap<RuleDefinition, Set<Privilege>>();
 
-              for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+              for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(stemRuleDefinitions)) {
 
                 AttributeAssign attributeAssign = ruleDefinition.getAttributeAssignType();
                 if (deletingAttributeAssign && StringUtils.equals(attributeAssignId, attributeAssign.getId())) {
@@ -459,7 +453,7 @@ public class PrivilegeGroupInheritanceSave {
                 
                 //  attributeValueDelegate.assignValue(
                 //      RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
-                if (!StringUtils.equals(ruleDefinition.getCheck().getCheckType(), RuleCheckType.groupCreate.name())) {
+                if (!StringUtils.equals(ruleDefinition.getCheck().getCheckType(), RuleCheckType.stemCreate.name())) {
                   continue;
                 }
                 
@@ -470,7 +464,7 @@ public class PrivilegeGroupInheritanceSave {
                 
                 // if we are delete and null then continue
                 if (saveMode != SaveMode.DELETE || stemScope != null) {
-                  if (PrivilegeGroupInheritanceSave.this.stemScope != thisStemScope) {
+                  if (PrivilegeStemInheritanceSave.this.stemScope != thisStemScope) {
                     continue;
                   }
                 }
@@ -506,7 +500,8 @@ public class PrivilegeGroupInheritanceSave {
                 if (ruleThen == null) {
                   continue;
                 }
-                if (!StringUtils.equals(ruleThen.getThenEnum(), RuleThenEnum.assignGroupPrivilegeToGroupId.name())) {
+                
+                if (!StringUtils.equals(ruleThen.getThenEnum(), RuleThenEnum.assignStemPrivilegeToStemId.name())) {
                   continue;
                 }
 
@@ -644,7 +639,7 @@ public class PrivilegeGroupInheritanceSave {
                 //otherwise we might be adding some
                 if (matchingDefinitions.size() == 0) {
                   privilegesAdded.addAll(privileges);
-                  RuleApi.inheritGroupPrivileges(stem, stemScope, subject, privileges, nameMatchesSqlLikeString);
+                  RuleApi.inheritFolderPrivileges(stem, stemScope, subject, privileges);
                   saveResultType = SaveResultType.INSERT;
                 } else {
                   // add to existing rule
@@ -735,11 +730,8 @@ public class PrivilegeGroupInheritanceSave {
               }
               
               return null;
-            
             }
           });
-
-          
         }
       });
     return saveResultType;
@@ -750,7 +742,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theStem
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignStem(Stem theStem) {
+  public PrivilegeStemInheritanceSave assignStem(Stem theStem) {
     this.stem = theStem;
     return this;
   }
@@ -760,7 +752,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theStem
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignStemScope(Scope theScope) {
+  public PrivilegeStemInheritanceSave assignStemScope(Scope theScope) {
     this.stemScope = theScope;
     return this;
   }
@@ -770,7 +762,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theStem
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignStemScopeName(String theScope) {
+  public PrivilegeStemInheritanceSave assignStemScopeName(String theScope) {
     this.stemScope = Scope.valueOfIgnoreCase(theScope, true);
     return this;
   }
@@ -781,7 +773,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theStemId
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignStemId(String theStemId) {
+  public PrivilegeStemInheritanceSave assignStemId(String theStemId) {
     this.stemId = theStemId;
     return this;
   }
@@ -791,7 +783,7 @@ public class PrivilegeGroupInheritanceSave {
    * @param theStemName
    * @return this for chaining
    */
-  public PrivilegeGroupInheritanceSave assignStemName(String theStemName) {
+  public PrivilegeStemInheritanceSave assignStemName(String theStemName) {
     this.stemName = theStemName;
     return this;
   }
