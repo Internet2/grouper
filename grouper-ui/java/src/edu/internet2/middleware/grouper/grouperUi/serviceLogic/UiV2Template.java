@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -352,6 +354,31 @@ public class UiV2Template {
       
       if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
         return;
+      }
+      
+      // consolidate messages
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".consolidateOutput", true)) {
+        for (GuiMessageType guiMessageType : GuiMessageType.values() ) {
+          
+          StringBuilder newMessageForType = new StringBuilder();
+          
+          Iterator<GuiScreenAction> iterator = guiScreenActions.iterator();
+          
+          // see if there is at least one message of this type
+          while (iterator.hasNext()) {
+            GuiScreenAction guiScreenAction = iterator.next();
+            if (StringUtils.equalsIgnoreCase(guiMessageType.name(), guiScreenAction.getMessageType())) {
+              if (newMessageForType.length() > 0) {
+                newMessageForType.append("<br />");
+              }
+              newMessageForType.append(guiScreenAction.getMessage());
+              iterator.remove();
+            }
+          }
+          if (newMessageForType.length() > 0) {
+            guiScreenActions.add(GuiScreenAction.newMessageAppend(guiMessageType, newMessageForType.toString()));
+          }
+        }
       }
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
