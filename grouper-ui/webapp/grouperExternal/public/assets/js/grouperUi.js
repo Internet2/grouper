@@ -259,8 +259,10 @@ function guiMessageHelper(messageType, message, shouldEmpty=true) {
   $('#messaging').hide();
   if (shouldEmpty) {
     $('#messaging').empty();
+    $('#messaging').append(finalMessage).slideDown('slow');
+  } else {
+    $('#messaging').append(finalMessage).show();
   }
-  $('#messaging').append(finalMessage).slideDown('slow');
   $('#messaging').focus();
 
 }

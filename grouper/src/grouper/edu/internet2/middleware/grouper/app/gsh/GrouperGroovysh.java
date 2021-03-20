@@ -46,19 +46,28 @@ public class GrouperGroovysh extends Groovysh {
   private static ThreadLocal<List<String>> threadLocalScriptLines = new InheritableThreadLocal<List<String>>();
 
   /**
+   * current line being executed for progress
+   */
+  private static ThreadLocal<int[]> threadLocalCurrentLine = new InheritableThreadLocal<int[]>();
+
+  /**
    * print out each line number in gsh script run from inside grouper
    * @param lineNumber
    * @param line
    */
   public static void printGshScriptLine(int lineNumber, String it) {
     System.out.println("groovy:" + StringUtils.leftPad(""+lineNumber, 3, "0") + "> " + it);
+    int[] currentLineNumber = threadLocalCurrentLine.get();
+    if (currentLineNumber != null) {
+      currentLineNumber[0] = lineNumber;
+    }
   }
   
   /**
    * hold the script so the GSH GSHScriptLoad can get the lines
    * @param script
    */
-  public static void threadLocalScriptAssign(String script) {
+  public static void threadLocalScriptAssign(String script, List<String> linesForLogging, int[] currentLineNumber) {
     
     List<String> lines = new ArrayList<String>();
     
@@ -68,8 +77,11 @@ public class GrouperGroovysh extends Groovysh {
       script = StringUtils.replace(script, "\r", "\n");
       lines = GrouperUtil.toList(GrouperUtil.nonNull(GrouperUtil.split(script, "\n"), String.class));
     }
-
+    if (linesForLogging != null) {
+      linesForLogging.addAll(lines);
+    }
     threadLocalScriptLines.set(lines);
+    threadLocalCurrentLine.set(currentLineNumber);
   }
   
   /**
@@ -78,6 +90,7 @@ public class GrouperGroovysh extends Groovysh {
    */
   public static void threadLocalScriptRemove() {
     threadLocalScriptLines.remove();
+    threadLocalCurrentLine.remove();
   }  
   
   /**
@@ -197,7 +210,16 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script) {
-    return runScript(script, false, true);
+    return runScript(script, false, true, null, null);
+  }
+
+  /**
+   * hold the script so the GSH GSHScriptLoad can get the lines
+   * @return the line number
+   */
+  public static Integer scriptCurrentLine() {
+    int[] currentLineNumber = threadLocalCurrentLine.get();
+    return currentLineNumber == null ? null : currentLineNumber[0];
   }
 
   /**
@@ -221,7 +243,7 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script, boolean lightWeight) {
-    return runScript(script, lightWeight, true);
+    return runScript(script, lightWeight, true, null, null);
   }
 
   /**
@@ -233,6 +255,18 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut) {
+    return runScript(script, lightWeight, sendErrToOut, null, null);
+  }
+
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   */
+  public static GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut, List<String> scriptLinesForLogging, int[] currentLineNumber) {
     
     GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
     
@@ -266,7 +300,9 @@ public class GrouperGroovysh extends Groovysh {
 //      Logger.io = io;
       compilerConfiguration.setParameters(false);
       shell = new GrouperGroovysh(io, compilerConfiguration, true);
-      threadLocalScriptAssign(script);
+      if (currentLineNumber != null) {
+        threadLocalScriptAssign(script, scriptLinesForLogging, currentLineNumber);
+      }
       
       // this means pull the script lines from a threadlocal and push into gsh into the same shell object so conditionals work
       body.append(":gshScriptLoad\n");
