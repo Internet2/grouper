@@ -1,6 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <form id="newStemTemplateFormId" class="form-horizontal">
   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+  <p class="lead">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
     <tbody>
 
@@ -95,6 +96,12 @@
       </c:if>
       
       <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
+
+        <tr class="stem-template-description">
+          <td style="vertical-align: top; white-space: nowrap;" colspan="2"><br /><strong style="font-size: larger;">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateNameForUi }</strong>
+          <br />
+          <span class="description">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateDescriptionForUi }</span><br /><br /></td>
+        </tr>
       
       	<c:forEach items="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
 			

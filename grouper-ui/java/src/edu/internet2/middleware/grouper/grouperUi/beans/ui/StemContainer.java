@@ -789,7 +789,7 @@ public class StemContainer {
         
         
         if (gshTemplateConfig.isShowInMoreActions() && new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
-          configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
+          configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getMoreActionsLabelForUi());
         }
         
       }
