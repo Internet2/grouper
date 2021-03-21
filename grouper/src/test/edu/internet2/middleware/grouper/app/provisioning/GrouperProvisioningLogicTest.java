@@ -463,7 +463,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.hasTargetGroupLink", "true1");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
     GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", "Has target group link");
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("grouperConfigurationValidationInvalidBoolean"), "#config_hasTargetGroupLink_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("grouperConfigurationValidationInvalidBoolean"), "#config_hasTargetGroupLink_id")));
     GrouperTextContainer.resetThreadLocalVariableMap();
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetGroupLink");
     

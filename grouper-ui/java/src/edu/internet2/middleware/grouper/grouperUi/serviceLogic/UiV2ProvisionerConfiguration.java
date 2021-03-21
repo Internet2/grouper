@@ -914,7 +914,7 @@ public class UiV2ProvisionerConfiguration {
               if (suffix.startsWith("#")) {
                 validationErrorsToDisplay.put(suffix, error);
               } else {
-                validationErrorsToDisplay.put("#config_" + suffix + "_spanid", error);
+                validationErrorsToDisplay.put("#config_" + suffix + "_id", error);
               }
             }
           }
