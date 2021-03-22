@@ -149,14 +149,16 @@ public class AttestationGroupSave {
 
   private boolean emailAddressesAssigned = false;
 
+  /**
+   * replace all existing settings. defaults to true.
+   */
   private boolean replaceAllSettings = true;
   
   /**
-   * 
+   * replace all existing settings. defaults to true.
    * @return this for chaining
    */
   public AttestationGroupSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
-    
     this.replaceAllSettings = theReplaceAllSettings;
     return this;
   }

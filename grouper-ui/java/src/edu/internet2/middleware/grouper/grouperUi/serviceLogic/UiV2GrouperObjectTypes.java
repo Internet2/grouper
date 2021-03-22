@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupSave;
+import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeStemSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
@@ -39,6 +41,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.ObjectTypeContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -447,28 +450,9 @@ public class UiV2GrouperObjectTypes {
         return;
       }
       
-      final ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      //switch over to admin so attributes work
-      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!checkObjectTypes()) {
-            return false;
-          }
-          
-          if (!objectTypeContainer.isCanWriteObjectType()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperObjectTypeNotAllowedToWriteGroup")));
-            return false;
-          }
-  
-          return true;
-        }
-      });
+      boolean shouldContinue = checkObjectTypes();
       
       if (!shouldContinue) {
         return;
@@ -489,28 +473,14 @@ public class UiV2GrouperObjectTypes {
         return;
       }
       
-      final GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-      attributeValue.setDirectAssignment(isDirect);
-      attributeValue.setObjectTypeDataOwner(objectTypeDataOwner);
-      attributeValue.setObjectTypeMemberDescription(objectTypeMemberDescription);
-      attributeValue.setObjectTypeName(objectTypeName);
-      attributeValue.setObjectTypeServiceName(objectTypeServiceName);
-      
-      //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      GdgTypeGroupSave gdgTypeGroupSave = new GdgTypeGroupSave();
+      gdgTypeGroupSave.assignDataOwner(objectTypeDataOwner).assignMemberDescription(objectTypeMemberDescription)
+        .assignServiceName(objectTypeServiceName)
+        .assignRunAsRoot(true)
+        .assignSaveMode(isDirect ? SaveMode.INSERT_OR_UPDATE : SaveMode.DELETE)
+        .assignReplaceAllSettings(true).assignGroup(GROUP).assignType(objectTypeName)
+        .save();
         
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (isDirect) {
-            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, GROUP); 
-          } else {
-            GrouperObjectTypesConfiguration.copyConfigFromParent(GROUP, objectTypeName);
-          }
-          return null;
-        }
-      });
-      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
@@ -546,28 +516,8 @@ public class UiV2GrouperObjectTypes {
       }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      final ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();
       
-      //switch over to admin so attributes work
-      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!checkObjectTypes()) {
-            return false;
-          }
-          
-          // likely unreachable code; UiV2Stem.retrieveStemHelper() has already checked for stem admin
-          if (!objectTypeContainer.isCanWriteObjectType()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperObjectTypeNotAllowedToWriteStem")));
-            return false;
-          }
-  
-          return true;
-        }
-      });
+      boolean shouldContinue = checkObjectTypes();
       
       if (!shouldContinue) {
         return;
@@ -588,30 +538,15 @@ public class UiV2GrouperObjectTypes {
             TextContainer.retrieveFromRequest().getText().get("objectTypeTypeNameRequired")));
         return;
       }
-       
-      final GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
-      attributeValue.setDirectAssignment(isDirect);
-      attributeValue.setObjectTypeDataOwner(objectTypeDataOwner);
-      attributeValue.setObjectTypeMemberDescription(objectTypeMemberDescription);
-      attributeValue.setObjectTypeName(objectTypeName);
-      attributeValue.setObjectTypeServiceName(objectTypeServiceName);
-      
-      //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+
+      GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+      gdgTypeStemSave.assignDataOwner(objectTypeDataOwner).assignMemberDescription(objectTypeMemberDescription)
+        .assignServiceName(objectTypeServiceName)
+        .assignRunAsRoot(true)
+        .assignSaveMode(isDirect ? SaveMode.INSERT_OR_UPDATE : SaveMode.DELETE)
+        .assignReplaceAllSettings(true).assignStem(STEM).assignType(objectTypeName)
+        .save();
           
-          if (isDirect) {        
-            GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, STEM);
-          } else {
-            GrouperObjectTypesConfiguration.copyConfigFromParent(STEM, objectTypeName);
-          }
-          
-          return null;
-        }
-      });
-      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
