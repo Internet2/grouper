@@ -22,7 +22,7 @@ public class GrouperConfigurationModuleSubSection {
    * provisioner configuration this subsection is child of 
    */
   private GrouperConfigurationModuleBase configuration;
-  
+
   public String getLabel() {
     return label;
   }
@@ -42,42 +42,30 @@ public class GrouperConfigurationModuleSubSection {
   }
 
   /**
-   * match ldapToSqlAttribute.0
-   */
-  private static Pattern repeatGroupPattern = Pattern.compile("^.*\\.([0-9]+).*$");
-  
-  /**
    * if label blank, there is no heading
    * @return
    */
   public String getTitle() {
-    String configPrefix = getConfiguration().getConfigurationTypePrefix();
-    String specificKey = configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title";
-    String title = GrouperTextContainer.textOrNull(specificKey);
     
+    String realConfigSuffix = this.label;
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+", ".i");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String title = GrouperTextContainer.textOrNull("config." + this.configuration.getClass().getSimpleName() + ".subSection." + iOrRealConfigSuffix + ".title");
+
     if (StringUtils.isBlank(title)) {
-      String key = "config.GenericConfiguration.subSection." + this.label + ".title";
-      title = GrouperTextContainer.textOrNull(key);
-    }
-    
-    if (StringUtils.isBlank(title)) {   
-      Matcher matcher = repeatGroupPattern.matcher(this.label);
-      if (matcher.matches()) {
-        int index = GrouperUtil.intValue(matcher.group(1));
-        String key = "config.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".title";
-        
-        //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerTitle");
-        
-        title = GrouperTextContainer.textOrNull(key);
-        title = StringUtils.replace(title, "__i+1__", (index+1)+"");
-        title = StringUtils.replace(title, "__i__", (index)+"");
-      } 
+      
+      title = GrouperTextContainer.textOrNull("config.GenericConfiguration.subSection." + iOrRealConfigSuffix + ".title");
     }
     
     if (StringUtils.isBlank(title)) {
-      return label;
-    }
+      title = iOrRealConfigSuffix;
+    } else {
+      title = this.configuration.formatIndexes(realConfigSuffix, hasIconfigSuffix, title);
+    }      
     return title;
+
+    
   }
   
   /**
@@ -85,32 +73,26 @@ public class GrouperConfigurationModuleSubSection {
    * @return
    */
   public String getDescription() {
-    String configPrefix = getConfiguration().getConfigurationTypePrefix();
-    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label + ".description");
     
-    if (StringUtils.isBlank(title)) {
-      String key = "config.GenericConfiguration.subSection." + this.label + ".description";
-      title = GrouperTextContainer.textOrNull(key);
-    }
+    String realConfigSuffix = this.label;
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+", ".i");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
     
-    if (StringUtils.isBlank(title)) { 
-      Matcher matcher = repeatGroupPattern.matcher(this.label);
-      if (matcher.matches()) {
-        int index = GrouperUtil.intValue(matcher.group(1));
-        String key = "config.GenericConfiguration.subSection." + (this.label.replaceAll("[0-9]+", "i")) + ".description";
+    String description = GrouperTextContainer.textOrNull("config." + this.configuration.getClass().getSimpleName() + ".subSection." + iOrRealConfigSuffix + ".description");
 
-        //GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer().setCurrentConfigSuffix(this.label + ".headerDescription");
-        
-        title = GrouperTextContainer.textOrNull(key);
-        title = StringUtils.replace(title, "__i+1__", (index+1)+"");
-        title = StringUtils.replace(title, "__i__", (index)+"");
-      } 
+    if (StringUtils.isBlank(description)) {
+      
+      description = GrouperTextContainer.textOrNull("config.GenericConfiguration.subSection." + iOrRealConfigSuffix + ".description");
     }
     
-    if (StringUtils.isBlank(title)) {
-      return label;
-    }
-    return title;
+    if (StringUtils.isBlank(description)) {
+      description = iOrRealConfigSuffix;
+    } else {
+      description = this.configuration.formatIndexes(realConfigSuffix, hasIconfigSuffix, description);
+    }      
+    return description;
+
+    
   }
 
   /**

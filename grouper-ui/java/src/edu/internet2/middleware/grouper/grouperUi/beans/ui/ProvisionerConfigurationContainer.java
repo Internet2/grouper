@@ -266,57 +266,6 @@ public class ProvisionerConfigurationContainer {
   private String cacheAttributePrefix;
   private String cacheFieldPrefix;
   
-  public String getSubSectionNameOrIndex() {
-    
-    // targetGroupAttribute.0.select
-    String nameLabel = null;
-    boolean isFieldElseAttribute = false;
-    String labelPrefix = null;
-    if (this.currentConfigSuffix != null) {
-      if (this.currentConfigSuffix.startsWith("targetGroup")) {
-        labelPrefix = this.getCacheGroupAttributePrefix();
-      } else {
-        labelPrefix = this.getCacheEntityAttributePrefix();
-      }
-      int lastIndexOfDot = this.currentConfigSuffix.lastIndexOf('.');
-      if (lastIndexOfDot > 0) {
-        String indexKey = this.currentConfigSuffix.substring(0, lastIndexOfDot);
-        String isFieldElseAttributeKey = indexKey + ".isFieldElseAttribute";
-        isFieldElseAttribute = GrouperUtil.booleanValue(this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(isFieldElseAttributeKey).getValue(), false);
-        if (isFieldElseAttribute) {
-          String fieldNameKey = indexKey + ".fieldName";
-          nameLabel = this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(fieldNameKey).getValue();
-        } else {
-          String nameKey = indexKey + ".name";
-          nameLabel = this.getGuiProvisionerConfiguration().getProvisionerConfiguration().retrieveAttributes().get(nameKey).getValue();
-        }
-      }
-    }
-    
-    
-    if (StringUtils.isBlank(nameLabel)) {
-      if (this.currentConfigSuffix != null && this.currentConfigSuffix.endsWith(".header")) {
-        String prefix = GrouperUtil.prefixOrSuffix(this.currentConfigSuffix, ".header", true);
-        String suffix = GrouperUtil.prefixOrSuffix(prefix, ".", false);
-        // might be integer
-        try {
-          int suffixInt = GrouperUtil.intValue(suffix);
-          this.setIndex(suffixInt);
-        } catch (Exception e) {
-          // ignore this
-        }
-      }
-      
-      return labelPrefix + " "
-        + this.getCacheAttributePrefix() + " " + (this.index+1);
-    }
-
-    return labelPrefix + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
-         :
-        this.getCacheAttributePrefix()
-          ) + " '" + nameLabel + "'";
-  }
-  
   private String currentConfigSuffix;
   
   public String getCurrentConfigSuffix() {

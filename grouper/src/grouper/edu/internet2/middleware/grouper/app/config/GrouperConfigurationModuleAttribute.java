@@ -212,32 +212,21 @@ public class GrouperConfigurationModuleAttribute {
    */
   public String getLabel() {
     
-    String key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label";
+    String realConfigSuffix = this.getConfigSuffix();
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
     
-    String label = GrouperTextContainer.textOrNull(key);
-    
-    if (StringUtils.isBlank(label)) {   
-      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
-        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".label";
-        label = GrouperTextContainer.textOrNull(key);
-      } 
+    String label = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + iOrRealConfigSuffix + ".label");
+
+    if (StringUtils.isBlank(label)) {
+      label = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute." + iOrRealConfigSuffix + ".label");
     }
     
     if (StringUtils.isBlank(label)) {
-      key = "config.GenericConfiguration.attribute." + this.getConfigSuffix() + ".label";
-      label = GrouperTextContainer.textOrNull(key);
-    }
-    
-    if (StringUtils.isBlank(label)) {   
-      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
-        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".label";
-        label = GrouperTextContainer.textOrNull(key);
-      } 
-    }
-    
-    if (StringUtils.isBlank(label)) {
-      return this.getConfigSuffix();
-    }
+      label = iOrRealConfigSuffix;
+    } else {
+      label = this.grouperConfigModule.formatIndexes(realConfigSuffix, hasIconfigSuffix, label);
+    }      
     return label;
   }
 
@@ -247,34 +236,27 @@ public class GrouperConfigurationModuleAttribute {
    */
   public String getDescription() {
     
-    String key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description";
     
-    String description = GrouperTextContainer.textOrNull(key);
+    String realConfigSuffix = this.getConfigSuffix();
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
     
-    if (StringUtils.isBlank(description)) {      
-      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
-        key = "config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".description";
-        description = GrouperTextContainer.textOrNull(key);
-      } 
+    String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + iOrRealConfigSuffix + ".description");
+
+    if (StringUtils.isBlank(description)) {
+      description = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute." + iOrRealConfigSuffix + ".description");
     }
-    
     
     if (StringUtils.isBlank(description)) {
-      key = "config.GenericConfiguration.attribute." + this.getConfigSuffix() + ".description";
-      description = GrouperTextContainer.textOrNull(key);
-    }
-    
-    if (StringUtils.isBlank(description)) {   
-      if (this.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
-        key = "config.GenericConfiguration.attribute." + (this.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + ".description";
-        description = GrouperTextContainer.textOrNull(key);
-      } 
-    }
-    
+      description = iOrRealConfigSuffix;
+    } else {
+      description = this.grouperConfigModule.formatIndexes(realConfigSuffix, hasIconfigSuffix, description);
+    }      
     if (StringUtils.isBlank(description)) {
       return this.getConfigItemMetadata().getComment();
     }
     return description;
+    
   }
 
 

@@ -115,6 +115,81 @@ public abstract class GrouperConfigurationModuleBase {
     return result;
   }
   
+  /**
+   * get the index of the label
+   */
+  private static Pattern iPattern = Pattern.compile("^(.*)\\.([0-9]+).*$");
+
+  
+  /**
+   * format indexes to be the number or a label (take special logic)
+   * @param grouperConfigModule
+   * @param realConfigSuffix
+   * @param hasIconfigSuffix
+   * @param label
+   * @return the formatted label
+   */
+  public String formatIndexes(String realConfigSuffix, boolean hasIconfigSuffix,
+      String label) {
+    // lets see if we need to subsitute
+    if (hasIconfigSuffix) {
+      Matcher matcher = iPattern.matcher(realConfigSuffix);
+      if (!matcher.matches()) {
+        throw new RuntimeException("Cant find index of label! '" + realConfigSuffix + "'");
+      }
+      String preIndex = matcher.group(1);
+      int index = GrouperUtil.intValue(matcher.group(2));
+      
+      String name = null;
+      // GSH templates
+      if (StringUtils.equals(preIndex, "input")) {
+        name = (String)this.retrieveObjectValueSubstituteMap().get("input." + index + ".name");
+      } else if (StringUtils.equals(preIndex, "targetGroupAttribute")) {
+        // Group field name
+        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".isFieldElseAttribute"), false);
+        String theName = isFieldElseAttribute ? 
+          (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".fieldName")
+          : (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".name");
+         
+        if (StringUtils.isBlank(theName)) {
+          theName = Integer.toString(index+1);
+        }
+        name = this.getCacheGroupAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
+            : this.getCacheAttributePrefix()) + " " + theName;
+        
+      } else if (StringUtils.equals(preIndex, "targetEntityAttribute")) {
+        // Entity field name
+        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".isFieldElseAttribute"), false);
+        String theName = isFieldElseAttribute ? 
+            (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".fieldName")
+            : (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".name");
+
+        if (StringUtils.isBlank(theName)) {
+          theName = Integer.toString(index+1);
+        }
+          
+        name = this.getCacheEntityAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
+             : this.getCacheAttributePrefix()) + " " + theName;
+
+      } else if (StringUtils.equals(preIndex, "metadata")) {
+        name = (String)this.retrieveObjectValueSubstituteMap().get("metadata." + index + ".name");
+      } else if (StringUtils.equals(preIndex, "attribute")) {
+        name = (String)this.retrieveObjectValueSubstituteMap().get("attribute." + index + ".name");
+      }
+            
+      if (!StringUtils.isBlank(name)) {
+        label = StringUtils.replace(label, "__i__", name);
+        label = StringUtils.replace(label, "__i+1__", name);
+      } else {
+      
+        label = StringUtils.replace(label, "__i__", Integer.toString(index));
+        label = StringUtils.replace(label, "__i+1__", Integer.toString(index+1));
+      }
+    }
+    return label;
+  }
+
+
   
   /**
    * get all configurations configured for this type
@@ -309,6 +384,14 @@ public abstract class GrouperConfigurationModuleBase {
   }
   
   private Map<String, Object> objectValueSubstituteMap = null;
+
+  private String cacheAttributePrefix;
+
+  private String cacheEntityAttributePrefix;
+
+  private String cacheFieldPrefix;
+
+  private String cacheGroupAttributePrefix;
   
   /**
    * expression language substitute map
@@ -1335,6 +1418,36 @@ public abstract class GrouperConfigurationModuleBase {
    */
   public boolean isMultiple() {
     return true;
+  }
+
+  public String getCacheAttributePrefix() {
+    if (this.cacheAttributePrefix == null) {
+      this.cacheAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix");
+    }
+    return cacheAttributePrefix;
+  }
+
+  public String getCacheEntityAttributePrefix() {
+    if (this.cacheEntityAttributePrefix == null) {
+      this.cacheEntityAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetEntityAttribute.i.entityAttributePrefix");
+    }
+    return cacheEntityAttributePrefix;
+  }
+
+  public String getCacheFieldPrefix() {
+    if (this.cacheFieldPrefix == null) {
+      this.cacheFieldPrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.fieldPrefix");
+    }
+    return cacheFieldPrefix;
+  }
+
+  public String getCacheGroupAttributePrefix() {
+    
+    if (this.cacheGroupAttributePrefix == null) {
+      this.cacheGroupAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.groupAttributePrefix");
+    }
+    
+    return cacheGroupAttributePrefix;
   }
   
 }
