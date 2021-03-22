@@ -41,7 +41,7 @@ public class AttributeAssignToGroupSave {
    * @param theNameOfAttributeDefName
    * @return
    */
-  public AttributeAssignToGroupSave assignNameOrAttributeDefName(String theNameOfAttributeDefName) {
+  public AttributeAssignToGroupSave assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
     this.nameOfAttributeDefName = theNameOfAttributeDefName;
     return this;
   }

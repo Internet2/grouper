@@ -282,18 +282,6 @@ public class PrivilegeStemSave {
    */
   public Membership save() throws InsufficientPrivilegeException, GroupNotFoundException {
 
-    boolean canIdentifyMembership = StringUtils.isNotBlank(this.immediateMembershipId);
-
-    if (!canIdentifyMembership) {
-      GrouperUtil.assertion(StringUtils.isNotBlank(this.stemId) || StringUtils.isNotBlank(this.stemName), "immediateMembershipId or stemId or stemName is required");
-      
-      boolean canIdentifyMember = StringUtils.isNotBlank(this.memberId);
-      if (!canIdentifyMember) {
-        GrouperUtil.assertion(StringUtils.isNotBlank(this.subjectSourceId), "immediateMembershipId or memberId or subjectSourceId is required");
-        GrouperUtil.assertion(StringUtils.isNotBlank(this.subjectId) || StringUtils.isNotBlank(this.subjectIdentifier), "immediateMembershipId or memberId or subjectId or subjectIdentifier is required");
-      }
-      
-    }
     //default to insert or update
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
 

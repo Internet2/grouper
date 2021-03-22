@@ -362,6 +362,10 @@ public class UiV2Template {
 
             GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
 
+            if (gshTemplateExecOutput.getException() != null) {
+              LOG.error("error running template: " + exec.getConfigId(), gshTemplateExecOutput.getException());
+            }
+            
           } catch (RuntimeException re) {
             exec.getProgressBean().setHasException(true);
             // log this since the thread will just end and will never get logged
@@ -391,8 +395,7 @@ public class UiV2Template {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/gshTemplate/gshRunTemplateWrapper.jsp"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
       
       customTemplateExecuteHelper(sessionId, uniqueId); 
                   
@@ -486,6 +489,8 @@ public class UiV2Template {
       }
       
       if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
+
         return;
       }
       
@@ -521,8 +526,7 @@ public class UiV2Template {
         gshTemplateExec.getProgressBean().setProgressCompleteRecords(gshTemplateExec.getLineNumber());
         
         //show the report screen
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueImportId, 
-            "/WEB-INF/grouperUi2/gshTemplate/gshRunTemplate.jsp"));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
 
         for (GuiScreenAction guiScreenAction : guiScreenActions) {
           guiResponseJs.addAction(guiScreenAction);
@@ -543,7 +547,7 @@ public class UiV2Template {
             guiResponseJs.addAction(guiScreenAction);
           }
           
-          boolean displayErrorOutput = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".displayErrorOutput", false);
+          boolean displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".displayErrorOutput", false);
           if (displayErrorOutput) {
             
             guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
@@ -557,9 +561,11 @@ public class UiV2Template {
               guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+exceptionMessage+"</pre>"));
             }
           } else {
+            LOG.error("Error in gshTemplate: " + templateType + "\n" + gshTemplateExecOutput.getGshScriptOutput());
             guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, 
               TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteError")));
           }
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
           
         }  else {
           

@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <form id="newStemTemplateFormId" class="form-horizontal">
   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
-  <p class="lead">${textContainer.text['gshTemplateScreenDecription']}</p>
+  <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
     <tbody>
 

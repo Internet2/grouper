@@ -67,7 +67,7 @@ public class AttributeAssignToStemSave {
 //    AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOrAttributeDefName("test:defName");
 //    attributeAssignToStemSave.save();
 
-    AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOrAttributeDefName("test:defName").assignSaveMode(SaveMode.DELETE);
+    AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOfAttributeDefName("test:defName").assignSaveMode(SaveMode.DELETE);
   attributeAssignToStemSave.save();
     
     System.out.println(attributeAssignToStemSave.getSaveResultType());
@@ -97,7 +97,7 @@ public class AttributeAssignToStemSave {
    * @param theNameOfAttributeDefName
    * @return
    */
-  public AttributeAssignToStemSave assignNameOrAttributeDefName(String theNameOfAttributeDefName) {
+  public AttributeAssignToStemSave assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
     this.nameOfAttributeDefName = theNameOfAttributeDefName;
     return this;
   }
