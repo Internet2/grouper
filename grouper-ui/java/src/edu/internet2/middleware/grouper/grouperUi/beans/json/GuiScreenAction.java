@@ -36,14 +36,15 @@ public class GuiScreenAction implements Serializable {
    */
   public static enum GuiMessageType {
     
-    /** green message */
-    success,
-    
+    /** red message */
+    error,
+
     /** blue message */
     info,
+
+    /** green message */
+    success;
     
-    /** red message */
-    error;
   }
  
   /**

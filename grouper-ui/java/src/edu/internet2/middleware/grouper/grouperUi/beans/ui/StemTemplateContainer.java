@@ -266,7 +266,7 @@ public class StemTemplateContainer {
         }
         
         if (new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
-          configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateName());
+          configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateNameForUi());
         }
         
       }

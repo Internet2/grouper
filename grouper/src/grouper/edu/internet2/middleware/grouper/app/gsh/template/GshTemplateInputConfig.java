@@ -71,9 +71,20 @@ public class GshTemplateInputConfig {
     
   }
   
+  private boolean useExternalizedText;
   
+  
+  public boolean isUseExternalizedText() {
+    return useExternalizedText;
+  }
+
+  
+  public void setUseExternalizedText(boolean useExternalizedText) {
+    this.useExternalizedText = useExternalizedText;
+  }
+
   public String getLabelForUi() {
-    if (StringUtils.isNotBlank(this.label)) {
+    if (!this.useExternalizedText) {
       return this.label;
     } else {
       return GrouperTextContainer.textOrNull(labelExternalizedTextKey);
@@ -81,7 +92,7 @@ public class GshTemplateInputConfig {
   }
   
   public String getDescriptionForUi() {
-    if (StringUtils.isNotBlank(this.description)) {
+    if (!this.useExternalizedText) {
       return this.description;
     } else {
       return GrouperTextContainer.textOrNull(descriptionExternalizedTextKey);

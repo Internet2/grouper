@@ -5,12 +5,58 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateContainer {
   
+  /**
+   * exec that is running
+   */
+  private GshTemplateExec gshTemplateExec;
+  
+  /**
+   * exec that is running
+   * @return
+   */
+  public GshTemplateExec getGshTemplateExec() {
+    return gshTemplateExec;
+  }
+
+  /**
+   * exec that is running
+   * @param gshTemplateExec
+   */
+  public void setGshTemplateExec(GshTemplateExec gshTemplateExec) {
+    this.gshTemplateExec = gshTemplateExec;
+  }
+
+  /**
+   * ID ties the run of this to a user
+   */
+  private String uniqueId;
+  
+  
+  
+  /**
+   * ID ties the run of this to a user
+   * @return
+   */
+  public String getUniqueId() {
+    return uniqueId;
+  }
+
+  /**
+   * ID ties the run of this to a user
+   * @param uniqueId
+   */
+  public void setUniqueId(String uniqueId) {
+    this.uniqueId = uniqueId;
+  }
+
+
   /**
    * gsh template config user is currently viewing/editing/adding
    */

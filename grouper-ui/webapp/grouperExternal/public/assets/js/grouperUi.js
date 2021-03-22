@@ -259,8 +259,10 @@ function guiMessageHelper(messageType, message, shouldEmpty=true) {
   $('#messaging').hide();
   if (shouldEmpty) {
     $('#messaging').empty();
+    $('#messaging').append(finalMessage).slideDown('slow');
+  } else {
+    $('#messaging').append(finalMessage).show();
   }
-  $('#messaging').append(finalMessage).slideDown('slow');
   $('#messaging').focus();
 
 }
@@ -288,7 +290,7 @@ function replaceHtmlWithTemplate(jqueryKey, templateName) {
   }
   var html = template.process(allObjects);
   
-  $(jqueryKey).html(html);
+  $(guiEscapeSelectorIfNeeded(jqueryKey)).html(html);
   
 }
 
@@ -1111,6 +1113,16 @@ function guiProcessJsonResponse(guiResponseJs) {
 
 }
 
+// selectors need to be escaped with dots and other chars
+function guiEscapeSelectorIfNeeded(s){
+  
+  // if its there then dont worry about it
+  if ($(s).length > 0) {
+    return s;
+  }
+  return s.replace( /(:|\.|\[|\])/g, "\\$1" );
+}
+
 /**
  * process an action
  * @param action
@@ -1126,12 +1138,12 @@ function guiProcessAction(guiScreenAction) {
   }
   //replace some html
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle) && guiIsEmpty(guiScreenAction.validationMessage)) {
-     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.html);
+     $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).html(guiScreenAction.html);
   }
 
   //append html
   if (!guiIsEmpty(guiScreenAction.appendHtmlJqueryHandle)) {
-    $(guiScreenAction.appendHtmlJqueryHandle).append(guiScreenAction.html);
+    $(guiEscapeSelectorIfNeeded(guiScreenAction.appendHtmlJqueryHandle)).append(guiScreenAction.html);
   }
 
   //hide/shows
@@ -1199,7 +1211,7 @@ function guiProcessAction(guiScreenAction) {
         }
       }
       var selectElement = guiGetElementByName(selectName);
-      $(selectElement).html(optionString);
+      $(guiEscapeSelectorIfNeeded(selectElement)).html(optionString);
     }
   }
   if (!guiIsEmpty(guiScreenAction.formFieldName)) {
@@ -1224,7 +1236,7 @@ function guiProcessAction(guiScreenAction) {
       
     alertText = guiEscapeHtml(alertText, true);
     
-    $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
+    $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
   }
 }
 
@@ -1407,7 +1419,7 @@ function grouperTooltip(message) {
 /** call this from button to hide/show some text */
 function guiToggle(event, jqueryElementKey) {
   eventCancelBubble(event);
-  $(jqueryElementKey).toggle('slow'); 
+  $(guiEscapeSelectorIfNeeded(jqueryElementKey)).toggle('slow'); 
   return false;
 }
 
@@ -1467,7 +1479,7 @@ function guiHideShow(event, hideShowName, shouldShow) {
   }
 
   //get the button
-  var buttons = $('.buttons_' + hideShowName); 
+  var buttons = $(guiEscapeSelectorIfNeeded('.buttons_' + hideShowName)); 
   if (!buttons) {
     buttons = new Array(); 
   }
@@ -1480,8 +1492,8 @@ function guiHideShow(event, hideShowName, shouldShow) {
   //see if currently showing
   if (shouldShow) {
     //note: dont use hide('slow') or show('slow') since it turns to block display
-    $('.shows_' + hideShowName).fadeIn('slow');
-    $('.hides_' + hideShowName).fadeOut('slow');
+    $(guiEscapeSelectorIfNeeded('.shows_' + hideShowName)).fadeIn('slow');
+    $(guiEscapeSelectorIfNeeded('.hides_' + hideShowName)).fadeOut('slow');
     for (var i = 0; i < buttons.length; i++) { 
       var button = buttons[i];
       //could be an image or something
@@ -1490,8 +1502,8 @@ function guiHideShow(event, hideShowName, shouldShow) {
       }
     }
   } else {
-    $('.shows_' + hideShowName).fadeOut('slow');
-    $('.hides_' + hideShowName).fadeIn('slow');
+    $(guiEscapeSelectorIfNeeded('.shows_' + hideShowName)).fadeOut('slow');
+    $(guiEscapeSelectorIfNeeded('.hides_' + hideShowName)).fadeIn('slow');
     for (var i = 0; i < buttons.length; i++) { 
       var button = buttons[i];
       //could be an image or something
@@ -2312,7 +2324,7 @@ function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName,
 function guiScrollTo(jqueryId) {
   
   //got this here: http://beski.wordpress.com/2009/04/21/scroll-effect-with-local-anchors-jquery/
-  var targetOffset = $(jqueryId).offset();
+  var targetOffset = $(guiEscapeSelectorIfNeeded(jqueryId)).offset();
   var targetTop = targetOffset.top;
   
   //$('html, body').animate({scrollTop: $(document).height()},1500);
@@ -2381,7 +2393,7 @@ function dojoCopyFilteringSelectDisplays() {
 */
 function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId, isElementClick, elementMessage) {
 
-  var nameDifferentThanIdChecked = $('#' + nameDifferentThanIdElementId).is(':checked');
+  var nameDifferentThanIdChecked = $(guiEscapeSelectorIfNeeded('#' + nameDifferentThanIdElementId)).is(':checked');
   
   //if someone clicks on the disabled textfield, then tell them they need to check the checkbox
   if (isElementClick) {
@@ -2393,12 +2405,12 @@ function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId,
 
   //if its checked, then sync up the id with the name
   if (!nameDifferentThanIdChecked) {
-    $('#' + idElementId).attr('disabled', 'disabled');
+    $(guiEscapeSelectorIfNeeded('#' + idElementId)).attr('disabled', 'disabled');
     var nameValue = $('#' + nameElementId).val();
     //set this in the id
-    $('#' + idElementId).val(nameValue);
+    $(guiEscapeSelectorIfNeeded('#' + idElementId)).val(nameValue);
   } else {
-    $('#' + idElementId).attr('disabled', null);
+    $(guiEscapeSelectorIfNeeded('#' + idElementId)).attr('disabled', null);
   }
   
 }

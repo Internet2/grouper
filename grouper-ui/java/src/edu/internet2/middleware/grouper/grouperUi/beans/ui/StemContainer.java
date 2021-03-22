@@ -773,25 +773,28 @@ public class StemContainer {
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
       if (gshTemplateConfiguration.isEnabled()) {
         
-        GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
-        gshTemplateConfig.populateConfiguration();
-        
-        if (!gshTemplateConfig.canFolderRunTemplate(this.getGuiStem().getStem())) {
-          continue;
+        try {
+          GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
+          gshTemplateConfig.populateConfiguration();
+          
+          if (!gshTemplateConfig.canFolderRunTemplate(this.getGuiStem().getStem())) {
+            continue;
+          }
+          
+          GshTemplateExec gshTemplateExec = new GshTemplateExec()
+            .assignConfigId(gshTemplateConfiguration.getConfigId())
+            .assignCurrentUser(loggedInSubject)
+            .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
+            .assignOwnerStemName(this.getGuiStem().getStem().getName());
+          
+          
+          
+          if (gshTemplateConfig.isShowInMoreActions() && new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
+            configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getMoreActionsLabelForUi());
+          }
+        } catch (Exception e) {
+          LOG.error("Cant decide if GSH template should display! " + gshTemplateConfiguration.getConfigId(), e);
         }
-        
-        GshTemplateExec gshTemplateExec = new GshTemplateExec()
-          .assignConfigId(gshTemplateConfiguration.getConfigId())
-          .assignCurrentUser(loggedInSubject)
-          .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
-          .assignOwnerStemName(this.getGuiStem().getStem().getName());
-        
-        
-        
-        if (gshTemplateConfig.isShowInMoreActions() && new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
-          configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getShowInMoreActionsLabel());
-        }
-        
       }
     }
     

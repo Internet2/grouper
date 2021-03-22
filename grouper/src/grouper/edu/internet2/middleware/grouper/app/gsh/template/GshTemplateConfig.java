@@ -24,6 +24,28 @@ public class GshTemplateConfig {
   
   private String templateName;
   
+  private String templateNameExternalizedTextKey;
+  
+  private String templateDescription;
+  
+  private String templateDescriptionExternalizedTextKey;
+  
+  
+  public String getTemplateNameExternalizedTextKey() {
+    return templateNameExternalizedTextKey;
+  }
+
+
+  
+  public String getTemplateDescriptionExternalizedTextKey() {
+    return templateDescriptionExternalizedTextKey;
+  }
+
+
+  public String getTemplateDescription() {
+    return templateDescription;
+  }
+
   private GshTemplateRunAsType gshTemplateRunAsType;
   
   private boolean enabled;
@@ -91,6 +113,29 @@ public class GshTemplateConfig {
     return templateName;
   }
 
+  public String getTemplateNameForUi() {
+    if (!useExternalizedText) {
+      return this.templateName;
+    } else {
+      return StringUtils.defaultString(GrouperTextContainer.textOrNull(templateNameExternalizedTextKey), templateNameExternalizedTextKey);
+    }
+  }
+
+  public String getTemplateDescriptionForUi() {
+    if (!useExternalizedText) {
+      return this.templateDescription;
+    } else {
+      return StringUtils.defaultString(GrouperTextContainer.textOrNull(templateDescriptionExternalizedTextKey), templateDescriptionExternalizedTextKey);
+    }
+  }
+
+  public String getMoreActionsLabelForUi() {
+    if (!useExternalizedText) {
+      return this.moreActionsLabel;
+    } else {
+      return StringUtils.defaultString(GrouperTextContainer.textOrNull(moreActionsLabelExternalizedTextKey), moreActionsLabelExternalizedTextKey);
+    }
+  }
 
   public boolean isUseExternalizedText() {
     return useExternalizedText;
@@ -106,7 +151,6 @@ public class GshTemplateConfig {
   public String getMoreActionsLabel() {
     return moreActionsLabel;
   }
-
 
   public GshTemplateRunAsType getGshTemplateRunAsType() {
     return gshTemplateRunAsType;
@@ -233,17 +277,6 @@ public class GshTemplateConfig {
     return actAsGroupUUID;
   }
 
-  public String getShowInMoreActionsLabel() {
-    
-    if (useExternalizedText) {
-      return GrouperTextContainer.textOrNull(moreActionsLabelExternalizedTextKey);
-    } else {
-      return moreActionsLabel;
-    }
-    
-  }
-  
-  
   public boolean isDisplayErrorOutput() {
     return displayErrorOutput;
   }
@@ -264,16 +297,18 @@ public class GshTemplateConfig {
     if (showInMoreActions) {
       if (useExternalizedText) {
         moreActionsLabelExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabelExternalizedTextKey");
+        templateNameExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateNameExternalizedTextKey");
+        templateDescriptionExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescriptionExternalizedTextKey");
       } else {
         moreActionsLabel = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabel");
+        templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
+        templateDescription = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescription");
       }
     }
 
     displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"displayErrorOutput", false);
     
     actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
-    
-    templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
     
     String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
     gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
@@ -351,6 +386,8 @@ public class GshTemplateConfig {
       
       String valueType = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "type", "string");
       GshTemplateInputType gshTemplateInputType = GshTemplateInputType.valueOfIgnoreCase(valueType, true);
+      
+      gshTemplateInputConfig.setUseExternalizedText(this.useExternalizedText);
       
       if (useExternalizedText) {
         gshTemplateInputConfig.setLabelExternalizedTextKey(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "labelExternalizedTextKey"));

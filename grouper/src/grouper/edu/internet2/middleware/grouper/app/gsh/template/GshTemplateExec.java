@@ -33,11 +33,25 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateExec {
   
+  /**
+   * have a progress bean to be able to communicate progress to the UI
+   */
+  private ProgressBean progressBean = new ProgressBean();
+  
+  /**
+   * have a progress bean to be able to communicate progress to the UI
+   * @return the progressBean
+   */
+  public ProgressBean getProgressBean() {
+    return this.progressBean;
+  }
+
   public static void main(String[] args) {
     GrouperStartup.startup();
     GrouperSession.startRootSession();
@@ -184,24 +198,65 @@ public class GshTemplateExec {
   }
 
   /**
+   * store the output
+   */
+  private GshTemplateExecOutput gshTemplateExecOutput = null;
+  
+  
+  
+  /**
+   * store the output
+   * @return the output
+   */
+  public GshTemplateExecOutput getGshTemplateExecOutput() {
+    return gshTemplateExecOutput;
+  }
+
+  /**
+   * array holds current line number
+   */
+  private int[] lineNumber = new int[] {0};
+  
+  /**
+   * lines of script
+   */
+  private List<String> linesOfScript = new ArrayList<String>();
+  
+  /**
+   * current line number
+   * @return
+   */
+  public int getLineNumber() {
+    return this.lineNumber[0];
+  }
+  
+  /**
+   * total number of lines in script
+   * @return
+   */
+  public int getLinesOfScript() {
+    return this.linesOfScript.size();
+  }
+  
+  /**
    * execute the gsh template
    * @return
    */
   public GshTemplateExecOutput execute() {
     
-    GshTemplateExecOutput execOutput = new GshTemplateExecOutput();
+    this.gshTemplateExecOutput = new GshTemplateExecOutput();
     
     final GshTemplateOutput gshTemplateOutput = new GshTemplateOutput();
     
-    execOutput.setGshTemplateOutput(gshTemplateOutput);
+    this.gshTemplateExecOutput.setGshTemplateOutput(gshTemplateOutput);
     
     final GshTemplateRuntime gshTemplateRuntime = new GshTemplateRuntime();
     
     if (StringUtils.isBlank(configId)) {
       
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.configIdBlank.message");
-      execOutput.getGshTemplateOutput().addValidationLine(errorMessage);
-      return execOutput;
+      this.gshTemplateExecOutput.getGshTemplateOutput().addValidationLine(errorMessage);
+      return this.gshTemplateExecOutput;
     }
     
     if (currentUser == null) {
@@ -237,7 +292,7 @@ public class GshTemplateExec {
         }
         
         gshTemplateRuntime.setCurrentSubject(currentUser);
-        if (!new GshTemplateValidationService().validate(templateConfig, THIS, execOutput)) {
+        if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput)) {
           return null;
         }
         
@@ -263,11 +318,11 @@ public class GshTemplateExec {
     });
     
   
-    if (execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-      execOutput.setValid(false);
-      return execOutput;
+    if (this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+      this.gshTemplateExecOutput.setValid(false);
+      return this.gshTemplateExecOutput;
     } else {
-      execOutput.setValid(true);
+      this.gshTemplateExecOutput.setValid(true);
     }
     
     StringBuilder scriptToRun = new StringBuilder();
@@ -341,7 +396,7 @@ public class GshTemplateExec {
 
       GrouperGroovyResult grouperGroovyResult = null;
       
-      execOutput.setTransaction(templateConfig.isRunGshInTransaction());
+      this.gshTemplateExecOutput.setTransaction(templateConfig.isRunGshInTransaction());
       
       StringBuilder inputsStringBuilder = new StringBuilder();
       for (GshTemplateInput input: this.gshTemplateInputs) {
@@ -357,15 +412,15 @@ public class GshTemplateExec {
   
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
-          GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true);
+          GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true, linesOfScript, lineNumber);
           
-          for (GshOutputLine gshOutputLine: execOutput.getGshTemplateOutput().getOutputLines()) {
+          for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
             if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
               success[0] = false;
             }
           }
           
-          if (execOutput.getGshTemplateOutput().isError() || execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+          if (gshTemplateExecOutput.getGshTemplateOutput().isError() || gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
             success[0] = false;
           }
           
@@ -390,15 +445,15 @@ public class GshTemplateExec {
       
       
       
-      if (execOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-        execOutput.setValid(false);
+      if (this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        this.gshTemplateExecOutput.setValid(false);
         
         Set<String> configuredInputNames = new HashSet<String>();
         for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
           configuredInputNames.add(inputConfig.getName());
         }
         
-        for (GshValidationLine gshValidationLine: execOutput.getGshTemplateOutput().getValidationLines()) {
+        for (GshValidationLine gshValidationLine: this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {
           if (StringUtils.isNotBlank(gshValidationLine.getInputName()) && !configuredInputNames.contains(gshValidationLine.getInputName())) {
             LOG.error(gshValidationLine.getInputName() + " is not in list of configured input names");
           }
@@ -407,19 +462,19 @@ public class GshTemplateExec {
       }
       
       if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
-        execOutput.setSuccess(false);
+        this.gshTemplateExecOutput.setSuccess(false);
       } else {
         if (gshTemplateOutput.isError()) {
-          execOutput.setSuccess(false);
+          this.gshTemplateExecOutput.setSuccess(false);
         } else {
-          execOutput.setSuccess(true);
+          this.gshTemplateExecOutput.setSuccess(true);
         }
       }
       
-      execOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
-      execOutput.setException(grouperGroovyResult.getException());
+      this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
+      this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());
       
-      if (execOutput.getException() != null) {
+      if (this.gshTemplateExecOutput.getException() != null) {
         LOG.error(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
       } else {
         LOG.debug(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
@@ -427,8 +482,8 @@ public class GshTemplateExec {
       
     } catch (RuntimeException e) {
       LOG.error("Error running template with config id: "+configId, e);
-      execOutput.setSuccess(false);
-      execOutput.setException(e);
+      this.gshTemplateExecOutput.setSuccess(false);
+      this.gshTemplateExecOutput.setException(e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
       GshTemplateOutput.removeThreadLocalGshTemplateOutput();
@@ -436,7 +491,7 @@ public class GshTemplateExec {
       
     }
     
-    return execOutput;
+    return this.gshTemplateExecOutput;
   }
 
   

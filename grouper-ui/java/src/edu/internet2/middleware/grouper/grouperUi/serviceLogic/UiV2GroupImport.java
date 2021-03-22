@@ -448,8 +448,8 @@ public class UiV2GroupImport {
   }
   
   /**
-   * keep an expirble cache of import progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
-   * uniquely identifies this import as opposed to other imports in other tabs
+   * keep an expirable cache of import progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
+   * uniquely identifies this import as opposed to other imports in other tabs.  This cannot have any request objects or j2ee objects
    */
   private static ExpirableCache<MultiKey, GroupImportContainer> importThreadProgress = new ExpirableCache<MultiKey, GroupImportContainer>(300);
 
@@ -721,6 +721,8 @@ public class UiV2GroupImport {
         @Override
         public Void callLogic() {
           try {
+            groupImportContainer.getProgressBean().setStartedMillis(System.currentTimeMillis());
+
             UiV2GroupImport.this.groupImportSubmitHelper(loggedInSubject, groupImportContainer, groups, subjectSet, 
                 listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName[0], (List<CSVRecord>)csvEntriesObject[0]);
           } catch (RuntimeException re) {
@@ -880,8 +882,6 @@ public class UiV2GroupImport {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       ProgressBean progressBean = groupImportContainer.getProgressBean();
-      
-      progressBean.setStartedMillis(System.currentTimeMillis());
       
       if (GrouperUtil.length(subjectSet) == 0 && csvEntries != null) {
         subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(csvEntries, new ArrayList<String>(), 
