@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2_5;
 import edu.internet2.middleware.grouper.subj.GrouperLdapSourceAdapter2_5;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -262,7 +263,7 @@ public class SubjectImpl implements Subject {
       return null;
     }
     
-    if (attributes != null && attributes.containsKey(descriptionAttribute) && attributes.get(descriptionAttribute).size() > 0) {
+    if (attributes != null && attributes.containsKey(descriptionAttribute) && GrouperUtil.length(attributes.get(descriptionAttribute)) > 0) {
       return attributes.get(descriptionAttribute).iterator().next();
     }
     
