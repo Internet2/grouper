@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import edu.internet2.middleware.grouper.authentication.config.ClientProvider;
 import edu.internet2.middleware.grouper.authentication.config.ClientProviders;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.log4j.Logger;
@@ -22,7 +23,7 @@ public class Pac4jConfigFactory implements ConfigFactory {
             } else {
                 provider = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.provider");
             }
-            Client client = ClientProviders.fromString(provider).getProviderClass().newInstance().getClient();
+            Client client = getClient(provider);
 
             String callbackUrl = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.grouperContextUrl")
                     + GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback");
@@ -35,5 +36,20 @@ public class Pac4jConfigFactory implements ConfigFactory {
         } catch (IllegalAccessException|InstantiationException e) {
             throw new RuntimeException("problem configuring pac4j", e);
         }
+    }
+
+    private static Client getClient(String provider) throws IllegalAccessException, InstantiationException {
+        Class<? extends ClientProvider> providerClass;
+        //TODO: might be a better way of doing this
+        try {
+            providerClass = ClientProviders.fromString(provider).getProviderClass();
+        } catch (IllegalArgumentException e) {
+            try {
+                providerClass = (Class<? extends ClientProvider>) Class.forName(provider);
+            } catch (ClassNotFoundException classNotFoundException) {
+                throw new RuntimeException(classNotFoundException);
+            }
+        }
+        return providerClass.newInstance().getClient();
     }
 }

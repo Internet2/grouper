@@ -37,6 +37,7 @@ public class Pac4JConfigFactoryTest extends TestCase {
      *
      */
     public void testPac4JConfigFactorCAS() {
+        GrouperUiConfig.retrieveConfig().propertiesOverrideMap().clear();
         Map<String, String> properties = GrouperUiConfig.retrieveConfig().propertiesOverrideMap();
         properties.put("external.authentication.mechanism","cas");
         properties.put("external.authentication.grouperContextUrl","localhost");
@@ -81,6 +82,7 @@ public class Pac4JConfigFactoryTest extends TestCase {
      *
      */
     public void testPac4JConfigFactorSAML() {
+        GrouperUiConfig.retrieveConfig().propertiesOverrideMap().clear();
         Map<String, String> properties = GrouperUiConfig.retrieveConfig().propertiesOverrideMap();
         properties.put("external.authentication.mechanism","saml");
         properties.put("external.authentication.grouperContextUrl","localhost");
@@ -185,6 +187,7 @@ public class Pac4JConfigFactoryTest extends TestCase {
      *
      */
     public void testPac4JConfigFactorOidc() {
+        GrouperUiConfig.retrieveConfig().propertiesOverrideMap().clear();
         Map<String, String> properties = GrouperUiConfig.retrieveConfig().propertiesOverrideMap();
         properties.put("external.authentication.mechanism","oidc");
         properties.put("external.authentication.grouperContextUrl","localhost");
@@ -229,5 +232,19 @@ public class Pac4JConfigFactoryTest extends TestCase {
         Assert.assertEquals(configuration.isExpireSessionWithToken(), Boolean.parseBoolean(properties.get("external.authentication.oidc.expireSessionWithToken")));
         Assert.assertEquals(configuration.getTokenExpirationAdvance(), Integer.parseInt(properties.get("external.authentication.oidc.tokenExpirationAdvance")));
         Assert.assertEquals(configuration.getCustomParams().size(), Arrays.asList(properties.get("external.authentication.oidc.customParams").split(",")).size());
+    }
+
+    public void testPac4jForManualProvider() {
+        GrouperUiConfig.retrieveConfig().properties().clear();
+        GrouperUiConfig.retrieveConfig().propertiesOverrideMap().clear();
+        Map<String,String> overrides = GrouperUiConfig.retrieveConfig().propertiesOverrideMap();
+        overrides.put("external.authentication.provider", "edu.internet2.middleware.grouper.authentication.config.SAML2ClientProvider");
+
+        Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
+        Config config = pac4jConfigFactory.build();
+
+        Assert.assertTrue(config.getClients().getClients().get(0) instanceof SAML2Client);
+
+        Assert.assertTrue(true);
     }
 }
