@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
@@ -1152,6 +1153,10 @@ public abstract class GrouperConfigurationModuleBase {
     
     // add all the possible ones
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+
     for (String suffix : attributes.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
@@ -1160,7 +1165,7 @@ public abstract class GrouperConfigurationModuleBase {
         
         StringBuilder localMessage = new StringBuilder();
         
-        DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(),
+        DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
             grouperConfigModuleAttribute.getFullPropertyName(),
             grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false",
             grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
@@ -1260,6 +1265,9 @@ public abstract class GrouperConfigurationModuleBase {
 
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
     
+    ConfigFileName configFileName = this.getConfigFileName();
+    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+    
     // add/edit all the possible ones
     for (String suffix : attributesToSave.keySet()) {
     
@@ -1271,7 +1279,7 @@ public abstract class GrouperConfigurationModuleBase {
       
       StringBuilder localMessage = new StringBuilder();
       
-      DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(), 
+      DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
           grouperConfigModuleAttribute.getFullPropertyName(), 
           grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
           grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),

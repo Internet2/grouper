@@ -40,7 +40,7 @@ public class DbConfigEngine {
    * @param clearCache should always be true unless you are doing multiple things at once, then false
    * @return true if ok, false if not
    */
-  public static boolean configurationFileAddEditHelper2(String configFileString, String propertyNameString,
+  public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment, 
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache) {
@@ -49,9 +49,6 @@ public class DbConfigEngine {
       
       Map<String, Object> textReplaceMap = new HashMap<String, Object>();
       GrouperTextContainer.assignThreadLocalVariableMap(textReplaceMap);
-
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-
       
       // if not sent, thats a problem
       if (StringUtils.isBlank(configFileString)) {
@@ -121,7 +118,7 @@ public class DbConfigEngine {
       
       GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
   
-      boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
+      boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, configFileMetadata.findConfigItemMetdataFromConfig(propertyNameString), propertyNameString, valueString, true, userSelectedPassword);
       
       boolean makeChange = true;
       if (isPassword && StringUtils.equals(valueString, GrouperConfigHibernate.ESCAPED_PASSWORD)) {

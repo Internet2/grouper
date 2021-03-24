@@ -741,7 +741,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     
       //lets try to find the config item metadata by key to be sure
       if (configItemMetadata == null) {
-        configItemMetadata = ConfigFileName.findConfigItemMetdata(key);
+        configItemMetadata = configFileName.findConfigItemMetdataFromConfig(key);
       }
       if (isPasswordHelper(configItemMetadata)) {
         return true;

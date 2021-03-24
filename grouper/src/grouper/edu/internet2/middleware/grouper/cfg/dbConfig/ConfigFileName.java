@@ -19,8 +19,6 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -211,35 +209,8 @@ public enum ConfigFileName {
     if (key == null) {
       return null;
     }
-    ConfigItemMetadata result = null;
     ConfigFileMetadata configFileMetadata = this.configFileMetadata();
-    for (ConfigSectionMetadata configSectionMetadata : configFileMetadata.getConfigSectionMetadataList()) {
-      for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
-        
-        boolean matchesRegex = false;
-        {
-          String regex = configItemMetadata.getRegex();
-          if (!StringUtils.isBlank(regex)) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(key);
-            if (matcher.matches()) {
-              matchesRegex = true;
-            }
-          }
-        }
-        boolean matchesKey = StringUtils.equals(key, configItemMetadata.getKey());
-
-        if (matchesKey || matchesRegex) {
-          
-          if (result == null) {
-            result = configItemMetadata;
-          } else {
-            LOG.error("Same config key or regex is in multiple files: " + configItemMetadata.getKeyOrSampleKey() + ", " + result.getKeyOrSampleKey());
-          }
-        }
-      }
-    }
-    return result;
+    return configFileMetadata.findConfigItemMetdataFromConfig(key);
   }
   
   /**
