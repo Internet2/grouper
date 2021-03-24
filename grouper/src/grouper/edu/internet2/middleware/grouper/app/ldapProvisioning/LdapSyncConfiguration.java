@@ -4,10 +4,13 @@
  */
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * an instance of this class focuses on the configuration for ldap sync
@@ -19,6 +22,8 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private String userSearchBaseDn;
   private String groupSearchBaseDn;
   private LdapSyncGroupDnType groupDnType;
+  private String folderRdnAttribute;
+  private Set<String> folderObjectClasses;
   
   @Override
   public void configureSpecificSettings() {
@@ -38,6 +43,10 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
           this.groupDnType = LdapSyncGroupDnType.flat;
         } else if (StringUtils.equalsIgnoreCase("bushy", groupDnTypeString)) {
           this.groupDnType = LdapSyncGroupDnType.bushy;
+          
+          this.folderRdnAttribute = GrouperUtil.defaultIfNull(this.retrieveConfigString("folderRdnAttribute", false), "ou");
+          String objectClassesString = GrouperUtil.defaultIfNull(this.retrieveConfigString("folderObjectClasses", false), "top, organizationalUnit");
+          this.folderObjectClasses = GrouperUtil.splitTrimToSet(objectClassesString, ",");
         } else {
           throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
         }
@@ -80,5 +89,25 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   
   public void setGroupDnType(LdapSyncGroupDnType groupDnType) {
     this.groupDnType = groupDnType;
+  }
+
+  
+  public String getFolderRdnAttribute() {
+    return folderRdnAttribute;
+  }
+
+  
+  public void setFolderRdnAttribute(String folderRdnAttribute) {
+    this.folderRdnAttribute = folderRdnAttribute;
+  }
+
+  
+  public Set<String> getFolderObjectClasses() {
+    return folderObjectClasses;
+  }
+
+  
+  public void setFolderObjectClasses(Set<String> folderObjectClasses) {
+    this.folderObjectClasses = folderObjectClasses;
   }
 }

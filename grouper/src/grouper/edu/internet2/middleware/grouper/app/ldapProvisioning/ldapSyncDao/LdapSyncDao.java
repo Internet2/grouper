@@ -43,6 +43,19 @@ public abstract class LdapSyncDao {
   public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames );
   
   /**
+   * do a filter search
+   * @param ldapPoolName
+   * @param baseDn
+   * @param filter
+   * @param ldapSearchScope
+   * @param attributeNames are optional attribute names to get from the ldap object
+   * @param sizeLimit
+   * @return the data
+   */
+  public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit);
+  
+  
+  /**
    * find objects by dn's
    * @param ldapPoolName
    * @param baseDn

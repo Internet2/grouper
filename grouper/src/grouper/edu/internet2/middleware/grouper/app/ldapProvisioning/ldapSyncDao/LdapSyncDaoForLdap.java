@@ -20,6 +20,17 @@ public class LdapSyncDaoForLdap extends LdapSyncDao {
     }
     return result;    
   }
+  
+  @Override
+  public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit) {
+    LdapSession ldapSession = LdapSessionUtils.ldapSession();
+    ldapSession.assignDebug(this.isDebug());
+    List<LdapEntry> result = ldapSession.list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), sizeLimit);
+    if (this.isDebug()) {
+      this.debugLog.append(ldapSession.getDebugLog());
+    }
+    return result;    
+  }
 
   @Override
   public List<LdapEntry> read(String ldapPoolName, String baseDn, List<String> dnList, List<String> attributeNames) {
