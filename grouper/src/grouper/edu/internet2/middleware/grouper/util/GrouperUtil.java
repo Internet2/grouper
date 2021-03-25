@@ -1536,7 +1536,7 @@ public class GrouperUtil {
     RDN rdn = new RDN("cn", rdnValue);
     return rdn.toMinimallyEncodedString().substring("cn=".length());
   }
-
+  
   /**
    * 
    * @param groupName
@@ -1548,6 +1548,22 @@ public class GrouperUtil {
    */
   public static String ldapBushyDn(String groupName, String rdnAttributeName,
       String ouAttributeName,
+      boolean performRdnEscaping, boolean performFilterEscaping) {
+    return ldapBushyDn(groupName, rdnAttributeName, null, ouAttributeName, performRdnEscaping, performFilterEscaping);
+  }
+
+  /**
+   * 
+   * @param groupName
+   * @param rdnAttributeName
+   * @param rdnAttributeValue
+   * @param ouAttributeName
+   * @param performRdnEscaping
+   * @param performFilterEscaping
+   * @return
+   */
+  public static String ldapBushyDn(String groupName, String rdnAttributeName,
+      String rdnAttributeValue, String ouAttributeName,
       boolean performRdnEscaping, boolean performFilterEscaping) {
 
     StringBuilder result = new StringBuilder();
@@ -1562,7 +1578,13 @@ public class GrouperUtil {
       }
       
       RDN rdn;
-      String piece = namePieces.get(i);
+      String piece;
+      
+      if (i==0 && rdnAttributeValue != null) {
+        piece = new String(rdnAttributeValue);
+      } else {
+        piece = namePieces.get(i);        
+      }
 
       // Look for filter-relevant characters if this will be used in a filter
       if ( performFilterEscaping ) {

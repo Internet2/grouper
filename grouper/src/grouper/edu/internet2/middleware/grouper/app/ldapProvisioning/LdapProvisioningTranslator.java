@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -44,8 +45,13 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
       String dn = null;
       
       if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
-        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        String cnValue = null;
         
+        if (((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get("cn") != null) {
+          cnValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get("cn").getValue();
+        }
+        
+        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", cnValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
       } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
         dn = GrouperUtil.ldapEscapeRdn("cn=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
         
