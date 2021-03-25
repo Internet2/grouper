@@ -23,6 +23,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   private String groupSearchBaseDn;
   private LdapSyncGroupDnType groupDnType;
   private String folderRdnAttribute;
+  private String groupRdnAttribute;
   private Set<String> folderObjectClasses;
   
   @Override
@@ -35,6 +36,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
             
     this.userSearchBaseDn = this.retrieveConfigString("userSearchBaseDn", false);
     this.groupSearchBaseDn = this.retrieveConfigString("groupSearchBaseDn", false);
+    this.groupRdnAttribute = GrouperUtil.defaultIfNull(this.retrieveConfigString("groupRdnAttribute", false), "cn");
 
     {
       String groupDnTypeString = this.retrieveConfigString("groupDnType", false);
@@ -109,5 +111,15 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
   
   public void setFolderObjectClasses(Set<String> folderObjectClasses) {
     this.folderObjectClasses = folderObjectClasses;
+  }
+
+  
+  public String getGroupRdnAttribute() {
+    return groupRdnAttribute;
+  }
+
+  
+  public void setGroupRdnAttribute(String groupRdnAttribute) {
+    this.groupRdnAttribute = groupRdnAttribute;
   }
 }
