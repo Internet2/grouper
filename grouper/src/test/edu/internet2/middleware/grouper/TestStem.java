@@ -105,7 +105,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testStemSaveRunAsRoot"));
+    TestRunner.run(new TestStem("testStemSaveReplaceAllSettingsFalse"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -118,7 +118,7 @@ public class TestStem extends GrouperTest {
   public TestStem(String name) {
     super(name);
   }
-
+  
   /**
    * 
    */
@@ -310,6 +310,30 @@ public class TestStem extends GrouperTest {
 
   }
 
+  public void testStemSaveReplaceAllSettingsFalse() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // test stem, subject 1 and 2 have admin
+    StemSave stemSave = new StemSave(grouperSession).assignName("test")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+        .assignDescription("testDescription")
+        ;
+    Stem stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    
+    stemSave = new StemSave(grouperSession).assignUuid(stem.getId())
+        .assignDisplayExtension("test1")
+        .assignAlternateName("newAlternateName")
+        .assignReplaceAllSettings(false);
+    stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    assertEquals("test1", stem.getDisplayExtension());
+    assertEquals("newAlternateName", stem.getAlternateName());
+    
+  }
+  
   /**
    * 
    */

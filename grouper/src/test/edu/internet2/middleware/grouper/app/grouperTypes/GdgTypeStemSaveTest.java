@@ -49,7 +49,7 @@ public class GdgTypeStemSaveTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GdgTypeStemSaveTest("testSaveGdgTypeStemLookupByStem"));
+    TestRunner.run(new GdgTypeStemSaveTest("testSaveGdgTypeStemNoChange"));
   }
 
   
@@ -67,6 +67,39 @@ public class GdgTypeStemSaveTest extends GrouperTest {
         .save();
     
     Assert.assertEquals(SaveResultType.INSERT, gdgTypeStemSave.getSaveResultType());
+    Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
+    Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    Assert.assertTrue(grouperObjectTypesAttributeValue.isDirectAssignment());
+    
+  }
+  
+  public void testSaveGdgTypeStemNoChange() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    
+    GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+    GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = gdgTypeStemSave
+        .assignStem(stem)
+        .assignType("ref")
+        .assignDataOwner("do")
+        .assignMemberDescription("md")
+        .save();
+    
+    Assert.assertEquals(SaveResultType.INSERT, gdgTypeStemSave.getSaveResultType());
+    Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
+    Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    Assert.assertTrue(grouperObjectTypesAttributeValue.isDirectAssignment());
+    
+    gdgTypeStemSave = new GdgTypeStemSave();
+    grouperObjectTypesAttributeValue = gdgTypeStemSave
+        .assignStem(stem)
+        .assignType("ref")
+        .save();
+    
+    Assert.assertEquals(SaveResultType.NO_CHANGE, gdgTypeStemSave.getSaveResultType());
     Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
     Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
     Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());

@@ -39,7 +39,7 @@ public class AttributeDefSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefSaveTest("testAttributeDefSave"));
+    TestRunner.run(new AttributeDefSaveTest("testAttributeDefSaveReplaceAllSettingsFalse"));
   }
   
   /**
@@ -115,7 +115,39 @@ public class AttributeDefSaveTest extends GrouperTest {
     assertEquals(SaveResultType.NO_CHANGE, attributeDefSave.getSaveResultType());
     assertEquals("whatever", attributeDef.getDescription());
     assertTrue(attributeDef.isMultiValued());
+    
+  }
   
+  public void testAttributeDefSaveReplaceAllSettingsFalse() {
+    
+    //cant create without privs
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      new AttributeDefSave(this.grouperSession).assignName("top:b").save();
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //grant privs
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    this.top.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    AttributeDefSave attributeDefSave = new AttributeDefSave(this.grouperSession).assignName("top:b").assignDescription("testDescription");
+    AttributeDef attributeDef = attributeDefSave.save();
+    assertEquals("top:b", attributeDef.getName());
+    assertEquals("testDescription", attributeDef.getDescription());
+    assertFalse(attributeDef.isMultiValued());
+    assertEquals(SaveResultType.INSERT, attributeDefSave.getSaveResultType());
+    
+    //update
+    attributeDefSave = new AttributeDefSave(this.grouperSession)
+      .assignName("top:b").assignValueType(AttributeDefValueType.string).assignMultiValued(true).assignReplaceAllSettings(false);
+    attributeDef = attributeDefSave.save();
+    assertEquals(SaveResultType.UPDATE, attributeDefSave.getSaveResultType());
+    assertEquals("testDescription", attributeDef.getDescription());
+    assertTrue(attributeDef.isMultiValued());
     
   }
   

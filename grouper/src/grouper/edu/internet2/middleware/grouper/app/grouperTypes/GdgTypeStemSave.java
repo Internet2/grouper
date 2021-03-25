@@ -163,9 +163,21 @@ public class GdgTypeStemSave {
             }
             
             if (saveMode == SaveMode.DELETE) {
-              GrouperObjectTypesConfiguration.copyConfigFromParent(stem, type);
-              saveResultType = SaveResultType.DELETE;
-              return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);
+              
+              
+              GrouperObjectTypesAttributeValue attributeValueBefore = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);
+              
+              if ( (attributeValueBefore == null) || (attributeValueBefore != null && !attributeValueBefore.isDirectAssignment()) ) {
+                
+                saveResultType = SaveResultType.NO_CHANGE;
+                return null;
+                
+              } else {
+                GrouperObjectTypesConfiguration.copyConfigFromParent(stem, type);
+                saveResultType = SaveResultType.DELETE;
+                return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);
+              }
+              
             }
 
             GrouperObjectTypesAttributeValue existingValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);
@@ -173,7 +185,7 @@ public class GdgTypeStemSave {
             boolean existingDirectAssignment = existingValues != null && existingValues.isDirectAssignment();
             
             if (saveMode == SaveMode.UPDATE && !existingDirectAssignment) {
-              throw new RuntimeException("Updating GDG type stem settings but they doesnt exist!");
+              throw new RuntimeException("Updating GDG type stem settings but they do not exist!");
             }
             
             if (saveMode == SaveMode.INSERT && existingDirectAssignment) {
@@ -193,30 +205,55 @@ public class GdgTypeStemSave {
               
             } else {
               
+              saveResultType = SaveResultType.NO_CHANGE;
+              
               GrouperObjectTypesAttributeValue attributeValue = new GrouperObjectTypesAttributeValue();
               attributeValue.setDirectAssignment(true);
               attributeValue.setObjectTypeName(type);
               
               if (replaceAllSettings || dataOwnerAssigned) {
-                attributeValue.setObjectTypeDataOwner(dataOwner);
+                
+                if (!StringUtils.equals(dataOwner, existingValues.getObjectTypeDataOwner())) {
+                  attributeValue.setObjectTypeDataOwner(dataOwner);
+                  saveResultType = SaveResultType.UPDATE;
+                } else {
+                  attributeValue.setObjectTypeDataOwner(existingValues.getObjectTypeDataOwner());
+                }
+                
               } else {
                 attributeValue.setObjectTypeDataOwner(existingValues.getObjectTypeDataOwner());
               }
               
               if (replaceAllSettings || memberDescriptionAssigned) {
-                attributeValue.setObjectTypeMemberDescription(memberDescription);
+                
+                if (!StringUtils.equals(memberDescription, existingValues.getObjectTypeMemberDescription())) {
+                  attributeValue.setObjectTypeMemberDescription(memberDescription);
+                  saveResultType = SaveResultType.UPDATE;
+                } else {
+                  attributeValue.setObjectTypeMemberDescription(existingValues.getObjectTypeMemberDescription());
+                }
+                
               } else {
                 attributeValue.setObjectTypeMemberDescription(existingValues.getObjectTypeMemberDescription());
               }
               
               if (replaceAllSettings || serviceNameAssigned) {
+                
+                if (!StringUtils.equals(serviceName, existingValues.getObjectTypeServiceName())) {
+                  attributeValue.setObjectTypeServiceName(serviceName);
+                  saveResultType = SaveResultType.UPDATE;
+                } else {
+                  attributeValue.setObjectTypeServiceName(existingValues.getObjectTypeServiceName());
+                }
                 attributeValue.setObjectTypeServiceName(serviceName);
               } else {
                 attributeValue.setObjectTypeServiceName(existingValues.getObjectTypeServiceName());
               }
               
-              GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
-              saveResultType = SaveResultType.UPDATE;
+              if (saveResultType == SaveResultType.UPDATE) {           
+                GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValue, stem);
+              }
+              
             }
             
             return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);

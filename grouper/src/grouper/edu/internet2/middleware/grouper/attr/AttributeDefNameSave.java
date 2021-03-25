@@ -117,6 +117,8 @@ public class AttributeDefNameSave {
   /** display name, really only necessary if creating parent stems */
   private String displayName;
 
+  private boolean displayNameAssigned;
+  
   /**
    * 
    * @param theDisplayName
@@ -124,6 +126,7 @@ public class AttributeDefNameSave {
    */
   public AttributeDefNameSave assignDisplayName(String theDisplayName) {
     this.displayName = theDisplayName;
+    this.displayNameAssigned = true;
     return this;
   }
   
@@ -139,6 +142,8 @@ public class AttributeDefNameSave {
   
   /** display extension */
   private String displayExtension;
+  
+  private boolean displayExtensionAssigned;
 
   /**
    * display extension
@@ -147,11 +152,14 @@ public class AttributeDefNameSave {
    */
   public AttributeDefNameSave assignDisplayExtension(String theDisplayExtension) {
     this.displayExtension = theDisplayExtension;
+    this.displayExtensionAssigned = true;
     return this;
   }
 
   /** description */
   private String description;
+  
+  private boolean descriptionAssigned;
   
   /**
    * assign description
@@ -160,6 +168,7 @@ public class AttributeDefNameSave {
    */
   public AttributeDefNameSave assignDescription(String theDescription) {
     this.description = theDescription;
+    descriptionAssigned = true;
     return this;
   }
 
@@ -201,6 +210,20 @@ public class AttributeDefNameSave {
   }
   
   /**
+   * replace all existing settings. defaults to true.
+   */
+  private boolean replaceAllSettings = true;
+  
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
+  public AttributeDefNameSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+    this.replaceAllSettings = theReplaceAllSettings;
+    return this;
+  }
+  
+  /**
    * <pre>
    * create or update a attributeDefName.  Note this will not rename an attributeDefName at this time (might in future)
    * 
@@ -224,17 +247,17 @@ public class AttributeDefNameSave {
   public AttributeDefName save() 
         throws StemNotFoundException, InsufficientPrivilegeException, StemAddException {
   
-    //help with incomplete entries
-    if (StringUtils.isBlank(this.name)) {
-      this.name = this.attributeDefNameNameToEdit;
-    }
-    
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.attributeDefNameNameToEdit) && !StringUtils.isBlank(this.id)) {
       AttributeDefName attributeDefName = AttributeDefNameFinder.findById(this.id, false, new QueryOptions().secondLevelCache(false));
       if (attributeDefName != null) {
         this.attributeDefNameNameToEdit = attributeDefName.getName();
       }
+    }
+    
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.attributeDefNameNameToEdit;
     }
     
     if (StringUtils.isBlank(this.attributeDefNameNameToEdit)) {
@@ -358,6 +381,11 @@ public class AttributeDefNameSave {
                 //if inserting
                 if (!isUpdate) {
                   saveResultType = SaveResultType.INSERT;
+                  
+                  if (!replaceAllSettings) {
+                    throw new RuntimeException("cannot insert attribute def name with replaceAllSettings being false");
+                  }
+                  
                   theAttributeDefName = parentStem.internal_addChildAttributeDefName(grouperSession, 
                       AttributeDefNameSave.this.attributeDef, extensionNew, theDisplayExtension, 
                       AttributeDefNameSave.this.id, AttributeDefNameSave.this.description);
@@ -390,10 +418,14 @@ public class AttributeDefNameSave {
                     needsSave = true;
                   }
                   if (!StringUtils.equals(theAttributeDefName.getDisplayExtension(), theDisplayExtension)) {
-                    AttributeDefNameSave.this.saveResultType = SaveResultType.UPDATE;
-                    theAttributeDefName.setDisplayExtensionDb(theDisplayExtension);
-                    theAttributeDefName.setDisplayNameDb(GrouperUtil.parentStemNameFromName(theAttributeDefName.getDisplayName()) + ":" + theDisplayExtension);
-                    needsSave = true;
+                    
+                    if (replaceAllSettings || displayExtensionAssigned || displayNameAssigned) { 
+                      AttributeDefNameSave.this.saveResultType = SaveResultType.UPDATE;
+                      theAttributeDefName.setDisplayExtensionDb(theDisplayExtension);
+                      theAttributeDefName.setDisplayNameDb(GrouperUtil.parentStemNameFromName(theAttributeDefName.getDisplayName()) + ":" + theDisplayExtension);
+                      needsSave = true;
+                    }
+                    
                   }
                 }
                 
@@ -410,16 +442,19 @@ public class AttributeDefNameSave {
                   }
                 }
 
-
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
                 if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theAttributeDefName.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.this.description)))) {
-                  needsSave = true;
-                  if (AttributeDefNameSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefNameSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || descriptionAssigned) { 
+                    needsSave = true;
+                    if (AttributeDefNameSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefNameSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDefName.setDescription(AttributeDefNameSave.this.description);
                   }
-                  theAttributeDefName.setDescription(AttributeDefNameSave.this.description);
+                 
                 }
                 if (!StringUtils.equals(StringUtils.defaultString(theAttributeDefName.getAttributeDefId()), 
                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.this.attributeDef.getId())))) {

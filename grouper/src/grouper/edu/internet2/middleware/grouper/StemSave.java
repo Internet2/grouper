@@ -42,6 +42,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class StemSave {
   
+  
+  /**
+   * replace all existing settings. defaults to true.
+   */
+  private boolean replaceAllSettings = true;
+  
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
+  public StemSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+    this.replaceAllSettings = theReplaceAllSettings;
+    return this;
+  }
+  
   /**
    * set this to true to run as a root session
    */
@@ -133,6 +148,8 @@ public class StemSave {
   /** display extension */
   private String displayExtension;
 
+  private boolean displayExtensionAssigned;
+
   /**
    * display extension
    * @param theDisplayExtension
@@ -140,11 +157,14 @@ public class StemSave {
    */
   public StemSave assignDisplayExtension(String theDisplayExtension) {
     this.displayExtension = theDisplayExtension;
+    this.displayExtensionAssigned = true;
     return this;
   }
 
   /** description */
   private String description;
+
+  private boolean descriptionAssigned;
   
   /**
    * assign description
@@ -153,11 +173,14 @@ public class StemSave {
    */
   public StemSave assignDescription(String theDescription) {
     this.description = theDescription;
+    this.descriptionAssigned = true;
     return this;
   }
   
   /** alternateName */
   private String alternateName;
+
+  private boolean alternateNameAssigned;
   
   /**
    * assign alternateName
@@ -166,6 +189,7 @@ public class StemSave {
    */
   public StemSave assignAlternateName(String theAlternateName) {
     this.alternateName = theAlternateName;
+    this.alternateNameAssigned = true;
     return this;
   }
   
@@ -214,6 +238,8 @@ public class StemSave {
    * display name, really only necessary if creating parent stems 
    */
   private String displayName;
+
+  private boolean displayNameAssigned;
   
   /**
    * get the save type
@@ -273,17 +299,17 @@ public class StemSave {
   public Stem save() throws StemNotFoundException,  InsufficientPrivilegeException,
       StemAddException, StemModifyException {
 
-    //help with incomplete entries
-    if (StringUtils.isBlank(this.name)) {
-      this.name = this.stemNameToEdit;
-    }
-
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.stemNameToEdit) && !StringUtils.isBlank(this.uuid)) {
       Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false, new QueryOptions().secondLevelCache(false));
       if (stem != null) {
         this.stemNameToEdit = stem.getName();
       }
+    }
+    
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.stemNameToEdit;
     }
 
     if (StringUtils.isBlank(this.stemNameToEdit)) {
@@ -416,6 +442,11 @@ public class StemSave {
 
                 //if inserting
                 if (!isUpdate) {
+                  
+                  if (!replaceAllSettings) {
+                    throw new RuntimeException("cannot insert attribute def name with replaceAllSettings being false");
+                  }
+                  
                   StemSave.this.saveResultType = SaveResultType.INSERT;
                   
                   boolean failOnExists = SAVE_MODE.equals(SaveMode.INSERT);
@@ -436,9 +467,13 @@ public class StemSave {
                     theStem.setExtension(extensionNew, StemSave.this.setAlternateNameIfRename);
                   }
                   if (!StringUtils.equals(theStem.getDisplayExtension(), theDisplayExtension)) {
-                    needsSave = true;
-                    StemSave.this.saveResultType = SaveResultType.UPDATE;
-                    theStem.setDisplayExtension(theDisplayExtension);
+                    
+                    if (replaceAllSettings || displayExtensionAssigned || displayNameAssigned) {
+                      needsSave = true;
+                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                      theStem.setDisplayExtension(theDisplayExtension);
+                    }
+                    
                   }
                 }
 
@@ -460,25 +495,33 @@ public class StemSave {
                 //now compare and put all attributes (then store if needed)
                 if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(StemSave.this.description)))) {
-                  needsSave = true;
-                  if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    StemSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || descriptionAssigned) { 
+                    needsSave = true;
+                    if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theStem.setDescription(StemSave.this.description);
                   }
-                  theStem.setDescription(StemSave.this.description);
+                  
                 }
                 
                 if (!isRename) {
                   if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getAlternateName())), 
                       StringUtils.defaultString(StringUtils.trim(StemSave.this.alternateName)))) {
-                    needsSave = true;
-                    if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                    
+                    if (replaceAllSettings || alternateNameAssigned) {
+                      needsSave = true;
+                      if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                        StemSave.this.saveResultType = SaveResultType.UPDATE;
+                      }
+                      if (StringUtils.isBlank(StemSave.this.alternateName)) {
+                        theStem.deleteAlternateName(theStem.getAlternateName());
+                      } else {
+                        theStem.addAlternateName(StringUtils.trim(StemSave.this.alternateName));
+                      }
                     }
-                    if (StringUtils.isBlank(StemSave.this.alternateName)) {
-                      theStem.deleteAlternateName(theStem.getAlternateName());
-                    } else {
-                      theStem.addAlternateName(StringUtils.trim(StemSave.this.alternateName));
-                    }
+                    
                   }
                 }
 
@@ -538,6 +581,7 @@ public class StemSave {
    */
   public StemSave assignDisplayName(String theDisplayName) {
     this.displayName = theDisplayName;
+    this.displayNameAssigned = true;
     return this;
   }
 }

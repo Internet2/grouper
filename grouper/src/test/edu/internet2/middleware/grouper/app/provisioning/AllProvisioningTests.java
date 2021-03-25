@@ -40,6 +40,8 @@ public class AllProvisioningTests {
     suite.addTestSuite(ProvisionerConfigurationTest.class);
     suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);
     suite.addTestSuite(GrouperProvisioningAttributePropagation.class);
+    suite.addTestSuite(ProvisionableStemSaveTest.class);
+    suite.addTestSuite(ProvisionableGroupSaveTest.class);
     //$JUnit-END$
     return suite;
   }

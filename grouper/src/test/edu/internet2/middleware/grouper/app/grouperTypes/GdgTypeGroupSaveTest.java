@@ -51,7 +51,7 @@ public class GdgTypeGroupSaveTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GdgTypeGroupSaveTest("testUpdateGdgTypeGroupOnlyOneAttribute"));
+    TestRunner.run(new GdgTypeGroupSaveTest("testSaveGdgTypeGroupNoChange"));
   }
 
   
@@ -68,6 +68,42 @@ public class GdgTypeGroupSaveTest extends GrouperTest {
         .save();
     
     Assert.assertEquals(SaveResultType.INSERT, gdgTypeGroupSave.getSaveResultType());
+    Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
+    Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    Assert.assertTrue(grouperObjectTypesAttributeValue.isDirectAssignment());
+    
+  }
+  
+  public void testSaveGdgTypeGroupNoChange() {
+    
+    Group group = new GroupSave().assignName("test:test-group").assignCreateParentStemsIfNotExist(true).save();
+    
+    GdgTypeGroupSave gdgTypeGroupSave = new GdgTypeGroupSave();
+    GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = gdgTypeGroupSave
+        .assignGroup(group)
+        .assignType("ref")
+        .assignDataOwner("do")
+        .assignMemberDescription("md")
+        .save();
+    
+    Assert.assertEquals(SaveResultType.INSERT, gdgTypeGroupSave.getSaveResultType());
+    Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
+    Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    Assert.assertTrue(grouperObjectTypesAttributeValue.isDirectAssignment());
+    
+    new GroupSave().assignName("test:test-group").assignCreateParentStemsIfNotExist(true).save();
+    
+    gdgTypeGroupSave = new GdgTypeGroupSave();
+    grouperObjectTypesAttributeValue = gdgTypeGroupSave
+        .assignGroup(group)
+        .assignType("ref")
+        .assignReplaceAllSettings(false)
+        .assignDataOwner("do")
+        .save();
+    
+    Assert.assertEquals(SaveResultType.NO_CHANGE, gdgTypeGroupSave.getSaveResultType());
     Assert.assertEquals("ref", grouperObjectTypesAttributeValue.getObjectTypeName());
     Assert.assertEquals("do", grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
     Assert.assertEquals("md", grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());

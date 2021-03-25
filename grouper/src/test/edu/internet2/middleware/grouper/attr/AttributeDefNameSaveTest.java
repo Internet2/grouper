@@ -39,7 +39,7 @@ public class AttributeDefNameSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSaveTest("testAttributeDefNameSave"));
+    TestRunner.run(new AttributeDefNameSaveTest("testAttributeDefNameSaveReplaceAllSettingsFalse"));
   }
   
   /**
@@ -118,6 +118,41 @@ public class AttributeDefNameSaveTest extends GrouperTest {
     assertEquals("whatever", attributeDefName.getDescription());
     assertEquals("top display name:theB", attributeDefName.getDisplayName());
   
+    
+  }
+  
+  public void testAttributeDefNameSaveReplaceAllSettingsFalse() {
+    
+    AttributeDef attributeDef = new AttributeDefSave(this.grouperSession).assignName("top:bDef").save();
+    
+    //cant create without privs
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      new AttributeDefNameSave(this.grouperSession, attributeDef).assignName("top:b").save();
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //grant privs
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    this.top.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(this.grouperSession, attributeDef).assignName("top:b").assignDescription("testDescription");
+    AttributeDefName attributeDefName = attributeDefNameSave.save();
+    assertEquals("top:b", attributeDefName.getName());
+    assertEquals("testDescription", attributeDefName.getDescription());
+    assertEquals("top display name:b", attributeDefName.getDisplayName());
+    assertEquals(SaveResultType.INSERT, attributeDefNameSave.getSaveResultType());
+    
+    //update
+    attributeDefNameSave = new AttributeDefNameSave(this.grouperSession, attributeDef)
+      .assignName("top:b").assignDisplayExtension("theB").assignReplaceAllSettings(false);
+    attributeDefName = attributeDefNameSave.save();
+    assertEquals(SaveResultType.UPDATE, attributeDefNameSave.getSaveResultType());
+    assertEquals("testDescription", attributeDefName.getDescription());
+    assertEquals("top display name:theB", attributeDefName.getDisplayName());
     
   }
   
