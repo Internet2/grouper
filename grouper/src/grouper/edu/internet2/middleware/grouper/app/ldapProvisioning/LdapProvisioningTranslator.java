@@ -44,7 +44,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
       String dn = null;
       
       if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
-        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", "ou", true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
         
       } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
         dn = GrouperUtil.ldapEscapeRdn("cn=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();

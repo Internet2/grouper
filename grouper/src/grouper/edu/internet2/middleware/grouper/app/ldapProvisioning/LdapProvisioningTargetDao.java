@@ -11,6 +11,11 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.ldaptive.LdapException;
+import org.ldaptive.ResultCode;
+
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
@@ -195,7 +200,18 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer();
       ldapSyncDaoForLdap.assignDebug(grouperProvisioningDiagnosticsContainer.isInDiagnostics());
-      ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
+      
+      try {
+        ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
+      } catch (Exception e) {
+        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+          createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, ldapEntry.getDn());
+          ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
+        } else {
+          throw e;
+        }
+      }
+      
       if (grouperProvisioningDiagnosticsContainer.isInDiagnostics()) {
         grouperProvisioningDiagnosticsContainer.appendReportLineIfNotBlank(ldapSyncDaoForLdap.getDebugLog().toString());
       }
@@ -234,6 +250,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer();
       ldapSyncDaoForLdap.assignDebug(grouperProvisioningDiagnosticsContainer.isInDiagnostics());
       ldapSyncDaoForLdap.delete(ldapConfigId, targetGroup.getName());
+      
+      deleteEmptyParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, targetGroup.getName());
       if (grouperProvisioningDiagnosticsContainer.isInDiagnostics()) {
         grouperProvisioningDiagnosticsContainer.appendReportLineIfNotBlank(ldapSyncDaoForLdap.getDebugLog().toString());
       }
@@ -297,10 +315,23 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer();
             ldapSyncDaoForLdap.assignDebug(grouperProvisioningDiagnosticsContainer.isInDiagnostics());
-            ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            
+            try {
+              ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            } catch (Exception e) {
+              if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+                createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
+                ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+              } else {
+                throw e;
+              }
+            }
+            
+            deleteEmptyParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)oldValue);
             if (grouperProvisioningDiagnosticsContainer.isInDiagnostics()) {
               grouperProvisioningDiagnosticsContainer.appendReportLineIfNotBlank(ldapSyncDaoForLdap.getDebugLog().toString());
             }
+            
             provisionObjectChange.setProvisioned(true);
           } catch (Exception e) {
             provisionObjectChange.setProvisioned(false);
@@ -971,6 +1002,102 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       return new TargetDaoUpdateEntityResponse();
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+  }
+  
+  private void deleteEmptyParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
+    try {      
+      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
+      
+      DN parentDn = new DN(groupDnString);
+      
+      while (true) {
+        parentDn = parentDn.getParent();
+        if (parentDn == null) {
+          return;
+        }
+        
+        if (parentDn.equals(groupSearchBaseDn)) {
+          // we've clearly gone too far up
+          return;
+        }
+        
+        String parentDnString = parentDn.toString();
+        try {
+          List<LdapEntry> childEntries = ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.ONELEVEL_SCOPE, new ArrayList<String>(), 1L);
+          
+          if (childEntries.size() > 0) {
+            // done
+            return;
+          }
+          
+          ldapSyncDaoForLdap.delete(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString);
+        } catch (Exception e) {
+          if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+            // dn doesn't exist.  continue going up.
+            continue;
+          } else {
+            throw e;
+          }
+        }
+      }
+    } catch (LDAPException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  private void createParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
+    try {
+      List<DN> ldapDnsToCreate = new ArrayList<DN>();
+      
+      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
+      
+      DN groupDn = new DN(groupDnString);
+      DN parentDn = groupDn.getParent();
+      if (parentDn.equals(groupSearchBaseDn)) {
+        throw new RuntimeException("Group's parent dn is the base dn!");
+      }
+      
+      ldapDnsToCreate.add(parentDn);
+      
+      while (true) {
+        parentDn = parentDn.getParent();
+        if (parentDn == null) {
+          break;
+        }
+        
+        if (parentDn.equals(groupSearchBaseDn)) {
+          // we've clearly gone too far up
+          break;
+        }
+        
+        String parentDnString = parentDn.toString();
+        try {
+          ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
+          break;
+        } catch (Exception e) {
+          if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+            ldapDnsToCreate.add(0, parentDn);
+          } else {
+            throw e;
+          }
+        }
+      }
+      
+      // now create the DNs
+      for (DN ldapDnToCreate : ldapDnsToCreate) {
+        LdapEntry folderLdapEntry = new LdapEntry(ldapDnToCreate.toString());
+        folderLdapEntry.addAttribute(new LdapAttribute(ldapDnToCreate.getRDN().getAttributeNames()[0], ldapDnToCreate.getRDN().getAttributeValues()[0]));
+        
+        LdapAttribute objectClassLdapAttribute = new LdapAttribute("objectClass");
+        objectClassLdapAttribute.addStringValues(new ArrayList<String>(ldapSyncConfiguration.getFolderObjectClasses()));
+        
+        folderLdapEntry.addAttribute(objectClassLdapAttribute);
+        
+        ldapSyncDaoForLdap.create(ldapSyncConfiguration.getLdapExternalSystemConfigId(), folderLdapEntry);
+      }
+    } catch (LDAPException e) {
+      throw new RuntimeException(e);
     }
   }
 
