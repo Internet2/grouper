@@ -248,12 +248,12 @@ public class GrouperConfigurationModuleAttribute {
     }
     
     if (StringUtils.isBlank(description)) {
-      description = iOrRealConfigSuffix;
+      description = this.getConfigItemMetadata().getComment();
     } else {
       description = this.grouperConfigModule.formatIndexes(realConfigSuffix, hasIconfigSuffix, description);
     }      
     if (StringUtils.isBlank(description)) {
-      return this.getConfigItemMetadata().getComment();
+      return iOrRealConfigSuffix;
     }
     return description;
     
