@@ -73,6 +73,17 @@ import edu.internet2.middleware.subject.SubjectUtils;
 
 public class LdapSourceAdapter extends BaseSourceAdapter {
 
+
+  @Override
+  public void loggingStart() {
+    LdapSessionUtils.logStart();
+  }
+
+  @Override
+  public String loggingStop() {
+    return LdapSessionUtils.logEnd();
+  }
+
   private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
 
   private Properties props;

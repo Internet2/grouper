@@ -101,6 +101,16 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
+  
+  @Override
+  public void loggingStart() {
+  }
+
+  @Override
+  public String loggingStop() {
+    return null;
+  }
+
   /**
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#retrieveAllSubjectIds()
    */

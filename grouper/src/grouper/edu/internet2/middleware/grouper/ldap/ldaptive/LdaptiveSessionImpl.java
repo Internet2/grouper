@@ -129,13 +129,22 @@ public class LdaptiveSessionImpl implements LdapSession {
    * if we should capture debug info
    * @param isDebug
    */
-  public void assignDebug(boolean isDebug) {
+  public void assignDebug(boolean isDebug, StringBuilder theDebugLog) {
     this.debug = isDebug;
     if (isDebug) {
-      this.debugLog = new StringBuilder();
+      this.debugLog = theDebugLog;
     } else {
       this.debugLog = null;
     }
+    
+  }
+
+  /**
+   * if we should capture debug info
+   * @param isDebug
+   */
+  public void assignDebug(boolean isDebug) {
+    assignDebug(isDebug, new StringBuilder());
   }
 
   /** map of connection name to pool */
@@ -775,6 +784,7 @@ public class LdaptiveSessionImpl implements LdapSession {
       searchRequest.setReferralHandler(new SearchReferralHandler());
     }
     
+    Response<SearchResult> response = null;
     SearchResult searchResults;
     Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
     
@@ -783,13 +793,15 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
-      searchResults = search.execute(searchRequest).getResult();
+      response = search.execute(searchRequest);
     } else {
       PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-      Response<SearchResult> response = client.executeToCompletion(searchRequest);
-      client.toString();
-      searchResults = response.getResult();
+      response = client.executeToCompletion(searchRequest);
     }
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+    }
+    searchResults = response.getResult();
     if (this.debug) {
       this.debugLog.append("Ldaptive searchResults: ").append(StringUtils.abbreviate(searchResults.toString(), 2000)).append("\n");
     }
@@ -842,9 +854,15 @@ public class LdaptiveSessionImpl implements LdapSession {
           if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
             deleteRequest.setReferralHandler(new DeleteReferralHandler());
           }
-          
+          if (debug) {
+            debugLog.append("Ldaptive deleteRequest: ").append(StringUtils.abbreviate(deleteRequest.toString(), 2000)).append("\n");
+          }
+
           try {
             Response<Void> response = delete.execute(deleteRequest);
+            if (debug) {
+              debugLog.append("Ldaptive deleteResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return null;
             } else {
@@ -852,9 +870,17 @@ public class LdaptiveSessionImpl implements LdapSession {
             }
           } catch (LdapException e) {
             
+
             // note that this only happens if an intermediate context does not exist
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+              if (debug) {
+                debugLog.append("Ldaptive deleteResultCode: NO_SUCH_OBJECT\n");
+              }
               return null;
+            }
+
+            if (debug) {
+              debugLog.append("Ldaptive delete error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             // TODO should we re-query just to be sure?
@@ -908,31 +934,49 @@ public class LdaptiveSessionImpl implements LdapSession {
           if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
             addRequest.setReferralHandler(new AddReferralHandler());
           }
-          
+          if (debug) {
+            debugLog.append("Ldaptive addRequest: ").append(StringUtils.abbreviate(addRequest.toString(), 2000)).append("\n");
+          }
+
           try {
             Response<Void> response = add.execute(addRequest);
+            if (debug) {
+              debugLog.append("Ldaptive addResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
             } else {
-              throw new RuntimeException("Received result code: " + response.getResultCode());
+              throw new RuntimeException("Received result code: " + (response == null ? null : response.getResultCode()));
             }
           } catch (LdapException e) {
             
             // update attributes instead
             if (e.getResultCode() == ResultCode.ENTRY_ALREADY_EXISTS) {
+              if (debug) {
+                debugLog.append("Ldaptive addResponse: ENTRY_ALREADY_EXISTS\n");
+              }
               ModifyOperation modify = new ModifyOperation(ldap);
               ModifyRequest modifyRequest = new ModifyRequest(ldapEntry.getDn(), ldaptiveModifications.toArray(new AttributeModification[] { }));
               
               if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
                 modifyRequest.setReferralHandler(new ModifyReferralHandler());
               }
-              
+              if (debug) {
+                debugLog.append("Ldaptive addModifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+              }
+
               Response<Void> response = modify.execute(modifyRequest);
+              if (debug) {
+                debugLog.append("Ldaptive addModifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+              }
               if (response.getResultCode() == ResultCode.SUCCESS) {
                 return false;
               } else {
                 throw new RuntimeException("Received result code: " + response.getResultCode());
               }
+            }
+            if (debug) {
+              debugLog.append("Ldaptive add error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             throw e;
@@ -966,8 +1010,14 @@ public class LdaptiveSessionImpl implements LdapSession {
             modifyDnRequest.setReferralHandler(new ModifyDnReferralHandler());
           }
           
+          if (debug) {
+            debugLog.append("Ldaptive moveRequest: ").append(StringUtils.abbreviate(modifyDnRequest.toString(), 2000)).append("\n");
+          }
           try {
             Response<Void> response = modifyDn.execute(modifyDnRequest);
+            if (debug) {
+              debugLog.append("Ldaptive moveResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
             } else {
@@ -976,6 +1026,10 @@ public class LdaptiveSessionImpl implements LdapSession {
           } catch (LdapException e) {
             
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+
+              if (debug) {
+                debugLog.append("Ldaptive moveResponse: NO_SUCH_OBJECT\n");
+              }
               // old entry doesn't exist.  if the new one does, then let's assume it was already renamed and return false
               // note that this exception could also happen if the oldDn exists but the newDn is an invalid location - in that case we should still end up throwing the original exception below
 
@@ -992,7 +1046,9 @@ public class LdaptiveSessionImpl implements LdapSession {
                 throw e2;
               }
             }   
-            
+            if (debug) {
+              debugLog.append("Ldaptive move error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
+            }            
             throw e;
           }
         }
@@ -1037,7 +1093,14 @@ public class LdaptiveSessionImpl implements LdapSession {
             modifyRequest.setReferralHandler(new ModifyReferralHandler());
           }
           
+          if (debug) {
+            debugLog.append("Ldaptive modifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+          }
+          
           Response<Void> response = modify.execute(modifyRequest);
+          if (debug) {
+            debugLog.append("Ldaptive modifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+          }
           if (response.getResultCode() == ResultCode.SUCCESS) {
             return null;
           } else {
@@ -1046,6 +1109,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         }
       });
     } catch (RuntimeException re) {
+      if (debug) {
+        debugLog.append("Ldaptive modify error: ").append(GrouperUtil.getFullStackTrace(re)).append("\n");
+      }
       GrouperUtil.injectInException(re, "Error modifying entry server id: " + ldapServerId + ", dn: " + dn);
       throw re;
     }

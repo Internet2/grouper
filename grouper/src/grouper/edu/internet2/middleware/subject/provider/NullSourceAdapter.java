@@ -35,6 +35,15 @@ import org.apache.commons.logging.*;
  */
 public class NullSourceAdapter extends BaseSourceAdapter {
 
+  @Override
+  public void loggingStart() {
+  }
+
+  @Override
+  public String loggingStop() {
+    return null;
+  }
+
   /** */
   @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(NullSourceAdapter.class);

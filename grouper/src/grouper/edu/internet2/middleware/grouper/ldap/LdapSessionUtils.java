@@ -52,6 +52,40 @@ public class LdapSessionUtils {
       LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
       loggedErrorNotLdaptive = true;
     }
-    return new LdaptiveSessionImpl(); 
+    LdaptiveSessionImpl ldaptiveSessionImpl = new LdaptiveSessionImpl();
+    StringBuilder logCurrent = logCurrent();
+    if (logCurrent != null) {
+      ldaptiveSessionImpl.assignDebug(true, logCurrent);
+    }
+    return ldaptiveSessionImpl; 
   }
+  
+  private static ThreadLocal<StringBuilder> threadLocalLog = new InheritableThreadLocal<StringBuilder>();
+
+  /**
+   * start a static debug log
+   * log start
+   */
+  public static void logStart() {
+    threadLocalLog.set(new StringBuilder());
+  }
+
+  /**
+   * get the current log
+   * log start
+   */
+  public static StringBuilder logCurrent() {
+    return threadLocalLog.get();
+  }
+
+  /**
+   * stop a debug log in a finally block
+   * @return the log message
+   */
+  public static String logEnd() {
+    StringBuilder log = threadLocalLog.get();
+    threadLocalLog.remove();
+    return log == null ? null : log.toString();
+  }
+  
 }

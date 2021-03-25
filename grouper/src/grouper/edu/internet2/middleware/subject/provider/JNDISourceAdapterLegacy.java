@@ -58,6 +58,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -73,6 +74,16 @@ import edu.internet2.middleware.subject.SubjectUtils;
  *
  */
 public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
+
+  @Override
+  public void loggingStart() {
+    LdapSessionUtils.logStart();
+  }
+
+  @Override
+  public String loggingStop() {
+    return LdapSessionUtils.logEnd();
+  }
 
   /** */
   private static Log log = LogFactory.getLog(JNDISourceAdapterLegacy.class);

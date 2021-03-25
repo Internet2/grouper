@@ -36,6 +36,23 @@ import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
 public class LazySource implements Source, Serializable {
 
   /**
+   * 
+   */
+  @Override
+  public void loggingStart() {
+    this.getSource().loggingStart();
+    
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public String loggingStop() {
+    return this.getSource().loggingStop();
+  }
+
+  /**
    * @see edu.internet2.middleware.subject.Source#retrieveAllSubjectIds()
    */
   public Set<String> retrieveAllSubjectIds() {
