@@ -17,6 +17,11 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperConfigurationModuleAttribute {
   
+  public GrouperConfigurationModuleAttribute() {
+    super();
+  }
+
+
   private GrouperConfigurationModuleBase grouperConfigModule;
   
   /**

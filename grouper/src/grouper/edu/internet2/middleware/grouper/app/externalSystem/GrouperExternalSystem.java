@@ -92,6 +92,10 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
+    if (enabledAttribute == null) {
+      errorsToDisplay.add(GrouperTextContainer.textOrNull("grouperExternalSystemCannotEnableDisable"));
+      return;
+    }
     enabledAttribute.setValue(enable? "true": "false");
     
     ConfigFileName configFileName = this.getConfigFileName();
