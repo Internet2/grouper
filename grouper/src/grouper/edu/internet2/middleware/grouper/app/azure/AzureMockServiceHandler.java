@@ -201,13 +201,18 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     // all good
   }
-  
-  public void postGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
+
+  private void checkRequestContentType(MockServiceRequest mockServiceRequest) {
+    if (!StringUtils.equals(mockServiceRequest.getHttpServletRequest().getContentType(), "application/json")
+            && !StringUtils.startsWith(mockServiceRequest.getHttpServletRequest().getContentType(), "application/json;")) {
       throw new RuntimeException("Content type must be application/json");
     }
+  }
+
+  public void postGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+
+    checkRequestContentType(mockServiceRequest);
 
     //  {
     //    "description": "Self help community for library",
@@ -257,15 +262,13 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     
   }
-  
+
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
-    
+
+    checkRequestContentType(mockServiceRequest);
+
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("$filter");
     
     
@@ -327,10 +330,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
+
+    checkRequestContentType(mockServiceRequest);
     
     String id = mockServiceRequest.getPostMockNamePaths()[1];
     
@@ -398,7 +399,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".clientSecret");
     clientSecret = Morph.decryptIfFile(clientSecret);
     if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
-      throw new RuntimeException("Cant invalid client secret!");
+      throw new RuntimeException("Cant find client secret!");
     }
     
     String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".tenantId");
@@ -463,10 +464,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
   public void deleteGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
+
+    checkRequestContentType(mockServiceRequest);
 
     String id = mockServiceRequest.getPostMockNamePaths()[1];
     
@@ -495,11 +494,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public void getUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
-    
+
+    checkRequestContentType(mockServiceRequest);
+
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("$filter");
     
     
@@ -557,11 +554,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public void getUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
-    
+
+    checkRequestContentType(mockServiceRequest);
+
     String id = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
@@ -600,10 +595,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public void patchGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
+
+    checkRequestContentType(mockServiceRequest);
 
     String requestJsonString = mockServiceRequest.getRequestBody();
     JsonNode requestJsonNode = GrouperUtil.jsonJacksonNode(requestJsonString);
@@ -762,11 +755,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   
   public void postMembership(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
-  
+
+    checkRequestContentType(mockServiceRequest);
+
     //  {
     //    "@odata.id": "https://graph.microsoft.com/v1.0/directoryObjects/<someUserId>"
     //  }
@@ -876,11 +867,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public void getGroupMembers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     checkAuthorization(mockServiceRequest);
-    
-    if (!StringUtils.equals("application/json", mockServiceRequest.getHttpServletRequest().getContentType())) {
-      throw new RuntimeException("Content type must be application/json");
-    }
-    
+
+    checkRequestContentType(mockServiceRequest);
+
     String groupId = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "id is required");
