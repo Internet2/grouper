@@ -23,6 +23,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperAzureGroup {
 
+  public static final boolean defaultMailEnabled = false;
+  public static final boolean defaultSecurityEnabled = false;
+  public static final String defaultVisibility = "Public";
+
   public static void main(String[] args) {
     
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
@@ -192,8 +196,8 @@ public class GrouperAzureGroup {
     return mailEnabled;
   }
   
-  public void setMailEnabled(boolean mailEnabled) {
-    this.mailEnabled = mailEnabled;
+  public void setMailEnabled(Boolean mailEnabled) {
+    this.mailEnabled = (mailEnabled == null ? defaultMailEnabled : mailEnabled);
   }
   
   public String getMailEnabledDb() {
@@ -216,8 +220,8 @@ public class GrouperAzureGroup {
     return securityEnabled;
   }
   
-  public void setSecurityEnabled(boolean securityEnabled) {
-    this.securityEnabled = securityEnabled;
+  public void setSecurityEnabled(Boolean securityEnabled) {
+    this.securityEnabled = (securityEnabled == null ? defaultSecurityEnabled : securityEnabled);
   }
   
   public String getSecurityEnabledDb() {
@@ -232,8 +236,8 @@ public class GrouperAzureGroup {
     return groupTypeSecurity;
   }
   
-  public void setGroupTypeSecurity(boolean groupTypeMailSecurity) {
-    this.groupTypeSecurity = groupTypeMailSecurity;
+  public void setGroupTypeSecurity(Boolean groupTypeMailSecurity) {
+    this.groupTypeSecurity = (groupTypeMailSecurity == null ? false : groupTypeMailSecurity);
   }
   
   public String getGroupTypeSecurityDb() {
@@ -248,8 +252,8 @@ public class GrouperAzureGroup {
     return groupTypeUnified;
   }
   
-  public void setGroupTypeUnified(boolean groupTypeUnified) {
-    this.groupTypeUnified = groupTypeUnified;
+  public void setGroupTypeUnified(Boolean groupTypeUnified) {
+    this.groupTypeUnified = (groupTypeUnified == null ? false : groupTypeUnified);
   }
   
   public String getGroupTypeUnifiedDb() {
@@ -305,7 +309,7 @@ public class GrouperAzureGroup {
     grouperAzureGroup.mailEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "mailEnabled", false);
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
     grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", false);
-    grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility"));
+    grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility", defaultVisibility));
     
     return grouperAzureGroup;
   }
@@ -320,7 +324,7 @@ public class GrouperAzureGroup {
 
   /**
    * convert from jackson json
-   * @param groupNode
+   * @param fieldNamesToSet
    * @return the group
    */
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
@@ -392,8 +396,8 @@ public class GrouperAzureGroup {
   }
 
   
-  public void setGroupTypeMailEnabled(boolean groupTypeMailEnabled) {
-    this.groupTypeMailEnabled = groupTypeMailEnabled;
+  public void setGroupTypeMailEnabled(Boolean groupTypeMailEnabled) {
+    this.groupTypeMailEnabled = (groupTypeMailEnabled == null ? false : groupTypeMailEnabled);
   }
 
   public String getGroupTypeMailEnabledDb() {
@@ -411,8 +415,8 @@ public class GrouperAzureGroup {
   }
 
   
-  public void setGroupTypeMailEnabledSecurity(boolean groupTypeMailEnabledSecurityDb) {
-    this.groupTypeMailEnabledSecurity = groupTypeMailEnabledSecurityDb;
+  public void setGroupTypeMailEnabledSecurity(Boolean groupTypeMailEnabledSecurityDb) {
+    this.groupTypeMailEnabledSecurity = (groupTypeMailEnabledSecurityDb == null ? false : groupTypeMailEnabledSecurityDb);
   }
   
   public String getGroupTypeMailEnabledSecurityDb() {

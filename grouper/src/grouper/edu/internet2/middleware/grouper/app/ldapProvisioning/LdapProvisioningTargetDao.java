@@ -1006,6 +1006,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   private void deleteEmptyParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
+    if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
+      return;
+    }
+    
     try {      
       DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
       
@@ -1047,6 +1051,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   private void createParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
+    
+    if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
+      return;
+    }
+    
     try {
       List<DN> ldapDnsToCreate = new ArrayList<DN>();
       

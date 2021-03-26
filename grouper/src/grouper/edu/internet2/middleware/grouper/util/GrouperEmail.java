@@ -564,8 +564,11 @@ public class GrouperEmail {
       
       //if you dont have a server, but want to test, then set this
       if (!StringUtils.equals("testing", smtpServer)) {
-        
-        Transport.send(message);
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.enabled", true)) {
+          Transport.send(message);
+        } else {
+          LOG.debug("Not sending mail since grouper.properties: mail.smtp.enabled = false");
+        }
       } else {
         LOG.error("Not sending email since smtp server is 'testing'. \nTO: " + this.to + "\nFROM: " + theFrom + "\nSUBJECT: " + theSubject + "\nBODY: " + this.body + "\n");
         synchronized (GrouperEmail.class) {

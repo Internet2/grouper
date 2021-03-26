@@ -196,6 +196,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToInsert = new HashSet<String>();
+
+      // Initialize with fields that are required but have defaults and may not be configured explicitly
+      fieldNamesToInsert.add("mailEnabled");
+      fieldNamesToInsert.add("securityEnabled");
+
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
@@ -205,8 +210,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
       
-      GrouperAzureApiCommands.createAzureGroup(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup, fieldNamesToInsert);
+      GrouperAzureGroup createdGAG = GrouperAzureApiCommands.createAzureGroup(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup, fieldNamesToInsert);
 
+      targetGroup.setId(createdGAG.getId());
       targetGroup.setProvisioned(true);
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {

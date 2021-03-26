@@ -957,13 +957,18 @@ public abstract class GrouperConfigurationModuleBase {
           String label = GrouperTextContainer.textOrNull("config."
               + this.getClass().getSimpleName() + ".attribute.option." + grouperConfigModuleAttribute.getConfigSuffix() + "." + optionValue + ".label");
           
-          if (StringUtils.isBlank(label)) {
-            if (grouperConfigModuleAttribute.getConfigSuffix().matches(".*\\.[0-9]\\..*")) {
-              String key = "config." + this.getClass().getSimpleName() + ".attribute.option." + (grouperConfigModuleAttribute.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.")) + "." + optionValue + ".label";
-              label = GrouperTextContainer.textOrNull(key);
-            } 
-          }
+          boolean isGrouped = grouperConfigModuleAttribute.getConfigSuffix().matches(".*\\.[0-9]\\..*");
+          String groupedConfigSuffix = grouperConfigModuleAttribute.getConfigSuffix().replaceAll("\\.[0-9]+\\.", ".i.");
           
+          if (StringUtils.isBlank(label) && isGrouped) {
+            String key = "config." + this.getClass().getSimpleName() + ".attribute.option." + groupedConfigSuffix + "." + optionValue + ".label";
+            label = GrouperTextContainer.textOrNull(key);
+          }
+
+          if (StringUtils.isBlank(label) && isGrouped) {
+            String key = "config.GenericConfiguration.attribute.option." + groupedConfigSuffix + "." + optionValue + ".label";
+            label = GrouperTextContainer.textOrNull(key);
+          }
           label = StringUtils.defaultIfBlank(label, optionValue);
           
           MultiKey valueAndLabel = new MultiKey(optionValue, label);

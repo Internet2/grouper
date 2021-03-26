@@ -254,7 +254,7 @@ public void removeGroup(String groupId) {
 
     public void addMemberToMS(String groupId, String userPrincipalName) {
         try {
-            invoke(this.service.addGroupMember(groupId, new AzureGraphDataIdContainer("https://graph.microsoft.com/v1.0/users/" + userPrincipalName)));
+            invoke(this.service.addGroupMember(groupId, new AzureGraphDataIdContainer(resourceUrlBase + "users/" + userPrincipalName)));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         } catch (MemberAddAlreadyExistsException me) {

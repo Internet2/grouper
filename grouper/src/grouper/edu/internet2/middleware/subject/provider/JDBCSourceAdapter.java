@@ -62,6 +62,15 @@ import edu.internet2.middleware.subject.SubjectUtils;
  */
 public class JDBCSourceAdapter extends BaseSourceAdapter {
 
+  @Override
+  public void loggingStart() {
+  }
+
+  @Override
+  public String loggingStop() {
+    return null;
+  }
+
   /** logger */
   private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 

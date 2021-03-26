@@ -60,7 +60,15 @@
                       <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsActAsLabel'] }</span>
                     </div>
                   </div>
-                  
+<%--
+                  <div class="control-group">
+                    <label for="debugLowLevelId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsDebug'] }</label>
+                    <div class="controls">
+                      <input type="checkbox" id="debugLowLevelId" name="debugLowLevelName" value="true"  /> 
+                      <span class="help-block">${textContainer.text['adminSubjectApiDiagnosticsDebugLabel'] }</span>
+                    </div>
+                  </div>
+--%>                  
                   
                   <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Admin.subjectApiDiagnosticsRun', {formIds: 'subjectApiDiagnosticsForm'}); return false;">${textContainer.text['subjectApiDiagnosticsSubmitButton'] }</a> 
                   

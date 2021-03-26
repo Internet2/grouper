@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -42,12 +43,18 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       String dn = null;
+      String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
       
       if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
-        dn = GrouperUtil.ldapBushyDn(fieldValueString, "cn", ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        String groupRdnAttributeValue = null;
         
+        if (((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName) != null) {
+          groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
+        }
+        
+        dn = GrouperUtil.ldapBushyDn(fieldValueString, groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
       } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
-        dn = GrouperUtil.ldapEscapeRdn("cn=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+        dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
         
       } else {
         throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());

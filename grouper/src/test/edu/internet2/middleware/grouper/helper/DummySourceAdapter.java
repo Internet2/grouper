@@ -50,6 +50,23 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  */
 public class DummySourceAdapter extends BaseSourceAdapter {
 
+  /**
+   * 
+   */
+  @Override
+  public void loggingStart() {
+    // TODO Auto-generated method stub
+  }
+  
+  /**
+   * 
+   */
+  @Override
+  public String loggingStop() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   /** types supported */
   private Set     _types  = new LinkedHashSet();
 

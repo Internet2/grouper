@@ -66,6 +66,15 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
+  @Override
+  public void loggingStart() {
+  }
+
+  @Override
+  public String loggingStop() {
+    return null;
+  }
+
   // PUBLIC CLASS CONSTANTS //
   public static final String ID   = "g:isa";
   public static final String NAME = "Grouper: Internal Source Adapter";

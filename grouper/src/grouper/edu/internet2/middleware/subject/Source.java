@@ -30,6 +30,16 @@ import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
 public interface Source {
 
   /**
+   * start logging the source low level actions
+   */
+  public void loggingStart();
+
+  /**
+   * stop logging and get the output
+   */
+  public String loggingStop();
+  
+  /**
    * get all subject ids
    * @return all subjectIds
    * @throws UnsupportedOperationException if not implemented

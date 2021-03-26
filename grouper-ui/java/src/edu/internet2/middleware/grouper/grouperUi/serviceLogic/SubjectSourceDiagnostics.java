@@ -11,7 +11,6 @@ import org.apache.commons.validator.EmailValidator;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -157,11 +156,15 @@ public class SubjectSourceDiagnostics {
         long now = System.nanoTime();
         Exception exception = null;
         Subject subject = null;
+        String logMessage = null;
         try {
-          subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+          source.loggingStart();
+          subject = source.getSubject(subjectId, false);
           theSubject = subject;
         } catch (Exception e) {
           exception = e;
+        } finally {
+          logMessage = source.loggingStop();
         }
         long millis = (System.nanoTime() - now) / 1000000L;
         if (subject != null) {
@@ -177,19 +180,26 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception thrown when finding subject by id in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectId) + "'\n         with SubjectFinder.findByIdAndSource(\"" + GrouperUtil.xmlEscape(subjectId) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
           subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
         }
+        if (!StringUtils.isBlank(logMessage)) {
+          subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
+        }
       }        
       
       {
         long now = System.nanoTime();
         Exception exception = null;
         Subject subject = null;
+        String logMessage = null;
         try {
-          subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, false);
+          source.loggingStart();
+          subject = source.getSubjectByIdentifier(subjectIdentifier, false);
           if (theSubject == null) {
             theSubject = subject;
           }
         } catch (Exception e) {
           exception = e;
+        } finally {
+          logMessage = source.loggingStop();
         }
         long millis = (System.nanoTime() - now) / 1000000L;
         if (subject != null) {
@@ -200,20 +210,27 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception thrown when finding subject by id in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectId) + "'\n         with SubjectFinder.findByIdentifierAndSource(\"" + GrouperUtil.xmlEscape(subjectIdentifier) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
           subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
         }
+        if (!StringUtils.isBlank(logMessage)) {
+          subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
+        }
       }        
       
       {
         long now = System.nanoTime();
         Exception exception = null;
         Set<Subject> subjects = null;
+        String logMessage = null;
         try {
-          subjects = SubjectFinder.findAll(searchString, sourceId);
+          source.loggingStart();
+          subjects = source.search(searchString);
           subjectsSearch = subjects;
           if (theSubject == null && GrouperUtil.length(subjects) > 0) {
             theSubject = subjects.iterator().next();
           }
         } catch (Exception e) {
           exception = e;
+        } finally {
+          logMessage = source.loggingStop();
         }
         long millis = (System.nanoTime() - now) / 1000000L;
         if (GrouperUtil.length(subjects) > 0) {
@@ -224,6 +241,9 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception finding subjects by search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findAll(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
           subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
         }
+        if (!StringUtils.isBlank(logMessage)) {
+          subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
+        }
       }        
       
       {
@@ -231,8 +251,10 @@ public class SubjectSourceDiagnostics {
         Exception exception = null;
         Set<Subject> subjects = null;
         SearchPageResult searchPageResult = null;
+        String logMessage = null;
         try {
-          searchPageResult = SubjectFinder.findPage(searchString, sourceId);
+          source.loggingStart();
+          searchPageResult = source.searchPage(searchString);
           if (searchPageResult != null) { 
             subjects = searchPageResult.getResults();
             subjectsPage = subjects;
@@ -242,6 +264,8 @@ public class SubjectSourceDiagnostics {
           }
         } catch (Exception e) {
           exception = e;
+        } finally {
+          logMessage = source.loggingStop();
         }
         long millis = (System.nanoTime() - now) / 1000000L;
         if (GrouperUtil.length(subjects) > 0) {
@@ -251,6 +275,9 @@ public class SubjectSourceDiagnostics {
         } else {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception finding subjects by paged search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findPage(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
           subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
+        }
+        if (!StringUtils.isBlank(logMessage)) {
+          subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
         }
       }       
       subjectApiReport.append("\n######## SUBJECT ATTRIBUTES ########\n\n");

@@ -403,7 +403,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.deleteConfig(true);
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigDeleteSuccess")));
@@ -605,7 +605,7 @@ public class UiV2ExternalSystem {
 
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
@@ -678,7 +678,7 @@ public class UiV2ExternalSystem {
 
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
