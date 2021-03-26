@@ -25,4 +25,9 @@ public class SmtpGrouperExternalSystem extends GrouperExternalSystem {
     return "smtp";
   }
 
+  @Override
+  public boolean isCanAdd() {
+    return false;
+  }
+
 }
