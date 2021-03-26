@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +21,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupSave;
+import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeStemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeStemSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
@@ -123,8 +126,10 @@ public class UiV2GrouperObjectTypes {
           if (!checkObjectTypes()) {
             return null;
           }
-            
-          List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(GROUP);
+          
+          Set<GrouperObjectTypesAttributeValue> gdgTypeGroupAssignments = new GdgTypeGroupFinder().assignGroup(GROUP).findGdgTypeGroupAssignments();
+          
+          List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = new ArrayList<GrouperObjectTypesAttributeValue>(gdgTypeGroupAssignments);
           
           objectTypeContainer.setGuiGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
           
@@ -180,7 +185,9 @@ public class UiV2GrouperObjectTypes {
             return null;
           }
             
-          List<GrouperObjectTypesAttributeValue> attributeValuesForStem = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(STEM);
+          Set<GrouperObjectTypesAttributeValue> gdgTypeStemAssignments = new GdgTypeStemFinder().assignStem(STEM).findGdgTypeStemAssignments();
+          
+          List<GrouperObjectTypesAttributeValue> attributeValuesForStem = new ArrayList<GrouperObjectTypesAttributeValue>(gdgTypeStemAssignments);
           
           // convert from raw to gui
           objectTypeContainer.setGuiGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForStem));
@@ -273,7 +280,7 @@ public class UiV2GrouperObjectTypes {
               objectTypeContainer.setShowServiceName(true);
             }
             
-            return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(GROUP, objectTypeName);
+            return new GdgTypeGroupFinder().assignGroup(GROUP).assignType(objectTypeName).findGdgTypeGroupAssignment();
           }
           
           return null;
@@ -386,7 +393,7 @@ public class UiV2GrouperObjectTypes {
               objectTypeContainer.setServiceStems(serviceStems);
               objectTypeContainer.setShowServiceName(true);
             }
-            return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(STEM, objectTypeName);
+            return new GdgTypeStemFinder().assignStem(STEM).assignType(objectTypeName).findGdgTypeStemAssignment();
           }
           
           return null;
@@ -624,7 +631,7 @@ public class UiV2GrouperObjectTypes {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          GrouperObjectTypesConfiguration.copyConfigFromParent(STEM, objectTypeName);
+          new GdgTypeStemSave().assignSaveMode(SaveMode.DELETE).assignStem(STEM).assignType(objectTypeName).save();
           
           return null;
         }
@@ -705,7 +712,7 @@ public class UiV2GrouperObjectTypes {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          GrouperObjectTypesConfiguration.copyConfigFromParent(GROUP, objectTypeName);
+          new GdgTypeGroupSave().assignSaveMode(SaveMode.DELETE).assignGroup(GROUP).assignType(objectTypeName).save();
           
           return null;
         }
@@ -929,6 +936,7 @@ public class UiV2GrouperObjectTypes {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           for (GrouperObject grouperObject: attributeValues.keySet()) {
+            
             GrouperObjectTypesConfiguration.saveOrUpdateTypeAttributes(attributeValues.get(grouperObject), grouperObject);
           }
           

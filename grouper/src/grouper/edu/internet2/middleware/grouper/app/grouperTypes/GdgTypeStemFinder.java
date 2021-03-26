@@ -65,16 +65,16 @@ public class GdgTypeStemFinder {
     return this;
   }
   
-  public GrouperObjectTypesAttributeValue findGdgTypeGroupAssignment() {
+  public GrouperObjectTypesAttributeValue findGdgTypeStemAssignment() {
     
-    Set<GrouperObjectTypesAttributeValue> gdgTypeGroupAssignments = this.findGdgTypeGroupAssignments();
+    Set<GrouperObjectTypesAttributeValue> gdgTypeGroupAssignments = this.findGdgTypeStemAssignments();
 
     return GrouperUtil.setPopOne(gdgTypeGroupAssignments);
   }
   
   
   @SuppressWarnings("unchecked")
-  public Set<GrouperObjectTypesAttributeValue> findGdgTypeGroupAssignments() {
+  public Set<GrouperObjectTypesAttributeValue> findGdgTypeStemAssignments() {
    
     Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
     

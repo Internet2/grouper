@@ -63,7 +63,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
         .save();
     
     
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeStemAssignment();
     
     Assert.assertEquals("ref", attributeValue.getObjectTypeName());
     Assert.assertEquals("do", attributeValue.getObjectTypeDataOwner());
@@ -86,7 +86,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
         .save();
     
     
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemId(stem.getId()).assignType("ref").findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemId(stem.getId()).assignType("ref").findGdgTypeStemAssignment();
     
     Assert.assertEquals("ref", attributeValue.getObjectTypeName());
     Assert.assertEquals("do", attributeValue.getObjectTypeDataOwner());
@@ -109,7 +109,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
         .save();
     
     
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemName(stem.getName()).assignType("ref").findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemName(stem.getName()).assignType("ref").findGdgTypeStemAssignment();
     
     Assert.assertEquals("ref", attributeValue.getObjectTypeName());
     Assert.assertEquals("do", attributeValue.getObjectTypeDataOwner());
@@ -123,7 +123,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
     
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemName(stem.getName()).assignType("ref").findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStemName(stem.getName()).assignType("ref").findGdgTypeStemAssignment();
     
     Assert.assertNull(attributeValue);
     
@@ -148,7 +148,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
         .assignType("app")
         .save();
     
-    Set<GrouperObjectTypesAttributeValue> attributeValues = new GdgTypeStemFinder().assignStem(stem).findGdgTypeGroupAssignments();
+    Set<GrouperObjectTypesAttributeValue> attributeValues = new GdgTypeStemFinder().assignStem(stem).findGdgTypeStemAssignments();
     
     Assert.assertEquals(2, attributeValues.size());
     
@@ -178,17 +178,17 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     
     attributeAssign.saveOrUpdate();
     
-    Set<GrouperObjectTypesAttributeValue> attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(true).findGdgTypeGroupAssignments();
+    Set<GrouperObjectTypesAttributeValue> attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(true).findGdgTypeStemAssignments();
     
     Assert.assertEquals(1, attributeValues.size());
     
     Assert.assertTrue(attributeValues.iterator().next().isDirectAssignment());
     
-    attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(null).findGdgTypeGroupAssignments();
+    attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(null).findGdgTypeStemAssignments();
     
     Assert.assertEquals(2, attributeValues.size());
     
-    attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(false).findGdgTypeGroupAssignments();
+    attributeValues = new GdgTypeStemFinder().assignStem(stem).assignDirectAssignment(false).findGdgTypeStemAssignments();
     
     Assert.assertEquals(1, attributeValues.size());
     Assert.assertFalse(attributeValues.iterator().next().isDirectAssignment());
@@ -210,7 +210,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     
     boolean exceptionThrown = false;
     try {
-      new GdgTypeStemFinder().assignStem(stem).assignType("invalid_type").findGdgTypeGroupAssignment();
+      new GdgTypeStemFinder().assignStem(stem).assignType("invalid_type").findGdgTypeStemAssignment();
       fail();
     } catch(Exception e) {
       exceptionThrown = true;
@@ -237,7 +237,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     
     
     GrouperSession.start(SubjectTestHelper.SUBJ1);
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeStemAssignment();
     
     Assert.assertEquals("ref", attributeValue.getObjectTypeName());
     Assert.assertEquals("do", attributeValue.getObjectTypeDataOwner());
@@ -261,7 +261,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     
     
     GrouperSession.start(SubjectTestHelper.SUBJ1);
-    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").assignRunAsRoot(true).findGdgTypeGroupAssignment();
+    GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").assignRunAsRoot(true).findGdgTypeStemAssignment();
     
     Assert.assertEquals("ref", attributeValue.getObjectTypeName());
     Assert.assertEquals("do", attributeValue.getObjectTypeDataOwner());
@@ -287,7 +287,7 @@ public class GdgTypeStemFinderTest extends GrouperTest {
     
     boolean exceptionThrown = false;
     try {
-      new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeGroupAssignment();
+      new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeStemAssignment();
       fail();
     } catch(Exception e) {
       exceptionThrown = true;
