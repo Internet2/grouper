@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputType;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
