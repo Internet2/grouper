@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
@@ -132,7 +133,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingAWS.SqsGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem");
+    externalTypeClassNames.add(SmtpGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
@@ -186,5 +187,10 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    */
   public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
+  }
+
+  public boolean isCanAdd() {
+    
+    return true;
   }
 }
