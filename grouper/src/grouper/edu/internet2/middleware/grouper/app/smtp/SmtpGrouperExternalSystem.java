@@ -30,4 +30,8 @@ public class SmtpGrouperExternalSystem extends GrouperExternalSystem {
     return false;
   }
 
+  @Override
+  public boolean isCanDelete() {
+    return false;
+  }
 }

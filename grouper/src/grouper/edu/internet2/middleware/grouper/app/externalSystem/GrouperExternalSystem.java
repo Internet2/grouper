@@ -193,4 +193,8 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     
     return true;
   }
+  public boolean isCanDelete() {
+    
+    return true;
+  }
 }

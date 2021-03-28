@@ -90,10 +90,11 @@
                     <li><a href="#"
                       onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
 
-                    <li>&nbsp;</li>
-                    <li><a href="#"
-                      onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperExternalSystemConfirmDeleteConfig']}')) { return ajax('../app/UiV2ExternalSystem.deleteExternalSystemConfigDetails?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');}">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
-
+                    <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.canDelete}">
+                      <li>&nbsp;</li>
+                      <li><a href="#"
+                        onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperExternalSystemConfirmDeleteConfig']}')) { return ajax('../app/UiV2ExternalSystem.deleteExternalSystemConfigDetails?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');}">${textContainer.text['grouperExternalSystemTableDeleteDetailsActionOption'] }</a></li>
+                    </c:if>
                   </ul>
                 </div>
               </td>
