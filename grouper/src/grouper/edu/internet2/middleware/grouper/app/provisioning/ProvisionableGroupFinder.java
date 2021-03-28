@@ -11,13 +11,35 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to find provisioning attributes on groups</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * ProvisionableGroupFinder provisionableGroupFinder = new ProvisionableGroupFinder();
+ * GrouperProvisioningAttributeValue attributeValue = provisionableGroupFinder.assignGroup(group).assignTargetName("ldapProvTest")
+        .findProvisionableGroupAttributeValue();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find multiple provisioning attributes on a group
+ * <blockquote>
+ * <pre>
+ * ProvisionableGroupFinder provisionableGroupFinder = new ProvisionableGroupFinder();
+ * Set<GrouperProvisioningAttributeValue> provisionableStemAttributeValues = provisionableGroupFinder.assignGroupName(group.getName()).findProvisionableGroupAttributeValues();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class ProvisionableGroupFinder {
   
   private Group group;

@@ -18,6 +18,30 @@ import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
+ * <p>Use this class to add/edit/delete attribute def names on attribute assigns.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeAssignToAssignmentSave attributeAssignToAssignmentSave = new AttributeAssignToAssignmentSave();
+ * AttributeAssignResult attributeAssignResult = attributeAssignToAssignmentSave.assignAttributeAssign(attributeAssign).assignAttributeDefName(attributeDefName).save();
+ * System.out.println(attributeAssignToAssignmentSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove attribute def name from an attribute assign
+ * <blockquote>
+ * <pre>
+ * AttributeAssignToAssignmentSave attributeAssignToAssignmentSave = new AttributeAssignToAssignmentSave().assignAttributeAssign(attributeAssign)
+ *     .assignAttributeDefName(attributeDefName)
+ *     .assignAttributeAssignOperation(AttributeAssignOperation.remove_attr)
+ *     .save();
+ * 
+ * </pre>
+ * </blockquote>
+ * </p>
  *
  */
 public class AttributeAssignToAssignmentSave {

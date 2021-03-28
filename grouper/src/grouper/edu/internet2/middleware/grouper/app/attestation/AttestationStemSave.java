@@ -36,9 +36,47 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
- * use this class to add/edit/delete attestation on folders
- * @author mchyzer
- *
+ * <p>Use this class to add/edit/delete attestation on folders.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttestationStemSave attestationStemSave = new AttestationStemSave();
+ * AttributeAssign attributeAssign = attestationStemSave
+ *   .assignStem(stem)
+ *   .addEmailAddress("test@example.com")
+ *   .assignAttestationType(AttestationType.report)
+ *   .assignDaysBeforeToRemind(5)
+ *   .assignDaysUntilRecertify(10)
+ *   .assignSendEmail(true)
+ *   .save();
+ * System.out.println(attestationStemSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove attestation from a folder
+ * <blockquote>
+ * <pre>
+ * new AttestationStemSave()
+ *  .assignStem(stem)
+ *  .assignSaveMode(SaveMode.DELETE)
+ *  .save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p> Sample call to update only one attribute
+ * <blockquote>
+ * <pre>
+ * new AttestationStemSave()
+ *  .assignStem(stem)
+ *  .assignReplaceAllSettings(false)
+ *  .assignSendEmail(true);
+ *  .save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class AttestationStemSave {
 

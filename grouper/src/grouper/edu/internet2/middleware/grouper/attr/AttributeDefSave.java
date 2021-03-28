@@ -44,7 +44,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update an attribute definition
+ * <p>Use this class to insert or update an attribute definition</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession)
+    .assignName("top:b").assignDescription("whatever").assignValueType(AttributeDefValueType.string).assignMultiValued(true);
+ * AttributeDef attributeDef = attributeDefSave.save();
+ * System.out.println(attributeDefSave.getSaveResultType()); // INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to update only one attribute
+ * <blockquote>
+ * <pre>
+ * new AttributeDefSave(grouperSession)
+ *      .assignName("top:b").assignMultiValued(true).assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
  */
 public class AttributeDefSave {
   

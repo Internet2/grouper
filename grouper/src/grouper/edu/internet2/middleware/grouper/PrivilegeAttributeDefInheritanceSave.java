@@ -46,7 +46,35 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
- *
+ * <p>Use this class to add/edit/delete privileges on attribute defs inside a folder for a subject</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * SaveResultType saveResultType = new PrivilegeAttributeDefInheritanceSave()
+      .assignStem(stem)
+      .assignStemScope(Scope.SUB)
+      .assignSubject(subject)
+      .addPrivilege(AttributeDefPrivilege.ATTR_ADMIN)
+      .save();
+ * System.out.println(saveResultType); // INSERT, DELETE, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete privileges on attribute defs inside a folder for a subject
+ * <blockquote>
+ * <pre>
+ * new PrivilegeAttributeDefInheritanceSave()
+ *    .assignStem(stem)
+ *    .assignStemScope(Scope.SUB)
+ *    .assignSubject(subject)
+ *    .assignSaveMode(SaveMode.DELETE)
+ *    .save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class PrivilegeAttributeDefInheritanceSave {
   

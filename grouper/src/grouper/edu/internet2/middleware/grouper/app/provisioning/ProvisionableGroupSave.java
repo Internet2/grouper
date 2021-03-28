@@ -25,6 +25,41 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to add/edit/delete provisioning attributes on groups</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * ProvisionableGroupSave provisionableGroupSave = new ProvisionableGroupSave();
+ * GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = provisionableGroupSave.assignTargetName("ldapProvTest").assignMetadataString("md_testInput", "testValue").assignGroup(group).save();
+ * System.out.println(provisionableGroupSave.getSaveResultType()); // INSERT, DELETE, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete provisioning attributes from a group
+ * <blockquote>
+ * <pre>
+ * ProvisionableGroupSave provisionableGroupSave = new ProvisionableGroupSave();
+ * provisionableGroupSave.assignTargetName("ldapProvTest")
+        .assignSaveMode(SaveMode.DELETE).assignGroupName(group.getName()).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p> Sample call to update only single attribute
+ * <blockquote>
+ * <pre>
+ * ProvisionableGroupSave provisionableGroupSave = new ProvisionableGroupSave();
+ * provisionableGroupSave.assignTargetName("ldapProvTest")
+        .assignProvision(true)
+        .assignReplaceAllSettings(false)
+        .assignGroup(group).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class ProvisionableGroupSave {
   
   private Group group;

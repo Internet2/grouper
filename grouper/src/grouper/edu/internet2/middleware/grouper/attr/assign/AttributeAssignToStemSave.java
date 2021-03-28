@@ -27,8 +27,26 @@ import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * use this class to add/edit/delete attestation on folders
- * @author mchyzer
+ * <p>Use this class to add/edit/delete attribute def names on folders.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem);
+ * AttributeAssign attributeAssign = attributeAssignToStemSave.save();
+ * System.out.println(attributeAssignToStemSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove attribute def name from a folder
+ * <blockquote>
+ * <pre>
+ * new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem).assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * </p>
  *
  */
 public class AttributeAssignToStemSave {
@@ -81,7 +99,7 @@ public class AttributeAssignToStemSave {
   private AttributeDefName attributeDefName;
 
   /**
-   * 
+   * attribute def name to be added/updated/deleted from folder
    * @param theAttributeDefName
    * @return this for chaining
    */
@@ -93,7 +111,7 @@ public class AttributeAssignToStemSave {
   private String nameOfAttributeDefName;
 
   /**
-   * 
+   * attribute def name to be added/updated/deleted from folder
    * @param theNameOfAttributeDefName
    * @return
    */
@@ -123,7 +141,7 @@ public class AttributeAssignToStemSave {
   private SaveResultType saveResultType = null;
 
   public AttributeAssignToStemSave() {
-    
+
   }
 
   /**
@@ -176,9 +194,9 @@ public class AttributeAssignToStemSave {
 
   /**
    * <pre>
-   * create or update or delete a composite
+   * add or edit or delete an attribute def name from folder
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return the attribute assign that was updated or created or deleted
    */
   public AttributeAssign save() throws InsufficientPrivilegeException, GroupNotFoundException {
 

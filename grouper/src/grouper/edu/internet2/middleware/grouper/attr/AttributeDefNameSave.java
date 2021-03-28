@@ -42,7 +42,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update a attribute def name
+ * <p>Use this class to insert or update an attribute def name</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef)
+ *     .assignName("top:b").assignDescription("whatever").assignDisplayExtension("theB");
+ * AttributeDefName attributeDefName = attributeDefNameSave.save();
+ * System.out.println(attributeDefNameSave.getSaveResultType()); // INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to update only one attribute
+ * <blockquote>
+ * <pre>
+ * new AttributeDefNameSave(grouperSession, attributeDef)
+ *     .assignName("top:b").assignDisplayExtension("theB").assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
  */
 public class AttributeDefNameSave {
   /** id index */

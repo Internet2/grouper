@@ -32,6 +32,50 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to add/edit/delete attestation on groups.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttestationGroupSave attestationGroupSave = new AttestationGroupSave();
+ * AttributeAssign attributeAssign = attestationGroupSave
+ *   .assignGroup(group)
+ *   .addEmailAddress("test@example.com")
+ *   .assignAttestationType(AttestationType.report)
+ *   .assignDaysBeforeToRemind(5)
+ *   .assignDaysUntilRecertify(10)
+ *   .assignSendEmail(true)
+ *   .save();
+ * System.out.println(attestationGroupSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove attestation from a group
+ * <blockquote>
+ * <pre>
+ * new AttestationGroupSave()
+ *  .assignGroup(group)
+ *  .assignSaveMode(SaveMode.DELETE)
+ *  .save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p> Sample call to update only one attribute
+ * <blockquote>
+ * <pre>
+ * new AttestationGroupSave()
+ *  .assignGroup(group)
+ *  .assignReplaceAllSettings(false)
+ *  .assignSendEmail(true);
+ *  .save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
+ */
 public class AttestationGroupSave {
   
   /**
@@ -412,17 +456,6 @@ public class AttestationGroupSave {
                   GrouperAttestationJob.retrieveAttributeDefNameSendEmail(), sendEmail == null ? null : (sendEmail ? "true" : "false") , sendEmailAssigned);
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses(), GrouperUtil.length(emailAddresses) == 0 ? null : GrouperUtil.join(emailAddresses.iterator(), ','), emailAddressesAssigned);
-
-              
-//              {
-//                String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
-//                  markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-//                      GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
-//                
-//                boolean[] madeChange = new boolean[1];
-//                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, false, madeChange);
-//                hasChange = hasChange || madeChange[0];
-//              }
 
               if (!markerAttributeNewlyAssigned && !hasChange) {
                 AttestationGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;

@@ -11,13 +11,35 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to find provisioning attributes on stems</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * ProvisionableStemFinder provisionableStemFinder = new ProvisionableStemFinder();
+ * GrouperProvisioningAttributeValue attributeValue = provisionableStemFinder.assignStem(stem).assignTargetName("ldapProvTest")
+        .findProvisionableStemAttributeValue();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find multiple provisioning attributes on a stem
+ * <blockquote>
+ * <pre>
+ * ProvisionableStemFinder provisionableStemFinder = new ProvisionableStemFinder();
+ * Set<GrouperProvisioningAttributeValue> provisionableStemAttributeValues = provisionableStemFinder.assignStemName(stem.getName()).findProvisionableStemAttributeValues();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class ProvisionableStemFinder {
   
   private Stem stem;

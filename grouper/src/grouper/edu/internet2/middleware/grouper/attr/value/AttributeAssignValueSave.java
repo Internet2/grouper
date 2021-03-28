@@ -13,6 +13,35 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+/**
+ * <p>Use this class to add/edit/delete values from attribute assigns</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeAssignValueSave attributeAssignValueSave = new AttributeAssignValueSave();
+ * AttributeAssignValueResult attributeAssignValueResult = attributeAssignValueSave.assignAttributeAssign(attributeAssign)
+ *     .assignValue("hello").save();
+ * System.out.println(attributeAssignValueSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove value from an attribute assign
+ * <blockquote>
+ * <pre>
+ * AttributeAssignValueSave attributeAssignValueSave = new AttributeAssignValueSave();
+ * AttributeAssignValueResult attributeAssignValueResult = attributeAssignValueSave.assignAttributeAssign(attributeAssign)
+ *    .assignAttributeAssignValueOperation(AttributeAssignValueOperation.remove_value)
+ *    .assignValue("hello").save();
+ * 
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
+ */
+
 public class AttributeAssignValueSave {
   
   /**
@@ -104,7 +133,7 @@ public class AttributeAssignValueSave {
   }
   
   /**
-   * save attribute assign value
+   * add/edit/delete attribute assign value
    * @return
    */
   public AttributeAssignValueResult save() {

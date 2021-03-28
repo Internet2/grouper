@@ -26,6 +26,41 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to add/edit/delete provisioning attributes on stems</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+ * GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = provisionableStemSave.assignTargetName("ldapProvTest").assignMetadataString("md_testInput", "testValue").assignStem(stem).save();
+ * System.out.println(provisionableStemSave.getSaveResultType()); // INSERT, DELETE, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete provisioning attributes from a stem
+ * <blockquote>
+ * <pre>
+ * ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+ * provisionableStemSave.assignTargetName("ldapProvTest")
+        .assignSaveMode(SaveMode.DELETE).assignStem(stem).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p> Sample call to update only single attribute
+ * <blockquote>
+ * <pre>
+ * ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+ * GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = provisionableStemSave.assignTargetName("ldapProvTest")
+        .assignPolicyGroupOnly(true)
+        .assignReplaceAllSettings(false)
+        .assignStem(stem).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class ProvisionableStemSave {
   
   private Stem stem;

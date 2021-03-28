@@ -4,12 +4,44 @@ import edu.internet2.middleware.grouper.authentication.GrouperPassword.Applicati
 import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
 
+/**
+ * <p>Use this class to add username and password in grouper registry</p>
+ * <p>Sample call to create a username password for grouper ui
+ * 
+ * <blockquote>
+ * <pre>
+ * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignEntityType("username")
+ *  .assignApplication(GrouperPassword.Application.UI).save();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to create a username password for grouper webservices
+ * <blockquote>
+ * <pre>
+ * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignEntityType("username")
+ *  .assignApplication(GrouperPassword.Application.WS).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
+ */
 public class GrouperPasswordSave {
   
+  /**
+   * username to be assigned
+   */
   private String username;
   
+  /**
+   * entity type to be assigned
+   */
   private String entityType;
   
+  /**
+   * 
+   */
   private EncryptionType encryptionType;
   
   private String thePassword;

@@ -44,9 +44,36 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
- * manage privilege inheritance
- * @author mchyzer
- *
+ * <p>Use this class to add/edit/delete privileges on groups inside a folder for a subject</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * SaveResultType saveResultType = new PrivilegeGroupInheritanceSave()
+ *    .assignStem(stem)
+ *    .assignStemScope(Scope.SUB)
+ *    .assignSubject(subject)
+ *    .addPrivilege(AccessPrivilege.ADMIN)
+ *    .addPrivilege(AccessPrivilege.OPTIN)
+ *    .save();
+ * System.out.println(saveResultType); // INSERT, DELETE, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete privileges on groups inside a folder for a subject
+ * <blockquote>
+ * <pre>
+ * new PrivilegeGroupInheritanceSave()
+ *    .assignStem(stem)
+ *    .assignStemScope(Scope.SUB)
+ *    .assignSubject(subject)
+ *    .assignSaveMode(SaveMode.DELETE)
+ *    .save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class PrivilegeGroupInheritanceSave {
 

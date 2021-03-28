@@ -21,6 +21,51 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
 
+/**
+ * <p>Use this class to add/edit/delete object types on stems</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+ * GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = gdgTypeStemSave
+        .assignStem(stem)
+        .assignType("ref")
+        .assignDataOwner("do")
+        .assignMemberDescription("md")
+        .save();
+ * System.out.println(gdgTypeStemSave.getSaveResultType()); // INSERT, DELETE, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete an object type from a stem
+ * <blockquote>
+ * <pre>
+ * GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+ * gdgTypeStemSave
+        .assignStem(stem)
+        .assignType("ref")
+        .assignSaveMode(SaveMode.DELETE)
+        .save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p> Sample call to update only single attribute
+ * <blockquote>
+ * <pre>
+ * GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+ * gdgTypeStemSave
+        .assignStem(stem)
+        .assignType("ref")
+        .assignReplaceAllSettings(false)
+        .assignDataOwner("do1")
+        .save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class GdgTypeStemSave {
   
   private Stem stem;

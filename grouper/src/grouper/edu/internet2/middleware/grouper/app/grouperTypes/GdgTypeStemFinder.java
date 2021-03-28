@@ -17,6 +17,26 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils; 
 
+/**
+ * <p>Use this class to find objects type attributes on stems</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * GrouperObjectTypesAttributeValue attributeValue = new GdgTypeStemFinder().assignStem(stem).assignType("ref").findGdgTypeStemAssignment();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find multiple object types attributes on a stem
+ * <blockquote>
+ * <pre>
+ * Set<GrouperObjectTypesAttributeValue> attributeValues = new GdgTypeStemFinder().assignStem(stem).findGdgTypeStemAssignments();
+ * </pre>
+ * </blockquote>
+ * </p>
+ */
 public class GdgTypeStemFinder {
   
   private Stem stem;

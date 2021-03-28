@@ -17,6 +17,29 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+/**
+ * <p>Use this class to add/edit/delete attribute def names on groups.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeAssignToGroupSave attributeAssignToGroupSave = new AttributeAssignToGroupSave().assignAttributeDefName(attributeDefName).assignGroup(group);
+ * AttributeAssign attributeAssign = attributeAssignToGroupSave.save();
+ * System.out.println(attributeAssignToGroupSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to remove attribute def name from a group
+ * <blockquote>
+ * <pre>
+ * new AttributeAssignToGroupSave().assignAttributeDefName(attributeDefName).assignGroup(group).assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
+ */
 public class AttributeAssignToGroupSave {
   
   /**
@@ -93,7 +116,7 @@ public class AttributeAssignToGroupSave {
   }
 
   /**
-   * asssign save mode
+   * assign save mode
    * @param theSaveMode
    * @return this for chaining
    */
@@ -112,9 +135,9 @@ public class AttributeAssignToGroupSave {
   
   /**
    * <pre>
-   * create or update or delete attribute assign on a group
+   * add or edit or delete an attribute def name from group
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return the attribute assign that was updated or created or deleted
    */
   public AttributeAssign save() throws InsufficientPrivilegeException, GroupNotFoundException {
 
