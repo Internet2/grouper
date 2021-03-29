@@ -300,9 +300,10 @@ public class GrouperGroovysh extends Groovysh {
 //      Logger.io = io;
       compilerConfiguration.setParameters(false);
       shell = new GrouperGroovysh(io, compilerConfiguration, true);
-      if (currentLineNumber != null) {
-        threadLocalScriptAssign(script, scriptLinesForLogging, currentLineNumber);
+      if (currentLineNumber == null) {
+        currentLineNumber = new int[] {-1};
       }
+      threadLocalScriptAssign(script, scriptLinesForLogging, currentLineNumber);
       
       // this means pull the script lines from a threadlocal and push into gsh into the same shell object so conditionals work
       body.append(":gshScriptLoad\n");

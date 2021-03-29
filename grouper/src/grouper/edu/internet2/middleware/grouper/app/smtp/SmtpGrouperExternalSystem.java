@@ -1,9 +1,17 @@
 package edu.internet2.middleware.grouper.app.smtp;
 
+import java.util.List;
+
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 
 public class SmtpGrouperExternalSystem extends GrouperExternalSystem {
+
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    return GrouperEmail.externalSystemTest();
+  }
 
   @Override
   public ConfigFileName getConfigFileName() {

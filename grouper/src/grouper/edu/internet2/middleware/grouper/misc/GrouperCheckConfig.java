@@ -411,6 +411,20 @@ public class GrouperCheckConfig {
     return disableConfigCheck;
   }
 
+  private static void verifyMailConfigsMigrated() {
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+    String[] oldConfigs = new String[] {"mail.transport.protocol", "mail.use.protocol.in.property.names", "mail.from.address", "mail.subject.prefix", "mail.sendAllMessagesHere", "mail.debug", "grouperEmailContentType"};
+    String[] newConfigs = new String[] {"mail.smtp.transport.protocol", "mail.smtp.use.protocol.in.property.names", "mail.smtp.from.address", "mail.smtp.subject.prefix", "mail.smtp.sendAllMessagesHere", "mail.smtp.debug", "mail.smtp.grouperEmailContentType"};
+    
+    for (int i=0;i<oldConfigs.length;i++) {
+      if (!StringUtils.isBlank(grouperConfig.propertyValueString(oldConfigs[i]))) {
+        LOG.error("Error: please change your grouper.properties config key: " + oldConfigs[i] + " to be " + newConfigs[i]);
+      }
+    }
+
+  }
+  
   /**
    * make sure grouper config files exist
    */
@@ -423,6 +437,8 @@ public class GrouperCheckConfig {
     checkResource("log4j.properties");
     checkResource("morphString.properties");
     checkResource("subject.properties");
+    
+    verifyMailConfigsMigrated();
     
     for (ConfigFileName configFileName : ConfigFileName.values()) {
       if (!configFileName.isUseBaseForConfigFileMetadata()) {
@@ -721,13 +737,14 @@ public class GrouperCheckConfig {
   public static void postSteps() {
 
     boolean theTesting = false;
+    long now = System.currentTimeMillis();
     try {
       String grouperTestClassName = "edu.internet2.middleware.grouper.helper.GrouperTest";
       Class grouperTestClass = GrouperUtil.forName(grouperTestClassName);
       theTesting = (Boolean)GrouperUtil.callMethod(grouperTestClass, "isTesting");
     } catch (Exception e) {
       //ignore
-      LOG.debug("Likely non-fatal error seeing if testing", e);
+      LOG.debug("Likely non-fatal error seeing if testing, took (ms): " + (System.currentTimeMillis() - now), e);
     }
     final boolean testing = theTesting;
     
