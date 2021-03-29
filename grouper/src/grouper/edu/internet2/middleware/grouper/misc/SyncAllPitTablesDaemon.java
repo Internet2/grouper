@@ -1,45 +1,55 @@
 package edu.internet2.middleware.grouper.misc;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouper.app.loader.OtherJobLogUpdater;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class SyncAllPitTablesDaemon extends OtherJobBase {
 
-  @Override
-  public OtherJobOutput run(OtherJobInput otherJobInput) {
-    
-    SyncPITTables syncPITTables = new SyncPITTables();
-    
-    syncPITTables.syncAllPITTables();
-    
-    LocalDateTime ldt = LocalDateTime.now();
-    ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
-    ZonedDateTime gmt = zdt.withZoneSameInstant(ZoneId.of("GMT"));
-    Timestamp timestamp = Timestamp.valueOf(gmt.toLocalDateTime());
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(SyncAllPitTablesDaemon.class);
 
-    long millisSince1970 = System.currentTimeMillis();
+  @Override
+  public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
     
-    int rows = new GcDbAccess()
-      .sql("update grouper_time set the_utc_timestamp = ?, this_tz_timestamp = ?,  utc_millis_since_1970 = ?, utc_micros_since_1970 = ? where time_label = 'now'")
-      .addBindVar(timestamp).addBindVar(new Timestamp(millisSince1970)).addBindVar(millisSince1970).addBindVar(millisSince1970*1000).executeSql();
-    
-    if (rows == 0) {
-      rows = new GcDbAccess()
-        .sql("insert into grouper_time (time_label, the_utc_timestamp, this_tz_timestamp, utc_millis_since_1970, utc_micros_since_1970) values ('now', ?, ?, ?, ?)")
-        .addBindVar(timestamp).addBindVar(new Timestamp(millisSince1970)).addBindVar(millisSince1970).addBindVar(millisSince1970*1000).executeSql();
-      if (rows != 1) {
-        throw new RuntimeException("Cannot insert into grouper_time! " + rows);
+    final SyncPITTables syncPITTables = new SyncPITTables();
+    syncPITTables.createReport(true);
+    syncPITTables.captureOutput(true);
+    syncPITTables.showResults(true);
+
+    OtherJobLogUpdater otherJobLogUpdater = new OtherJobLogUpdater() {
+      
+      @Override
+      public void changeLoaderLogJavaObjectWithoutStoringToDb() {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = theOtherJobInput.getHib3GrouperLoaderLog();
+        String logMessage = syncPITTables.getFullOutput();
+        hib3GrouperLoaderLog.setJobMessage(logMessage);
       }
-      otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-    } else if (rows == 1) {
-      otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
-    } else {
-      throw new RuntimeException("Cannot update one row of grouper_time! " + rows);
+    };
+
+    RuntimeException runtimeException = null;
+    try {
+      SyncAllPitTablesDaemon.this.otherJobLogUpdaterRegister(otherJobLogUpdater);
+      syncPITTables.syncAllPITTables();
+    } catch (RuntimeException re) {
+      runtimeException = re;
+    } finally {
+      SyncAllPitTablesDaemon.this.otherJobLogUpdaterDeregister(otherJobLogUpdater);
+    }
+    
+        
+    theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage(syncPITTables.getFullOutput() + (runtimeException == null ? "" : ("\n" + GrouperUtil.getFullStackTrace(runtimeException))));
+    theOtherJobInput.getHib3GrouperLoaderLog().store();
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(syncPITTables.getFullOutput());
+    }
+    
+    if (runtimeException != null) {
+      throw runtimeException;
     }
     
     return null;
