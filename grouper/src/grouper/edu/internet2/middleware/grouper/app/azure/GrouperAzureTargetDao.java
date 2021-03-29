@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.azure;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,10 +42,22 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
+
+  @Override
+  public void loggingStart() {
+    GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters));
+  }
+
+  @Override
+  public String loggingStop() {
+    return GrouperHttpClient.logEnd();
+  }
 
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(

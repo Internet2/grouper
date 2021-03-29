@@ -25,6 +25,20 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  */
 public abstract class GrouperProvisionerTargetDaoBase {
   
+  /**
+   * start logging the source low level actions
+   */
+  public void loggingStart() {
+    
+  }
+
+  /**
+   * stop logging and get the output
+   */
+  public String loggingStop() {
+    return null;
+  }
+
   private GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities = new GrouperProvisionerDaoCapabilities();
   
   

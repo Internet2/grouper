@@ -175,8 +175,9 @@
         <aws.java.sdk.s3>1.11.529</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.11.529</aws.java.sdk.sqs>
         <aws.java.sdk.sns>1.11.529</aws.java.sdk.sns>
-        <httpclient>4.5.8</httpclient>
-        <httpcore>4.4.11</httpcore>
+        <httpclient>4.5.13</httpclient>
+        <httpcore>4.4.14</httpcore>
+        <httpmime>4.5.13</httpmime>
         <jackson.annotations>2.9.8</jackson.annotations>
         <jackson.core>2.9.8</jackson.core>
         <jackson.databind>2.9.8</jackson.databind>        
@@ -387,6 +388,21 @@
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpmime</artifactId>
+              <version>${httpmime}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpclient</artifactId>
+              <version>${httpclient}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpcore</artifactId>
+              <version>${httpcore}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>

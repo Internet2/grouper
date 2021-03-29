@@ -23,6 +23,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTargetDaoBase {
 
+  @Override
+  public void loggingStart() {
+    this.wrappedDao.loggingStart();
+  }
+
+  @Override
+  public String loggingStop() {
+    return this.wrappedDao.loggingStop();
+  }
+
+
   private GrouperProvisionerTargetDaoBase wrappedDao;
   
   /** logger */
@@ -92,6 +103,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
       TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.wrappedDao.retrieveAllGroups(targetDaoRetrieveAllGroupsRequest);
+      
       logGroups(targetDaoRetrieveAllGroupsResponse.getTargetGroups());
       return targetDaoRetrieveAllGroupsResponse;
     }
@@ -965,6 +977,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (provisioningEntity != null && provisioningEntity.getException() != null) {
       LOG.error("Error in provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with entity: " + provisioningEntity, 
           provisioningEntity.getException());
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in entity: " + provisioningEntity + ", " + GrouperUtil.getFullStackTrace(provisioningEntity.getException()));
+      }
+
     }
   }
 
@@ -986,6 +1002,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (provisioningGroup != null && provisioningGroup.getException() != null) {
       LOG.error("Error in provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with group: " + provisioningGroup, 
           provisioningGroup.getException());
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in group: " + provisioningGroup + ", " + GrouperUtil.getFullStackTrace(provisioningGroup.getException()));
+      }
     }
   }
 
@@ -1034,6 +1053,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (provisioningMembership != null && provisioningMembership.getException() != null) {
       LOG.error("Error with provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with membership: " + provisioningMembership, 
           provisioningMembership.getException());
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in membership: " + provisioningMembership + ", " + GrouperUtil.getFullStackTrace(provisioningMembership.getException()));
+      }
+
     }
   }
 

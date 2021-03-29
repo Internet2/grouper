@@ -37,12 +37,12 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   /**
    * 
    */
-  private static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
+  public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
 
   /**
    * 
    */
-  private static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
+  public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
 
   /**
    * params to not log all of
