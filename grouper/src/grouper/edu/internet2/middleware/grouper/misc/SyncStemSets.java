@@ -61,6 +61,10 @@ public class SyncStemSets {
   /** total count for current phase */
   private long totalCount = 0;
   
+  /** total count overall */
+  private long overallTotalCount = 0;
+  
+  
   /** processed count for current phase */
   private long processedCount = 0;
   
@@ -150,6 +154,7 @@ public class SyncStemSets {
     }
     
     totalCount = stemsToParents.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " stems");
     
     long totalIssues = 0;
@@ -258,6 +263,7 @@ public class SyncStemSets {
     showStatus("Searching for missing self stemSets");
     Set<Object[]> stemIdsAndParentIdsAndNames = GrouperDAOFactory.getFactory().getStemSet().findMissingSelfStemSets();
     totalCount = stemIdsAndParentIdsAndNames.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing self stemSets");
 
     // order by depth
@@ -335,18 +341,80 @@ public class SyncStemSets {
     }
   }
 
+  /**
+   * 
+   * @return
+   */
+  public long getUpdateCount() {
+    return overallTotalCount;
+  }
+
+  
+  public long getProcessedCount() {
+    return processedCount;
+  }
+
   private void showStatus(String message) {
     if (showResults) {
-      System.out.println(message);
+      println(message);
     }
   }
+  
+  private int detailCount = 0;
   
   private void logDetail(String detail) {
     if (logDetails) {
       LOG.info(detail);
     }
+    if (captureOutput) {
+      detailCount++;
+      if (detailCount < 4000) {
+        this.output.append(detail).append("\n");
+      }
+      if (detailCount == 4000) {
+        this.output.append("Too many details, stopping to log details\n");
+      }
+    }
   }
   
+  /**
+   * print
+   * @param string
+   */
+  private void print(String string) {
+    if (this.captureOutput) {
+      this.output.append(string);
+    } else {
+      System.out.print(string);
+    }
+  }
+
+  /**
+   * print a line
+   * @param string
+   */
+  private void println(String string) {
+    if (this.captureOutput) {
+      this.output.append(string).append("\n");
+    } else {
+      System.out.println(string);
+    }
+  }
+  
+  private StringBuilder output = new StringBuilder();
+
+  public String getOutput() {
+    GrouperUtil.assertion(captureOutput, "Output is not being captured, call syncPitTables.captureOutput(true)");
+    return this.output.toString();
+  }
+
+  private boolean captureOutput = false;
+
+  public void captureOutput(boolean b) {
+    this.captureOutput = true;
+
+  }
+
   private void reset() {
     processedCount = 0;
     donePhase = false;
@@ -397,13 +465,13 @@ public class SyncStemSets {
                 }
               }
               
-              System.out.print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
+              print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
               
               if (endTime != 0) {
-                System.out.print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
+                print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
               }
               
-              System.out.print("\n");
+              print("\n");
             }
           }
         }          

@@ -33,7 +33,8 @@ public class SyncAllPitTablesDaemon extends OtherJobBase {
     RuntimeException runtimeException = null;
     try {
       SyncAllPitTablesDaemon.this.otherJobLogUpdaterRegister(otherJobLogUpdater);
-      syncPITTables.syncAllPITTables();
+      long updates = syncPITTables.syncAllPITTables();
+      theOtherJobInput.getHib3GrouperLoaderLog().setUpdateCount((int)updates);
     } catch (RuntimeException re) {
       runtimeException = re;
     } finally {
