@@ -417,6 +417,8 @@ public class GrouperProvisioningDiagnosticsContainer {
 
         try {
             
+          this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStart();
+
           TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllGroups(
               new TargetDaoRetrieveAllGroupsRequest(this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()));
           List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
@@ -455,6 +457,11 @@ public class GrouperProvisioningDiagnosticsContainer {
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting all groups").append(this.getCurrentDuration()).append("\n");
           this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          
+        } finally {
+          String debugInfo = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStop();
+          debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
+          this.report.append("<font color='gray'><b>Note:</b></font> Debug info: ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
           
         }
       }

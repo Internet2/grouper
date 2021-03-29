@@ -42,6 +42,37 @@ public enum GrouperProvisioningType {
     }
     
   },
+  /**
+   * run diagnostics
+   */
+  diagnostics {
+
+    /**
+     * see if full sync
+     * @return true if full sync or false if incremental
+     */
+    @Override
+    public boolean isFullSync() {
+      return true;
+    }
+    
+    @Override
+    public boolean isFullMetadataSync() {
+      return false;
+    }
+
+
+    @Override
+    public boolean isIncrementalSync() {
+      return false;
+    }
+
+    @Override
+    protected void provision(GrouperProvisioner grouperProvisioner) {
+      grouperProvisioner.retrieveGrouperProvisioningDiagnosticsContainer().runDiagnostics();
+    }
+    
+  },
   incrementalProvisionChangeLog {
 
     /**

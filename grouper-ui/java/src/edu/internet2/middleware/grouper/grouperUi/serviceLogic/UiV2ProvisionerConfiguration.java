@@ -111,7 +111,7 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("No provisioner found for "+provisionerConfigId);
       }
 
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      provisioner.initialize(GrouperProvisioningType.diagnostics);
       
       final GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
       
@@ -166,7 +166,7 @@ public class UiV2ProvisionerConfiguration {
         @Override
         public Void callLogic() {
           try {
-            provisioner.retrieveGrouperProvisioningDiagnosticsContainer().runDiagnostics();
+            provisioner.provision(GrouperProvisioningType.diagnostics);
           } catch (RuntimeException re) {
             provisioner.retrieveGrouperProvisioningDiagnosticsContainer().getProgressBean().setHasException(true);
             // log this since the thread will just end and will never get logged
