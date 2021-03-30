@@ -70,6 +70,28 @@ public class GrouperProvisioningDiagnosticsSettings {
   }
 
   /**
+   * if insert group in diagnostics
+   */
+  private boolean diagnosticsGroupInsert;
+
+  /**
+   * if insert group in diagnostics
+   * @return if group insert
+   */
+  public boolean isDiagnosticsGroupInsert() {
+    return this.diagnosticsGroupInsert;
+  }
+
+
+  /**
+   * if insert group in diagnostics
+   * @param diagnosticsGroupInsert1
+   */
+  public void setDiagnosticsGroupInsert(boolean diagnosticsGroupInsert1) {
+    this.diagnosticsGroupInsert = diagnosticsGroupInsert1;
+  }
+
+  /**
    * if select all groups during diagnostics
    */
   private boolean diagnosticsGroupsAllSelect;

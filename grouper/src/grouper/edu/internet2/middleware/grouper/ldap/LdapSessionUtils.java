@@ -77,6 +77,7 @@ public class LdapSessionUtils {
    */
   public static void logStart() {
     threadLocalLog.set(new StringBuilder());
+
   }
 
   /**
@@ -84,7 +85,8 @@ public class LdapSessionUtils {
    * log start
    */
   public static StringBuilder logCurrent() {
-    return threadLocalLog.get();
+    StringBuilder logCurrent = threadLocalLog.get();
+    return logCurrent;
   }
 
   /**

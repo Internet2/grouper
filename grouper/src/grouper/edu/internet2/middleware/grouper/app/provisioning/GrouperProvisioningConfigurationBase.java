@@ -47,6 +47,19 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
+   * if create group in target during diagnostics
+   */
+  private Boolean createGroupDuringDiagnostics;
+
+  /**
+   * if create group in target during diagnostics
+   * @return if create
+   */
+  public boolean isCreateGroupDuringDiagnostics() {
+    return createGroupDuringDiagnostics;
+  }
+
+  /**
    * if select all groups during diagnostics (default false)
    */
   private Boolean diagnosticsGroupsAllSelect;
@@ -211,6 +224,26 @@ public abstract class GrouperProvisioningConfigurationBase {
     return targetGroupFieldNameToConfig;
   }
 
+  /**
+   * get the group matching attribute object (could be field or attribute)
+   * @return the attribute
+   */
+  public GrouperProvisioningConfigurationAttribute retrieveGroupAttributeMatching() {
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupAttributeNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupFieldNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    
+    return null;
+  }
+  
   /**
    * 
    * @return map
@@ -1503,9 +1536,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * number of metadata
    */
-  private int numberOfMetadata;
-  
-  
+  private int numberOfMetadata;  
   
   
   /**
@@ -2127,8 +2158,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
     this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
     this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
-    
-    
+    this.createGroupDuringDiagnostics = this.retrieveConfigBoolean("createGroupDuringDiagnostics", false);
+
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
     

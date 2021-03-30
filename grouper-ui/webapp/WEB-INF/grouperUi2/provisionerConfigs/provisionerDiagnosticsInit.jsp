@@ -60,6 +60,17 @@
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupNameDescription'] }</span>
                     </div>
                   </div>
+                  <div class="control-group">
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabel'] }</label>
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsGroupsInsertName" id="diagnosticsGroupsInsertId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabelTrue']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertDescription'] }</span>                    
+                    </div>
+                  </div>
                   
         
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />

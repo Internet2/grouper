@@ -8,14 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -140,40 +133,20 @@ public class GrouperAzureApiCommands {
 
   
 
-  /**
-   * 
-   * @param debugMap
-   * @param configId
-   * @param urlSuffix
-   * @return
-   */
-  private static GetMethod httpGetMethod(Map<String, Object> debugMap, String configId,
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix) {
-    return (GetMethod) httpMethod(debugMap, configId, urlSuffix, "GET");
+
+    return executeMethod(debugMap, "GET", configId, urlSuffix,
+        GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
+
   }
 
-  /**
-   * 
-   * @param debugMap
-   * @param configId
-   * @param urlSuffix
-   * @return
-   */
-  private static PostMethod httpPostMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
-    return (PostMethod) httpMethod(debugMap, configId, urlSuffix, "POST");
-  }
+  private static JsonNode executeMethod(Map<String, Object> debugMap,
+      String httpMethodName, String configId,
+      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
-  /**
-   * 
-   * @param debugMap
-   * @param configId
-   * @param urlSuffix
-   * @param httpMethodName is GET, POST, DELETE, PUT
-   * @return
-   */
-  private static HttpMethodBase httpMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix, String httpMethodName) {
+    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+    
     String bearerToken = AzureGrouperExternalSystem
         .retrieveBearerTokenForAzureConfigId(debugMap, configId);
     String graphEndpoint = GrouperLoaderConfig.retrieveConfig()
@@ -191,65 +164,20 @@ public class GrouperAzureApiCommands {
     }
     debugMap.put("url", url);
 
-    HttpMethodBase method = null;
-    if (StringUtils.equals("GET", httpMethodName)) {
-      method = new GetMethod(url);
-    } else if (StringUtils.equals("POST", httpMethodName)) {
-      method = new PostMethod(url);
-    } else if (StringUtils.equals("DELETE", httpMethodName)) {
-      method = new DeleteMethod(url);
-    } else if (StringUtils.equals("PUT", httpMethodName)) {
-      method = new PutMethod(url);
-    } else if (StringUtils.equals("PATCH", httpMethodName)) {
-
-      method = new PostMethod(url) {
-        @Override public String getName() { return "PATCH"; }
-      };
-    } else {
-      throw new RuntimeException("Not expecting type: '" + httpMethodName + "'");
-    }
-    method.addRequestHeader("Content-Type", "application/json");
-    method.addRequestHeader("Authorization", "Bearer " + bearerToken);
-    return method;
-  }
-
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
-
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
-        GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
-
-  }
-
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
-      String httpMethodName, String configId,
-      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
-
-    HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName);
-
-    HttpClient httpClient = new HttpClient();
-
-    if (!StringUtils.isBlank(body)) {
-      if (httpMethod instanceof EntityEnclosingMethod) {
-        try {
-          StringRequestEntity entity = new StringRequestEntity(body, "application/json",
-              "UTF-8");
-          ((EntityEnclosingMethod) httpMethod).setRequestEntity(entity);
-        } catch (Exception e) {
-          throw new RuntimeException("error", e);
-        }
-      } else {
-        throw new RuntimeException("Cant attach a body if in method: " + httpMethodName);
-      }
-    }
-
+    grouperHttpCall.assignUrl(url);
+    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
+    grouperHttpCall.addHeader("Content-Type", "application/json");
+    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
+    grouperHttpCall.assignBody(body);
+    grouperHttpCall.executeRequest();
+    
     int code = -1;
     String json = null;
 
     try {
-      code = httpClient.executeMethod(httpMethod);
+      code = grouperHttpCall.getResponseCode();
       returnCode[0] = code;
-      json = httpMethod.getResponseBodyAsString();
+      json = grouperHttpCall.getResponseBody();
     } catch (Exception e) {
       throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
     }
