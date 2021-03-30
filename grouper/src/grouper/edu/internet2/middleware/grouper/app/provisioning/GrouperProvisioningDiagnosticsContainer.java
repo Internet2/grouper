@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -421,7 +423,7 @@ public class GrouperProvisioningDiagnosticsContainer {
 
           TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllGroups(
               new TargetDaoRetrieveAllGroupsRequest(this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()));
-          List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
+          List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups());
           this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().setProvisioningGroups(targetGroups);
 
           if (GrouperUtil.length(targetGroups) > 0) {
@@ -431,28 +433,68 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='orange'><b>Warning:</b></font> Selected " + GrouperUtil.length(targetGroups) + " groups")
               .append(this.getCurrentDuration()).append("\n");
           }
-          
-          for (int i=0;i<Math.min(10,GrouperUtil.length(targetGroups)); i++) {
+
+          for (int i=0;i<Math.min(10, GrouperUtil.length(targetGroups)); i++) {
             ProvisioningGroup targetGroup = targetGroups.get(i);
 
             this.report.append("<font color='gray'><b>Note:</b></font> Group ").append(i+1).append(" of ")
               .append(GrouperUtil.length(targetGroups)).append(" (unprocessed):\n  ").append(GrouperUtil.xmlEscape(targetGroup.toString())).append("\n");
-
-            List<ProvisioningGroup> targetGroupsForOne = GrouperUtil.toList(targetGroup);
-            
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(
-                targetGroupsForOne, true, false, false);
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(
-                targetGroupsForOne);
-            this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(
-                targetGroupsForOne);
+          }
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(
+              targetGroups, true, false, false);
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(
+              targetGroups);
+          this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(
+              targetGroups);
+          for (int i=0;i<Math.min(10, GrouperUtil.length(targetGroups)); i++) {
+            ProvisioningGroup targetGroup = targetGroups.get(i);
 
             this.report.append("<font color='gray'><b>Note:</b></font> Group ").append(i+1).append(" of ")
               .append(GrouperUtil.length(targetGroups)).append(" (filtered, attributes manipulated, matchingId calculated):\n  ").append(GrouperUtil.xmlEscape(targetGroup.toString())).append("\n");
-            
           }
 
-
+          {
+            int countWithoutMatchingId = 0;
+            for (int i=0;i<GrouperUtil.length(targetGroups);i++) {
+              ProvisioningGroup targetGroup = targetGroups.get(i);
+              if (GrouperUtil.isBlank(targetGroup.getMatchingId())) {
+                countWithoutMatchingId++;
+              }
+            }
+            if (countWithoutMatchingId == 0) {
+              this.report.append("<font color='green'><b>Success:</b></font> All target groups have a matching id")
+                .append(this.getCurrentDuration()).append("\n");
+            } else {
+              this.report.append("<font color='red'><b>Error:</b></font> " + countWithoutMatchingId + " target groups do not have a matching id")
+                .append(this.getCurrentDuration()).append("\n");
+            }
+          }
+          
+          {
+            int countWithDuplicateMatchingId = 0;
+            Set<Object> matchingIds = new HashSet<Object>();
+            Set<Object> firstTen = new HashSet<Object>();
+            for (int i=0;i<GrouperUtil.length(targetGroups);i++) {
+              ProvisioningGroup targetGroup = targetGroups.get(i);
+              if (!GrouperUtil.isBlank(targetGroup.getMatchingId())) {
+                if (matchingIds.contains(targetGroup.getMatchingId())) {
+                  countWithDuplicateMatchingId++;
+                  if (firstTen.size() <= 10) {
+                    firstTen.add(targetGroup.getMatchingId());
+                  }
+                } else {
+                  matchingIds.add(targetGroup.getMatchingId());
+                }
+              }
+            }
+            if (countWithDuplicateMatchingId == 0) {
+              this.report.append("<font color='green'><b>Success:</b></font> All target groups have unique matching ids")
+                .append(this.getCurrentDuration()).append("\n");
+            } else {
+              this.report.append("<font color='red'><b>Error:</b></font> " + countWithDuplicateMatchingId + " target groups have a duplicate matching id, e.g. " + GrouperUtil.toStringForLog(firstTen, 1000))
+                .append(this.getCurrentDuration()).append("\n");
+            }
+          }
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting all groups").append(this.getCurrentDuration()).append("\n");
@@ -461,8 +503,8 @@ public class GrouperProvisioningDiagnosticsContainer {
         } finally {
           String debugInfo = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStop();
           debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
+          this.report.append("<font color='gray'><b>Note:</b></font> Done with all groups").append(this.getCurrentDuration()).append("\n");
           this.report.append("<font color='gray'><b>Note:</b></font> Debug info: ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
-          
         }
       }
     }
