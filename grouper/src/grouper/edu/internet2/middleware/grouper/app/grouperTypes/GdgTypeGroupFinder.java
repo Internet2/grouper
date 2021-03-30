@@ -55,37 +55,70 @@ public class GdgTypeGroupFinder {
    */
   private Boolean directAssignment;
   
+  /**
+   * assign group from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeGroupFinder assignGroup(Group group) {
     this.group = group;
     return this;
   }
   
+  /**
+   * assign group id from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeGroupFinder assignGroupId(String groupId) {
     this.groupId = groupId;
     return this;
   } 
   
+  /**
+   * assign group name from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeGroupFinder assignGroupName(String groupName) {
     this.groupName = groupName;
     return this;
   }
   
+  /**
+   * type e.g. ref, basis, app
+   * @param type
+   * @return
+   */
   public GdgTypeGroupFinder assignType(String type) {
     this.type = type;
     return this;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public GdgTypeGroupFinder assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * only find attributes where direct assignment is true (possible values: null (default), true, false)
+   * @param directAssignment
+   * @return
+   */
   public GdgTypeGroupFinder assignDirectAssignment(Boolean directAssignment) {
     this.directAssignment = directAssignment;
     return this;
   }
   
-  
+  /**
+   * find bean containing object types attributes on a group
+   * @return
+   */
   public GrouperObjectTypesAttributeValue findGdgTypeGroupAssignment() {
     
     Set<GrouperObjectTypesAttributeValue> gdgTypeGroupAssignments = this.findGdgTypeGroupAssignments();
@@ -94,6 +127,10 @@ public class GdgTypeGroupFinder {
   }
   
   
+  /**
+   * find bean containing object types attributes on a group
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public Set<GrouperObjectTypesAttributeValue> findGdgTypeGroupAssignments() {
    

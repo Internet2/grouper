@@ -85,67 +85,131 @@ public class ProvisionableGroupSave {
   
   private SaveResultType saveResultType;
   
+  /**
+   * assign provision
+   * @param provision
+   * @return
+   */
   public ProvisionableGroupSave assignProvision(boolean provision) {
     this.provision = provision;
     this.provisionAssigned = true;
     return this;
   }
   
+  /**
+   * assign provisioning target name
+   * @param targetName
+   * @return
+   */
   public ProvisionableGroupSave assignTargetName(String targetName) {
     this.targetName = targetName;
     return this;
   }
   
+  /**
+   * get save result type after the save call
+   * @return
+   */
   public SaveResultType getSaveResultType() {
     return saveResultType;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public ProvisionableGroupSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
   public ProvisionableGroupSave assignReplaceAllSettings(boolean replaceAllSettings) {
     this.replaceAllSettings = replaceAllSettings;
     return this;
   }
   
+  /**
+   * assign save mode
+   * @param saveMode
+   * @return
+   */
   public ProvisionableGroupSave assignSaveMode(SaveMode saveMode) {
     this.saveMode = saveMode;
     return this;
   }
   
+  /**
+   * assign group on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableGroupSave assignGroup(Group group) {
     this.group = group;
     return this;
   }
   
+  /**
+   * assign group id on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableGroupSave assignGroupId(String groupId) {
     this.groupId = groupId;
     return this;
   }
   
+  /**
+   * assign group name on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableGroupSave assignGroupName(String groupName) {
     this.groupName = groupName;
     return this;
   }
   
-  
+  /**
+   * assign string type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableGroupSave assignMetadataString(String name, String value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * assign boolean type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableGroupSave assignMetadataBoolean(String name, Boolean value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * assign integer type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableGroupSave assignMetadataInteger(String name, Integer value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * save attributes in the database
+   * @return a bean containing the current attribute values
+   */
   public GrouperProvisioningAttributeValue save() {
     
     //default to insert or update

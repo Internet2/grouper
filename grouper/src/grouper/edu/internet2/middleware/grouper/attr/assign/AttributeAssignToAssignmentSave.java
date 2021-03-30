@@ -86,7 +86,7 @@ public class AttributeAssignToAssignmentSave {
   private SaveResultType saveResultType;
   
   /**
-   * save type after the save
+   * save result type after the save call
    * @return
    */
   public SaveResultType getSaveResultType() {

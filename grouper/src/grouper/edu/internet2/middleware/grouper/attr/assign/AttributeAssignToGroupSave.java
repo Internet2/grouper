@@ -48,7 +48,7 @@ public class AttributeAssignToGroupSave {
   private AttributeDefName attributeDefName;
 
   /**
-   * 
+   * attribute def name to add/update/delete from group
    * @param theAttributeDefName
    * @return this for chaining
    */
@@ -60,7 +60,7 @@ public class AttributeAssignToGroupSave {
   private String nameOfAttributeDefName;
 
   /**
-   * 
+   * attribute def name to add/update/delete from group
    * @param theNameOfAttributeDefName
    * @return
    */
@@ -126,7 +126,7 @@ public class AttributeAssignToGroupSave {
   }
 
   /**
-   * get the save type
+   * get the save result type after the save call
    * @return save type
    */
   public SaveResultType getSaveResultType() {

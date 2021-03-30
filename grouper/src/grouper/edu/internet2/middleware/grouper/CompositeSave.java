@@ -36,7 +36,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update a composite
+ * <p>Use this class to insert or update or delete a composite</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Composite composite = new CompositeSave().assignOwnerName(group1.getName()).assignLeftFactorName(group2.getName()).assignRightFactorName(group3.getName())
+ *   .assignType("union").save();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete a composite
+ * <blockquote>
+ * <pre>
+ * new CompositeSave().assignOwnerName(group1.getName()).assignLeftFactorName(group2.getName()).assignRightFactorName(group3.getName())
+ *  .assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class CompositeSave {
   

@@ -95,55 +95,104 @@ public class GdgTypeStemSave {
   /** save mode */
   private SaveMode saveMode;
   
-  
+  /**
+   * stem on which object types attributes need to be saved
+   * @param stem
+   * @return
+   */
   public GdgTypeStemSave assignStem(Stem stem) {
     this.stem = stem;
     return this;
   }
   
+  /**
+   * stem id on which object types attributes need to be saved
+   * @param stemId
+   * @return
+   */
   public GdgTypeStemSave assignStemId(String stemId) {
     this.stemId = stemId;
     return this;
   } 
   
+  /**
+   * stem name on which object types attributes need to be saved
+   * @param stemName
+   * @return
+   */
   public GdgTypeStemSave assignStemName(String stemName) {
     this.stemName = stemName;
     return this;
   }
   
+  /**
+   * type e.g. ref, basis, app
+   * @param type
+   * @return
+   */
   public GdgTypeStemSave assignType(String type) {
     this.type = type;
     return this;
   }
   
+  /**
+   * data owner to assign
+   * @param dataOwner
+   * @return
+   */
   public GdgTypeStemSave assignDataOwner(String dataOwner) {
     this.dataOwner = dataOwner;
     this.dataOwnerAssigned = true;
     return this;
   }
   
-  public GdgTypeStemSave assignServiceName(String serviceName) {
-    this.serviceName = serviceName;
-    this.serviceNameAssigned = true;
-    return this;
-  }
-  
+  /**
+   * member description to assign
+   * @param memberDescription
+   * @return
+   */
   public GdgTypeStemSave assignMemberDescription(String memberDescription) {
     this.memberDescription = memberDescription;
     this.memberDescriptionAssigned = true;
     return this;
   }
   
+  /**
+   * service name to assign
+   * @param serviceName
+   * @return
+   */
+  public GdgTypeStemSave assignServiceName(String serviceName) {
+    this.serviceName = serviceName;
+    this.serviceNameAssigned = true;
+    return this;
+  }
+  
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public GdgTypeStemSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * replace all existing settings. defaults to true.
+   * @param replaceAllSettings
+   * @return
+   */
   public GdgTypeStemSave assignReplaceAllSettings(boolean replaceAllSettings) {
     this.replaceAllSettings = replaceAllSettings;
     return this;
   }
   
+  /**
+   * assign save mode
+   * @param saveMode
+   * @return
+   */
   public GdgTypeStemSave assignSaveMode(SaveMode saveMode) {
     this.saveMode = saveMode;
     return this;
@@ -152,10 +201,18 @@ public class GdgTypeStemSave {
   
   private SaveResultType saveResultType;
   
+  /**
+   * get save result type after the save call
+   * @return
+   */
   public SaveResultType getSaveResultType() {
     return saveResultType;
   }
   
+  /**
+   * add/edit/delete object type attributes from a stem
+   * @return bean containing the current attribute values - can be null
+   */
   public GrouperObjectTypesAttributeValue save() {
 
     //default to insert or update

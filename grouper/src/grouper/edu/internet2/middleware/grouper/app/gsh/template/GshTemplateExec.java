@@ -37,6 +37,27 @@ import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+* <p>Use this class to execute a custom gsh template</p>
+* <p>Sample call
+* 
+* <blockquote>
+* <pre>
+* GshTemplateExec exec = new GshTemplateExec();
+* exec.assignConfigId("testGshTemplateConfig");
+* exec.assignCurrentUser(subject);
+* exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+* exec.assignOwnerStemName(ownerStem.getName());
+* GshTemplateInput input = new GshTemplateInput();
+* input.assignName("gsh_input_myExtension");
+* input.assignValueString("zoomTest");
+* exec.addGshTemplateInput(input);
+* GshTemplateExecOutput output = exec.execute();
+* </pre>
+* </blockquote>
+* 
+* </p>
+*/
 public class GshTemplateExec {
   
   /**

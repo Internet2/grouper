@@ -130,7 +130,7 @@ public class AttestationStemSave {
   private Integer daysUntilRecertify = null;
 
   /**
-   * 
+   * days until recertify
    * @return this for chaining
    */
   public AttestationStemSave assignDaysUntilRecertify(int theDaysUntilRecertify) {
@@ -149,7 +149,7 @@ public class AttestationStemSave {
 
 
   /**
-   * 
+   * assign email addresses (separated by semicolon)
    * @return this for chaining
    */
   public AttestationStemSave assignEmailAddresses(String theEmailAddresses) {
@@ -160,7 +160,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * 
+   * add email address
    * @return this for chaining
    */
   public AttestationStemSave addEmailAddress(String theEmailAddress) {
@@ -173,7 +173,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * 
+   * add email address of the given subject
    * @return this for chaining
    */
   public AttestationStemSave addEmailAddress(Subject subject) {
@@ -190,7 +190,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * 
+   * add email addresses from members of the given group
    * @return this for chaining
    */
   public AttestationStemSave addEmailAddresses(Group group) {
@@ -208,7 +208,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * 
+   * assign email addresses
    * @return this for chaining
    */
   public AttestationStemSave assignEmailAddresses(Set<String> theEmailAddresses) {
@@ -225,7 +225,7 @@ public class AttestationStemSave {
   private Scope stemScope = null;
 
   /**
-   * 
+   * assign stem scope for propagation
    * @return this for chaining
    */
   public AttestationStemSave assignStemScope(String theStemScope) {
@@ -234,7 +234,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * 
+   * assign stem scope for propagation
    * @return this for chaining
    */
   public AttestationStemSave assignStemScope(Scope theStemScope) {
@@ -245,12 +245,15 @@ public class AttestationStemSave {
 
   private boolean stemScopeAssigned = false;
 
+  /**
+   * replace all existing settings. defaults to true.
+   */
   private boolean replaceAllSettings = true;
 
   private boolean useThreadForPropagation = false;
 
   /**
-   * 
+   * assign use thread for propagation
    * @param theUseThreadForPropagation
    * @return this for chaining
    */
@@ -260,7 +263,7 @@ public class AttestationStemSave {
   }
   
   /**
-   * 
+   * replace all existing settings. defaults to true.
    * @return this for chaining
    */
   public AttestationStemSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
@@ -277,7 +280,7 @@ public class AttestationStemSave {
 
 
   /**
-   * 
+   * mark stem as attested
    * @return this for chaining
    */
   public AttestationStemSave assignMarkAsAttested(boolean theMarkAsAttested) {
@@ -292,7 +295,7 @@ public class AttestationStemSave {
 
 
   /**
-   * 
+   * add attestation type
    * @return this for chaining
    */
   public AttestationStemSave assignAttestationType(AttestationType theAttestationType) {
@@ -311,7 +314,7 @@ public class AttestationStemSave {
   private boolean sendEmailAssigned = false;
 
   /**
-   * 
+   * assign send email
    * @param theSendEmail
    * @return
    */
@@ -376,7 +379,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * asssign save mode
+   * assign save mode
    * @param theSaveMode
    * @return this for chaining
    */
@@ -386,7 +389,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * get the save type
+   * get the save result type after save call
    * @return save type
    */
   public SaveResultType getSaveResultType() {
@@ -410,9 +413,9 @@ public class AttestationStemSave {
 
   /**
    * <pre>
-   * create or update or delete a composite
+   * create or update or delete attestation attributes on a stem
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return the attribute assign
    */
   public AttributeAssign save() throws InsufficientPrivilegeException, GroupNotFoundException {
 

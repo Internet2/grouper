@@ -86,10 +86,17 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 
 /**
- * Find I2MI subjects.
- * <p/>
- * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
+ * <p>Use this class to find subjects</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Subject subject = SubjectFinder.findById(uuid, true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ *
  */
 public class SubjectFinder implements CheckboxValueDriver {
 
@@ -1073,6 +1080,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @return source
    * @since   1.2.0
    */
@@ -1093,6 +1101,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   } 
 
   /**
+   * <p>Grouper internal method only</p>
    * @param failIfError 
    * @return source
    * @since   2.1.0
@@ -1929,6 +1938,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * clea the subject customizer cache
    */
   public static void internalClearSubjectCustomizerCache() {

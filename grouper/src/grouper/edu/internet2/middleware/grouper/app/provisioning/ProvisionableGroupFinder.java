@@ -58,37 +58,70 @@ public class ProvisionableGroupFinder {
    */
   private Boolean directAssignment;
   
+  /**
+   * 
+   * @param group
+   * @return
+   */
   public ProvisionableGroupFinder assignGroup(Group group) {
     this.group = group;
     return this;
   }
   
+  /**
+   * 
+   * @param groupId
+   * @return
+   */
   public ProvisionableGroupFinder assignGroupId(String groupId) {
     this.groupId = groupId;
     return this;
   } 
   
+  /**
+   * 
+   * @param groupName
+   * @return
+   */
   public ProvisionableGroupFinder assignGroupName(String groupName) {
     this.groupName = groupName;
     return this;
   }
   
+  /**
+   * target name - optional
+   * @param targetName
+   * @return
+   */
   public ProvisionableGroupFinder assignTargetName(String targetName) {
     this.targetName = targetName;
     return this;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public ProvisionableGroupFinder assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * only find direct assignments. default is null means do not filter.
+   * @param directAssignment
+   * @return
+   */
   public ProvisionableGroupFinder assignDirectAssignment(Boolean directAssignment) {
     this.directAssignment = directAssignment;
     return this;
   }
 
-  
+  /**
+   * find bean containing provisioning attributes on a group
+   * @return
+   */
   public GrouperProvisioningAttributeValue findProvisionableGroupAttributeValue() {
     
     Set<GrouperProvisioningAttributeValue> grouperProvisioningAttributeValues = this.findProvisionableGroupAttributeValues();
@@ -97,6 +130,10 @@ public class ProvisionableGroupFinder {
   }
   
   @SuppressWarnings("unchecked")
+  /**
+   * find beans containing provisioning attributes on a group
+   * @return
+   */
   public Set<GrouperProvisioningAttributeValue> findProvisionableGroupAttributeValues() {
     
     Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();

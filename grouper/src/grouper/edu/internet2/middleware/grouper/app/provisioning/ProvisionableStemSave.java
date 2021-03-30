@@ -90,90 +90,173 @@ public class ProvisionableStemSave {
   
   private SaveResultType saveResultType;
   
+  /**
+   * assign provision or not
+   * @param provision
+   * @return
+   */
   public ProvisionableStemSave assignProvision(boolean provision) {
     this.provision = provision;
     this.provisionAssigned = true;
     return this;
   }
   
+  /**
+   * name of the provisioning target
+   * @param targetName
+   * @return
+   */
   public ProvisionableStemSave assignTargetName(String targetName) {
     this.targetName = targetName;
     return this;
   }
   
+  /**
+   * assign stem scope. SUB/ONE
+   * @param stemScope
+   * @return
+   */
   public ProvisionableStemSave assignStemScope(Scope stemScope) {
     this.stemScope = stemScope;
     this.stemScopeAssigned = true;
     return this;
   }
   
+  /**
+   * assign stem scrope. SUB/ONE
+   * @param stemScope
+   * @return
+   */
   public ProvisionableStemSave assignStemScopeString(String stemScope) {
     this.stemScope = Scope.valueOfIgnoreCase(stemScope, true);
     this.stemScopeAssigned = true;
     return this;
   }
   
+  /**
+   * get save result type after the save call
+   * @return
+   */
   public SaveResultType getSaveResultType() {
     return saveResultType;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public ProvisionableStemSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
   public ProvisionableStemSave assignReplaceAllSettings(boolean replaceAllSettings) {
     this.replaceAllSettings = replaceAllSettings;
     return this;
   }
   
+  /**
+   * assign save mode
+   * @param saveMode
+   * @return
+   */
   public ProvisionableStemSave assignSaveMode(SaveMode saveMode) {
     this.saveMode = saveMode;
     return this;
   }
   
+  /**
+   * assign stem on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableStemSave assignStem(Stem stem) {
     this.stem = stem;
     return this;
   }
   
+  /**
+   * assign stem id on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableStemSave assignStemId(String stemId) {
     this.stemId = stemId;
     return this;
   }
   
+  /**
+   * assign stem name on which attributes need to be stored
+   * @param stem
+   * @return
+   */
   public ProvisionableStemSave assignStemName(String stemName) {
     this.stemName = stemName;
     return this;
   }
   
-  
+  /**
+   * assign string type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableStemSave assignMetadataString(String name, String value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * assign boolean type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableStemSave assignMetadataBoolean(String name, Boolean value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * assign integer type metadata
+   * @param name
+   * @param value
+   * @return
+   */
   public ProvisionableStemSave assignMetadataInteger(String name, Integer value) {
     metadataMap.put(name, value);
     return this;
   }
   
+  /**
+   * assign policy group only metadata
+   * @param policyGroupOnly
+   * @return
+   */
   public ProvisionableStemSave assignPolicyGroupOnly(boolean policyGroupOnly) {
     metadataMap.put("md_grouper_allowPolicyGroupOverride", policyGroupOnly);
     return this;
   }
   
+  /**
+   * assign provisionable regex.
+   * @param provisionableRegex
+   * @return
+   */
   public ProvisionableStemSave assignProvisionableRegex(String provisionableRegex) {
     metadataMap.put("md_grouper_allowProvisionableRegexOverride", provisionableRegex);
     return this;
   }
   
-  
+  /**
+   * save attributes in the database
+   * @return a bean containing the current attribute values
+   */
   public GrouperProvisioningAttributeValue save() {
     
     //default to insert or update

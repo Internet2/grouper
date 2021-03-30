@@ -39,7 +39,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -54,7 +53,6 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -68,29 +66,36 @@ import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
-import edu.internet2.middleware.grouper.pit.PITAttributeDef;
-import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
-import edu.internet2.middleware.grouper.pit.PITGroup;
-import edu.internet2.middleware.grouper.pit.PITMember;
-import edu.internet2.middleware.grouper.pit.PITMembership;
-import edu.internet2.middleware.grouper.pit.PITStem;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
+
 /**
- * Find members within the Groups Registry.
- * <p/>
- * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.68 2009-12-28 06:08:37 mchyzer Exp $
+ * <p>Use this class to find members within the Groups registry</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Set<Member> members = MemberFinder.findAll(grouperSession, gsaSource);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find members by attribute def names
+ * <blockquote>
+ * <pre>
+ * Set<Member> members = new MemberFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+ *      .assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class MemberFinder {
 	
@@ -142,7 +147,7 @@ public class MemberFinder {
   }
     
   /**
-   * find all the group
+   * find members
    * @return the set of groups or the empty set if none found
    */
   public Set<Member> findMembers() {
@@ -361,6 +366,7 @@ public class MemberFinder {
     return members;
   } // public static Set findAll(GrouperSession s)
   /**
+   * <p>Grouper internal method only</p>
    * make sure allowed to see them, and find the members
    * @param grouperSession
    * @param group
@@ -573,7 +579,7 @@ public class MemberFinder {
   }
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @return member
    * @throws GrouperException
    */
@@ -589,7 +595,7 @@ public class MemberFinder {
   private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @return member
    * @throws GrouperException
    */
@@ -601,6 +607,7 @@ public class MemberFinder {
   }
   
   /**
+   * <p>Grouper internal method only</p>
    * find a member, perhaps create a new one if not there
    * @param subj
    * @param uuidIfCreate uuid to use if creating
@@ -612,6 +619,7 @@ public class MemberFinder {
   } // public static Member internal_findBySubject(subj)
 
   /**
+   * <p>Grouper internal method only</p>
    * find a member, perhaps create a new one if not there
    * @param subj
    * @param uuidIfCreate uuid to use if creating
@@ -630,6 +638,7 @@ public class MemberFinder {
   } // public static Member internal_findBySubject(subj)
 
   /**
+   * <p>Grouper internal method only</p>
    * find a member 
    * @param id
    * @param src
@@ -681,7 +690,7 @@ public class MemberFinder {
     return memberLocksCache;
   }
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param sourceId
    * @param subjectId
    */
@@ -833,6 +842,7 @@ public class MemberFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * create a member
    * @param subj
    * @param memberUuidIfCreate
@@ -867,6 +877,7 @@ public class MemberFinder {
   } 
 
   /**
+   * <p>Grouper internal method only</p>
    * @param s
    * @param subj
    * @param exceptionIfNotExist
@@ -895,6 +906,7 @@ public class MemberFinder {
   } // public static Member internal_findViewableMemberBySubject(s, subj)
   
   /**
+   * <p>Grouper internal method only</p>
    * find a member object and if group, make sure it is readable
    * @param grouperSession
    * @param subject
@@ -937,7 +949,7 @@ public class MemberFinder {
   }
   
   /**
-   * 
+   * <p>Grouper internal method only</p>
    */
   public static void clearInternalMembers() {
     all=null;

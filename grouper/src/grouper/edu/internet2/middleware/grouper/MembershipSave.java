@@ -38,9 +38,27 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectUtils;
 
-
 /**
- * Use this class to insert or update a membership
+ * <p>Use this class to insert or update or delete a membership</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * MembershipSave membershipSave = new MembershipSave().assignGroup(group1).assignSubject(subject);
+ * membershipSave.save();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to delete a membership
+ * <blockquote>
+ * <pre>
+ * MembershipSave membershipSave = new MembershipSave().assignGroup(group1).assignSubject(subject).assignSaveMode(SaveMode.DELETE);
+ * membershipSave.save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class MembershipSave {
   
@@ -261,9 +279,9 @@ public class MembershipSave {
   
   /**
    * <pre>
-   * create or update or delete a composite
+   * create or update or delete a membership
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return the membership that was updated or created or deleted
    */
   public Membership save() throws InsufficientPrivilegeException, GroupNotFoundException {
 

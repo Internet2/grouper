@@ -26,7 +26,16 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen
+ * <p>Use this class to establish ldap session</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class LdapSessionUtils {
 

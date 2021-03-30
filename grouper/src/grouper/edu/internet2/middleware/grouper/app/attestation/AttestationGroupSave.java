@@ -104,7 +104,7 @@ public class AttestationGroupSave {
   private Integer daysUntilRecertify = null;
 
   /**
-   * 
+   * days until recertify
    * @return this for chaining
    */
   public AttestationGroupSave assignDaysUntilRecertify(int theDaysUntilRecertify) {
@@ -123,7 +123,7 @@ public class AttestationGroupSave {
 
 
   /**
-   * 
+   * assign email addresses (separated by semicolon)
    * @return this for chaining
    */
   public AttestationGroupSave assignEmailAddresses(String theEmailAddresses) {
@@ -134,7 +134,7 @@ public class AttestationGroupSave {
   }
 
   /**
-   * 
+   * add email address
    * @return this for chaining
    */
   public AttestationGroupSave addEmailAddress(String theEmailAddress) {
@@ -147,7 +147,7 @@ public class AttestationGroupSave {
   }
 
   /**
-   * 
+   * add email address of the given subject
    * @return this for chaining
    */
   public AttestationGroupSave addEmailAddress(Subject subject) {
@@ -164,7 +164,7 @@ public class AttestationGroupSave {
   }
 
   /**
-   * 
+   * add email addresses from members of the given group
    * @return this for chaining
    */
   public AttestationGroupSave addEmailAddresses(Group group) {
@@ -182,7 +182,7 @@ public class AttestationGroupSave {
   }
 
   /**
-   * 
+   * assign email addresses
    * @return this for chaining
    */
   public AttestationGroupSave assignEmailAddresses(Set<String> theEmailAddresses) {
@@ -230,7 +230,7 @@ public class AttestationGroupSave {
 
 
   /**
-   * 
+   * assign attestation type
    * @return this for chaining
    */
   public AttestationGroupSave assignAttestationType(AttestationType theAttestationType) {
@@ -340,7 +340,7 @@ public class AttestationGroupSave {
   }
 
   /**
-   * get the save type
+   * get the save result type after the save call
    * @return save type
    */
   public SaveResultType getSaveResultType() {
@@ -349,9 +349,9 @@ public class AttestationGroupSave {
 
   /**
    * <pre>
-   * create or update or delete a composite
+   * create or update or delete attestation attributes from a group
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return attribute assign
    */
   public AttributeAssign save() throws InsufficientPrivilegeException, GroupNotFoundException {
 

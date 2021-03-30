@@ -32,11 +32,19 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 import edu.internet2.middleware.morphString.Morph;
 
 
-
-/** 
- * <pre>Get access to the global database connections, create a new connection, 
- * and execute sql against them.</pre>
- * @author harveycg
+/**
+ * <p>Use this class to get access to the global database connections, create a new connection, 
+ * and execute sql against them.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ?")
+ *   .addBindVar("CHANGE_LOG_consumer_recentMemberships").select(Timestamp.class);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class GcDbAccess {
 

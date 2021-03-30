@@ -59,10 +59,26 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Find groups within the Groups Registry.
- * <p/>
- * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $
+ * <p>Use this class to find groups within the Groups registry</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Group group = GroupFinder.findByName(grouperSession, "test", true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find groups a subject has specific privileges on
+ * <blockquote>
+ * <pre>
+ * Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
+ *       .assignField(Group.getDefaultList()).assignSubject(subject)
+ *       .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class GroupFinder {
 
@@ -82,7 +98,7 @@ public class GroupFinder {
   private static Set<Object> groupCacheAsRootIdsNamesAndIndexes = new HashSet<Object>();
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param group
    */
   public static void groupCacheAsRootAddSystemGroup(Group group) {
@@ -95,6 +111,7 @@ public class GroupFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove all caches
    */
   public static void groupCacheClear() {
@@ -103,6 +120,7 @@ public class GroupFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove this from all caches
    * @param group
    */

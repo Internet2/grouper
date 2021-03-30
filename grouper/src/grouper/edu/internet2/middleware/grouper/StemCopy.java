@@ -21,12 +21,20 @@ package edu.internet2.middleware.grouper;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 
-
 /**
- * Use this class to copy a stem to another stem.
+ * <p>Use this class to copy a stem to another stem.</p>
+ * <p>Sample call to copy everything from source to target
  * 
- * @author shilen
- * $Id: StemCopy.java,v 1.2 2009-03-29 21:17:21 shilen Exp $
+ * <blockquote>
+ * <pre>
+ * StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+ * Stem newStem = stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(true)
+ *       .copyGroupAsPrivilege(true).copyListMembersOfGroup(true)
+ *       .copyListGroupAsMember(true).copyAttributes(true).save();  
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class StemCopy {
 

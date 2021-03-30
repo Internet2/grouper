@@ -376,9 +376,9 @@ public class PrivilegeGroupInheritanceSave {
   
   /**
    * <pre>
-   * create or update or delete a composite
+   * create or update or delete privileges on all groups under a stem for a subject
    * </pre>
-   * @return the composite that was updated or created or deleted
+   * @return save result type (INSERT, UPDATE, DELETE, NO_CHANGE)
    */
   public SaveResultType save() throws InsufficientPrivilegeException, GroupNotFoundException {
   

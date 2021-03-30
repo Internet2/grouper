@@ -99,7 +99,7 @@ public class AttributeAssignToStemSave {
   private AttributeDefName attributeDefName;
 
   /**
-   * attribute def name to be added/updated/deleted from folder
+   * attribute def name to add/update/delete from folder
    * @param theAttributeDefName
    * @return this for chaining
    */
@@ -111,7 +111,7 @@ public class AttributeAssignToStemSave {
   private String nameOfAttributeDefName;
 
   /**
-   * attribute def name to be added/updated/deleted from folder
+   * attribute def name to add/update/delete from folder
    * @param theNameOfAttributeDefName
    * @return
    */
@@ -175,7 +175,7 @@ public class AttributeAssignToStemSave {
   }
 
   /**
-   * asssign save mode
+   * assign save mode
    * @param theSaveMode
    * @return this for chaining
    */
@@ -185,7 +185,7 @@ public class AttributeAssignToStemSave {
   }
 
   /**
-   * get the save type
+   * get the save result type after the save call
    * @return save type
    */
   public SaveResultType getSaveResultType() {
@@ -194,7 +194,7 @@ public class AttributeAssignToStemSave {
 
   /**
    * <pre>
-   * add or edit or delete an attribute def name from folder
+   * add, edit or delete an attribute def name from folder
    * </pre>
    * @return the attribute assign that was updated or created or deleted
    */

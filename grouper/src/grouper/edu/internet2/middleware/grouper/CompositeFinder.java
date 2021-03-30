@@ -44,13 +44,19 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.26 2009-03-15 06:37:21 mchyzer Exp $
- * @since   1.0
+ * <p>Use this class to find a composite</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Composite c = CompositeFinder.findAsOwner(group, true)
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class CompositeFinder {
 

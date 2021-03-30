@@ -48,32 +48,58 @@ public class GrouperPasswordSave {
   
   private Application application;
   
+  /**
+   * save credentials into the database
+   */
   public void save() {
     new Authentication().assignUserPassword(this);
   }
   
+  /**
+   * assign username to be stored
+   * @param username
+   * @return
+   */
   public GrouperPasswordSave assignUsername(String username) {
     this.username = username;
     return this;
   }
   
-  
+  /**
+   * assign entity type e.g. username
+   * @param entityType
+   * @return
+   */
   public GrouperPasswordSave assignEntityType(String entityType) {
     this.entityType = entityType;
     return this;
   }
   
+  /**
+   * assign encryption type
+   * @param encryptionType
+   * @return
+   */
   public GrouperPasswordSave assignEncryptionType(EncryptionType encryptionType) {
     this.encryptionType = encryptionType;
     return this;
   }
   
-  
+  /**
+   * assign password to be stored
+   * @param password
+   * @return
+   */
   public GrouperPasswordSave assignPassword(String password) {
     this.thePassword = password;
     return this;
   }
   
+  /**
+   * assign application type (ws or ui)
+   * @param application
+   * @return
+   */
   public GrouperPasswordSave assignApplication(GrouperPassword.Application application) {
     this.application = application;
     return this;

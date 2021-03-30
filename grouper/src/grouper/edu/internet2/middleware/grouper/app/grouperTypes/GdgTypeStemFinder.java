@@ -55,36 +55,70 @@ public class GdgTypeStemFinder {
    */
   private Boolean directAssignment;
   
+  /**
+   * assign stem from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeStemFinder assignStem(Stem stem) {
     this.stem = stem;
     return this;
   }
   
+  /**
+   * assign stem id from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeStemFinder assignStemId(String stemId) {
     this.stemId = stemId;
     return this;
   } 
   
+  /**
+   * assign stem name from which to retrieve object types attributes
+   * @param stem
+   * @return
+   */
   public GdgTypeStemFinder assignStemName(String stemName) {
     this.stemName = stemName;
     return this;
   }
   
+  /**
+   * type e.g. ref, basis, app
+   * @param type
+   * @return
+   */
   public GdgTypeStemFinder assignType(String type) {
     this.type = type;
     return this;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public GdgTypeStemFinder assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * only find attributes where direct assignment is true (possible values: null (default), true, false)
+   * @param directAssignment
+   * @return
+   */
   public GdgTypeStemFinder assignDirectAssignment(Boolean directAssignment) {
     this.directAssignment = directAssignment;
     return this;
   }
   
+  /**
+   * find bean containing object types attributes on a stem
+   * @return
+   */
   public GrouperObjectTypesAttributeValue findGdgTypeStemAssignment() {
     
     Set<GrouperObjectTypesAttributeValue> gdgTypeGroupAssignments = this.findGdgTypeStemAssignments();
@@ -94,6 +128,10 @@ public class GdgTypeStemFinder {
   
   
   @SuppressWarnings("unchecked")
+  /**
+   * find beans containing object types attributes on a stem
+   * @return
+   */
   public Set<GrouperObjectTypesAttributeValue> findGdgTypeStemAssignments() {
    
     Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();

@@ -58,37 +58,69 @@ public class ProvisionableStemFinder {
    */
   private Boolean directAssignment;
   
+  /**
+   * @param stem
+   * @return
+   */
   public ProvisionableStemFinder assignStem(Stem stem) {
     this.stem = stem;
     return this;
   }
   
+  /**
+   * 
+   * @param stemId
+   * @return
+   */
   public ProvisionableStemFinder assignStemId(String stemId) {
     this.stemId = stemId;
     return this;
   } 
   
+  /**
+   * 
+   * @param stemName
+   * @return
+   */
   public ProvisionableStemFinder assignStemName(String stemName) {
     this.stemName = stemName;
     return this;
   }
   
+  /**
+   * target name - optional
+   * @param targetName
+   * @return
+   */
   public ProvisionableStemFinder assignTargetName(String targetName) {
     this.targetName = targetName;
     return this;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public ProvisionableStemFinder assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * only find direct assignments. default is null means do not filter.
+   * @param directAssignment
+   * @return
+   */
   public ProvisionableStemFinder assignDirectAssignment(Boolean directAssignment) {
     this.directAssignment = directAssignment;
     return this;
   }
 
-  
+  /**
+   * find bean containing provisioning attributes on a stem
+   * @return
+   */
   public GrouperProvisioningAttributeValue findProvisionableStemAttributeValue() {
     
     Set<GrouperProvisioningAttributeValue> grouperProvisioningAttributeValues = this.findProvisionableStemAttributeValues();
@@ -97,6 +129,10 @@ public class ProvisionableStemFinder {
   }
   
   @SuppressWarnings("unchecked")
+  /**
+   * find beans containing provisioning attributes on a stem
+   * @return
+   */
   public Set<GrouperProvisioningAttributeValue> findProvisionableStemAttributeValues() {
     
     Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();

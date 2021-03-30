@@ -68,82 +68,158 @@ import edu.internet2.middleware.subject.SubjectUtils;
  */
 public class GdgTypeGroupSave {
   
+  /**
+   * group on which object types attributes need to be saved
+   */
   private Group group;
   
+  /**
+   * group id on which object types attributes need to be saved
+   */
   private String groupId;
   
+  /**
+   * group name on which object types attributes need to be saved
+   */
   private String groupName;
   
+  /**
+   * type e.g. ref, basis, app
+   */
   private String type;
   
+  /**
+   * data owner to assign
+   */
   private String dataOwner;
   
   private boolean dataOwnerAssigned;
   
+  /**
+   * member description to assign
+   */
   private String memberDescription;
   
   private boolean memberDescriptionAssigned;
   
+  /**
+   * service name to assign
+   */
   private String serviceName;
   
   private boolean serviceNameAssigned;
   
+  /**
+   * set this to true to run as a root session
+   */
   private boolean runAsRoot;
   
+  /**
+   * replace all existing settings. defaults to true.
+   */
   private boolean replaceAllSettings = true;
   
   /** save mode */
   private SaveMode saveMode;
   
-  
+  /**
+   * group on which object types attributes need to be saved
+   * @param group
+   * @return
+   */
   public GdgTypeGroupSave assignGroup(Group group) {
     this.group = group;
     return this;
   }
   
+  /**
+   * group id on which object types attributes need to be saved
+   * @param groupId
+   * @return
+   */
   public GdgTypeGroupSave assignGroupId(String groupId) {
     this.groupId = groupId;
     return this;
   } 
   
+  /**
+   * group name on which object types attributes need to be saved
+   * @param groupName
+   * @return
+   */
   public GdgTypeGroupSave assignGroupName(String groupName) {
     this.groupName = groupName;
     return this;
   }
   
+  /**
+   * type e.g. ref, basis, app
+   * @param type
+   * @return
+   */
   public GdgTypeGroupSave assignType(String type) {
     this.type = type;
     return this;
   }
   
+  /**
+   * data owner to assign
+   * @param dataOwner
+   * @return
+   */
   public GdgTypeGroupSave assignDataOwner(String dataOwner) {
     this.dataOwner = dataOwner;
     this.dataOwnerAssigned = true;
     return this;
   }
   
+  /**
+   * member description to assign
+   * @param memberDescription
+   * @return
+   */
   public GdgTypeGroupSave assignMemberDescription(String memberDescription) {
     this.memberDescription = memberDescription;
     this.memberDescriptionAssigned = true;
     return this;
   }
   
+  /**
+   * service name to assign
+   * @param serviceName
+   * @return
+   */
   public GdgTypeGroupSave assignServiceName(String serviceName) {
     this.serviceName = serviceName;
     this.serviceNameAssigned = true;
     return this;
   }
   
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
   public GdgTypeGroupSave assignRunAsRoot(boolean runAsRoot) {
     this.runAsRoot = runAsRoot;
     return this;
   }
   
+  /**
+   * replace all existing settings. defaults to true.
+   * @param replaceAllSettings
+   * @return
+   */
   public GdgTypeGroupSave assignReplaceAllSettings(boolean replaceAllSettings) {
     this.replaceAllSettings = replaceAllSettings;
     return this;
   }
   
+  /**
+   * assign save mode
+   * @param saveMode
+   * @return
+   */
   public GdgTypeGroupSave assignSaveMode(SaveMode saveMode) {
     this.saveMode = saveMode;
     return this;
@@ -152,10 +228,18 @@ public class GdgTypeGroupSave {
   
   private SaveResultType saveResultType;
   
+  /**
+   * get save result type after the save call
+   * @return
+   */
   public SaveResultType getSaveResultType() {
     return saveResultType;
   }
   
+  /**
+   * add/edit/delete object type attributes from a group
+   * @return bean containing the current attribute values - can be null
+   */
   public GrouperObjectTypesAttributeValue save() {
 
     //default to insert or update
