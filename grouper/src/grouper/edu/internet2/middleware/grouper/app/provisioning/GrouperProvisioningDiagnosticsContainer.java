@@ -254,7 +254,22 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
             
             if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
-              this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
+              
+              GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveGroupAttributeMatching();
+              if (matchingAttribute == null) {
+                this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
+              } else {
+                if (!matchingAttribute.isInsert() && !matchingAttribute.isUpdate()) {
+                  if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+                    this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank and it is currently in target\n");
+                  } else {
+                    this.report.append("<font color='green'><b>Success:</b></font> Grouper target group matching id is blank but it is not inserted or updated so it probably is not retrieved from target yet\n");
+                  }
+                } else {
+                  this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
+                }
+              }
+              
             }
 
           }          

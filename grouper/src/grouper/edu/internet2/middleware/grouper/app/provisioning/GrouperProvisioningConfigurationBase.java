@@ -212,6 +212,26 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
+   * get the group matching attribute object (could be field or attribute)
+   * @return the attribute
+   */
+  public GrouperProvisioningConfigurationAttribute retrieveGroupAttributeMatching() {
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupAttributeNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupFieldNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
    * 
    * @return map
    */
