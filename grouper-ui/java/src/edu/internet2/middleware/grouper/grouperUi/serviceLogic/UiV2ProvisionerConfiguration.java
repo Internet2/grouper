@@ -135,24 +135,48 @@ public class UiV2ProvisionerConfiguration {
       debugMap.put("uniqueDiagnosticsId", GrouperUtil.abbreviate(uniqueDiagnosticsId, 8));
   
       grouperProvisioningDiagnosticsContainer.setUniqueDiagnosticsId(uniqueDiagnosticsId);
-      
+
       {
         //deal with inputs and configuration
         {
           boolean diagnosticsGroupsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsAllSelectName[]"), false);
+          if (diagnosticsGroupsAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllGroupsError")));
+            return;
+          }
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
         }
         {
           boolean diagnosticsEntitiesAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesAllSelectName[]"), false);
+          if (diagnosticsEntitiesAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllEntitiesError")));
+            return;
+          }
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
         }
         {
           boolean diagnosticsMembershipsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsMembershipsAllSelectName[]"), false);
+          if (diagnosticsMembershipsAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllMembershipsError")));
+            return;
+          }
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
         }
         {
           String diagnosticsGroupNameName = request.getParameter("diagnosticsGroupNameName");
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName(diagnosticsGroupNameName);
+        }
+        {
+          boolean diagnosticsGroupsInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsInsertName[]"), false);
+          if (diagnosticsGroupsInsertName && !provisioner.retrieveGrouperProvisioningBehavior().isInsertGroups()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupInsertError")));
+            return;
+          }
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(diagnosticsGroupsInsertName);
         }
       }
       

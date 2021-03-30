@@ -47,6 +47,19 @@ public abstract class GrouperProvisioningConfigurationBase {
   }
 
   /**
+   * if create group in target during diagnostics
+   */
+  private Boolean createGroupDuringDiagnostics;
+
+  /**
+   * if create group in target during diagnostics
+   * @return if create
+   */
+  public boolean isCreateGroupDuringDiagnostics() {
+    return createGroupDuringDiagnostics;
+  }
+
+  /**
    * if select all groups during diagnostics (default false)
    */
   private Boolean diagnosticsGroupsAllSelect;
@@ -1523,9 +1536,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   /**
    * number of metadata
    */
-  private int numberOfMetadata;
-  
-  
+  private int numberOfMetadata;  
   
   
   /**
@@ -2147,8 +2158,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
     this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
     this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
-    
-    
+    this.createGroupDuringDiagnostics = this.retrieveConfigBoolean("createGroupDuringDiagnostics", false);
+
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
     

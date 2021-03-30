@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
@@ -26,6 +29,9 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
@@ -33,6 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 
 public class GrouperProvisioningDiagnosticsContainer {
 
@@ -154,6 +161,9 @@ public class GrouperProvisioningDiagnosticsContainer {
   public void runDiagnostics() {
     this.inDiagnostics = true;
     this.started = System.currentTimeMillis();
+    
+    Exception exception = null;
+    
     try {
       this.report = new StringBuilder();
       
@@ -172,14 +182,36 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendSelectGroupFromGrouper();
       this.appendSelectGroupFromTarget();
 
+      this.appendInsertGroupIntoTarget();
+      
     } catch (Exception e) {
       LOG.error("error in diagnostics", e);
-      this.report.append("</pre><pre>").append(ExceptionUtils.getFullStackTrace(e)).append("</pre>");
+      this.report.append("</pre><pre>").append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(e))).append("</pre>");
     } finally {
       this.inDiagnostics = false;
 
     
     }
+    
+    {
+      Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+
+      GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
+      gcGrouperSyncJob.setErrorMessage(exception == null ? null : GrouperUtil.getFullStackTrace(exception));
+      gcGrouperSyncJob.setErrorTimestamp(exception == null ? null : nowTimestamp);
+      gcGrouperSyncJob.setLastSyncTimestamp(nowTimestamp);
+      if (this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().wasWorkDone()) {
+        gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
+      }
+      gcGrouperSyncJob.setPercentComplete(100);
+
+      // do this in the right spot, after assigning correct sync info about sync
+      int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+      this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
+  
+      this.grouperProvisioner.getDebugMap().put("syncObjectStoreCount", objectStoreCount);
+    }
+
   }
 
   /**
@@ -271,7 +303,15 @@ public class GrouperProvisioningDiagnosticsContainer {
               }
               
             }
-
+            
+            // validate
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false);
+            
+            if (this.provisioningGroupWrapper.getErrorCode() != null) {
+              this.report.append("<font color='red'><b>Error:</b></font> Group is not valid! " + this.provisioningGroupWrapper.getErrorCode() + "\n");
+            } else {
+              this.report.append("<font color='green'><b>Success:</b></font> Group is valid\n");
+            }
           }          
         }
       }
@@ -281,6 +321,126 @@ public class GrouperProvisioningDiagnosticsContainer {
 
   }
 
+  /**
+   * insert group into target
+   */
+  private void appendInsertGroupIntoTarget() {
+    this.report.append("<h4>Insert group into Target</h4><pre>");
+    
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsGroupInsert()) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Not configured to insert group into target\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (this.provisioningGroupWrapper == null || this.provisioningGroupWrapper.getGrouperProvisioningGroup() == null 
+        || this.provisioningGroupWrapper.getGrouperTargetGroup() == null ) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot insert group into target since does not exist in Grouper\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+    if (this.provisioningGroupWrapper != null && this.provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot insert group into target since it is already there\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+    if (this.provisioningGroupWrapper != null && this.provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot insert group into target since it is already there\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+    if (null != this.provisioningGroupWrapper.getErrorCode()) {
+      this.report.append("<font color='red'><b>Error:</b></font> Cannot insert group into target since it has an error code: " + this.provisioningGroupWrapper.getErrorCode() + "\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+          
+    GcGrouperSyncGroup gcGrouperSyncGroup = this.provisioningGroupWrapper.getGcGrouperSyncGroup();
+    if (gcGrouperSyncGroup == null) {
+      
+      GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+      
+      ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, new HashMap<String, GcGrouperSyncGroup>(), this.provisioningGroupWrapper.getGrouperProvisioningGroup().getId(), 
+          gcGrouperSyncGroup, provisioningGroupWrapper, this.provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), 
+          this.provisioningGroupWrapper.getGrouperProvisioningGroup().getIdIndex());
+      gcGrouperSyncGroup = this.provisioningGroupWrapper.getGcGrouperSyncGroup();
+      
+    }
+    
+    try {
+      this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStart();
+
+      this.provisioningGroupWrapper.setRecalc(true);
+      
+      List<ProvisioningGroup> grouperTargetGroupsToInsert = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
+      
+      // add object change entries
+      this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroupsToInsert);
+      
+      //lets create these
+      RuntimeException runtimeException = null;
+      try {
+        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().insertGroups(new TargetDaoInsertGroupsRequest(grouperTargetGroupsToInsert));
+      } catch (RuntimeException re) {
+        runtimeException = re;
+      } finally {
+        try {
+          this.grouperProvisioner.retrieveGrouperSyncDao().processResultsInsertGroups(grouperTargetGroupsToInsert, false);
+          
+        } catch (RuntimeException e) {
+          GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
+        }
+      }
+      if (this.provisioningGroupWrapper.getGrouperTargetGroup().getException() != null) {
+        this.report.append("<font color='red'><b>Error:</b></font> Inserting group into target:\n" + GrouperUtil.xmlEscape(GrouperUtil.getFullStackTrace(this.provisioningGroupWrapper.getGrouperTargetGroup().getException())) + "\n");
+        return;
+      }
+  
+      if (runtimeException != null) {
+        this.report.append("<font color='red'><b>Error:</b></font> Inserting group into target:\n" + GrouperUtil.xmlEscape(GrouperUtil.getFullStackTrace(runtimeException)) + "\n");
+        return;
+      }
+      this.report.append("<font color='green'><b>Success:</b></font> No error inserting group into target\n");
+      
+      //retrieve so we have a copy
+      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
+          this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
+      
+      List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
+  
+      if (GrouperUtil.length(targetGroups) == 0) {
+        this.report.append("<font color='red'><b>Error:</b></font> Cannot find group from target after inserting!\n");
+        return;
+      }
+      if (GrouperUtil.length(targetGroups) > 1) {
+        this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after inserting, should be 1!\n");
+        return;
+      }
+      this.report.append("<font color='green'><b>Success:</b></font> Found group from target after inserting\n");
+
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(targetGroups, true, false, false);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(targetGroups);
+  
+      // index
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(targetGroups);
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+
+      this.provisioningGroupWrapper.setTargetProvisioningGroup(targetGroups.get(0));
+      this.provisioningGroupWrapper.setCreate(false);
+        
+    } catch (RuntimeException re) {
+      this.report.append("<font color='red'><b>Error:</b></font> Inserting group").append(this.getCurrentDuration()).append("\n");
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      
+    } finally {
+      String debugInfo = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStop();
+      debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
+      this.report.append("<font color='gray'><b>Note:</b></font> Debug info:").append(this.getCurrentDuration()).append(" ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
+      this.report.append("</pre>\n");
+    }
+          
+  }
+  
   /**
    * select a group from target
    */
@@ -518,8 +678,7 @@ public class GrouperProvisioningDiagnosticsContainer {
         } finally {
           String debugInfo = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStop();
           debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
-          this.report.append("<font color='gray'><b>Note:</b></font> Done with all groups").append(this.getCurrentDuration()).append("\n");
-          this.report.append("<font color='gray'><b>Note:</b></font> Debug info: ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
+          this.report.append("<font color='gray'><b>Note:</b></font> Debug info:").append(this.getCurrentDuration()).append(" ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
         }
       }
     }
