@@ -3924,8 +3924,23 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       try {
         currentStem = StemFinder.findByName(grouperSession, currentName, true, new QueryOptions().secondLevelCache(false));
       } catch (StemNotFoundException snfe1) {
-        //this isnt ideal, but just use the extension as the display extension
-        currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
+        try {
+          //this isnt ideal, but just use the extension as the display extension
+          currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
+        } catch (RuntimeException e) {
+          for (int j=0; j<4; j++) {
+            // could a tx need to finish?
+            GrouperUtil.sleep(500);
+            // see if another thread created it
+            currentStem = StemFinder.findByName(grouperSession, currentName, false, new QueryOptions().secondLevelCache(false));
+            if (currentName != null) {
+              break;
+            }
+          }
+          if (currentStem == null) {
+            throw e;
+          }
+        }
       }
       //increment the name, dont worry if on the last one, we are done
       if (i < stems.length-1) {

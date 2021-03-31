@@ -136,7 +136,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderDisplayNameAndDescriptionNotManagedByLoader"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
   }
 
   public void testLoaderExit() {
