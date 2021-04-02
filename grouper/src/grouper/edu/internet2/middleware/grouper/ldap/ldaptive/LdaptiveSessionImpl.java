@@ -842,6 +842,11 @@ public class LdaptiveSessionImpl implements LdapSession {
   public void delete(final String ldapServerId, final String dn) {
 
     try {
+      
+      if (GrouperUtil.isEmpty(dn)) {
+        throw new RuntimeException("No dn!");
+      }
+      
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -902,6 +907,10 @@ public class LdaptiveSessionImpl implements LdapSession {
     // true if created, false if updated
 
     try {
+      if (GrouperUtil.isEmpty(ldapEntry.getDn())) {
+        throw new RuntimeException("No dn!");
+      }
+      
       return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -994,6 +1003,15 @@ public class LdaptiveSessionImpl implements LdapSession {
     // return true if moved
     // return false if newDn exists and oldDn doesn't
     try {
+      
+      if (GrouperUtil.isEmpty(oldDn)) {
+        throw new RuntimeException("No oldDn!");
+      }
+      
+      if (GrouperUtil.isEmpty(newDn)) {
+        throw new RuntimeException("No newDn!");
+      }
+      
       return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -1067,6 +1085,11 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     
     try {
+      
+      if (GrouperUtil.isEmpty(dn)) {
+        throw new RuntimeException("No dn!");
+      }
+      
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
