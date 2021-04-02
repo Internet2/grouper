@@ -64,7 +64,7 @@ public class GrouperProvisioningLogic {
       long propagateProvisioningAttributes = System.currentTimeMillis()-start;
       debugMap.put("propagateProvisioningAttributes_millis", propagateProvisioningAttributes);
       
-      if ("junitProvisioningAttributePropagationTest".equals(grouperProvisioner.getConfigId())) {
+      if (grouperProvisioner.getConfigId().startsWith("junitProvisioningAttributePropagationTest")) {
         // just testing attribute propagation
         return;
       }
@@ -353,7 +353,7 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "propagateProvisioningAttributes");
       grouperProvisioningLogicIncremental.propagateProvisioningAttributes();
       
-      if ("junitProvisioningAttributePropagationTest".equals(this.getGrouperProvisioner().getConfigId())) {
+      if (this.getGrouperProvisioner().getConfigId().startsWith("junitProvisioningAttributePropagationTest")) {
         // just testing attribute propagation
         return;
       }

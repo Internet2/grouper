@@ -43,7 +43,12 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
@@ -1764,7 +1769,14 @@ public class GrouperProvisioningService {
           
           LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " deleting marker attribute");
           
-          object.getAttributeDelegate().removeAttribute(attributeDefNameBase);
+          Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
+          for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
+            AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
+            if (configId.equals(attributeAssignValue.getValueString())) {
+              markerAttributeAssign.delete();
+              break;
+            }
+          }
           
           if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
             provisioningAttributesGroupsDeleted++;
@@ -1813,53 +1825,78 @@ public class GrouperProvisioningService {
             continue;
           }
           
-          AttributeAssign markerAssign = object.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefNameBase, false, null, null).getAttributeAssign();
+          HibernateSession.callbackHibernateSession(
+              GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+              new HibernateHandler() {
+
+                public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                    throws GrouperDAOException {
           
-          if (!GrouperUtil.equals(existingDirectAssign, actualDirectAssign)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDirectAssign to: " + actualDirectAssign);
-            markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDirectAssign.getName(), actualDirectAssign);
-          }
-          
-          if (!GrouperUtil.equals(existingDoProvision, actualDoProvision)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDoProvision to: " + actualDoProvision);
-            if (actualDoProvision == null) {
-              markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDoProvision);
-            } else {
-              markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDoProvision.getName(), actualDoProvision);
-            }
-          }
-          
-          if (!GrouperUtil.equals(existingMetadataJson, actualMetadataJson)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningMetadataJson to: " + actualMetadataJson);
-            if (actualMetadataJson == null) {
-              markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMetadataJson);
-            } else {
-              markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameMetadataJson.getName(), actualMetadataJson);
-            }
-          }
-          
-          if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningOwnerStemId to: " + actualOwnerStemId);
-            if (actualOwnerStemId == null) {
-              markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
-            } else {
-              markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameOwnerStemId.getName(), actualOwnerStemId);
-            }
-          }
-          
-          if (!GrouperUtil.equals(existingStemScope, actualStemScope)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningStemScope to: " + actualStemScope);
-            markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameStemScope.getName(), actualStemScope);
-          }
-          
-          if (!GrouperUtil.equals(existingTarget, actualTarget)) {
-            LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningTarget to: " + actualTarget);
-            if (actualTarget == null) {
-              markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameTarget);
-            } else {
-              markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameTarget.getName(), actualTarget);
-            }
-          }
+                  
+                  AttributeAssign markerAssign = null;
+                  
+                  Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
+                  for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
+                    AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
+                    if (configId.equals(attributeAssignValue.getValueString())) {
+                      markerAssign = markerAttributeAssign;
+                      break;
+                    }
+                  }
+                  
+                  if (markerAssign == null) {
+                    markerAssign = object.getAttributeDelegate().internal_addAttributeHelper(null, attributeDefNameBase, false, null).getAttributeAssign();
+                  }
+                  
+                  if (!GrouperUtil.equals(existingDirectAssign, actualDirectAssign)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDirectAssign to: " + actualDirectAssign);
+                    markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDirectAssign.getName(), actualDirectAssign);
+                  }
+                  
+                  if (!GrouperUtil.equals(existingDoProvision, actualDoProvision)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDoProvision to: " + actualDoProvision);
+                    if (actualDoProvision == null) {
+                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDoProvision);
+                    } else {
+                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDoProvision.getName(), actualDoProvision);
+                    }
+                  }
+                  
+                  if (!GrouperUtil.equals(existingMetadataJson, actualMetadataJson)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningMetadataJson to: " + actualMetadataJson);
+                    if (actualMetadataJson == null) {
+                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMetadataJson);
+                    } else {
+                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameMetadataJson.getName(), actualMetadataJson);
+                    }
+                  }
+                  
+                  if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningOwnerStemId to: " + actualOwnerStemId);
+                    if (actualOwnerStemId == null) {
+                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
+                    } else {
+                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameOwnerStemId.getName(), actualOwnerStemId);
+                    }
+                  }
+                  
+                  if (!GrouperUtil.equals(existingStemScope, actualStemScope)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningStemScope to: " + actualStemScope);
+                    markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameStemScope.getName(), actualStemScope);
+                  }
+                  
+                  if (!GrouperUtil.equals(existingTarget, actualTarget)) {
+                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningTarget to: " + actualTarget);
+                    if (actualTarget == null) {
+                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameTarget);
+                    } else {
+                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameTarget.getName(), actualTarget);
+                    }
+                  }
+                  
+                  return null;
+                }
+              });
           
           if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
             provisioningAttributesGroupsAddedOrUpdated++;
