@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -45,10 +46,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -84,6 +87,85 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  */
 public class GrouperEmail {
 
+  /**
+   * add an email allowed to the list of allowed emails in config
+   * @param address
+   * @return true if added, false if already there
+   * @since v2.5.48
+   */
+  public static boolean addAllowEmailToGroup(String address) {
+    GrouperUtil.assertion(!StringUtils.isBlank(address), "Email address is required!");
+    GrouperUtil.assertion(groupDereferencePattern.matcher(address).matches(), "Email address must match pattern: groupName@grouper or groupUuid@grouper");
+
+    String emailAddressString = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    Set<String> emailAddressSet = StringUtils.isBlank(emailAddressString) ? new LinkedHashSet<String>() : GrouperUtil.splitTrimToSet(emailAddressString, ",");
+    if (emailAddressSet.contains(address)) {
+      return false;
+    }
+    emailAddressSet.add(address);
+    emailAddressString = GrouperUtil.join(emailAddressSet.iterator(), ",");
+
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    if (GrouperUtil.length(grouperConfigHibernates) == 0) {
+      GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+      grouperConfigHibernate.setConfigEncrypted(false);
+      grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
+      grouperConfigHibernate.setConfigFileNameDb(ConfigFileName.GROUPER_PROPERTIES.getConfigFileName());
+      grouperConfigHibernate.setConfigKey("mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+      
+      grouperConfigHibernate.setValueToSave(emailAddressString);
+      grouperConfigHibernate.saveOrUpdate(true);
+    } else {
+      GrouperUtil.assertion(GrouperUtil.length(grouperConfigHibernates) == 1, "Why is there more than one entry for mail.smtp.groupUuidAndNameEmailDereferenceAllow?");
+      GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+      grouperConfigHibernate.setValueToSave(emailAddressString);
+      grouperConfigHibernate.saveOrUpdate(false);
+    }
+    return true;
+    
+  }
+  
+  /**
+   * remove an allowed email address from the list of allwoed emails in config
+   * @param address
+   * @return true if removed, false if not there
+   * @since v2.5.48
+   */
+  public static boolean removeAllowEmailToGroup(String address) {
+    GrouperUtil.assertion(!StringUtils.isBlank(address), "Email address is required!");
+    GrouperUtil.assertion(groupDereferencePattern.matcher(address).matches(), "Email address must match pattern: groupName@grouper or groupUuid@grouper");
+    
+    String emailAddressString = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    Set<String> emailAddressSet = StringUtils.isBlank(emailAddressString) ? new LinkedHashSet<String>() : GrouperUtil.splitTrimToSet(emailAddressString, ",");
+    if (!emailAddressSet.contains(address)) {
+      return false;
+    }
+    emailAddressSet.remove(address);
+    emailAddressString = GrouperUtil.join(emailAddressSet.iterator(), ",");
+
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    
+    // dont remove since might be in an upstream config file?
+    if (GrouperUtil.length(grouperConfigHibernates) == 0) {
+      GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+      grouperConfigHibernate.setConfigEncrypted(false);
+      grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
+      grouperConfigHibernate.setConfigFileNameDb(ConfigFileName.GROUPER_PROPERTIES.getConfigFileName());
+      grouperConfigHibernate.setConfigKey("mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+      
+      grouperConfigHibernate.setValueToSave(emailAddressString);
+      grouperConfigHibernate.saveOrUpdate(true);
+    } else {
+      GrouperUtil.assertion(GrouperUtil.length(grouperConfigHibernates) == 1, "Why is there more than one entry for mail.smtp.groupUuidAndNameEmailDereferenceAllow?");
+      
+      GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+      grouperConfigHibernate.setValueToSave(emailAddressString);
+      grouperConfigHibernate.saveOrUpdate(false);
+    }
+
+    return true;
+  }
+  
   /**
    * add a subject (person) to send email to.  The email will not send without "to" address(es)
    * @param subject
