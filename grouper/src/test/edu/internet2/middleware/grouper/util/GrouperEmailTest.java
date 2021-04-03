@@ -3,12 +3,19 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
@@ -21,7 +28,7 @@ import junit.textui.TestRunner;
 public class GrouperEmailTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperEmailTest("testGroupIdEmailDereference"));
+    TestRunner.run(new GrouperEmailTest("testAllowGrouperConfig"));
   }
   
   /**
@@ -38,6 +45,66 @@ public class GrouperEmailTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
   }
 
+  /**
+   * 
+   */
+  public void testAllowGrouperConfig() {
+    
+    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    assertEquals(0, grouperConfigHibernates.size());
+
+    try {
+      GrouperEmail.addAllowEmailToGroup("a@b.c");
+      fail();
+    } catch (Exception e) {
+      // good
+    }
+
+    assertTrue(GrouperEmail.addAllowEmailToGroup("something@grouper"));
+    
+    grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+    
+    assertEquals("something@grouper", grouperConfigHibernate.retrieveValue());
+
+    assertFalse(GrouperEmail.addAllowEmailToGroup("something@grouper"));
+    
+    grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+    
+    assertEquals("something@grouper", grouperConfigHibernate.retrieveValue());
+    
+    assertTrue(GrouperEmail.addAllowEmailToGroup("something1@grouper"));
+    
+    grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+    
+    assertEquals("something@grouper,something1@grouper", grouperConfigHibernate.retrieveValue());
+
+    assertFalse(GrouperEmail.removeAllowEmailToGroup("something2@grouper"));
+
+    assertTrue(GrouperEmail.removeAllowEmailToGroup("something@grouper"));
+      
+    grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+    
+    assertEquals("something1@grouper", grouperConfigHibernate.retrieveValue());
+
+    assertTrue(GrouperEmail.removeAllowEmailToGroup("something1@grouper"));
+    
+    grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(
+        ConfigFileName.GROUPER_PROPERTIES, null, "mail.smtp.groupUuidAndNameEmailDereferenceAllow");
+    grouperConfigHibernate = grouperConfigHibernates.iterator().next();
+    
+    assertTrue(StringUtils.isBlank(grouperConfigHibernate.retrieveValue()));
+
+  }
+  
   /**
    * 
    */

@@ -2338,7 +2338,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
     
   /** batch size for stems (setable for testing) */
-  static int batchSize = 50;
+  static int batchSize = 200;
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findByNames(java.util.Collection, boolean)
@@ -2373,7 +2373,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheRegion(KLASS + ".FindByNames")
         .listSet(Stem.class);
       if (exceptionOnNotFound && currentList.size() != namePageList.size()) {
-        throw new GroupNotFoundException("Didnt find all names: " + GrouperUtil.toStringForLog(namePageList)
+        throw new StemNotFoundException("Didnt find all names: " + GrouperUtil.toStringForLog(namePageList)
             + " , " + namePageList.size() + " != " + currentList.size());
       }
       

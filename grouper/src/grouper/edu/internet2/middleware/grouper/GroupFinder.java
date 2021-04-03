@@ -537,6 +537,25 @@ public class GroupFinder {
     return findByName(s, name, exceptionIfNotFound, null);
   }
 
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name, true);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @param queryOptions paging, sorting, caching options
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByName(String name, boolean exceptionIfNotFound) {
+    return findByName(GrouperSession.staticGrouperSession(), name, exceptionIfNotFound);
+  }
   
   /**
    * Find a group within the registry by name.
@@ -824,6 +843,21 @@ public class GroupFinder {
   @Deprecated
   public static Group findByUuid(GrouperSession s, String uuid) throws GroupNotFoundException {
     return findByUuid(s, uuid, true);
+  }
+
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Group findByUuid(String uuid, boolean exceptionIfNotFound) {
+    return findByUuid(GrouperSession.staticGrouperSession(), uuid, exceptionIfNotFound);
   }
 
   /**

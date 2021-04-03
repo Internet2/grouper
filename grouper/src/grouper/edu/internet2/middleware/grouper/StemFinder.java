@@ -81,6 +81,18 @@ import edu.internet2.middleware.subject.Subject;
 public class StemFinder {
 
   /**
+   * find by names
+   * @param names
+   * @param exceptionOnNotFound
+   * @return the stems that were found
+   */
+  public static Set<Stem> findByNames(Collection<String> names, boolean exceptionOnNotFound) {
+    
+    return GrouperDAOFactory.getFactory().getStem().findByNames(names, exceptionOnNotFound);
+    
+  }
+
+  /**
    * <p>Grouper internal method only</p>
    * remove all caches
    */
