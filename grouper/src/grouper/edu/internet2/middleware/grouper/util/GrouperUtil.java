@@ -112,6 +112,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
+import org.codehaus.groovy.tools.shell.ExitNotification;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -13619,9 +13620,20 @@ public class GrouperUtil {
       }
     }
   }
-  
+
+  /**
+   * get out of GSH with return code
+   * @param returnCode
+   */
+  public static void gshReturn(int returnCode) {
+    throw new ExitNotification(0);
+  }
+
+  /**
+   * get out of gsh with normal return code
+   */
   public static void gshReturn() {
-    throw new GshTemplateReturnException();
+    gshReturn(0);
   }
   
 }

@@ -487,13 +487,7 @@ public class UiV2Template {
         
         guiScreenActions.add(GuiScreenAction.newMessageAppend(guiMessageType, outputLine.getText()));
       }
-      
-      if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
-
-        return;
-      }
-      
+            
       // consolidate messages
       if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".consolidateOutput", true)) {
         for (GuiMessageType guiMessageType : GuiMessageType.values() ) {
@@ -505,6 +499,11 @@ public class UiV2Template {
           // see if there is at least one message of this type
           while (iterator.hasNext()) {
             GuiScreenAction guiScreenAction = iterator.next();
+            
+            if (!StringUtils.isBlank(guiScreenAction.getValidationMessage())) {
+              continue;
+            }
+            
             if (StringUtils.equalsIgnoreCase(guiMessageType.name(), guiScreenAction.getMessageType())) {
               if (newMessageForType.length() > 0) {
                 newMessageForType.append("<br />");
@@ -539,8 +538,18 @@ public class UiV2Template {
       } else {
         // it is complete, leave it be
         gshExecThreadProgress.put(reportMultiKey, null);
-        
-        
+
+        if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+
+          for (GuiScreenAction guiScreenAction : guiScreenActions) {
+            guiResponseJs.addAction(guiScreenAction);
+          }
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
+
+          return;
+        }
+
         if (!gshTemplateExecOutput.isSuccess()) {
           
           for (GuiScreenAction guiScreenAction : guiScreenActions) {

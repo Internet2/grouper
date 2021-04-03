@@ -220,12 +220,13 @@ public class AttestationStemSave {
   private boolean emailAddressesAssigned = false;
 
   /**
-   * the stem scope of the attestation
+   * assign stem scope for propagation, ONE or SUB
+   * Stem.Scope.ONE or Stem.Scope.SUB
    */
   private Scope stemScope = null;
 
   /**
-   * assign stem scope for propagation
+   * assign stem scope for propagation, ONE or SUB
    * @return this for chaining
    */
   public AttestationStemSave assignStemScope(String theStemScope) {
@@ -234,7 +235,7 @@ public class AttestationStemSave {
   }
 
   /**
-   * assign stem scope for propagation
+   * assign stem scope for propagation, Stem.Scope.ONE or Stem.Scope.SUB
    * @return this for chaining
    */
   public AttestationStemSave assignStemScope(Scope theStemScope) {

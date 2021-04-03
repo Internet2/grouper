@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.tools.shell.ExitNotification;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.util.Logger;
@@ -396,6 +397,9 @@ private static boolean handleSpecialCase(String[] args) {
   public static void handleScriptLoadError(int lineNumber, String command, Throwable t) {
     if (t instanceof GshTemplateReturnException) {
       return;
+    }
+    if (t instanceof ExitNotification) {
+      throw (ExitNotification)t;
     }
     String error = "Error while running line number " + lineNumber + " command (" + command +  "), ";
     GrouperUtil.injectInException(t, error);
