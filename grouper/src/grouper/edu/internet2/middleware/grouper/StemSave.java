@@ -36,9 +36,43 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
 /**
- * Use this class to insert or update a stem
+ * 
+ * <p> Use this class to insert or update a stem </p>
+ * 
+ * <p>
+ * Sample call
+ * <blockquote>
+ * <pre>
+ * StemSave stemSave = new StemSave(grouperSession).assignName("test")
+ *  .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+ *  .assignDescription("testDescription");
+ * Stem stem = stemSave.save();
+ * System.out.println(stemSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * </p>
+ * 
+ * <p>
+ * Sample to delete
+ * 
+ * <blockquote>
+ * <pre>
+ * new StemSave(grouperSession).assignUuid(stem.getId()).assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p>
+ * To edit just one field (the description) for existing stem
+ * <blockquote>
+ * <pre>
+ * new StemSave(grouperSession).assignUuid(stem.getId())
+ *  .assignDisplayExtension("test1")
+ *  .assignAlternateName("newAlternateName")
+ *  .assignReplaceAllSettings(false).save();
+ * </blockquote>
+ * </pre>
+ * </p>
  */
 public class StemSave {
   

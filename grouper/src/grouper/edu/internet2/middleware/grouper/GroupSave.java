@@ -50,30 +50,41 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * The GroupSave class is the recommended and support way to insert/update/delete a group.  This class was introduced in v1.4+ , some options added later.
  * <p>
  * Sample call
- * </p>
+ * <blockquote>
  * <pre>
  * Group groupAbc = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true).save();
  * </pre>
+ * </blockquote>
+ * </p>
+ * 
  * <p>
  * Sample using GroupSave results
- * </p>
+ * <blockquote>
  * <pre>
  * GroupSave groupSave = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true);
  * Group groupAbc = groupSave.save();
  * System.out.println(groupSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
  * </pre>
+ * </blockquote>
+ * </p>
+ * 
  * <p>
  * Sample to delete
- * </p>
+ * <blockquote>
  * <pre>
  * new GroupSave().assignName("a:b:c").assignSaveMode("DELETE").save();
  * </pre>
- * <p>
- * To edit just one field (the description) for existing group a:b:c 
+ * </blockquote>
  * </p>
+ * 
+ * <p>
+ * To edit just one field (the description) for existing group a:b:c
+ * <blockquote> 
  * <pre>
- *  new GroupSave().assignName("a:b:c").assignDescription("new description").assignReplaceAllSettings(false).save();
- *  </pre>
+ * new GroupSave().assignName("a:b:c").assignDescription("new description").assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class GroupSave {
   

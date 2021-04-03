@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -105,7 +106,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testStemSaveReplaceAllSettingsFalse"));
+    TestRunner.run(new TestStem("testStemDelete"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -316,8 +317,7 @@ public class TestStem extends GrouperTest {
     // test stem, subject 1 and 2 have admin
     StemSave stemSave = new StemSave(grouperSession).assignName("test")
         .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
-        .assignDescription("testDescription")
-        ;
+        .assignDescription("testDescription");
     Stem stem = stemSave.save();
     
     assertEquals("testDescription", stem.getDescription());
@@ -331,6 +331,25 @@ public class TestStem extends GrouperTest {
     assertEquals("testDescription", stem.getDescription());
     assertEquals("test1", stem.getDisplayExtension());
     assertEquals("newAlternateName", stem.getAlternateName());
+    
+  }
+  
+  public void testStemDelete() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // test stem, subject 1 and 2 have admin
+    StemSave stemSave = new StemSave(grouperSession).assignName("test")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+        .assignDescription("testDescription");
+    Stem stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    
+    stemSave = new StemSave(grouperSession).assignUuid(stem.getId())
+        .assignSaveMode(SaveMode.DELETE);
+    stem = stemSave.save();
+    
+    assertEquals(SaveResultType.DELETE, stemSave.getSaveResultType());
     
   }
   

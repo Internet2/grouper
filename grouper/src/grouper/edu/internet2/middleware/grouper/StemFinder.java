@@ -73,7 +73,7 @@ import edu.internet2.middleware.subject.Subject;
  * <blockquote>
  * <pre>
  * Set<Stem> stems = new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
-        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems()
+        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems();
  * </pre>
  * </blockquote>
  * </p>

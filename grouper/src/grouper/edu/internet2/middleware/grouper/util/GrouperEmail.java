@@ -48,7 +48,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
