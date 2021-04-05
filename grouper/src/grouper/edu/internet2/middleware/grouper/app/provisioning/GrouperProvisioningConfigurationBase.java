@@ -56,7 +56,7 @@ public abstract class GrouperProvisioningConfigurationBase {
    * @return if create
    */
   public boolean isCreateGroupDuringDiagnostics() {
-    return createGroupDuringDiagnostics;
+    return GrouperUtil.booleanValue(createGroupDuringDiagnostics, false);
   }
 
   /**
