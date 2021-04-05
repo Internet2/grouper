@@ -16,6 +16,7 @@ import com.box.sdk.BoxUser;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.OtherJobLogUpdater;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -53,8 +54,12 @@ public class GrouperBoxLoader extends OtherJobBase {
     
     this.debugMap.put("state", "retrieveEppns");
     
+    String eppnQuery = "select ps.penn_id, ps.eppn from person_source ps where eppn is not null";
+    GrouperUtil.assertion(!StringUtils.isBlank(this.jobName), "jobName cant be blank");
+    GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + this.jobName + ".subjectIdToEppnQuery", eppnQuery);
+    
     List<Object[]> subjectIdAndEppns = new GcDbAccess().sql(
-        "select ps.penn_id, ps.eppn from person_source ps where eppn is not null").selectList(Object[].class);
+        eppnQuery).selectList(Object[].class);
     
     eppnToSubjectId = new HashMap<String, String>();
     
@@ -241,11 +246,17 @@ public class GrouperBoxLoader extends OtherJobBase {
     this.debugMap.put("deletes", deletes);
   }
 
+  private String jobName = null;
+  
   /**
    * 
    */
   @Override
   public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
+    jobName = theOtherJobInput.getJobName();
+    
+    // jobName = OTHER_JOB_boxLoader
+    jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
 
     OtherJobLogUpdater otherJobLogUpdater = new OtherJobLogUpdater() {
       
