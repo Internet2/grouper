@@ -1204,7 +1204,13 @@ public class GcDbAccess {
         List<Object> bindVarstoUse = new ArrayList<Object>();
 
         // Update if we are already saved.
-        if ((isInsert != null && !isInsert) || !isPreviouslyPersisted(object)){
+        Boolean isUpdate = null;
+        if (isInsert != null) {
+          isUpdate = !isInsert;
+        } else {
+          isUpdate = isPreviouslyPersisted(object);
+        }
+        if (isUpdate){
 
           // Create the sql.
           if (!updateSqlInitialized){
