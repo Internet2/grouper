@@ -1772,7 +1772,7 @@ public class GrouperProvisioningService {
           Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
           for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
             AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
-            if (configId.equals(attributeAssignValue.getValueString())) {
+            if (attributeAssignValue != null && configId.equals(attributeAssignValue.getValueString())) {
               markerAttributeAssign.delete();
               break;
             }
@@ -1838,7 +1838,7 @@ public class GrouperProvisioningService {
                   Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
                   for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
                     AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
-                    if (configId.equals(attributeAssignValue.getValueString())) {
+                    if (attributeAssignValue != null && configId.equals(attributeAssignValue.getValueString())) {
                       markerAssign = markerAttributeAssign;
                       break;
                     }
