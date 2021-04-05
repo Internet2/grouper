@@ -31,6 +31,7 @@ public class LdapConfiguration {
   private String dnAttributeForSearches;
   private int queryBatchSize;
   private int updateBatchSize;
+  private Integer pageSize;
   
   /**
    * @param ldapServerId
@@ -40,6 +41,7 @@ public class LdapConfiguration {
     this.dnAttributeForSearches = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".dnAttributeForSearches", null);
     this.queryBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".queryBatchSize", 100);
     this.updateBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".updateBatchSize", 100);
+    this.pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
   
     if (this.dnAttributeForSearches == null && this.isActiveDirectory) {
       this.dnAttributeForSearches = "distinguishedName";
@@ -70,6 +72,15 @@ public class LdapConfiguration {
     
     return configs.get(ldapServerId);
   }
+  
+  /**
+   * @param ldapServerId
+   */
+  public static void removeConfig(String ldapServerId) {
+    synchronized (LdapConfiguration.class) {
+      configs.remove(ldapServerId);
+    }
+  }
 
   
   /**
@@ -98,5 +109,20 @@ public class LdapConfiguration {
    */
   public int getUpdateBatchSize() {
     return updateBatchSize;
+  }
+
+  /**
+   * @return page size
+   */
+  public Integer getPageSize() {
+    return pageSize;
+  }
+
+  
+  /**
+   * @param pageSize
+   */
+  public void setPageSize(Integer pageSize) {
+    this.pageSize = pageSize;
   }
 }

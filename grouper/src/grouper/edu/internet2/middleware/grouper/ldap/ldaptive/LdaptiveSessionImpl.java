@@ -786,7 +786,15 @@ public class LdaptiveSessionImpl implements LdapSession {
     
     Response<SearchResult> response = null;
     SearchResult searchResults;
-    Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
+
+    Integer pageSize = LdapConfiguration.getConfig(ldapServerId).getPageSize();
+    if (pageSize != null) {
+      if (pageSize < 0) {
+        pageSize = null;
+      }
+    } else if (LdapConfiguration.getConfig(ldapServerId).isActiveDirectory()) {
+      pageSize = getDefaultActiveDirectoryPageSize(ldapServerId, ldap);
+    }
     
     if (this.debug) {
       this.debugLog.append("Ldaptive searchRequest: ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
@@ -808,6 +816,68 @@ public class LdaptiveSessionImpl implements LdapSession {
     return searchResults;
   }
   
+  private synchronized Integer getDefaultActiveDirectoryPageSize(String ldapServerId, Connection ldap) {
+    Integer pageSize = 1000;
+    
+    try {
+      LdapEntry rootLdapEntry;
+      
+      {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setSearchFilter(new SearchFilter("(objectClass=*)"));
+        searchRequest.setReturnAttributes("configurationNamingContext");
+        searchRequest.setBaseDn("");
+        searchRequest.setSearchScope(SearchScope.OBJECT);
+  
+        if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+          searchRequest.setReferralHandler(new SearchReferralHandler());
+        }
+        
+        SearchOperation search = new SearchOperation(ldap);
+        Response<SearchResult> response = search.execute(searchRequest);
+        SearchResult searchResult = response.getResult();
+        rootLdapEntry = searchResult.getEntry();
+      }
+      if (rootLdapEntry != null && rootLdapEntry.getAttribute("configurationNamingContext") != null && !GrouperUtil.isEmpty(rootLdapEntry.getAttribute("configurationNamingContext").getStringValue())) {
+        String configurationDn = rootLdapEntry.getAttribute("configurationNamingContext").getStringValue();
+        
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setSearchFilter(new SearchFilter("(&(objectClass=queryPolicy)(cn=Default Query Policy))"));
+        searchRequest.setReturnAttributes("lDAPAdminLimits");
+        searchRequest.setBaseDn(configurationDn);
+        searchRequest.setSearchScope(SearchScope.SUBTREE);
+  
+        if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+          searchRequest.setReferralHandler(new SearchReferralHandler());
+        }
+        
+        SearchOperation search = new SearchOperation(ldap);
+        Response<SearchResult> response = search.execute(searchRequest);
+        SearchResult searchResult = response.getResult();
+        LdapEntry queryPolicyLdapEntry = searchResult.getEntry();
+        if (queryPolicyLdapEntry != null && queryPolicyLdapEntry.getAttribute("lDAPAdminLimits") != null) {
+          for (String adminLimit : GrouperUtil.nonNull(queryPolicyLdapEntry.getAttribute("lDAPAdminLimits").getStringValues())) {
+            if (adminLimit != null && adminLimit.startsWith("MaxPageSize=")) {
+              String pageSizeString = adminLimit.substring("MaxPageSize=".length());
+              pageSize = Integer.parseInt(pageSizeString);
+              LOG.warn("Using pagedResultsSize from " + queryPolicyLdapEntry.getDn());
+              break;
+            }
+          }
+        }
+
+      }
+    } catch (Exception e) {
+      LOG.error("Exception trying to determine default Active Directory page size", e);
+    }
+    
+    LOG.warn("pagedResultsSize is not set for '" + ldapServerId + "' even though it is usually required with Active Directory. Set to -1 to force no paging. Defaulting to " + pageSize + ".");
+    
+    LdapConfiguration.getConfig(ldapServerId).setPageSize(pageSize);
+    
+    return pageSize;
+  }
+
   private List<edu.internet2.middleware.grouper.ldap.LdapEntry> getLdapEntriesFromSearchResult(SearchResult searchResults, String[] attributeNames) {
 
     List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<edu.internet2.middleware.grouper.ldap.LdapEntry>();
@@ -1184,6 +1254,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         if (!propertiesMap.get(ldapServerId).equals(getLdaptiveProperties(ldapServerId))) {
           PooledConnectionFactory pool = poolMap.remove(ldapServerId);
           poolsNeedingCleanup.add(pool);
+          LdapConfiguration.removeConfig(ldapServerId);
         }
       }
     }
