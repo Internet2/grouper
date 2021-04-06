@@ -1,9 +1,9 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public enum GshTemplateInputType {
   
@@ -14,7 +14,7 @@ public enum GshTemplateInputType {
       
      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
-     Integer valueToUseInteger = GrouperUtil.intObjectValue(valueToUse, true);
+     String valueToUseInteger = StringUtils.isBlank(valueToUse) ? "null" : Integer.toString(GrouperUtil.intObjectValue(valueToUse, false));
      
      return "Integer "+gshTemplateInputConfig.getName() + " = " + valueToUseInteger + ";\n";
     }
@@ -48,7 +48,7 @@ public enum GshTemplateInputType {
       String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
       
       return "String "+gshTemplateInputConfig.getName() + " = " 
-        + (valueFromUser == null ? "null" : ("\"" + StringEscapeUtils.escapeJava(valueToUse) + "\"")) + ";\n";
+        + (StringUtils.isEmpty(valueFromUser) ? "null" : ("\"" + StringEscapeUtils.escapeJava(valueToUse) + "\"")) + ";\n";
     }
     
     @Override

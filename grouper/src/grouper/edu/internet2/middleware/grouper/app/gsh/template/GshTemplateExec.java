@@ -392,9 +392,6 @@ public class GshTemplateExec {
       String valueFromUser = null;
       if (gshTemplateInput != null) {
         valueFromUser = gshTemplateInput.getValueString();
-        if (inputConfig.isTrimWhitespace()) {
-          valueFromUser = valueFromUser.trim();
-        }
       }
       
       String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(inputConfig, valueFromUser);

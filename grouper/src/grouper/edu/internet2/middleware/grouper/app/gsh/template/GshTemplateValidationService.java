@@ -218,6 +218,10 @@ public class GshTemplateValidationService {
         
         String valueFromUser = gshTemplateInput.getValueString();
         
+        if (gshTemplateInputConfig.isTrimWhitespace() && gshTemplateInput.getValueString() != null) {
+          gshTemplateInput.assignValueString(gshTemplateInput.getValueString().trim());          
+        }
+        
         if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
@@ -272,13 +276,10 @@ public class GshTemplateValidationService {
       
       GshTemplateInputConfig gshTemplateInputConfig = inputConfigs.get(gshTemplateInput.getName());
       String valueFromUser = gshTemplateInput.getValueString();
-      if (gshTemplateInputConfig.isTrimWhitespace() && StringUtils.isNotBlank(valueFromUser)) {
-        valueFromUser = valueFromUser.trim();
-      }
       
       {
         // required
-        if (gshTemplateInputConfig.isRequired() && StringUtils.isBlank(valueFromUser)) {
+        if (gshTemplateInputConfig.isRequired() && StringUtils.isEmpty(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.required.message");
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
@@ -317,7 +318,7 @@ public class GshTemplateValidationService {
       {
         // validate the value provided by the user
         GshTemplateInputValidationType gshTemplateInputValidationType = gshTemplateInputConfig.getGshTemplateInputValidationType();
-        if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
+        if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex && !StringUtils.isBlank(valueFromUser)) {
           boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateExec.getGshTemplateInputs());
           if (!valuePasses) {
             
@@ -337,7 +338,7 @@ public class GshTemplateValidationService {
               return false;
             }            
           }
-        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl) {
+        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl && !StringUtils.isBlank(valueFromUser)) {
           boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateExec.getGshTemplateInputs());
           if (!valuePasses) {
             
@@ -359,7 +360,7 @@ public class GshTemplateValidationService {
             }
             
           }
-        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin) {
+        } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin && !StringUtils.isBlank(valueFromUser)) {
           boolean valuePasses = gshTemplateInputValidationType.doesValuePassValidation(gshTemplateInputConfig, valueFromUser, gshTemplateExec.getGshTemplateInputs());
           if (!valuePasses) {
             
