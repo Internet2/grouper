@@ -266,7 +266,7 @@ public class GrouperGroovysh extends Groovysh {
    * arent there and imports largely arent there
    * @return the result
    */
-  public static GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut, List<String> scriptLinesForLogging, int[] currentLineNumber) {
+  public static synchronized GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut, List<String> scriptLinesForLogging, int[] currentLineNumber) {
     
     GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
     

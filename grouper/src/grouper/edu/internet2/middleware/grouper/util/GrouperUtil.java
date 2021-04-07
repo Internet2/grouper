@@ -213,6 +213,32 @@ public class GrouperUtil {
 //    System.out.println("Result: " + result);
 //    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
 
+    final String[] scripts = new String[10];
+    Thread[] threads = new Thread[10];
+    for (int i=0;i<10;i++) {
+      scripts[i] = "String script = \"script" + i + "\";\n";
+      scripts[i] += "int count = " + i + ";\n";
+      long sleepMillis = (long)(Math.random() * 1000);
+      scripts[i] += "GrouperUtil.sleep(" + sleepMillis + ");\n";
+      scripts[i] += "count++;\n";
+      scripts[i] += "System.out.println(script + \": \" + count);\n";
+      
+      final int INDEX = i;
+      threads[i] = new Thread(new Runnable() {
+        
+        @Override
+        public void run() {
+          System.out.println(GrouperUtil.gshRunScript(scripts[INDEX]));
+          
+        }
+      });
+      
+      threads[i].start();
+    }
+
+    for (int i=0;i<10;i++) {
+      threads[i].join();
+    }
     
   }
 
@@ -221,7 +247,7 @@ public class GrouperUtil {
    * @param script
    * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
    * arent there and imports largely arent there
-   * @return the script
+   * @return the output
    */
   public static String gshRunScript(String script) {
     return gshRunScript(script, false);
@@ -232,7 +258,7 @@ public class GrouperUtil {
    * @param script
    * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
    * arent there and imports largely arent there
-   * @return the script
+   * @return the output
    */
   public static String gshRunScript(String script, boolean lightWeight) {
     try {
