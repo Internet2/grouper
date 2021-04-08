@@ -86,6 +86,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -133,7 +137,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -213,33 +216,47 @@ public class GrouperUtil {
 //    System.out.println("Result: " + result);
 //    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
 
-    final String[] scripts = new String[10];
-    Thread[] threads = new Thread[10];
-    for (int i=0;i<10;i++) {
-      scripts[i] = "String script = \"script" + i + "\";\n";
+    final String[] scripts = new String[1];
+    Thread[] threads = new Thread[1];
+    long mainStart = System.nanoTime();
+    for (int i=0;i<1;i++) {
+      scripts[i] = "";
+      scripts[i] += GrouperUtil.readResourceIntoString("groovy.profile", false) + "\n";
+      scripts[i] += "String script = \"script" + i + "\";\n";
       scripts[i] += "int count = " + i + ";\n";
       long sleepMillis = (long)(Math.random() * 1000);
-      scripts[i] += "GrouperUtil.sleep(" + sleepMillis + ");\n";
+      scripts[i] += "//GrouperUtil.sleep(" + sleepMillis + ");\n";
       scripts[i] += "count++;\n";
-      scripts[i] += "System.out.println(script + \": \" + count);\n";
+      scripts[i] += "System.out.println(script + \": \" + count + \": \" + " + sleepMillis + ");\n";
       
       final int INDEX = i;
       threads[i] = new Thread(new Runnable() {
         
         @Override
         public void run() {
-          System.out.println(GrouperUtil.gshRunScript(scripts[INDEX]));
-          
+          try {
+            long start = System.nanoTime();
+//            System.out.println(GrouperUtil.gshRunScript(scripts[INDEX]));
+            ScriptEngineManager factory = new ScriptEngineManager();
+            ScriptEngine engine = factory.getEngineByName("groovy");
+            CompiledScript compiledScript = ((Compilable)engine).compile(scripts[INDEX]);
+            System.out.println("Compile: " + ((System.nanoTime()-start) / 1000000));
+            start = System.nanoTime();
+            compiledScript.eval();
+            System.out.println("Run: " + ((System.nanoTime()-start) / 1000000));
+          } catch (Exception e) {
+            LOG.error("error", e);
+          }
         }
       });
       
       threads[i].start();
     }
 
-    for (int i=0;i<10;i++) {
+    for (int i=0;i<1;i++) {
       threads[i].join();
     }
-    
+    System.out.println("All: " + ((System.nanoTime()-mainStart) / 1000000));
   }
 
   /**

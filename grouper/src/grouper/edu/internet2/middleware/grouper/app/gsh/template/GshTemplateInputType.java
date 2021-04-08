@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -10,13 +9,15 @@ public enum GshTemplateInputType {
   INTEGER {
 
     @Override
-    public String generateGshVariable(GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
-     String valueToUseInteger = StringUtils.isBlank(valueToUse) ? "null" : Integer.toString(GrouperUtil.intObjectValue(valueToUse, false));
+     Integer valueToUseInteger = GrouperUtil.intObjectValue(valueToUse, true);
      
-     return "Integer "+gshTemplateInputConfig.getName() + " = " + valueToUseInteger + ";\n";
+     gshTemplateRuntime.assignInputValueInteger(gshTemplateInputConfig.getName(), valueToUseInteger);
+
+     return "Integer "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueInteger(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
 
     @Override
@@ -43,12 +44,13 @@ public enum GshTemplateInputType {
   STRING {
     
     @Override
-    public String generateGshVariable(GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
       String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
-      
-      return "String "+gshTemplateInputConfig.getName() + " = " 
-        + (StringUtils.isEmpty(valueFromUser) ? "null" : ("\"" + StringEscapeUtils.escapeJava(valueToUse) + "\"")) + ";\n";
+
+      gshTemplateRuntime.assignInputValueString(gshTemplateInputConfig.getName(), valueToUse);
+
+      return "String "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueString(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     
     @Override
@@ -66,15 +68,14 @@ public enum GshTemplateInputType {
   BOOLEAN {
     
     @Override
-    public String generateGshVariable(GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
      Boolean valueToUseBoolean = GrouperUtil.booleanObjectValue(valueToUse);
-     
-     String value = valueToUseBoolean == null ? "null" : (valueToUseBoolean ? "true" : "false");
-     
-     return "Boolean "+gshTemplateInputConfig.getName() + " = " + value + ";\n";
+
+     gshTemplateRuntime.assignInputValueBoolean(gshTemplateInputConfig.getName(), valueToUseBoolean);
+     return "Boolean "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueBoolean(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     
     @Override
@@ -109,7 +110,7 @@ public enum GshTemplateInputType {
   }
   
   
-  public abstract String generateGshVariable(GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
+  public abstract String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
 
   public abstract boolean canConvertToCorrectType(String valueFromUser);
   

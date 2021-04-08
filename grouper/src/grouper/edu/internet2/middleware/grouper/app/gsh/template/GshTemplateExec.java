@@ -348,36 +348,30 @@ public class GshTemplateExec {
     
     StringBuilder scriptToRun = new StringBuilder();
     
-    scriptToRun.append("import edu.internet2.middleware.grouper.app.gsh.template.*;");
-    scriptToRun.append("\n");
+    scriptToRun.append("import edu.internet2.middleware.grouper.app.gsh.template.*;\n");
 
-    scriptToRun.append("import edu.internet2.middleware.grouper.util.*;");
-    scriptToRun.append("\n");
+    scriptToRun.append("import edu.internet2.middleware.grouper.util.*;\n");
     
-    scriptToRun.append("GshTemplateOutput gsh_builtin_gshTemplateOutput = GshTemplateOutput.retrieveGshTemplateOutput(); ");
-    scriptToRun.append("\n");
+    scriptToRun.append("GshTemplateOutput gsh_builtin_gshTemplateOutput = GshTemplateOutput.retrieveGshTemplateOutput();\n");
     
-    scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime(); ");
-    scriptToRun.append("\n");
+    scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
     
-    scriptToRun.append("GrouperSession gsh_builtin_grouperSession = gsh_builtin_gshTemplateRuntime.getGrouperSession();");
-    scriptToRun.append("\n");
+    scriptToRun.append("GrouperSession gsh_builtin_grouperSession = gsh_builtin_gshTemplateRuntime.getGrouperSession();\n");
     
-    scriptToRun.append("Subject gsh_builtin_subject = gsh_builtin_gshTemplateRuntime.getCurrentSubject();");
-    scriptToRun.append("\n");
+    scriptToRun.append("Subject gsh_builtin_subject = gsh_builtin_gshTemplateRuntime.getCurrentSubject();\n");
     
-    scriptToRun.append("String gsh_builtin_subjectId = \""+ StringEscapeUtils.escapeJava(currentUser.getId()) + "\";");
-    scriptToRun.append("\n");
-    
+    scriptToRun.append("String gsh_builtin_subjectId = gsh_builtin_gshTemplateRuntime.getCurrentSubject().getId();\n");
+
+
     if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
-      scriptToRun.append("String gsh_builtin_ownerStemName = \""+StringEscapeUtils.escapeJava(ownerStemName) + "\";");
-      scriptToRun.append("\n");
+      gshTemplateRuntime.setOwnerStemName(ownerStemName);
     } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
-      scriptToRun.append("String gsh_builtin_ownerGroupName = \""+StringEscapeUtils.escapeJava(ownerGroupName) + "\";");
-      scriptToRun.append("\n");
+      gshTemplateRuntime.setOwnerGroupName(ownerGroupName);
     } else {
       throw new RuntimeException("Invalid gsh template owner type "+this.gshTemplateOwnerType);
     }
+    scriptToRun.append("String gsh_builtin_ownerStemName = gsh_builtin_gshTemplateRuntime.getOwnerStemName();\n");
+    scriptToRun.append("String gsh_builtin_ownerGroupName = gsh_builtin_gshTemplateRuntime.getOwnerGroupName();\n");
     
     Map<String, GshTemplateInput> gshTemplateInputsMap = new HashMap<String, GshTemplateInput>();
     
@@ -394,7 +388,7 @@ public class GshTemplateExec {
         valueFromUser = gshTemplateInput.getValueString();
       }
       
-      String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(inputConfig, valueFromUser);
+      String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(gshTemplateRuntime, inputConfig, valueFromUser);
       
       scriptToRun.append(gshVariable);
       
