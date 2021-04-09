@@ -11,12 +11,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.text.StringEscapeUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -60,6 +61,29 @@ import edu.internet2.middleware.subject.Subject;
 */
 public class GshTemplateExec {
   
+  /**
+   * pass in so you have a reference
+   */
+  private GrouperGroovyRuntime grouperGroovyRuntime = null;
+  
+  /**
+   * pass in so you have a reference
+   * @return
+   */
+  public GrouperGroovyRuntime getGrouperGroovyRuntime() {
+    return grouperGroovyRuntime;
+  }
+
+  /**
+   * pass in so you have a reference
+   * @param grouperGroovyRuntime
+   */
+  public GshTemplateExec assignGrouperGroovyRuntime(GrouperGroovyRuntime grouperGroovyRuntime) {
+    this.grouperGroovyRuntime = grouperGroovyRuntime;
+    return this;
+  }
+
+
   /**
    * have a progress bean to be able to communicate progress to the UI
    */
@@ -234,32 +258,6 @@ public class GshTemplateExec {
   }
 
   /**
-   * array holds current line number
-   */
-  private int[] lineNumber = new int[] {0};
-  
-  /**
-   * lines of script
-   */
-  private List<String> linesOfScript = new ArrayList<String>();
-  
-  /**
-   * current line number
-   * @return
-   */
-  public int getLineNumber() {
-    return this.lineNumber[0];
-  }
-  
-  /**
-   * total number of lines in script
-   * @return
-   */
-  public int getLinesOfScript() {
-    return this.linesOfScript.size();
-  }
-  
-  /**
    * execute the gsh template
    * @return
    */
@@ -348,15 +346,16 @@ public class GshTemplateExec {
     
     StringBuilder scriptToRun = new StringBuilder();
     
-    scriptToRun.append("import edu.internet2.middleware.grouper.app.gsh.template.*;\n");
+    if (templateConfig.isGshLightweight()) {
+      scriptToRun.append("import edu.internet2.middleware.grouper.app.gsh.template.*;\n");
+      scriptToRun.append("import edu.internet2.middleware.subject.*;\n");
+    }
 
-    scriptToRun.append("import edu.internet2.middleware.grouper.util.*;\n");
-    
     scriptToRun.append("GshTemplateOutput gsh_builtin_gshTemplateOutput = GshTemplateOutput.retrieveGshTemplateOutput();\n");
     
     scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
     
-    scriptToRun.append("GrouperSession gsh_builtin_grouperSession = gsh_builtin_gshTemplateRuntime.getGrouperSession();\n");
+    scriptToRun.append("GrouperSession gsh_builtin_grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
     
     scriptToRun.append("Subject gsh_builtin_subject = gsh_builtin_gshTemplateRuntime.getCurrentSubject();\n");
     
@@ -379,6 +378,14 @@ public class GshTemplateExec {
       gshTemplateInputsMap.put(gshTemplateInput.getName(), gshTemplateInput);
     }
     
+    GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+
+    // keep a handle of the runtime
+    if (this.grouperGroovyRuntime == null) {
+      this.grouperGroovyRuntime = new GrouperGroovyRuntime();
+    }
+    grouperGroovyInput.assignGrouperGroovyRuntime(this.grouperGroovyRuntime);
+    
     for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
       
       GshTemplateInput gshTemplateInput = gshTemplateInputsMap.get(inputConfig.getName());
@@ -388,7 +395,7 @@ public class GshTemplateExec {
         valueFromUser = gshTemplateInput.getValueString();
       }
       
-      String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(gshTemplateRuntime, inputConfig, valueFromUser);
+      String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(grouperGroovyInput, inputConfig, valueFromUser);
       
       scriptToRun.append(gshVariable);
       
@@ -404,7 +411,6 @@ public class GshTemplateExec {
       GshTemplateOutput.assignThreadLocalGshTemplateOutput(gshTemplateOutput);
       GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(gshTemplateRuntime);
       grouperSession = GrouperSession.start(grouperSessionSubject);
-      gshTemplateRuntime.setGrouperSession(grouperSession);
 
       GrouperGroovyResult grouperGroovyResult = null;
       
@@ -412,7 +418,7 @@ public class GshTemplateExec {
       
       StringBuilder inputsStringBuilder = new StringBuilder();
       for (GshTemplateInput input: this.gshTemplateInputs) {
-        inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(input.getValueString(), 50) + ";");
+        inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(input.getValueString(), 100) + ";");
       }
       
       final boolean success[] = {true};
@@ -424,8 +430,15 @@ public class GshTemplateExec {
   
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
-          GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(scriptToRun.toString(), templateConfig.isGshLightweight(), true, linesOfScript, lineNumber);
+
+          grouperGroovyInput.assignScript(scriptToRun.toString());
+          grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
           
+          GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+          gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
+
+          GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+
           for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
             if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
               success[0] = false;
@@ -483,13 +496,13 @@ public class GshTemplateExec {
         }
       }
       
-      this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.getOutString());
+      this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.fullOutput());
       this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());
       
       if (this.gshTemplateExecOutput.getException() != null) {
-        LOG.error(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
+        LOG.error("Exception in GSH template: " + this.configId + ", " + SubjectHelper.getPretty(this.currentUser), grouperGroovyResult.getException());
       } else {
-        LOG.debug(grouperGroovyResult.getOutString() + ", inputs:" +inputsStringBuilder.toString(), grouperGroovyResult.getException());
+        LOG.debug("Exception in GSH template: " + this.configId + ", " + SubjectHelper.getPretty(this.currentUser), grouperGroovyResult.getException());
       }
       
     } catch (RuntimeException e) {

@@ -390,25 +390,6 @@ private static boolean handleSpecialCase(String[] args) {
   }
   
   /**
-   * called from script run in grouper
-   * @param command
-   * @param t
-   */
-  public static void handleScriptLoadError(int lineNumber, String command, Throwable t) {
-    if (t instanceof GshTemplateReturnException) {
-      return;
-    }
-    if (t instanceof ExitNotification) {
-      throw (ExitNotification)t;
-    }
-    String error = "Error while running line number " + lineNumber + " command (" + command +  "), ";
-    GrouperUtil.injectInException(t, error);
-    // this will print to the stdout which is in the script
-    t.printStackTrace();
-    throw new RuntimeException(error, t);
-  }
-  
-  /**
    * @return groovy string to preload
    */
   public static String getGroovyPreloadString() {

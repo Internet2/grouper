@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -17,8 +18,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -460,37 +462,49 @@ public class CustomUiContainer {
   }
 
   public String gshRunScript(Group group, Subject subject, Subject subjectLoggedIn, String scriptPart) {
-    StringBuilder script = new StringBuilder();
+    final StringBuilder script = new StringBuilder();
     
     Map<String, Object> variables = new TreeMap<String, Object>();
     
     variables.putAll(GrouperUtil.nonNull(this.overrideMap()));
     variables.putAll(GrouperUtil.nonNull(this.customUiEngine.userQueryVariables()));
-    
-    for (String key: variables.keySet()) {
+
+    GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+
+    for (String key: new TreeSet<String>(variables.keySet())) {
       
       Object value = variables.get(key);
+      grouperGroovyInput.assignInputValueObject(key, value);
       if (value instanceof Number) {
-        script.append(key).append(" = ").append(value).append(";\n");
+        script.append("Number " + key + " = (Number)grouperGroovyRuntime.retrieveInputValueObject(\"" + key + "\");\n");
       } else if (value instanceof Boolean) {
-        script.append(key).append(" = ").append(((Boolean)value) ? "true" : "false").append(";\n");
+        script.append("boolean " + key + " = grouperGroovyRuntime.retrieveInputValueBoolean(\"" + key + "\");\n");
       } else if (value instanceof String) {
-        script.append(key).append(" = ").append("\"").append(StringUtils.replace((String)value, "\"", "\\\"")).append("\"").append(";\n");
+        script.append("String " + key + " = grouperGroovyRuntime.retrieveInputValueString(\"" + key + "\");\n");
       } else if (value == null) {
-        script.append(key).append(" = null").append(";\n");
+        script.append("Object " + key + " = null;\n");
       }
       
     }
-    script.append("grouperSession = GrouperSession.startRootSession();\n");
-    script.append("subject = SubjectFinder.findByIdAndSource(\"").append(StringUtils.replace((String)subject.getId(), "\"", "\\\""))
-      .append("\", \"").append(StringUtils.replace((String)subject.getSourceId(), "\"", "\\\"")).append("\", true);\n");
-    script.append("subjectLoggedIn = SubjectFinder.findByIdAndSource(\"").append(StringUtils.replace((String)subjectLoggedIn.getId(), "\"", "\\\""))
-      .append("\", \"").append(StringUtils.replace((String)subjectLoggedIn.getSourceId(), "\"", "\\\"")).append("\", true);\n");
-    script.append("group = GroupFinder.findByUuid(grouperSession, \"").append(StringUtils.replace(group.getId(), "\"", "\\\""))
-      .append("\", true);\n");
+   return (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
-    script.append(scriptPart);
-    return GrouperUtil.gshRunScript(script.toString(), true);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        grouperGroovyInput.assignInputValueObject("subject", subject);
+        script.append("Subject subject = (Subject)grouperGroovyRuntime.retrieveInputValueObject(\"subject\");\n");
+        grouperGroovyInput.assignInputValueObject("subjectLoggedIn", subjectLoggedIn);
+        script.append("Subject subjectLoggedIn = (Subject)grouperGroovyRuntime.retrieveInputValueObject(\"subjectLoggedIn\");\n");
+        grouperGroovyInput.assignInputValueObject("group", group);
+        script.append("Group group = (Group)grouperGroovyRuntime.retrieveInputValueObject(\"group\");\n");
+        script.append("GrouperSession grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
+        script.append(scriptPart);
+        grouperGroovyInput.assignScript(script.toString());
+        GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+        GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+        return grouperGroovyResult.fullOutput();
+      }
+    });
   }
   
   /**

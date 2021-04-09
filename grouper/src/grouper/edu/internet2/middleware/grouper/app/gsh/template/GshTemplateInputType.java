@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GshTemplateInputType {
@@ -9,15 +10,15 @@ public enum GshTemplateInputType {
   INTEGER {
 
     @Override
-    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
      Integer valueToUseInteger = GrouperUtil.intObjectValue(valueToUse, true);
      
-     gshTemplateRuntime.assignInputValueInteger(gshTemplateInputConfig.getName(), valueToUseInteger);
+     grouperGroovyInput.assignInputValueInteger(gshTemplateInputConfig.getName(), valueToUseInteger);
 
-     return "Integer "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueInteger(\"" + gshTemplateInputConfig.getName() + "\");\n";
+     return "Integer "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueInteger(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
 
     @Override
@@ -44,13 +45,13 @@ public enum GshTemplateInputType {
   STRING {
     
     @Override
-    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
       String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
-      gshTemplateRuntime.assignInputValueString(gshTemplateInputConfig.getName(), valueToUse);
+      grouperGroovyInput.assignInputValueString(gshTemplateInputConfig.getName(), valueToUse);
 
-      return "String "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueString(\"" + gshTemplateInputConfig.getName() + "\");\n";
+      return "String "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueString(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     
     @Override
@@ -68,14 +69,14 @@ public enum GshTemplateInputType {
   BOOLEAN {
     
     @Override
-    public String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
       
      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
 
      Boolean valueToUseBoolean = GrouperUtil.booleanObjectValue(valueToUse);
 
-     gshTemplateRuntime.assignInputValueBoolean(gshTemplateInputConfig.getName(), valueToUseBoolean);
-     return "Boolean "+gshTemplateInputConfig.getName() + " = gsh_builtin_gshTemplateRuntime.retrieveInputValueBoolean(\"" + gshTemplateInputConfig.getName() + "\");\n";
+     grouperGroovyInput.assignInputValueBoolean(gshTemplateInputConfig.getName(), valueToUseBoolean);
+     return "Boolean "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueBoolean(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     
     @Override
@@ -110,7 +111,7 @@ public enum GshTemplateInputType {
   }
   
   
-  public abstract String generateGshVariable(GshTemplateRuntime gshTemplateRuntime, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
+  public abstract String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
 
   public abstract boolean canConvertToCorrectType(String valueFromUser);
   

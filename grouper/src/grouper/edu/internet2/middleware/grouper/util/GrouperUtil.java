@@ -86,10 +86,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -136,7 +132,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -216,47 +214,74 @@ public class GrouperUtil {
 //    System.out.println("Result: " + result);
 //    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
 
-    final String[] scripts = new String[1];
-    Thread[] threads = new Thread[1];
-    long mainStart = System.nanoTime();
-    for (int i=0;i<1;i++) {
-      scripts[i] = "";
-      scripts[i] += GrouperUtil.readResourceIntoString("groovy.profile", false) + "\n";
-      scripts[i] += "String script = \"script" + i + "\";\n";
-      scripts[i] += "int count = " + i + ";\n";
-      long sleepMillis = (long)(Math.random() * 1000);
-      scripts[i] += "//GrouperUtil.sleep(" + sleepMillis + ");\n";
-      scripts[i] += "count++;\n";
-      scripts[i] += "System.out.println(script + \": \" + count + \": \" + " + sleepMillis + ");\n";
-      
-      final int INDEX = i;
-      threads[i] = new Thread(new Runnable() {
-        
-        @Override
-        public void run() {
-          try {
-            long start = System.nanoTime();
-//            System.out.println(GrouperUtil.gshRunScript(scripts[INDEX]));
-            ScriptEngineManager factory = new ScriptEngineManager();
-            ScriptEngine engine = factory.getEngineByName("groovy");
-            CompiledScript compiledScript = ((Compilable)engine).compile(scripts[INDEX]);
-            System.out.println("Compile: " + ((System.nanoTime()-start) / 1000000));
-            start = System.nanoTime();
-            compiledScript.eval();
-            System.out.println("Run: " + ((System.nanoTime()-start) / 1000000));
-          } catch (Exception e) {
-            LOG.error("error", e);
-          }
-        }
-      });
-      
-      threads[i].start();
-    }
-
-    for (int i=0;i<1;i++) {
-      threads[i].join();
-    }
-    System.out.println("All: " + ((System.nanoTime()-mainStart) / 1000000));
+//    final String[] scripts = new String[11];
+//    Thread[] threads = new Thread[11];
+//    long mainStart = System.nanoTime();
+//    for (int i=0;i<11;i++) {
+//      scripts[i] = "";
+////      scripts[i] += GrouperUtil.readResourceIntoString("groovy.profile", false) + "\n";
+//      
+//      
+//      GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+//      grouperGroovyInput.assignInputValueObject("i", i);
+//      int sleepMillis = (int)(Math.random() * 1000);
+//      grouperGroovyInput.assignInputValueObject("sleepMillis", sleepMillis);
+//      scripts[i] += "int i = grouperGroovyRuntime.retrieveInputValueInteger(\"i\");\n";
+//      scripts[i] += "int sleepMillis = grouperGroovyRuntime.retrieveInputValueInteger(\"sleepMillis\");\n";
+//      scripts[i] += "String script = \"script\" + i;\n";
+//      scripts[i] += "int count = i;\n";
+//      scripts[i] += "//GrouperUtil.sleep(sleepMillis);\n";
+//      scripts[i] += "count++;\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"i\", i);\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"count\", count);\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"script\", script);\n";
+//      scripts[i] += "grouperGroovyRuntime.println(script + \": \" + count + \": \" + sleepMillis);\n";
+//      grouperGroovyInput.assignScript(scripts[i].toString());
+//      GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+//
+//      final int INDEX = i;
+//      threads[i] = new Thread(new Runnable() {
+//        
+//        @Override
+//        public void run() {
+//          try {
+//            GrouperSession.startRootSession();
+//            
+//            long start = System.nanoTime();
+//            GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+//            System.out.println(grouperGroovyResult.fullOutput());
+////            ScriptEngineManager factory = new ScriptEngineManager();
+////            ScriptEngine engine = factory.getEngineByName("groovy");
+////            CompiledScript compiledScript = ((Compilable)engine).compile(scripts[INDEX]);
+////            System.out.println("Compile: " + ((System.nanoTime()-start) / 1000000));
+////            start = System.nanoTime();
+////            compiledScript.eval();
+//            System.out.println("Run: " + ((System.nanoTime()-start) / 1000000));
+//          } catch (Exception e) {
+//            LOG.error("error", e);
+//          }
+//        }
+//      });
+//      if (i==0) {
+//        threads[i].start();
+//      }
+//    }
+//    threads[0].join();
+//
+//    mainStart = System.nanoTime();
+//    for (int i=1;i<11;i++) {
+//      threads[i].start();
+//    }
+//    
+//    for (int i=1;i<11;i++) {
+//      threads[i].join();
+//    }
+//    System.out.println("All: " + ((System.nanoTime()-mainStart) / 1000000));
+    
+    GrouperSession.startRootSession();
+    OtherJobScript otherJobScript = new OtherJobScript();
+    otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
+    
   }
 
   /**
@@ -275,18 +300,14 @@ public class GrouperUtil {
    * @param script
    * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
    * arent there and imports largely arent there
-   * @return the output
+   * @param inputMap puts variables in a context to be retrieved with GrouperUtil.gshRetrieveInputValueObject(),
+   * GrouperUtil.gshRetrieveInputValueString(), GrouperUtil.gshRetrieveInputValueInteger(), GrouperUtil.gshRetrieveInputValueBoolean()
+   * @return the full output
    */
   public static String gshRunScript(String script, boolean lightWeight) {
-    try {
-      GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight, true);
-      String output = grouperGroovyResult.getOutString();
-  
-      return output;
-    } catch (RuntimeException re) {
-      injectInException(re, "Script: '" + script + "', ");
-      throw re;
-    }
+    GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+    String output = grouperGroovyResult.fullOutput();
+    return output;
   }
 
   public static void setClear(Set<?> set) {
@@ -13669,7 +13690,13 @@ public class GrouperUtil {
    * @param returnCode
    */
   public static void gshReturn(int returnCode) {
-    throw new ExitNotification(0);
+    GrouperGroovyRuntime grouperGroovyRuntime = GrouperGroovyRuntime.retrieveGrouperGroovyRuntime();
+    if (grouperGroovyRuntime == null) {
+      // if in grouper shell
+      throw new ExitNotification(returnCode);
+    }
+    // if in groovy
+    grouperGroovyRuntime.gshReturn(returnCode);
   }
 
   /**

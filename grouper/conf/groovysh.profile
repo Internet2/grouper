@@ -62,43 +62,6 @@ class GSHFileLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
 
 :register GSHFileLoad
 
-class GSHScriptLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
-  protected GSHScriptLoad(final org.codehaus.groovy.tools.shell.Groovysh shell) {
-    super(shell, ':gshScriptLoad', ':gshsl')
-  }
-
-  @Override
-  Object execute(final List<String> args) {
-    if (args != null && args.size() > 0) {
-      throw new RuntimeException("Command 'gshScriptLoad' requires no arguments")
-    }
-    int lineNumber = 1;
-    for (String it : edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLines()) {
-      
-      edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.printGshScriptLine(lineNumber, it);
-      
-      if (edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineExit(lineNumber, it)) {
-        it = "edu.internet2.middleware.grouper.util.GrouperUtil.gshReturn();";
-      }
-
-      if (!edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineIgnore(lineNumber, it)) {
-        try {
-          shell << it as String
-        } catch (Throwable t) {
-          edu.internet2.middleware.grouper.app.gsh.GrouperShell.handleScriptLoadError(lineNumber, it, t);
-        }
-      }
-    
-      lineNumber++;
-    }
-
-  }
-
-}
-
-:register GSHScriptLoad
-
-
 edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.startRootSessionIfNoSessionRunning();
 
 def addComposite (String group, CompositeType type, String left, String right) {

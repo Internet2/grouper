@@ -523,7 +523,7 @@ public class GrouperDdlUtils {
    * @param printErrorToStdOut 
    * @return the output
    */
-  public static String sqlRun(File scriptFile, String driver, String url, String user, String pass, boolean fromUnitTest, boolean printErrorToStdOut) {
+  public synchronized static String sqlRun(File scriptFile, String driver, String url, String user, String pass, boolean fromUnitTest, boolean printErrorToStdOut) {
     
     PrintStream err = System.err;
     PrintStream out = System.out;
@@ -828,7 +828,7 @@ public class GrouperDdlUtils {
     return runScriptFileIfShouldReturnString("grouper", scriptFile, runScript);
   }
 
-  public static String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript) {
+  public static synchronized String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript) {
     GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(connectionName);
 
     String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();

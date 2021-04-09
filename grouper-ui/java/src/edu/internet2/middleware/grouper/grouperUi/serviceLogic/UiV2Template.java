@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
@@ -40,7 +40,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
@@ -520,9 +519,13 @@ public class UiV2Template {
 
       if (!gshTemplateExec.getProgressBean().isComplete()) {
         
-        //see what line we are on
-        gshTemplateExec.getProgressBean().setProgressTotalRecords(gshTemplateExec.getLinesOfScript());
-        gshTemplateExec.getProgressBean().setProgressCompleteRecords(gshTemplateExec.getLineNumber());
+        //percent complete
+        gshTemplateExec.getProgressBean().setProgressTotalRecords(100);
+        
+        GrouperGroovyRuntime grouperGroovyRuntime = gshTemplateExec.getGrouperGroovyRuntime();
+        if (grouperGroovyRuntime != null) {
+          gshTemplateExec.getProgressBean().setProgressCompleteRecords(grouperGroovyRuntime.percentDone());
+        }
         
         //show the report screen
         guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));

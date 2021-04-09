@@ -1,11 +1,22 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GshTemplateExecOutput {
   
   private GshTemplateOutput gshTemplateOutput;
   
+  private GrouperGroovyResult grouperGroovyResult;
+  
+  public GrouperGroovyResult getGrouperGroovyResult() {
+    return grouperGroovyResult;
+  }
+  
+  public void setGrouperGroovyResult(GrouperGroovyResult grouperGroovyResult) {
+    this.grouperGroovyResult = grouperGroovyResult;
+  }
+
   private String gshScriptOutput;
   
   private boolean isSuccess;

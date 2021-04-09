@@ -3,7 +3,7 @@ import edu.internet2.middleware.grouper.app.gsh.*
 import edu.internet2.middleware.grouper.privs.*
 import edu.internet2.middleware.grouper.misc.*
 
-edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.startRootSessionIfNoSessionRunning();
+GrouperGroovyRuntime grouperGroovyRuntime = GrouperGroovyRuntime.retrieveGrouperGroovyRuntime();
 
 def addComposite (String group, CompositeType type, String left, String right) {
   new addComposite().invoke(GrouperSession.staticGrouperSession(), group, type, left, right)
@@ -296,4 +296,5 @@ import edu.internet2.middleware.grouper.cfg.*;
 import edu.internet2.middleware.grouper.app.attestation.*;
 import edu.internet2.middleware.grouper.app.gsh.template.*;
 import edu.internet2.middleware.grouperClient.collections.*;
+import edu.internet2.middleware.grouperClient.jdbc.*;
 import org.apache.commons.lang.*;
