@@ -1707,7 +1707,7 @@ public class GrouperProvisioningService {
       GrouperProvisioningObjectAttributes ancestorGrouperProvisioningObjectAttribute = null;
       
       int depth = 0;
-      String currObjectName = new String(grouperProvisioningObjectAttribute.getName());
+      String currObjectName = grouperProvisioningObjectAttribute.getName();
       while (true) {
         depth++;
         currObjectName = childToParent.get(currObjectName);
@@ -1751,7 +1751,7 @@ public class GrouperProvisioningService {
       }
       
       if (ancestorGrouperProvisioningObjectAttribute == null) {
-        if (!GrouperUtil.isEmpty(grouperProvisioningObjectAttribute.getProvisioningTarget())) {
+        if (!GrouperUtil.isBlank(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId())) {
           // delete the marker
           
           AttributeAssignable object;
@@ -1769,13 +1769,18 @@ public class GrouperProvisioningService {
           
           LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " deleting marker attribute");
           
-          Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
+          /*Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
           for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
             AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
             if (attributeAssignValue != null && configId.equals(attributeAssignValue.getValueString())) {
               markerAttributeAssign.delete();
               break;
             }
+          }*/
+          
+          AttributeAssign markerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId(), false);
+          if (markerAttributeAssign != null) {
+            markerAttributeAssign.delete();
           }
           
           if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
@@ -1835,6 +1840,7 @@ public class GrouperProvisioningService {
                   
                   AttributeAssign markerAssign = null;
                   
+                  /*
                   Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
                   for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
                     AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
@@ -1842,6 +1848,10 @@ public class GrouperProvisioningService {
                       markerAssign = markerAttributeAssign;
                       break;
                     }
+                  }*/
+                  
+                  if (!GrouperUtil.isBlank(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId())) {
+                    markerAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId(), false);
                   }
                   
                   if (markerAssign == null) {
@@ -1855,7 +1865,7 @@ public class GrouperProvisioningService {
                   
                   if (!GrouperUtil.equals(existingDoProvision, actualDoProvision)) {
                     LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDoProvision to: " + actualDoProvision);
-                    if (actualDoProvision == null) {
+                    if (GrouperUtil.isBlank(actualDoProvision)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDoProvision);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDoProvision.getName(), actualDoProvision);
@@ -1864,7 +1874,7 @@ public class GrouperProvisioningService {
                   
                   if (!GrouperUtil.equals(existingMetadataJson, actualMetadataJson)) {
                     LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningMetadataJson to: " + actualMetadataJson);
-                    if (actualMetadataJson == null) {
+                    if (GrouperUtil.isBlank(actualMetadataJson)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMetadataJson);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameMetadataJson.getName(), actualMetadataJson);
@@ -1873,7 +1883,7 @@ public class GrouperProvisioningService {
                   
                   if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
                     LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningOwnerStemId to: " + actualOwnerStemId);
-                    if (actualOwnerStemId == null) {
+                    if (GrouperUtil.isBlank(actualOwnerStemId)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameOwnerStemId.getName(), actualOwnerStemId);
@@ -1887,7 +1897,7 @@ public class GrouperProvisioningService {
                   
                   if (!GrouperUtil.equals(existingTarget, actualTarget)) {
                     LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningTarget to: " + actualTarget);
-                    if (actualTarget == null) {
+                    if (GrouperUtil.isBlank(actualTarget)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameTarget);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameTarget.getName(), actualTarget);

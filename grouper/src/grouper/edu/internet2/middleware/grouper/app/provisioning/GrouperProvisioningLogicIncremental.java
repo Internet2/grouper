@@ -904,6 +904,7 @@ public class GrouperProvisioningLogicIncremental {
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributesToProcess = new HashMap<String, GrouperProvisioningObjectAttributes>();
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributesToProcess = new HashMap<String, GrouperProvisioningObjectAttributes>();
     Map<String, GrouperProvisioningObjectAttributes> allAncestorProvisioningGroupAttributes = new HashMap<String, GrouperProvisioningObjectAttributes>();
+    String grouperObjectTypeName = GrouperObjectTypesSettings.objectTypesStemName() + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
     
     Set<String> queriedPITAttributeAssignIds = new HashSet<String>();
     
@@ -915,7 +916,7 @@ public class GrouperProvisioningLogicIncremental {
           (esbEventType == EsbEventType.GROUP_UPDATE && "name".equals(esbEvent.getPropertyChanged()))) {
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(esbEvent.getGroupId());
         if (grouperProvisioningObjectAttributes == null) {
-          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getGroupId(), esbEvent.getGroupName());
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getGroupId(), esbEvent.getGroupName(), null);
           grouperProvisioningObjectAttributes.setOwnedByGroup(true);
         }
         
@@ -932,13 +933,13 @@ public class GrouperProvisioningLogicIncremental {
         
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = ancestorProvisioningGroupAttributes.get(esbEvent.getName());
         if (grouperProvisioningObjectAttributes == null) {
-          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getId(), esbEvent.getName());
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getId(), esbEvent.getName(), null);
           grouperProvisioningObjectAttributes.setOwnedByStem(true);
         }
         
         grouperProvisioningFolderAttributesToProcess.put(esbEvent.getName(), grouperProvisioningObjectAttributes);
       } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
-          esbEvent.getAttributeDefNameName().startsWith(GrouperProvisioningSettings.provisioningConfigStemName()+":")) {
+          esbEvent.getAttributeDefNameName().startsWith(GrouperProvisioningSettings.provisioningConfigStemName())) {
 
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
 
@@ -951,9 +952,10 @@ public class GrouperProvisioningLogicIncremental {
   
             if (stemId != null) {
               Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(stemId);
-              grouperProvisioningFolderAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId));
+              Map<String, GrouperProvisioningObjectAttributes> childProvisioningFolderAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningFolderAttributesByFolder(stemId);
+              grouperProvisioningFolderAttributesToProcess.putAll(childProvisioningFolderAttributes);
               grouperProvisioningGroupAttributesToProcess.putAll(this.grouperProvisioner.retrieveGrouperDao().retrieveChildProvisioningGroupAttributesByFolder(stemId));
-              allAncestorProvisioningGroupAttributes.putAll(grouperProvisioningFolderAttributesToProcess);
+              allAncestorProvisioningGroupAttributes.putAll(childProvisioningFolderAttributes);
               allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
             } else {
               String groupId = grouperProvisioner.retrieveGrouperDao().getGroupIdIfDirectGroupAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
@@ -962,7 +964,7 @@ public class GrouperProvisioningLogicIncremental {
               if (group != null) {
                 GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
                 if (grouperProvisioningObjectAttributes == null) {
-                  grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName());
+                  grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), null);
                   grouperProvisioningObjectAttributes.setOwnedByGroup(true);
                 }
 
@@ -978,7 +980,7 @@ public class GrouperProvisioningLogicIncremental {
           }
         }
       } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
-          esbEvent.getAttributeDefNameName().equals(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME) &&
+          esbEvent.getAttributeDefNameName().equals(grouperObjectTypeName) &&
           ("policy".equals(esbEvent.getPropertyNewValue()) || "policy".equals(esbEvent.getPropertyOldValue()))) {
 
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
@@ -991,7 +993,7 @@ public class GrouperProvisioningLogicIncremental {
           if (group != null) {
             GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
             if (grouperProvisioningObjectAttributes == null) {
-              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName());
+              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), null);
               grouperProvisioningObjectAttributes.setOwnedByGroup(true);
             }
 

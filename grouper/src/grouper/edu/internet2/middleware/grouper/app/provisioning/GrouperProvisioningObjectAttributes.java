@@ -10,6 +10,7 @@ public class GrouperProvisioningObjectAttributes {
 
   private String id;
   private String name;
+  private String markerAttributeAssignId;
   
   private String provisioningTarget;
   private String provisioningDirectAssign;
@@ -22,9 +23,10 @@ public class GrouperProvisioningObjectAttributes {
   
   private Map<String, Object> metadataNameValues = null;
   
-  public GrouperProvisioningObjectAttributes(String id, String name) {
+  public GrouperProvisioningObjectAttributes(String id, String name, String markerAttributeAssignId) {
     this.id = id;
     this.name = name;
+    this.markerAttributeAssignId = markerAttributeAssignId;
   }
   
   public String getId() {
@@ -90,8 +92,17 @@ public class GrouperProvisioningObjectAttributes {
   public void setProvisioningStemScope(String provisioningStemScope) {
     this.provisioningStemScope = provisioningStemScope;
   }
+  
+  
+  public String getMarkerAttributeAssignId() {
+    return markerAttributeAssignId;
+  }
 
   
+  public void setMarkerAttributeAssignId(String markerAttributeAssignId) {
+    this.markerAttributeAssignId = markerAttributeAssignId;
+  }
+
   public boolean isOwnedByGroup() {
     return isOwnedByGroup;
   }

@@ -1010,6 +1010,7 @@ public class GrouperProvisionerGrouperDao {
 
     {
       String sql = "SELECT " + 
+          "    gaa_marker.id, " +
           "    gs.id, " + 
           "    gs.name, " + 
           "    gadn_config.name, " + 
@@ -1052,13 +1053,14 @@ public class GrouperProvisionerGrouperDao {
   
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
       for (String[] queryResult : queryResults) {
-        String stemId = queryResult[0];
-        String stemName = queryResult[1];
-        String configName = queryResult[2];
-        String configValue = queryResult[3];
+        String markerAttributeAssignId = queryResult[0];
+        String stemId = queryResult[1];
+        String stemName = queryResult[2];
+        String configName = queryResult[3];
+        String configValue = queryResult[4];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
           results.get(stemName).setOwnedByStem(true);
         }
         
@@ -1135,7 +1137,7 @@ public class GrouperProvisionerGrouperDao {
         String stemName = queryResult[1];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, null));
           results.get(stemName).setOwnedByStem(true);
         }
       }
@@ -1158,6 +1160,7 @@ public class GrouperProvisionerGrouperDao {
 
     {
       String sql = "SELECT " + 
+          "    gaa_marker.id, " +
           "    gg.id, " + 
           "    gg.name, " + 
           "    gadn_config.name, " + 
@@ -1200,13 +1203,14 @@ public class GrouperProvisionerGrouperDao {
   
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
       for (String[] queryResult : queryResults) {
-        String groupId = queryResult[0];
-        String groupName = queryResult[1];
-        String configName = queryResult[2];
-        String configValue = queryResult[3];
+        String markerAttributeAssignId = queryResult[0];
+        String groupId = queryResult[1];
+        String groupName = queryResult[2];
+        String configName = queryResult[3];
+        String configValue = queryResult[4];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId));
           results.get(groupName).setOwnedByGroup(true);
         }
         
@@ -1281,7 +1285,7 @@ public class GrouperProvisionerGrouperDao {
         String groupName = queryResult[1];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, null));
           results.get(groupName).setOwnedByGroup(true);
         }
       }
@@ -1304,6 +1308,7 @@ public class GrouperProvisionerGrouperDao {
     GrouperProvisioningObjectAttributes result = null;
 
     String sql = "SELECT " + 
+        "    gaa_marker.id, " +
         "    gg.name, " + 
         "    gadn_config.name, " + 
         "    gaav_config.value_string " + 
@@ -1348,12 +1353,13 @@ public class GrouperProvisionerGrouperDao {
 
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
     for (String[] queryResult : queryResults) {
-      String groupName = queryResult[0];
-      String configName = queryResult[1];
-      String configValue = queryResult[2];
+      String markerAttributeAssignId = queryResult[0];
+      String groupName = queryResult[1];
+      String configName = queryResult[2];
+      String configValue = queryResult[3];
       
       if (result == null) {
-        result = new GrouperProvisioningObjectAttributes(groupId, groupName);
+        result = new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId);
         result.setOwnedByGroup(true);
       }
       
@@ -1387,6 +1393,7 @@ public class GrouperProvisionerGrouperDao {
     Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
 
     String sql = "SELECT " + 
+        "    gaa_marker.id, " +
         "    gs_then_has_stem.id, " + 
         "    gs_then_has_stem.name, " +
         "    gadn_config.name, " + 
@@ -1436,13 +1443,14 @@ public class GrouperProvisionerGrouperDao {
 
     List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
     for (String[] queryResult : queryResults) {
-      String stemId = queryResult[0];
-      String stemName = queryResult[1];
-      String configName = queryResult[2];
-      String configValue = queryResult[3];
+      String markerAttributeAssignId = queryResult[0];
+      String stemId = queryResult[1];
+      String stemName = queryResult[2];
+      String configName = queryResult[3];
+      String configValue = queryResult[4];
       
       if (results.get(stemName) == null) {
-        results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+        results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
         results.get(stemName).setOwnedByStem(true);
       }
       
@@ -1479,6 +1487,7 @@ public class GrouperProvisionerGrouperDao {
 
     {
       String sql = "SELECT " + 
+          "    gaa_marker.id, " +
           "    gs_if_has_stem.id, " + 
           "    gs_if_has_stem.name, " +
           "    gadn_config.name, " + 
@@ -1528,13 +1537,14 @@ public class GrouperProvisionerGrouperDao {
   
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
       for (String[] queryResult : queryResults) {
-        String stemId = queryResult[0];
-        String stemName = queryResult[1];
-        String configName = queryResult[2];
-        String configValue = queryResult[3];
+        String markerAttributeAssignId = queryResult[0];
+        String stemId = queryResult[1];
+        String stemName = queryResult[2];
+        String configName = queryResult[3];
+        String configValue = queryResult[4];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
           results.get(stemName).setOwnedByStem(true);
         }
         
@@ -1577,7 +1587,7 @@ public class GrouperProvisionerGrouperDao {
         String stemName = queryResult[1];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, null));
           results.get(stemName).setOwnedByStem(true);
         }
       }
@@ -1601,6 +1611,7 @@ public class GrouperProvisionerGrouperDao {
 
     {
       String sql = "SELECT " + 
+          "    gaa_marker.id, " +
           "    gg.id, " + 
           "    gg.name, " +
           "    gadn_config.name, " + 
@@ -1650,13 +1661,14 @@ public class GrouperProvisionerGrouperDao {
   
       List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
       for (String[] queryResult : queryResults) {
-        String groupId = queryResult[0];
-        String groupName = queryResult[1];
-        String configName = queryResult[2];
-        String configValue = queryResult[3];
+        String markerAttributeAssignId = queryResult[0];
+        String groupId = queryResult[1];
+        String groupName = queryResult[2];
+        String configName = queryResult[3];
+        String configValue = queryResult[4];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId));
           results.get(groupName).setOwnedByGroup(true);
         }
         
@@ -1699,7 +1711,7 @@ public class GrouperProvisionerGrouperDao {
         String groupName = queryResult[1];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, null));
           results.get(groupName).setOwnedByGroup(true);
         }
       }
