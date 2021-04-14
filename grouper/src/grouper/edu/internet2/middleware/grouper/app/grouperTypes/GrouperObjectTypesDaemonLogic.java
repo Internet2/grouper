@@ -1515,6 +1515,10 @@ public class GrouperObjectTypesDaemonLogic {
         }
       }
       
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+      
     }
     
   }
@@ -1609,6 +1613,10 @@ public class GrouperObjectTypesDaemonLogic {
           }
           
         }
+      }
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
       }
       
     }
