@@ -150,25 +150,39 @@ public class GrouperObjectTypesConfiguration {
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeName());
     
     attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    
+    if (grouperObjectTypesAttributeValue.getObjectTypeDataOwner() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
+    }
     
     attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    
+    if (grouperObjectTypesAttributeValue.getObjectTypeMemberDescription() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
+    }
     
     attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeServiceName());
+    
+    if (grouperObjectTypesAttributeValue.getObjectTypeServiceName() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeServiceName());
+    }
+    
     
     attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.isDirectAssignment() ? null: grouperObjectTypesAttributeValue.getObjectTypeOwnerStemId());
+    
+    if (grouperObjectTypesAttributeValue.getObjectTypeOwnerStemId() == null) {
+      attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
+    } else {
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.isDirectAssignment() ? null: grouperObjectTypesAttributeValue.getObjectTypeOwnerStemId());
+    }
     
     attributeAssign.saveOrUpdate();
-    
-//    if (grouperObject instanceof Stem && grouperObjectTypesAttributeValue.isDirectAssignment()) {
-//      GrouperObjectTypesAttributeValue valueToSave = GrouperObjectTypesAttributeValue.copy(grouperObjectTypesAttributeValue);
-//      valueToSave.setObjectTypeOwnerStemId(((Stem)grouperObject).getId());
-//      valueToSave.setDirectAssignment(false);
-//      saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, valueToSave);
-//    }
     
   }
   

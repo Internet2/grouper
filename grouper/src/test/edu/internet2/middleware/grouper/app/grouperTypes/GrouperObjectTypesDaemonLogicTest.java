@@ -47,7 +47,7 @@ public class GrouperObjectTypesDaemonLogicTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperObjectTypesDaemonLogicTest("testIncrementalSyncLogic_copyFromStemToChildren"));
+    TestRunner.run(new GrouperObjectTypesDaemonLogicTest("testIncrementalSyncLogic_deleteFromChildren"));
   }
   
   
@@ -367,13 +367,17 @@ public class GrouperObjectTypesDaemonLogicTest extends GrouperTest {
     GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
     
     Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
-    Stem stem1 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
-    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test1-group").save();
     
     new GdgTypeStemSave().assignDataOwner("do").assignMemberDescription("md").assignStem(stem0).assignType("ref").save();
     
+    runJobs(true, true);
+    
+    Stem stem1 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1").save();
+    Stem stem2 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test2").save();
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test1-group").save();
+    
     //When
-    GrouperObjectTypesDaemonLogic.fullSyncLogic();
+    runJobs(true, true);
     
     Set<GrouperObjectTypesAttributeValue> gdgTypeStemAssignments = new GdgTypeStemFinder().assignStem(stem1).findGdgTypeStemAssignments();
     assertEquals(1, gdgTypeStemAssignments.size());
@@ -408,8 +412,8 @@ public class GrouperObjectTypesDaemonLogicTest extends GrouperTest {
     gdgTypeGroupAssignments = new GdgTypeGroupFinder().assignGroup(group0).findGdgTypeGroupAssignments();
     assertEquals(1, gdgTypeGroupAssignments.size());
     
-    // now run the full sync; it should delete object types from children
-    GrouperObjectTypesDaemonLogic.fullSyncLogic();
+    // now run the incremental sync; it should delete object types from children
+    runJobs(true, true);
     gdgTypeStemAssignments = new GdgTypeStemFinder().assignStem(stem1).findGdgTypeStemAssignments();
     assertEquals(0, gdgTypeStemAssignments.size());
     gdgTypeGroupAssignments = new GdgTypeGroupFinder().assignGroup(group0).findGdgTypeGroupAssignments();

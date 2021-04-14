@@ -1124,7 +1124,10 @@ public class GrouperObjectTypesDaemonLogic {
       
       String parentFolderName = GrouperUtil.parentStemNameFromName(stemName);
       
-      stemNamesToProcess.add(parentFolderName);
+      if (StringUtils.isNotBlank(parentFolderName)) {
+        stemNamesToProcess.add(parentFolderName);
+      }
+      
       
     }
     
@@ -1317,133 +1320,7 @@ public class GrouperObjectTypesDaemonLogic {
     }
     
   }
-  
-  
-  
-  
-//  private static void processEvents(List<EsbEventContainer> eventsToProcess,
-//      Map<String, Map<String, GrouperObjectTypeObjectAttributes>> groupAttributesToProcess,
-//      Map<String, Map<String, GrouperObjectTypeObjectAttributes>> folderAttributesToProcess,
-//      Set<String> childrenOfFoldersToProcess,
-//      Set<String> parentFolderNamesToGetAncestorFrom,
-//      Map<String, String> stemIdsToNamesToProcessLater,
-//      Map<String, String> groupIdsToNamesToProcessLater) {
-//    
-//    Set<String> queriedPITAttributeAssignIds = new HashSet<String>();
-//    Set<String> queriedStemIds = new HashSet<String>();
-//    Set<String> queriedGroupIds = new HashSet<String>();
-//    
-//    for (EsbEventContainer esbEventContainer : eventsToProcess) {
-//      
-//      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
-//      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-//      
-//      if (esbEventType == EsbEventType.GROUP_ADD) {
-//        
-//        Map<String, GrouperObjectTypeObjectAttributes> groupTypeAttributes =  retrieveObjectTypeAttributesByGroup(esbEvent.getGroupId());
-//        
-//        String parentFolderName = GrouperUtil.parentStemNameFromName(esbEvent.getGroupName());
-//        parentFolderNamesToGetAncestorFrom.add(parentFolderName);
-//        
-//        for (String type: groupTypeAttributes.keySet()) {
-//          
-//          Map<String, GrouperObjectTypeObjectAttributes> groupNameToAttributes = groupAttributesToProcess.get(type);
-//          
-//          if (groupNameToAttributes == null) {
-//            groupNameToAttributes = new HashMap<String, GrouperObjectTypeObjectAttributes>();
-//            groupAttributesToProcess.put(type, groupNameToAttributes);
-//          }
-//          
-//          groupNameToAttributes.put(esbEvent.getGroupName(), groupTypeAttributes.get(type));
-//          
-//        }
-//        groupNamesToProcess.add(esbEvent.getGroupName());
-//        
-//      } else if (esbEventType == EsbEventType.STEM_ADD) {
-//        
-//        Map<String, GrouperObjectTypeObjectAttributes> folderTypeAttributes = retrieveObjectTypeAttributesByStem(esbEvent.getId());
-//        
-//        String parentFolderName = GrouperUtil.parentStemNameFromName(esbEvent.getName());
-//        parentFolderNamesToGetAncestorFrom.add(parentFolderName);
-//        
-//        for (String type: folderTypeAttributes.keySet()) {
-//          
-//          Map<String, GrouperObjectTypeObjectAttributes> folderNameToAttributes = folderAttributesToProcess.get(type);
-//
-//          if (folderNameToAttributes == null) {
-//            folderNameToAttributes = new HashMap<String, GrouperObjectTypeObjectAttributes>();
-//            folderAttributesToProcess.put(type, folderNameToAttributes);
-//          }
-//          
-//          folderNameToAttributes.put(esbEvent.getName(), folderTypeAttributes.get(type));
-//          
-//        }
-//        
-//        stemNamesToProcess.add(esbEvent.getName());
-//        queriedStemIds.add(esbEvent.getId());
-//        
-//      } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
-//          esbEvent.getAttributeDefNameName().startsWith(GrouperObjectTypesSettings.objectTypesStemName())) {
-//        
-//        PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
-//
-//        if (pitAttributeAssign != null) {
-//          // query pit to see if this is for a folder and for this object type and is direct
-//          if (!queriedPITAttributeAssignIds.contains(pitAttributeAssign.getOwnerAttributeAssignId())) {
-//            queriedPITAttributeAssignIds.add(pitAttributeAssign.getOwnerAttributeAssignId());
-//            
-//            String stemId = retrieveStemIdIfDirectStemAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
-//  
-//            if (stemId != null) {
-//              
-//              if (queriedStemIds.contains(stemId)) {
-//                continue;
-//              }
-//              
-//              Map<String, GrouperObjectTypeObjectAttributes> folderTypeAttributes = retrieveObjectTypeAttributesByStem(stemId);
-//              
-//              for (String type: folderTypeAttributes.keySet()) {
-//                
-//                Map<String, GrouperObjectTypeObjectAttributes> folderNameToAttributes = folderAttributesToProcess.get(type);
-//
-//                if (folderNameToAttributes == null) {
-//                  folderNameToAttributes = new HashMap<String, GrouperObjectTypeObjectAttributes>();
-//                  folderAttributesToProcess.put(type, folderNameToAttributes);
-//                }
-//                
-//                //TODO make sure esbEvent.getName is the stem name
-//                folderNameToAttributes.put(esbEvent.getName(), folderTypeAttributes.get(type));
-//                
-//              }
-//              
-//              childrenOfFoldersToProcess.add(stemId);
-//              queriedStemIds.add(stemId);
-//              
-//            } else {
-//              String groupId = retrieveGroupIdIfDirectGroupAssignmentByPITMarkerAttributeAssignId(pitAttributeAssign.getOwnerAttributeAssignId());
-//              
-//              if (groupId != null && queriedGroupIds.contains(groupId)) {
-//                continue;
-//              }
-//              
-//              Group group = groupId != null ? GrouperDAOFactory.getFactory().getGroup().findByUuid(groupId, false) : null;
-//
-//              if (group != null) {
-//                
-//                
-//              }
-//              
-//              queriedGroupIds.add(groupId);
-//              
-//            }
-//          }
-//        }
-//        
-//      }
-//      
-//    }
-//    
-//  }
+
   
   /**
    * all stems that have events and their attributes
@@ -1578,8 +1455,8 @@ public class GrouperObjectTypesDaemonLogic {
       
       Set<String> typesToProcess = new HashSet<String>();
       
-      typesToProcess.addAll(groupsWithAttributesToProcess.keySet());
-      typesToProcess.addAll(foldersWithAttributesToProcess.keySet());
+      typesToProcess.addAll(groupsWithOrWithoutAttributesToProcess.keySet());
+      typesToProcess.addAll(foldersWithOrWithoutAttributesToProcess.keySet());
       typesToProcess.addAll(ancestorStemsTypeAttributes.keySet());
       
       
@@ -1602,60 +1479,7 @@ public class GrouperObjectTypesDaemonLogic {
       populateEventObjectsWhichDoNotHaveAttributes();
       
       populateChildrenWhichMayOrMayNotHaveAttributes();
-      
-//      
-//     
-//      
-//      Set<String> parentFolderNamesToGetAncestorFrom = new HashSet<String>();
-//      
-//      Map<String, String> stemIdsToNamesToProcessLater = new HashMap<String, String>();
-//      Map<String, String> groupIdsToNamesToProcessLater = new HashMap<String, String>();
-//      
-//      processEvents(esbEventContainers, groupsWithAttributesToProcess,
-//          foldersWithAttributesToProcess, childrenOfFoldersToProcess, parentFolderNamesToGetAncestorFrom, stemIdsToNamesToProcessLater, groupIdsToNamesToProcessLater);
-//      
-//      // ancestors of all the above groups and folders with attributes
-//      Map<String, Map<String, GrouperObjectTypeObjectAttributes>> allAncestorObjectTypesAttributes = new HashMap<String, Map<String, GrouperObjectTypeObjectAttributes>>();
-//      
-//      // getting all the children and types from folders whose attributes have changed
-//      for (String folderId: childrenOfFoldersToProcess) {
-//        
-//        Map<String, Map<String, GrouperObjectTypeObjectAttributes>> childObjectTypesFolderAttributesByFolder = retrieveChildObjectTypesFolderAttributesByFolder(folderId);
-//        Map<String, Map<String, GrouperObjectTypeObjectAttributes>> childObjectTypesGroupAttributesByFolder = retrieveChildObjectTypesGroupAttributesByFolder(folderId);
-//        
-//        addFromOneMapOfMapsToAnother(childObjectTypesFolderAttributesByFolder, foldersWithAttributesToProcess);
-//        
-//        addFromOneMapOfMapsToAnother(childObjectTypesGroupAttributesByFolder, groupsWithAttributesToProcess);
-//        
-//        addFromOneMapOfMapsToAnother(childObjectTypesFolderAttributesByFolder, allAncestorObjectTypesAttributes);
-//        
-//      }
-//      
-////      
-////      
-////      for (String typeName: groupAttributesToProcess.keySet()) {
-////        
-////        Map<String, GrouperObjectTypeObjectAttributes> groupNameToAttributes = groupAttributesToProcess.get(typeName);
-////        
-////        for (String groupName: groupNameToAttributes.keySet()) {
-////          
-////          String parentFolderName = GrouperUtil.parentStemNameFromName(groupName);
-////          parentFolderNamesToGetAncestorFrom.add(parentFolderName);
-////        }
-////      }
-////      
-////      for (String typeName: folderAttributesToProcess.keySet()) {
-////        
-////        Map<String, GrouperObjectTypeObjectAttributes> folderNameToAttributes = groupAttributesToProcess.get(typeName);
-////        
-////        for (String folderName: folderNameToAttributes.keySet()) {
-////          
-////          String parentFolderName = GrouperUtil.parentStemNameFromName(folderName);
-////          parentFolderNamesToGetAncestorFrom.add(parentFolderName);
-////        }
-////      }
 
-      
       for (String typeName: typesToProcess) {
         
         Map<String, GrouperObjectTypeObjectAttributes> grouperObjectTypesFolderAttributes = foldersWithOrWithoutAttributesToProcess.get(typeName);
@@ -1838,8 +1662,8 @@ public class GrouperObjectTypesDaemonLogic {
       
     }
     
-    for (GrouperObjectTypeObjectAttributes grouperObjectTypesObjectAttribute : grouperObjectTypesFolderAttributes.values()) {
-      
+    
+    for (GrouperObjectTypeObjectAttributes grouperObjectTypesObjectAttribute : GrouperUtil.nonNull(grouperObjectTypesFolderAttributes).values()) {
       
       String objectName = grouperObjectTypesObjectAttribute.getName();
       while (true) {
@@ -1878,7 +1702,7 @@ public class GrouperObjectTypesDaemonLogic {
           break;
         }
         
-        GrouperObjectTypeObjectAttributes currGrouperObjectTypesObjectAttribute = grouperObjectTypesFolderAttributes.get(currObjectName);
+        GrouperObjectTypeObjectAttributes currGrouperObjectTypesObjectAttribute = GrouperUtil.nonNull(grouperObjectTypesFolderAttributes).get(currObjectName);
         if (currGrouperObjectTypesObjectAttribute != null && "true".equalsIgnoreCase(currGrouperObjectTypesObjectAttribute.getObjectTypeDirectAssign())) {
           
           ancestorGrouperObjectTypesObjectAttribute = currGrouperObjectTypesObjectAttribute;
@@ -1983,8 +1807,7 @@ public class GrouperObjectTypesDaemonLogic {
                   if (!GrouperUtil.equals(existingDataOwner, actualDataOwner)) {
                     LOG.info("For " + typeName + " and group/stemstemName=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeDataOwner to: " + actualDataOwner);
                     
-                    //TODO change it to look for blank and everywhere below
-                    if (actualDataOwner == null) {
+                    if (StringUtils.isBlank(actualDataOwner)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDataOwner);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDataOwner.getName(), actualDataOwner);
@@ -1993,7 +1816,7 @@ public class GrouperObjectTypesDaemonLogic {
                   
                   if (!GrouperUtil.equals(existingMemberDescription, actualMemberDescription)) {
                     LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeMemberDescription to: " + actualMemberDescription);
-                    if (actualMemberDescription == null) {
+                    if (StringUtils.isBlank(actualMemberDescription)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMembersDescription);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameMembersDescription.getName(), actualMemberDescription);
@@ -2002,7 +1825,7 @@ public class GrouperObjectTypesDaemonLogic {
                   
                   if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
                     LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeOwnerStemId to: " + actualOwnerStemId);
-                    if (actualOwnerStemId == null) {
+                    if (StringUtils.isBlank(actualOwnerStemId)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameOwnerStemId.getName(), actualOwnerStemId);
@@ -2011,7 +1834,7 @@ public class GrouperObjectTypesDaemonLogic {
                   
                   if (!GrouperUtil.equals(existingServiceName, actualServiceName)) {
                     LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeServiceName to: " + actualServiceName);
-                    if (actualServiceName == null) {
+                    if (StringUtils.isBlank(actualServiceName)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameServiceName);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameServiceName.getName(), actualServiceName);
@@ -2020,7 +1843,7 @@ public class GrouperObjectTypesDaemonLogic {
                   
                   if (!GrouperUtil.equals(existingTypeName, actualTypeName)) {
                     LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeTypeName to: " + actualTypeName);
-                    if (actualTypeName == null) {
+                    if (StringUtils.isBlank(actualTypeName)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameObjectTypeName);
                     } else {
                       markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameObjectTypeName.getName(), actualTypeName);
