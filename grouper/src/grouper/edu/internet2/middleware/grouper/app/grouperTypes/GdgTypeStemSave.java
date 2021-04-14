@@ -275,7 +275,7 @@ public class GdgTypeStemSave {
                 return null;
                 
               } else {
-                GrouperObjectTypesConfiguration.copyConfigFromParent(stem, type);
+                GrouperObjectTypesConfiguration.deleteTypeAttribute(stem, type);
                 saveResultType = SaveResultType.DELETE;
                 return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(stem, type);
               }

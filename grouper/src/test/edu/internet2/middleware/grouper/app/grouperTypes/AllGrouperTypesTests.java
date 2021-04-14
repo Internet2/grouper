@@ -19,6 +19,7 @@ public class AllGrouperTypesTests {
     suite.addTestSuite(GdgTypeStemFinderTest.class);
     suite.addTestSuite(GrouperObjectTypeConfigurationTest.class);
     suite.addTestSuite(GrouperObjectTypesJobTest.class);
+    suite.addTestSuite(GrouperObjectTypesDaemonLogicTest.class);
     //$JUnit-END$
     return suite;
   }

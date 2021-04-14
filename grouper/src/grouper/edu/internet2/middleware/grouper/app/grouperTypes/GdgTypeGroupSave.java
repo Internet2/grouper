@@ -301,7 +301,7 @@ public class GdgTypeGroupSave {
                 return null;
                 
               } else {
-                GrouperObjectTypesConfiguration.copyConfigFromParent(group, type);
+                GrouperObjectTypesConfiguration.deleteTypeAttribute(group, type);
                 saveResultType = SaveResultType.DELETE;
                 return GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValue(group, type);
               }

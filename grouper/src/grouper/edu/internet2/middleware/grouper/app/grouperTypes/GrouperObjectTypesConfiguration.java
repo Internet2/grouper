@@ -163,12 +163,12 @@ public class GrouperObjectTypesConfiguration {
     
     attributeAssign.saveOrUpdate();
     
-    if (grouperObject instanceof Stem && grouperObjectTypesAttributeValue.isDirectAssignment()) {
-      GrouperObjectTypesAttributeValue valueToSave = GrouperObjectTypesAttributeValue.copy(grouperObjectTypesAttributeValue);
-      valueToSave.setObjectTypeOwnerStemId(((Stem)grouperObject).getId());
-      valueToSave.setDirectAssignment(false);
-      saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, valueToSave);
-    }
+//    if (grouperObject instanceof Stem && grouperObjectTypesAttributeValue.isDirectAssignment()) {
+//      GrouperObjectTypesAttributeValue valueToSave = GrouperObjectTypesAttributeValue.copy(grouperObjectTypesAttributeValue);
+//      valueToSave.setObjectTypeOwnerStemId(((Stem)grouperObject).getId());
+//      valueToSave.setDirectAssignment(false);
+//      saveOrUpdateTypeAttributesOnChildren((Stem)grouperObject, valueToSave);
+//    }
     
   }
   
@@ -282,7 +282,7 @@ public class GrouperObjectTypesConfiguration {
     }
     
     if (parentAttributeValue == null) {
-      deleteAttributeAssign(grouperObject, objectTypeName); // orphan attribute value. delete it.
+      deleteTypeAttribute(grouperObject, objectTypeName); // orphan attribute value. delete it.
     } else {
       
       GrouperObjectTypesAttributeValue attributeValue = getGrouperObjectTypesAttributeValue(grouperObject, objectTypeName);
@@ -350,7 +350,7 @@ public class GrouperObjectTypesConfiguration {
       return;
     }
     
-    deleteAttributeAssign(grouperObject, objectType);
+    deleteTypeAttribute(grouperObject, objectType);
     
     // if we changed from direct to indirect, we need to go through all the children
     // and delete metadata on them that were inheriting from this stem.
@@ -602,7 +602,7 @@ public class GrouperObjectTypesConfiguration {
         
         String ownerStemId = mayBeGroupTypeAttributeValue.getObjectTypeOwnerStemId();
         if (stem.getId().equals(ownerStemId)) {
-          deleteAttributeAssign(childGrouperObject, objectType);
+          deleteTypeAttribute(childGrouperObject, objectType);
         }
       }
       
@@ -610,7 +610,7 @@ public class GrouperObjectTypesConfiguration {
     
   }
 
-  private static void deleteAttributeAssign(GrouperObject grouperObject, String objectType) {
+  public static void deleteTypeAttribute(GrouperObject grouperObject, String objectType) {
     AttributeAssign currentAttributeAssign = getAttributeAssign(grouperObject, objectType);
     if (currentAttributeAssign != null) {
       currentAttributeAssign.delete();

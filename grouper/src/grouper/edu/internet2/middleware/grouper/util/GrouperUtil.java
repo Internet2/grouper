@@ -7590,6 +7590,70 @@ public class GrouperUtil {
   }
   
   /**
+   * remove stems that are ancestor of the child stem
+   * @param stems
+   */
+  public static void stemRemoveAncestorStemsOfChildStem(Collection<String> stemNames) {
+    
+    if (stemNames == null) {
+      return;
+    }
+    
+    Iterator<String> iterator = stemNames.iterator();
+    while (iterator.hasNext()) {
+      String currentStemName = iterator.next();
+      
+      if (currentStemName.equals(":") && stemNames.size() > 1) {
+        iterator.remove();
+      } else {
+        String stemSub = currentStemName + ":";
+        for (String stemName: stemNames) {
+          
+          if (stemName.startsWith(stemSub)) {
+            iterator.remove();
+            break;
+          }
+          
+        }
+      }
+    }
+  }
+  
+  /**
+   * remove stems that are children of the top level stem
+   * @param stems
+   */
+  public static void stemRemoveChildStemsOfTopStemName(Collection<String> stemNames) {
+    
+    if (stemNames == null) {
+      return;
+    }
+    
+    Iterator<String> iterator = stemNames.iterator();
+    while (iterator.hasNext()) {
+      String currentStemName = iterator.next();
+      
+      if (currentStemName.equals(":") && stemNames.size() > 1) {
+       continue;
+      } else {
+        for (String stemName: stemNames) {
+          if (stemName.equals(":")) {
+            iterator.remove();
+            break;
+          } else {
+            String stemSub = stemName + ":";
+            if (currentStemName.startsWith(stemSub)) {
+              iterator.remove();
+              break;
+            }
+          } 
+            
+        }
+      }
+    }
+  }
+  
+  /**
    * get the int value of an object, do not throw an exception if there is an
    * error
    *

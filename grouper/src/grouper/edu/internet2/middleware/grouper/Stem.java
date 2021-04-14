@@ -2492,7 +2492,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       // do these in thread?
       GrouperAttestationJob.updateAttestationMetadataForSingleObject(group, true);
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
-      GrouperObjectTypesConfiguration.copyConfigFromParent(group);      
     }
     
     return group;
@@ -2922,7 +2921,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (!GrouperLoader.isDryRun()) {
       // do these in thread?
       GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
-      GrouperObjectTypesConfiguration.copyConfigFromParent(stem);
     }
 
     
