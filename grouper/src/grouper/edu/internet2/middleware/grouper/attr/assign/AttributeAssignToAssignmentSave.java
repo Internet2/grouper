@@ -212,7 +212,7 @@ public class AttributeAssignToAssignmentSave {
                return attributeAssignResult;
             } else if (attributeAssignOperation == AttributeAssignOperation.add_attr) {
               
-              if (attributeAssign.getAttributeDef().isMultiAssignable()) {
+              if (attributeDefName.getAttributeDef().isMultiAssignable()) {
                 AttributeAssignResult attributeAssignResult = attributeAssign.getAttributeDelegate().addAttribute(attributeDefName);
                 saveResultType = attributeAssignResult.isChanged() ? SaveResultType.INSERT : SaveResultType.NO_CHANGE;
                 return attributeAssignResult;
@@ -222,7 +222,7 @@ public class AttributeAssignToAssignmentSave {
              
             } else if (attributeAssignOperation == AttributeAssignOperation.assign_attr) {
               
-              if (attributeAssign.getAttributeDef().isMultiAssignable()) {
+              if (attributeDefName.getAttributeDef().isMultiAssignable()) {
                 throw new RuntimeException("'assign_attr' attributeAssignOperation is valid only for attribute defs that are not multi-assignable.");
               } else {
                 AttributeAssignResult attributeAssignResult = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName);

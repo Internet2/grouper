@@ -72,19 +72,36 @@ public class GrouperReportLogic {
    * @param reportConfigBean
    * @param reportInstance
    * @param owner
+   * @deprecated use runReportInstance
    */
+  @Deprecated
   public static void runReport(GrouperReportConfigurationBean reportConfigBean,
+      GrouperReportInstance reportInstance, GrouperObject owner) {
+    runReportInstance(reportConfigBean,
+        reportInstance, owner);
+  }
+
+  /**
+   * run report
+   * @param reportConfigBean
+   * @param reportInstance
+   * @param owner
+   * @return rows
+   */
+  public static int runReportInstance(GrouperReportConfigurationBean reportConfigBean,
       GrouperReportInstance reportInstance, GrouperObject owner) {
     
     long startTime = System.currentTimeMillis();
     File fileToDelete = null;
+    int rows = -1;
     try {
       // get report data
       GrouperReportData grouperReportData = reportConfigBean.getReportConfigType().retrieveReportDataByConfig(reportConfigBean);
   
       reportInstance.setGrouperReportConfigurationBean(reportConfigBean);
       reportInstance.setReportInstanceRows(Long.valueOf(grouperReportData.getData().size()));
-  
+      rows = GrouperUtil.intValue(reportInstance.getReportInstanceRows());
+          
       // now the file is in the report instance
       reportConfigBean.getReportConfigFormat().formatReport(grouperReportData, reportInstance);
         
@@ -128,38 +145,24 @@ public class GrouperReportLogic {
       
       reportInstance.setReportInstanceFileName(reportInstance.getReportFileUnencrypted().getName());
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
-      
-    } catch(Exception e) {
-      LOG.error("Error occurred generating report for config name "+reportConfigBean.getReportConfigName(), e);
+
+      GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
+
+      if (reportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS)) {
+        //now the attribute assign id on report instance is populated and we can use it to generate link in the email
+        sendReportLinkViaEmail(reportInstance);
+        
+        // now the email attributes are populated on the report instance, let's save them as well.
+        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
+      }
+      return rows;
+    } catch(RuntimeException e) {
+      GrouperUtil.injectInException(e, "Error occurred generating report for config name "+reportConfigBean.getReportConfigName());
       reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_ERROR);
+      throw e;
     } finally {
       if (fileToDelete != null && fileToDelete.exists()) {        
         FileUtils.deleteQuietly(fileToDelete);
-      }
-    }
-    
-    try {
-      GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
-    } catch(Exception e) {
-      LOG.error("Error saving report instance. Config name is "+reportConfigBean.getReportConfigName());
-      return;
-    }
-      
-    if (reportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS)) {
-      try {
-        //now the attribute assign id on report instance is populated and we can use it to generate link in the email
-        sendReportLinkViaEmail(reportInstance);
-      } catch(Exception e) {
-        LOG.error("Error sending report email. Config name is "+reportConfigBean.getReportConfigName());
-        return;
-      }
-      
-      // now the email attributes are populated on the report instance, let's save them as well.
-      try {
-        GrouperReportInstanceService.saveReportInstanceAttributes(reportInstance, owner);
-      } catch(Exception e) {
-        LOG.error("Error saving report instance. Config name is "+reportConfigBean.getReportConfigName());
-        return;
       }
     }
     

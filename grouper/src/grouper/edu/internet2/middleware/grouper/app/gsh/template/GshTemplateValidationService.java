@@ -15,6 +15,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -84,36 +86,41 @@ public class GshTemplateValidationService {
     if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
       return true;
     }
-    
-    if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
-      return templateConfig.getGroupThatCanRun().hasMember(gshTemplateExec.getCurrentUser());
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
-      return PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser());
+    return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
-    } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
-      
-      if (gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.stem) {
-        String ownerStemString = gshTemplateExec.getOwnerStemName();
-        Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, true);
-        
-        GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege = templateConfig.getGshTemplateRequireFolderPrivilege();
-        
-        return ownerStem.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireFolderPrivilege.getPrivilege().getName(), true);
-        
-      } else if (gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.group) {
-        String ownerGroupString = gshTemplateExec.getOwnerGroupName();
-        Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
-        
-        GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
-        return ownerGroup.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
-      } else {
-        throw new RuntimeException("Invalid gshTemplateOwnerType");
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
+          return templateConfig.getGroupThatCanRun().hasMember(gshTemplateExec.getCurrentUser());
+        } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
+          return PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser());
+          
+        } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject) {
+          
+          if (gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.stem) {
+            String ownerStemString = gshTemplateExec.getOwnerStemName();
+            Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, true);
+            
+            GshTemplateRequireFolderPrivilege gshTemplateRequireFolderPrivilege = templateConfig.getGshTemplateRequireFolderPrivilege();
+            
+            return ownerStem.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireFolderPrivilege.getPrivilege().getName(), true);
+            
+          } else if (gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.group) {
+            String ownerGroupString = gshTemplateExec.getOwnerGroupName();
+            Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
+            
+            GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
+            return ownerGroup.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
+          } else {
+            throw new RuntimeException("Invalid gshTemplateOwnerType");
+          }
+         
+        }
+        return true;
       }
-     
-    }
+    });
     
     
-    return true;
   }
   
   private boolean validateSecurityRunType(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateExecOutput execOutput) {
@@ -210,13 +217,26 @@ public class GshTemplateValidationService {
     Map<String, Object> variableMap = new HashMap<String, Object>();
     
     variableMap.put("grouperUtil", new GrouperUtil());
-    
+
+    // init stuff to null or default value from config
+    for (GshTemplateInputConfig gshTemplateInputConfig: templateConfig.getGshTemplateInputConfigs()) {
+      if (StringUtils.isBlank(gshTemplateInputConfig.getDefaultValue())) {
+        variableMap.put(gshTemplateInputConfig.getName(), null);
+      } else {
+        variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().converToType(gshTemplateInputConfig.getDefaultValue()));
+      }
+    }
+
     for (GshTemplateInput gshTemplateInput: gshTemplateExec.getGshTemplateInputs()) {
       
       if (inputConfigs.containsKey(gshTemplateInput.getName())) {
         GshTemplateInputConfig gshTemplateInputConfig = inputConfigs.get(gshTemplateInput.getName());
         
         String valueFromUser = gshTemplateInput.getValueString();
+        
+        if (StringUtils.isBlank(valueFromUser) && !StringUtils.isBlank(gshTemplateInputConfig.getDefaultValue())) {
+          valueFromUser = gshTemplateInputConfig.getDefaultValue();
+        }
         
         if (gshTemplateInputConfig.isTrimWhitespace() && gshTemplateInput.getValueString() != null) {
           gshTemplateInput.assignValueString(gshTemplateInput.getValueString().trim());          
@@ -239,6 +259,10 @@ public class GshTemplateValidationService {
     
     //remove the ones where showEL is evaluated to false
     for (GshTemplateInputConfig gshTemplateInputConfig: templateConfig.getGshTemplateInputConfigs()) {
+      
+      if (!inputConfigs.containsKey(gshTemplateInputConfig.getName())) {
+        continue;
+      }
       
       String showElScript = gshTemplateInputConfig.getShowEl();
       if (StringUtils.isNotBlank(showElScript)) {
@@ -380,7 +404,7 @@ public class GshTemplateValidationService {
         
         // dropdown value
         if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
-          List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig.getDropdownValueBasedOnType());
+          List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig);
           
           if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
             // get only keys out of list of multiKeys and convert to comma separated string  

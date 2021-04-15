@@ -502,6 +502,12 @@ public class CustomUiContainer {
         grouperGroovyInput.assignScript(script.toString());
         GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
         GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+        if (grouperGroovyResult.getException() != null) {
+          throw grouperGroovyResult.getException();
+        }
+        if (grouperGroovyResult.getResultCode() != null && grouperGroovyResult.getResultCode() != 0) {
+          throw new RuntimeException(grouperGroovyResult.fullOutput());
+        }
         return grouperGroovyResult.fullOutput();
       }
     });
