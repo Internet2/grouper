@@ -165,26 +165,27 @@
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
-	          onclick="ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+	          onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
           
           <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
-	          onclick="ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
           
           <c:if test="${empty grouperRequestContainer.stemTemplateContainer.serviceActions and grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig == null}">
             <input type="submit" class="btn btn-primary"
             aria-controls="groupFilterResultsId" id="filterSubmitId"
             value="${textContainer.text['stemTemplateNextButton'] }"
-            onclick="ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+            onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
-          &nbsp; 
+          &nbsp;
           <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemTemplateCancelButton'] }</a>
         </td>
       </tr>
     </tbody>
   </table>  
 </form>
+<div id="stemTemplateBody"></div>

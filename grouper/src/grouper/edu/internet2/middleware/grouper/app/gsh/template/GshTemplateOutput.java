@@ -13,7 +13,30 @@ public class GshTemplateOutput {
   
   private List<GshValidationLine> validationLines = new ArrayList<GshValidationLine>();
   
+  /**
+   * operation to redirect to from grouper, e.g. operation=UiV2Stem.viewStem&stemId=abc123
+   */
+  private String redirectToGrouperOperation;
   
+  /**
+   * operation to redirect to from grouper, e.g. operation=UiV2Stem.viewStem&stemId=abc123
+   * If the String is NONE, then dont redirect anywhere
+   * @return the redirect
+   */
+  public String getRedirectToGrouperOperation() {
+    return redirectToGrouperOperation;
+  }
+
+  /**
+   * operation to redirect to from grouper, e.g. operation=UiV2Stem.viewStem&stemId=abc123
+   * If the String is NONE, then dont redirect anywhere
+   * @param redirectToGrouperOperation
+   */
+  public GshTemplateOutput assignRedirectToGrouperOperation(String redirectToGrouperOperation) {
+    this.redirectToGrouperOperation = redirectToGrouperOperation;
+    return this;
+  }
+
   public boolean isError() {
     return isError;
   }

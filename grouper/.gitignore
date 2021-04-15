@@ -30,3 +30,5 @@ test.log
 /binary/
 /grouperClientFailoverState.bin
 src/grouper/SampleGrouperMain.java
+src/grouper/Test*.java
+src/grouper/Covid*.java

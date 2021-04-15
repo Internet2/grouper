@@ -41,6 +41,33 @@ public class GshTemplateInputConfig {
   
   private GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType;
   
+  private String dropdownSqlDatabase;
+
+  private String dropdownSqlValue;
+ 
+  
+  public String getDropdownSqlDatabase() {
+    return dropdownSqlDatabase;
+  }
+
+
+  
+  public void setDropdownSqlDatabase(String dropdownSqlDatabase) {
+    this.dropdownSqlDatabase = dropdownSqlDatabase;
+  }
+
+
+  
+  public String getDropdownSqlValue() {
+    return dropdownSqlValue;
+  }
+
+
+  
+  public void setDropdownSqlValue(String dropdownSqlValue) {
+    this.dropdownSqlValue = dropdownSqlValue;
+  }
+
   private String dropdownCsvValue;
   
   private String dropdownJsonValue;
@@ -59,18 +86,6 @@ public class GshTemplateInputConfig {
   
   private int index;
 
-  public String getDropdownValueBasedOnType() {
-    
-    if (StringUtils.isNotBlank(dropdownCsvValue)) {
-      return dropdownCsvValue;
-    } else if (StringUtils.isNotBlank(dropdownJsonValue)) {
-      return dropdownJsonValue;
-    } else {
-      return dropdownJavaClassValue;
-    }
-    
-  }
-  
   private boolean useExternalizedText;
   
   
@@ -105,7 +120,7 @@ public class GshTemplateInputConfig {
     
     if (this.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
       dropdownKeysAndLabels.add(new MultiKey("", ""));
-      dropdownKeysAndLabels.addAll(this.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(this.getDropdownValueBasedOnType()));
+      dropdownKeysAndLabels.addAll(this.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(this));
       return dropdownKeysAndLabels;
     } else if (this.getConfigItemFormElement() == ConfigItemFormElement.RADIOBUTTON) {
       
@@ -401,6 +416,20 @@ public class GshTemplateInputConfig {
   
   public void setIndex(int index) {
     this.index = index;
+  }
+
+  private int dropdownSqlCacheForMinutes=-1;
+
+  public void setDropdownSqlCacheForMinutes(int dropdownSqlCacheForMinutes) {
+    this.dropdownSqlCacheForMinutes = dropdownSqlCacheForMinutes;
+    
+  }
+
+
+
+  
+  public int getDropdownSqlCacheForMinutes() {
+    return dropdownSqlCacheForMinutes;
   }
   
   

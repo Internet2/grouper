@@ -65,6 +65,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWsMessagingBridgeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonPspngFullSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonReportConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonReportForGroupStemConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonProvisioningIncrementalSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobProvisioningFullSyncConfiguration.class.getName());

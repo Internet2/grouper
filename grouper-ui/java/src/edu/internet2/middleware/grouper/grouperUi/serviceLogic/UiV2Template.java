@@ -207,7 +207,11 @@ public class UiV2Template {
   
   private Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
     GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateConfigId);
+    gshTemplateConfig.setCurrentUser(loggedInSubject);
+
     gshTemplateConfig.populateConfiguration();
     
     GuiGshTemplateConfig guiGshTemplateConfig = new GuiGshTemplateConfig();
@@ -450,7 +454,7 @@ public class UiV2Template {
       
       if (gshTemplateExec.getProgressBean().isHasException()) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("groupImportException")));
+            TextContainer.retrieveFromRequest().getText().get("gshTemplateError")));
         // it has an exception, leave it be
         gshExecThreadProgress.put(reportMultiKey, null);
         return;
@@ -541,14 +545,13 @@ public class UiV2Template {
       } else {
         // it is complete, leave it be
         gshExecThreadProgress.put(reportMultiKey, null);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
 
         if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
 
           for (GuiScreenAction guiScreenAction : guiScreenActions) {
             guiResponseJs.addAction(guiScreenAction);
           }
-          
-          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
 
           return;
         }
@@ -581,7 +584,26 @@ public class UiV2Template {
           
         }  else {
           
-          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+          String redirectToGrouperOperation = gshTemplateExecOutput.getGshTemplateOutput() == null ? null : gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation();
+          
+          if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
+            // nothing :)
+          } else if (!StringUtils.isBlank(gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation())) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('" + redirectToGrouperOperation + "')"));
+          } else {
+            
+            String currentName = stem.getName();
+            //lets see if stem exists, maybe template deleted it
+            for (int i=0;i<20;i++) {
+              Stem currentStem = currentName == null ? StemFinder.findRootStem(GrouperSession.staticGrouperSession()) 
+                  : StemFinder.findByName(GrouperSession.staticGrouperSession(), currentName, false);
+              if (currentStem !=  null) {
+                guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + currentStem.getId() + "')"));
+                break;
+              } 
+              currentName = GrouperUtil.parentStemNameFromName(currentName);
+            }
+          }
           for (GuiScreenAction guiScreenAction : guiScreenActions) {
             guiResponseJs.addAction(guiScreenAction);
           }

@@ -171,8 +171,7 @@
                             </tr>
                             <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses != null}">
                               <tr>
-                                <td style="vertical-align: top; white-space: nowrap;"><strong><label
-                                    for="grouperAttestationEmailAddressesId">${textContainer.text['attestationEmailAddressesLabel']}</label></strong></td>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationEmailAddressesLabel']}</strong></td>
                                 <td>
                                 ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses)}
                                   <br /> <span class="description">${textContainer.text[grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report' ? 'grouperAttestationReportEmailAddressesDescription' : 'grouperAttestationEmailAddressesDescription']}</span>

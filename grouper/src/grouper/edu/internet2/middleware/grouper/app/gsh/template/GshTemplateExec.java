@@ -311,6 +311,7 @@ public class GshTemplateExec {
         }
         
         gshTemplateRuntime.setCurrentSubject(currentUser);
+        templateConfig.setCurrentUser(currentUser);
         if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput)) {
           return null;
         }

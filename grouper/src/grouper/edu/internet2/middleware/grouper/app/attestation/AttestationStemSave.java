@@ -10,10 +10,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -29,6 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -102,6 +106,86 @@ public class AttestationStemSave {
     System.out.println(attestationStemSave.getSaveResultType());
     
     GrouperSession.stopQuietly(grouperSession);
+  }
+  
+  /**
+   * group id who can attest
+   */
+  private String groupIdCanAttest;
+  
+  /**
+   * group name who can attest
+   */
+  private String groupNameCanAttest;
+
+  /**
+   * group who can attest
+   */
+  private Group groupCanAttest;
+
+  private boolean groupCanAttestAssigned = false;
+
+  private String reportMarkerAttributeAssignId = null;
+  
+  private String reportConfigName = null;
+  
+  private boolean reportConfigAssigned = false;
+
+  /**
+   * assign report attribute assign id
+   * @param theGroup
+   * @return this for chaining
+   */
+  public AttestationStemSave assignReportMarkerAttributeAssignId(String reportMarkerAttributeAssignId) {
+    this.reportMarkerAttributeAssignId = reportMarkerAttributeAssignId;
+    reportConfigAssigned = true;
+    return this;
+  }
+
+  /**
+   * assign report config name
+   * @param theGroup
+   * @return this for chaining
+   */
+  public AttestationStemSave assignReportConfigName(String reportConfigName) {
+    this.reportConfigName = reportConfigName;
+    reportConfigAssigned = true;
+    return this;
+  }
+  
+  
+  
+  /**
+   * assign a group
+   * @param theGroup
+   * @return this for chaining
+   */
+  public AttestationStemSave assignGroupCanAttest(Group theGroup) {
+    this.groupCanAttest = theGroup;
+    groupCanAttestAssigned = true;
+    return this;
+  }
+
+  /**
+   * group id to add to, mutually exclusive with group name and group
+   * @param theGroupId
+   * @return this for chaining
+   */
+  public AttestationStemSave assignGroupIdCanAttest(String theGroupId) {
+    this.groupIdCanAttest = theGroupId;
+    groupCanAttestAssigned = true;
+    return this;
+  }
+
+  /**
+   * group name to add to, mutually exclusive with group id and group
+   * @param theGroupName
+   * @return this for chaining
+   */
+  public AttestationStemSave assignGroupNameCanAttest(String theGroupName) {
+    this.groupNameCanAttest = theGroupName;
+    groupCanAttestAssigned = true;
+    return this;
   }
   
   /**
@@ -448,14 +532,40 @@ public class AttestationStemSave {
 
               STEM[0] = stem;
               
+              if (groupCanAttest == null && !StringUtils.isBlank(groupIdCanAttest)) {
+                groupCanAttest = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdCanAttest, false, new QueryOptions().secondLevelCache(false));
+              } 
+              if (groupCanAttest == null && !StringUtils.isBlank(groupNameCanAttest)) {
+                groupCanAttest = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupNameCanAttest, false, new QueryOptions().secondLevelCache(false));
+              }
+              GrouperUtil.assertion(groupCanAttest != null || (StringUtils.isBlank(groupIdCanAttest) && StringUtils.isBlank(groupNameCanAttest)),  "Group not found");
+              
               if (!runAsRoot) {
                 if (!stem.canHavePrivilege(SUBJECT_IN_SESSION, NamingPrivilege.STEM_ADMIN.getName(), false)) {
                   throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
                     + "' cannot ADMIN stem '" + stem.getName() + "'");
                 }
+                
+                if (groupCanAttest != null && !groupCanAttest.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
+                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  + "' cannot READ group '" + groupCanAttest.getName() + "'");
+                }
+              }
+ 
+              if (groupCanAttest != null) {
+                groupIdCanAttest = groupCanAttest.getId();
               }
               
-
+              if (!StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+                if (!StringUtils.isBlank(reportConfigName)) {
+                  GrouperReportConfigurationBean grouperReportConfigurationBean =  GrouperReportConfigService.getGrouperReportConfigBean(stem, reportConfigName);
+                  if (grouperReportConfigurationBean == null) {
+                    throw new RuntimeException("Cannot find report named '" + reportConfigName + "' on folder: " + stem.getName());
+                  }
+                  reportMarkerAttributeAssignId = grouperReportConfigurationBean.getAttributeAssignmentMarkerId();
+                }
+              }
+              
               AttributeAssign markerAttributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
               
               boolean hasAttestation = GrouperUtil.booleanValue(
@@ -525,16 +635,28 @@ public class AttestationStemSave {
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses(), GrouperUtil.length(emailAddresses) == 0 ? null : GrouperUtil.join(emailAddresses.iterator(), ','), emailAddressesAssigned);
 
+              // get groupId from report viewers?  hmmm  nah...
+              hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                  GrouperAttestationJob.retrieveAttributeDefNameAuthorizedGroupId(), groupIdCanAttest, groupCanAttestAssigned);
+
+              hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                  GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId(), reportMarkerAttributeAssignId, reportConfigAssigned);
               
-//              {
-//                String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
-//                  markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-//                      GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
-//                
-//                boolean[] madeChange = new boolean[1];
-//                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, false, madeChange);
-//                hasChange = hasChange || madeChange[0];
-//              }
+              if (GrouperUtil.booleanValue(markAsAttested, false) && attestationType != null && attestationType == AttestationType.report) {
+                String newDateCertified = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+                markerAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), newDateCertified);
+                
+                //              {
+                //              String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
+                //                markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                //                    GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+                //              
+                //              boolean[] madeChange = new boolean[1];
+                //              GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, false, madeChange);
+                //              hasChange = hasChange || madeChange[0];
+                //            }
+              }
+              
 
               if (!markerAttributeNewlyAssigned && !hasChange) {
                 AttestationStemSave.this.saveResultType = SaveResultType.NO_CHANGE;
@@ -593,7 +715,6 @@ public class AttestationStemSave {
   public boolean isFinished() {
     return finished;
   }
-
 
   /**
    * 
