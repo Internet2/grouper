@@ -107,7 +107,7 @@ public enum GshTemplateDropdownValueFormatType {
           keysAndLabels.add(new MultiKey(key, label));
         }
       } catch (Exception e) {
-        throw new RuntimeException(gshTemplateInputConfig.getDropdownJsonValue() + " is not a valid json array, e.g. [{key: \"1234\", label: \"Business school\"},{key: \"2345\", label: \"Engineering school\"}]", e);
+        throw new RuntimeException(gshTemplateInputConfig.getDropdownJsonValue() + " is not a valid json array, e.g. [{\"key\": \"1234\", \"label\": \"Business school\"},{\"key\": \"2345\", \"label\": \"Engineering school\"}]", e);
       }
       
       return keysAndLabels;
