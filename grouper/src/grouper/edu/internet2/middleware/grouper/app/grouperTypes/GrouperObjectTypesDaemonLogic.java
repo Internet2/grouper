@@ -8,15 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -39,7 +42,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
-public class GrouperObjectTypesDaemonLogic {
+@DisallowConcurrentExecution
+public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
   
   private static final Log LOG = GrouperUtil.getLog(GrouperObjectTypesDaemonLogic.class);
   
@@ -1541,7 +1545,7 @@ public class GrouperObjectTypesDaemonLogic {
   /**
    * 
    */
-  public static void fullSyncLogic() {
+  public static Map<String, Object> fullSyncLogic() {
     
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("objectType");
     
@@ -1620,6 +1624,8 @@ public class GrouperObjectTypesDaemonLogic {
       }
       
     }
+    
+    return debugMap;
     
   }
   
@@ -1887,6 +1893,22 @@ public class GrouperObjectTypesDaemonLogic {
     if (objectTypesAttributesFoldersDeleted > 0) {
       debugMap.put(typeName+"_objectTypesAttributesFoldersDeleted", objectTypesAttributesFoldersDeleted);
     }
+  }
+
+
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    try {
+      Map<String, Object> debugMap = fullSyncLogic();
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running object types full sync logic daemon. \n "+GrouperUtil.mapToString(debugMap));
+    } catch (Exception e) {
+      LOG.warn("Error while running object types full sync daemon", e);
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object types full sync logic daemon with an error: " + ExceptionUtils.getFullStackTrace(e));
+    } finally {
+      otherJobInput.getHib3GrouperLoaderLog().store();
+    }
+
+    return null;
   }
 
 }
