@@ -651,14 +651,14 @@ public class GrouperAttestationJob extends OtherJobBase {
           GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
 
     }
-    String currentDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+    //String currentDaysUntilRecertify = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
     
     
     String newDaysUntilRecertify = "" + daysUntilNeedsCertify;
     
     boolean changed = attributeAssign.getAttributeValueDelegate().assignValueString(
         GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName(), newDaysUntilRecertify).isChanged();
-    if (madeChange != null) {
+    if (GrouperUtil.length(madeChange) == 1) {
       madeChange[0] = changed;
     }
     return daysUntilNeedsCertify;
