@@ -89,7 +89,7 @@ public class UiV2Template {
 	  
 	  try {
 	    grouperSession = GrouperSession.start(loggedInSubject);
-	    stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+	    stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
 	    
 	    if (stem == null) {
 	      return;
@@ -300,7 +300,7 @@ public class UiV2Template {
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -895,24 +895,30 @@ public class UiV2Template {
     
     Map<String, String> serviceClassPatterns = GrouperUiConfig.retrieveConfig().propertiesMap(grouperTemplateServiceClassPattern);
     
-    for (Entry<String, String> entry: serviceClassPatterns.entrySet()) {
-      
-      String property = entry.getKey();
-      String implementationClass = entry.getValue();
-      
-      Matcher matcher = grouperTemplateServiceClassPattern.matcher(property);
-      
-      if (matcher.matches()) {          
-      
-        String templateKey = matcher.group(1);
+    // add the standard ones if can create
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Stem stem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem().getStem();
+    if (stem.canHavePrivilege(loggedInSubject, "creators", false)) {
+      for (Entry<String, String> entry: serviceClassPatterns.entrySet()) {
         
-        Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
+        String property = entry.getKey();
+        String implementationClass = entry.getValue();
         
-        GrouperTemplateLogicBase templateLogic = GrouperUtil.newInstance(templateLogicSubClass);
+        Matcher matcher = grouperTemplateServiceClassPattern.matcher(property);
         
-        String label = TextContainer.retrieveFromRequest().getText().get(templateLogic.getSelectLabelKey());
-        templateContainer.getTemplateOptions().put(templateKey, label);
+        if (matcher.matches()) {          
         
+          String templateKey = matcher.group(1);
+          
+          Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
+          
+          GrouperTemplateLogicBase templateLogic = GrouperUtil.newInstance(templateLogicSubClass);
+          
+          String label = TextContainer.retrieveFromRequest().getText().get(templateLogic.getSelectLabelKey());
+          templateContainer.getTemplateOptions().put(templateKey, label);
+          
+        }
       }
     }
     

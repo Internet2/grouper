@@ -224,11 +224,6 @@ public class StemContainer {
   }
 
   /**
-   * if the logged in user can create groups, lazy loaded
-   */
-  private Boolean canCreateGroups;
-  
-  /**
    * if the logged in user can read attributes, lazy loaded
    */
   private Boolean canReadAttributes;
@@ -248,23 +243,8 @@ public class StemContainer {
    * @return if can admin create groups
    */
   public boolean isCanCreateGroups() {
-    
-    if (this.canCreateGroups == null) {
-      
-      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      
-      this.canCreateGroups = (Boolean)GrouperSession.callbackGrouperSession(
-          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.CREATE.getName(), false);
-            }
-          });
-      
-    }
-    
-    return this.canCreateGroups;
+    // same priv
+    return isCanCreateStems();
   }
   
   /**
@@ -760,62 +740,4 @@ public class StemContainer {
     return customCompositeIndexesAndUiKeys;
   }
   
-  /**
-   * get templates to show in more actions. map of configId to template name
-   * @return
-   */
-  public Map<String, String> getTemplatesToShowInMoreActions() {
-    
-    Map<String, String> configsToShowInStemMoreActions = new HashMap<String, String>();
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
-    for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
-      if (gshTemplateConfiguration.isEnabled()) {
-        
-        try {
-          GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
-          gshTemplateConfig.populateConfiguration();
-          
-          if (!gshTemplateConfig.canFolderRunTemplate(this.getGuiStem().getStem())) {
-            continue;
-          }
-          
-          GshTemplateExec gshTemplateExec = new GshTemplateExec()
-            .assignConfigId(gshTemplateConfiguration.getConfigId())
-            .assignCurrentUser(loggedInSubject)
-            .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
-            .assignOwnerStemName(this.getGuiStem().getStem().getName());
-          
-          
-          
-          if (gshTemplateConfig.isShowInMoreActions() && new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
-            configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getMoreActionsLabelForUi());
-          }
-        } catch (Exception e) {
-          LOG.error("Cant decide if GSH template should display! " + gshTemplateConfiguration.getConfigId(), e);
-        }
-      }
-    }
-    
-    
-    List<Map.Entry<String, String>> list = new LinkedList<Map.Entry<String, String>>(configsToShowInStemMoreActions.entrySet()); 
-
-    // Sort the list 
-    Collections.sort(list, new Comparator<Map.Entry<String, String> >() { 
-     public int compare(Map.Entry<String, String> o1,  
-                        Map.Entry<String, String> o2) { 
-         return (o1.getValue()).compareTo(o2.getValue()); 
-     } 
-    }); 
-    
-    
-    Map<String, String> sortedTemplatesByName = new LinkedHashMap<String, String>();
-    
-    for (Map.Entry<String, String> templateIdAndName : list) { 
-      sortedTemplatesByName.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
-    } 
-    
-    return sortedTemplatesByName;
-  }
 }
