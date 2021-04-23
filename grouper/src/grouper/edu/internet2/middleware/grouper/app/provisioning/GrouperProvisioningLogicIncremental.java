@@ -2302,7 +2302,7 @@ public class GrouperProvisioningLogicIncremental {
           entityMatchingIdsToRetrieve.add(grouperTargetEntity.getMatchingId());
         }
         for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityOnly())) {
-          groupMatchingIdsToRetrieve.add(grouperTargetEntity.getMatchingId());
+          entityMatchingIdsToRetrieve.add(grouperTargetEntity.getMatchingId());
         }
         
         // we need to add groups that are there for entity recalcs, and entities there for group recalcs, and both for membership recalcs

@@ -83,7 +83,7 @@ public class UiV2GrouperReport {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -660,7 +660,7 @@ public class UiV2GrouperReport {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -815,7 +815,7 @@ public class UiV2GrouperReport {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
       
       if (stem == null) {
         return;

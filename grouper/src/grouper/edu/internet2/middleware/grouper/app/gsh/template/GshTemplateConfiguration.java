@@ -134,7 +134,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
         GrouperConfigurationModuleAttribute typeAttribute = attributes.get("input."+i+".type");
         
         GshTemplateInputType templateInputType = null;
-        if (typeAttribute == null) {
+        if (typeAttribute == null || StringUtils.isBlank(typeAttribute.getValueOrExpressionEvaluation())) {
           templateInputType = GshTemplateInputType.STRING;
         } else {
           templateInputType = GshTemplateInputType.valueOfIgnoreCase(typeAttribute.getValueOrExpressionEvaluation(), true);

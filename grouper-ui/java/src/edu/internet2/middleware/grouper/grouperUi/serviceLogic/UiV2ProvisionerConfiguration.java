@@ -1037,7 +1037,11 @@ public class UiV2ProvisionerConfiguration {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigEdit.jsp"));
       
-      
+      String focusOnElementName = request.getParameter("focusOnElementName");
+      if (!StringUtils.isBlank(focusOnElementName)) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$(\"[name='" + focusOnElementName + "']\").focus()"));
+      }
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

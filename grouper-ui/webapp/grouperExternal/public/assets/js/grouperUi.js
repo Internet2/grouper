@@ -2641,6 +2641,20 @@ function showLinkToRefreshSubjectSourceAttributes(focusOnElementName) {
 	
 }
 
+function showLinkToRefreshProvisioningConfig(focusOnElementName, provisionerConfigId, provisionerConfigType) {
+
+  var href = window.location.href;
+  if (href.indexOf('editProvisionerConfiguration') != -1) {
+    var url = '../app/UiV2ProvisionerConfiguration.editProvisionerConfiguration?focusOnElementName='+focusOnElementName+'&provisionerConfigId='+provisionerConfigId+'&provisionerConfigType='+provisionerConfigType;
+    ajax(url, {formIds: 'provisionerConfigDetails'});  
+  } else {
+    ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName='+focusOnElementName+'&provisionerConfigId='+provisionerConfigId+'&provisionerConfigType='+provisionerConfigType, {formIds: 'provisionerConfigDetails'}); 
+  }
+   
+  return false;
+  
+}
+
 // sometimes window is blocked on back button
 $(window).unload(function() {
   $.unblockUI();                

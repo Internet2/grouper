@@ -88,7 +88,7 @@
 		        <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">
 			        <tr>
 			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsSuccessSubjects']}</label></strong></td>
-			          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjects}</td>
+			          <td>${guiReportInstance.processSubjects(guiReportInstance.reportInstance.reportInstanceEmailToSubjects)}</td>
 			        </tr>
 		        </c:if>
 		        

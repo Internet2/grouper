@@ -2449,6 +2449,9 @@ public class GrouperUtil {
 	         if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
 	           return true;
 	         }
+           if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+             return true;
+           }
            return value == null;
 	       }
 	    });

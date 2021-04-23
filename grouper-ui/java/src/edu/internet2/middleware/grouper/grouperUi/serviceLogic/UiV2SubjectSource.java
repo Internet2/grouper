@@ -312,7 +312,12 @@ public class UiV2SubjectSource {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/subjectSource/subjectSourceEdit.jsp"));
-      
+
+      String focusOnElementName = request.getParameter("focusOnElementName");
+      if (!StringUtils.isBlank(focusOnElementName)) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$(\"[name='" + focusOnElementName + "']\").focus()"));
+      }
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

@@ -556,7 +556,7 @@ public class AttestationStemSave {
                 groupIdCanAttest = groupCanAttest.getId();
               }
               
-              if (!StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+               if (!StringUtils.isBlank(reportMarkerAttributeAssignId)) {
                 if (!StringUtils.isBlank(reportConfigName)) {
                   GrouperReportConfigurationBean grouperReportConfigurationBean =  GrouperReportConfigService.getGrouperReportConfigBean(stem, reportConfigName);
                   if (grouperReportConfigurationBean == null) {
@@ -642,17 +642,26 @@ public class AttestationStemSave {
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId(), reportMarkerAttributeAssignId, reportConfigAssigned);
               
-              if (GrouperUtil.booleanValue(markAsAttested, false) && attestationType != null && attestationType == AttestationType.report) {
+              AttestationType theAttestationType = attestationType;
+              if (theAttestationType == null) {
+                theAttestationType = AttestationType.valueOfIgnoreCase(markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                    GrouperAttestationJob.retrieveAttributeDefNameType().getName()), false);
+              }
+              
+              if (GrouperUtil.booleanValue(markAsAttested, false) && theAttestationType != null && theAttestationType == AttestationType.report) {
+                
+                String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
+                    markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                        GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
                 String newDateCertified = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-                markerAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), newDateCertified);
+                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, true, new boolean[]{});
+//                markerAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), newDateCertified);
                 
                 //              {
-                //              String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
-                //                markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-                //                    GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+                //              
                 //              
                 //              boolean[] madeChange = new boolean[1];
-                //              GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, false, madeChange);
+                //              
                 //              hasChange = hasChange || madeChange[0];
                 //            }
               }

@@ -203,8 +203,14 @@ public class GrouperProvisioningTranslatorBase {
                   continue;
                 }
                 
+                GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
+                if (valueType != null) {
+                  if (!valueType.correctTypeNonSet(result)) {
+                    result = valueType.convert(result);
+                  }
+                }
+                
                 grouperTargetGroup.addAttributeValueForMembership(groupMembershipAttribute, result);
-                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               }
             }
           }
@@ -237,8 +243,14 @@ public class GrouperProvisioningTranslatorBase {
                   continue;
                 }
 
+                GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
+                if (valueType != null) {
+                  if (!valueType.correctTypeNonSet(result)) {
+                    result = valueType.convert(result);
+                  }
+                }
+                
                 grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
-                this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               }
             }
           }
