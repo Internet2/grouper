@@ -38,6 +38,7 @@ public class AllAttestationTests {
     suite.addTestSuite(GrouperAttestationJobTest.class);
     suite.addTestSuite(AttestationGroupSaveTest.class);
     suite.addTestSuite(AttestationStemSaveTest.class);
+    suite.addTestSuite(GrouperAttestationDaemonLogicTest.class);
     //$JUnit-END$
     return suite;
   }

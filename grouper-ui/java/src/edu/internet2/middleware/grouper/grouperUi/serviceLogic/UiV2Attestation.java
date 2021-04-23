@@ -1219,40 +1219,12 @@ public class UiV2Attestation {
    * @param onlyIfNeverCertified
    */
   private void updateAttestationLastCertifiedDate(final Stem stem, final boolean onlyIfNeverCertified) {
+    String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
     
-    boolean isRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
-
-    //find groups where user can UPDATE or ADMIN
-    final Set<Group> childGroups = new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
-        .assignIdOfAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getId())
-        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
-        .assignParentStemId(stem.getId()).assignStemScope(Scope.SUB)
-        .assignPrivileges(isRoot ? null : AccessPrivilege.UPDATE_PRIVILEGES).findGroups();
-
-    //switch over to admin so attributes work
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      @Override
-      public Boolean callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-        String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-        
-        AttributeDefName attributeDefName = GrouperAttestationJob.retrieveAttributeDefNameValueDef();
-        
-        // go through all the child groups and certify if they have attestation attributes
-        for (Group group: childGroups) {
-          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-          if (attributeAssign != null) {
-            if (onlyIfNeverCertified && attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName()) == null) {
-              attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
-            } else if (!onlyIfNeverCertified) {
-              attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), date);
-            }
-          }
-        }
-        return null;
-      }
-    });
+    AttributeDefName attributeDefName = GrouperAttestationJob.retrieveAttributeDefNameValueDef();
+    
+    AttributeAssign attributeAssign = stem.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    attributeAssign.getAttributeValueDelegate().assignValue(GrouperAttestationJob.retrieveAttributeDefNameMinCertifiedDate().getName(), date);
   }
     
 //  /**
@@ -1648,57 +1620,60 @@ public class UiV2Attestation {
       
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + STEM.getId() + "')"));
       
-            final AttributeAssign attributeAssign = STEM.getAttributeDelegate().retrieveAssignment(
-                null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+//            final AttributeAssign attributeAssign = STEM.getAttributeDelegate().retrieveAssignment(
+//                null, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+//            
+//            final AttributeAssign ancestorAttributeAssign = GrouperAttestationJob.findParentFolderAssign(STEM);
+//            
+//            final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
+//            final boolean[] FINISHED = new boolean[]{false};
+//            Thread thread = new Thread(new Runnable() {
+//
+//              public void run() {
+//                
+//                try {
+//                  GrouperSession.startRootSession();
+//                  
+//                  if (ancestorAttributeAssign != null) {
+//                    GrouperAttestationJob.stemAttestationProcessHelper(ancestorAttributeAssign.getOwnerStem(), ancestorAttributeAssign, null, null);
+//                  } else {
+//                    GrouperAttestationJob.stemAttestationProcessHelper(STEM, attributeAssign, null, null);
+//                  }
+//                  FINISHED[0] = true;
+//                } catch (RuntimeException re) {
+//                  //log incase thread didnt finish when screen was drawing
+//                  LOG.error("Error updating attestation stem parts", re);
+//                  RUNTIME_EXCEPTION[0] = re;
+//                }
+//                
+//              }
+//              
+//            });
+//
+//            thread.start();
             
-            final AttributeAssign ancestorAttributeAssign = GrouperAttestationJob.findParentFolderAssign(STEM);
+//            try {
+//              thread.join(30000);
+//            } catch (InterruptedException ie) {
+//              throw new RuntimeException(ie);
+//            }
+//
+//            if (RUNTIME_EXCEPTION[0] != null) {
+//              throw RUNTIME_EXCEPTION[0];
+//            }
             
-            final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
-            final boolean[] FINISHED = new boolean[]{false};
-            Thread thread = new Thread(new Runnable() {
-
-              public void run() {
-                
-                try {
-                  GrouperSession.startRootSession();
-                  
-                  if (ancestorAttributeAssign != null) {
-                    GrouperAttestationJob.stemAttestationProcessHelper(ancestorAttributeAssign.getOwnerStem(), ancestorAttributeAssign, null, null);
-                  } else {
-                    GrouperAttestationJob.stemAttestationProcessHelper(STEM, attributeAssign, null, null);
-                  }
-                  FINISHED[0] = true;
-                } catch (RuntimeException re) {
-                  //log incase thread didnt finish when screen was drawing
-                  LOG.error("Error updating attestation stem parts", re);
-                  RUNTIME_EXCEPTION[0] = re;
-                }
-                
-              }
-              
-            });
-
-            thread.start();
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+                TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditSaveSuccess")));
             
-            try {
-              thread.join(30000);
-            } catch (InterruptedException ie) {
-              throw new RuntimeException(ie);
-            }
-
-            if (RUNTIME_EXCEPTION[0] != null) {
-              throw RUNTIME_EXCEPTION[0];
-            }
-            
-            if (!FINISHED[0]) {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                  TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditSaveSuccessNotFinished")));
-              
-            } else {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                  TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditSaveSuccess")));
-
-            }
+//            if (!FINISHED[0]) {
+//              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+//                  TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditSaveSuccessNotFinished")));
+//              
+//            } else {
+//              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+//                  TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditSaveSuccess")));
+//
+//            }
             
           } else {
             

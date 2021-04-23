@@ -19,7 +19,7 @@ public class AttestationStemSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttestationStemSaveTest("testSaveAttestationSubjectDoesNotHaveAdminOnTheStem"));
+    TestRunner.run(new AttestationStemSaveTest("testSaveAttestationAttributesOnStemByStemName"));
   }
   
   /**

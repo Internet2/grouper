@@ -695,10 +695,7 @@ public class AttestationStemSave {
       this.saveResultType = SaveResultType.UPDATE;
     }
     
-    this.finished = GrouperAttestationJob.stemAttestationProcess(stem, 
-        this.saveResultType == SaveResultType.DELETE ? null : attributeAssign, 
-        this.saveResultType == SaveResultType.DELETE, newDateCertified, this.useThreadForPropagation);
-    
+    this.finished = true;
     return attributeAssign;
     
   }

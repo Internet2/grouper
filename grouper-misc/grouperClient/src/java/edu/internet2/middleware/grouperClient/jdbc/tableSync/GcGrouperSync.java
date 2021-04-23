@@ -296,6 +296,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public static final String OBJECT_TYPE_PROPAGATION = "objectType";
 
   /**
+   * use this to propagate attestation from folders to groups
+   */
+  public static final String ATTESTATION_PROPAGATION = "attestation";
+
+  /**
    * 
    */
   private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSync.class);

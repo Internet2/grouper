@@ -2654,6 +2654,8 @@ public class GrouperCheckConfig {
             "Comma separated email addresses to send reminders to, if blank then send to group admins", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_LAST_EMAILED_DATE,
             "yyyy/mm/dd date that this was last emailed so multiple emails don't go out on same day (group only)", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_MIN_CERTIFIED_DATE,
+            "yyyy/mm/dd date that folder set certification now. Any groups in this folder will have this date at a minimum of last certified date.", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_CALCULATED_DAYS_LEFT,
             "In order to search for attestations, this is the calculated days left before needs attestation", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_SEND_EMAIL,

@@ -142,6 +142,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    * 
    */
   public static final String ATTESTATION_LAST_EMAILED_DATE = "attestationLastEmailedDate";
+  
+  private static AttributeDefName attributeDefNameEmailedDate;
 
   /**
    * last emailed attribute def name
@@ -149,20 +151,60 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameEmailedDate() {
     
+    if (attributeDefNameEmailedDate != null) {
+      return attributeDefNameEmailedDate;
+    }
+    
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_LAST_EMAILED_DATE, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation emailed date attribute def name be found?");
     }
+    
+    attributeDefNameEmailedDate = attributeDefName;
     return attributeDefName;
 
   }
+  
+  
+  /**
+   * 
+   */
+  public static final String ATTESTATION_MIN_CERTIFIED_DATE = "attestationMinCertifiedDate";
+  
+  private static AttributeDefName attributeDefNameMinCertifiedDate;
+
+  /**
+   * min certified date attribute def name
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameMinCertifiedDate() {
+    
+    if (attributeDefNameMinCertifiedDate != null) {
+      return attributeDefNameMinCertifiedDate;
+    }
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_MIN_CERTIFIED_DATE, true);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation min certified date attribute def name be found?");
+    }
+    
+    attributeDefNameMinCertifiedDate = attributeDefName;
+    
+    return attributeDefName;
+
+  }
+  
   
   /**
    * 
    */
   public static final String ATTESTATION_CALCULATED_DAYS_LEFT = "attestationCalculatedDaysLeft";
+  
+  private static AttributeDefName attributeDefNameCalculatedDaysLeft;
 
   /**
    * calculated days left attribute def name
@@ -170,35 +212,48 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameCalculatedDaysLeft() {
     
+    if (attributeDefNameCalculatedDaysLeft != null) {
+      return attributeDefNameCalculatedDaysLeft;
+    }
+    
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_CALCULATED_DAYS_LEFT, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation calculated days attribute def name be found?");
     }
+    attributeDefNameCalculatedDaysLeft = attributeDefName;
     return attributeDefName;
 
   }
   
+  private static AttributeDef attributeDef;
   /**
    * 
    * @return the def
    */
   public static AttributeDef retrieveAttributeDef() {
-    AttributeDef attributeDef = AttributeDefFinder.findByName(
+    
+    if (attributeDef != null) {
+      return attributeDef;
+    } 
+      
+    AttributeDef attributeDefinition = AttributeDefFinder.findByName(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DEF, false);
     
-    if (attributeDef == null) {
+    if (attributeDefinition == null) {
       throw new RuntimeException("Why cant attestation attributeDef not be found?");
     }
-    
-    return attributeDef;
+    attributeDef = attributeDefinition;
+    return attributeDefinition;
   }
 
   /**
    * 
    */
   public static final String ATTESTATION_SEND_EMAIL = "attestationSendEmail";
+  
+  private static AttributeDefName attributeDefNameSendEmail;
 
   /**
    * send email attribute def name
@@ -206,12 +261,19 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameSendEmail() {
     
+    if (attributeDefNameSendEmail != null) {
+      return attributeDefNameSendEmail;
+    }
+    
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_SEND_EMAIL, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation send email attribute def name be found?");
     }
+    
+    attributeDefNameSendEmail = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -231,6 +293,7 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_AUTHORIZED_GROUP_ID = "attestationAuthorizedGroupId";
   
+  private static AttributeDefName attributeDefNameType;
   
   /**
    * type of attestation (group or report)
@@ -238,21 +301,31 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameType() {
     
+    if (attributeDefNameType != null) {
+      return attributeDefNameType;
+    }
+    
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_TYPE, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation type attribute def name be found?");
     }
+    attributeDefNameType = attributeDefName;
     return attributeDefName;
 
   }
 
+  private static AttributeDefName attributeDefNameReportConfigurationId;
   /**
    * report id
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameReportConfigurationId() {
+    
+    if (attributeDefNameReportConfigurationId != null) {
+      return attributeDefNameReportConfigurationId;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_REPORT_CONFIGURATION_ID, true);
@@ -260,15 +333,23 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation report configuration id attribute def name be found?");
     }
+    
+    attributeDefNameReportConfigurationId = attributeDefName;
+    
     return attributeDefName;
 
   }
   
+  private static AttributeDefName attributeDefNameAuthorizedGroupId;
   /**
    * authorized group id
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameAuthorizedGroupId() {
+    
+    if (attributeDefNameAuthorizedGroupId != null) {
+      return attributeDefNameAuthorizedGroupId;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_AUTHORIZED_GROUP_ID, true);
@@ -276,6 +357,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation authorized group id attribute def name be found?");
     }
+    
+    attributeDefNameAuthorizedGroupId = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -284,6 +368,8 @@ public class GrouperAttestationJob extends OtherJobBase {
    * attestationHasAttestation
    */
   public static final String ATTESTATION_HAS_ATTESTATION = "attestationHasAttestation";
+  
+  private static AttributeDefName attributeDefNameHasAttestation;
 
   /**
    * if this object has attestation assigned (either in group or stem)
@@ -291,12 +377,18 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static AttributeDefName retrieveAttributeDefNameHasAttestation() {
     
+    if (attributeDefNameHasAttestation != null) {
+      return attributeDefNameHasAttestation;
+    }
+    
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_HAS_ATTESTATION, true);
 
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation has attestation attribute def name be found?");
     }
+    attributeDefNameHasAttestation = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -326,18 +418,27 @@ public class GrouperAttestationJob extends OtherJobBase {
    * 
    */
   public static final String ATTESTATION_DATE_CERTIFIED = "attestationDateCertified";
+  
+  private static AttributeDefName attributeDefNameDateCertified;
 
   /**
    * date certified attribute def name
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameDateCertified() {
+    
+    if (attributeDefNameDateCertified != null) {
+      return attributeDefNameDateCertified;
+    }
 
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DATE_CERTIFIED, true);
     
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation date certified attribute def name be found?");
     }
+    
+    attributeDefNameDateCertified = attributeDefName;
+    
     return attributeDefName;
 
   }  
@@ -351,11 +452,17 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_DAYS_UNTIL_RECERTIFY = "attestationDaysUntilRecertify";
   
+  private static AttributeDefName attributeDefNameDaysUntilRecertify;
+  
   /**
    * days until recertify attribute def name
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameDaysUntilRecertify() {
+    
+    if (attributeDefNameDaysUntilRecertify != null) {
+      return attributeDefNameDaysUntilRecertify;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_UNTIL_RECERTIFY, true);
@@ -363,6 +470,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation days until recertify attribute def name be found?");
     }
+    
+    attributeDefNameDaysUntilRecertify = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -373,11 +483,17 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_DAYS_BEFORE_TO_REMIND = "attestationDaysBeforeToRemind";
   
+  private static AttributeDefName attributeDefNameDaysBeforeToRemind;
+  
   /**
    * days before remind attribute def name
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameDaysBeforeToRemind() {
+    
+    if (attributeDefNameDaysBeforeToRemind != null) {
+      return attributeDefNameDaysBeforeToRemind;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DAYS_BEFORE_TO_REMIND, true);
@@ -385,6 +501,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation days before to remind attribute def name be found?");
     }
+    
+    attributeDefNameDaysBeforeToRemind = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -394,11 +513,17 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_EMAIL_ADDRESSES = "attestationEmailAddresses";
   
+  private static AttributeDefName attributeDefNameEmailAddresses;
+  
   /**
    * email addresses attribute def name
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameEmailAddresses() {
+    
+    if (attributeDefNameEmailAddresses != null) {
+      return attributeDefNameEmailAddresses;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_ADDRESSES, true);
@@ -406,6 +531,9 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation email addresses attribute def name be found?");
     }
+    
+    attributeDefNameEmailAddresses = attributeDefName;
+    
     return attributeDefName;
 
   }
@@ -416,11 +544,17 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_DIRECT_ASSIGNMENT = "attestationDirectAssignment";
   
+  private static AttributeDefName attributeDefNameDirectAssignment;
+  
   /**
    * direct assignment attribute def name
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameDirectAssignment() {
+    
+    if (attributeDefNameDirectAssignment != null) {
+      return attributeDefNameDirectAssignment;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_DIRECT_ASSIGNMENT, true);
@@ -428,6 +562,8 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation direct assignment attribute def name be found?");
     }
+    
+    attributeDefNameDirectAssignment = attributeDefName;
     return attributeDefName;
 
   }
@@ -437,11 +573,17 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_VALUE_DEF = "attestation";
   
+  private static AttributeDefName attributeDefNameValueDef;
+  
   /**
    * attribute def name assigned to stem or group
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameValueDef() {
+    
+    if (attributeDefNameValueDef != null) {
+      return attributeDefNameValueDef;
+    }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_VALUE_DEF, true);
@@ -449,6 +591,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation value def attribute def name be found?");
     }
+    attributeDefNameValueDef = attributeDefName;
     return attributeDefName;
   }
   
@@ -457,12 +600,18 @@ public class GrouperAttestationJob extends OtherJobBase {
    * 
    */
   public static final String ATTESTATION_STEM_SCOPE = "attestationStemScope";
+  
+  private static AttributeDefName attributeDefNameStemScope;
 
   /**
    * attribute def name of which scope when assigned to stem
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameStemScope() {
+    
+    if (attributeDefNameStemScope != null) {
+      return attributeDefNameStemScope;
+    }
 
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
         GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_STEM_SCOPE, true);
@@ -470,6 +619,8 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (attributeDefName == null) {
       throw new RuntimeException("Why cant attestation def name for stem scope be found?");
     }
+    
+    attributeDefNameStemScope = attributeDefName;
     return attributeDefName;
   }
 
@@ -1712,6 +1863,28 @@ public class GrouperAttestationJob extends OtherJobBase {
       }
     }
 
+  }
+  
+  
+  public static void clearCache() {
+    
+    attributeDefNameEmailedDate = null;
+    attributeDefNameMinCertifiedDate = null;
+    attributeDefNameCalculatedDaysLeft = null;
+    attributeDef = null;
+    attributeDefNameSendEmail = null;
+    attributeDefNameType = null;
+    attributeDefNameReportConfigurationId = null;
+    attributeDefNameAuthorizedGroupId = null;
+    attributeDefNameHasAttestation = null;
+    attributeDefNameDateCertified = null;
+    attributeDefNameDaysUntilRecertify = null;
+    attributeDefNameDaysBeforeToRemind = null;
+    attributeDefNameEmailAddresses = null;
+    attributeDefNameDirectAssignment = null;
+    attributeDefNameValueDef = null;
+    attributeDefNameStemScope = null;
+    
   }
 
 }

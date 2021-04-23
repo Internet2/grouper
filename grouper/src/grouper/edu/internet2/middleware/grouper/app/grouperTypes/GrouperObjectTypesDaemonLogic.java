@@ -542,7 +542,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       GrouperObjectTypeObjectAttributes grouperObjectTypeAttributes = null;
       
       for (String[] queryResult : queryResults) {
-        String groupName = queryResult[0];
+        String stemName = queryResult[0];
         String configName = queryResult[1];
         String configValue = queryResult[2];
         String objectType = queryResult[3];
@@ -550,11 +550,11 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
         
         grouperObjectTypeAttributes = results.get(objectType);
         if (grouperObjectTypeAttributes == null) {
-          grouperObjectTypeAttributes = new GrouperObjectTypeObjectAttributes(stemId, groupName, markerAttributeAssignId);
+          grouperObjectTypeAttributes = new GrouperObjectTypeObjectAttributes(stemId, stemName, markerAttributeAssignId);
           results.put(objectType, grouperObjectTypeAttributes);
         }
         
-        grouperObjectTypeAttributes.setOwnedByGroup(true);
+        grouperObjectTypeAttributes.setOwnedByStem(true);
         
         if (configName.equals(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameDataOwner().getName())) {
           grouperObjectTypeAttributes.setObjectTypeDataOwner(configValue);
@@ -737,22 +737,15 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
         "FROM " + 
         "    grouper_pit_groups gpg, " +
         "    grouper_pit_attribute_assign gpaa_marker, " + 
-        "    grouper_pit_attribute_assign gpaa_type, " + 
         "    grouper_pit_attribute_assign gpaa_direct, " + 
-        "    grouper_pit_attr_assn_value gpaav_type, " + 
         "    grouper_pit_attr_assn_value gpaav_direct, " + 
         "    grouper_pit_attr_def_name gpadn_marker, " + 
-        "    grouper_pit_attr_def_name gpadn_type, " + 
         "    grouper_pit_attr_def_name gpadn_direct " + 
         "WHERE " + 
         "    gpaa_marker.id = ? " +
         "    AND gpaa_marker.owner_group_id = gpg.id " +
         "    AND gpaa_marker.attribute_def_name_id = gpadn_marker.id " + 
         "    AND gpadn_marker.name = ? " + 
-        "    AND gpaa_marker.id = gpaa_type.owner_attribute_assign_id " + 
-        "    AND gpaa_type.attribute_def_name_id = gpadn_type.id " + 
-        "    AND gpadn_type.name = ? " + 
-        "    AND gpaav_type.attribute_assign_id = gpaa_type.id " + 
         "    AND gpaa_marker.id = gpaa_direct.owner_attribute_assign_id " + 
         "    AND gpaa_direct.attribute_def_name_id = gpadn_direct.id " + 
         "    AND gpadn_direct.name = ? " + 
@@ -760,14 +753,12 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
         "    AND gpaav_direct.value_string = 'true' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(markerAttributeAssignId);
     
+    paramsInitial.add(markerAttributeAssignId);
     paramsInitial.add(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase().getName());
-    paramsInitial.add(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameTypeName().getName());
     paramsInitial.add(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameDirectAssignment().getName());
     
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
     typesInitial.add(StringType.INSTANCE);
@@ -1270,7 +1261,6 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
         
       } else if (esbEventType == EsbEventType.STEM_ADD) {
         
-        //TODO make sure esbEVent.getName is the stem name and getId is the stem id
         stemIdsToNamesAdd.put(esbEvent.getId(), esbEvent.getName());
         
       } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
@@ -1741,7 +1731,9 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
             continue;
           }
           
-          LOG.info("For type= " + typeName + " and group/stem= " + grouperObjectTypesObjectAttribute.getName() + " deleting marker attribute");
+          if (LOG.isInfoEnabled()) {
+            LOG.info("For type= " + typeName + " and group/stem= " + grouperObjectTypesObjectAttribute.getName() + " deleting marker attribute");
+          }
           
           if (StringUtils.isNotBlank(grouperObjectTypesObjectAttribute.getMarkerAttributeAssignId())) {
             
@@ -1814,12 +1806,16 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
                   }
                   
                   if (!GrouperUtil.equals(existingDirectAssign, actualDirectAssign)) {
-                    LOG.info("For " + typeName + " and group/stem =" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypesDirectAssign to: " + actualDirectAssign);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stem =" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypesDirectAssign to: " + actualDirectAssign);
+                    }
                     markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDirectAssign.getName(), actualDirectAssign);
                   }
                   
                   if (!GrouperUtil.equals(existingDataOwner, actualDataOwner)) {
-                    LOG.info("For " + typeName + " and group/stemstemName=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeDataOwner to: " + actualDataOwner);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stemstemName=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeDataOwner to: " + actualDataOwner);
+                    }
                     
                     if (StringUtils.isBlank(actualDataOwner)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDataOwner);
@@ -1829,7 +1825,9 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
                   }
                   
                   if (!GrouperUtil.equals(existingMemberDescription, actualMemberDescription)) {
-                    LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeMemberDescription to: " + actualMemberDescription);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeMemberDescription to: " + actualMemberDescription);
+                    }
                     if (StringUtils.isBlank(actualMemberDescription)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMembersDescription);
                     } else {
@@ -1838,7 +1836,9 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
                   }
                   
                   if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
-                    LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeOwnerStemId to: " + actualOwnerStemId);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeOwnerStemId to: " + actualOwnerStemId);
+                    }
                     if (StringUtils.isBlank(actualOwnerStemId)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
                     } else {
@@ -1847,7 +1847,9 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
                   }
                   
                   if (!GrouperUtil.equals(existingServiceName, actualServiceName)) {
-                    LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeServiceName to: " + actualServiceName);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeServiceName to: " + actualServiceName);
+                    }
                     if (StringUtils.isBlank(actualServiceName)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameServiceName);
                     } else {
@@ -1856,7 +1858,9 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
                   }
                   
                   if (!GrouperUtil.equals(existingTypeName, actualTypeName)) {
-                    LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeTypeName to: " + actualTypeName);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("For " + typeName + " and group/stem=" + grouperObjectTypesObjectAttribute.getName() + " updating objectTypeTypeName to: " + actualTypeName);
+                    }
                     if (StringUtils.isBlank(actualTypeName)) {
                       markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameObjectTypeName);
                     } else {
@@ -1912,6 +1916,4 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
   }
 
 }
-
-
 
