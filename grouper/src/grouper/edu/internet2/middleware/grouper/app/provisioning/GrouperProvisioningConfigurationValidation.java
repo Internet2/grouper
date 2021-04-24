@@ -84,6 +84,7 @@ public class GrouperProvisioningConfigurationValidation {
       return errorMessagesAndConfigSuffixes;
     }
 
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateDoingSomething(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupDeleteHasDeleteType(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateMembershipDeleteHasDeleteType(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityDeleteHasDeleteType(suffixToConfigValue));
@@ -102,6 +103,18 @@ public class GrouperProvisioningConfigurationValidation {
   
   // hasTargetGroupLink
   // if target group link then there should be a copy to sync field or a translation
+
+  public MultiKey validateDoingSomething(Map<String, String> suffixToConfigValue) {
+    
+    boolean operateOnGrouperEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean operateOnGrouperGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperGroups"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
+    
+    if (!operateOnGrouperEntities && !operateOnGrouperGroups && !operateOnGrouperMemberships) {
+      return new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething")});
+    }
+    return null;
+  }
 
   /**
    * 
