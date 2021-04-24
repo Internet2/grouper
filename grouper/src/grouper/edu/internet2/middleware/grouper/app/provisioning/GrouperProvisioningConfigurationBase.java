@@ -637,14 +637,6 @@ public abstract class GrouperProvisioningConfigurationBase {
           .jobRetrieveOrCreateBySyncType(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().name());
       this.grouperProvisioner.setGcGrouperSyncJob(gcGrouperSyncJob);
     }
-    this.grouperProvisioner.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
-    
-    if (this.grouperProvisioner.getGcGrouperSyncLog() == null) {
-      this.grouperProvisioner.setGcGrouperSyncLog(this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao().jobCreateLog(this.grouperProvisioner.getGcGrouperSyncJob()));
-    }
-    
-    this.grouperProvisioner.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
-  
     if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + this.getConfigId() + ".debugConfig", false)) {
       
       debugMap = this.grouperProvisioner.getDebugMap();
@@ -2364,7 +2356,6 @@ public abstract class GrouperProvisioningConfigurationBase {
     
       //validate
       this.validate();
-      
     
     } catch (RuntimeException re) {
       if (this.grouperProvisioner != null && this.grouperProvisioner.getGcGrouperSyncLog() != null) {

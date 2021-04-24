@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -536,6 +537,14 @@ public abstract class GrouperProvisioner {
       debugMap.put("state", "init");
       this.initialize(grouperProvisioningType1);
       
+      this.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
+      
+      if (this.getGcGrouperSyncLog() == null) {
+        this.setGcGrouperSyncLog(this.getGcGrouperSync().getGcGrouperSyncJobDao().jobCreateLog(this.getGcGrouperSyncJob()));
+      }
+      
+      this.getGcGrouperSyncLog().setSyncTimestamp(new Timestamp(System.currentTimeMillis()));
+
       this.gcGrouperSyncHeartbeat.setGcGrouperSyncJob(this.gcGrouperSyncJob);
       this.gcGrouperSyncHeartbeat.setFullSync(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
       this.gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
