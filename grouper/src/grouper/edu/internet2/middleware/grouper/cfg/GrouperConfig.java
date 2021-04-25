@@ -45,11 +45,9 @@ import org.apache.commons.logging.Log;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
-import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
@@ -162,10 +160,6 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 
                 // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
                 namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
-                
-                // deprovisioning
-                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
-                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
                 
                 // attestation
                 namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDef().getName());

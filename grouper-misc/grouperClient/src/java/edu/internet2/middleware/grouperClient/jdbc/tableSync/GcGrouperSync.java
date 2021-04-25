@@ -289,6 +289,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    * use this for provisioning
    */
   public static final String PROVISIONING = "provisioning";
+
+  /**
+   * use this for deprovisioning
+   */
+  public static final String DEPROVISIONING = "deprovisioning";
   
   /**
    * use this to propagate object types from folders to sub folders and groups

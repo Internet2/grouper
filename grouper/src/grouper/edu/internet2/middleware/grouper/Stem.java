@@ -2484,12 +2484,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           }
         });
     
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
-    }
-    
     return group;
   }
 
@@ -2667,13 +2661,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           }
         });
     
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(attributeDef);
-      
-    }
-
     return attributeDef;
     
   } 
@@ -2912,13 +2899,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
       }
     }
-    
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
-    }
-
     
     return stem;
   }

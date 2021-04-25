@@ -12,6 +12,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
@@ -19,7 +20,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesDaemonLogic;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -44,10 +44,11 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
+@DisallowConcurrentExecution
 public class GrouperAttestationDaemonLogic extends OtherJobBase {
   
 
-private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.class);
   
   /**
    * this method retrieves all attestation attributes assignments and values for all folders. 
@@ -61,34 +62,34 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
     {
       String sql = "SELECT " +
           "    gs.id, " +
-          "    gs.name, " + 
-          "    gadn_config.name, " + 
+          "    gs.name, " +
+          "    gadn_config.name, " +
           "    gaav_config.value_string, " +
           "    gaa_marker.id " + 
           "FROM " + 
           "    grouper_stems gs, " + 
           "    grouper_attribute_assign gaa_marker, " + 
-          "    grouper_attribute_assign gaa_attestation, " + 
+          "    grouper_attribute_assign gaa_attestation_type, " +
           "    grouper_attribute_assign gaa_config, " + 
-          "    grouper_attribute_assign_value gaav_attestation, " + 
+          "    grouper_attribute_assign_value gaav_attestation_type, " + 
           "    grouper_attribute_assign_value gaav_config, " + 
           "    grouper_attribute_def_name gadn_marker, " + 
-          "    grouper_attribute_def_name gadn_attestation, " + 
+          "    grouper_attribute_def_name gadn_attestation_type, " + 
           "    grouper_attribute_def_name gadn_config " + 
           "WHERE " + 
           "    gs.id = gaa_marker.owner_stem_id " + 
           "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
           "    AND gadn_marker.name = ? " + 
-          "    AND gaa_marker.id = gaa_attestation.owner_attribute_assign_id " + 
-          "    AND gaa_attestation.attribute_def_name_id = gadn_attestation.id " + 
-          "    AND gadn_attestation.name = ? " + 
-          "    AND gaav_attestation.attribute_assign_id = gaa_attestation.id " + 
-          "    AND gaav_attestation.value_string = 'group' " + 
+          "    AND gaa_marker.id = gaa_attestation_type.owner_attribute_assign_id " + 
+          "    AND gaa_attestation_type.attribute_def_name_id = gadn_attestation_type.id " + 
+          "    AND gadn_attestation_type.name = ? " + 
+          "    AND gaav_attestation_type.attribute_assign_id = gaa_attestation_type.id " + 
+          "    AND gaav_attestation_type.value_string = 'group' " + 
           "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
           "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
           "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
           "    AND gaa_marker.enabled = 'T' " + 
-          "    AND gaa_attestation.enabled = 'T' " + 
+          "    AND gaa_attestation_type.enabled = 'T' " + 
           "    AND gaa_config.enabled = 'T' ";
       
       List<Object> paramsInitial = new ArrayList<Object>();
@@ -215,21 +216,21 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
           "      grouper_stems gs,   " + 
           "      grouper_attribute_assign gaa_marker,   " + 
           "      grouper_attribute_assign gaa_direct,   " + 
-          "      grouper_attribute_assign gaa_attestation,   " + 
+          "      grouper_attribute_assign gaa_attestation_type,   " + 
           "      grouper_attribute_assign_value gaav_direct,   " + 
           "      grouper_attribute_def_name gadn_marker," + 
           "      grouper_attribute_def_name gadn_direct,   " + 
           "      grouper_stem_set gss,   " + 
           "      grouper_groups gg,   " + 
-          "      grouper_attribute_assign_value gaav_attestation, " + 
-          "      grouper_attribute_def_name gadn_attestation " + 
+          "      grouper_attribute_assign_value gaav_attestation_type, " + 
+          "      grouper_attribute_def_name gadn_attestation_type " + 
           "  WHERE   " + 
-          "      gaa_marker.id = gaa_attestation.owner_attribute_assign_id " + 
-          "      AND gaa_attestation.attribute_def_name_id = gadn_attestation.id " + 
-          "      AND gadn_attestation.name = ? " + 
-          "      AND gaav_attestation.attribute_assign_id = gaa_attestation.id " + 
-          "      AND gaav_attestation.value_string = 'group' " + 
-          "      AND gaa_attestation.enabled = 'T' " + 
+          "      gaa_marker.id = gaa_attestation_type.owner_attribute_assign_id " + 
+          "      AND gaa_attestation_type.attribute_def_name_id = gadn_attestation_type.id " + 
+          "      AND gadn_attestation_type.name = ? " + 
+          "      AND gaav_attestation_type.attribute_assign_id = gaa_attestation_type.id " + 
+          "      AND gaav_attestation_type.value_string = 'group' " + 
+          "      AND gaa_attestation_type.enabled = 'T' " + 
           "      AND gs.id = gaa_marker.owner_stem_id   " + 
           "      AND gaa_marker.attribute_def_name_id = gadn_marker.id   " + 
           "      AND gadn_marker.name = ?  " + 
@@ -394,10 +395,10 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
     AttributeDefName attributeDefNameCalculatedDaysLeft = GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft();
     AttributeDefName attributeDefNameHasAttestation = GrouperAttestationJob.retrieveAttributeDefNameHasAttestation();
     
-    int objectTypesAttributesFoldersDeleted = 0;
-    int objectTypesAttributesFoldersAddedOrUpdated = 0;
-    int objectTypesAttributesGroupsDeleted = 0;
-    int objectTypesAttributesGroupsAddedOrUpdated = 0;
+    int attestationAttributesFoldersDeleted = 0;
+    int attestationAttributesFoldersAddedOrUpdated = 0;
+    int attestationAttributesGroupsDeleted = 0;
+    int attestationAttributesGroupsAddedOrUpdated = 0;
     
     // get a map of all child -> parent, maybe this is cheaper than having to recalculate it multiple times per object
     Map<String, String> childToParent = new HashMap<String, String>();
@@ -497,10 +498,10 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
         }
         
         if (grouperAttestationObjectAttribute.isOwnedByGroup()) {
-          objectTypesAttributesGroupsDeleted++;
+          attestationAttributesGroupsDeleted++;
           
         } else {
-          objectTypesAttributesFoldersDeleted++;
+          attestationAttributesFoldersDeleted++;
         }
       } else {
 
@@ -607,29 +608,29 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
               });
           
           if (grouperAttestationObjectAttribute.isOwnedByGroup()) {
-            objectTypesAttributesGroupsAddedOrUpdated++;
+            attestationAttributesGroupsAddedOrUpdated++;
            
           } else {
-            objectTypesAttributesFoldersAddedOrUpdated++;
+            attestationAttributesFoldersAddedOrUpdated++;
           }
         }
       }
     }
     
-    if (objectTypesAttributesGroupsAddedOrUpdated > 0) {
-      debugMap.put("attestationAttributesGroupsAddedOrUpdated", objectTypesAttributesGroupsAddedOrUpdated);
+    if (attestationAttributesGroupsAddedOrUpdated > 0) {
+      debugMap.put("attestationAttributesGroupsAddedOrUpdated", attestationAttributesGroupsAddedOrUpdated);
     }
     
-    if (objectTypesAttributesFoldersAddedOrUpdated > 0) {
-      debugMap.put("attestationTypesAttributesFoldersAddedOrUpdated", objectTypesAttributesFoldersAddedOrUpdated);
+    if (attestationAttributesFoldersAddedOrUpdated > 0) {
+      debugMap.put("attestationAttributesFoldersAddedOrUpdated", attestationAttributesFoldersAddedOrUpdated);
     }
     
-    if (objectTypesAttributesGroupsDeleted > 0) {
-      debugMap.put("attestationTypesAttributesGroupsDeleted", objectTypesAttributesGroupsDeleted);
+    if (attestationAttributesGroupsDeleted > 0) {
+      debugMap.put("attestationAttributesGroupsDeleted", attestationAttributesGroupsDeleted);
     }
     
-    if (objectTypesAttributesFoldersDeleted > 0) {
-      debugMap.put("attestationTypesAttributesFoldersDeleted", objectTypesAttributesFoldersDeleted);
+    if (attestationAttributesFoldersDeleted > 0) {
+      debugMap.put("attestationAttributesFoldersDeleted", attestationAttributesFoldersDeleted);
     }
   }
   
@@ -760,23 +761,23 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
         "FROM " + 
         "    grouper_pit_stems gps, " +
         "    grouper_pit_attribute_assign gpaa_marker, " + 
-        "    grouper_pit_attribute_assign gpaa_attestation, " + 
+        "    grouper_pit_attribute_assign gpaa_attestation_type, " + 
         "    grouper_pit_attribute_assign gpaa_direct, " + 
-        "    grouper_pit_attr_assn_value gpaav_attestation, " + 
+        "    grouper_pit_attr_assn_value gpaav_attestation_type, " + 
         "    grouper_pit_attr_assn_value gpaav_direct, " + 
         "    grouper_pit_attr_def_name gpadn_marker, " + 
-        "    grouper_pit_attr_def_name gpadn_attestation, " + 
+        "    grouper_pit_attr_def_name gpadn_attestation_type, " + 
         "    grouper_pit_attr_def_name gpadn_direct " + 
         "WHERE " + 
         "    gpaa_marker.id = ? " +
         "    AND gpaa_marker.owner_stem_id = gps.id " +
         "    AND gpaa_marker.attribute_def_name_id = gpadn_marker.id " + 
         "    AND gpadn_marker.name = ? " + 
-        "    AND gpaa_marker.id = gpaa_attestation.owner_attribute_assign_id " + 
-        "    AND gpaa_attestation.attribute_def_name_id = gpadn_attestation.id " + 
-        "    AND gpadn_attestation.name = ? " + 
-        "    AND gpaav_attestation.attribute_assign_id = gpaa_attestation.id " + 
-        "    AND gpaav_attestation.value_string = 'group' " + 
+        "    AND gpaa_marker.id = gpaa_attestation_type.owner_attribute_assign_id " + 
+        "    AND gpaa_attestation_type.attribute_def_name_id = gpadn_attestation_type.id " + 
+        "    AND gpadn_attestation_type.name = ? " + 
+        "    AND gpaav_attestation_type.attribute_assign_id = gpaa_attestation_type.id " + 
+        "    AND gpaav_attestation_type.value_string = 'group' " + 
         "    AND gpaa_marker.id = gpaa_direct.owner_attribute_assign_id " + 
         "    AND gpaa_direct.attribute_def_name_id = gpadn_direct.id " + 
         "    AND gpadn_direct.name = ? " +
@@ -925,28 +926,28 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
         "FROM " + 
         "    grouper_stems gs, " + 
         "    grouper_attribute_assign gaa_marker, " +
-        "    grouper_attribute_assign gaa_attestation, " + 
+        "    grouper_attribute_assign gaa_attestation_type, " + 
         "    grouper_attribute_assign gaa_config, " + 
-        "    grouper_attribute_assign_value gaav_attestation, " + 
+        "    grouper_attribute_assign_value gaav_attestation_type, " + 
         "    grouper_attribute_assign_value gaav_config, " + 
         "    grouper_attribute_def_name gadn_marker, " + 
-        "    grouper_attribute_def_name gadn_attestation, " + 
+        "    grouper_attribute_def_name gadn_attestation_type, " + 
         "    grouper_attribute_def_name gadn_config " + 
         "WHERE " + 
         "    gs.id = ? " + 
         "    AND gs.id = gaa_marker.owner_stem_id " + 
         "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
         "    AND gadn_marker.name = ? " + 
-        "    AND gaa_marker.id = gaa_attestation.owner_attribute_assign_id " + 
-        "    AND gaa_attestation.attribute_def_name_id = gadn_attestation.id " + 
-        "    AND gadn_attestation.name = ? " + 
-        "    AND gaav_attestation.value_string = 'group' " +
-        "    AND gaav_attestation.attribute_assign_id = gaa_attestation.id " + 
+        "    AND gaa_marker.id = gaa_attestation_type.owner_attribute_assign_id " + 
+        "    AND gaa_attestation_type.attribute_def_name_id = gadn_attestation_type.id " + 
+        "    AND gadn_attestation_type.name = ? " + 
+        "    AND gaav_attestation_type.value_string = 'group' " +
+        "    AND gaav_attestation_type.attribute_assign_id = gaa_attestation_type.id " + 
         "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
         "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
         "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
         "    AND gaa_marker.enabled = 'T' " + 
-        "    AND gaa_attestation.enabled = 'T' " + 
+        "    AND gaa_attestation_type.enabled = 'T' " + 
         "    AND gaa_config.enabled = 'T' ";
     
     
@@ -1044,12 +1045,12 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
           "    grouper_stem_set gss, " + 
           "    grouper_stems gs_then_has_stem, " +
           "    grouper_attribute_assign gaa_marker, " + 
-          "    grouper_attribute_assign gaa_attestation, " + 
+          "    grouper_attribute_assign gaa_attestation_type, " + 
           "    grouper_attribute_assign gaa_config, " + 
-          "    grouper_attribute_assign_value gaav_attestation, " + 
+          "    grouper_attribute_assign_value gaav_attestation_type, " + 
           "    grouper_attribute_assign_value gaav_config, " + 
           "    grouper_attribute_def_name gadn_marker, " + 
-          "    grouper_attribute_def_name gadn_attestation, " + 
+          "    grouper_attribute_def_name gadn_attestation_type, " + 
           "    grouper_attribute_def_name gadn_config " + 
           "WHERE " + 
           "    gs.name = ? " +
@@ -1058,16 +1059,16 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
           "    AND gss.then_has_stem_id = gaa_marker.owner_stem_id " + 
           "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
           "    AND gadn_marker.name = ? " + 
-          "    AND gaa_marker.id = gaa_attestation.owner_attribute_assign_id " + 
-          "    AND gaa_attestation.attribute_def_name_id = gadn_attestation.id " + 
-          "    AND gadn_attestation.name = ? " + 
-          "    AND gaav_attestation.value_string = 'group' " +
-          "    AND gaav_attestation.attribute_assign_id = gaa_attestation.id " + 
+          "    AND gaa_marker.id = gaa_attestation_type.owner_attribute_assign_id " + 
+          "    AND gaa_attestation_type.attribute_def_name_id = gadn_attestation_type.id " + 
+          "    AND gadn_attestation_type.name = ? " + 
+          "    AND gaav_attestation_type.value_string = 'group' " +
+          "    AND gaav_attestation_type.attribute_assign_id = gaa_attestation_type.id " + 
           "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
           "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
           "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
           "    AND gaa_marker.enabled = 'T' " + 
-          "    AND gaa_attestation.enabled = 'T' " + 
+          "    AND gaa_attestation_type.enabled = 'T' " + 
           "    AND gaa_config.enabled = 'T' ";
       
       List<Object> paramsInitial = new ArrayList<Object>();
@@ -1394,7 +1395,7 @@ private static final Log LOG = GrouperUtil.getLog(GrouperAttestationDaemonLogic.
     } finally {
       GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
       debugMap.put("finalLog", true);
-      synchronized (GrouperObjectTypesDaemonLogic.class) {
+      synchronized (GrouperAttestationDaemonLogic.class) {
         try {
           if (gcGrouperSyncJob != null) {
             gcGrouperSyncJob.assignHeartbeatAndEndJob();
