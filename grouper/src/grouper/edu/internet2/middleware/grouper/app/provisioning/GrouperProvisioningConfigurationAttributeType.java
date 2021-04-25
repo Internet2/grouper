@@ -7,10 +7,32 @@ package edu.internet2.middleware.grouper.app.provisioning;
  */
 public enum GrouperProvisioningConfigurationAttributeType {
 
-  group,
+  group {
+
+    @Override
+    public String getConfigPrefix() {
+      return "targetGroupAttribute";
+    }
+  },
   
-  entity,
+  entity {
+
+    @Override
+    public String getConfigPrefix() {
+      return "targetEntityAttribute";
+    }
+  },
   
-  membership;
+  membership {
+
+    @Override
+    public String getConfigPrefix() {
+      return "targetMembershipAttribute";
+    }
+  };
+  
+  public abstract String getConfigPrefix();
   
 }
+
+// 

@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -26,6 +29,53 @@ public class LdapSyncConfigurationValidation
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateDnExistsAndString(suffixToConfigValue));
 
     return errorMessagesAndConfigSuffixes;
+  }
+
+  /**
+   * validate from the grouper provisioner
+   * @return the 
+   */
+  public List<MultiKey> validateFromObjectModel() {
+    
+    List<MultiKey> errorMessagesAndConfigSuffixes = GrouperUtil.nonNull(super.validateFromObjectModel());
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateDnSelect());
+    return errorMessagesAndConfigSuffixes;
+
+  }
+
+  /**
+   * make sure attribute names arent re-used
+   * @param suffixToConfigValue
+   * @return 
+   */
+  public List<MultiKey> validateDnSelect() {
+    
+    List<MultiKey> result = new ArrayList<MultiKey>();
+
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
+    if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");
+      if (grouperProvisioningConfigurationAttribute == null) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupDn")}));
+      }
+      if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), htmlJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("select"))}));
+      }
+    }
+    if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig().get("name");
+      if (grouperProvisioningConfigurationAttribute == null) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityDn")}));
+      }
+      if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), htmlJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("select"))}));
+      }
+    }
+    
+    return result;
+    
   }
 
   /**
@@ -71,7 +121,7 @@ public class LdapSyncConfigurationValidation
         // all good, field with name "name" and type string
         if (StringUtils.equals(name, "name")) {
           if (!StringUtils.isBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
-            result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), nameConfigKey}));
+            result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), htmlJqueryHandle(nameConfigKey)}));
           }
           continue OBJECT_TYPE;
         }

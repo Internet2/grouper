@@ -1708,6 +1708,8 @@ public abstract class GrouperProvisioningConfigurationBase {
   
         GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
   
+        attributeConfig.setConfigIndex(i);
+        
         if (StringUtils.equals("targetGroupAttribute", objectType)) {
           attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
@@ -2155,9 +2157,48 @@ public abstract class GrouperProvisioningConfigurationBase {
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
     
+    this.operateOnGrouperEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperEntities", false), false);
+    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
+    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
+    
   }
   
+  /**
+   * operate on grouper entities
+   */
+  private boolean operateOnGrouperEntities;
   
+  /**
+   * operate on grouper memberships
+   */
+  private boolean operateOnGrouperMemberships;
+  
+  /**
+   * operate on grouper groups
+   */
+  private boolean operateOnGrouperGroups;
+  
+  /**
+   * operate on grouper entities
+   * @return is operate
+   */
+  public boolean isOperateOnGrouperEntities() {
+    return operateOnGrouperEntities;
+  }
+
+  /**
+   * operate on grouper entities
+   * @return is operate
+   */
+  public boolean isOperateOnGrouperMemberships() {
+    return operateOnGrouperMemberships;
+  }
+
+  
+  public boolean isOperateOnGrouperGroups() {
+    return operateOnGrouperGroups;
+  }
+
   public boolean isRecalculateAllOperations() {
     return recalculateAllOperations;
   }
