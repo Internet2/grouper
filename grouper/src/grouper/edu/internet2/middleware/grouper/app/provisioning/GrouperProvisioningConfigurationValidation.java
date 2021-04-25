@@ -62,11 +62,68 @@ public class GrouperProvisioningConfigurationValidation {
       
     }
     
-    return validateFromSuffixValueMap(suffixToConfigValue);
+    List<MultiKey> errors = GrouperUtil.nonNull(validateFromSuffixValueMap(suffixToConfigValue));
+    errors.addAll(GrouperUtil.nonNull(validateFromObjectModel()));
+    return errors;
   }
 
-  //TODO get the provisioner configuration and validate from there too when running the provisioner (required, types, etc)
-  
+  /**
+   * validate from the grouper provisioner
+   * @return the 
+   */
+  public List<MultiKey> validateFromObjectModel() {
+    List<MultiKey> errorMessagesAndConfigSuffixes = new ArrayList<MultiKey>();
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateOperateImpliesSelectOrInsert());
+    return errorMessagesAndConfigSuffixes;
+  }
+
+  /**
+   * if operating on group/entity/membership
+   * @param suffixToConfigValue
+   * @return the errors
+   */
+  public List<MultiKey> validateOperateImpliesSelectOrInsert() {
+    
+    List<MultiKey> result = new ArrayList<MultiKey>();
+
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
+      if (!grouperProvisioningConfiguration.isSelectGroups() && !grouperProvisioningConfiguration.isInsertGroups()) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertGroups"), 
+            htmlJqueryHandle("operateOnGrouperGroups")}));
+      }
+    }
+    if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
+      if (!grouperProvisioningConfiguration.isSelectEntities() && !grouperProvisioningConfiguration.isInsertEntities()) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), 
+            htmlJqueryHandle("operateOnGrouperEntities")}));
+      }
+    }
+    if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships()) {
+      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
+        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships"), 
+            htmlJqueryHandle("operateOnGrouperMemberships")}));
+      }
+    }
+    
+    return result;
+    
+  }
+
+  /**
+   * 
+   * @param suffix
+   * @return html jquery handle
+   */
+  public String htmlJqueryHandle(String suffix) {
+    if (!suffix.startsWith("#")) {
+      suffix = "#config_" + suffix + "_spanid";
+    }
+    return suffix;
+  }
+
   /**
    * 
    * @return error message, and optionally a config suffix that has the problem
@@ -84,6 +141,7 @@ public class GrouperProvisioningConfigurationValidation {
       return errorMessagesAndConfigSuffixes;
     }
 
+    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateDoingSomething(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupDeleteHasDeleteType(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateMembershipDeleteHasDeleteType(suffixToConfigValue));
     addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityDeleteHasDeleteType(suffixToConfigValue));
@@ -103,6 +161,18 @@ public class GrouperProvisioningConfigurationValidation {
   // hasTargetGroupLink
   // if target group link then there should be a copy to sync field or a translation
 
+  public MultiKey validateDoingSomething(Map<String, String> suffixToConfigValue) {
+    
+    boolean operateOnGrouperEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean operateOnGrouperGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperGroups"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
+    
+    if (!operateOnGrouperEntities && !operateOnGrouperGroups && !operateOnGrouperMemberships) {
+      return new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething")});
+    }
+    return null;
+  }
+
   /**
    * 
    * @param suffixToConfigValue
@@ -116,7 +186,7 @@ public class GrouperProvisioningConfigurationValidation {
     if (!StringUtils.isBlank(groupIdOfUsersToProvision)) {
        if (null == GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, false)) {
          
-         return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"), "groupIdOfUsersToProvision");
+         return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"), htmlJqueryHandle("groupIdOfUsersToProvision"));
        }
     
     }
@@ -149,7 +219,7 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), "deleteGroups");
+        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), htmlJqueryHandle("deleteGroups"));
       }
     }
     return null;
@@ -182,7 +252,7 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), "deleteMemberships");
+        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), htmlJqueryHandle("deleteMemberships"));
       }
     }
     return null;
@@ -227,7 +297,7 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), "deleteEntities");
+        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), htmlJqueryHandle("deleteEntities"));
       }
     }
     return null;
@@ -281,7 +351,7 @@ public class GrouperProvisioningConfigurationValidation {
         return null;
       }
       
-      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "hasTargetGroupLink");
+      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), htmlJqueryHandle("hasTargetGroupLink"));
     }
     return null;
     
@@ -334,7 +404,7 @@ public class GrouperProvisioningConfigurationValidation {
         return null;
       }
       
-      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "hasTargetEntityLink");
+      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), htmlJqueryHandle("hasTargetEntityLink"));
     }
     return null;
     

@@ -12,6 +12,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperProvisioningConfigurationAttribute {
 
   /**
+   * for validation messages
+   */
+  private int configIndex = -1;
+  
+  /**
+   * for validation messages
+   * @return config index
+   */
+  public int getConfigIndex() {
+    return this.configIndex;
+  }
+
+  /**
+   * for validation messages
+   * @param configIndex1
+   */
+  public void setConfigIndex(int configIndex1) {
+    this.configIndex = configIndex1;
+  }
+
+  /**
+   * get config key for validation.  pass in select, receive: targetEntityAttribute.1.select
+   * @param farRightSuffix
+   * @return
+   */
+  public String configKey(String farRightSuffix) {
+    return this.getGrouperProvisioningConfigurationAttributeType().getConfigPrefix() + "." + this.configIndex + "." + farRightSuffix;
+  }
+  
+  /**
    * groups, entities, or memberships
    */
   private GrouperProvisioningConfigurationAttributeType grouperProvisioningConfigurationAttributeType;
