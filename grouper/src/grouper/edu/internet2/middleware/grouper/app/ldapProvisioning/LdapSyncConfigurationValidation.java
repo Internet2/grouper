@@ -106,6 +106,13 @@ public class LdapSyncConfigurationValidation
       
       String objectTypeLabel = null;
       
+      if (StringUtils.equals(objectType, "targetGroupAttribute") && !GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("selectGroups"), false)) {
+        continue;
+      }
+      if (StringUtils.equals(objectType, "targetEntityAttribute") && !GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("selectEntities"), false)) {
+        continue;
+      }
+      
       if (StringUtils.equals("targetGroupAttribute", objectType)) {
         objectTypeLabel = GrouperTextContainer.textOrNull("auditsGroup");
       } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
