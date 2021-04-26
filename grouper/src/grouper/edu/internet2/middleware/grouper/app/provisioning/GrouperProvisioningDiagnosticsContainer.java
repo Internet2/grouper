@@ -534,7 +534,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     }
 
     {
-      List<MultiKey> errors = this.getGrouperProvisioner().retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+      List<MultiKey> errors = this.getGrouperProvisioner().retrieveGrouperProvisioningConfigurationValidation().validate();
       if (errors.size() > 0) {
         this.report.append("<font color='red'><b>Error:</b></font> Provisioner config validation rule violations: ")
           .append(errors.size()).append("\n");

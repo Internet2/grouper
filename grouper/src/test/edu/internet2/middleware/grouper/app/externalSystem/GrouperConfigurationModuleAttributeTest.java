@@ -40,7 +40,7 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
     
     String htmlElementId = attribute.getHtmlForElementIdHandle();
     
-    assertEquals("#config_testConfigSuffix_id", htmlElementId);
+    assertEquals("#config_testConfigSuffix_spanid", htmlElementId);
     
   }
   

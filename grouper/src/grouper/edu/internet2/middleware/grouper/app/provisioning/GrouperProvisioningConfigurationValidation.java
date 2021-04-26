@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -37,12 +38,75 @@ public class GrouperProvisioningConfigurationValidation {
   }
 
   /**
-   * take the config for this provisioner and validate
-   * @return error message, and optionally a config suffix that has the problem
+   * config suffix to string value
    */
-  public List<MultiKey> validateFromConfig() {
+  private Map<String, String> suffixToConfigValue = new HashMap<String, String>();
+  
+  /**
+   * @return the map
+   */
+  public Map<String, String> getSuffixToConfigValue() {
+    return suffixToConfigValue;
+  }
+
+  /**
+   * error messages and config jquery handle
+   */
+  private List<MultiKey> errorMessagesAndJqueryHandles = new ArrayList<MultiKey>();
+
+  /**
+   * get the error messages and jqeury handles
+   * @return the error messages
+   */
+  public List<MultiKey> getErrorMessagesAndJqueryHandles() {
+    return errorMessagesAndJqueryHandles;
+  }
+
+  /**
+   * add an error message and optionally a jquery handle or config suffix
+   * @param errorMessage
+   * @param jqueryHandleOrConfigSuffix
+   */
+  public void addErrorMessage(String errorMessage) {
+    addErrorMessageAndJqueryHandle(errorMessage, null);
+  }
+
+  /**
+   * add an error message and optionally a jquery handle or config suffix
+   * @param errorMessage
+   * @param jqueryHandleOrConfigSuffix
+   */
+  public void addErrorMessageAndJqueryHandle(String errorMessage, String jqueryHandleOrConfigSuffix) {
+    jqueryHandleOrConfigSuffix = htmlJqueryHandle(jqueryHandleOrConfigSuffix);
+    this.errorMessagesAndJqueryHandles.add(new MultiKey(errorMessage, jqueryHandleOrConfigSuffix));
+  }
+  
+  /**
+   * add error messages
+   * @param multiKeys
+   */
+  public void addAllErrorMessageAndJqueryHandle(Collection<MultiKey> multiKeys) {
     
-    Map<String, String> suffixToConfigValue = new HashMap<String, String>();
+    for (MultiKey multiKey : GrouperUtil.nonNull(multiKeys)) {
+      if (multiKey.size() > 1) {
+        String jqueryHandle = (String)multiKey.getKey(1);
+        String newJqueryHandle = htmlJqueryHandle(jqueryHandle);
+        if (!StringUtils.equals(jqueryHandle, newJqueryHandle)) {
+          multiKey = new MultiKey(multiKey.getKey(0), newJqueryHandle);
+        }
+      }
+      this.errorMessagesAndJqueryHandles.add(multiKey);
+    }
+  }
+  
+  /**
+   * take the config for this provisioner and validate
+   * @return error message, and optionally a jquery handle suffix that has the problem
+   */
+  public List<MultiKey> validate() {
+    
+    this.suffixToConfigValue.clear();
+    this.errorMessagesAndJqueryHandles.clear();
     
     String configId = this.getGrouperProvisioner().getConfigId();
     
@@ -57,58 +121,103 @@ public class GrouperProvisioningConfigurationValidation {
         String value = grouperLoaderConfig.propertyValueString(key);
         suffixToConfigValue.put(suffix, value);
         
-        
       }
       
     }
+    validateFromSuffixValueMap();
     
-    List<MultiKey> errors = GrouperUtil.nonNull(validateFromSuffixValueMap(suffixToConfigValue));
-    errors.addAll(GrouperUtil.nonNull(validateFromObjectModel()));
-    return errors;
+    // if there are problems with the basics, then other things could throw exceptions
+    if (this.errorMessagesAndJqueryHandles.size() > 0) {
+      return errorMessagesAndJqueryHandles;
+    }
+
+    // we need a type and configure
+    GrouperProvisioningType originalType = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType();
+    try {
+
+      if (originalType == null) {
+        grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
+      }
+      
+      grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
+
+
+      validateFromObjectModel();
+
+    } finally {
+      if (originalType == null) {
+        grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(null);
+      }
+    }
+    return errorMessagesAndJqueryHandles;
   }
 
   /**
    * validate from the grouper provisioner
    * @return the 
    */
-  public List<MultiKey> validateFromObjectModel() {
-    List<MultiKey> errorMessagesAndConfigSuffixes = new ArrayList<MultiKey>();
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateOperateImpliesSelectOrInsert());
-    return errorMessagesAndConfigSuffixes;
+  public void validateFromObjectModel() {
+    validateOperateImpliesSelectOrInsert();
+    validateMatchingAttributes();
   }
 
+  
+  public void validateMetadata() {
+    int numberOfMetadatas = GrouperUtil.intValue(suffixToConfigValue.get("numberOfMetadata"), 0);
+    
+    for (int i=0; i<numberOfMetadatas; i++) {
+      String nameAttributeValue = suffixToConfigValue.get("metadata."+i+".name");
+      if (!nameAttributeValue.startsWith("md_") || !nameAttributeValue.matches("^[a-zA-Z0-9_]+$")) {
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat"), "metadata."+i+".name");
+      }
+      
+      String defaultValue = suffixToConfigValue.get("metadata."+i+".defaultValue");
+      if (StringUtils.isNotBlank(defaultValue)) {
+        String theType = suffixToConfigValue.get("metadata."+i+".valueType");
+        GrouperProvisioningObjectMetadataItemValueType valueType = null;
+        if (StringUtils.isBlank(theType)) {
+          valueType = GrouperProvisioningObjectMetadataItemValueType.STRING;
+        } else {
+          valueType = GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(theType, true);
+        }
+        
+        if (!valueType.canConvertToCorrectType(defaultValue)) { 
+          String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataDefaultValueNotCorrectType");
+          error = GrouperUtil.replace(error, "$$defaultValue$$", GrouperUtil.xmlEscape(defaultValue));
+          error = GrouperUtil.replace(error, "$$selectedType$$", valueType.name().toLowerCase());
+          this.addErrorMessageAndJqueryHandle(error, "metadata."+i+".defaultValue");
+          return;
+        }
+        
+      }
+    }        
+  }
+  
   /**
    * if operating on group/entity/membership
    * @param suffixToConfigValue
    * @return the errors
    */
-  public List<MultiKey> validateOperateImpliesSelectOrInsert() {
+  public void validateOperateImpliesSelectOrInsert() {
     
-    List<MultiKey> result = new ArrayList<MultiKey>();
-
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
     GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
     
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
       if (!grouperProvisioningConfiguration.isSelectGroups() && !grouperProvisioningConfiguration.isInsertGroups()) {
-        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertGroups"), 
-            htmlJqueryHandle("operateOnGrouperGroups")}));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertGroups"), "operateOnGrouperGroups");
       }
     }
     if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
       if (!grouperProvisioningConfiguration.isSelectEntities() && !grouperProvisioningConfiguration.isInsertEntities()) {
-        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), 
-            htmlJqueryHandle("operateOnGrouperEntities")}));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), "operateOnGrouperEntities");
       }
     }
     if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships()) {
       if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
-        result.add(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships"), 
-            htmlJqueryHandle("operateOnGrouperMemberships")}));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships"),"operateOnGrouperMemberships");
       }
     }
-    
-    return result;
     
   }
 
@@ -118,7 +227,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @return html jquery handle
    */
   public String htmlJqueryHandle(String suffix) {
-    if (!suffix.startsWith("#")) {
+    if (suffix != null && !suffix.startsWith("#") && !StringUtils.equals("class", suffix)) {
       suffix = "#config_" + suffix + "_spanid";
     }
     return suffix;
@@ -128,49 +237,125 @@ public class GrouperProvisioningConfigurationValidation {
    * 
    * @return error message, and optionally a config suffix that has the problem
    */
-  public List<MultiKey> validateFromSuffixValueMap(Map<String, String> suffixToConfigValue) {
+  public void validateFromSuffixValueMap() {
     
-    suffixToConfigValue = GrouperUtil.nonNull(suffixToConfigValue);
-    
-    List<MultiKey> errorMessagesAndConfigSuffixes = new ArrayList<MultiKey>();
-
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateConfigBasics(suffixToConfigValue));
+    validateConfigBasics();
     
     // if there are problems with the basics, then other things could throw exceptions
-    if (errorMessagesAndConfigSuffixes.size() > 0) {
-      return errorMessagesAndConfigSuffixes;
+    if (this.errorMessagesAndJqueryHandles.size() > 0) {
+      return;
     }
 
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateDoingSomething(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupDeleteHasDeleteType(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateMembershipDeleteHasDeleteType(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityDeleteHasDeleteType(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupLinkHasConfiguration(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityLinkHasConfiguration(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupLinkOnePerBucket(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateEntityLinkOnePerBucket(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateNoUnsedConfigs(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeNamesNotReused(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateAttributeCount(suffixToConfigValue));
-    addToResultsIfNotNull(errorMessagesAndConfigSuffixes, validateGroupIdToProvisionExists(suffixToConfigValue));
+    validateDoingSomething();
+    validateGroupDeleteHasDeleteType();
+    validateMembershipDeleteHasDeleteType();
+    validateEntityDeleteHasDeleteType();
+    validateGroupLinkHasConfiguration();
+    validateEntityLinkHasConfiguration();
+    validateGroupLinkOnePerBucket();
+    validateEntityLinkOnePerBucket();
+    validateNoUnsedConfigs();
+    validateAttributeNamesNotReused();
+    validateAttributeCount();
+    validateGroupIdToProvisionExists();
+    validateMetadata();
+
+
+    // if there are problems with the basics, then other things could throw exceptions
+    if (this.errorMessagesAndJqueryHandles.size() > 0) {
+      return;
+    }
+
+    validateProvisionerConfig();
+  }
+
+  public void validateMatchingAttributes() {
     
-    return errorMessagesAndConfigSuffixes;
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
+    Set<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new HashSet<GrouperProvisioningConfigurationAttribute>();
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetMembershipFieldNameToConfig()).values());
+    grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetMembershipAttributeNameToConfig()).values());
+
+    boolean hasGroupMatchingId = false;
+    boolean hasMemberMatchingId = false;
+    boolean hasMembershipMatchingId = false;
+
+    boolean hasGroupMembershipId = false;
+    boolean hasMemberMembershipId = false;
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
+      //validate the matching attributes come from gcSync objects
+      
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
+          hasMemberMatchingId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
+          hasGroupMatchingId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.membership) {
+          hasMembershipMatchingId = true;
+        }
+        
+      }
+      
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        
+        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
+            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+
+//          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
+//              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
+//              + "' is a membership attribute but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
+        }
+
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
+          hasMemberMembershipId = true;
+        }
+        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
+          hasGroupMembershipId = true;
+        }
+        
+      }
+      
+    }
+
+    if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      if (!hasGroupMatchingId) {
+        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId"));
+      }
+      if (!hasGroupMembershipId) {
+        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMembershipAttribute"));
+      }
+    } else if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      if (!hasMemberMatchingId) {
+        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMatchingId"));
+      }
+      if (!hasMemberMembershipId) {
+        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute"));
+      }
+    }
     
   }
-  
-  // hasTargetGroupLink
-  // if target group link then there should be a copy to sync field or a translation
 
-  public MultiKey validateDoingSomething(Map<String, String> suffixToConfigValue) {
+
+  public void validateDoingSomething() {
     
     boolean operateOnGrouperEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false);
     boolean operateOnGrouperGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperGroups"), false);
     boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
     
     if (!operateOnGrouperEntities && !operateOnGrouperGroups && !operateOnGrouperMemberships) {
-      return new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething")});
+      this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"));
     }
-    return null;
   }
 
   /**
@@ -178,19 +363,17 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return
    */
-  public MultiKey validateGroupIdToProvisionExists(
-      Map<String, String> suffixToConfigValue) {
+  public void validateGroupIdToProvisionExists() {
 
     String groupIdOfUsersToProvision = suffixToConfigValue.get("groupIdOfUsersToProvision");
     
     if (!StringUtils.isBlank(groupIdOfUsersToProvision)) {
        if (null == GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, false)) {
          
-         return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"), htmlJqueryHandle("groupIdOfUsersToProvision"));
+         this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"), htmlJqueryHandle("groupIdOfUsersToProvision"));
        }
     
     }
-    return null;
   }
 
   /**
@@ -198,7 +381,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public MultiKey validateGroupDeleteHasDeleteType(Map<String, String> suffixToConfigValue) {
+  public void validateGroupDeleteHasDeleteType() {
     
     boolean deleteGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("deleteGroups"), false);
     if (deleteGroups) {
@@ -219,11 +402,9 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), htmlJqueryHandle("deleteGroups"));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), htmlJqueryHandle("deleteGroups"));
       }
     }
-    return null;
-    
   }
   
   /**
@@ -231,7 +412,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public MultiKey validateMembershipDeleteHasDeleteType(Map<String, String> suffixToConfigValue) {
+  public void validateMembershipDeleteHasDeleteType() {
     
     boolean deleteMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("deleteMemberships"), false);
     if (deleteMemberships) {
@@ -252,31 +433,18 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), htmlJqueryHandle("deleteMemberships"));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), htmlJqueryHandle("deleteMemberships"));
       }
     }
-    return null;
     
   }
   
-  public void addToResultsIfNotNull(List<MultiKey> errorMessagesAndConfigSuffixes, MultiKey errorMessageAndConfigSuffix) {
-    if (errorMessageAndConfigSuffix != null) {
-      errorMessagesAndConfigSuffixes.add(errorMessageAndConfigSuffix);
-    }
-  }
-
-  public void addToResultsIfNotNull(List<MultiKey> errorMessagesAndConfigSuffixes, List<MultiKey> errorMessageAndConfigSuffixes) {
-    if (GrouperUtil.length(errorMessageAndConfigSuffixes) > 0) {
-      errorMessagesAndConfigSuffixes.addAll(errorMessageAndConfigSuffixes);
-    }
-  }
-
   /**
    * if there is a group delete, then there must be one delete type
    * @param suffixToConfigValue
    * @return 
    */
-  public MultiKey validateEntityDeleteHasDeleteType(Map<String, String> suffixToConfigValue) {
+  public void validateEntityDeleteHasDeleteType() {
     
     boolean deleteEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("deleteEntities"), false);
     if (deleteEntities) {
@@ -297,10 +465,9 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (deleteTypes != 1) {
-        return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), htmlJqueryHandle("deleteEntities"));
+        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), htmlJqueryHandle("deleteEntities"));
       }
     }
-    return null;
     
   }
 
@@ -312,7 +479,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public MultiKey validateGroupLinkHasConfiguration(Map<String, String> suffixToConfigValue) {
+  public void validateGroupLinkHasConfiguration() {
     
     boolean hasTargetGroupLink = GrouperUtil.booleanValue(suffixToConfigValue.get("hasTargetGroupLink"), false);
     if (hasTargetGroupLink) {
@@ -329,31 +496,30 @@ public class GrouperProvisioningConfigurationValidation {
         String translateToGroupSyncField = suffixToConfigValue.get("targetGroupAttribute."+i+".translateToGroupSyncField");
         
         if (!StringUtils.isBlank(translateToGroupSyncField)) {
-          return null;
+          return;
         }
         
       }
       
       // check scripts
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId2"))) {
-        return null;
+        return;
       }
       
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId3"))) {
-        return null;
+        return;
       }
 
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId2"))) {
-        return null;
+        return;
       }
 
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId3"))) {
-        return null;
+        return;
       }
       
-      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), htmlJqueryHandle("hasTargetGroupLink"));
+      this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), htmlJqueryHandle("hasTargetGroupLink"));
     }
-    return null;
     
   }
 
@@ -365,7 +531,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public MultiKey validateEntityLinkHasConfiguration(Map<String, String> suffixToConfigValue) {
+  public void validateEntityLinkHasConfiguration() {
     
     boolean hasTargetEntityLink = GrouperUtil.booleanValue(suffixToConfigValue.get("hasTargetEntityLink"), false);
     if (hasTargetEntityLink) {
@@ -382,31 +548,31 @@ public class GrouperProvisioningConfigurationValidation {
         String translateToEntitySyncField = suffixToConfigValue.get("targetEntityAttribute."+i+".translateToMemberSyncField");
         
         if (!StringUtils.isBlank(translateToEntitySyncField)) {
-          return null;
+          return;
         }
         
       }
       
       // check scripts
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId2"))) {
-        return null;
+        return;
       }
       
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId3"))) {
-        return null;
+        return;
       }
   
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberToId2"))) {
-        return null;
+        return;
       }
   
       if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.mmeberToId3"))) {
-        return null;
+        return;
       }
       
-      return new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), htmlJqueryHandle("hasTargetEntityLink"));
+      this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), htmlJqueryHandle("hasTargetEntityLink"));
     }
-    return null;
+    return;
     
   }
 
@@ -415,13 +581,12 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return error messages
    */
-  public List<MultiKey> validateGroupLinkOnePerBucket(Map<String, String> suffixToConfigValue) {
+  public void validateGroupLinkOnePerBucket() {
 
     boolean hasTargetGroupLink = GrouperUtil.booleanValue(suffixToConfigValue.get("hasTargetGroupLink"), false);
     if (!hasTargetGroupLink) {
-      return null;
+      return;
     }
-    List<MultiKey> result = new ArrayList<MultiKey>();
 
     String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket");
     
@@ -453,10 +618,9 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (currentErrors.size() > 1) {
-        result.addAll(currentErrors);
+        this.addAllErrorMessageAndJqueryHandle(currentErrors);
       }
     }
-    return result;
     
   }
 
@@ -464,7 +628,7 @@ public class GrouperProvisioningConfigurationValidation {
    * 
    * @return
    */
-  public ProvisionerConfiguration retrieveProvisionerConfiguration(Map<String, String> suffixToConfigValue) {
+  public ProvisionerConfiguration retrieveProvisionerConfiguration() {
     if (this.provisionerConfiguration == null) {
       String configSuffixThatIdentifiesThisProvisioner = suffixToConfigValue.get("class");
 
@@ -496,9 +660,7 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return error messages
    */
-  public List<MultiKey> validateNoUnsedConfigs(Map<String, String> suffixToConfigValue) {
-
-    List<MultiKey> result = new ArrayList<MultiKey>();
+  public void validateNoUnsedConfigs() {
 
     // remove from this map the valid keys, and the invalid ones will remain
     Set<String> keysUsed = new HashSet<String>(suffixToConfigValue.keySet());
@@ -506,33 +668,30 @@ public class GrouperProvisioningConfigurationValidation {
     // dont use the real config since it adds non-example configs
     String configSuffixThatIdentifiesThisProvisioner = suffixToConfigValue.get("class");
 
-    ProvisionerConfiguration provisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
+    ProvisionerConfiguration theProvisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
         : ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
-    if (this.provisionerConfiguration != null) {
+    if (theProvisionerConfiguration != null) {
       String configId = "someConfigIdThatWontConflict";
       
-      provisionerConfiguration.setConfigId(configId);
+      theProvisionerConfiguration.setConfigId(configId);
 
     }
 
     
-    if (provisionerConfiguration == null) {
-      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.invalidClass");
-      result.add(new MultiKey(errorMessage, "class"));
-      return result;
+    if (theProvisionerConfiguration == null) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.invalidClass"));
+      return;
     }
-    keysUsed.removeAll(provisionerConfiguration.retrieveAttributes().keySet());
+    keysUsed.removeAll(theProvisionerConfiguration.retrieveAttributes().keySet());
 
     for (String keyNotUsed : keysUsed) {
       
       // provisioning.configuration.validation.extraneousConfigs = Error: there is an extraneous config for this provisioner: ${extraneousConfig}
       GrouperTextContainer.assignThreadLocalVariable("extraneousConfig", keyNotUsed);
       String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.extraneousConfigs");
-      result.add(new MultiKey(new Object[] {errorMessage}));
+      this.addErrorMessage(errorMessage);
       GrouperTextContainer.resetThreadLocalVariableMap();
     }
-    
-    return result;
     
   }
   
@@ -541,13 +700,12 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return error messages
    */
-  public List<MultiKey> validateEntityLinkOnePerBucket(Map<String, String> suffixToConfigValue) {
+  public void validateEntityLinkOnePerBucket() {
   
     boolean hasTargetEntityLink = GrouperUtil.booleanValue(suffixToConfigValue.get("hasTargetEntityLink"), false);
     if (!hasTargetEntityLink) {
-      return null;
+      return;
     }
-    List<MultiKey> result = new ArrayList<MultiKey>();
   
     String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket");
     
@@ -579,10 +737,9 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       if (currentErrors.size() > 1) {
-        result.addAll(currentErrors);
+        this.addAllErrorMessageAndJqueryHandle(currentErrors);
       }
     }
-    return result;
     
   }
 
@@ -591,31 +748,52 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return error messages
    */
-  public List<MultiKey> validateConfigBasics(Map<String, String> suffixToConfigValue) {
+  public void validateConfigBasics() {
   
-    List<MultiKey> result = new ArrayList<MultiKey>();
-  
-    ProvisionerConfiguration provisionerConfiguration = this.retrieveProvisionerConfiguration(suffixToConfigValue);
-    
+    this.retrieveProvisionerConfiguration();
     if (provisionerConfiguration == null) {
-      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.invalidClass");
-      result.add(new MultiKey(errorMessage, "class"));
-      return result;
+      this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.invalidClass"), "class");
+      return;
     }
     
     List<String> errors = new ArrayList<String>();
     Map<String, String> formElementErrors = new LinkedHashMap<String, String>();
     
-    provisionerConfiguration.validatePreSave(false, errors, formElementErrors);
+    provisionerConfiguration.validatePreSaveNonProvisionerSpecific(false, errors, formElementErrors);
     
     for (String error : errors) { 
-      result.add(new MultiKey(new Object[] {error}));
+      this.addErrorMessage(error);
     }
     for (String formElementErrorKey : formElementErrors.keySet()) {
-      result.add(new MultiKey(formElementErrors.get(formElementErrorKey), formElementErrorKey));
+      this.addErrorMessageAndJqueryHandle(formElementErrors.get(formElementErrorKey), formElementErrorKey);
     }
     
-    return result;
+  }
+
+  /**
+   * provisioner config
+   * @param suffixToConfigValue
+   * @return error messages
+   */
+  public void validateProvisionerConfig() {
+  
+    this.retrieveProvisionerConfiguration();
+    if (provisionerConfiguration == null) {
+      this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.invalidClass"), "class");
+      return;
+    }
+    
+    List<String> errors = new ArrayList<String>();
+    Map<String, String> formElementErrors = new LinkedHashMap<String, String>();
+    
+    provisionerConfiguration.validatePreSaveNonProvisionerSpecific(false, errors, formElementErrors);
+    
+    for (String error : errors) { 
+      this.addErrorMessage(error);
+    }
+    for (String formElementErrorKey : formElementErrors.keySet()) {
+      this.addErrorMessageAndJqueryHandle(formElementErrors.get(formElementErrorKey), formElementErrorKey);
+    }
     
   }
 
@@ -627,10 +805,9 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public List<MultiKey> validateAttributeNamesNotReused(Map<String, String> suffixToConfigValue) {
+  public void validateAttributeNamesNotReused() {
     
     Set<MultiKey> objectTypeAttributeTypeNames = new HashSet<MultiKey>();
-    List<MultiKey> result = new ArrayList<MultiKey>();
 
     String fieldLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.trueLabel").toLowerCase();
     String attributeLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.falseLabel").toLowerCase();
@@ -667,7 +844,7 @@ public class GrouperProvisioningConfigurationValidation {
         if (StringUtils.isBlank(name)) {
           
           // provisioning.configuration.validation.attributeNameRequired = Error: ${fieldType} name is required
-          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), objectType + "."+i+".isFieldElseAttribute"));
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), objectType + "."+i+".isFieldElseAttribute");
           
           continue;
         }
@@ -677,13 +854,12 @@ public class GrouperProvisioningConfigurationValidation {
         if (objectTypeAttributeTypeNames.contains(objectTypeAttributeTypeName)) {
           
           // provisioning.configuration.validation.multipleAttributesSameName = Error: two ${type} ${fieldType}s have the same name '${attributeName}'
-          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), nameConfigKey));
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), nameConfigKey);
         }
         objectTypeAttributeTypeNames.add(objectTypeAttributeTypeName);
       }      
     }
     GrouperTextContainer.resetThreadLocalVariableMap();
-    return result;
     
   }
 
@@ -695,10 +871,9 @@ public class GrouperProvisioningConfigurationValidation {
    * @param suffixToConfigValue
    * @return 
    */
-  public List<MultiKey> validateAttributeCount(Map<String, String> suffixToConfigValue) {
+  public void validateAttributeCount() {
     
     Set<MultiKey> objectTypeAttributeTypeNames = new HashSet<MultiKey>();
-    List<MultiKey> result = new ArrayList<MultiKey>();
   
     String fieldLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.trueLabel").toLowerCase();
     String attributeLabel = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.isFieldElseAttribute.falseLabel").toLowerCase();
@@ -738,7 +913,7 @@ public class GrouperProvisioningConfigurationValidation {
         if (StringUtils.isBlank(name)) {
           
           // provisioning.configuration.validation.attributeNameRequired = Error: ${fieldType} name is required
-          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), objectType + "."+i+".isFieldElseAttribute"));
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), objectType + "."+i+".isFieldElseAttribute");
           
           continue;
         }
@@ -748,13 +923,12 @@ public class GrouperProvisioningConfigurationValidation {
         if (objectTypeAttributeTypeNames.contains(objectTypeAttributeTypeName)) {
           
           // provisioning.configuration.validation.multipleAttributesSameName = Error: two ${type} ${fieldType}s have the same name '${attributeName}'
-          result.add(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), nameConfigKey));
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), nameConfigKey);
         }
         objectTypeAttributeTypeNames.add(objectTypeAttributeTypeName);
       }      
     }
     GrouperTextContainer.resetThreadLocalVariableMap();
-    return result;
     
   }
   

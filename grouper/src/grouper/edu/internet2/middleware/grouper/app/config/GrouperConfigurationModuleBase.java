@@ -266,121 +266,121 @@ public abstract class GrouperConfigurationModuleBase {
       if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
       }
-      
+
       if (!isMultiple()) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationNotMultiple"));
       }
     }
-    
+
     if (isMultiple()) {
       Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
       if (!configIdPattern.matcher(this.getConfigId()).matches()) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
       }
     }
-    
-    
+
+
     // first check if checked the el checkbox then make sure there's a script there
     {
       boolean foundElRequiredError = false;
       for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-        
+
         if (grouperConfigModuleAttribute.isExpressionLanguage() && StringUtils.isBlank(grouperConfigModuleAttribute.getExpressionLanguageScript())) {
-          
+
           GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
           validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
               GrouperTextContainer.textOrNull("grouperConfigurationValidationElRequired"));
           GrouperTextContainer.resetThreadLocalVariableMap();
           foundElRequiredError = true;
         }
-        
+
       }
       if (foundElRequiredError) {
         return;
       }
     }
-    
+
     // types
     for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
-      
+
       GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", grouperConfigModuleAttribute.getLabel());
       try {
-        
-      ConfigItemMetadataType configItemMetadataType = grouperConfigModuleAttribute.getConfigItemMetadata().getValueType();
-      
-      String value = null;
-      
-      try {
-        value = grouperConfigModuleAttribute.getEvaluatedValueForValidation();
-      } catch (UnsupportedOperationException uoe) {
-        // ignore, it will get validated in the post-save
-        continue;
-      }
-      
-      // required
-      if (StringUtils.isBlank(value)) {
-        if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired() && grouperConfigModuleAttribute.isShow()) {
 
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
+        ConfigItemMetadataType configItemMetadataType = grouperConfigModuleAttribute.getConfigItemMetadata().getValueType();
+
+        String value = null;
+
+        try {
+          value = grouperConfigModuleAttribute.getEvaluatedValueForValidation();
+        } catch (UnsupportedOperationException uoe) {
+          // ignore, it will get validated in the post-save
+          continue;
         }
-        
-        continue;
-      }
-      String[] valuesToValidate = null;
-     
-      if (grouperConfigModuleAttribute.getConfigItemMetadata().isMultiple()) {
-        valuesToValidate = GrouperUtil.splitTrim(value, ",");
-      } else {
-        valuesToValidate = new String[] {value};
-      }
 
-      for (String theValue : valuesToValidate) {
-        
-        // validate types
-        String externalizedTextKey = configItemMetadataType.validate(theValue);
-        if (StringUtils.isNotBlank(externalizedTextKey)) {
-          
-          validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
-              GrouperTextContainer.textOrNull(externalizedTextKey));
-          
+        // required
+        if (StringUtils.isBlank(value)) {
+          if (grouperConfigModuleAttribute.getConfigItemMetadata().isRequired() && grouperConfigModuleAttribute.isShow()) {
+
+            validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
+                GrouperTextContainer.textOrNull("grouperConfigurationValidationRequired"));
+          }
+
+          continue;
+        }
+        String[] valuesToValidate = null;
+
+        if (grouperConfigModuleAttribute.getConfigItemMetadata().isMultiple()) {
+          valuesToValidate = GrouperUtil.splitTrim(value, ",");
         } else {
-          String mustExtendClass = grouperConfigModuleAttribute.getConfigItemMetadata().getMustExtendClass();
-          if (StringUtils.isNotBlank(mustExtendClass)) {
-            
-            Class mustExtendKlass = GrouperUtil.forName(mustExtendClass);
-            Class childClass = GrouperUtil.forName(theValue);
-            
-            if (!mustExtendKlass.isAssignableFrom(childClass)) {
-              
-              String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotExtendClass");
-              error = error.replace("$$mustExtendClass$$", mustExtendClass);
-              
-              validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
-            }
-          }
-          
-          String mustImplementInterface = grouperConfigModuleAttribute.getConfigItemMetadata().getMustImplementInterface();
-          if (StringUtils.isNotBlank(mustImplementInterface)) {
-            
-            Class mustImplementInterfaceClass = GrouperUtil.forName(mustImplementInterface);
-            Class childClass = GrouperUtil.forName(theValue);
-            
-            if (!mustImplementInterfaceClass.isAssignableFrom(childClass)) {
-              
-              String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotImplementInterface");
-              error = error.replace("$$mustImplementInterface$$", mustImplementInterface);
-              
-              validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
-            }
-          }
-          
-          
+          valuesToValidate = new String[] {value};
         }
+
+        for (String theValue : valuesToValidate) {
+
+          // validate types
+          String externalizedTextKey = configItemMetadataType.validate(theValue);
+          if (StringUtils.isNotBlank(externalizedTextKey)) {
+
+            validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), 
+                GrouperTextContainer.textOrNull(externalizedTextKey));
+
+          } else {
+            String mustExtendClass = grouperConfigModuleAttribute.getConfigItemMetadata().getMustExtendClass();
+            if (StringUtils.isNotBlank(mustExtendClass)) {
+
+              Class mustExtendKlass = GrouperUtil.forName(mustExtendClass);
+              Class childClass = GrouperUtil.forName(theValue);
+
+              if (!mustExtendKlass.isAssignableFrom(childClass)) {
+
+                String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotExtendClass");
+                error = error.replace("$$mustExtendClass$$", mustExtendClass);
+
+                validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
+              }
+            }
+
+            String mustImplementInterface = grouperConfigModuleAttribute.getConfigItemMetadata().getMustImplementInterface();
+            if (StringUtils.isNotBlank(mustImplementInterface)) {
+
+              Class mustImplementInterfaceClass = GrouperUtil.forName(mustImplementInterface);
+              Class childClass = GrouperUtil.forName(theValue);
+
+              if (!mustImplementInterfaceClass.isAssignableFrom(childClass)) {
+
+                String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotImplementInterface");
+                error = error.replace("$$mustImplementInterface$$", mustImplementInterface);
+
+                validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
+              }
+            }
+
+
+          }
+        }
+      } finally {
+        GrouperTextContainer.resetThreadLocalVariableMap();
       }
-    } finally {
-      GrouperTextContainer.resetThreadLocalVariableMap();
-    }
     }
   }
   

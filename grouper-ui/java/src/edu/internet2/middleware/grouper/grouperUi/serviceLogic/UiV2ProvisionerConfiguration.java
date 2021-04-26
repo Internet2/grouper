@@ -906,50 +906,7 @@ public class UiV2ProvisionerConfiguration {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      {
-        //lets validate via provisioner 
-        Map<String, String> fieldSuffixToValue = new HashMap<String, String>();
-        Map<String, GrouperConfigurationModuleAttribute> attributesBySuffix = provisionerConfiguration.retrieveAttributes();
-        for (String suffix : attributesBySuffix.keySet()) {
-          
-          GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = attributesBySuffix.get(suffix);
-          
-          if (grouperConfigurationModuleAttribute.isHasValue()) {
-            fieldSuffixToValue.put(suffix, grouperConfigurationModuleAttribute.getValue());
-          }
-        }
-
-        GrouperConfigurationModuleAttribute provisionerClassModuleAttribute = attributesBySuffix.get("class");        
-        if (provisionerClassModuleAttribute != null && provisionerClassModuleAttribute.isHasValue()) {
-          String provisionerClassName = provisionerClassModuleAttribute.getValue();
-          Class<GrouperProvisioner> grouperProvisionerClass = GrouperUtil.forName(provisionerClassName);
-          GrouperProvisioner grouperProvisioner = GrouperUtil.newInstance(grouperProvisionerClass);
-          List<MultiKey> errorAndSuffixList = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validateFromSuffixValueMap(fieldSuffixToValue);
-          for (MultiKey errorAndSuffix : GrouperUtil.nonNull(errorAndSuffixList)) {
-            String error = (String)errorAndSuffix.getKey(0);
-            String suffix = errorAndSuffix.size() >= 2 ? (String)errorAndSuffix.getKey(1) : null;
-            if (StringUtils.isBlank(error)) {
-              LOG.error("error is blank!!!! '" + suffix + "'");
-              continue;
-            }
-            if (StringUtils.isBlank(suffix)) {
-              errorsToDisplay.add(error);
-            } else {
-              if (suffix.startsWith("#")) {
-                validationErrorsToDisplay.put(suffix, error);
-              } else {
-                validationErrorsToDisplay.put("#config_" + suffix + "_id", error);
-              }
-            }
-          }
-        }
-      }
-      
-      // dont have double errors here
-      if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
-        // this will not continue if there are validation problems
-        provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
-      }
+      provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 

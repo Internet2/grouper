@@ -188,7 +188,26 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
    * dont have endless loop
    */
   private static ThreadLocal<Boolean> inValidateThreadLocal = new InheritableThreadLocal<Boolean>();
-  
+
+  public void validatePreSaveNonProvisionerSpecific(boolean isInsert, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay) {
+
+    // dont have endless loop
+    Boolean inValidate = inValidateThreadLocal.get();
+    if (inValidate != null && inValidate) {
+      return;
+    }
+    
+    inValidateThreadLocal.set(true);
+    try {
+      super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+
+    } finally {
+      inValidateThreadLocal.remove();
+    }
+
+  }
+
   @Override
   public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,
       Map<String, String> validationErrorsToDisplay) {
@@ -202,6 +221,11 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     inValidateThreadLocal.set(true);
     try {
       super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+
+      // if we have errors, then we might not even be able to load the provisioner
+      if (GrouperUtil.length(errorsToDisplay) > 0 || GrouperUtil.length(validationErrorsToDisplay) > 0) {
+        return;
+      }
       
       Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
       
@@ -219,7 +243,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
         GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(this.getConfigId());
         grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
         
-        List<MultiKey> errors = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validateFromConfig();
+        List<MultiKey> errors = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
         if (errors.size() > 0) {
           for (MultiKey errorMultikey : errors) {
             String error = (String)errorMultikey.getKey(0);
@@ -240,46 +264,6 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
             GrouperLoaderConfig.retrieveConfig().propertiesThreadLocalOverrideMap().remove(configKey);
           }
         }
-      }
-      {
-        GrouperConfigurationModuleAttribute numberOfMetadataAttribute = attributes.get("numberOfMetadata");
-        
-        String valueOrExpressionEvaluation = numberOfMetadataAttribute.getValueOrExpressionEvaluation();
-        
-        int numberOfMetadatas = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
-        
-        for (int i=0; i<numberOfMetadatas; i++) {
-          GrouperConfigurationModuleAttribute nameAttribute = attributes.get("metadata."+i+".name");
-          String nameAttributeValue = nameAttribute.getValueOrExpressionEvaluation();
-          if (!nameAttributeValue.startsWith("md_") || !nameAttributeValue.matches("^[a-zA-Z0-9_]+$")) {
-            String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat");
-            validationErrorsToDisplay.put(nameAttribute.getHtmlForElementIdHandle(), error);
-            return;
-          }
-          
-          GrouperConfigurationModuleAttribute defaultValueAttribute = attributes.get("metadata."+i+".defaultValue");
-          if (defaultValueAttribute != null && StringUtils.isNotBlank(defaultValueAttribute.getValueOrExpressionEvaluation())) {
-            String valueBeforeConversion = defaultValueAttribute.getValueOrExpressionEvaluation();
-            GrouperConfigurationModuleAttribute typeAttribute = attributes.get("metadata."+i+".valueType");
-            
-            GrouperProvisioningObjectMetadataItemValueType valueType = null;
-            if (typeAttribute == null || StringUtils.isBlank(typeAttribute.getValueOrExpressionEvaluation())) {
-              valueType = GrouperProvisioningObjectMetadataItemValueType.STRING;
-            } else {
-              valueType = GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(typeAttribute.getValueOrExpressionEvaluation(), true);
-            }
-            
-            if (!valueType.canConvertToCorrectType(valueBeforeConversion)) { 
-              String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataDefaultValueNotCorrectType");
-              error = GrouperUtil.replace(error, "$$defaultValue$$", valueBeforeConversion);
-              error = GrouperUtil.replace(error, "$$selectedType$$", valueType.name().toLowerCase());
-              validationErrorsToDisplay.put(defaultValueAttribute.getHtmlForElementIdHandle(), error);
-              return;
-            }
-            
-          }
-        }        
-        
       }
     } finally {
       inValidateThreadLocal.remove();
