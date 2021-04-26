@@ -128,8 +128,10 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
+import edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
@@ -2331,6 +2333,11 @@ public class GrouperCheckConfig {
       ExpirableCache.clearAll();
         
       legacyAttributeBaseStem(grouperSession);
+      
+      {
+        StemUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+        GroupUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+      }
       
       boolean autoAssignTheAutoAssignAttributes = false;
       AttributeDefName attributeAutoCreateMarker = null;

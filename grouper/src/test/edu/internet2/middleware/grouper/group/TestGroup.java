@@ -118,11 +118,73 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroup("testNoLocking"));
+    TestRunner.run(new TestGroup("testNoSameCaseByDefault"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
-    TestRunner.run(TestGroup.class);
+    //TestRunner.run(TestGroup.class);
   }
 
+  public void testNoSameCaseByDefault() {
+    new StemSave().assignName("test").save();
+    
+    try {
+      new StemSave().assignName("test").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("Test").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:test2").save();
+
+    try {
+      new StemSave().assignName("test:Test2").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:test3").save();
+
+    try {
+      new StemSave().assignStemNameToEdit("test:test3").assignName("test:Test2").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new GroupSave().assignName("test:group").save();
+    
+    try {
+      new GroupSave().assignName("test:group").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:Group").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new GroupSave().assignName("test:group2").save();
+
+    try {
+      new GroupSave().assignGroupNameToEdit("test:group2").assignName("test:Group").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+  }
+  
   /**
    * 
    */
