@@ -454,13 +454,26 @@ public class GrouperProvisioningCompare {
     }
   }
 
+  /**
+   * compare methods to see if two fields have the same value or need an update
+   * @param fieldName
+   * @param grouperValue
+   * @param targetValue
+   * @param grouperTargetUpdatable
+   * @return true if equals
+   */
+  public boolean compareFieldValueEquals(String fieldName,
+      Object grouperValue, Object targetValue,
+      ProvisioningUpdatable grouperTargetUpdatable) {
+    return GrouperUtil.equals(grouperValue, targetValue);
+  }
 
   public void compareFieldValue(List provisioningUpdatablesToUpdate,
       String fieldName,
       Object grouperValue, Object targetValue,
       ProvisioningUpdatable grouperTargetUpdatable) {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateObjectField(grouperTargetUpdatable, fieldName)) {
-      if (!GrouperUtil.equals(grouperValue, targetValue)) {
+      if (!compareFieldValueEquals(fieldName, grouperValue, targetValue, grouperTargetUpdatable) ) {
         addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
             grouperTargetUpdatable);
         grouperTargetUpdatable.addInternal_objectChange(

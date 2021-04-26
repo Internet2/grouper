@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCompare;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
@@ -19,6 +20,11 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
  */
 public class LdapSync extends GrouperProvisioner {
   
+  @Override
+  protected Class<? extends GrouperProvisioningCompare> grouperProvisioningCompareClass() {
+    return LdapSyncCompare.class;
+  }
+
   /**
    * log object
    */
