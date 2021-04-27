@@ -549,6 +549,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
       SearchFilter groupLdapFilter = null;
+      if (grouperGroup == null) {
+        continue;
+      }
       try {
         groupLdapFilter = getGroupLdapFilter(grouperGroup);
       } catch (DeletedGroupException dge) {

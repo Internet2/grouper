@@ -1646,7 +1646,7 @@ public abstract class Provisioner
             if ( getConfig().needsTargetSystemGroups() ) {
               tsGroup = fetchTargetSystemGroup(group);
               if ( tsGroup == null ) {
-                LOG.info("{}: Group is already not present in target system: {}", getDisplayName(), group.getName());
+                LOG.info("{}: Group is already not present in target system: {}", getDisplayName(), group == null ? "null" : group.getName());
                 continue;
               }
             }
