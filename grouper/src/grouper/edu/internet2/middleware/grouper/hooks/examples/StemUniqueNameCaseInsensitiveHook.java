@@ -119,7 +119,7 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
           .setString("theName2", GrouperUtil.defaultIfEmpty(stem.getAlternateName(), stem.getName()).toLowerCase())
           .setString("theUuid", stem.getId()).uniqueResult(long.class);
       if (count > 0) {
-        throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.idCaseInsensitive.default"));
+        throw new HookVeto(VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.idCaseInsensitive.default"));
       } else {
         throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.nameCaseInsensitive.default"));
       }

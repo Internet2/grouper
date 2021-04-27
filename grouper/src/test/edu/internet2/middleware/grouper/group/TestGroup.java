@@ -210,6 +210,32 @@ public class TestGroup extends GrouperTest {
       // good
     }
 
+    // ######################
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName").save();
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:AttributeDefName").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName2").save();
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignAttributeDefNameNameToEdit("test:attributeDefName2").assignName("test:AttributeDefName").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
   }
   
   /**
