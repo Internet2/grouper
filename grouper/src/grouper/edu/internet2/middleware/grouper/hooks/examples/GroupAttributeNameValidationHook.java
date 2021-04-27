@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
@@ -65,6 +66,11 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
    * only register once
    */
   private static boolean registered = false;
+  
+  /**
+   * default regex
+   */
+  private static String defaultRegex = "^[\\p{L}0-9_-]+$";
   
   /**
    * see if this is configured in the grouper.properties, if so, register this hook
@@ -120,6 +126,15 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
       index++;
     }
 
+    if (index == 0 && GrouperConfig.retrieveConfig().propertyValueBoolean("group.validateExtensionByDefault", true)) {
+      
+      attributeNamePatterns.put("extension", Pattern.compile(defaultRegex));
+      attributeNameRegexes.put("extension", defaultRegex);
+      attributeNameVetoMessages.put("extension", GrouperTextContainer.textOrNull("veto.group.invalidDefaultChars"));
+      
+      index = 1;
+    }
+    
     if (addTestValidation) {
       
       attributeNamePatterns.put(TEST_ATTRIBUTE_NAME, Pattern.compile("^" + TEST_PATTERN + "$"));
@@ -203,7 +218,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
         String attributeNameErrorMessage = attributeNameVetoMessages.get(attributeName);
 
         //substitute the attribute name
-        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", attributeValue);
+        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", GrouperUtil.xmlEscape(attributeValue));
         
         throw new HookVeto("veto.group.attribute.name.regex." + attributeName, attributeNameErrorMessage);
       }

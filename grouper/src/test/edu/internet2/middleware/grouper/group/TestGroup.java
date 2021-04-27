@@ -118,11 +118,49 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testNoSameCaseByDefault"));
+    TestRunner.run(new TestGroup("testDefaultInvalidChars"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
     //TestRunner.run(TestGroup.class);
   }
 
+  public void testDefaultInvalidChars() {
+    new StemSave().assignName("test").save();
+    
+    // ######################
+    
+    try {
+      new GroupSave().assignName("test:group.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:group{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:group.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:Group:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new GroupSave().assignName("test:groG12_-upé").save();
+
+
+  }
+  
   public void testNoSameCaseByDefault() {
     new StemSave().assignName("test").save();
     
