@@ -129,7 +129,9 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME) || group.dbVersionDifferentFields().contains(Group.FIELD_ALTERNATE_NAME_DB)) {
+    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_ALTERNATE_NAME_DB)) {
       verifyCaseInsensitiveName(group);
     }
   }

@@ -133,7 +133,9 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
   @Override
   public void stemPreUpdate(HooksContext hooksContext, HooksStemBean preUpdateBean) {
     Stem stem = preUpdateBean.getStem();
-    if (stem.dbVersionDifferentFields().contains(Stem.FIELD_EXTENSION) || stem.dbVersionDifferentFields().contains(Stem.FIELD_NAME) || stem.dbVersionDifferentFields().contains(Stem.FIELD_ALTERNATE_NAME_DB)) {
+    if (stem.dbVersionDifferentFields().contains(Stem.FIELD_EXTENSION) || stem.dbVersionDifferentFields().contains(Stem.FIELD_NAME) 
+        || stem.dbVersionDifferentFields().contains(Stem.FIELD_DISPLAY_EXTENSION) || stem.dbVersionDifferentFields().contains(Stem.FIELD_DISPLAY_NAME) 
+        || stem.dbVersionDifferentFields().contains(Stem.FIELD_ALTERNATE_NAME_DB)) {
       verifyCaseInsensitiveName(stem);
     }
   }

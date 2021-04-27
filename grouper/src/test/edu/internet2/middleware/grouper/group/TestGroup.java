@@ -158,6 +158,7 @@ public class TestGroup extends GrouperTest {
       // good
     }
 
+    // ######################
     new GroupSave().assignName("test:group").save();
     
     try {
@@ -178,6 +179,32 @@ public class TestGroup extends GrouperTest {
 
     try {
       new GroupSave().assignGroupNameToEdit("test:group2").assignName("test:Group").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    // ######################
+    AttributeDef attributeDef = new AttributeDefSave().assignName("test:attributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    
+    try {
+      new AttributeDefSave().assignName("test:attributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:AttributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new AttributeDefSave().assignName("test:attributeDef2").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    
+    try {
+      new AttributeDefSave().assignAttributeDefNameToEdit("test:attributeDef2").assignName("test:AttributeDef").save();
       fail("fail");
     } catch (Exception e) {
       // good

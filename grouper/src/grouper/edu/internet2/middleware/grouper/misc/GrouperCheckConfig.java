@@ -128,6 +128,7 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
@@ -2337,6 +2338,7 @@ public class GrouperCheckConfig {
       {
         StemUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
         GroupUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+        AttributeDefUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
       }
       
       boolean autoAssignTheAutoAssignAttributes = false;
