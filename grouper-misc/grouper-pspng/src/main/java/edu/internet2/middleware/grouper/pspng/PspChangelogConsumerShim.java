@@ -62,7 +62,7 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         if (args.length != 1) {
-          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_oneprodFull");
+          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_activedirectoryFull");
         }
         
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
