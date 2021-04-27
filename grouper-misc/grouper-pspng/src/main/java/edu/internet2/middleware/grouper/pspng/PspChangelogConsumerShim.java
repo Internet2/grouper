@@ -214,9 +214,9 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       else
         LOG.info("Provisioning batch summary: {}", summary);
       
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setTotalCount(workItems.size());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addTotalCount(workItems.size());
       
       changeLogProcessorMetadata.getHib3GrouperLoaderLog().appendJobMessage(summary.toString());
       return lastSuccessfulChangelogEntry;
