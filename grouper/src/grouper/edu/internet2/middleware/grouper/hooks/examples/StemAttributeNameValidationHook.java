@@ -162,8 +162,10 @@ public class StemAttributeNameValidationHook extends StemHooks {
   @Override
   public void stemPreInsert(HooksContext hooksContext, HooksStemBean preInsertBean) {
     Stem stem = preInsertBean.getStem();
-    
-    stemPreChangeAttribute(stem);
+    // root stem doesnt validate
+    if (!stem.isRootStem()) {
+      stemPreChangeAttribute(stem);
+    }
   }
 
   /**
