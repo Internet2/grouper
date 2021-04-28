@@ -70,7 +70,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   /**
    * default regex
    */
-  private static String defaultRegex = "^[\\p{L}0-9_-]+$";
+  public static final String defaultRegex = "^[\\p{L}0-9_-]+$";
   
   /**
    * see if this is configured in the grouper.properties, if so, register this hook

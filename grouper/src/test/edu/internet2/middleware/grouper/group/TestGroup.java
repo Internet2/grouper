@@ -158,6 +158,38 @@ public class TestGroup extends GrouperTest {
 
     new GroupSave().assignName("test:groG12_-upé").save();
 
+    // ######################### STEMS
+
+
+    try {
+      new StemSave().assignName("test:stem.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:stem{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:Stem.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:Stem:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:steG12_-upé").save();
 
   }
   
