@@ -54,8 +54,31 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase 
         }
       }
     }
+    this.allowLdapGroupDnOverride = GrouperUtil.booleanValue(this.retrieveConfigString("allowLdapGroupDnOverride", false), false);
   }
   
+  /**
+   * If you want a metadata item on groups to allow a DN override
+   */
+  private boolean allowLdapGroupDnOverride;
+  
+  /**
+   * If you want a metadata item on groups to allow a DN override
+   * @return override
+   */
+  public boolean isAllowLdapGroupDnOverride() {
+    return this.allowLdapGroupDnOverride;
+  }
+
+  /**
+   * If you want a metadata item on groups to allow a DN override
+   * @param allowLdapGroupDnOverride1
+   */
+  public void setAllowLdapGroupDnOverride(boolean allowLdapGroupDnOverride1) {
+    this.allowLdapGroupDnOverride = allowLdapGroupDnOverride1;
+  }
+
+
   public String getLdapExternalSystemConfigId() {
     return ldapExternalSystemConfigId;
   }

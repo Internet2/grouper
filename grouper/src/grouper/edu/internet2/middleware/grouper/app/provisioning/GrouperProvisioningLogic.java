@@ -1206,10 +1206,19 @@ public class GrouperProvisioningLogic {
       throw RUNTIME_EXCEPTION[0];
     }
     
+    retrieveAllTargetAndGrouperDataPost();
+    
     processTargetWrappers();
     
   }
 
+  /** 
+   * override this method to do some logic after all grouper and target data is retrieved (e.g. if there are DN overrides)
+   */
+  public void retrieveAllTargetAndGrouperDataPost() {
+    
+    
+  }
 
   /**
    * take target data and add wrapper and add to data store

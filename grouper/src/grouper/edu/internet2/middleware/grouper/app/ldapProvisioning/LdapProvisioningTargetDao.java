@@ -421,6 +421,71 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
+  public ProvisioningGroup retrieveGroupByDn(String dn, boolean includeAllMemberships) {
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    Set<String> groupSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSelectAttributes());
+      
+    Set<String> groupAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    if (ldapSyncConfiguration.getGroupAttributesMultivalued() != null) {
+      groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
+    }
+    
+    groupAttributesMultivalued.add("objectClass");
+    
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
+      if (includeAllMemberships) {
+        groupSearchAttributeNames.add(groupAttributeNameForMemberships);
+        groupAttributesMultivalued.add(groupAttributeNameForMemberships);
+      } else {
+        groupSearchAttributeNames.remove(groupAttributeNameForMemberships);
+        groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
+      }
+    }
+    
+    long startNanos = System.nanoTime();
+
+    try {
+      
+      LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+      List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+      
+      if (GrouperUtil.length(ldapEntries) == 0) {
+        return null;
+      }
+      if (GrouperUtil.length(ldapEntries) == 1) {
+        LdapEntry ldapEntry = ldapEntries.get(0);
+        ProvisioningGroup targetGroup = new ProvisioningGroup();
+        targetGroup.setName(ldapEntry.getDn());
+        
+        for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
+          if (ldapAttribute.getValues().size() > 0) {
+            Object value = null;
+            if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
+              value = new HashSet<Object>(ldapAttribute.getValues());
+            } else if (ldapAttribute.getValues().size() == 1) {
+              value = ldapAttribute.getValues().iterator().next();
+            }
+            
+            targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
+          }
+        }
+
+        return targetGroup;
+
+      }
+
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveGroups", startNanos));
+    }
+    throw new RuntimeException("Why are we here?");
+
+  }
+  
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
 
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
