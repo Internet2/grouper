@@ -220,7 +220,39 @@ public class TestGroup extends GrouperTest {
       // good
     }
 
-    new AttributeDefSave().assignName("test:attributeDefG12_-upé").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    AttributeDef attributeDef = new AttributeDefSave().assignName("test:attributeDefG12_-upé").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+
+    // ########################## ATTRIBUTE DEF NAMES
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+    
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefG12_-upé").save();
 
   }
   
