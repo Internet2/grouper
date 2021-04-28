@@ -160,7 +160,6 @@ public class TestGroup extends GrouperTest {
 
     // ######################### STEMS
 
-
     try {
       new StemSave().assignName("test:stem.").save();
       fail("fail");
@@ -190,6 +189,38 @@ public class TestGroup extends GrouperTest {
     }
 
     new StemSave().assignName("test:steG12_-upé").save();
+
+    // ######################### ATTRIBUTE DEFS
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef.").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef{").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef.").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef:").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new AttributeDefSave().assignName("test:attributeDefG12_-upé").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
 
   }
   

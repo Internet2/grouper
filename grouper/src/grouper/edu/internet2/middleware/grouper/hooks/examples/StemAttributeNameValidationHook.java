@@ -127,7 +127,7 @@ public class StemAttributeNameValidationHook extends StemHooks {
       index++;
     }
     
-    if (index == 0 && GrouperConfig.retrieveConfig().propertyValueBoolean("group.validateExtensionByDefault", true)) {
+    if (index == 0 && GrouperConfig.retrieveConfig().propertyValueBoolean("stem.validateExtensionByDefault", true)) {
 
       attributeNamePatterns.put("extension", Pattern.compile(GroupAttributeNameValidationHook.defaultRegex));
       attributeNameRegexes.put("extension", GroupAttributeNameValidationHook.defaultRegex);
