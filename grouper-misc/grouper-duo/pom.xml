@@ -33,24 +33,11 @@
     <artifactId>grouper-duo</artifactId>
     <packaging>jar</packaging>
 
-     <repositories>
-         <repository>
-             <id>unicomiam</id>
-             <url>https://dl.bintray.com/uniconiam/maven/</url>
-         </repository>     
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.duosecurity</groupId>
             <artifactId>duo-client</artifactId>
-            <version>0.2.1</version>
-            <exclusions>
-            	<exclusion>
-            		<groupId>com.squareup.okhttp</groupId>
-            		<artifactId>okhttp</artifactId>
-            	</exclusion>
-            </exclusions>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
