@@ -683,14 +683,13 @@ public class GrouperProvisioningConfigurationValidation {
       return;
     }
     keysUsed.removeAll(theProvisionerConfiguration.retrieveAttributes().keySet());
-
-    for (String keyNotUsed : keysUsed) {
-      
+    if (keysUsed.size() > 0) {
       // provisioning.configuration.validation.extraneousConfigs = Error: there is an extraneous config for this provisioner: ${extraneousConfig}
-      GrouperTextContainer.assignThreadLocalVariable("extraneousConfig", keyNotUsed);
+      GrouperTextContainer.assignThreadLocalVariable("extraneousConfig", StringUtils.join(keysUsed, ", "));
       String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.extraneousConfigs");
       this.addErrorMessage(errorMessage);
       GrouperTextContainer.resetThreadLocalVariableMap();
+      
     }
     
   }

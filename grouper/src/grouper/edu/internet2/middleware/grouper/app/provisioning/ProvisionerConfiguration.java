@@ -247,7 +247,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
         if (errors.size() > 0) {
           for (MultiKey errorMultikey : errors) {
             String error = (String)errorMultikey.getKey(0);
-            if (errorMultikey.size() > 1) {
+            if (errorMultikey.size() > 1 && !StringUtils.isBlank((String)errorMultikey.getKey(1))) {
               String validationKeyError = (String)errorMultikey.getKey(1);
               validationErrorsToDisplay.put(validationKeyError, error);
             } else {

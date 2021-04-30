@@ -418,7 +418,17 @@ public class UiV2Main extends UiServiceLogicBase {
       } else if ("groupName".equals(objectType)) {
         grouperObject = GroupFinder.findByName(grouperSession, objectId, true);
       } else if ("stem".equals(objectType)) {
-        grouperObject = StemFinder.findByUuid(grouperSession, objectId, true);
+        
+        //  edu.internet2.middleware.grouper.exception.StemNotFoundException: Can't find stem by uuid: 'root'
+        //  at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.findByUuid(Hib3StemDAO.java:2254)
+        //  at edu.internet2.middleware.grouper.StemFinder.findByUuid(StemFinder.java:411)
+        //  at edu.internet2.middleware.grouper.StemFinder.findByUuid(StemFinder.java:381)
+        //  at edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main.folderMenuObjectPath(UiV2Main.java:421)
+        if (StringUtils.equals("root", objectId)) {
+          grouperObject = StemFinder.findRootStem(grouperSession);
+        } else {
+          grouperObject = StemFinder.findByUuid(grouperSession, objectId, true);
+        }
       } else if ("stemName".equals(objectType)) {
         grouperObject = StemFinder.findByName(grouperSession, objectId, true);
       } else if ("attributeDef".equals(objectType)) {

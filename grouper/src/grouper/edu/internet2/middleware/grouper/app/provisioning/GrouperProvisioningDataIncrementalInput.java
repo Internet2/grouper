@@ -188,10 +188,10 @@ public class GrouperProvisioningDataIncrementalInput {
     if (this.fullSync) {
       return true;
     }
-    if (this.grouperIncrementalDataToProcessWithoutRecalc.isHasIncrementalDataToProcess()) {
+    if (this.grouperIncrementalDataToProcessWithoutRecalc != null && this.grouperIncrementalDataToProcessWithoutRecalc.isHasIncrementalDataToProcess()) {
       return true;
     }
-    if (this.grouperIncrementalDataToProcessWithRecalc.isHasIncrementalDataToProcess()) {
+    if (this.grouperIncrementalDataToProcessWithRecalc != null && this.grouperIncrementalDataToProcessWithRecalc.isHasIncrementalDataToProcess()) {
       return true;
     }
     this.getGrouperProvisioner().getDebugMap().put("hasIncrementalDataToProcess", false);
