@@ -540,7 +540,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           .append(errors.size()).append("\n");
         for (MultiKey errorMultikey : errors) {
           String error = (String)errorMultikey.getKey(0);
-          if (errorMultikey.size() > 1) {
+          if (errorMultikey.size() > 1 && !StringUtils.isBlank((String)errorMultikey.getKey(1))) {
             String validationKeyError = (String)errorMultikey.getKey(1);
             this.report.append("<font color='red'><b>Error:</b></font> in config item '" + validationKeyError + "': " + GrouperUtil.xmlEscape(error)).append("\n");
           } else {

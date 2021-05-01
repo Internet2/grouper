@@ -80,6 +80,11 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   public static final String VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE = "veto.group.unique.nameCaseInsensitive";
 
   /**
+   * veto key
+   */
+  public static final String VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE = "veto.group.unique.idCaseInsensitive";
+
+  /**
    * 
    * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
@@ -114,7 +119,7 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
           .setString("theName2", GrouperUtil.defaultIfEmpty(group.getAlternateName(), group.getName()).toLowerCase())
           .setString("theUuid", group.getId()).uniqueResult(long.class);
       if (count > 0) {
-        throw new HookVeto(VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.group.unique.idCaseInsensitive.default"));
+        throw new HookVeto(VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.group.unique.idCaseInsensitive.default"));
       } else {
         throw new HookVeto(VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.group.unique.nameCaseInsensitive.default"));
       }
@@ -129,7 +134,9 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME) || group.dbVersionDifferentFields().contains(Group.FIELD_ALTERNATE_NAME_DB)) {
+    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_ALTERNATE_NAME_DB)) {
       verifyCaseInsensitiveName(group);
     }
   }

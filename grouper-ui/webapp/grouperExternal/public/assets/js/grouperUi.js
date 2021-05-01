@@ -1236,7 +1236,9 @@ function guiProcessAction(guiScreenAction) {
       
     alertText = guiEscapeHtml(alertText, true);
     
-    $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
+    if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
+      $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
+    }
   }
 }
 

@@ -1672,10 +1672,15 @@ public class GrouperProvisioningLogicIncremental {
     int convertToGroupSyncMemberships = 0;
     
     int membershipsConvertToGroupSyncThreshold = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipsConvertToGroupSyncThreshold();
+        
+
+    // we might convert to group sync for other reasons
+    //  if (membershipsConvertToGroupSyncThreshold < 0) {
+    //    return;
+    //  }
     
-    if (membershipsConvertToGroupSyncThreshold < 0) {
-      return;
-    }
+    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
@@ -1715,7 +1720,7 @@ public class GrouperProvisioningLogicIncremental {
       
       int membershipCount = groupUuidToMembershipCount.get(groupId);
       
-      if (membershipCount >= membershipsConvertToGroupSyncThreshold) {
+      if (membershipCount >= membershipsConvertToGroupSyncThreshold || convertAllMembershipChangesToGroupSync) {
        
         convertToGroupSyncGroups++;        
         

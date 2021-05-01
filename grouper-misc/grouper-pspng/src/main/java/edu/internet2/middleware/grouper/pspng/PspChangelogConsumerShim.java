@@ -62,7 +62,7 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         if (args.length != 1) {
-          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_oneprodFull");
+          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_activedirectoryFull");
         }
         
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -214,9 +214,9 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       else
         LOG.info("Provisioning batch summary: {}", summary);
       
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
-      changeLogProcessorMetadata.getHib3GrouperLoaderLog().setTotalCount(workItems.size());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addTotalCount(workItems.size());
       
       changeLogProcessorMetadata.getHib3GrouperLoaderLog().appendJobMessage(summary.toString());
       return lastSuccessfulChangelogEntry;

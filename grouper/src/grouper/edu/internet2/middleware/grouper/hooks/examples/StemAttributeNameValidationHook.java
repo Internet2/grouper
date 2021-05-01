@@ -29,12 +29,14 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -124,6 +126,15 @@ public class StemAttributeNameValidationHook extends StemHooks {
       
       index++;
     }
+    
+    if (index == 0 && GrouperConfig.retrieveConfig().propertyValueBoolean("stem.validateExtensionByDefault", true)) {
+
+      attributeNamePatterns.put("extension", Pattern.compile(GroupAttributeNameValidationHook.defaultRegex));
+      attributeNameRegexes.put("extension", GroupAttributeNameValidationHook.defaultRegex);
+      attributeNameVetoMessages.put("extension", GrouperTextContainer.textOrNull("veto.stem.invalidDefaultChars"));
+
+      index = 1;
+    }
 
     if (addTestValidation) {
       
@@ -151,8 +162,10 @@ public class StemAttributeNameValidationHook extends StemHooks {
   @Override
   public void stemPreInsert(HooksContext hooksContext, HooksStemBean preInsertBean) {
     Stem stem = preInsertBean.getStem();
-    
-    stemPreChangeAttribute(stem);
+    // root stem doesnt validate
+    if (!stem.isRootStem()) {
+      stemPreChangeAttribute(stem);
+    }
   }
 
   /**
@@ -199,7 +212,7 @@ public class StemAttributeNameValidationHook extends StemHooks {
         String attributeNameErrorMessage = attributeNameVetoMessages.get(attributeName);
 
         //substitute the attribute name
-        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", attributeValue);
+        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", GrouperUtil.xmlEscape(attributeValue));
         
         throw new HookVeto("veto.stem.attribute.name.regex." + attributeName, attributeNameErrorMessage);
       }

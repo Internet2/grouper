@@ -1971,7 +1971,7 @@ public enum GrouperLoaderType {
     
     for (String folderName : folderNameToDisplayName.keySet()) {
       String folderDisplayName = folderNameToDisplayName.get(folderName);
-      new StemSave().assignName(folderName).assignDisplayName(folderDisplayName).save();
+      new StemSave().assignName(folderName).assignDisplayName(folderDisplayName).assignCreateParentStemsIfNotExist(true).save();
     }
     
     

@@ -51,7 +51,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncrementalRegexRestriction"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental2recalc"));    
   }
   
   public LdapProvisionerIncrementalTest() {
@@ -524,7 +524,10 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));    
-  
+    
+    // not sure why we need to process again, but the attribute propagation was sending a message
+    runJobs(true, true);
+
     // try update
     testGroup.deleteMember(banderson);
     testGroup.addMember(blopez);
@@ -985,6 +988,18 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     assertEquals(0, ldapEntries.size());   
   }
   
+  public void testIncremental1recalc() {
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.recalculateAllOperations", "true");
+    testIncremental1();
+  }
+
+  public void testIncremental2recalc() {
+  
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.recalculateAllOperations", "true");
+    testIncremental2();
+  }
+
   private static void addPolicyType(Group group) {
 
     AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();

@@ -40,8 +40,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.sf.ehcache.Element;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -119,6 +117,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Subject;
+import net.sf.ehcache.Element;
 
 /** 
  * A list membership in the Groups Registry.
@@ -2294,6 +2293,8 @@ public class Membership extends GrouperAPI implements
       Group right = GrouperDAOFactory.getFactory().getGroup().findByUuid(composite.getRightFactorUuid(), true);
 
       Iterator<String> membersIter = membersList.iterator();
+      Set<Membership> membershipsToSave = new HashSet<Membership>();
+      Set<Membership> membershipsToDelete = new HashSet<Membership>();
       while (membersIter.hasNext()) {
         String memberId = membersIter.next();
         boolean ownerHasMember = hasMember(owner.getUuid(), memberId);
@@ -2314,17 +2315,19 @@ public class Membership extends GrouperAPI implements
         // fix the composite membership if necessary
         if (compositeShouldHaveMember && !ownerHasMember) {
           Membership ms = Composite.internal_createNewCompositeMembershipObject(owner.getUuid(), memberId, composite.getUuid());
-          GrouperDAOFactory.getFactory().getMembership().save(ms);
+          membershipsToSave.add(ms);
           modifiedMembersList.add(memberId);
           groupIds.add(owner.getUuid());
         } else if (!compositeShouldHaveMember && ownerHasMember) {
           Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
             owner.getUuid(), memberId, Group.getDefaultList(), MembershipType.COMPOSITE.getTypeString(), true, false);
-          ms.delete();
+          membershipsToDelete.add(ms);
           modifiedMembersList.add(memberId);
           groupIds.add(owner.getUuid());
         }
       }
+      GrouperDAOFactory.getFactory().getMembership().delete(membershipsToDelete);
+      GrouperDAOFactory.getFactory().getMembership().save(membershipsToSave);
       
       if (modifiedMembersList.size() > 0) {
         Set<Composite> newComposites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(owner.getUuid());

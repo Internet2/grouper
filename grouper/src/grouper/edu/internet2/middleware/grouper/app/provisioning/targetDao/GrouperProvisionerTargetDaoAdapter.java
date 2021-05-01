@@ -697,7 +697,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
       return new TargetDaoRetrieveMembershipsResponse(results);
     }
-
+    // TODO add in support for groupMemberships and entityAttributes for recalc for memberships that doesnt involve full group sync
+    //    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+    //      TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest = new TargetDaoRetrieveMembershipsByGroupsRequest();
+    //      targetDaoRetrieveMembershipsByGroupsRequest.
+    //    }
+    //      retrieveMembershipsByGroups()
+    //      for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+    //        
+    //        
+    //        targetDaoRetrieveMembershipsRequest.getTargetMemberships()
+    //  
+    //  }
+    
+    
+    
     throw new RuntimeException("Dao cannot retrieve memberships or membership");
   }
 

@@ -1039,15 +1039,15 @@ public class GuiAuditEntry {
         
         case CONFIGURATION_ADD:
           
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Add", "<b>Added</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Add", "<b>Added</b>");
           
         case CONFIGURATION_DELETE:
 
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Delete", "<b>Deleted</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Delete", "<b>Deleted</b>");
 
         case CONFIGURATION_UPDATE:
  
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Update", "<b>Added</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Update", "<b>Added</b>");
   
         case USDU_MEMBER_DELETE:
           return TextContainer.retrieveFromRequest().getText().get("audits_USDU_DELETE_MEMBER");
@@ -1140,7 +1140,7 @@ public class GuiAuditEntry {
           
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
-          return this.auditEntry.getDescription();
+          return GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500));
           
       }
     } catch (RuntimeException re) {

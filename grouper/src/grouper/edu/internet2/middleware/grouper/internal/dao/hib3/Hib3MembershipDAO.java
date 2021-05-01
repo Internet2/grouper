@@ -2299,10 +2299,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#save(java.util.Set)
    */
   public void save(Set<Membership> mships) {
-    Iterator<Membership> iter = mships.iterator();
-    while (iter.hasNext()) {
-      save(iter.next());
-    }
+    HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").saveBatch(mships);
+    Hib3DAO.evictEntity("MembershipEntry");
+    Hib3DAO.evictQueries(KLASS);
   }
   
 
@@ -2328,20 +2327,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#delete(java.util.Set)
    */
   public void delete(Set<Membership> mships) {
-    Iterator<Membership> iter = mships.iterator();
-    while (iter.hasNext()) {
-      delete(iter.next());
-    }
+    
+    HibernateSession.byObjectStatic().setEntityName(
+        "ImmediateMembershipEntry").deleteBatch(mships);
+    Hib3DAO.evictEntity("MembershipEntry");
+    Hib3DAO.evictQueries(KLASS);
+
   }
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#update(java.util.Set)
    */
   public void update(Set<Membership> mships) {
-    Iterator<Membership> iter = mships.iterator();
-    while (iter.hasNext()) {
-      update(iter.next());
-    }
+    HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").updateBatch(mships);
+    Hib3DAO.evictEntity("MembershipEntry");
+    Hib3DAO.evictQueries(KLASS);
   }
 
   /**

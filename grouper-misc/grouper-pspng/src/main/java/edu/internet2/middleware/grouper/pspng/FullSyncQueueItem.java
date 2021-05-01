@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.pspng;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import net.sf.json.JSONObject;
@@ -342,7 +343,12 @@ class FullSyncQueueItem {
   public void acknowledgeMessage() {
     if ( messageToAcknowledge != null ) {
       LOG.debug("Acknowledging that message was processed: {}", this);
-      GrouperMessagingEngine.acknowledge(messageToAcknowledge);
+      try {
+        GrouperMessagingEngine.acknowledge(messageToAcknowledge);
+      } catch (GrouperStaleStateException gsse) {
+        LOG.debug("error acknowleding message", gsse);
+        // not sure what to do here...
+      }
     }
     messageToAcknowledge = null;
   }
