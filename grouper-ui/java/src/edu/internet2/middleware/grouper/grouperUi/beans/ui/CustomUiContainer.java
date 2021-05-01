@@ -4,8 +4,11 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -18,6 +21,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
@@ -39,7 +43,14 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class CustomUiContainer {
-
+  
+  /**
+   * custom ui config user is currently viewing/editing 
+   */
+  private GuiCustomUiConfiguration guiCustomUiConfiguration;
+  
+  private List<GuiCustomUiConfiguration> guiCustomUiConfigurations = new ArrayList<GuiCustomUiConfiguration>();
+  
   /**
    * 
    * @return the value for combobox
@@ -531,6 +542,70 @@ public class CustomUiContainer {
     }
     return substituteMap;
   }
+  
+  /**
+   * @return true if can view custom ui under misc
+   */
+  public boolean isCanViewCustomUiMisc() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    return false;
+  }
 
+
+  
+  public List<GuiCustomUiConfiguration> getGuiCustomUiConfigurations() {
+    return guiCustomUiConfigurations;
+  }
+
+
+  
+  public void setGuiCustomUiConfigurations(List<GuiCustomUiConfiguration> guiCustomUiConfigurations) {
+    this.guiCustomUiConfigurations = guiCustomUiConfigurations;
+  }
+  
+  public List<CustomUiConfiguration> getAllCustomUiTypes() {
+    return Arrays.asList(new CustomUiConfiguration());
+  }
+
+
+  
+  public GuiCustomUiConfiguration getGuiCustomUiConfiguration() {
+    return guiCustomUiConfiguration;
+  }
+
+
+  
+  public void setGuiCustomUiConfiguration(GuiCustomUiConfiguration guiCustomUiConfiguration) {
+    this.guiCustomUiConfiguration = guiCustomUiConfiguration;
+  }
+  
+  /**
+   * current grouped config index we are looping through
+   */
+  private int index;
+
+  
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
+  
+  private String currentConfigSuffix;
+  
+  public String getCurrentConfigSuffix() {
+    return currentConfigSuffix;
+  }
+
+  
+  public void setCurrentConfigSuffix(String currentConfigSuffix) {
+    this.currentConfigSuffix = currentConfigSuffix;
+  }
   
 }

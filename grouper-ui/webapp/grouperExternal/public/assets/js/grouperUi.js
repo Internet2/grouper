@@ -102,11 +102,11 @@ function guiV2link(url, options) {
     if (questionIndex > -1) {
       servlet = servlet.substring(0, questionIndex);
     }
-    if (servlet.toLowerCase().includes("customui") && !url.toLowerCase().includes("customui")) {
+    if (servlet.includes("UiV2Main.indexCustomUi") && !url.includes("operation=UiV2CustomUi.")) {
       url = "UiV2Main.index" + url;
       navigate = true;
     }
-    if (!servlet.toLowerCase().includes("customui") && url.toLowerCase().includes("customui")) {
+    if (!servlet.includes("UiV2Main.indexCustomUi") && url.includes("operation=UiV2CustomUi.")) {
       url = "UiV2Main.indexCustomUi" + url;
       navigate = true;
     }

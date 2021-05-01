@@ -67,6 +67,11 @@
                       >${textContainer.text['gshTemplatesMainLink'] }</a>
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.customUiContainer.canViewCustomUiMisc}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs');" style="white-space: nowrap;"
+                      >${textContainer.text['customUiMiscLink'] }</a>
+                    </c:if>
+                    
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                       	${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
