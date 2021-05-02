@@ -13,6 +13,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class SyncToGrouper {
 
+  /**
+   * set to false for testing
+   */
+  public static boolean reclaimMemory = true;
+  
   public SyncToGrouper() {
     
     this.syncCompositeToGrouperLogic = new SyncCompositeToGrouperLogic(this);

@@ -53,6 +53,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GroupAttributeNameValidationHook extends GroupHooks {
   
   /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+    attributeNamePatterns.clear();
+    attributeNameRegexes.clear();
+    attributeNameVetoMessages.clear();
+  }
+
+  /**
    * for unit tests
    */
   public static final String TEST_ATTRIBUTE_NAME = "testAttribute123";

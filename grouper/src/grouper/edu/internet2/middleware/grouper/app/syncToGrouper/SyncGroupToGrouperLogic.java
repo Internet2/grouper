@@ -87,12 +87,13 @@ public class SyncGroupToGrouperLogic {
 
     this.changeGrouper();
 
-    // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncGroupToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperGroupNameToGroup()));
-    this.getSyncToGrouper().setSyncGroupToGrouperBeans(null);
-    this.grouperGroupNameToGroup = null;
-
+    if (SyncToGrouper.reclaimMemory) {
+      // reclaim some memory
+      this.getSyncToGrouper().setSyncGroupToGrouperBeans(null);
+      this.grouperGroupNameToGroup = null;
+    }
   }
 
 

@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.syncToGrouper.SyncToGrouper;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -1135,12 +1137,17 @@ public class GrouperTest extends TestCase {
     GrouperEmail.testingEmails().clear();
     GrouperEmail.testingEmailCount = 0;
     GrouperCacheUtils.clearAllCaches();
+    
+    
+    SyncToGrouper.reclaimMemory = false;
 
 
   }
 
   protected void setupInitDb() {
     setupConfigs();
+    
+    GrouperHooksUtils.reloadHooks();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     

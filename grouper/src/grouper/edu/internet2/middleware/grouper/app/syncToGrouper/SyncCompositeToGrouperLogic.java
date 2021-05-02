@@ -86,12 +86,13 @@ public class SyncCompositeToGrouperLogic {
 
     this.changeGrouper();
 
-    // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncCompositeToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperCompositeOwnerLeftRightTypeToComposite()));
-    this.getSyncToGrouper().setSyncCompositeToGrouperBeans(null);
-    this.grouperCompositeOwnerLeftRightTypeToComposite = null;
-
+    if (SyncToGrouper.reclaimMemory) {
+      // reclaim some memory
+      this.getSyncToGrouper().setSyncCompositeToGrouperBeans(null);
+      this.grouperCompositeOwnerLeftRightTypeToComposite = null;
+    }
   }
 
 

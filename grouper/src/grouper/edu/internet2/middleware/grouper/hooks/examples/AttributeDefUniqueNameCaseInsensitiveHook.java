@@ -54,6 +54,13 @@ public class AttributeDefUniqueNameCaseInsensitiveHook extends AttributeDefHooks
   private static boolean registered = false;
   
   /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+  }
+
+  /**
    * see if this is configured in the grouper.properties, if so, register this hook
    */
   public static void registerHookIfNecessary() {

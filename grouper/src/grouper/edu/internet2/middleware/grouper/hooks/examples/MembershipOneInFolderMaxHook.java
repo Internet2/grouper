@@ -241,6 +241,14 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
   }
 
   /**
+   * 
+   */
+  public static void clearHook() {
+    inittedOnce = false;
+    stemHasMembershipOneAttribute.clear();
+  }
+
+  /**
    * @return attribute def name for this hook
    */
   public static AttributeDefName membershipOneInFolderAttributeDefName() {

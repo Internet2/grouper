@@ -87,6 +87,15 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestStemApi extends GrouperTest {
 
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
 
   private Group           child_group, top_group, admin, wheel;
   private GrouperSession  s;

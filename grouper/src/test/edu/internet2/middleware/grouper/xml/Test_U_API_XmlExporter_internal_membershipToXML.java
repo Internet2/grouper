@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -65,6 +66,15 @@ public class Test_U_API_XmlExporter_internal_membershipToXML extends GrouperTest
   public static void main(String[] args) {
     TestRunner.run(Test_U_API_XmlExporter_internal_membershipToXML.class);
     //TestRunner.run(new Test_U_API_XmlExporter_internal_membershipToXML("test_internal_groupToXML_escapeDisplayName"));
+  }
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
   }
 
   // PRIVATE CLASS VARIABLES //

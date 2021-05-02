@@ -104,9 +104,10 @@ public class SyncPrivilegeStemToGrouperLogic {
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncPrivilegeStemToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership()));
-    this.getSyncToGrouper().setSyncPrivilegeStemToGrouperBeans(null);
-    this.grouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership = null;
-
+    if (SyncToGrouper.reclaimMemory) {
+      this.getSyncToGrouper().setSyncPrivilegeStemToGrouperBeans(null);
+      this.grouperStemNameSourceIdSubjectIdOrIdentifierFieldNameToMembership = null;
+    }
   }
 
 

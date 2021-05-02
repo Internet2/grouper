@@ -20,7 +20,6 @@
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -50,6 +49,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   
+  /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+  }
+
   /**
    * only register once
    */

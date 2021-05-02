@@ -70,7 +70,8 @@ public class TestGroupType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupType("testFindAllTypes"));
+    //TestRunner.run(new TestGroupType("testAddFieldList"));
+    TestRunner.run(TestGroupType.class);
   }
   
   // Private Static Class Constants
@@ -507,7 +508,19 @@ public class TestGroupType extends GrouperTest {
     }
   }
   
+  
+  
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   public void testAddFieldList() {
+    
     GrouperSession  s     = null;
     String          type  = "customType.1";
     String          name  = "customField";

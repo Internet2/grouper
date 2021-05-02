@@ -90,9 +90,10 @@ public class SyncMembershipToGrouperLogic {
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncMembershipToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperGroupNameSourceIdSubjectIdOrIdentifierToMembership()));
-    this.getSyncToGrouper().setSyncMembershipToGrouperBeans(null);
-    this.grouperGroupNameSourceIdSubjectIdOrIdentifierToMembership = null;
-
+    if (SyncToGrouper.reclaimMemory) {
+      this.getSyncToGrouper().setSyncMembershipToGrouperBeans(null);
+      this.grouperGroupNameSourceIdSubjectIdOrIdentifierToMembership = null;
+    }
   }
 
 

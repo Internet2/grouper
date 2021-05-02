@@ -106,7 +106,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testStemDelete"));
+    TestRunner.run(new TestStem("testGetChildMembershipGroups"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -2529,7 +2529,16 @@ public class TestStem extends GrouperTest {
     
     s.stop();
   } // public void testSetBadStemDisplayExtension()
-  
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   /**
    * test new performance method for child memberships
    * @throws Exception 

@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -81,6 +82,15 @@ public class TestPrivSTEM_ADMIN extends GrouperTest {
    */
   public static void main(String[] args) throws Exception {
     TestRunner.run(new TestPrivSTEM_ADMIN("testRevokeStemAdmin"));
+  }
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
   }
 
   // Tests

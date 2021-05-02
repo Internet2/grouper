@@ -122,8 +122,10 @@ public class SyncStemToGrouperLogic {
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncStemToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperStemNameToStem()));
-    this.getSyncToGrouper().setSyncStemToGrouperBeans(null);
-    this.grouperStemNameToStem = null;
+    if (SyncToGrouper.reclaimMemory) {
+      this.getSyncToGrouper().setSyncStemToGrouperBeans(null);
+      this.grouperStemNameToStem = null;
+    }
   }
 
 

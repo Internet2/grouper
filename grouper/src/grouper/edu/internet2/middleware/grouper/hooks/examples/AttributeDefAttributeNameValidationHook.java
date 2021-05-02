@@ -221,5 +221,15 @@ public class AttributeDefAttributeNameValidationHook extends AttributeDefHooks {
     AttributeDef attributeDef = preUpdateBean.getAttributeDef();
     attributeDefPreChangeAttribute(attributeDef);
   }
+
+  /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+    attributeNamePatterns.clear();
+    attributeNameRegexes.clear();
+    attributeNameVetoMessages.clear();
+  }
   
 }

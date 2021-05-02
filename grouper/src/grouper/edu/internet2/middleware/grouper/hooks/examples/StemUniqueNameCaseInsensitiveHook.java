@@ -139,5 +139,12 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
       verifyCaseInsensitiveName(stem);
     }
   }
+
+  /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+  }
   
 }
