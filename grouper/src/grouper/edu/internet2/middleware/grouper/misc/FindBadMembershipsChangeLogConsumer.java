@@ -35,8 +35,7 @@ public class FindBadMembershipsChangeLogConsumer extends EsbListenerBase {
   
   @Override
   public ProvisioningSyncConsumerResult dispatchEventList(
-      List<EsbEventContainer> esbEventContainers,
-      GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
+      List<EsbEventContainer> esbEventContainers) {
 
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     

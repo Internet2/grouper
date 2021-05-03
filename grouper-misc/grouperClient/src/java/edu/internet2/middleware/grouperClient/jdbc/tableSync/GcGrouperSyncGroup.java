@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -65,6 +66,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   
     //dbVersion  DONT CLONE
 
+    gcGrouperSyncGroup.errorCodeDb = this.errorCodeDb;
     gcGrouperSyncGroup.errorMessage = this.errorMessage;
     gcGrouperSyncGroup.errorTimestamp = this.errorTimestamp;
     gcGrouperSyncGroup.groupFromId2 = this.groupFromId2;
@@ -78,12 +80,18 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   
     gcGrouperSyncGroup.grouperSyncId = this.grouperSyncId;
     gcGrouperSyncGroup.id = this.id;
+//    gcGrouperSyncGroup.inGrouperDb = this.inGrouperDb;
+//    gcGrouperSyncGroup.inGrouperEnd = this.inGrouperEnd;
+//    gcGrouperSyncGroup.inGrouperInsertOrExistsDb = this.inGrouperInsertOrExistsDb;
+//    gcGrouperSyncGroup.inGrouperStart = this.inGrouperStart;
     gcGrouperSyncGroup.inTargetDb = this.inTargetDb;
     gcGrouperSyncGroup.inTargetEnd = this.inTargetEnd;
     gcGrouperSyncGroup.inTargetInsertOrExistsDb = this.inTargetInsertOrExistsDb;
     gcGrouperSyncGroup.inTargetStart = this.inTargetStart;
     gcGrouperSyncGroup.lastGroupMetadataSync = this.lastGroupMetadataSync;
+    gcGrouperSyncGroup.lastGroupMetadataSyncStart = this.lastGroupMetadataSyncStart;
     gcGrouperSyncGroup.lastGroupSync = this.lastGroupSync;
+    gcGrouperSyncGroup.lastGroupSyncStart = this.lastGroupSyncStart;
     gcGrouperSyncGroup.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
     //lastUpdated  DONT CLONE
   
@@ -116,6 +124,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       //connectionName  DONT EQUALS
 
       //dbVersion  DONT EQUALS
+      .append(this.errorCodeDb, other.errorCodeDb)
       .append(this.errorMessage, other.errorMessage)
       .append(this.errorTimestamp, other.errorTimestamp)
 
@@ -130,12 +139,18 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
       .append(this.grouperSyncId, other.grouperSyncId)
       .append(this.id, other.id)
+//      .append(this.inGrouperDb, other.inGrouperDb)
+//      .append(this.inGrouperEnd, other.inGrouperEnd)
+//      .append(this.inGrouperInsertOrExistsDb, other.inGrouperInsertOrExistsDb)
+//      .append(this.inGrouperStart, other.inGrouperStart)
       .append(this.inTargetDb, other.inTargetDb)
       .append(this.inTargetEnd, other.inTargetEnd)
       .append(this.inTargetInsertOrExistsDb, other.inTargetInsertOrExistsDb)
       .append(this.inTargetStart, other.inTargetStart)
       .append(this.lastGroupMetadataSync, other.lastGroupMetadataSync)
+      .append(this.lastGroupMetadataSyncStart, other.lastGroupMetadataSyncStart)
       .append(this.lastGroupSync, other.lastGroupSync)
+      .append(this.lastGroupSyncStart, other.lastGroupSyncStart)
       .append(this.lastTimeWorkWasDone, other.lastTimeWorkWasDone)
       //lastUpdated  DONT EQUALS
 
@@ -153,7 +168,27 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   private Timestamp lastGroupSync;
   
+  /**
+   * when this group was last sync start
+   */
+  private Timestamp lastGroupSyncStart;
   
+  /**
+   * when this group was last sync start
+   * @return
+   */
+  public Timestamp getLastGroupSyncStart() {
+    return lastGroupSyncStart;
+  }
+
+  /**
+   * when this group was last sync start
+   * @param lastGroupSyncStart
+   */
+  public void setLastGroupSyncStart(Timestamp lastGroupSyncStart) {
+    this.lastGroupSyncStart = lastGroupSyncStart;
+  }
+
   public Timestamp getLastGroupSync() {
     return this.lastGroupSync;
   }
@@ -165,6 +200,28 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   public void setLastGroupSync(Timestamp lastGroupSync1) {
     this.lastGroupSync = lastGroupSync1;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   */
+  private Timestamp lastGroupMetadataSyncStart;
+  
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   * @return
+   */
+  public Timestamp getLastGroupMetadataSyncStart() {
+    return lastGroupMetadataSyncStart;
+  }
+
+  /**
+   * when this groups name and description and metadata was synced, start
+   * @param lastGroupMetadataSyncStart
+   */
+  public void setLastGroupMetadataSyncStart(Timestamp lastGroupMetadataSyncStart) {
+    this.lastGroupMetadataSyncStart = lastGroupMetadataSyncStart;
   }
 
   /**
@@ -239,6 +296,47 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   }
   
   /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   */
+  @GcPersistableField(columnName="error_code")
+  private String errorCodeDb;
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @return
+   */
+  public String getErrorCodeDb() {
+    return errorCodeDb;
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @param errorCodeDb
+   */
+  public void setErrorCodeDb(String errorCodeDb) {
+    this.errorCodeDb = errorCodeDb;
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @return
+   */
+  public GcGrouperSyncErrorCode getErrorCode() {
+    if (this.errorCodeDb == null) {
+      return null;
+    }
+    return GrouperClientUtils.enumValueOfIgnoreCase(GcGrouperSyncErrorCode.class, this.errorCodeDb, false);
+  }
+
+  /**
+   * Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist
+   * @param gcGrouperSyncErrorCode
+   */
+  public void setErrorCode(GcGrouperSyncErrorCode gcGrouperSyncErrorCode) {
+    this.errorCodeDb = gcGrouperSyncErrorCode == null ? null : gcGrouperSyncErrorCode.name();
+  }
+  
+  /**
    * if the last sync had an error, this is the error message
    */
   private String errorMessage; 
@@ -310,13 +408,16 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     
   }
   
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName", "dbVersion", "debugMap", 
+      "grouperSync", "grouperSyncId", "lastGroupMetadataSync", "lastGroupMetadataSyncStart", "lastGroupSync", "lastUpdated",
+      "metadataUpdated");
   
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
   }
 
   /**
@@ -470,7 +571,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   public boolean isInTargetInsertOrExists() {
     return GrouperClientUtils.booleanValue(this.inTargetInsertOrExistsDb, false);
   }
-  
+
   /**
    * T if inserted on the in_target_start date, or F if it existed then and not sure when inserted
    * @param inTargetInsertOrExists
@@ -779,6 +880,132 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   private String groupToId3;
 
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   * @return true or false
+//   */
+//  public boolean isInGrouperInsertOrExists() {
+//    return GrouperClientUtils.booleanValue(this.inGrouperInsertOrExistsDb, false);
+//  }
+//  
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   * @param inGrouperInsertOrExists
+//   */
+//  public void setInGrouperInsertOrExists(boolean inGrouperInsertOrExists) {
+//    this.inGrouperInsertOrExistsDb = inGrouperInsertOrExists ? "T" : "F";
+//  }
+//  
+//  /**
+//   * if in grouper
+//   * @return if in grouper
+//   */
+//  public boolean isInGrouper() {
+//    return GrouperClientUtils.booleanValue(this.inGrouperDb, false);
+//  }
+//
+//  /**
+//   * if in grouper
+//   * @param in grouper
+//   */
+//  public void setInGrouper(boolean inGrouper) {
+//    this.inGrouperDb = inGrouper ? "T" : "F";
+//  }
+//  
+//  /**
+//   * if this group exists in grouper
+//   */
+//  @GcPersistableField(columnName="in_grouper")
+//  private String inGrouperDb;
+//
+//  /**
+//   * when this group was removed from grouper
+//   */
+//  private Timestamp inGrouperEnd;
+//
+//  /**
+//   * when this group was added to grouper
+//   */
+//  private Timestamp inGrouperStart;
+//
+//  /**
+//   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
+//   */
+//  @GcPersistableField(columnName="in_grouper_insert_or_exists")
+//  private String inGrouperInsertOrExistsDb;
+//  
+//  /**
+//   * if this group exists in grouper
+//   * @return if is target
+//   */
+//  public Boolean getInGrouper() {
+//    return GrouperClientUtils.booleanObjectValue(this.inGrouperDb);
+//  }
+//
+//  /**
+//   * if this group exists in grouper T/F
+//   * @return
+//   */
+//  public String getInGrouperDb() {
+//    return inGrouperDb;
+//  }
+//
+//  /**
+//   * if this group exists in grouper T/F
+//   * @param inGrouperDb
+//   */
+//  public void setInGrouperDb(String inGrouperDb) {
+//    this.inGrouperDb = inGrouperDb;
+//  }
+//
+//  /**
+//   * when this group was removed from grouper
+//   * @return
+//   */
+//  public Timestamp getInGrouperEnd() {
+//    return inGrouperEnd;
+//  }
+//
+//  /**
+//   * when this group was removed from grouper
+//   * @param inGrouperEnd
+//   */
+//  public void setInGrouperEnd(Timestamp inGrouperEnd) {
+//    this.inGrouperEnd = inGrouperEnd;
+//  }
+//
+//  /**
+//   * when this group was added to grouper
+//   * @return
+//   */
+//  public Timestamp getInGrouperStart() {
+//    return inGrouperStart;
+//  }
+//
+//  /**
+//   * when this group was added to grouper
+//   * @param inGrouperStart
+//   */
+//  public void setInGrouperStart(Timestamp inGrouperStart) {
+//    this.inGrouperStart = inGrouperStart;
+//  }
+//
+//  /**
+//   * if the provisioner added to grouper or if it already existed
+//   * @return
+//   */
+//  public String getInGrouperInsertOrExistsDb() {
+//    return inGrouperInsertOrExistsDb;
+//  }
+//
+//  /**
+//   * if the provisioner added to grouper or if it already existed
+//   * @param inGrouperInsertOrExistsDb
+//   */
+//  public void setInGrouperInsertOrExistsDb(String inGrouperInsertOrExistsDb) {
+//    this.inGrouperInsertOrExistsDb = inGrouperInsertOrExistsDb;
+//  }
+
   /**
    * other metadata on groups
    * @return group id
@@ -805,6 +1032,26 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     }
     this.id = GrouperClientUtils.uuid();
     return true;
+  }
+
+  /**
+   * 
+   * @param translateGrouperToGroupSyncField
+   * @param result
+   */
+  public void assignField(String syncField, Object result) {
+    if (GrouperClientUtils.equals("groupFromId2", syncField)) {
+      this.setGroupFromId2(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupFromId3", syncField)) {
+      this.setGroupFromId3(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupToId2", syncField)) {
+      this.setGroupToId2(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupToId3", syncField)) {
+      this.setGroupToId3(GrouperClientUtils.stringValue(result));
+    } else {
+      throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
+    }
+
   }
 
 }

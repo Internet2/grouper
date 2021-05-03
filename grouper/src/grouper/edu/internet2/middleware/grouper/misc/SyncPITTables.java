@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -1864,7 +1865,7 @@ public class SyncPITTables {
 
   private void showStatus(String message) {
     if (showResults) {
-      System.out.println(message);
+      println(message);
     }
   }
   
@@ -2039,13 +2040,13 @@ public class SyncPITTables {
                 }
               }
               
-              System.out.print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
+              print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
               
               if (endTime != 0) {
-                System.out.print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
+                print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
               }
               
-              System.out.print("\n");
+              print("\n");
             }
           }
         }          
@@ -2053,6 +2054,30 @@ public class SyncPITTables {
     });
     
     statusThread.start();
+  }
+  
+  /**
+   * print
+   * @param string
+   */
+  private void print(String string) {
+    if (this.captureOutput) {
+      this.output.append(string);
+    } else {
+      System.out.print(string);
+    }
+  }
+  
+  /**
+   * print a line
+   * @param string
+   */
+  private void println(String string) {
+    if (this.captureOutput) {
+      this.output.append(string).append("\n");
+    } else {
+      System.out.println(string);
+    }
   }
   
   private void stopStatusThread() {
@@ -2066,5 +2091,38 @@ public class SyncPITTables {
       
       statusThread = null;
     }
+  }
+
+  private StringBuilder output = new StringBuilder();
+  
+  public String getOutput() {
+    GrouperUtil.assertion(captureOutput, "Output is not being captured, call syncPitTables.captureOutput(true)");
+    return this.output.toString();
+  }
+  
+  private boolean captureOutput = false;
+  
+  public void captureOutput(boolean b) {
+    this.captureOutput = true;
+    
+  }
+
+  /**
+   * output and report
+   * @return
+   */
+  public String getFullOutput() {
+    StringBuilder result = new StringBuilder();
+    String theOutput = this.getOutput();
+    if (!StringUtils.isBlank(theOutput)) {
+      result.append(theOutput.trim());
+    }
+    if (this.report != null && this.report.length() > 0) {
+      if (result.length() > 0) {
+        result.append("\n");
+      }
+      result.append(this.report);
+    }
+    return result.toString();
   }
 }

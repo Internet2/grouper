@@ -6,8 +6,12 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
@@ -123,6 +127,39 @@ public class GrouperObjectTypeConfigurationTest extends GrouperTest {
     assertFalse(attributeValue1.isDirectAssignment());
     assertEquals("ref", attributeValue1.getObjectTypeName());
     
+  }
+  
+  
+  public void testGetAutoAssignTypeCandidates() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("objectTypes.enable", "true");
+
+    
+    Stem top = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top").save();
+    Stem ref = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:ref").save();
+    
+    Stem test = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:test").save();
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("top:test:policyKey_allow_manual").save();
+    
+    //When
+    List<StemOrGroupObjectType> assignTypeCandidates = GrouperObjectTypesConfiguration.getAutoAssignTypeCandidates(top, grouperSession.getSubject());
+    
+    Set<String> names = new HashSet<String>();
+    names.add("top:ref");
+    names.add("top:test");
+    names.add("top:test:policyKey_allow_manual");
+    //Then
+    assertEquals(3, assignTypeCandidates.size());
+    assignTypeCandidates.forEach(stemOrGroupObjectType -> {
+      String name = stemOrGroupObjectType.getGrouperObject().getName();
+      names.remove(name);
+    });
+    
+    assertTrue(names.size() == 0);
   }
   
   

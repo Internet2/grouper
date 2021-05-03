@@ -36,6 +36,23 @@ import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
 public class LazySource implements Source, Serializable {
 
   /**
+   * 
+   */
+  @Override
+  public void loggingStart() {
+    this.getSource().loggingStart();
+    
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public String loggingStop() {
+    return this.getSource().loggingStop();
+  }
+
+  /**
    * @see edu.internet2.middleware.subject.Source#retrieveAllSubjectIds()
    */
   public Set<String> retrieveAllSubjectIds() {
@@ -359,4 +376,40 @@ public class LazySource implements Source, Serializable {
   public SearchPageResult searchPage(String searchValue, String realm) {
     return this.getSource().searchPage(searchValue, realm);
   }
+
+  @Override
+  public boolean isEditable() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
+
+  
+  private String configId;
+  
+  @Override
+  public String getConfigId() {
+    return this.configId;
+  }
+
+  @Override
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+
+  @Override
+  public String convertSubjectAttributeToSourceAttribute(String nameOfSubjectAttribute) {
+    return this.getSource().convertSubjectAttributeToSourceAttribute(nameOfSubjectAttribute);
+  }
+
+  @Override
+  public String convertSourceAttributeToSubjectAttribute(String nameOfSourceAttribute) {
+    return this.getSource().convertSourceAttributeToSubjectAttribute(nameOfSourceAttribute);
+  }
+  
+  
+  
 }

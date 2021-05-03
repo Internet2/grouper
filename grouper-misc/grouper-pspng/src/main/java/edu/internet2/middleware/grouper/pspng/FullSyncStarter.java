@@ -110,7 +110,7 @@ public class FullSyncStarter
       JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
 
       LOG.info("Finished running full-sync job: {}", jobName);
-      hib3GrouploaderLog.setJobMessage("Finished running full-sync job.");
+      hib3GrouploaderLog.setJobMessage("Finished running full-sync job.  Stats: " + stats);
 
       stats.updateLoaderLog(hib3GrouploaderLog);
 

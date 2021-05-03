@@ -36,14 +36,15 @@ public class GuiScreenAction implements Serializable {
    */
   public static enum GuiMessageType {
     
-    /** green message */
-    success,
-    
+    /** red message */
+    error,
+
     /** blue message */
     info,
+
+    /** green message */
+    success;
     
-    /** red message */
-    error;
   }
  
   /**
@@ -57,6 +58,22 @@ public class GuiScreenAction implements Serializable {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setMessage(message);
     guiScreenAction.setMessageType(guiMessageType.name());
+    return guiScreenAction;
+    
+  }
+  
+  /**
+   * add a new message to the top of a v2 screen
+   * @param guiMessageType
+   * @param message
+   * @return the action
+   */
+  public static GuiScreenAction newMessageAppend(GuiMessageType guiMessageType, String message) {
+    
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setMessage(message);
+    guiScreenAction.setMessageType(guiMessageType.name());
+    guiScreenAction.setMessageAppend(true);
     return guiScreenAction;
     
   }
@@ -127,6 +144,27 @@ public class GuiScreenAction implements Serializable {
    */
   private String message;
   
+  /**
+   * if dont replace previous messages pass false
+   */
+  private Boolean messageAppend;
+  
+  /**
+   * if dont replace previous messages pass false
+   * @return if append
+   */
+  public Boolean getMessageAppend() {
+    return messageAppend;
+  }
+
+  /**
+   * if dont replace previous messages pass false
+   * @param messageAppend
+   */
+  public void setMessageAppend(Boolean messageAppend) {
+    this.messageAppend = messageAppend;
+  }
+
   /**
    * add a validation message
    */

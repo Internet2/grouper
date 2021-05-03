@@ -10,7 +10,8 @@
           <div class="span9 main-content" style="padding: 0">
             <div class="row-fluid">
               <div class="span11" style="margin-left: 1.5em; margin-right: 1em">
-                <img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" style="margin-top: 1.5em; margin-bottom: 1.5em" />
+                <c:set var="theLogo" value="${grouperRequestContainer.customUiContainer.textTypeToText['logo']}"/>
+                <img class="brand" src="${ !grouper:isBlank(theLogo) ? theLogo : ('../../'.concat(mediaMap['image.organisation-logo']))}" alt="Logo" style="margin-top: 1.5em; margin-bottom: 1.5em" />
                 <div class="navbar-text pull-right" style="white-space: normal;">${textContainer.text['indexLoggedInAs'] } 
                   ${guiSettings.loggedInSubject.screenLabelShort2noLink} 
                   <c:if test="${mediaMap['logout.link.show']=='true'}">

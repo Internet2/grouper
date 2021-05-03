@@ -628,6 +628,7 @@ public interface StemDAO extends GrouperDAO {
    * @param idOfAttributeDefName2 if looking for groups that have this attribute def name2
    * @param attributeValue2 if looking for groups that have this attribute value2 on the attribute def name2
    * @param attributeValuesOnAssignment2 if looking for an attribute value on an assignment2, could be multiple values
+   * @param attributeNotAssigned find stems that don't have the given type assigned
    * @return the stems
    * @throws GrouperDAOException
    * @since v2.4.0
@@ -638,7 +639,8 @@ public interface StemDAO extends GrouperDAO {
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
       Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue, 
       Boolean attributeCheckReadOnAttributeDef,
-      Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2)
+      Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2, 
+      Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned)
     throws  GrouperDAOException;
     
 

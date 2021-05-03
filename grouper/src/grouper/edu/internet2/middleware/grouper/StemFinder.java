@@ -58,14 +58,42 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Find stems within the Groups Registry.
- * <p/>
- * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.54 2009-11-18 17:03:50 mchyzer Exp $
+ * <p>Use this class to find stems within the registry</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Stem stem = StemFinder.findByName(grouperSession, "test", true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find stems where an attribute def name and a value is assigned
+ * <blockquote>
+ * <pre>
+ * Set<Stem> stems = new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class StemFinder {
 
   /**
+   * find by names
+   * @param names
+   * @param exceptionOnNotFound
+   * @return the stems that were found
+   */
+  public static Set<Stem> findByNames(Collection<String> names, boolean exceptionOnNotFound) {
+    
+    return GrouperDAOFactory.getFactory().getStem().findByNames(names, exceptionOnNotFound);
+    
+  }
+
+  /**
+   * <p>Grouper internal method only</p>
    * remove all caches
    */
   public static void stemCacheClear() {
@@ -73,6 +101,7 @@ public class StemFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove this from all caches
    * @param id
    */
@@ -85,6 +114,7 @@ public class StemFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove this from all caches
    * @param stem
    */
@@ -420,7 +450,14 @@ public class StemFinder {
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param val
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 
     throws  QueryException
   {
@@ -436,7 +473,14 @@ public class StemFinder {
     return stems;
   } // protected static Set internal_findAllByApproximateDisplayExtension(s, val)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param val
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByApproximateDisplayName(GrouperSession s, String val) 
     throws  QueryException
   {
@@ -452,7 +496,14 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByApproximateDisplayExtension(s, val)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param val
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByApproximateExtension(GrouperSession s, String val) 
     throws  QueryException
   {
@@ -468,7 +519,14 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByApproximateExtension(s, val)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param val
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByApproximateName(GrouperSession s, String val) 
     throws  QueryException
   {
@@ -484,7 +542,14 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByApproximateName(s, val)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param val
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByApproximateNameAny(GrouperSession s, String val) 
     throws  QueryException
   {
@@ -500,7 +565,14 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByApproximateNameAny(s, val)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param d
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
     throws  QueryException
   {
@@ -516,7 +588,14 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByCreatedAfter(s, d)
 
-  // @since   1.2.0
+  /**
+   * <p>Grouper internal method only</p>
+   * @since   1.2.0
+   * @param s
+   * @param d
+   * @return
+   * @throws QueryException
+   */
   public static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
     throws  QueryException
   {
@@ -533,7 +612,7 @@ public class StemFinder {
   } // public static Set internal_findAllByCreatedBefore(s, d)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param name
    * @param exceptionIfNotFound
    * @return the stem
@@ -668,6 +747,21 @@ public class StemFinder {
    * find groups with this value
    */
   private Object attributeValue2;
+  
+  /**
+   * find stems that don't have a certain type assigned
+   */
+  private boolean attributeNotAssigned = false;
+  
+  /**
+   * find stems that don't have a certain type assigned
+   * @param attributeNotAssigned
+   * @return
+   */
+  public StemFinder assignAttributeNotAssigned(boolean attributeNotAssigned) {
+    this.attributeNotAssigned = attributeNotAssigned;
+    return this;
+  }
 
   /**
    * config key for caching
@@ -808,7 +902,8 @@ public class StemFinder {
             this.userHasInAttributeFields, this.stemIds, 
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
             this.attributeValuesOnAssignment, 
-            this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
+            this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2,
+            this.attributeNotAssigned);
    
     for (Stem stem : GrouperUtil.nonNull(stems)) {
       stemFlashCacheAddIfSupposedTo(stem);

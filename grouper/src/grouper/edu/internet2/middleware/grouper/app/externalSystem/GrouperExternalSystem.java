@@ -10,8 +10,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -39,7 +43,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    */
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
-    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
 
     if (!isInsert && !this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
       validationErrorsToDisplay.put("#externalSystemConfigId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
@@ -89,9 +93,16 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
+    if (enabledAttribute == null) {
+      errorsToDisplay.add(GrouperTextContainer.textOrNull("grouperExternalSystemCannotEnableDisable"));
+      return;
+    }
     enabledAttribute.setValue(enable? "true": "false");
     
-    DbConfigEngine.configurationFileAddEditHelper2(this.getConfigFileName().getConfigFileName(), 
+    ConfigFileName configFileName = this.getConfigFileName();
+    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+
+    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
@@ -112,8 +123,8 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   
   public final static Set<String> externalTypeClassNames = new LinkedHashSet<String>();
   static {
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem");
+    externalTypeClassNames.add(AzureGrouperExternalSystem.class.getName());
+    externalTypeClassNames.add(LdapGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
@@ -122,10 +133,11 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingAWS.SqsGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem");
+    externalTypeClassNames.add(SmtpGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
+    externalTypeClassNames.add(WsBearerTokenExternalSystem.class.getName());
   }
   
   /**
@@ -168,5 +180,21 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     return keysAndLabels;
   }
   
-  
+  /**
+   * check if connections need to be refreshed due to config changes
+   * @return
+   * @throws UnsupportedOperationException
+   */
+  public void refreshConnectionsIfNeeded() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isCanAdd() {
+    
+    return true;
+  }
+  public boolean isCanDelete() {
+    
+    return true;
+  }
 }

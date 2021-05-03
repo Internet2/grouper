@@ -100,8 +100,21 @@ public abstract class EsbListenerBase {
    * @param grouperProvisioningProcessingResult
    * @param consumerName
    * @return true if ok, false if not
+   * @deprecated use {@link #dispatchEventList(List)}
    */
+  @Deprecated
   public ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers, GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
+    return this.dispatchEventList(esbEventContainers);
+  }
+
+  /**
+   * implement this instead of dispatchEvent if you want objects instead of json string
+   * @param esbEventContainers
+   * @param grouperProvisioningProcessingResult
+   * @param consumerName
+   * @return true if ok, false if not
+   */
+  public ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers) {
 
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(-1L);
@@ -266,6 +279,23 @@ public abstract class EsbListenerBase {
    * @return
    */
   protected boolean isProcessObjectsInsteadOfJson() {
+    return false;
+  }
+
+  /**
+   * override the batch size configured in config file
+   * @return
+   */
+  public Integer getBatchSize() {
+    return null;
+  }
+
+  /**
+   * some change log consumers might want to be called even if nothing happened in change log
+   * e.g. check messages in provisioners
+   * @return
+   */
+  public boolean callAtLeastOnce() {
     return false;
   }
   

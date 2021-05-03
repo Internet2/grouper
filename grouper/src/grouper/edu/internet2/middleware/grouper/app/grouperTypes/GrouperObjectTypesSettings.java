@@ -14,6 +14,8 @@ public class GrouperObjectTypesSettings {
   public static final String REF = "ref";
   public static final String BASIS = "basis";
   public static final String POLICY = "policy";
+  public static final String MANUAL = "manual";
+  public static final String INTERMEDIATE = "intermediate";
   public static final String ETC = "etc";
   public static final String ORG = "org";
   public static final String TEST = "test";
@@ -48,7 +50,7 @@ public class GrouperObjectTypesSettings {
    * @return
    */
   public static List<String> getObjectTypeNames() {
-    return Collections.unmodifiableList(Arrays.asList(BASIS, REF, POLICY, ETC, GROUPER_SECURITY, ORG, APP, SERVICE, READ_ONLY, TEST));
+    return Collections.unmodifiableList(Arrays.asList(BASIS, REF, POLICY, ETC, GROUPER_SECURITY, ORG, APP, SERVICE, READ_ONLY, TEST, MANUAL, INTERMEDIATE));
   }
   
   /**
@@ -56,7 +58,7 @@ public class GrouperObjectTypesSettings {
    * @return
    */
   public static List<String> getDataOwnerMemberDescriptionRequiringObjectTypeNames() {
-    return Collections.unmodifiableList(Arrays.asList(REF, BASIS, POLICY, ORG));
+    return Collections.unmodifiableList(Arrays.asList(REF, BASIS, POLICY, ORG, MANUAL));
   }
 
   /**

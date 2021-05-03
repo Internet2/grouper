@@ -89,8 +89,7 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
   
   @Override
   public ProvisioningSyncConsumerResult dispatchEventList(
-      List<EsbEventContainer> esbEventContainers,
-      GrouperProvisioningProcessingResult grouperProvisioningProcessingResult) {
+      List<EsbEventContainer> esbEventContainers) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "dispatchEventList");

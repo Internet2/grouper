@@ -45,8 +45,9 @@ import org.apache.commons.logging.Log;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
 import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
@@ -146,7 +147,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // GRP-1695: hard code built in ignore attribute defs and names
                 // $$grouper.attribute.rootStem$$:userData:grouperUserDataValueDef
                 namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF);
-                
+                namesOfAttributeDefs.add(GrouperUserDataUtils.grouperUserDataStemName() + ":" + GrouperUserDataUtils.USER_DATA_DEF);
+
                 // $$grouper.attribute.rootStem$$:instrumentationData:instrumentationDataInstanceCountsDef
                 namesOfAttributeDefs.add(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF);
     
@@ -159,10 +161,6 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // $$grouper.attribute.rootStem$$:attribute:loaderMetadata:loaderMetadataValueDef
                 namesOfAttributeDefs.add(GrouperCheckConfig.loaderMetadataStemName() + ":loaderMetadataValueDef");
                 
-                // deprovisioning
-                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefBaseDef().getName());
-                namesOfAttributeDefs.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameValueDef().getName());
-                
                 // attestation
                 namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDef().getName());
                 namesOfAttributeDefs.add(GrouperAttestationJob.retrieveAttributeDefNameValueDef().getName());
@@ -170,6 +168,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // reports
                 namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefBaseDef().getName());
                 namesOfAttributeDefs.add(GrouperReportConfigAttributeNames.retrieveAttributeDefValueDef().getName());
+                namesOfAttributeDefs.add(GrouperReportInstanceAttributeNames.retrieveAttributeDefBaseDef().getName());
+                namesOfAttributeDefs.add(GrouperReportInstanceAttributeNames.retrieveAttributeDefValueDef().getName());
                 
                 // subject resolution
                 namesOfAttributeDefs.add(UsduAttributeNames.retrieveAttributeDefBaseDef().getName());
@@ -186,6 +186,9 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // external subject invite
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
+                
+                // notifications
+                namesOfAttributeDefs.add(NotificationDaemon.attributeAutoCreateStemName() + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF);
                 
                 if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
                   namesOfAttributeDefs.addAll(GrouperUtil.splitTrimToSet(namesOfAttributeDefsCommaSeparated, ","));

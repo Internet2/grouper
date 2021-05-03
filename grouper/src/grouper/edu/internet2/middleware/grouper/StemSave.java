@@ -36,11 +36,75 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
 /**
- * Use this class to insert or update a stem
+ * 
+ * <p> Use this class to insert or update a stem </p>
+ * 
+ * <p>
+ * Sample call
+ * <blockquote>
+ * <pre>
+ * StemSave stemSave = new StemSave(grouperSession).assignName("test")
+ *  .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+ *  .assignDescription("testDescription");
+ * Stem stem = stemSave.save();
+ * System.out.println(stemSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * </p>
+ * 
+ * <p>
+ * Sample to delete
+ * 
+ * <blockquote>
+ * <pre>
+ * new StemSave(grouperSession).assignUuid(stem.getId()).assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * <p>
+ * To edit just one field (the description) for existing stem
+ * <blockquote>
+ * <pre>
+ * new StemSave(grouperSession).assignUuid(stem.getId())
+ *  .assignDisplayExtension("test1")
+ *  .assignAlternateName("newAlternateName")
+ *  .assignReplaceAllSettings(false).save();
+ * </blockquote>
+ * </pre>
+ * </p>
  */
 public class StemSave {
+  
+  
+  /**
+   * replace all existing settings. defaults to true.
+   */
+  private boolean replaceAllSettings = true;
+  
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
+  public StemSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+    this.replaceAllSettings = theReplaceAllSettings;
+    return this;
+  }
+  
+  /**
+   * set this to true to run as a root session
+   */
+  private boolean runAsRoot;
+  
+  /**
+   * set this to true to run as a root session
+   * @param runAsRoot
+   * @return
+   */
+  public StemSave assignRunAsRoot(boolean runAsRoot) {
+    this.runAsRoot = runAsRoot;
+    return this;
+  }
   
   /** id index */
   private Long idIndex;
@@ -55,6 +119,14 @@ public class StemSave {
     return this;
   }
 
+  /**
+   * create a new stem save
+   * @param theGrouperSession
+   */
+  public StemSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
+  }
 
   /**
    * create a new stem save
@@ -62,6 +134,7 @@ public class StemSave {
    */
   public StemSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
+    GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
   
   /** grouper session is required */
@@ -109,6 +182,8 @@ public class StemSave {
   /** display extension */
   private String displayExtension;
 
+  private boolean displayExtensionAssigned;
+
   /**
    * display extension
    * @param theDisplayExtension
@@ -116,11 +191,14 @@ public class StemSave {
    */
   public StemSave assignDisplayExtension(String theDisplayExtension) {
     this.displayExtension = theDisplayExtension;
+    this.displayExtensionAssigned = true;
     return this;
   }
 
   /** description */
   private String description;
+
+  private boolean descriptionAssigned;
   
   /**
    * assign description
@@ -129,11 +207,14 @@ public class StemSave {
    */
   public StemSave assignDescription(String theDescription) {
     this.description = theDescription;
+    this.descriptionAssigned = true;
     return this;
   }
   
   /** alternateName */
   private String alternateName;
+
+  private boolean alternateNameAssigned;
   
   /**
    * assign alternateName
@@ -142,6 +223,7 @@ public class StemSave {
    */
   public StemSave assignAlternateName(String theAlternateName) {
     this.alternateName = theAlternateName;
+    this.alternateNameAssigned = true;
     return this;
   }
   
@@ -190,6 +272,8 @@ public class StemSave {
    * display name, really only necessary if creating parent stems 
    */
   private String displayName;
+
+  private boolean displayNameAssigned;
   
   /**
    * get the save type
@@ -249,17 +333,17 @@ public class StemSave {
   public Stem save() throws StemNotFoundException,  InsufficientPrivilegeException,
       StemAddException, StemModifyException {
 
-    //help with incomplete entries
-    if (StringUtils.isBlank(this.name)) {
-      this.name = this.stemNameToEdit;
-    }
-
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.stemNameToEdit) && !StringUtils.isBlank(this.uuid)) {
       Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false, new QueryOptions().secondLevelCache(false));
       if (stem != null) {
         this.stemNameToEdit = stem.getName();
       }
+    }
+    
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.stemNameToEdit;
     }
 
     if (StringUtils.isBlank(this.stemNameToEdit)) {
@@ -277,13 +361,33 @@ public class StemSave {
             throws GrouperDAOException {
           
           grouperTransaction.setCachingEnabled(false);
-          return (Stem)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+          
+          GrouperSessionHandler grouperSessionHandler = new GrouperSessionHandler() {
     
             public Object callback(GrouperSession grouperSession)
                 throws GrouperSessionException {
               try {
                 String stemNameForError = GrouperUtil.defaultIfBlank(stemNameToEdit, name);
                 
+                // delete
+                if (saveMode == SaveMode.DELETE) {
+                  Stem stem = null;
+                  if (!StringUtils.isBlank(uuid)) {
+                    stem = StemFinder.findByUuid(grouperSession, uuid, false, new QueryOptions().secondLevelCache(false));
+                  } else if (!StringUtils.isBlank(stemNameToEdit)) {
+                    stem = StemFinder.findByName(grouperSession, stemNameToEdit, false, new QueryOptions().secondLevelCache(false));
+                  } else {
+                    throw new RuntimeException("Need uuid or name to delete stem!");
+                  }
+                  if (stem == null) {
+                    StemSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                    return null;
+                  }
+                  stem.obliterate(false, false);
+                  StemSave.this.saveResultType = SaveResultType.DELETE;
+                  return stem;
+                }
+
                 int lastColonIndex = name.lastIndexOf(':');
                 boolean topLevelStem = lastColonIndex < 0;
         
@@ -372,6 +476,11 @@ public class StemSave {
 
                 //if inserting
                 if (!isUpdate) {
+                  
+                  if (!replaceAllSettings) {
+                    throw new RuntimeException("cannot insert attribute def name with replaceAllSettings being false");
+                  }
+                  
                   StemSave.this.saveResultType = SaveResultType.INSERT;
                   
                   boolean failOnExists = SAVE_MODE.equals(SaveMode.INSERT);
@@ -392,9 +501,13 @@ public class StemSave {
                     theStem.setExtension(extensionNew, StemSave.this.setAlternateNameIfRename);
                   }
                   if (!StringUtils.equals(theStem.getDisplayExtension(), theDisplayExtension)) {
-                    needsSave = true;
-                    StemSave.this.saveResultType = SaveResultType.UPDATE;
-                    theStem.setDisplayExtension(theDisplayExtension);
+                    
+                    if (replaceAllSettings || displayExtensionAssigned || displayNameAssigned) {
+                      needsSave = true;
+                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                      theStem.setDisplayExtension(theDisplayExtension);
+                    }
+                    
                   }
                 }
 
@@ -416,25 +529,33 @@ public class StemSave {
                 //now compare and put all attributes (then store if needed)
                 if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(StemSave.this.description)))) {
-                  needsSave = true;
-                  if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    StemSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || descriptionAssigned) { 
+                    needsSave = true;
+                    if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theStem.setDescription(StemSave.this.description);
                   }
-                  theStem.setDescription(StemSave.this.description);
+                  
                 }
                 
                 if (!isRename) {
                   if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getAlternateName())), 
                       StringUtils.defaultString(StringUtils.trim(StemSave.this.alternateName)))) {
-                    needsSave = true;
-                    if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      StemSave.this.saveResultType = SaveResultType.UPDATE;
+                    
+                    if (replaceAllSettings || alternateNameAssigned) {
+                      needsSave = true;
+                      if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                        StemSave.this.saveResultType = SaveResultType.UPDATE;
+                      }
+                      if (StringUtils.isBlank(StemSave.this.alternateName)) {
+                        theStem.deleteAlternateName(theStem.getAlternateName());
+                      } else {
+                        theStem.addAlternateName(StringUtils.trim(StemSave.this.alternateName));
+                      }
                     }
-                    if (StringUtils.isBlank(StemSave.this.alternateName)) {
-                      theStem.deleteAlternateName(theStem.getAlternateName());
-                    } else {
-                      theStem.addAlternateName(StringUtils.trim(StemSave.this.alternateName));
-                    }
+                    
                   }
                 }
 
@@ -457,7 +578,13 @@ public class StemSave {
               }
             }
           
-          });
+          };
+          
+          if (runAsRoot) {
+            return (Stem)GrouperSession.internal_callbackRootGrouperSession(grouperSessionHandler);
+          }
+          
+          return (Stem)GrouperSession.callbackGrouperSession(grouperSession, grouperSessionHandler);
         }
       });
       return stem;
@@ -488,6 +615,7 @@ public class StemSave {
    */
   public StemSave assignDisplayName(String theDisplayName) {
     this.displayName = theDisplayName;
+    this.displayNameAssigned = true;
     return this;
   }
 }

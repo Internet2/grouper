@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -287,7 +288,10 @@ public class UiV2Configure {
           Boolean[] added = new Boolean[1];
           Boolean[] error = new Boolean[1];
           
-          boolean result = configurationFileAddEditHelper2(configFileString, propertyNameString,
+          ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, true);
+          ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+
+          boolean result = configurationFileAddEditHelper2(configFileName, configFileString, configFileMetadata, propertyNameString,
               expressionLanguageString, valueString, isPassword, message, added, error, true, null);
 
           GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -412,7 +416,7 @@ public class UiV2Configure {
         grouperConfigHibernateMap.put(grouperConfigHibernate.getConfigKey(), grouperConfigHibernate);
       }
       
-      Map<String, String> properties = ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName());
+      Map<String, String> properties = new TreeMap<String, String>(ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName()));
       
       for (String property: properties.keySet()) {
         
@@ -420,7 +424,10 @@ public class UiV2Configure {
         if (grouperConfigHibernateMap.containsKey(property) &&
             grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
           value = "*******";
-        } 
+        }
+        value = GrouperUtil.replace(value, "\r\n", "\n");
+        value = GrouperUtil.replace(value, "\r", "\n");
+        value = GrouperUtil.replace(value, "\n", "\\\n");
         
         contents.append(property + " = " + value);
         contents.append("\n");
@@ -1058,6 +1065,9 @@ public class UiV2Configure {
   
       Boolean[] added = new Boolean[1];
       Boolean[] error = new Boolean[1];
+      
+      ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+      
       for (Object keyObject : propertiesToImport.keySet()) {
         try {
         
@@ -1065,7 +1075,7 @@ public class UiV2Configure {
           String key = (String)keyObject;
           String value = propertiesToImport.getProperty(key);
    
-          configurationFileAddEditHelper2(configFileName.name(), key, Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error, fromUi, null);
+          configurationFileAddEditHelper2(configFileName, configFileName.name(), configFileMetadata, key, Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error, fromUi, null);
           
           // added (first index) will be true if added, false if updated, and null if no change
           if (added[0] == null) {
@@ -1138,7 +1148,7 @@ public class UiV2Configure {
    * @param comment notes about settings
    * @return true if ok, false if not
    */
-  public static boolean configurationFileAddEditHelper2(String configFileString, String propertyNameString,
+  public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment) {
 
@@ -1146,13 +1156,12 @@ public class UiV2Configure {
     
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     
-    ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
     configurationContainer.setConfigFileName(configFileName);
 
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
     
-    boolean result = DbConfigEngine.configurationFileAddEditHelper2(configFileString, propertyNameString, 
+    boolean result = DbConfigEngine.configurationFileAddEditHelper2(configFileName, configFileString, configFileMetadata, propertyNameString, 
         expressionLanguageString, valueString, userSelectedPassword, message, added, error, 
         fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true);
     

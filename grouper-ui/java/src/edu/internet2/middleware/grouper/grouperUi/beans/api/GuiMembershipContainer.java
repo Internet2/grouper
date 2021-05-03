@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Membership;
@@ -71,8 +72,8 @@ public class GuiMembershipContainer {
   }
   
   /**
-   * start label string yyyy/mm/dd
-   * @return the start label string yyyy/mm/dd
+   * start label string, format based on ui property uiV2.group.Membership.dateFormat
+   * @return the formatted start date
    */
   public String getImmediateMembershipStartDateLabel() {
         
@@ -80,16 +81,17 @@ public class GuiMembershipContainer {
         this.membershipContainer.getImmediateMembership().getEnabledTime() == null) {
       return null;
     }
-    
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    
+
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd HH:mm:ss");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getEnabledTime());
     
   }
 
   /**
-   * end label string yyyy/mm/dd
-   * @return the end label string yyyy/mm/dd
+   * end label string, format based on ui property uiV2.group.Membership.dateFormat
+   * @return the formatted end date
    */
   public String getImmediateMembershipEndDateLabel() {
     
@@ -97,9 +99,10 @@ public class GuiMembershipContainer {
         this.membershipContainer.getImmediateMembership().getDisabledTime() == null) {
       return null;
     }
-    
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    
+
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd HH:mm:ss");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getDisabledTime());
     
   }

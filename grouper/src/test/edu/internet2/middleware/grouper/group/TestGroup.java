@@ -35,9 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -76,8 +73,8 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -97,10 +94,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
-import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -108,6 +102,8 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Group}.
@@ -122,11 +118,259 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroup("testNoLocking"));
+    TestRunner.run(new TestGroup("testDefaultInvalidChars"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
-    TestRunner.run(TestGroup.class);
+    //TestRunner.run(TestGroup.class);
   }
 
+  public void testDefaultInvalidChars() {
+    new StemSave().assignName("test").save();
+    
+    // ######################
+    
+    try {
+      new GroupSave().assignName("test:group.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:group{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:group.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:Group:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new GroupSave().assignName("test:groG12_-upé").save();
+
+    // ######################### STEMS
+
+    try {
+      new StemSave().assignName("test:stem.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:stem{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:Stem.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("test:Stem:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:steG12_-upé").save();
+
+    // ######################### ATTRIBUTE DEFS
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef.").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef{").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef.").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:attributeDef:").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    AttributeDef attributeDef = new AttributeDefSave().assignName("test:attributeDefG12_-upé").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+
+    // ########################## ATTRIBUTE DEF NAMES
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef{").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef.").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDef:").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+    
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefG12_-upé").save();
+
+  }
+  
+  public void testNoSameCaseByDefault() {
+    new StemSave().assignName("test").save();
+    
+    try {
+      new StemSave().assignName("test").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new StemSave().assignName("Test").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:test2").save();
+
+    try {
+      new StemSave().assignName("test:Test2").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new StemSave().assignName("test:test3").save();
+
+    try {
+      new StemSave().assignStemNameToEdit("test:test3").assignName("test:Test2").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    // ######################
+    new GroupSave().assignName("test:group").save();
+    
+    try {
+      new GroupSave().assignName("test:group").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new GroupSave().assignName("test:Group").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new GroupSave().assignName("test:group2").save();
+
+    try {
+      new GroupSave().assignGroupNameToEdit("test:group2").assignName("test:Group").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    // ######################
+    AttributeDef attributeDef = new AttributeDefSave().assignName("test:attributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    
+    try {
+      new AttributeDefSave().assignName("test:attributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefSave().assignName("test:AttributeDef").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new AttributeDefSave().assignName("test:attributeDef2").assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    
+    try {
+      new AttributeDefSave().assignAttributeDefNameToEdit("test:attributeDef2").assignName("test:AttributeDef").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    // ######################
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName").save();
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName").assignSaveMode(SaveMode.INSERT).save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    try {
+      new AttributeDefNameSave(attributeDef).assignName("test:AttributeDefName").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+    new AttributeDefNameSave(attributeDef).assignName("test:attributeDefName2").save();
+    
+    try {
+      new AttributeDefNameSave(attributeDef).assignAttributeDefNameNameToEdit("test:attributeDefName2").assignName("test:AttributeDefName").save();
+      fail("fail");
+    } catch (Exception e) {
+      // good
+    }
+
+  }
+  
   /**
    * 
    */
@@ -674,6 +918,19 @@ public class TestGroup extends GrouperTest {
     
     assertEquals(group.getUuid(), group2.getUuid());
     assertEquals("someNewStem:someGroup2", group2.getName());
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupSaveRunAsRoot() {
+    
+    Group group = new GroupSave()
+        .assignRunAsRoot(true)
+        .assignCreateParentStemsIfNotExist(true).assignName("testStem:testGroupRunAsRoot").save();
+    
+    assertTrue(group != null);
     
   }
   

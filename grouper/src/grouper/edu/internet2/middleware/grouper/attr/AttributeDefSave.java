@@ -44,7 +44,29 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * Use this class to insert or update an attribute definition
+ * <p>Use this class to insert or update an attribute definition</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession)
+    .assignName("top:b").assignDescription("whatever").assignValueType(AttributeDefValueType.string).assignMultiValued(true);
+ * AttributeDef attributeDef = attributeDefSave.save();
+ * System.out.println(attributeDefSave.getSaveResultType()); // INSERT, NO_CHANGE, or UPDATE
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to update only one attribute
+ * <blockquote>
+ * <pre>
+ * new AttributeDefSave(grouperSession)
+ *      .assignName("top:b").assignMultiValued(true).assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
  */
 public class AttributeDefSave {
   
@@ -68,6 +90,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave(GrouperSession theGrouperSession) {
     this.grouperSession = theGrouperSession;
+  }
+  
+  /**
+   * create a new attribute def save
+   * @param theGrouperSession
+   */
+  public AttributeDefSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
   }
   
   /** grouper session is required */
@@ -101,7 +131,7 @@ public class AttributeDefSave {
   
   /** name to change to */
   private String name;
-
+  
   /**
    * name
    * @param name1
@@ -114,6 +144,8 @@ public class AttributeDefSave {
   
   /** description */
   private String description;
+
+  private boolean descriptionAssigned;
   
   /**
    * assign description
@@ -122,6 +154,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignDescription(String theDescription) {
     this.description = theDescription;
+    this.descriptionAssigned = true;
     return this;
   }
 
@@ -157,6 +190,8 @@ public class AttributeDefSave {
   /** if can assign to attribute def */
   private boolean assignToAttributeDef;
 
+  private boolean assignToAttributeDefAssigned;
+
   /**
    * if assign
    * @param theBoolean
@@ -164,11 +199,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToAttributeDef(boolean theBoolean) {
     this.assignToAttributeDef = theBoolean;
+    assignToAttributeDefAssigned = true;
     return this;
   }
   
   /** if can assign to assignment of attribute def */
   private boolean assignToAttributeDefAssn;
+
+  private boolean assignToAttributeDefAssnAssigned;
 
   /**
    * if assign
@@ -177,11 +215,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToAttributeDefAssn(boolean theBoolean) {
     this.assignToAttributeDefAssn = theBoolean;
+    this.assignToAttributeDefAssnAssigned = true;
     return this;
   }
 
   /** if can assign to effective membership */
   private boolean assignToEffMembership;
+
+  private boolean assignToEffMembershipAssigned;
 
   /**
    * if assign
@@ -190,11 +231,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToEffMembership(boolean theBoolean) {
     this.assignToEffMembership = theBoolean;
+    this.assignToEffMembershipAssigned = true;
     return this;
   }
 
   /** if can assign to assignment of effective membership */
   private boolean assignToEffMembershipAssn;
+
+  private boolean assignToEffMembershipAssnAssigned;
 
   /**
    * if assign
@@ -203,11 +247,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToEffMembershipAssn(boolean theBoolean) {
     this.assignToEffMembershipAssn = theBoolean;
+    this.assignToEffMembershipAssnAssigned = true;
     return this;
   }
 
   /** if can assign to group/role */
   private boolean assignToGroup;
+
+  private boolean assignToGroupAssigned;
 
   /**
    * if assign
@@ -216,11 +263,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToGroup(boolean theBoolean) {
     this.assignToGroup = theBoolean;
+    this.assignToGroupAssigned = true;
     return this;
   }
 
   /** if can assign to assignment of group/role */
   private boolean assignToGroupAssn;
+
+  private boolean assignToGroupAssnAssigned;
 
   /**
    * if assign
@@ -229,11 +279,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToGroupAssn(boolean theBoolean) {
     this.assignToGroupAssn = theBoolean;
+    this.assignToGroupAssnAssigned = true;
     return this;
   }
 
   /** if can assign to immediate membership */
   private boolean assignToImmMembership;
+
+  private boolean assignToImmMembershipAssigned;
 
   /**
    * if assign
@@ -242,11 +295,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToImmMembership(boolean theBoolean) {
     this.assignToImmMembership = theBoolean;
+    this.assignToImmMembershipAssigned = true;
     return this;
   }
 
   /** if can assign to assignment of immediate membership */
   private boolean assignToImmMembershipAssn;
+
+  private boolean assignToImmMembershipAssnAssigned;
 
   /**
    * if assign
@@ -255,11 +311,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToImmMembershipAssn(boolean theBoolean) {
     this.assignToImmMembershipAssn = theBoolean;
+    this.assignToImmMembershipAssnAssigned = true;
     return this;
   }
 
   /** if can assign to member */
   private boolean assignToMember;
+
+  private boolean assignToMemberAssigned;
 
   /**
    * if assign
@@ -268,11 +327,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToMember(boolean theBoolean) {
     this.assignToMember = theBoolean;
+    this.assignToMemberAssigned = true;
     return this;
   }
 
   /** if can assign to assignment of member */
   private boolean assignToMemberAssn;
+
+  private boolean assignToMemberAssnAssigned;
 
   /**
    * if assign
@@ -281,11 +343,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToMemberAssn(boolean theBoolean) {
     this.assignToMemberAssn = theBoolean;
+    this.assignToMemberAssnAssigned = true;
     return this;
   }
 
   /** if can assign to stem */
   private boolean assignToStem;
+
+  private boolean assignToStemAssigned;
 
   /**
    * if assign
@@ -294,11 +359,14 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToStem(boolean theBoolean) {
     this.assignToStem = theBoolean;
+    this.assignToStemAssigned = true;
     return this;
   }
 
   /** if can assign to assignment of stem */
   private boolean assignToStemAssn;
+
+  private boolean assignToStemAssnAssigned;
 
   /**
    * if assign
@@ -307,6 +375,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignToStemAssn(boolean theBoolean) {
     this.assignToStemAssn = theBoolean;
+    this.assignToStemAssnAssigned = true;
     return this;
   }
 
@@ -315,6 +384,8 @@ public class AttributeDefSave {
    */
   private boolean attributeDefPublic = false;
 
+  private boolean attributeDefPublicAssigned;
+
   /**
    * if assign
    * @param theBoolean
@@ -322,6 +393,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignAttributeDefPublic(boolean theBoolean) {
     this.attributeDefPublic = theBoolean;
+    this.attributeDefPublicAssigned = true;
     return this;
   }
 
@@ -345,6 +417,8 @@ public class AttributeDefSave {
    */
   private boolean multiAssignable;
 
+  private boolean multiAssignableAssigned;
+
   /**
    * if assign
    * @param theBoolean
@@ -352,6 +426,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignMultiAssignable(boolean theBoolean) {
     this.multiAssignable = theBoolean;
+    this.multiAssignableAssigned = true;
     return this;
   }
 
@@ -360,6 +435,8 @@ public class AttributeDefSave {
    */
   private boolean multiValued;
 
+  private boolean multiValuedAssigned;
+
   /**
    * if assign
    * @param theBoolean
@@ -367,6 +444,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignMultiValued(boolean theBoolean) {
     this.multiValued = theBoolean;
+    this.multiValuedAssigned = true;
     return this;
   }
 
@@ -374,6 +452,8 @@ public class AttributeDefSave {
    * type of the value,  int, double, string, marker
    */
   private AttributeDefValueType valueType = AttributeDefValueType.marker;
+
+  private boolean valueTypeAssigned;
 
   /**
    * if the priv admin should be different from the defaults
@@ -416,12 +496,27 @@ public class AttributeDefSave {
   private Boolean privAllView;
   
   /**
+   * replace all existing settings. defaults to true.
+   */
+  private boolean replaceAllSettings = true;
+  
+  /**
+   * replace all existing settings. defaults to true.
+   * @return this for chaining
+   */
+  public AttributeDefSave assignReplaceAllSettings(boolean theReplaceAllSettings) {
+    this.replaceAllSettings = theReplaceAllSettings;
+    return this;
+  }
+  
+  /**
    * if assign
    * @param theBoolean
    * @return this for chaining
    */
   public AttributeDefSave assignValueType(AttributeDefValueType attributeDefValueType) {
     this.valueType = attributeDefValueType;
+    this.valueTypeAssigned = true;
     return this;
   }
 
@@ -455,11 +550,6 @@ public class AttributeDefSave {
   public AttributeDef save() 
         throws StemNotFoundException, InsufficientPrivilegeException, StemAddException {
     
-    //help with incomplete entries
-    if (StringUtils.isBlank(this.name)) {
-      this.name = this.attributeDefNameToEdit;
-    }
-    
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.attributeDefNameToEdit) && !StringUtils.isBlank(this.id)) {
       AttributeDef attributeDef = AttributeDefFinder.findById(this.id, false, new QueryOptions().secondLevelCache(false));
@@ -468,10 +558,15 @@ public class AttributeDefSave {
       }
     }
     
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.attributeDefNameToEdit;
+    }
     
     if (StringUtils.isBlank(this.attributeDefNameToEdit)) {
       this.attributeDefNameToEdit = this.name;
     }
+    
     
     //validate
     //get the attribute def name
@@ -562,11 +657,21 @@ public class AttributeDefSave {
                 boolean needsSave = false;
                 //if inserting
                 if (!isUpdate) {
+                  
+                  if (!replaceAllSettings) {
+                    throw new RuntimeException("cannot insert attribute def with replaceAllSettings being false");
+                  }
+                  
                   saveResultType = SaveResultType.INSERT;
                   AttributeDefType theAttributeDefType = GrouperUtil.defaultIfNull(AttributeDefSave.this.attributeDefType, AttributeDefType.attr);
                   theAttributeDef = parentStem.internal_addChildAttributeDef(AttributeDefSave.this.grouperSession, 
                       extensionNew, AttributeDefSave.this.id, theAttributeDefType, AttributeDefSave.this.description);
                 } else {
+                  
+                  if (AttributeDefSave.this.attributeDefType != null && AttributeDefSave.this.attributeDefType != theAttributeDef.getAttributeDefType()) {
+                    throw new RuntimeException("attributeDefType cannot be updated.");
+                  }
+                  
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theAttributeDef.getExtension(), extensionNew)) {
                       
@@ -608,124 +713,192 @@ public class AttributeDefSave {
                 //null throws exception? hmmm.  remove attribute if blank
                 if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theAttributeDef.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(AttributeDefSave.this.description)))) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || descriptionAssigned) { 
+                    
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setDescription(AttributeDefSave.this.description);
                   }
-                  theAttributeDef.setDescription(AttributeDefSave.this.description);
+                 
                 }
-
+                
+                
                 if (AttributeDefSave.this.assignToAttributeDef != theAttributeDef.isAssignToAttributeDef()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToAttributeDefAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToAttributeDef(AttributeDefSave.this.assignToAttributeDef);
                   }
-                  theAttributeDef.setAssignToAttributeDef(AttributeDefSave.this.assignToAttributeDef);
+                  
                 }
                 if (AttributeDefSave.this.assignToAttributeDefAssn != theAttributeDef.isAssignToAttributeDefAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToAttributeDefAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToAttributeDefAssn(AttributeDefSave.this.assignToAttributeDefAssn);
                   }
-                  theAttributeDef.setAssignToAttributeDefAssn(AttributeDefSave.this.assignToAttributeDefAssn);
+                  
                 }
                 if (AttributeDefSave.this.assignToEffMembership != theAttributeDef.isAssignToEffMembership()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  if (replaceAllSettings || assignToEffMembershipAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToEffMembership(AttributeDefSave.this.assignToEffMembership);
                   }
-                  theAttributeDef.setAssignToEffMembership(AttributeDefSave.this.assignToEffMembership);
                 }
                 if (AttributeDefSave.this.assignToEffMembershipAssn != theAttributeDef.isAssignToEffMembershipAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToEffMembershipAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToEffMembershipAssn(AttributeDefSave.this.assignToEffMembershipAssn);
                   }
-                  theAttributeDef.setAssignToEffMembershipAssn(AttributeDefSave.this.assignToEffMembershipAssn);
+                  
                 }
                 if (AttributeDefSave.this.assignToGroup != theAttributeDef.isAssignToGroup()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToGroupAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToGroup(AttributeDefSave.this.assignToGroup);
                   }
-                  theAttributeDef.setAssignToGroup(AttributeDefSave.this.assignToGroup);
+                  
                 }
                 if (AttributeDefSave.this.assignToGroupAssn != theAttributeDef.isAssignToGroupAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToGroupAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToGroupAssn(AttributeDefSave.this.assignToGroupAssn);
                   }
-                  theAttributeDef.setAssignToGroupAssn(AttributeDefSave.this.assignToGroupAssn);
+                  
                 }
                 if (AttributeDefSave.this.assignToImmMembership != theAttributeDef.isAssignToImmMembership()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToImmMembershipAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToImmMembership(AttributeDefSave.this.assignToImmMembership);
                   }
-                  theAttributeDef.setAssignToImmMembership(AttributeDefSave.this.assignToImmMembership);
+                  
                 }
                 if (AttributeDefSave.this.assignToImmMembershipAssn != theAttributeDef.isAssignToImmMembershipAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToImmMembershipAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToImmMembershipAssn(AttributeDefSave.this.assignToImmMembershipAssn);
                   }
-                  theAttributeDef.setAssignToImmMembershipAssn(AttributeDefSave.this.assignToImmMembershipAssn);
+                  
                 }
                 if (AttributeDefSave.this.assignToMember != theAttributeDef.isAssignToMember()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToMemberAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToMember(AttributeDefSave.this.assignToMember);
                   }
-                  theAttributeDef.setAssignToMember(AttributeDefSave.this.assignToMember);
+                  
                 }
                 if (AttributeDefSave.this.assignToMemberAssn != theAttributeDef.isAssignToMemberAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToMemberAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToMemberAssn(AttributeDefSave.this.assignToMemberAssn);
                   }
-                  theAttributeDef.setAssignToMemberAssn(AttributeDefSave.this.assignToMemberAssn);
+                  
                 }
                 if (AttributeDefSave.this.assignToStem != theAttributeDef.isAssignToStem()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToStemAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToStem(AttributeDefSave.this.assignToStem);
                   }
-                  theAttributeDef.setAssignToStem(AttributeDefSave.this.assignToStem);
+                  
                 }
                 if (AttributeDefSave.this.assignToStemAssn != theAttributeDef.isAssignToStemAssn()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || assignToStemAssnAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAssignToStemAssn(AttributeDefSave.this.assignToStemAssn);
                   }
-                  theAttributeDef.setAssignToStemAssn(AttributeDefSave.this.assignToStemAssn);
+                  
                 }
                 if (AttributeDefSave.this.attributeDefPublic != theAttributeDef.isAttributeDefPublic()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || attributeDefPublicAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setAttributeDefPublic(AttributeDefSave.this.attributeDefPublic);
                   }
-                  theAttributeDef.setAttributeDefPublic(AttributeDefSave.this.attributeDefPublic);
+                  
                 }
                 if (AttributeDefSave.this.multiAssignable != theAttributeDef.isMultiAssignable()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || multiAssignableAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setMultiAssignable(AttributeDefSave.this.multiAssignable);
                   }
-                  theAttributeDef.setMultiAssignable(AttributeDefSave.this.multiAssignable);
+                  
                 }
                 if (AttributeDefSave.this.multiValued != theAttributeDef.isMultiValued()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || multiValuedAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setMultiValued(AttributeDefSave.this.multiValued);
                   }
-                  theAttributeDef.setMultiValued(AttributeDefSave.this.multiValued);
+                  
                 }
                 if (AttributeDefSave.this.valueType != theAttributeDef.getValueType()) {
-                  needsSave = true;
-                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  
+                  if (replaceAllSettings || valueTypeAssigned) {
+                    needsSave = true;
+                    if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
+                    theAttributeDef.setValueType(AttributeDefSave.this.valueType);
                   }
-                  theAttributeDef.setValueType(AttributeDefSave.this.valueType);
+                  
                 }
                 
                 //only store once
@@ -752,62 +925,94 @@ public class AttributeDefSave {
                 boolean attrUpdateDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectFinder.findAllSubject());
       
                 if (AttributeDefSave.this.privAllAdmin != null && AttributeDefSave.this.privAllAdmin != adminDefaultChecked) {
-                  if (AttributeDefSave.this.privAllAdmin) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+                  
+                  if (replaceAllSettings || privAllAdminAssigned) {
+                    if (AttributeDefSave.this.privAllAdmin) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+                    }
                   }
+                  
                 }
 
                 if (AttributeDefSave.this.privAllView != null && AttributeDefSave.this.privAllView != viewDefaultChecked) {
-                  if (AttributeDefSave.this.privAllView) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+                  
+                  if (replaceAllSettings || privAllViewAssigned) {
+                    if (AttributeDefSave.this.privAllView) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+                    }
                   }
+                  
                 }
       
                 if (AttributeDefSave.this.privAllRead != null && AttributeDefSave.this.privAllRead != readDefaultChecked) {
-                  if (AttributeDefSave.this.privAllRead) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                  
+                  if (replaceAllSettings || privAllReadAssigned) {
+                    if (AttributeDefSave.this.privAllRead) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                    }
                   }
+                  
                 }
                 if (AttributeDefSave.this.privAllUpdate != null && AttributeDefSave.this.privAllUpdate != updateDefaultChecked) {
-                  if (AttributeDefSave.this.privAllUpdate) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+                  
+                  if (replaceAllSettings || privAllUpdateAssigned) {
+                    if (AttributeDefSave.this.privAllUpdate) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+                    }
                   }
+                  
                 }
                 if (AttributeDefSave.this.privAllOptin != null && AttributeDefSave.this.privAllOptin != optinDefaultChecked) {
-                  if (AttributeDefSave.this.privAllOptin) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+                  
+                  if (replaceAllSettings || privAllOptinAssigned) {
+                    if (AttributeDefSave.this.privAllOptin) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+                    }
                   }
+                  
                 }
                 if (AttributeDefSave.this.privAllOptout != null && AttributeDefSave.this.privAllOptout != optoutDefaultChecked) {
-                  if (AttributeDefSave.this.privAllOptout) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+                  
+                  if (replaceAllSettings || privAllOptoutAssigned) {
+                    if (AttributeDefSave.this.privAllOptout) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+                    }
                   }
+                  
                 }
                 if (AttributeDefSave.this.privAllAttrRead != null && AttributeDefSave.this.privAllAttrRead != attrReadDefaultChecked) {
-                  if (AttributeDefSave.this.privAllAttrRead) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+                  
+                  if (replaceAllSettings || privAllAttrReadAssigned) {
+                    if (AttributeDefSave.this.privAllAttrRead) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+                    }
                   }
+                  
                 }
                 if (AttributeDefSave.this.privAllAttrUpdate != null && AttributeDefSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
-                  if (AttributeDefSave.this.privAllAttrUpdate) {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
-                  } else {
-                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+                  
+                  if (replaceAllSettings || privAllAttrUpdateAssigned) {
+                    if (AttributeDefSave.this.privAllAttrUpdate) {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+                    } else {
+                      changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+                    }
                   }
+                  
                 }
                 
                 if (changedPrivs) {
@@ -843,7 +1048,22 @@ public class AttributeDefSave {
 
   }
 
+  private boolean privAllAdminAssigned;
 
+  private boolean privAllAttrReadAssigned;
+
+  private boolean privAllAttrUpdateAssigned;
+
+  private boolean privAllOptinAssigned;
+
+  private boolean privAllOptoutAssigned;
+
+  private boolean privAllReadAssigned;
+
+  private boolean privAllUpdateAssigned;
+
+  private boolean privAllViewAssigned;
+  
   /**
    * assign priv admin to be different than the defaults for grouperAll
    * @param thePrivAllAdmin
@@ -851,6 +1071,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllAdmin(boolean thePrivAllAdmin) {
     this.privAllAdmin = thePrivAllAdmin;
+    this.privAllAdminAssigned = true;
     return this;
   }
 
@@ -862,6 +1083,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllAttrRead(boolean thePrivAllAttrRead) {
     this.privAllAttrRead = thePrivAllAttrRead;
+    this.privAllAttrReadAssigned = true;
     return this;
   }
 
@@ -873,6 +1095,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllAttrUpdate(boolean thePrivAllAttrUpdate) {
     this.privAllAttrUpdate = thePrivAllAttrUpdate;
+    this.privAllAttrUpdateAssigned = true;
     return this;
   }
 
@@ -884,6 +1107,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllOptin(boolean thePrivAllOptin) {
     this.privAllOptin = thePrivAllOptin;
+    this.privAllOptinAssigned = true;
     return this;
   }
 
@@ -895,6 +1119,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllOptout(boolean thePrivAllOptout) {
     this.privAllOptout = thePrivAllOptout;
+    this.privAllOptoutAssigned = true;
     return this;
   }
 
@@ -906,6 +1131,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllRead(boolean thePrivAllRead) {
     this.privAllRead = thePrivAllRead;
+    this.privAllReadAssigned = true;
     return this;
   }
 
@@ -917,6 +1143,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllUpdate(boolean thePrivAllUpdate) {
     this.privAllUpdate = thePrivAllUpdate;
+    this.privAllUpdateAssigned = true;
     return this;
   }
 
@@ -928,6 +1155,7 @@ public class AttributeDefSave {
    */
   public AttributeDefSave assignPrivAllView(boolean thePrivAllView) {
     this.privAllView = thePrivAllView;
+    this.privAllViewAssigned = true;
     return this;
   }
 }

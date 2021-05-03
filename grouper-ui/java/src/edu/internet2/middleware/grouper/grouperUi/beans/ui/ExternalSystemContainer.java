@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
@@ -80,6 +81,18 @@ public class ExternalSystemContainer {
 
   public List<GrouperExternalSystem> getAllExternalSystemTypes() {
     return GrouperExternalSystem.retrieveAllModuleConfigurationTypes();
+  }
+
+  public List<GrouperExternalSystem> getAllExternalSystemTypesAdd() {
+    List<GrouperExternalSystem> retrieveAllModuleConfigurationTypes = new ArrayList<GrouperExternalSystem>(GrouperExternalSystem.retrieveAllModuleConfigurationTypes());
+    Iterator<GrouperExternalSystem> iterator = retrieveAllModuleConfigurationTypes.iterator();
+    while (iterator.hasNext()) {
+      GrouperExternalSystem grouperExternalSystem = iterator.next();
+      if (!grouperExternalSystem.isCanAdd()) {
+        iterator.remove();
+      }
+    }
+    return retrieveAllModuleConfigurationTypes;
   }
 
 }

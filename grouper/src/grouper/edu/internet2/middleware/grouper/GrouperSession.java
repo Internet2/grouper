@@ -999,7 +999,7 @@ public class GrouperSession implements Serializable {
    * call this to send a callback for the root grouper session object. 
    * Any method in the inverse of
    * control can access the grouper session in a threadlocal
-   * 
+   * @param runAsRoot true to run as root, false to not run as root
    * @param grouperSessionHandler
    *          will get the callback
    * @return the object returned from the callback
@@ -1009,7 +1009,28 @@ public class GrouperSession implements Serializable {
    */
   public static Object internal_callbackRootGrouperSession(GrouperSessionHandler grouperSessionHandler)
       throws GrouperSessionException {
+    return internal_callbackRootGrouperSession(true, grouperSessionHandler);
+  }
+  /**
+   * call this to send a callback for the root grouper session object. 
+   * Any method in the inverse of
+   * control can access the grouper session in a threadlocal
+   * 
+   * @param grouperSessionHandler
+   *          will get the callback
+   * @return the object returned from the callback
+   * @throws GrouperSessionException
+   *           if there is a problem, will preserve runtime exceptions so they are
+   *           thrown to the caller.  The GrouperSessionException wraps the underlying exception
+   */
+  public static Object internal_callbackRootGrouperSession(boolean runAsRoot, GrouperSessionHandler grouperSessionHandler)
+      throws GrouperSessionException {
 
+    // nevermind, dont run as root
+    if (!runAsRoot) {
+      return callbackGrouperSession(GrouperSession.staticGrouperSession(), grouperSessionHandler);
+    }
+    
     //this needs to run as root
     boolean startedGrouperSession = false;
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);

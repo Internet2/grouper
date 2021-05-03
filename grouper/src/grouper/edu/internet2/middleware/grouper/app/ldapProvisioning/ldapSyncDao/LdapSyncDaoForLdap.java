@@ -5,13 +5,23 @@ import java.util.List;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
+import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 
 public class LdapSyncDaoForLdap extends LdapSyncDao {
 
   @Override
   public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames) {
-    return LdapSessionUtils.ldapSession().list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), null);    
+    LdapSession ldapSession = LdapSessionUtils.ldapSession();
+    List<LdapEntry> result = ldapSession.list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), null);
+    return result;    
+  }
+  
+  @Override
+  public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit) {
+    LdapSession ldapSession = LdapSessionUtils.ldapSession();
+    List<LdapEntry> result = ldapSession.list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), sizeLimit);
+    return result;    
   }
 
   @Override
@@ -38,4 +48,5 @@ public class LdapSyncDaoForLdap extends LdapSyncDao {
   public void internal_modifyHelper(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems) {
     LdapSessionUtils.ldapSession().internal_modifyHelper(ldapPoolName, dn, ldapModificationItems);
   }
+
 }

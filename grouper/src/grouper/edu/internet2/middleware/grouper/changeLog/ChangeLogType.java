@@ -844,9 +844,10 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
    * @return true if matches
    */
   public boolean equalsCategoryAndAction(ChangeLogTypeIdentifier changeLogTypeIdentifier) {
-    return this.getChangeLogCategory().equals(
+    return changeLogTypeIdentifier != null 
+      && StringUtils.equals(this.getChangeLogCategory(), 
         changeLogTypeIdentifier.getChangeLogCategory() )
-      && this.getActionName().equals(
+      && StringUtils.equals(this.getActionName(), 
           changeLogTypeIdentifier.getActionName() );
   }
 

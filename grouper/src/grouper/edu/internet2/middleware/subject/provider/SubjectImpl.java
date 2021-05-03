@@ -38,6 +38,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2_5;
+import edu.internet2.middleware.grouper.subj.GrouperLdapSourceAdapter2_5;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -47,6 +50,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveSet;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 
 /**
  * Base Subject implementation.  Subclass this to change behavior
@@ -259,7 +263,7 @@ public class SubjectImpl implements Subject {
       return null;
     }
     
-    if (attributes != null && attributes.containsKey(descriptionAttribute) && attributes.get(descriptionAttribute).size() > 0) {
+    if (attributes != null && attributes.containsKey(descriptionAttribute) && GrouperUtil.length(attributes.get(descriptionAttribute)) > 0) {
       return attributes.get(descriptionAttribute).iterator().next();
     }
     
@@ -320,6 +324,21 @@ public class SubjectImpl implements Subject {
 
   /** if we have initted the attributes */
   private boolean attributesInitted = false;
+  
+  /**
+   * 
+   */
+  private Map<String, Object> translationMap;
+  
+  
+  public Map<String, Object> getTranslationMap() {
+    return translationMap;
+  }
+
+  
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    this.translationMap = translationMap;
+  }
 
   /**
    * 
@@ -364,6 +383,10 @@ public class SubjectImpl implements Subject {
         Object instance = SubjectUtils.newInstance(theClass);
         variableMap.put(name, instance);
       }
+    }
+    
+    if (subject.getTranslationMap() != null ) {
+      variableMap.putAll(subject.getTranslationMap());
     }
     
     //take each attribute and init it
@@ -446,57 +469,85 @@ public class SubjectImpl implements Subject {
     }
     
     virtualAttributes = new LinkedHashMap<String, String>();
-    Properties properties = source.initParams();
     
-    //no virtuals
-    if (properties != null && properties.size() > 0) {
+    if (source instanceof GrouperLdapSourceAdapter2_5 || source instanceof GrouperJdbcSourceAdapter2_5) {
       
-      //these are the virtual names:
-      Set<String> virtualKeys = new HashSet<String>((Set<String>)(Object)properties.keySet());
+      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".numberOfAttributes");
       
-
-      Iterator<String> iterator = virtualKeys.iterator();
-      
-      while (iterator.hasNext()) {
-        String virtualKey = iterator.next();
-        if (!virtualKey.startsWith("subjectVirtualAttribute_")) {
-          iterator.remove();
-        }
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
+          
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translationType");
+          
+          boolean isTranslation = StringUtils.equals(translationType, "translation");
+          
+          if (isTranslation) {
+            String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translation");
+            virtualAttributes.put(subjectAttributeName, translation);
+          }
+            
+       }
+          
       }
       
-      //look for virtuals, we need these in order since they might depend on each other
-      for (int i=0;i<100;i++) {
+    } else {
+      Properties properties = source.initParams();
+      
+      //no virtuals
+      if (properties != null && properties.size() > 0) {
+        
+        //these are the virtual names:
+        Set<String> virtualKeys = new HashSet<String>((Set<String>)(Object)properties.keySet());
+        
 
-        //maybe we are done
-        if (virtualKeys.size() == 0) {
-          break;
-        }
+        Iterator<String> iterator = virtualKeys.iterator();
         
-        iterator = virtualKeys.iterator();
-        
-        Pattern pattern = Pattern.compile("^subjectVirtualAttribute_" + i + "_(.*)$");
-        
-        //subjectVirtualAttribute_0_someName (name alphanumeric underscore) JEXL expression
         while (iterator.hasNext()) {
-          String key = iterator.next();
-          Matcher matcher = pattern.matcher(key);
-          if (matcher.matches()) {
-            String name = matcher.group(1);
-            if (!name.matches("[a-zA-Z0-9_]+")) {
-              String message = "Virtual attribute name (from subject.properties?) must be alphanumeric, or underscore: '" 
-                + name + "' for source: " + source.getId();
-              log.error(message);
-              throw new RuntimeException(message);
-            }
-            virtualAttributes.put(name, properties.getProperty(key));
+          String virtualKey = iterator.next();
+          if (!virtualKey.startsWith("subjectVirtualAttribute_")) {
             iterator.remove();
           }
         }
-      }
-      if (virtualKeys.size() > 0) {
-        log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
+        
+        //look for virtuals, we need these in order since they might depend on each other
+        for (int i=0;i<100;i++) {
+
+          //maybe we are done
+          if (virtualKeys.size() == 0) {
+            break;
+          }
+          
+          iterator = virtualKeys.iterator();
+          
+          Pattern pattern = Pattern.compile("^subjectVirtualAttribute_" + i + "_(.*)$");
+          
+          //subjectVirtualAttribute_0_someName (name alphanumeric underscore) JEXL expression
+          while (iterator.hasNext()) {
+            String key = iterator.next();
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              String name = matcher.group(1);
+              if (!name.matches("[a-zA-Z0-9_]+")) {
+                String message = "Virtual attribute name (from subject.properties?) must be alphanumeric, or underscore: '" 
+                  + name + "' for source: " + source.getId();
+                log.error(message);
+                throw new RuntimeException(message);
+              }
+              virtualAttributes.put(name, properties.getProperty(key));
+              iterator.remove();
+            }
+          }
+        }
+        if (virtualKeys.size() > 0) {
+          log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
+        }
       }
     }
+    
     
     virtualAttributeForSource.put(source.getId(), virtualAttributes);
     return virtualAttributes;

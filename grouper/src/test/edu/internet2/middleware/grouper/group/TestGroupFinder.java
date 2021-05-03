@@ -792,6 +792,10 @@ public class TestGroupFinder extends GrouperTest {
   protected void setupConfigs() {
     super.setupConfigs();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
 
   }
 

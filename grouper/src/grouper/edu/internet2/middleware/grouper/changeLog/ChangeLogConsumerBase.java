@@ -29,6 +29,27 @@ import java.util.List;
 public abstract class ChangeLogConsumerBase {
 
   /**
+   * consumer name in config file
+   */
+  private String consumerName;
+  
+  /**
+   * consumer name in config file
+   * @return
+   */
+  public String getConsumerName() {
+    return consumerName;
+  }
+
+  /**
+   * consumer name in config file
+   * @param consumerName
+   */
+  public void setConsumerName(String consumerName) {
+    this.consumerName = consumerName;
+  }
+
+  /**
    * process the change logs
    * @param changeLogEntryList  NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!
    * @param changeLogProcessorMetadata
@@ -36,5 +57,22 @@ public abstract class ChangeLogConsumerBase {
    */
   public abstract long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList, 
       ChangeLogProcessorMetadata changeLogProcessorMetadata);
+
+  /**
+   * override the batch size configured in config file
+   * @return
+   */
+  public Integer getBatchSize() {
+    return null;
+  }
+
+  /**
+   * some change log consumers might want to be called even if nothing happened in change log
+   * e.g. check messages in provisioners
+   * @return
+   */
+  public boolean callAtLeastOnce() {
+    return false;
+  }
   
 }

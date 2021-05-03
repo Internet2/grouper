@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5_33To2_5_34ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5_38To2_5_40ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -322,6 +322,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
     GrouperDdlUtils.autoDdl2_5orAbove = null;
+    
+    // drop everything
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+  
+    
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
   }
 
   /**
@@ -1203,5 +1214,113 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     scriptToGetTo2_5_30.delete();
     
+  }
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_5_34To2_5_35ddlUtils() {
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_30_hsql.sql
+    // get to 2.5
+    File scriptToGetTo2_5_30 = retrieveScriptFile("GrouperDdl_2_5_30_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_5_30, true, true);
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_log", "description_clob"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_log", "description_bytes"));
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_log", "description_clob"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_log", "description_bytes"));
+
+    scriptToGetTo2_5_30.delete();
+    
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_5_38To2_5_40ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_group", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_member", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "u_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "g_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "m_error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_group", "grouper_sync_gr_er_idx", "error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_member", "grouper_sync_us_er_idx", "error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_membership", "grouper_sync_mship_er_idx", "error_code"));
+
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+    .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+    .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+    
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_38_hsql.sql
+    // get to 2.5.38
+    File scriptToGetTo2_5_38 = retrieveScriptFile("GrouperDdl_2_5_38_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_5_38, true, true);
+
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_group", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_member", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_membership", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_membership_v", "u_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_membership_v", "g_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_membership_v", "m_error_code"));
+    assertFalse(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_group", "grouper_sync_gr_er_idx", "error_code"));
+    assertFalse(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_member", "grouper_sync_us_er_idx", "error_code"));
+    assertFalse(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_membership", "grouper_sync_mship_er_idx", "error_code"));
+
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+    .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+    .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, " 
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_group", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_member", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership", "error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "u_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "g_error_code"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_membership_v", "m_error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_group", "grouper_sync_gr_er_idx", "error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_member", "grouper_sync_us_er_idx", "error_code"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_sync_membership", "grouper_sync_mship_er_idx", "error_code"));
+  
+    scriptToGetTo2_5_38.delete();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+    .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+    .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
 }

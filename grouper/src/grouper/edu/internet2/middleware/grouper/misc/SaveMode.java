@@ -170,6 +170,48 @@ public enum SaveMode {
       return !StringUtils.isBlank(nameToEdit);
     }
 
+  }, 
+  /** delete, if not exists thats ok */
+  DELETE {
+  
+    /**
+     * if allowed to update
+     * @return true if allowed to update
+     */
+    @Override
+    public boolean allowedToUpdate() {
+      return false;
+    }
+    
+    /**
+     * if allowed to insert
+     * @return true if allowed to insert
+     */
+    @Override
+    public boolean allowedToInsert() {
+      return false;
+    }
+    /**
+     * if there is a uuid, validate it for this
+     * @param nameToEdit
+     */
+    @Override
+    public void validateNameToEdit(String nameToEdit, String name) {
+      GrouperUtil.assertion((StringUtils.equals(nameToEdit, name)) 
+          || StringUtils.isBlank(nameToEdit), "Must not pass in a lookup name for a delete: " + nameToEdit + ", " + name);
+    }
+    
+    /**
+     * if update based on SaveMode
+     * @param nameToEdit 
+     * @return true if this is an update
+     */
+    @Override
+    public boolean isUpdate(String nameToEdit, String name) {
+      this.validateNameToEdit(nameToEdit, name);
+      return false;
+    }
+  
   };
   
   /**

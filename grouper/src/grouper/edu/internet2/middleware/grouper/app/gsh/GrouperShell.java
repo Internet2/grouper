@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.tools.shell.ExitNotification;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.util.Logger;
@@ -45,6 +46,7 @@ import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -106,6 +108,9 @@ public class GrouperShell {
     
     mainLookups.put("-psp",
         "edu.internet2.middleware.psp.PspCLI");
+    
+    mainLookups.put("-pspngattributestoprovisioningattributes",
+        "edu.internet2.middleware.grouper.app.provisioning.PspngToNewProvisioningAttributeConversion");
 
   }
   
@@ -266,6 +271,12 @@ private static boolean handleSpecialCase(String[] args) {
       args = ArrayUtils.remove(args, 0);
     }
     
+    boolean lightweightProfile = false;
+    if (args != null && args.length > 0 && args[0].equalsIgnoreCase("-lightWeightProfile")) {
+      lightweightProfile = true;
+      args = ArrayUtils.remove(args, 0);
+    }
+    
     if (forceLegacyGsh || GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.useLegacy", false)) {
       new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
     } else {
@@ -273,8 +284,16 @@ private static boolean handleSpecialCase(String[] args) {
       TerminalFactory.registerFlavor(TerminalFactory.Flavor.WINDOWS, WindowsTerminal.class);
       
       StringBuilder body = new StringBuilder();
-      body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
       
+      if (lightweightProfile) {
+        if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check") && !args[0].equals("-runarg")) {
+          body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh_lightWeightWithFile.profile").getAbsolutePath() + "'");
+        } else {
+          body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh_lightWeight.profile").getAbsolutePath() + "'");
+        }
+      } else {
+        body.append(":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'");
+      }
       if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
         
         if (args[0].equals("-main")) {
@@ -338,7 +357,11 @@ private static boolean handleSpecialCase(String[] args) {
         }
       });
       
-      int code = shell.run(body.toString());
+      int code = 0;
+      try {        
+        code = shell.run(body.toString());
+      } catch (GshTemplateReturnException e) {
+      }
 
       System.exit(code);
     }
@@ -349,6 +372,9 @@ private static boolean handleSpecialCase(String[] args) {
    * @param t
    */
   public static void handleFileLoadError(String command, Throwable t) {
+    if (t instanceof GshTemplateReturnException) {
+      return;
+    }
     // This gets called when loading a file.
     // Note that this gets invoked (mostly) during a caught exception.  If an exception is thrown here, the gsh error handle (displayError) will end up being called.
     // If we just print the error, then the processing will continue (e.g. next line of gsh file).
@@ -537,6 +563,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.usdu.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.provisioning.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.privs.*;");
@@ -654,6 +681,9 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "args: -h,               Prints this message"                            + GrouperConfig.NL
 	            + "args: <filename>,       Execute commands in specified file"             + GrouperConfig.NL
 	            + "no args:                Enters an interactive shell"                    + GrouperConfig.NL
+	            + "args: -lightWeightProfile"                                              + GrouperConfig.NL
+	            + "       Use alternate init script (classes/groovysh_lightWeight.profile)" + GrouperConfig.NL
+	            + "       which has less imports and may improve startup performance"      + GrouperConfig.NL
 	            + "args: -nocheck,         Skips startup check and enters an "          + GrouperConfig.NL
 	            + "                        interactive shell"                              + GrouperConfig.NL
 	            + "args: -runarg <command> Run command (use \\\\n to separate commands)"   + GrouperConfig.NL
@@ -666,7 +696,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
 	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
 	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry | -usdu |"   + GrouperConfig.NL
-	            + "       -findbadmemberships | -ldappc) "
+	            + "       -findbadmemberships | -ldappc | pspngAttributesToProvisioningAttributes) "
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
 	            
@@ -681,6 +711,7 @@ private static boolean handleSpecialCase(String[] args) {
 	             
 	            + "  -usdu,                Invoke USDU - Unresolvable Subject Deletion "   + GrouperConfig.NL
 	            + "                        Utility"                                        + GrouperConfig.NL
+	            + "  -pspngAttributesToProvisioningAttributes Copies pspng attributes to provisioning"  + GrouperConfig.NL
 	           
 	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL
                 + "  -ldappc,              Run the grouper ldap provisioning connector to send data to ldap    "  + GrouperConfig.NL

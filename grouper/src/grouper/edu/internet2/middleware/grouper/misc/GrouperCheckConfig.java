@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 //import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -127,8 +128,12 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
+import edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
@@ -410,6 +415,20 @@ public class GrouperCheckConfig {
     return disableConfigCheck;
   }
 
+  private static void verifyMailConfigsMigrated() {
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+    String[] oldConfigs = new String[] {"mail.transport.protocol", "mail.use.protocol.in.property.names", "mail.from.address", "mail.subject.prefix", "mail.sendAllMessagesHere", "mail.debug", "grouperEmailContentType"};
+    String[] newConfigs = new String[] {"mail.smtp.transport.protocol", "mail.smtp.use.protocol.in.property.names", "mail.smtp.from.address", "mail.smtp.subject.prefix", "mail.smtp.sendAllMessagesHere", "mail.smtp.debug", "mail.smtp.grouperEmailContentType"};
+    
+    for (int i=0;i<oldConfigs.length;i++) {
+      if (!StringUtils.isBlank(grouperConfig.propertyValueString(oldConfigs[i]))) {
+        LOG.error("Error: please change your grouper.properties config key: " + oldConfigs[i] + " to be " + newConfigs[i]);
+      }
+    }
+
+  }
+  
   /**
    * make sure grouper config files exist
    */
@@ -422,6 +441,8 @@ public class GrouperCheckConfig {
     checkResource("log4j.properties");
     checkResource("morphString.properties");
     checkResource("subject.properties");
+    
+    verifyMailConfigsMigrated();
     
     for (ConfigFileName configFileName : ConfigFileName.values()) {
       if (!configFileName.isUseBaseForConfigFileMetadata()) {
@@ -720,13 +741,14 @@ public class GrouperCheckConfig {
   public static void postSteps() {
 
     boolean theTesting = false;
+    long now = System.currentTimeMillis();
     try {
       String grouperTestClassName = "edu.internet2.middleware.grouper.helper.GrouperTest";
       Class grouperTestClass = GrouperUtil.forName(grouperTestClassName);
       theTesting = (Boolean)GrouperUtil.callMethod(grouperTestClass, "isTesting");
     } catch (Exception e) {
       //ignore
-      LOG.debug("Likely non-fatal error seeing if testing", e);
+      LOG.debug("Likely non-fatal error seeing if testing, took (ms): " + (System.currentTimeMillis() - now), e);
     }
     final boolean testing = theTesting;
     
@@ -1244,9 +1266,20 @@ public class GrouperCheckConfig {
           //assign once for each target
           provisioningDef.setMultiAssignable(true);
           provisioningDef.setAssignToGroup(true);
+          provisioningDef.setAssignToMember(true);
+          provisioningDef.setAssignToEffMembership(true);
           provisioningDef.setAssignToStem(true);
+          
           provisioningDef.store();
         }
+        
+        if (provisioningDef.isAssignToEffMembership() == false) {
+          provisioningDef.setAssignToEffMembership(true);
+          provisioningDef.setAssignToMember(true);
+          
+          provisioningDef.store();
+        }
+        
         
         //add a name
         AttributeDefName attribute = checkAttribute(grouperProvisioningStemName, provisioningDef, GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME, "has provisioning attributes", wasInCheckConfig);
@@ -1257,10 +1290,19 @@ public class GrouperCheckConfig {
             provisioningValueAttrDefName, false, new QueryOptions().secondLevelCache(false));
         if (provisioningAttrValueDef == null) {
           provisioningAttrValueDef = grouperProvisioningStemName.addChildAttributeDef(GrouperProvisioningAttributeNames.PROVISIONING_VALUE_DEF, AttributeDefType.attr);
+          
           provisioningAttrValueDef.setAssignToGroupAssn(true);
           provisioningAttrValueDef.setAssignToStemAssn(true);
+          provisioningAttrValueDef.setAssignToMemberAssn(true);
+          provisioningAttrValueDef.setAssignToEffMembershipAssn(true);
           provisioningAttrValueDef.setAssignToAttributeDefAssn(true);
           provisioningAttrValueDef.setValueType(AttributeDefValueType.string);
+          provisioningAttrValueDef.store();
+        }
+        
+        if (provisioningAttrValueDef.isAssignToEffMembershipAssn() == false) {
+          provisioningAttrValueDef.setAssignToMemberAssn(true);
+          provisioningAttrValueDef.setAssignToEffMembershipAssn(true);
           provisioningAttrValueDef.store();
         }
 
@@ -1283,18 +1325,9 @@ public class GrouperCheckConfig {
         checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION, 
             "If you should provision (default to true)", wasInCheckConfig);
         
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_MILLIS_SINCE_1970, 
-            "Millis since 1970 that this was last full provisioned", wasInCheckConfig);
+        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON,
+            "generated json from the UI", wasInCheckConfig);
         
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_MILLIS_SINCE_1970, 
-            "Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target", wasInCheckConfig);
-        
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_FULL_SUMMARY, 
-            "Summary of last full run", wasInCheckConfig);
-        
-        checkAttribute(grouperProvisioningStemName, provisioningAttrValueDef, GrouperProvisioningAttributeNames.PROVISIONING_LAST_INCREMENTAL_SUMMARY, 
-            "Summary of last incremental run", wasInCheckConfig);
-
       }
       
       // https://spaces.at.internet2.edu/display/Grouper/USDU+delete+subjects+after+unresolvable+for+X+days
@@ -2303,6 +2336,13 @@ public class GrouperCheckConfig {
         
       legacyAttributeBaseStem(grouperSession);
       
+      {
+        StemUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+        GroupUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+        AttributeDefUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+        AttributeDefNameUniqueNameCaseInsensitiveHook.registerHookIfNecessary();
+      }
+      
       boolean autoAssignTheAutoAssignAttributes = false;
       AttributeDefName attributeAutoCreateMarker = null;
       AttributeDef attributeAutoCreateDef = null;
@@ -2369,7 +2409,30 @@ public class GrouperCheckConfig {
 
       }
 
-      
+      {
+        String notificationLastSentStemName = NotificationDaemon.attributeAutoCreateStemName();
+
+        Stem notificationLastSentStem = StemFinder.findByName(grouperSession, notificationLastSentStemName, false, new QueryOptions().secondLevelCache(false));
+        if (notificationLastSentStem == null) {
+          notificationLastSentStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in external subject invite attributes, and holds the data via attributes for invites.  Dont delete this folder")
+            .assignName(notificationLastSentStemName).save();
+        }
+
+        //see if attributeDef is there
+        String notificationLastSentDefName = notificationLastSentStemName + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF;
+
+        AttributeDef notificationLastSentDef = new AttributeDefSave(grouperSession).assignName(notificationLastSentDefName)
+          .assignToImmMembership(true).assignMultiAssignable(false).assignMultiValued(false).assignValueType(AttributeDefValueType.string)
+          .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).save();
+
+        Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(notificationLastSentDef);
+
+        //add a name
+        checkAttribute(notificationLastSentStem, notificationLastSentDef, 
+            NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT, "yyyy/mm/dd.  Represents last date notification was sent", wasInCheckConfig);
+      }
+
       {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
         
@@ -2602,6 +2665,8 @@ public class GrouperCheckConfig {
             "Comma separated email addresses to send reminders to, if blank then send to group admins", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_LAST_EMAILED_DATE,
             "yyyy/mm/dd date that this was last emailed so multiple emails don't go out on same day (group only)", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_MIN_CERTIFIED_DATE,
+            "yyyy/mm/dd date that folder set certification now. Any groups in this folder will have this date at a minimum of last certified date.", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_CALCULATED_DAYS_LEFT,
             "In order to search for attestations, this is the calculated days left before needs attestation", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_SEND_EMAIL,

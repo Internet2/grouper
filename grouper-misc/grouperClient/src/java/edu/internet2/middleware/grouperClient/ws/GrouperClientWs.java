@@ -114,6 +114,21 @@ public class GrouperClientWs {
    * result marshaled from WS
    */
   private Object result = null;
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   */
+  private String wsEndpoint;
+
+  /**
+   * ws pass
+   */
+  private String wsPass;
+
+  /**
+   * ws user
+   */
+  private String wsUser;
   
   /**
    * copy from the argument to this object
@@ -557,34 +572,57 @@ public class GrouperClientWs {
    */
   public Object executeService(final String urlSuffix, final Object toSend, 
       final String labelForLog, final String clientVersion, final boolean readOnly)  {
-    
-    //configure the failover client (every 30 seconds)
-    configureFailoverClient();
-    
-    //String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
-    
-    //copy the grouper client ws instance to this
-    
-    String connectionType = readOnly ? READ_ONLY_FAILOVER_CONFIG_NAME : READ_WRITE_FAILOVER_CONFIG_NAME;
-    
-    GrouperClientWs grouperClientWs = FailoverClient.failoverLogic(connectionType, new FailoverLogic<GrouperClientWs>() {
 
-      @Override
-      public GrouperClientWs logic(FailoverLogicBean failoverLogicBean) {
-        
-        //if not last connection then throw exception if not success.  If last connection then return the object
-        return executeServiceHelper(failoverLogicBean.getConnectionName(), 
-            urlSuffix, toSend, labelForLog, clientVersion, !failoverLogicBean.isLastConnection());
+    GrouperClientWs grouperClientWs = null;
+
+    if (StringUtils.isBlank(this.wsEndpoint)) {
+
+      if (!StringUtils.isBlank(this.wsUser)) {
+        throw new RuntimeException("wsUser is forbidden if wsEndpoint is not used");
       }
-    });
-    
-    if (grouperClientWs != null) {
+      if (!StringUtils.isBlank(this.wsPass)) {
+        throw new RuntimeException("wsPass is forbidden if wsEndpoint is not used");
+      }
       
+      //configure the failover client (every 30 seconds)
+      configureFailoverClient();
+      //String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
+      
+      //copy the grouper client ws instance to this
+      
+      String connectionType = readOnly ? READ_ONLY_FAILOVER_CONFIG_NAME : READ_WRITE_FAILOVER_CONFIG_NAME;
+      
+      grouperClientWs = FailoverClient.failoverLogic(connectionType, new FailoverLogic<GrouperClientWs>() {
+
+        @Override
+        public GrouperClientWs logic(FailoverLogicBean failoverLogicBean) {
+          
+          //if not last connection then throw exception if not success.  If last connection then return the object
+          return executeServiceHelper(failoverLogicBean.getConnectionName(), 
+              urlSuffix, toSend, labelForLog, clientVersion, !failoverLogicBean.isLastConnection(), null);
+        }
+      });
+      
+    } else {
+      
+      if (StringUtils.isBlank(this.wsUser)) {
+        throw new RuntimeException("wsUser is required if wsEndpoint is used");
+      }
+      if (StringUtils.isBlank(this.wsPass)) {
+        throw new RuntimeException("wsPass is required if wsEndpoint is used");
+      }
+
+      grouperClientWs = executeServiceHelper(this.wsEndpoint, 
+          urlSuffix, toSend, labelForLog, clientVersion, false, this);
+    }
+
+    if (grouperClientWs != null) {
       //copy from the instance back to this
       this.copyFrom(grouperClientWs);
-      
       return grouperClientWs.result;
+      
     }
+    
     return null;
   }
 
@@ -600,9 +638,16 @@ public class GrouperClientWs {
    * @throws HttpException
    * @throws IOException
    */
-  private static GrouperClientWs executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, String clientVersion, boolean exceptionOnNonSuccess)  {
+  private static GrouperClientWs executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, 
+      String clientVersion, boolean exceptionOnNonSuccess, GrouperClientWs originalGrouperClientWs)  {
     
     GrouperClientWs grouperClientWs = new GrouperClientWs();
+
+    if (originalGrouperClientWs != null) {
+      grouperClientWs.wsEndpoint = originalGrouperClientWs.wsEndpoint;
+      grouperClientWs.wsUser = originalGrouperClientWs.wsUser;
+      grouperClientWs.wsPass = originalGrouperClientWs.wsPass;
+    }
     
     String logDir = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.webService.documentDir");
     File requestFile = null;
@@ -753,7 +798,7 @@ public class GrouperClientWs {
    * @return the http client
    */
   @SuppressWarnings({ "deprecation", "unchecked" })
-  private static HttpClient httpClient() {
+  private HttpClient httpClient() {
     
     //see if invalid SSL
     String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
@@ -823,46 +868,61 @@ public class GrouperClientWs {
     
     httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
 
-    String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.user.label");
-    String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + userLabel);
-
-    {
-      String debugMessage = "WebService: connecting as user: '" + user + "'";
-      LOG.debug(debugMessage);
-      if (GrouperClientLog.debugToConsoleByFlag()) {
-        System.err.println(debugMessage);
+    if (StringUtils.isBlank(this.wsEndpoint)) {
+      String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.user.label");
+      String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + userLabel);
+  
+      {
+        String debugMessage = "WebService: connecting as user: '" + user + "'";
+        LOG.debug(debugMessage);
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println(debugMessage);
+        }
       }
-    }
-    
-    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
-        "encrypt.disableExternalFileLookup", false);
-    
-    //lets lookup if file
-    String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
-    String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
-
-    String passPrefix = null;
-
-    if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
-
-      passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
-
-      String encryptKey = GrouperClientUtils.encryptKey();
-      wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
       
+      boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
+          "encrypt.disableExternalFileLookup", false);
+      
+      //lets lookup if file
+      String theWsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
+      String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(theWsPass, disableExternalFileLookup);
+  
+      String passPrefix = null;
+  
+      if (!GrouperClientUtils.equals(theWsPass, wsPassFromFile)) {
+  
+        passPrefix = "WebService pass: reading encrypted value from file: " + theWsPass;
+  
+        String encryptKey = GrouperClientUtils.encryptKey();
+        theWsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
+        
+      } else {
+        passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
+      }
+      
+      if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
+        LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", theWsPass.length()));
+      }
+  
+      Credentials defaultcreds = new UsernamePasswordCredentials(user, theWsPass);
+  
+      //set auth scope to null and negative so it applies to all hosts and ports
+      httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
     } else {
-      passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
+      
+      if (StringUtils.isBlank(this.wsUser)) {
+        throw new RuntimeException("wsUser is required!");
+      }
+      if (StringUtils.isBlank(this.wsPass)) {
+        throw new RuntimeException("wsPass is required!");
+      }
+      
+      Credentials defaultcreds = new UsernamePasswordCredentials(this.wsUser, this.wsPass);
+      
+      //set auth scope to null and negative so it applies to all hosts and ports
+      httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
+      
     }
-    
-    if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
-      LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
-    }
-
-    Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
-
-    //set auth scope to null and negative so it applies to all hosts and ports
-    httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
-
     return httpClient;
   }
 
@@ -1046,6 +1106,36 @@ public class GrouperClientWs {
     }
   }
   
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   * @param theWsEndpoint
+   * @return this for chaining
+   */
+  public GrouperClientWs assignWsEndpoint(String theWsEndpoint) {
+    this.wsEndpoint = theWsEndpoint;
+    return this;
+  }
+
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GrouperClientWs assignWsPass(String theWsPass) {
+    this.wsPass = theWsPass;
+    return this;
+  }
+
+  /**
+   * ws user
+   * @param theWsUser
+   * @return this for chaining
+   */
+  public GrouperClientWs assignWsUser(String theWsUser) {
+    this.wsUser = theWsUser;
+    return this;
+  }
+
   /**
    * 
    * @param xStream

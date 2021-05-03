@@ -141,11 +141,11 @@ public enum ServiceActionType {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           if (templateItemType.equals("Folders")) {
-            RuleApi.inheritFolderPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+            RuleApi.inheritFolderPrivileges(stem, Scope.SUB, sub, privs);
           } else if (templateItemType.equals("Groups")) {
-            RuleApi.inheritGroupPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+            RuleApi.inheritGroupPrivileges(stem, Scope.SUB, sub, privs);
           } else if (templateItemType.equals("Attributes")) {
-            RuleApi.inheritAttributeDefPrivileges(session.getSubject(), stem, Scope.SUB, sub, privs);
+            RuleApi.inheritAttributeDefPrivileges(stem, Scope.SUB, sub, privs);
           }
           RuleApi.runRulesForOwner(stem);
           return null;

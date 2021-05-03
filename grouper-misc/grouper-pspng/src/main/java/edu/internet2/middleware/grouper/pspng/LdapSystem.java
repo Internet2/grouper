@@ -738,13 +738,18 @@ public class LdapSystem {
       // Turn on attribute-value paging if this is an active directory target
       if ( isActiveDirectory() ) {
         LOG.debug("Using attribute-value paging");
-        request.setSearchEntryHandlers(new RangeEntryHandler());
+        request.setSearchEntryHandlers(
+                new RangeEntryHandler(),
+                new LdapSearchProgressHandler(approximateNumResultsExpected, LOG, "Performing ldap search"),
+                callback);
       }
-
-      request.setSearchEntryHandlers(
-              new LdapSearchProgressHandler(approximateNumResultsExpected, LOG, "Performing ldap search"),
-              callback);
-
+      else {
+        LOG.debug("Not using attribute-value paging");
+        request.setSearchEntryHandlers(
+                new LdapSearchProgressHandler(approximateNumResultsExpected, LOG, "Performing ldap search"),
+                callback);
+      }
+      
       // Perform search. This is slightly different if paging is enabled or not.
       if ( isSearchResultPagingEnabled() ) {
         PagedResultsClient client = new PagedResultsClient(conn, getSearchResultPagingSize());

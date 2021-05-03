@@ -15,38 +15,16 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
 
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyFullRefresh;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyGroup;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyLog;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMessageConsumer;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUtils;
-import edu.internet2.middleware.grouper.app.remedy.GrouperWsCommandsForRemedy;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyFullRefresh;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyGroup;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyLog;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMessageConsumer;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUtils;
-import edu.internet2.middleware.grouper.app.remedy.GrouperWsCommandsForRemedy;
 
 
 /**
  *
  */
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-public class GrouperRemedyFullRefresh implements Job {
+public class GrouperRemedyFullRefresh {
 
   /**
    * 
@@ -131,6 +109,7 @@ public class GrouperRemedyFullRefresh implements Job {
    * @param args
    */
   public static void main(String[] args) {
+    GrouperStartup.startup();
     fullRefreshLogic();
   }
   
@@ -148,14 +127,16 @@ public class GrouperRemedyFullRefresh implements Job {
   public GrouperRemedyFullRefresh() {
   }
 
+  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
   /**
-   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+   * 
+   * @return
    */
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-
-    fullRefreshLogic();
-
+  public Map<String, Object> getDebugMap() {
+    return debugMap;
   }
+
 
   /**
    * if full refresh is in progress
@@ -198,8 +179,6 @@ public class GrouperRemedyFullRefresh implements Job {
     
     //give a tiny bit of buffer
     lastFullRefreshStart = System.currentTimeMillis() - 500;
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     long startTimeNanos = System.nanoTime();
 

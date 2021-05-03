@@ -346,4 +346,16 @@ public class LazySubject implements Subject {
       throw re;
     }
   }
+
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    return getSubject().getTranslationMap();
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    getSubject().setTranslationMap(translationMap);
+  }
+  
+  
 }

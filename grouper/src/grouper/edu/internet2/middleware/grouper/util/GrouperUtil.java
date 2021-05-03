@@ -45,6 +45,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -75,6 +76,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -94,6 +97,10 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl2.Script;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JxltEngine;
+import org.apache.commons.jexl3.JxltEngine.Template;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -105,15 +112,29 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
+import org.codehaus.groovy.tools.shell.ExitNotification;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.ldaptive.io.Hex;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -122,6 +143,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperId;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -141,6 +163,177 @@ import net.sf.json.util.PropertyFilter;
  *
  */
 public class GrouperUtil {
+
+  public static void main(String[] args) throws Exception {
+
+    GrouperStartup.startup();
+
+//    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
+//    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
+
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy\\, Fruit:b:c"));
+//    System.out.println(javax.naming.ldap.Rdn.escapeValue("Juicy, Fruit:b:c"));
+//    
+//    String dn = "cn=First\\, Last,ou=whatever,ou=edu";
+//    String cn = new javax.naming.ldap.LdapName(dn).getRdn(
+//        new javax.naming.ldap.LdapName(dn).getRdns().size()-1).getValue().toString() ;
+//    System.out.println(cn);
+    
+//    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//    grouperProvisioningGroup.setName("org:flint:app:Flint_AD:service:policy:Flint_AD_Alumni_Folder:Flint_AD_Alumni");
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'org:flint:'), 'cn', 'ou', true, false) +  ',OU=Grouper,DC=ads,DC=umflint,DC=net'}"
+//        , variableMap, true, false, false);
+
+//    grouperProvisioningGroup.assignAttributeValue("gidNumber", "123456");
+//    variableMap.put("targetGroup", grouperProvisioningGroup);
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//      "${'(&(gidNumber='+targetGroup.retrieveAttributeValue('gidNumber')+')(objectClass=posixGroup))'}"
+//      , variableMap, true, false, false);
+
+    
+    
+//    edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@10253![33,110]: ''(samAccountLink=' + grouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')';' unknown, ambiguous or inaccessible method 
+    
+//    ProvisioningEntity targetEntity = new ProvisioningEntity();
+//    targetEntity.assignAttributeValue("samAccountName", "mchyzer");
+//    variableMap.put("targetEntity", targetEntity);
+    
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//      "${'(samAccountName=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapFilterEscape(targetEntity.retrieveAttributeValueString('samAccountName')) + ')'}"
+//      , variableMap, true, false, false);
+    
+//    System.out.println(result);
+
+    // 5341, 3120
+//    long startMillis = System.currentTimeMillis();
+//    String result = GrouperUtil.gshRunScript("if (true) {\n  System.err.println('true');\n} else {\n  System.out.println('false');\n}", false);
+//    System.out.println("Result: " + result);
+//    System.out.println("Took millis: " + (System.currentTimeMillis() - startMillis));
+
+//    final String[] scripts = new String[11];
+//    Thread[] threads = new Thread[11];
+//    long mainStart = System.nanoTime();
+//    for (int i=0;i<11;i++) {
+//      scripts[i] = "";
+////      scripts[i] += GrouperUtil.readResourceIntoString("groovy.profile", false) + "\n";
+//      
+//      
+//      GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+//      grouperGroovyInput.assignInputValueObject("i", i);
+//      int sleepMillis = (int)(Math.random() * 1000);
+//      grouperGroovyInput.assignInputValueObject("sleepMillis", sleepMillis);
+//      scripts[i] += "int i = grouperGroovyRuntime.retrieveInputValueInteger(\"i\");\n";
+//      scripts[i] += "int sleepMillis = grouperGroovyRuntime.retrieveInputValueInteger(\"sleepMillis\");\n";
+//      scripts[i] += "String script = \"script\" + i;\n";
+//      scripts[i] += "int count = i;\n";
+//      scripts[i] += "//GrouperUtil.sleep(sleepMillis);\n";
+//      scripts[i] += "count++;\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"i\", i);\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"count\", count);\n";
+//      scripts[i] += "grouperGroovyRuntime.debugMap(\"script\", script);\n";
+//      scripts[i] += "grouperGroovyRuntime.println(script + \": \" + count + \": \" + sleepMillis);\n";
+//      grouperGroovyInput.assignScript(scripts[i].toString());
+//      GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+//
+//      final int INDEX = i;
+//      threads[i] = new Thread(new Runnable() {
+//        
+//        @Override
+//        public void run() {
+//          try {
+//            GrouperSession.startRootSession();
+//            
+//            long start = System.nanoTime();
+//            GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+//            System.out.println(grouperGroovyResult.fullOutput());
+////            ScriptEngineManager factory = new ScriptEngineManager();
+////            ScriptEngine engine = factory.getEngineByName("groovy");
+////            CompiledScript compiledScript = ((Compilable)engine).compile(scripts[INDEX]);
+////            System.out.println("Compile: " + ((System.nanoTime()-start) / 1000000));
+////            start = System.nanoTime();
+////            compiledScript.eval();
+//            System.out.println("Run: " + ((System.nanoTime()-start) / 1000000));
+//          } catch (Exception e) {
+//            LOG.error("error", e);
+//          }
+//        }
+//      });
+//      if (i==0) {
+//        threads[i].start();
+//      }
+//    }
+//    threads[0].join();
+//
+//    mainStart = System.nanoTime();
+//    for (int i=1;i<11;i++) {
+//      threads[i].start();
+//    }
+//    
+//    for (int i=1;i<11;i++) {
+//      threads[i].join();
+//    }
+//    System.out.println("All: " + ((System.nanoTime()-mainStart) / 1000000));
+    
+    GrouperSession.startRootSession();
+    OtherJobScript otherJobScript = new OtherJobScript();
+    otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
+    
+  }
+
+  /**
+   * run a GSH script
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the output
+   */
+  public static String gshRunScript(String script) {
+    return gshRunScript(script, false);
+  }
+
+  /**
+   * run a GSH script
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @param inputMap puts variables in a context to be retrieved with GrouperUtil.gshRetrieveInputValueObject(),
+   * GrouperUtil.gshRetrieveInputValueString(), GrouperUtil.gshRetrieveInputValueInteger(), GrouperUtil.gshRetrieveInputValueBoolean()
+   * @return the full output
+   */
+  public static String gshRunScript(String script, boolean lightWeight) {
+    GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+    String output = grouperGroovyResult.fullOutput();
+    return output;
+  }
+
+  public static void setClear(Set<?> set) {
+    if (set != null) {
+      set.clear();
+    }
+  }
+  
+  /**
+   * in a finally block, take an exception and inject and throw the existing exception, or just throw the finally exception
+   * @param tryException
+   * @param finallyException
+   */
+  public static void exceptionFinallyInjectOrThrow(Exception tryException,
+      Exception finallyException) {
+    if (tryException != null) {
+      GrouperUtil.injectInException(tryException, "\n\n####FINALLY EXCEPTION START####\n\n" + GrouperUtil.getFullStackTrace(finallyException) + "\n\n####FINALLY EXCEPTION END####\n\n");
+    } else {
+      tryException = finallyException;
+    }
+    if (tryException instanceof RuntimeException) {
+      throw (RuntimeException)tryException;
+    }
+    throw new RuntimeException(tryException);
+  }
+
 
   /**
    * take out accented chars with
@@ -1299,6 +1492,238 @@ public class GrouperUtil {
   }
 
   /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * baseDn is edu
+   * searchDn is myschool
+   * to people:someapp
+   * i.e. take apart a bushy dns
+   * @param dn
+   * @param baseDn if there is one, take it off
+   * @param searchDn if there is one after the baseDn is off, take it off
+   * @return the subpath
+   */
+  public static String ldapConvertDnToSubPath(String dn, String baseDn, String searchDn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    if (!StringUtils.isBlank(baseDn)) {
+      if (dn.endsWith(baseDn)) {
+        dn = dn.substring(0, dn.length() - (baseDn.length()+1));
+      }
+    }
+    if (!StringUtils.isBlank(searchDn)) {
+      if (dn.endsWith(searchDn)) {
+        dn = dn.substring(0, dn.length() - (searchDn.length()+1));
+      }
+    }
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+
+    DN theDn = null;
+    try {
+      theDn = new DN(dn);
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
+    
+    RDN[] rdns = theDn.getRDNs();
+    StringBuilder path = new StringBuilder();
+    for (int i=rdns.length-1;i>=0;i--) {
+      RDN rdn = rdns[i];
+      path.append(rdn.getAttributeValues()[0]);
+      if (i != 0) {
+        path.append(":");
+      }
+      
+    }
+    return path.toString();
+  }
+
+  /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu
+   * to someapp
+   * @param dn
+   * @return
+   */
+  public static String ldapConvertDnToSpecificValue(String dn) {
+
+    // not sure why this would happen...
+    if (StringUtils.isBlank(dn)) {
+      return dn;
+    }
+    try {
+      DN theDn = new DN(dn);
+      RDN[] rdns = theDn.getRDNs();
+      RDN firstRdn = rdns[0];
+      return firstRdn.getAttributeValues()[0];
+    } catch (LDAPException ldapException) {
+      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
+    }
+  }
+
+  /**
+   * This takes a string of attribute=value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN: attribute=value
+   * @return
+   */
+  public static String ldapEscapeRdn(String rdnString) {
+
+    String rdnAttribute = StringUtils.substringBefore(rdnString, "=");
+    String rdnValue     = StringUtils.substringAfter(rdnString, "=");
+
+    if ( StringUtils.isEmpty(rdnValue) || StringUtils.isEmpty(rdnValue) ) {
+      throw new RuntimeException("Unable to parse and escape rdn: '" + rdnString + "'");
+    }
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    RDN rdn = new RDN(rdnAttribute, rdnValue);
+    return rdn.toMinimallyEncodedString();
+  }
+
+  /**
+   * This takes a string of value and makes sure that special, dn-relevant characters
+   * are escaped, particularly commas, pluses, etc
+   * @param rdnString An RDN value: value
+   * @return the escaped value
+   */
+  public static String ldapEscapeRdnValue(String rdnValue) {
+
+    // This is wrapping the Value in quotes so the RDN class will consider
+    // all the dn-relevant characters (eg: ,+;) as escaped
+    //add a sample prefix, and then strip it off
+    RDN rdn = new RDN("cn", rdnValue);
+    return rdn.toMinimallyEncodedString().substring("cn=".length());
+  }
+  
+  /**
+   * 
+   * @param groupName
+   * @param rdnAttributeName
+   * @param ouAttributeName
+   * @param performRdnEscaping
+   * @param performFilterEscaping
+   * @return
+   */
+  public static String ldapBushyDn(String groupName, String rdnAttributeName,
+      String ouAttributeName,
+      boolean performRdnEscaping, boolean performFilterEscaping) {
+    return ldapBushyDn(groupName, rdnAttributeName, null, ouAttributeName, performRdnEscaping, performFilterEscaping);
+  }
+
+  /**
+   * 
+   * @param groupName
+   * @param rdnAttributeName
+   * @param rdnAttributeValue
+   * @param ouAttributeName
+   * @param performRdnEscaping
+   * @param performFilterEscaping
+   * @return
+   */
+  public static String ldapBushyDn(String groupName, String rdnAttributeName,
+      String rdnAttributeValue, String ouAttributeName,
+      boolean performRdnEscaping, boolean performFilterEscaping) {
+
+    StringBuilder result = new StringBuilder();
+    
+    List<String> namePieces=Arrays.asList(groupName.split(":"));
+    Collections.reverse(namePieces);
+
+    /// Work through the pieces backwards. The first is rdn=X and the others are ou=X
+    for (int i=0; i<namePieces.size(); i++) {
+      if ( result.length() != 0 ) {
+        result.append(',');
+      }
+      
+      RDN rdn;
+      String piece;
+      
+      if (i==0 && rdnAttributeValue != null) {
+        piece = new String(rdnAttributeValue);
+      } else {
+        piece = namePieces.get(i);        
+      }
+
+      // Look for filter-relevant characters if this will be used in a filter
+      if ( performFilterEscaping ) {
+        piece = ldapFilterEscape(piece);
+      }
+
+      if (i==0) {
+        rdn = new RDN(rdnAttributeName, piece);
+      } else {
+        rdn = new RDN(ouAttributeName, piece);
+      }
+
+      if ( performRdnEscaping ) {
+        result.append(rdn.toMinimallyEncodedString());
+      } else {
+        result.append(rdn.toString());
+      }
+    }
+
+    return result.toString();
+
+  }
+  
+  public static String ldapFilterEscape(String s) {
+    // TODO replace with ldaptive 2.0 FilterUtils.escape after ldaptive upgrade
+    if (s == null) {
+      return s;
+    }
+    final StringBuilder sb = new StringBuilder(s.length());
+    final byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
+    // CheckStyle:MagicNumber OFF
+    // optimize if ASCII
+    if (s.length() == utf8.length) {
+      for (byte b : utf8) {
+        if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+        } else {
+          sb.append((char) b);
+        }
+      }
+    } else {
+      int multiByte = 0;
+      for (byte b : utf8) {
+        if (multiByte > 0) {
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+          multiByte--;
+        } else if ((b & 0x7F) == b) {
+          if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
+            sb.append('\\').append(Hex.encode(new byte[] {b}));
+          } else {
+            sb.append((char) b);
+          }
+        } else {
+          // 2 byte character
+          if ((b & 0xE0) == 0xC0) {
+            multiByte = 1;
+            // 3 byte character
+          } else if ((b & 0xF0) == 0xE0) {
+            multiByte = 2;
+            // 4 byte character
+          } else if ((b & 0xF8) == 0xF0) {
+            multiByte = 3;
+          } else {
+            throw new IllegalStateException("Could not read UTF-8 string encoding");
+          }
+          sb.append('\\').append(Hex.encode(new byte[] {b}));
+        }
+      }
+    }
+    // CheckStyle:MagicNumber ON
+    return sb.toString();
+  }
+  
+  /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
    * @param checkResponse true if the response from the user should be checked, or just display the prompt
@@ -1324,7 +1749,6 @@ public class GrouperUtil {
       }
       return;
     }
-
 
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");
@@ -1742,6 +2166,262 @@ public class GrouperUtil {
     }
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
+
+
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static String jsonJacksonGetString(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetString(jsonNode, fieldName, null);
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignString(ObjectNode objectNode, String fieldName, String value) {
+    if (!StringUtils.isBlank(value)) {
+      objectNode.put(fieldName, value);
+    }
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignBoolean(ObjectNode objectNode, String fieldName, Boolean value) {
+    if (value != null) {
+      objectNode.put(fieldName, value);
+    }
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static void jsonJacksonAssignStringArray(ObjectNode objectNode, String fieldName, Collection<String> values) {
+    if (values != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      ArrayNode valuesJson = objectMapper.createArrayNode();
+      for (String value : values) {
+        valuesJson.add(value);
+      }
+      objectNode.set(fieldName, valuesJson);
+    }
+  }
+  
+  
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static String jsonJacksonGetString(JsonNode jsonNode, String fieldName, String defaultString) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultString != null) {
+            return fieldNode.asText(defaultString);
+          }
+          return fieldNode.asText();
+        }
+      }
+    }
+    return defaultString;
+  }
+
+  /**
+   * get a field as node or array.  could return null if not there
+   * @param jsonNode
+   * @param fieldName
+   * @return the node or array
+   */
+  public static JsonNode jsonJacksonGetNode(JsonNode jsonNode, String fieldName) {
+    
+    if (jsonNode == null) {
+      return null;
+    }
+    
+    JsonNode fieldNode = jsonNode.get(fieldName);
+    if (fieldNode == null || fieldNode instanceof NullNode) {
+      return null;
+    }
+    return fieldNode;
+    
+  }
+  
+  /**
+   * get a field as string set.  could return null if not there
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Set<String> jsonJacksonGetStringSet(JsonNode jsonNode, String fieldName) {
+    Set<String> result = null;
+    if (jsonNode != null) {
+      ArrayNode fieldNode = (ArrayNode)jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        result = new LinkedHashSet<String>();
+        for (int i=0;i<fieldNode.size();i++) {
+          JsonNode textNode = fieldNode.get(i);
+          String textValue = textNode.asText();
+          result.add(textValue);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBoolean(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetBoolean(jsonNode, fieldName, null);
+  }
+  
+  /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @param defaultBoolean if null use this value
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBoolean(JsonNode jsonNode, String fieldName, Boolean defaultBoolean) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultBoolean != null) {
+            return fieldNode.asBoolean(defaultBoolean);
+          }
+          return fieldNode.asBoolean();
+        }
+      }
+    }
+    return defaultBoolean;
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Long jsonJacksonGetLong(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetLong(jsonNode, fieldName, null);
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Long jsonJacksonGetLong(JsonNode jsonNode, String fieldName, Long defaultLong) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultLong != null) {
+            return fieldNode.asLong(defaultLong);
+          }
+          return fieldNode.asLong();
+        }
+      }
+    }
+    return defaultLong;
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Integer jsonJacksonGetInteger(JsonNode jsonNode, String fieldName) {
+    return jsonJacksonGetInteger(jsonNode, fieldName, null);
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param fieldName
+   * @return the string
+   */
+  public static Integer jsonJacksonGetInteger(JsonNode jsonNode, String fieldName, Integer defaultInteger) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.get(fieldName);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultInteger != null) {
+            return fieldNode.asInt(defaultInteger);
+          }
+          return fieldNode.asInt();
+        }
+      }
+    }
+    return defaultInteger;
+  }
+
+
+  public static ObjectNode jsonJacksonNode() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectNode objectNode = objectMapper.createObjectNode();
+    return objectNode;
+  }
+
+  public static ArrayNode jsonJacksonArrayNode() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    ArrayNode arrayNode = objectMapper.createArrayNode();
+    return arrayNode;
+  }
+  
+ 
+  
+  public static JsonNode jsonJacksonNode(String json) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      //read JSON like DOM Parser
+      JsonNode rootNode = objectMapper.readTree(json);
+      return rootNode;
+    } catch (Exception e) {
+      injectInException(e, "Error in json '" + abbreviate(json, 4000) + "'");
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String jsonJacksonToString(JsonNode jsonNode) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(jsonNode);
+      return json;
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  
+  
   /**
    * convert an object to json without wrapping it with the simple class name.
    * @param object
@@ -1769,6 +2449,9 @@ public class GrouperUtil {
 	         if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
 	           return true;
 	         }
+           if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+             return true;
+           }
            return value == null;
 	       }
 	    });
@@ -2024,7 +2707,7 @@ public class GrouperUtil {
    * need to abbreviate when back
    * @param result is where to append to
    */
-  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result, boolean newLines) {
 
     try {
       if (object == null) {
@@ -2038,7 +2721,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(Array.get(object, i), maxChars)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2055,7 +2738,7 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                toStringForLog(collectionObject, maxChars)).append("\n");
+                toStringForLog(collectionObject, maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -2179,7 +2862,19 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
+    return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, boolean newLines) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result, newLines);
     return result.toString();
   }
 
@@ -2192,7 +2887,7 @@ public class GrouperUtil {
    */
   public static String toStringForLog(Object object, int maxChars) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
     String resultString = result.toString();
     if (maxChars != -1) {
       return abbreviate(resultString, maxChars);
@@ -2607,6 +3302,49 @@ public class GrouperUtil {
   private static final String CACHE_SEPARATOR = "__";
 
   /**
+   * 
+   * @param timestamp
+   * @return timestamp string
+   */
+  public static String timestampIsoUtcSecondsConvertToString(Timestamp timestamp) {
+    
+    if (timestamp == null) {
+      return null;
+    }
+    
+    String my8601formattedDate = timestampIsoUtcSeconds.format(timestamp);
+    return my8601formattedDate;
+  }
+
+  /**
+   * 
+   * @param timestamp
+   * @return timestamp string
+   */
+  public static Timestamp timestampIsoUtcSecondsConvertFromString(String string) {
+    
+    if (StringUtils.isBlank(string)) {
+      return null;
+    }
+    
+    try {
+      Date date = timestampIsoUtcSeconds.parse(string);
+      return new Timestamp(date.getTime());
+    } catch (Exception e) {
+      throw new RuntimeException("Cant parse string: '" + string + "' in format: yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+  }
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampIsoUtcSeconds = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+  
+  static {
+    timestampIsoUtcSeconds.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
+  
+  /**
    * string format of dates
    */
   public static final String DATE_FORMAT = "yyyyMMdd";
@@ -2967,6 +3705,19 @@ public class GrouperUtil {
     }
     // simple non array non collection object
     return 1;
+  }
+
+  /**
+   * is array or collection
+   *
+   * @param arrayOrCollection
+   * @return true or false
+   */
+  public static boolean isArrayOrCollection(Object arrayOrCollection) {
+    if (arrayOrCollection == null) {
+      return false;
+    }
+    return (arrayOrCollection.getClass().isArray() || arrayOrCollection instanceof Collection);
   }
 
   /**
@@ -5216,7 +5967,7 @@ public class GrouperUtil {
    */
   public static Method getter(Class theClass, String fieldName, boolean callOnSupers,
       boolean throwExceptionIfNotFound) {
-    String getterName = getterNameFromPropertyName(fieldName);
+    String getterName = getterNameFromPropertyName(theClass, fieldName);
     return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
   }
 
@@ -5259,8 +6010,24 @@ public class GrouperUtil {
    * @param propertyName
    * @return the getter
    */
-  public static String getterNameFromPropertyName(String propertyName) {
-    return "get" + capitalize(propertyName);
+  public static String getterNameFromPropertyName(Class theClass, String propertyName) {
+    
+    Set<Field> fields = fields(theClass, null, null, false);
+    for (Field field : nonNull(fields)) {
+      if (propertyName.equals(field.getName())) {
+        if (boolean.class.equals(field.getType())) {
+          return "is" + capitalize(propertyName);
+        }
+        break;
+      }
+    }
+    String getterName = "get" + capitalize(propertyName);
+    String iserName = "is" + capitalize(propertyName);
+    Set<String> methodNames = methodNames(theClass, null, false, false);
+    if (methodNames.contains(iserName)) {
+      return iserName;
+    }
+    return getterName;
   }
 
   /**
@@ -6295,6 +7062,8 @@ public class GrouperUtil {
       return null;
     } else if (input instanceof java.sql.Timestamp) {
       return (Timestamp) input;
+    } else if (input instanceof Long) {
+      return new Timestamp((Long)input);
     } else if (input instanceof String) {
       return stringToTimestamp((String) input);
     } else if (input instanceof Date) {
@@ -6317,7 +7086,7 @@ public class GrouperUtil {
    */
   public static String stringValue(Object input) {
     //this isnt needed
-    if (input == null) {
+    if (input == null || input instanceof String) {
       return (String) input;
     }
 
@@ -6721,6 +7490,61 @@ public class GrouperUtil {
   }
 
   /**
+   * if these are the stems to sync: a:b:c, a:b, a:d, a:b:d, then the top level are: a:b, a:d
+   * @return
+   */
+  public static Set<String> stemCalculateTopLevelStems(Set<String> stems) {
+
+    Set<String> topLevelStems = new TreeSet<String>();
+    
+    if (GrouperUtil.isBlank(stems)) {
+      return topLevelStems;
+    }
+    
+    //lets see if any are root
+    if (stems.contains(":")) {
+      topLevelStems.add(":");
+      return topLevelStems;
+    }
+    
+    
+    // none of these are root stems
+    SYNC_STEMS: 
+    for (String stem : stems) {
+      
+      // loop through the current top level and two do things, remove ones that are covered here, and if this is covered, remove it
+      CURRENT_STEM_PARENT_STEM: 
+      for (String parentStem : GrouperUtil.findParentStemNames(stem)) {
+        if (StringUtils.equals(":", parentStem) || StringUtils.isBlank(parentStem)) {
+          continue CURRENT_STEM_PARENT_STEM;
+        }
+        
+        if (topLevelStems.contains(parentStem)) {
+          continue SYNC_STEMS;
+        }
+        
+      }
+    
+      // remove any in the list which are covered by this one
+      Iterator<String> iterator = topLevelStems.iterator();
+      
+      String syncFolderToAddWithColon = stem + ":";
+      
+      while (iterator.hasNext()) {
+        String currentTopLevelStemToSync = iterator.next();
+        if (currentTopLevelStemToSync.startsWith(syncFolderToAddWithColon)) {
+          iterator.remove();
+        }
+      }
+      
+      //add it
+      topLevelStems.add(stem);
+      
+    }
+    return topLevelStems;
+  }
+  
+  /**
    * remove stems that are children of the top level stem
    * @param stems
    */
@@ -6764,6 +7588,70 @@ public class GrouperUtil {
       
       if (highestStem.isRootStem() || currentStem.getName().startsWith(highestStemPrefix)) {
         iterator.remove();
+      }
+    }
+  }
+  
+  /**
+   * remove stems that are ancestor of the child stem
+   * @param stems
+   */
+  public static void stemRemoveAncestorStemsOfChildStem(Collection<String> stemNames) {
+    
+    if (stemNames == null) {
+      return;
+    }
+    
+    Iterator<String> iterator = stemNames.iterator();
+    while (iterator.hasNext()) {
+      String currentStemName = iterator.next();
+      
+      if (currentStemName.equals(":") && stemNames.size() > 1) {
+        iterator.remove();
+      } else {
+        String stemSub = currentStemName + ":";
+        for (String stemName: stemNames) {
+          
+          if (stemName.startsWith(stemSub)) {
+            iterator.remove();
+            break;
+          }
+          
+        }
+      }
+    }
+  }
+  
+  /**
+   * remove stems that are children of the top level stem
+   * @param stems
+   */
+  public static void stemRemoveChildStemsOfTopStemName(Collection<String> stemNames) {
+    
+    if (stemNames == null) {
+      return;
+    }
+    
+    Iterator<String> iterator = stemNames.iterator();
+    while (iterator.hasNext()) {
+      String currentStemName = iterator.next();
+      
+      if (currentStemName.equals(":") && stemNames.size() > 1) {
+       continue;
+      } else {
+        for (String stemName: stemNames) {
+          if (stemName.equals(":")) {
+            iterator.remove();
+            break;
+          } else {
+            String stemSub = stemName + ":";
+            if (currentStemName.startsWith(stemSub)) {
+              iterator.remove();
+              break;
+            }
+          } 
+            
+        }
       }
     }
   }
@@ -6827,6 +7715,45 @@ public class GrouperUtil {
   }
 
   /**
+   * get the Timestamp value of an object
+   *
+   * @param input
+   *          is a timestamp or long
+   * @param allowNullBlank true if null or blank converts to null
+   *
+   * @return the Long equivalent
+   */
+  public static Timestamp timestampObjectValue(Object input, boolean allowNullBlank) {
+
+    if (input instanceof Timestamp) {
+      return (Timestamp) input;
+    }
+
+    if (input instanceof Long) {
+      return new Timestamp((Long)input);
+    }
+
+    if (input instanceof Date) {
+      return new Timestamp(((Date)input).getTime());
+    }
+
+    if (input instanceof String) {
+      try {
+        Date date = timestampFormat.parse((String)input);
+        return new Timestamp(date.getTime());
+      } catch (Exception e) {
+        throw new RuntimeException("Invalid timestamp '" + input + "', expecting: " + TIMESTAMP_FORMAT);
+      }
+    }
+
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    }
+
+    throw new RuntimeException("Invalid timestamp: '" + input + "'");
+  }
+
+  /**
    * convert an object to a long
    * @param input
    * @return the number
@@ -6838,6 +7765,9 @@ public class GrouperUtil {
     }
     if (input instanceof Number) {
       return ((Number)input).longValue();
+    }
+    if (input instanceof Timestamp) {
+      return ((Timestamp)input).getTime();
     }
     throw new RuntimeException("Cannot convert to long: " + className(input));
   }
@@ -6980,6 +7910,31 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * remove whitespace from string
+   * @return new string
+   */
+  public static String whitespaceRemove(String input) {
+    if (input == null) {
+      return input;
+    }
+    return input.replaceAll("\\s","");
+  }
+  
+  /**
+   * normalize new lines to unix
+   * @param input
+   * @return new string
+   */
+  public static String whitespaceNormalizeNewLines(String input) {
+    if (StringUtils.isBlank(input)) {
+      return input;
+    }
+    String modifiedInput = input.replaceAll("\r\n", "\n");
+    modifiedInput = modifiedInput.replaceAll("\r", "\n");
+    return modifiedInput;
+  }
+  
   /**
    * save a string into a file, file does not have to exist
    *
@@ -9252,6 +10207,28 @@ public class GrouperUtil {
   }
 
   /**
+   * see if two sets are deep equals using the equals() method on each item
+   * @param set1
+   * @param set2
+   * @return if lists are equal or empty
+   */
+  public static boolean equalsSet(Set<?> set1, Set<?> set2) {
+    if (length(set1) == length(set2) && length(set1) == 0) {
+      return true;
+    }
+    if (set1 == null || set2 == null) {
+      return false;
+    }
+    
+    if (set1.size() != set2.size()) {
+      return false;
+    }
+    Set<?> newSet = new HashSet(set1);
+    newSet.removeAll(set2);
+    return newSet.size() == 0;
+  }
+
+  /**
    * see if two lists are deep equals using the equals() method on each item
    * @param list1
    * @param list2
@@ -9377,10 +10354,84 @@ public class GrouperUtil {
 
     }
 
-
-
-
   }
+
+  /**
+  *
+  */
+ private static class GrouperMapContext3 extends org.apache.commons.jexl3.MapContext {
+
+   /**
+    * retrieve class if class
+    * @param name
+    * @return class
+    */
+   private static Object retrieveClass(String name) {
+     if (isBlank(name)) {
+       return null;
+     }
+
+     //see if fully qualified class
+
+     Boolean knowsIfClass = jexlKnowsIfClass.get(name);
+
+     //see if knows answer
+     if (knowsIfClass != null) {
+       //return class or null
+       return jexlClass.get(name);
+     }
+
+     //see if valid class
+     if (jexlClassPattern.matcher(name).matches()) {
+
+       jexlKnowsIfClass.put(name, true);
+       //try to load
+       try {
+         Class<?> theClass = Class.forName(name);
+         jexlClass.put(name, theClass);
+         return theClass;
+       } catch (Exception e) {
+         LOG.info("Cant load what looks like class: " + name, e);
+         //this is ok I guess, dont rethrow, not sure it is a class
+       }
+     }
+     return null;
+
+   }
+
+   /**
+    * @see org.apache.commons.jexl2.MapContext#get(java.lang.String)
+    */
+   @Override
+   public Object get(String name) {
+
+     //see if registered
+     Object object = super.get(name);
+
+     if (object != null) {
+       return object;
+     }
+     return retrieveClass(name);
+   }
+
+   /**
+    * @see org.apache.commons.jexl2.MapContext#has(java.lang.String)
+    */
+   @Override
+   public boolean has(String name) {
+     boolean superHas = super.has(name);
+     if (superHas) {
+       return true;
+     }
+
+     return retrieveClass(name) != null;
+
+   }
+
+
+
+
+ }
 
   /**
    * substitute an EL for objects
@@ -9447,19 +10498,7 @@ public class GrouperUtil {
   public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     variableMap = nonNull(variableMap);
-    if (!jexlEnginesInitialized) {
-      synchronized (GrouperUtil.class) {
-        if (!jexlEnginesInitialized) {
-          
-          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
-          for (JexlEngine jexlEngine : jexlEngines.values()) {
-            jexlEngine.setCache(cacheSize);
-          }
-          
-          jexlEnginesInitialized = true;
-        }
-      }
-    }
+    substituteExpressionInit();
     
     if (isBlank(stringToParse)) {
       return stringToParse;
@@ -9593,6 +10632,112 @@ public class GrouperUtil {
         keysSet.add("grouperUtil");
         StringBuilder logMessage = new StringBuilder();
         logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
+    }
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the object
+   */
+  @SuppressWarnings("unchecked")
+  public static Object substituteExpressionLanguageScript(String script,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    variableMap = nonNull(variableMap);
+    substituteExpressionInit();
+    
+    if (isBlank(script)) {
+      return null;
+    }
+    String overallResult = null;
+    Exception exception = null;
+    try {
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
+
+      int index = 0;
+
+      for (String key: variableMap.keySet()) {
+        jc.set(key, variableMap.get(key));
+      }
+
+      //allow utility methods
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
+
+      script = script.trim();
+      if (!script.startsWith("${") || !script.endsWith("}")) {
+        throw new RuntimeException("Script must be ${script}: '" + script + "'");
+      }
+      // take out ${  and  }
+      script = script.substring(2, script.length()-1);
+
+      Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+
+      //this is the result of the evaluation
+      Object o = null;
+
+      try {
+        o = e.execute(jc);
+      } catch (JexlException je) {
+        //exception-scrape to see if missing variable
+        if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          //clean up the message a little bit
+          // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+          String message = je.getMessage();
+          //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+          Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+          Matcher exceptionMatcher = exceptionPattern.matcher(message);
+          if (exceptionMatcher.matches()) {
+            //message = "'" + exceptionMatcher.group(1);
+            message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+          }
+          throw new ExpressionLanguageMissingVariableException(message, je);
+        }
+        throw je;
+      }
+
+      if (o instanceof RuntimeException) {
+        throw (RuntimeException)o;
+      }
+
+      return o;
+    } catch (HookVeto hv) {
+      exception = hv;
+      throw hv;
+    } catch (Exception e) {
+      exception = e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
+      throw new RuntimeException("Error substituting string: '" + script + "'", e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(script).append("', and with env vars: ");
         String[] keys = keysSet.toArray(new String[]{});
         for (int i=0;i<keys.length;i++) {
           logMessage.append(keys[i]);
@@ -9951,13 +11096,34 @@ public class GrouperUtil {
    */
   public static String stripLastSlashIfExists(String input) {
     if ((input == null) || (input.length() == 0)) {
-      return null;
+      return input;
     }
 
     char lastChar = input.charAt(input.length() - 1);
 
     if ((lastChar == '\\') || (lastChar == '/')) {
       return input.substring(0, input.length() - 1);
+    }
+
+    return input;
+  }
+
+  /**
+   * strip the first slash (/ or \) from a string if it exists
+   *
+   * @param input
+   *
+   * @return input - the last / or \
+   */
+  public static String stripFirstSlashIfExists(String input) {
+    if ((input == null) || (input.length() == 0)) {
+      return input;
+    }
+
+    char firstChar = input.charAt(0);
+
+    if ((firstChar == '\\') || (firstChar == '/')) {
+      return input.substring(1, input.length());
     }
 
     return input;
@@ -12002,12 +13168,12 @@ public class GrouperUtil {
   }
 
   /**
-   * 
+   * you should probably use the GrouperCallable method, not this one
    * @param executorService
    * @param callable
    * @return the future
    */
-  public static GrouperFuture executorServiceSubmit(ExecutorService executorService, Callable callable) {
+  public static <T> GrouperFuture<T> executorServiceSubmit(ExecutorService executorService, Callable<T> callable) {
     Future future = executorService.submit(callable);
     GrouperFuture grouperFuture = new GrouperFuture(future, callable);
     return grouperFuture;
@@ -12359,6 +13525,252 @@ public class GrouperUtil {
     return result;
   }
 
-  
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd long
+   */
+  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0L;
+    }
 
+    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int
+   */
+  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0;
+    }
+
+    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception.  if lenient is true (default)
+   * then undefined variables are null
+   * @return the object
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguageTemplate(String script,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    variableMap = nonNull(variableMap);
+    substituteExpressionInit3();
+    
+    if (isBlank(script)) {
+      return null;
+    }
+
+    // TODO replace when we upgrade jexl templates to allow multiple newline
+    //  Caused by: java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+    //  at java.lang.String.charAt(String.java:658)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.startsWith(UnifiedJEXL.java:1350)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.readTemplate(UnifiedJEXL.java:1413)
+    //  at org.apache.commons.jexl2.UnifiedJEXL$Template.<init>(UnifiedJEXL.java:1083)
+    //  at org.apache.commons.jexl2.UnifiedJEXL.createTemplate(UnifiedJEXL.java:1462)
+    //  at edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguageTemplate(GrouperUtil.java:13059)
+//    while (script.contains("\n\n")) {
+//      script = replace(script, "\n\n", "\n");
+//    }
+
+    String overallResult = null;
+    Exception exception = null;
+    try {
+      org.apache.commons.jexl3.JexlContext jc = allowStaticClasses ? new GrouperMapContext3() : new org.apache.commons.jexl3.MapContext();
+  
+      int index = 0;
+  
+      for (String key: variableMap.keySet()) {
+        jc.set(key, variableMap.get(key));
+      }
+  
+      //allow utility methods
+      jc.set("grouperUtil", new GrouperUtilElSafe());
+      //if you add another one here, add it in the logs below
+
+      script = script.trim();
+
+      org.apache.commons.jexl3.JexlEngine jexl = jexlEngines3.get(new MultiKey(silent, lenient));
+      JxltEngine jxlt = jexl.createJxltEngine();
+      Template theTemplate = jxlt.createTemplate(script);
+      
+      Writer writer = new StringWriter();
+  
+      String result = null;
+
+      //this is the result of the evaluation
+      try {
+        theTemplate.evaluate(jc, writer);
+        
+        result = writer.toString();
+      } catch (JexlException je) {
+        //exception-scrape to see if missing variable
+        if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          //clean up the message a little bit
+          // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+          String message = je.getMessage();
+          //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+          Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
+          Matcher exceptionMatcher = exceptionPattern.matcher(message);
+          if (exceptionMatcher.matches()) {
+            //message = "'" + exceptionMatcher.group(1);
+            message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
+          }
+          throw new ExpressionLanguageMissingVariableException(message, je);
+        }
+        throw je;
+      }
+      // for some reason this adds newlines...  trim them
+      return trim(result);
+    } catch (HookVeto hv) {
+      exception = hv;
+      throw hv;
+    } catch (Exception e) {
+      exception = e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
+      }
+      throw new RuntimeException("Error substituting string: '" + script + "', substituteVarNames: " + setToString(variableMap.keySet()), e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
+        keysSet.add("grouperUtil");
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Subsituting EL: '").append(script).append("', and with env vars: ");
+        String[] keys = keysSet.toArray(new String[]{});
+        for (int i=0;i<keys.length;i++) {
+          logMessage.append(keys[i]);
+          if (i != keys.length-1) {
+            logMessage.append(", ");
+          }
+        }
+        logMessage.append(" with result: '" + overallResult + "'");
+        if (exception != null) {
+          if (exception instanceof HookVeto) {
+            logMessage.append(", it was vetoed: " + exception);
+          } else {
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          }
+        }
+        LOG.debug(logMessage.toString());
+      }
+    }
+  }
+
+  /**
+   * create one set of jexlEngine instances (one per type of setting) so we can cache expressions
+   */
+  private final static Map<MultiKey, org.apache.commons.jexl3.JexlEngine> jexlEngines3 = new HashMap<MultiKey, org.apache.commons.jexl3.JexlEngine>();
+  
+  /**
+   * if the jexl engine instances are all initialized completely
+   */
+  private static boolean jexlEnginesInitialized3 = false;
+
+  private static void substituteExpressionInit() {
+    if (!jexlEnginesInitialized) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+  }
+  
+  private static void substituteExpressionInit3() {
+    if (!jexlEnginesInitialized3) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized3) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          { 
+            Boolean silent = true;
+            Boolean lenient = true;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = false;
+            Boolean lenient = true;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = true;
+            Boolean lenient = false;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          {
+            Boolean silent = false;
+            Boolean lenient = false;
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
+          }
+          
+          jexlEnginesInitialized3 = true;
+        }
+      }
+    }
+  }
+
+  /**
+   * get out of GSH with return code
+   * @param returnCode
+   */
+  public static void gshReturn(int returnCode) {
+    GrouperGroovyRuntime grouperGroovyRuntime = GrouperGroovyRuntime.retrieveGrouperGroovyRuntime();
+    if (grouperGroovyRuntime == null) {
+      // if in grouper shell
+      throw new ExitNotification(returnCode);
+    }
+    // if in groovy
+    grouperGroovyRuntime.gshReturn(returnCode);
+  }
+
+  /**
+   * get out of gsh with normal return code
+   */
+  public static void gshReturn() {
+    gshReturn(0);
+  }
+  
 }

@@ -48,6 +48,13 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>grouperClient</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <exclusions>
@@ -135,12 +142,32 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-exec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpcore</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -161,6 +188,10 @@
         <dependency>
             <groupId>commons-math</groupId>
             <artifactId>commons-math</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -337,6 +368,10 @@
         <dependency>
             <groupId>org.ldaptive</groupId>
             <artifactId>ldaptive</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.ldaptive</groupId>
+          <artifactId>ldaptive-unboundid</artifactId>
         </dependency>
         <dependency>
             <groupId>net.redhogs.cronparser</groupId>

@@ -1225,6 +1225,20 @@ public class AttestationContainer {
       return null;
     }
   }
+
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public String getDirectOrParentDateNeedsCertify() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.grouperAttestationDateNeedsCertify(this.guiAttestation.getGrouperAttestationDaysUntilRecertify());
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.guiAttestation.grouperAttestationDateNeedsCertify(this.parentGuiAttestation.getGrouperAttestationDaysUntilRecertify());
+    } else {
+      return null;
+    }
+  }
+
   
   /**
    * @return return direct if this is a direct assignment, otherwise look at the parent

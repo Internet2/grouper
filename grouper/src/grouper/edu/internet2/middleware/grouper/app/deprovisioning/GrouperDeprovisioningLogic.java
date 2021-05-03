@@ -783,7 +783,7 @@ public class GrouperDeprovisioningLogic {
   public static void updateDeprovisioningMetadata(Stem stem) {
 
     Map<GrouperObject, GrouperDeprovisioningOverallConfiguration> grouperDeprovisioningOverallConfigurationMap 
-      = GrouperDeprovisioningOverallConfiguration.retrieveConfigurationForStem(stem, true);
+      = GrouperDeprovisioningOverallConfiguration.retrieveConfigurationForStem(stem, false);
 
     for (GrouperObject grouperObject: grouperDeprovisioningOverallConfigurationMap.keySet()) {
       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = grouperDeprovisioningOverallConfigurationMap.get(grouperObject);

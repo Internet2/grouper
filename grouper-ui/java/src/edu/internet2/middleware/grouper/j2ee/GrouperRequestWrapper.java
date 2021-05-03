@@ -101,7 +101,12 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    * @return the param
    */
   public FileItem getParameterFileItem(String name) {
-    return (FileItem)this.parameterMap.get(name);
+    Object object = this.parameterMap.get(name);
+    if (object instanceof FileItem) {
+      return (FileItem)object;
+    }
+    // sometimes this is an arraylist for some reason
+    return null;
   }
   
   

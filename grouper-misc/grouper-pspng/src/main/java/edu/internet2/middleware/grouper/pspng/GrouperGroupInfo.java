@@ -115,7 +115,6 @@ public class GrouperGroupInfo {
   public Map<String, Object> getJexlMap() {
     Map<String, Object> result = new HashMap<String, Object>();
 
-
     if ( group != null ) {
       result.put("group", group);
       result.put("name", group.getName());
@@ -131,11 +130,6 @@ public class GrouperGroupInfo {
 
       result.put("groupId", group.getId());
       
-      Map<String, Object> stemAttributes = PspUtils.getStemAttributes(group);
-      result.put("stemAttributes", stemAttributes);
-
-      Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(group);
-      result.put("groupAttributes", groupAttributes);
     }
     else if ( pitGroup != null ) {
       result.put("pitGroup", pitGroup);

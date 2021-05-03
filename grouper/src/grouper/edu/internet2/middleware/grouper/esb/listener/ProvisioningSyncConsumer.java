@@ -18,7 +18,6 @@ package edu.internet2.middleware.grouper.esb.listener;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 
 /**
@@ -32,8 +31,7 @@ public abstract class ProvisioningSyncConsumer extends EsbListenerBase {
   }
 
   @Override
-  public abstract ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers, 
-      GrouperProvisioningProcessingResult grouperProvisioningProcessingResult);
+  public abstract ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers);
 
   
 

@@ -78,14 +78,29 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
- * Find memberships within the Groups Registry.
- * 
+ * <p>Use this class to find memberships within the Groups registry</p>
+ * <p> 
  * A membership is the object which represents a join of member
  * and group.  Has metadata like type and creator,
  * and, if an effective membership, the parent membership
- * <p/>
- * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.108 2009-12-17 06:57:57 mchyzer Exp $
+ * </p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Membership membership1 = new MembershipFinder().addGroup(group1).addSubject(subject).findMembership(true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find multiple memberships
+ * <blockquote>
+ * <pre>
+ * Set<Object[]> members = new MembershipFinder().addMembershipId(membership1.getUuid()).addMembershipId(membership2.getUuid()).findMembershipsMembers();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class MembershipFinder {
 
@@ -878,7 +893,7 @@ public class MembershipFinder {
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
-        this.hasMembershipTypeForGroup, memberHasMembershipForGroup, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup);  
+        this.hasMembershipTypeForGroup, memberHasMembershipForGroup, this.hasEnabledDate, this.hasDisabledDate, this.customCompositeType, this.customCompositeGroup, this.queryOptionsForMembership);  
 
 
   }
@@ -1675,6 +1690,7 @@ public class MembershipFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @param dto
    * @return set of memberships
    */
@@ -1757,7 +1773,7 @@ public class MembershipFinder {
   } 
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param group
    * @param f
@@ -1806,7 +1822,7 @@ public class MembershipFinder {
   } // public static Set internal_findSubjects(s, o, f)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param attributeDef
    * @param f
@@ -1858,7 +1874,7 @@ public class MembershipFinder {
   } 
   
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param stem
    * @param f
@@ -1912,7 +1928,7 @@ public class MembershipFinder {
   private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param stem
    * @param f
@@ -1942,7 +1958,7 @@ public class MembershipFinder {
   } // public static Set internal_findSubjectsNoPriv(s, o, f)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param g
    * @param f
@@ -1971,6 +1987,11 @@ public class MembershipFinder {
    */
   private QueryOptions queryOptionsForMember;
 
+  /**
+   * query options for membership.  must include paging and sorting
+   */
+  private QueryOptions queryOptionsForMembership;
+  
   /**
    * if paging for member, then also filter for member
    */
@@ -2221,6 +2242,16 @@ public class MembershipFinder {
   }
   
   /**
+   * 
+   * @param theQueryOptions
+   * @return
+   */
+  public MembershipFinder assignQueryOptionsForMembership(QueryOptions theQueryOptions) {
+    this.queryOptionsForMembership = theQueryOptions;
+    return this;
+  }
+  
+  /**
    * assign a collection of fields to look for the user has for groups
    * @param thePrivilegesTheUserHas
    * @return this for chaining
@@ -2243,7 +2274,7 @@ public class MembershipFinder {
   }
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param d
    * @param f
@@ -2267,7 +2298,7 @@ public class MembershipFinder {
   } 
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param d
    * @param f
@@ -2290,7 +2321,7 @@ public class MembershipFinder {
   } // public static Set internal_findAllByCreatedBefore(s, d, f)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param groupOwner
    * @param f
@@ -2307,7 +2338,7 @@ public class MembershipFinder {
   } // public static Set internal_findAllByOwnerAndFieldAndType(s, o, f, type)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param m
    * @param f
@@ -2326,7 +2357,7 @@ public class MembershipFinder {
   } // public static Set internal_findAllEffectiveByMemberAndField(s, m, f)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param m
    * @param f
@@ -2337,7 +2368,7 @@ public class MembershipFinder {
   } 
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param m
    * @param f
@@ -2354,7 +2385,7 @@ public class MembershipFinder {
   } 
   
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param m
    * @param f
@@ -2370,7 +2401,7 @@ public class MembershipFinder {
   } 
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param m
    * @param f
@@ -2385,6 +2416,7 @@ public class MembershipFinder {
   } // public static Set internal_findMemberships(s, m, f)
 
   /**
+   * <p>Grouper internal method only</p>
    * @param start
    * @param pageSize
    * @param group
@@ -2428,6 +2460,7 @@ public class MembershipFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @param start
    * @param pageSize
    * @param group
@@ -2470,6 +2503,7 @@ public class MembershipFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @param start
    * @param pageSize
    * @param group
@@ -2513,6 +2547,7 @@ public class MembershipFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @param start
    * @param pageSize
    * @param group
@@ -2556,7 +2591,7 @@ public class MembershipFinder {
     }
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param attributeDef
    * @param f
@@ -2606,7 +2641,7 @@ public class MembershipFinder {
   } // public static Set internal_findSubjects(s, o, f)
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param s
    * @param group
    * @param f
@@ -2705,6 +2740,5 @@ public class MembershipFinder {
     
     return result;
   }
-
 } // public class MembershipFinder
 

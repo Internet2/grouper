@@ -9,12 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -28,6 +28,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.except
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2ExternalSystem {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(UiV2ExternalSystem.class);
   
   /**
    * view all external systems
@@ -118,7 +121,7 @@ public class UiV2ExternalSystem {
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       } else {
         // change was made on the form
-        populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+        grouperExternalSystem.populateConfigurationValuesFromUi(request);
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
       }
@@ -174,7 +177,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.setConfigId(externalSystemConfigId);
       
-      populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+      grouperExternalSystem.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -201,6 +204,11 @@ public class UiV2ExternalSystem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigAddEditSuccess")));
       
+      try {
+        grouperExternalSystem.refreshConnectionsIfNeeded();
+      } catch (UnsupportedOperationException e) {
+        // ok
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -258,7 +266,7 @@ public class UiV2ExternalSystem {
         }
         
         grouperExternalSystem.setConfigId(externalSystemConfigId);
-        populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+        grouperExternalSystem.populateConfigurationValuesFromUi(request);
         
         GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
         externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
@@ -317,7 +325,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.setConfigId(externalSystemConfigId);
       
-      populateGrouperExternalSystemFromUi(request, grouperExternalSystem);
+      grouperExternalSystem.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -395,7 +403,7 @@ public class UiV2ExternalSystem {
       
       grouperExternalSystem.deleteConfig(true);
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigDeleteSuccess")));
@@ -511,9 +519,10 @@ public class UiV2ExternalSystem {
             TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionNotSupported")));
         return;
       } catch (Exception e) {
+        LOG.error("error testing external system: '" + externalSystemConfigId + "'", e);
         String stackTrace = ExceptionUtils.getStackTrace(e);
         String error = TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionTestException");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + " " + stackTrace));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + "<pre>" + stackTrace + "</pre>"));
         return;
       }
       
@@ -596,7 +605,7 @@ public class UiV2ExternalSystem {
 
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
@@ -669,7 +678,7 @@ public class UiV2ExternalSystem {
 
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ExternalSystem.viewExternalSystems')"));
+      viewExternalSystems(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConfigChangeStatusSuccess")));
@@ -679,29 +688,4 @@ public class UiV2ExternalSystem {
     }
   }
   
-  private void populateGrouperExternalSystemFromUi(final HttpServletRequest request, GrouperExternalSystem externalSystem) {
-    
-    Map<String, GrouperConfigurationModuleAttribute> attributes = externalSystem.retrieveAttributes();
-    
-    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      String name = "config_"+attribute.getConfigSuffix();
-      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
-      
-      String elValue = request.getParameter(elCheckboxName);
-      
-      String value = request.getParameter(name);
-      
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
-        attribute.setExpressionLanguage(true);
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
-        attribute.setExpressionLanguageScript(value);
-      } else {
-        attribute.setExpressionLanguage(false);
-        attribute.setValue(value);
-      }
-        
-    }
-    
-  }
-
 }

@@ -698,6 +698,60 @@ public class ByObjectStatic extends ByQueryBase {
   
   
   /**
+   * <pre>
+   * call hibernate method "delete" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().deleteBatch(Rosetta.getDAO(_f));
+   * 
+   * </pre>
+   * @param collection is an object (if collection will still work), if null, will probably throw exception
+   * @throws GrouperDAOException
+   */
+  public void deleteBatch(final Collection<?> collection) throws GrouperDAOException {
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.deleteBatch(collection);
+              return null;
+            }
+        
+      });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      
+      String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
+      throw e;
+    }
+    
+  }
+  
+  
+  /**
    * constructor
    *
    */

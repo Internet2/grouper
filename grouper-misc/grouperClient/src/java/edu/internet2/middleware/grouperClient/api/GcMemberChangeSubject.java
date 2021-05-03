@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,12 +33,88 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResu
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.morphString.Crypto;
 
 
 /**
  * class to run a member change subject
  */
 public class GcMemberChangeSubject {
+
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   */
+  private String wsEndpoint;
+
+  /**
+   * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
+   * @param theWsEndpoint
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsEndpoint(String theWsEndpoint) {
+    this.wsEndpoint = theWsEndpoint;
+    return this;
+  }
+  
+  /**
+   * ws user
+   */
+  private String wsUser;
+
+  /**
+   * ws user
+   * @param theWsUser
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsUser(String theWsUser) {
+    this.wsUser = theWsUser;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   */
+  private String wsPass;
+
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsPass(String theWsPass) {
+    this.wsPass = theWsPass;
+    return this;
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsPassEncrypted(String theWsPassEncrypted) {
+    String encryptKey = GrouperClientUtils.encryptKey();
+    return this.assignWsPass(new Crypto(encryptKey).decrypt(theWsPassEncrypted));
+  }
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsPassFile(File theFile) {
+    return this.assignWsPass(GrouperClientUtils.readFileIntoString(theFile));
+  }
+
+  
+  /**
+   * ws pass
+   * @param theWsPass
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignWsPassFileEncrypted(File theFile) {
+    return this.assignWsPassEncrypted(GrouperClientUtils.readFileIntoString(theFile));
+  }
 
   /** subject lookup */
   private WsSubjectLookup oldSubjectLookup;
@@ -220,6 +297,10 @@ public class GcMemberChangeSubject {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+      
+      grouperClientWs.assignWsUser(this.wsUser);
+      grouperClientWs.assignWsPass(this.wsPass);
+      grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)

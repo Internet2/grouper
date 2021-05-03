@@ -10,6 +10,8 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.SubjectUtils;
@@ -131,7 +133,10 @@ public class GrouperDbConfig {
     Boolean[] error = new Boolean[]{null};
     Boolean[] added = new Boolean[]{null};
     message = new StringBuilder();
-    DbConfigEngine.configurationFileAddEditHelper2(this.configFileName, this.propertyName,
+    ConfigFileName configFileNameObject = ConfigFileName.valueOfIgnoreCase(this.configFileName, true);
+    ConfigFileMetadata configFileMetadata = configFileNameObject.configFileMetadata();
+
+    DbConfigEngine.configurationFileAddEditHelper2(configFileNameObject, this.configFileName, configFileMetadata, this.propertyName,
         Boolean.toString(this.propertyName.endsWith(".elConfig")), this.value, null, message, added, error, false, 
         this.comment, new ArrayList<String>(), new HashMap<String, String>(), true);
     if (error[0] != null && error[0]) {

@@ -15,22 +15,38 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen
+ * <p>Use this class to establish ldap session</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class LdapSessionUtils {
 
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    List<String> uids = LdapSessionUtils.ldapSession().list(String.class, "personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aa*)", "uid");
+    System.out.println(GrouperUtil.toStringForLog(uids));
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(LdapSessionUtils.class);
-
-  private static LdapSession ldapSession = null;
 
   private static boolean loggedErrorNotLdaptive = false;
   
@@ -39,21 +55,48 @@ public class LdapSessionUtils {
    * @return the external subject storable
    */
   public static LdapSession ldapSession() {
-    if (ldapSession == null) {
-      synchronized (LdapSessionUtils.class) {
-        if (ldapSession == null) {
-          String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
-          
-          if (!StringUtils.equals(className, LdaptiveSessionImpl.class.getName()) && !loggedErrorNotLdaptive) {
-            LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
-            loggedErrorNotLdaptive = true;
-          }
-          
-          ldapSession = new LdaptiveSessionImpl(); 
-        }
-      }
-    }
+    String className = GrouperConfig.retrieveConfig().propertyValueString("ldap.implementation.className");
     
-    return ldapSession;
+    if (!StringUtils.equals(className, LdaptiveSessionImpl.class.getName()) && !loggedErrorNotLdaptive) {
+      LOG.error("ldap.implementation.className cannot be anything but " + LdaptiveSessionImpl.class.getName());
+      loggedErrorNotLdaptive = true;
+    }
+    LdaptiveSessionImpl ldaptiveSessionImpl = new LdaptiveSessionImpl();
+    StringBuilder logCurrent = logCurrent();
+    if (logCurrent != null) {
+      ldaptiveSessionImpl.assignDebug(true, logCurrent);
+    }
+    return ldaptiveSessionImpl; 
   }
+  
+  private static ThreadLocal<StringBuilder> threadLocalLog = new InheritableThreadLocal<StringBuilder>();
+
+  /**
+   * start a static debug log
+   * log start
+   */
+  public static void logStart() {
+    threadLocalLog.set(new StringBuilder());
+
+  }
+
+  /**
+   * get the current log
+   * log start
+   */
+  public static StringBuilder logCurrent() {
+    StringBuilder logCurrent = threadLocalLog.get();
+    return logCurrent;
+  }
+
+  /**
+   * stop a debug log in a finally block
+   * @return the log message
+   */
+  public static String logEnd() {
+    StringBuilder log = threadLocalLog.get();
+    threadLocalLog.remove();
+    return log == null ? null : log.toString();
+  }
+  
 }

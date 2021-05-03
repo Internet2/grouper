@@ -93,6 +93,27 @@ public enum CustomUiTextType {
   unenrollButtonShow,
   
   /**
+   * boolean if should add/remove member
+   */
+  manageMembership,
+  
+  /**
+   * gshScriptToRun (e.g. on leave or join group)
+   * variables are: 
+   *   subject: the subject being acted on
+   *   group: group being acted on
+   *   subjectLoggedIn: subject logged in might be acted on
+   *   all cu_ variables of type string, boolean, numeric
+   *   
+   */
+  gshScript,
+  
+  /**
+   * redirect to URL
+   */
+  redirectToUrl,
+  
+  /**
    * text of unenrollment button
    */
   unenrollButtonText;

@@ -294,6 +294,29 @@ public class AttributeAssignValueDelegate {
   }
   
   /**
+   * add a value of any type 
+   * @param value 
+   * @return the value object
+   */
+  public AttributeAssignValueResult addValueObject(Object value) {
+    return addValuesObject(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
+  }
+  
+  private AttributeAssignValuesResult addValuesObject(Set<Object> values) {
+    AttributeAssignValuesResult attributeAssignValuesResult = new AttributeAssignValuesResult();
+    attributeAssignValuesResult.setAttributeAssignValueResults(new LinkedHashSet<AttributeAssignValueResult>());
+    for (Object value : values) {
+      AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.assignValue(value);
+      AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
+      attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
+      attributeAssignValuesResult.getAttributeAssignValueResults().addAll(currentResult.getAttributeAssignValueResults());
+    }
+    return attributeAssignValuesResult;
+  }
+
+  /**
    * add values of any type 
    * @param values
    * @return the value object
@@ -318,6 +341,18 @@ public class AttributeAssignValueDelegate {
    * @return the value object
    */
   public AttributeAssignValueResult assignValue(String value) {
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.assignValue(value);
+    return assignValue(attributeAssignValue);
+  }
+  
+  /**
+   * assign a value of any type 
+   * @param value 
+   * @return the value object
+   */
+  public AttributeAssignValueResult assignValueObject(Object value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
     attributeAssignValue.assignValue(value);
@@ -670,6 +705,15 @@ public class AttributeAssignValueDelegate {
   }
   
   /**
+   * remove this value of any type
+   * @param value
+   * @return the strings that were deleted
+   */
+  public AttributeAssignValueResult deleteValueObject(Object value) {
+    return deleteValuesObject(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
+  }
+  
+  /**
    * remove this value of integer type
    * @param value
    * @return the strings that were deleted
@@ -846,6 +890,30 @@ public class AttributeAssignValueDelegate {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
       attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
       attributeAssignValue.setValueString(value);
+      attributeAssignValues.add(attributeAssignValue);
+      
+    }
+    
+    return assignValues(attributeAssignValues, deleteOrphans);
+    
+  }
+  
+  /**
+   * replace the values.  If the values are there already, ignore, if not, add, if extra already there,
+   * remove.  Note, the uuids will change if not the same and the values exist
+   * @param values
+   * @param deleteOrphans if ones in DB should be removed if not match
+   * @return true if made changes, false if not
+   */
+  public AttributeAssignValuesResult assignValuesObject(Set<Object> values, boolean deleteOrphans) {
+    
+    Set<AttributeAssignValue> attributeAssignValues = new LinkedHashSet<AttributeAssignValue>();
+    
+    for (Object value : values) {
+      
+      AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.assignValue(value);
       attributeAssignValues.add(attributeAssignValue);
       
     }
@@ -1151,6 +1219,39 @@ public class AttributeAssignValueDelegate {
     Set<AttributeAssignValue> attributeAssignValues = new LinkedHashSet<AttributeAssignValue>();
     for (String value : values) {
       Set<AttributeAssignValue> foundValues = internal_findValues(value, false);
+      
+      if (GrouperUtil.nonNull(foundValues).size() > 0) {
+        result.add(value);
+        attributeAssignValues.addAll(foundValues);
+      }
+      
+    }
+    return internal_deleteValues(attributeAssignValues, false);
+    
+  }
+  
+  /**
+   * remove this value of any type
+   * @param values
+   * @return the strings that were deleted
+   */
+  public AttributeAssignValuesResult deleteValuesObject(Collection<Object> values) {
+
+    //make sure can edit
+    this.attributeAssign.retrieveAttributeAssignable()
+      .getAttributeDelegate().assertCanUpdateAttributeDefName(
+          this.attributeAssign.getAttributeDefName());
+
+    Set<Object> result = new LinkedHashSet<Object>();
+    
+    Set<AttributeAssignValue> attributeAssignValues = new LinkedHashSet<AttributeAssignValue>();
+    for (Object value : values) {
+      
+      AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.assignValue(value);
+      
+      Set<AttributeAssignValue> foundValues = this.internal_findValues(attributeAssignValue, false);
       
       if (GrouperUtil.nonNull(foundValues).size() > 0) {
         result.add(value);

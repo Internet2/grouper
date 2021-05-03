@@ -22,10 +22,19 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 
 /**
- * Use this class to copy a group to another stem.
+ * <p>Use this class to copy a group to another stem.</p>
+ * <p>Sample call to copy everything
  * 
- * @author shilen
- * $Id: GroupCopy.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
+ * <blockquote>
+ * <pre>
+ * GroupCopy groupCopy = new GroupCopy(child_group, stem);
+ * Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
+ *  .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
+ *  .save();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class GroupCopy {
 

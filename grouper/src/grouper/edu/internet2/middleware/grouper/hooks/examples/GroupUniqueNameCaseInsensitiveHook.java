@@ -20,11 +20,16 @@
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -37,14 +42,53 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
  * 
  * hooks.group.class = edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook
  * 
+ * or
+ * 
+ * grouperHook.GroupUniqueNameCaseInsensitiveHook.autoRegister = true (default)
  * </pre>
  */
 public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   
   /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+  }
+
+  /**
+   * only register once
+   */
+  private static boolean registered = false;
+  
+  /**
+   * see if this is configured in the grouper.properties, if so, register this hook
+   */
+  public static void registerHookIfNecessary() {
+    
+    if (registered) {
+      return;
+    }
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperHook.GroupUniqueNameCaseInsensitiveHook.autoRegister", true)) {
+      //register this hook
+      GrouperHooksUtils.addHookManual(GrouperHookType.GROUP.getPropertyFileKey(), 
+          GroupUniqueNameCaseInsensitiveHook.class);
+    }
+    
+    registered = true;
+
+  }
+
+  /**
    * veto key
    */
   public static final String VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE = "veto.group.unique.nameCaseInsensitive";
+
+  /**
+   * veto key
+   */
+  public static final String VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE = "veto.group.unique.idCaseInsensitive";
 
   /**
    * 
@@ -65,35 +109,29 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
     //see if there is another group with the same name case insensitive
     long count = HibernateSession.byHqlStatic().createQuery("select count(theGroup) "
         + "from Group as theGroup where "
-        + " (lower(theGroup.nameDb) = :theName or lower(theGroup.alternateNameDb) = :theName) "
+        + " (lower(theGroup.nameDb) in (:theName, :theName2) or lower(theGroup.alternateNameDb) in (:theName, :theName2) or lower(theGroup.displayNameDb) = :theName3) "
         + "and theGroup.uuid != :theUuid ")
         .setString("theName", group.getName().toLowerCase())
+        .setString("theName2", GrouperUtil.defaultIfEmpty(group.getAlternateName(), group.getName()).toLowerCase())
+        .setString("theName3", group.getDisplayName().toLowerCase())
         .setString("theUuid", group.getId()).uniqueResult(long.class);
 
-// this wont work with alternate names or if two stems with different case
-//    
-//    boolean searchByParentFolder = GrouperConfig.retrieveConfig().propertyValueBoolean("groupUniqueNameCaseInsensitiveHook.searchByParentFolder", false);
-//
-//    if (searchByParentFolder) {
-//      String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
-//
-//      count = HibernateSession.byHqlStatic()
-//          .createQuery("select count(theGroup) from Group theGroup, Stem theStem "
-//              + "where lower(theGroup.extensionDb) = :theExtension "
-//              + "and theStem.nameDb = :stemName "
-//              + "and theGroup.parentUuid = theStem.uuid "
-//              + "and theGroup.uuid != :theUuid ")
-//          .setString("theExtension", StringUtils.defaultString(GrouperUtil.extensionFromName(group.getName())).toLowerCase())
-//          .setString("stemName", parentFolderName)
-//          .setString("theUuid", group.getId())
-//          .uniqueResult(long.class);
-//      
-//    } else {
-    
     if (count > 0) {
-      throw new HookVeto(VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE, "The group ID is already in use, please use a different ID");
+      count = HibernateSession.byHqlStatic().createQuery("select count(theGroup) "
+          + "from Group as theGroup where "
+          + " (lower(theGroup.nameDb) in (:theName, :theName2) or lower(theGroup.alternateNameDb) in (:theName, :theName2)) "
+          + "and theGroup.uuid != :theUuid ")
+          .setString("theName", group.getName().toLowerCase())
+          .setString("theName2", GrouperUtil.defaultIfEmpty(group.getAlternateName(), group.getName()).toLowerCase())
+          .setString("theUuid", group.getId()).uniqueResult(long.class);
+      if (count > 0) {
+        throw new HookVeto(VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.group.unique.idCaseInsensitive.default"));
+      } else {
+        throw new HookVeto(VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.group.unique.nameCaseInsensitive.default"));
+      }
     }
-        
+
+    
   }
   
   /**
@@ -102,7 +140,9 @@ public class GroupUniqueNameCaseInsensitiveHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME)) {
+    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_DISPLAY_NAME) 
+        || group.dbVersionDifferentFields().contains(Group.FIELD_ALTERNATE_NAME_DB)) {
       verifyCaseInsensitiveName(group);
     }
   }

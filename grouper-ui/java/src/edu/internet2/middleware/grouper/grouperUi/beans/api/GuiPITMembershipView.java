@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -37,24 +38,25 @@ public class GuiPITMembershipView {
 
 
   /**
-   * start label string yyyy/mm/dd
-   * @return the start label string yyyy/mm/dd
+   * start label string, format based on ui property uiV2.group.PITMembership.dateFormat
+   * @return the formatted start date
    */
   public String getStartTimeLabel() {
         
     if (this.membership == null || this.membership.getStartTime() == null) {
       return null;
     }
-    
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm aa");
+
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm aa");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
     
     return simpleDateFormat.format(this.membership.getStartTime());
     
   }
 
   /**
-   * end label string yyyy/mm/dd
-   * @return the end label string yyyy/mm/dd
+   * end label string, format based on ui property uiV2.group.PITMembership.dateFormat
+   * @return the formatted end date
    */
   public String getEndTimeLabel() {
     
@@ -62,8 +64,9 @@ public class GuiPITMembershipView {
     if (this.membership == null || this.membership.getEndTime() == null) {
       return null;
     }
-    
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm aa");
+
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm aa");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
     
     return simpleDateFormat.format(this.membership.getEndTime());
     

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -492,7 +493,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       //  {
       //    "@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users(accountEnabled,assignedPlans,mail,onPremisesImmutableId,onPremisesLastSyncDateTime,onPremisesSamAccountName,proxyAddresses,showInAddressList,userPrincipalName,userType,provisionedPlans)/$entity",
       //    "accountEnabled":true,
-      result.put("accountEnabled", jsonObject.containsKey("accountEnabled") ? jsonObject.getBoolean("accountEnabled") : false);
+      result.put("accountEnabled",(jsonObject.containsKey("accountEnabled") && !(jsonObject.get("accountEnabled") instanceof JSONNull)) ? jsonObject.getBoolean("accountEnabled") : false );
       
       //    "assignedPlans":[
       //       {
@@ -554,7 +555,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
 
       //    "showInAddressList":true,
-      result.put("showInAddressList", jsonObject.getBoolean("showInAddressList"));
+      result.put("showInAddressList", (jsonObject.containsKey("showInAddressList") && !(jsonObject.get("showInAddressList") instanceof JSONNull)) ? jsonObject.getBoolean("showInAddressList") : false);
 
       //   userType,provisionedPlans
 

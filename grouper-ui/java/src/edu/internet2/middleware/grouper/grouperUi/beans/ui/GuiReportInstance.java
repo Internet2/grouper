@@ -10,9 +10,13 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.Subject;
 
 public class GuiReportInstance {
   
@@ -25,6 +29,33 @@ public class GuiReportInstance {
    * details of the report run
    */
   private GrouperReportInstance reportInstance;
+  
+  /**
+   * take in pennperson::::89505485,pennperson::::10021368 and return gui subject short strings
+   * @param subjectString
+   * @return gui subject short link
+   */
+  public String processSubjects(String subjectString) {
+    if (StringUtils.isBlank(subjectString)) {
+      return subjectString;
+    }
+    StringBuilder result = new StringBuilder();
+    String[] packedSubjects = GrouperUtil.splitTrim(subjectString, ",");
+    
+    for (String packedSubject : packedSubjects) {
+      if (result.length() > 0) {
+        result.append(", ");
+      }
+      Subject subject = SubjectFinder.findByPackedSubjectString(packedSubject, false);
+      if (subject == null) {
+        result.append(packedSubject);
+      } else {
+        GuiSubject guiSubject = new GuiSubject(subject);
+        result.append(guiSubject.getShortLink());
+      }
+    }
+    return result.toString();
+  }
   
   /**
    * @param reportConfigBean

@@ -5,13 +5,13 @@
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
            <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');">${textContainer.text['miscellaneousProvisionerConfigurationsBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-           <li class="active">${textContainer.text['miscellaneousProvisionerConfigAddBreadcrumb'] }</li>
+           <li class="active">${textContainer.text['miscellaneousProvisionerConfigEditBreadcrumb'] }</li>
        </ul>
        
        <div class="page-header blue-gradient">
        
          <div class="row-fluid">
-           <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h4></div>
+           <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsEditProvisionerDescription'] }</h1></div>
            <div class="span2 pull-right">
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
@@ -40,9 +40,13 @@
                	
                	<c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
 			  		<tbody>
-			  			<c:if test="${!grouper:isBlank(subSection.label)}">
+			  			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
 				  			<tr>
 				  				<th colspan="3">
+                    <%-- the header needs to be on a field to subsitute the name in the label if there --%>
+                    <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                      property="currentConfigSuffix"
+                      value="${subSection.label}.header" />  
 				  					<h4>${subSection.title}</h4>
 				  					<p style="font-weight: normal;">${subSection.description} </p>
 				  				</th>
@@ -52,6 +56,13 @@
 			  			
 			  			<c:forEach items="${subSection.attributesValues}" var="attribute">
 			  				
+			  				<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+				               	property="index"
+				               	value="${attribute.repeatGroupIndex}" />
+                <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                        property="currentConfigSuffix"
+                        value="${attribute.configSuffix}" />  
+				               	
 			  				<grouper:configFormElement 
 			  					formElementType="${attribute.formElement}" 
 			  					configId="${attribute.configSuffix}" 
@@ -63,7 +74,7 @@
 			  					shouldShow="${attribute.show}"
 			  					value="${attribute.valueOrExpressionEvaluation}"
 			  					hasExpressionLanguage="${attribute.expressionLanguage}"
-			  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.editProvisionerConfiguration?provisionerConfigId=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
+			  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.editProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
 			  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 			  					checkboxAttributes="${attribute.checkboxAttributes}"
 			  				/>

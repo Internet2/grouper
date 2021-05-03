@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.cache;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -53,6 +55,10 @@ public class GrouperCacheUtils {
     
     // whats the difference between these two?
     EhcacheController.ehcacheController().flushCache();
+    
+    GrouperObjectTypesAttributeNames.clearCache();
+    
+    GrouperAttestationJob.clearCache();
 
   }
   

@@ -39,6 +39,7 @@ public class AllDeprovisioningTests {
     suite.addTestSuite(GrouperDeprovisioningLogicTest.class);
     suite.addTestSuite(GrouperDeprovisioningOverallConfigurationTest.class);
     suite.addTestSuite(GrouperDeprovisioningEmailServiceTest.class);
+    suite.addTestSuite(GrouperDeprovisioningDaemonLogicTest.class);
     //$JUnit-END$
     return suite;
   }

@@ -62,6 +62,16 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupTypeSecurityHook extends GroupTypeTupleHooks {
   
   /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+    registeredSuccess = false;
+    groupTypeToGroupMap.clear();
+    groupTypeWheelOnly.clear();
+  }
+
+  /**
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GroupTypeSecurityHook.class);

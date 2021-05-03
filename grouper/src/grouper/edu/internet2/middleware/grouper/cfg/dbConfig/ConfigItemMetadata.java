@@ -155,6 +155,83 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * common label of repeated configs that should be in a repeated block
+   */
+  private String repeatGroup;
+  
+  /**
+   * common label of repeated configs that should be in a repeated block
+   * @return
+   */
+  public String getRepeatGroup() {
+    return repeatGroup;
+  }
+
+  /**
+   * common label of repeated configs that should be in a repeated block
+   * @param repeatGroup
+   */
+  public void setRepeatGroup(String repeatGroup) {
+    this.repeatGroup = repeatGroup;
+  }
+  
+  /**
+   * how many times a property should be repeated
+   */
+  private int repeatCount;
+  
+  /**
+   * how many times a property should be repeated
+   * @return
+   */
+  public int getRepeatCount() {
+    return repeatCount;
+  }
+
+  /**
+   * how many times a property should be repeated
+   * @param repeatCount
+   */
+  public void setRepeatCount(int repeatCount) {
+    this.repeatCount = repeatCount;
+  }
+  
+  /**
+   * repeat group index - 0 based. only applicable for repeat groups
+   */
+  private int repeatGroupIndex;
+  
+  
+  public int getRepeatGroupIndex() {
+    return repeatGroupIndex;
+  }
+
+  
+  public void setRepeatGroupIndex(int repeatGroupIndex) {
+    this.repeatGroupIndex = repeatGroupIndex;
+  }
+
+  /**
+   * used for ordering elements
+   */
+  private int order;
+  
+  /**
+   * @return used for ordering elements
+   */
+  public int getOrder() {
+    return order;
+  }
+
+  /**
+   * used for ordering elements
+   * @param order
+   */
+  public void setOrder(int order) {
+    this.order = order;
+  }
+
+  /**
    * put a label to group items together.  if blank then all in default subsection
    */
   private String subSection;
@@ -251,6 +328,47 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * replace $i$ with repeat index
+   * @param repeatIndex
+   * @return
+   */
+  public ConfigItemMetadata clone(int repeatIndex) {
+    
+    ConfigItemMetadata copy = new ConfigItemMetadata();
+    copy.checkboxValuesFromClass = GrouperUtil.replace(this.checkboxValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.comment = GrouperUtil.replace(this.comment, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.key = GrouperUtil.replace(this.key, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.mustExtendClass = GrouperUtil.replace(this.mustExtendClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.mustImplementInterface = GrouperUtil.replace(this.mustImplementInterface, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.optionValuesFromClass = GrouperUtil.replace(this.optionValuesFromClass, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.regex = GrouperUtil.replace(this.regex, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.repeatGroup = GrouperUtil.replace(this.repeatGroup, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.requiredEl = GrouperUtil.replace(this.requiredEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.defaultValueEl = GrouperUtil.replace(this.defaultValueEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.defaultValue = GrouperUtil.replace(this.defaultValue, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleKey = GrouperUtil.replace(this.sampleKey, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.sampleValue = GrouperUtil.replace(this.sampleValue, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.showEl = GrouperUtil.replace(this.showEl, "$i$", GrouperUtil.stringValue(repeatIndex));
+    copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
+    
+    copy.formElement = this.formElement;
+    copy.multiple = this.multiple;
+    copy.optionValues = this.optionValues;
+    copy.order = this.order;
+    copy.readOnly = this.readOnly;
+    copy.requiresRestart = this.requiresRestart;
+    copy.required = this.required;
+    copy.sensitive = this.sensitive;
+    copy.valueType = this.valueType;
+    copy.saveToDb = this.saveToDb;
+//    copy.rawMetadataJson = this.rawMetadataJson;
+//    copy.repeatCount = this.repeatCount;
+//    copy.value = this.valueType;
+    
+    return copy;
+  }
+  
+  /**
    * 
    */
   public void processMetadata() {
@@ -272,6 +390,12 @@ public class ConfigItemMetadata {
     this.optionValuesFromClass = null;
     this.checkboxValuesFromClass = null;
     this.readOnly = false;
+    this.saveToDb = true;
+    this.repeatGroup = null;
+    this.defaultValue = null;
+    this.defaultValueEl = null;
+    this.repeatCount = 0;
+    this.order = 0;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
       
@@ -280,6 +404,21 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("multiple")) {
         this.multiple = jsonObject.getBoolean("multiple");
         jsonObject.remove("multiple");
+      }
+      
+      if (jsonObject.containsKey("repeatGroup")) {
+        this.repeatGroup = jsonObject.getString("repeatGroup");
+        jsonObject.remove("repeatGroup");
+      }
+      
+      if (jsonObject.containsKey("repeatCount")) {
+        this.repeatCount = jsonObject.getInt("repeatCount");
+        jsonObject.remove("repeatCount");
+      }
+      
+      if (jsonObject.containsKey("order")) {
+        this.order = jsonObject.getInt("order");
+        jsonObject.remove("order");
       }
       
       if (jsonObject.containsKey("mustExtendClass")) {
@@ -307,6 +446,11 @@ public class ConfigItemMetadata {
         jsonObject.remove("regex");
       }
       
+      if (jsonObject.containsKey("defaultValueEl")) {
+        this.defaultValueEl = jsonObject.getString("defaultValueEl");
+        jsonObject.remove("defaultValueEl");
+      }
+      
       if (jsonObject.containsKey("required")) {
         this.required = jsonObject.getBoolean("required");
         jsonObject.remove("required");
@@ -315,6 +459,11 @@ public class ConfigItemMetadata {
       if (jsonObject.containsKey("readOnly")) {
         this.readOnly = jsonObject.getBoolean("readOnly");
         jsonObject.remove("readOnly");
+      }
+      
+      if (jsonObject.containsKey("saveToDb")) {
+        this.saveToDb = jsonObject.getBoolean("saveToDb");
+        jsonObject.remove("saveToDb");
       }
       
       if (jsonObject.containsKey("requiresRestart")) {
@@ -615,6 +764,27 @@ public class ConfigItemMetadata {
   }
   
   /**
+   * default value EL expression
+   */
+  private String defaultValueEl;
+  
+  /**
+   * default value EL expression
+   * @return
+   */
+  public String getDefaultValueEl() {
+    return defaultValueEl;
+  }
+
+  /**
+   * default value EL expression
+   * @param defaultValueEl
+   */
+  public void setDefaultValueEl(String defaultValueEl) {
+    this.defaultValueEl = defaultValueEl;
+  }
+
+  /**
    * fully qualified classname that this value which is a class must extend
    */
   private String mustExtendClass;
@@ -682,6 +852,27 @@ public class ConfigItemMetadata {
   }
   
   /**
+   * should this propery be saved to database?
+   */
+  private boolean saveToDb = true;
+
+  /**
+   * should this propery be saved to database?
+   * @return
+   */
+  public boolean isSaveToDb() {
+    return this.saveToDb;
+  }
+
+  /**
+   * should this propery be saved to database?
+   * @param readOnly
+   */
+  public void setSaveToDb(boolean saveToDb) {
+    this.saveToDb = saveToDb;
+  }
+  
+  /**
    * option values from class for dropdowns
    */
   private String optionValuesFromClass;
@@ -721,7 +912,5 @@ public class ConfigItemMetadata {
   public void setCheckboxValuesFromClass(String checkboxValuesFromClass) {
     this.checkboxValuesFromClass = checkboxValuesFromClass;
   }
-  
-  
   
 }

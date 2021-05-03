@@ -54,8 +54,7 @@
                 ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
 
                 <c:choose>
-                  <%-- we only have subject at this point, take out the || true when we can do attribute def screen --%>
-                  <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject || true}">
+                  <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
                     <a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToSubjectButton']}</a>
                   </c:when>

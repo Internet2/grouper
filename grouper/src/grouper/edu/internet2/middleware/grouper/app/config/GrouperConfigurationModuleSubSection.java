@@ -3,10 +3,13 @@ package edu.internet2.middleware.grouper.app.config;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperConfigurationModuleSubSection {
   
@@ -19,7 +22,7 @@ public class GrouperConfigurationModuleSubSection {
    * provisioner configuration this subsection is child of 
    */
   private GrouperConfigurationModuleBase configuration;
-  
+
   public String getLabel() {
     return label;
   }
@@ -43,12 +46,26 @@ public class GrouperConfigurationModuleSubSection {
    * @return
    */
   public String getTitle() {
-    String configPrefix = getConfiguration().getConfigurationTypePrefix();
-    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label +".title");
+    
+    String realConfigSuffix = this.label;
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+", ".i");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String title = GrouperTextContainer.textOrNull("config." + this.configuration.getClass().getSimpleName() + ".subSection." + iOrRealConfigSuffix + ".title");
+
     if (StringUtils.isBlank(title)) {
-      return label;
+      
+      title = GrouperTextContainer.textOrNull("config.GenericConfiguration.subSection." + iOrRealConfigSuffix + ".title");
     }
+    
+    if (StringUtils.isBlank(title)) {
+      title = iOrRealConfigSuffix;
+    } else {
+      title = this.configuration.formatIndexes(realConfigSuffix, hasIconfigSuffix, title);
+    }      
     return title;
+
+    
   }
   
   /**
@@ -56,12 +73,26 @@ public class GrouperConfigurationModuleSubSection {
    * @return
    */
   public String getDescription() {
-    String configPrefix = getConfiguration().getConfigurationTypePrefix();
-    String title = GrouperTextContainer.textOrNull(configPrefix + "." + this.configuration.getClass().getSimpleName() + ".subSection." + this.label + ".description");
-    if (StringUtils.isBlank(title)) {
-      return label;
+    
+    String realConfigSuffix = this.label;
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+", ".i");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String description = GrouperTextContainer.textOrNull("config." + this.configuration.getClass().getSimpleName() + ".subSection." + iOrRealConfigSuffix + ".description");
+
+    if (StringUtils.isBlank(description)) {
+      
+      description = GrouperTextContainer.textOrNull("config.GenericConfiguration.subSection." + iOrRealConfigSuffix + ".description");
     }
-    return title;
+    
+    if (StringUtils.isBlank(description)) {
+      description = iOrRealConfigSuffix;
+    } else {
+      description = this.configuration.formatIndexes(realConfigSuffix, hasIconfigSuffix, description);
+    }      
+    return description;
+
+    
   }
 
   /**
@@ -84,6 +115,18 @@ public class GrouperConfigurationModuleSubSection {
    */
   public Collection<GrouperConfigurationModuleAttribute> getAttributesValues() {
     return this.getAttributes().values();
+  }
+  
+  /**
+   * only show when at least one of the attributes is show in this subsection
+   * @return
+   */
+  public boolean isShow() {
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute:  this.getAttributesValues()) {
+      if (grouperConfigModuleAttribute.isShow()) return true;
+    }
+    return false;
   }
 
 }

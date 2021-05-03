@@ -52,6 +52,14 @@ public class MembershipCannotAddSelfToGroupHook extends MembershipHooks {
   /**
    * 
    */
+  public static void clearHook() {
+    registered = false;
+    stemHasMembershipOneAttribute.clear();
+  }
+
+  /**
+   * 
+   */
   public static final String HOOK_VETO_CANNOT_ADD_SELF_TO_GROUP = "hook.veto.cannotAddSelfToGroup";
 
   /** logger */

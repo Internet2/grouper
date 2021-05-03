@@ -17,6 +17,11 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperConfigurationModuleAttribute {
   
+  public GrouperConfigurationModuleAttribute() {
+    super();
+  }
+
+
   private GrouperConfigurationModuleBase grouperConfigModule;
   
   /**
@@ -79,8 +84,12 @@ public class GrouperConfigurationModuleAttribute {
    */
   private List<MultiKey> checkboxAttributes;
 
+  /**
+   * if this is a repeat group; this is a 0 based index.
+   */
+  private int repeatGroupIndex = -1;
   
-  
+
   public GrouperConfigurationModuleBase getGrouperConfigModule() {
     return grouperConfigModule;
   }
@@ -115,15 +124,7 @@ public class GrouperConfigurationModuleAttribute {
       return false;
     }
     
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    variableMap.put("grouperUtil", new GrouperUtilElSafe());
-    
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
-      
-      variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
-      
-    }
+    Map<String, Object> variableMap = this.grouperConfigModule.retrieveObjectValueSubstituteMap();
 
     String requiredString = GrouperUtil.substituteExpressionLanguage(requiredEl, variableMap, true, true, true);
     
@@ -215,10 +216,22 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getLabel() {
-    String label = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".label");
+    
+    String realConfigSuffix = this.getConfigSuffix();
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String label = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + iOrRealConfigSuffix + ".label");
+
     if (StringUtils.isBlank(label)) {
-      return this.getConfigSuffix();
+      label = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute." + iOrRealConfigSuffix + ".label");
     }
+    
+    if (StringUtils.isBlank(label)) {
+      label = iOrRealConfigSuffix;
+    } else {
+      label = this.grouperConfigModule.formatIndexes(realConfigSuffix, hasIconfigSuffix, label);
+    }      
     return label;
   }
 
@@ -227,11 +240,28 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getDescription() {
-    String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + this.getConfigSuffix() + ".description");
+    
+    
+    String realConfigSuffix = this.getConfigSuffix();
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String description = GrouperTextContainer.textOrNull("config." + this.getGrouperConfigModule().getClass().getSimpleName() + ".attribute." + iOrRealConfigSuffix + ".description");
+
     if (StringUtils.isBlank(description)) {
-      return this.getConfigItemMetadata().getComment();
+      description = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute." + iOrRealConfigSuffix + ".description");
+    }
+    
+    if (StringUtils.isBlank(description)) {
+      description = this.getConfigItemMetadata().getComment();
+    } else {
+      description = this.grouperConfigModule.formatIndexes(realConfigSuffix, hasIconfigSuffix, description);
+    }      
+    if (StringUtils.isBlank(description)) {
+      return iOrRealConfigSuffix;
     }
     return description;
+    
   }
 
 
@@ -290,6 +320,16 @@ public class GrouperConfigurationModuleAttribute {
   public void setCheckboxAttributes(List<MultiKey> checkboxAttributes) {
     this.checkboxAttributes = checkboxAttributes;
   }
+  
+  
+  public int getRepeatGroupIndex() {
+    return repeatGroupIndex;
+  }
+
+  
+  public void setRepeatGroupIndex(int repeatGroupIndex) {
+    this.repeatGroupIndex = repeatGroupIndex;
+  }
 
   /**
    * get the value or the expression language evaluation
@@ -316,7 +356,8 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getHtmlForElementIdHandle() {
-    return "#config_" + this.getConfigSuffix() + "_id";
+    // added a span so the marker for error doesnt wrap to next line
+    return "#config_" + this.getConfigSuffix() + "_spanid";
   }
   
   /**
@@ -370,7 +411,8 @@ public class GrouperConfigurationModuleAttribute {
    * @return if show
    */
   public boolean isShow() {
-    
+
+
     {
       Boolean showOverride = this.grouperConfigModule.showAttributeOverride(this.configSuffix);
       if (showOverride != null) {
@@ -383,16 +425,7 @@ public class GrouperConfigurationModuleAttribute {
       return true;
     }
     
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-
-    variableMap.put("grouperUtil", new GrouperUtilElSafe());
-    
-    for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.grouperConfigModule.retrieveAttributes().values()) {
-      
-      variableMap.put(grouperConfigModuleAttribute.getConfigSuffix(), grouperConfigModuleAttribute.getObjectValueAllowInvalid());
-      
-      
-    }
+    Map<String, Object> variableMap = this.grouperConfigModule.retrieveObjectValueSubstituteMap();
 
     String showString = GrouperUtil.substituteExpressionLanguage(showEl, variableMap, true, true, true);
     

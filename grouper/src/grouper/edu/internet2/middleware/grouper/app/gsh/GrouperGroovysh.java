@@ -15,20 +15,32 @@
  */
 package edu.internet2.middleware.grouper.app.gsh;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import jline.TerminalFactory;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
-import org.codehaus.groovy.tools.shell.Main;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import groovy.lang.MissingPropertyException;
 
@@ -37,8 +49,88 @@ import groovy.lang.MissingPropertyException;
  */
 public class GrouperGroovysh extends Groovysh {
 
+  /**
+   * if running through a script, need to exit script
+   * @param lineNumber
+   * @param line
+   * @return true if exit script
+   */
+  public static boolean scriptLineExit(int lineNumber, String it) {
+    if (it == null) {
+      return false;
+    }
+    it = it.trim();
+    if (lineNumber == 1 && it.startsWith("#!")) {
+      return true;
+    }
+
+    if (it.equals("exit") || it.startsWith("exit ") || it.startsWith("exit;") || it.equals("quit") || it.startsWith("quit ") || it.startsWith("quit;")) {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * if running through a script, need to ignore line
+   * @param lineNumber
+   * @param line
+   * @return true if skip line
+   */
+  public static boolean scriptLineIgnore(int lineNumber, String it) {
+    if (it == null) {
+      return true;
+    }
+    it = it.trim();
+    if (it.startsWith("#") || it.startsWith("//")) {
+      return true;
+    }
+    return false;
+  }
+  
   public static class GrouperGroovyResult {
     
+    /**
+     * debug map from script
+     */
+    private Map<String, Object> debugMap = null;
+    
+    /**
+     * result
+     */
+    private Object result = null;
+    
+    /**
+     * result
+     * @return
+     */
+    public Object getResult() {
+      return result;
+    }
+
+    /**
+     * result
+     * @param result
+     */
+    public void setResult(Object result) {
+      this.result = result;
+    }
+
+    /**
+     * debug map from script
+     * @return
+     */
+    public Map<String, Object> getDebugMap() {
+      return debugMap;
+    }
+    
+    /**
+     * debug map from script
+     * @param debugMap
+     */
+    public void setDebugMap(Map<String, Object> debugMap) {
+      this.debugMap = debugMap;
+    }
+
     private Integer resultCode;
     
     /**
@@ -58,22 +150,23 @@ public class GrouperGroovysh extends Groovysh {
     /**
      * output
      */
-    private String outString;
+    private StringBuilder outString = null;
     
     /**
      * @return the outString
      */
     public String getOutString() {
-      return this.outString;
+      return this.outString.toString();
     }
     
     /**
-     * @param outString the outString to set
+     * 
+     * @param outString
      */
-    public void setOutString(String outString) {
+    public void setOutString(StringBuilder outString) {
       this.outString = outString;
     }
-    
+
     /**
      * millis that this took
      */
@@ -94,7 +187,34 @@ public class GrouperGroovysh extends Groovysh {
     public void setMillis(long millis1) {
       this.millis = millis1;
     }
+
+    public void setException(RuntimeException exception) {
+      this.exception = exception;
+    }
     
+    private RuntimeException exception;
+
+    
+    public RuntimeException getException() {
+      return exception;
+    }
+
+    public String fullOutput() {
+      if (GrouperUtil.length(this.debugMap) > 0 || (this.outString != null && this.outString.length() > 0)) {
+        StringBuilder fullOutput = new StringBuilder();
+        if (GrouperUtil.length(this.debugMap) > 0) {
+          fullOutput.append("Debug map: ").append(GrouperUtil.trim(GrouperUtil.mapToString(this.debugMap)));
+        }
+        if (this.outString != null && this.outString.length() > 0) {
+          if (fullOutput.length() > 0) {
+            fullOutput.append("\n");
+          }
+          fullOutput.append("Output: ").append(GrouperUtil.trim(this.outString.toString()));
+        }
+        return fullOutput.toString();
+      }
+      return null;
+    }
   }
   
   /**
@@ -104,60 +224,177 @@ public class GrouperGroovysh extends Groovysh {
    * @return the result
    */
   public static GrouperGroovyResult runScript(String script) {
-    
+    return runScript(script, false);
+  }
+
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   */
+  public static GrouperGroovyResult runScript(String script, boolean lightWeight) {
     GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+    runScript(new GrouperGroovyInput().assignScript(script).assignLightWeight(lightWeight), grouperGroovyResult);
+    return grouperGroovyResult;
+  }
+
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   * @deprecated since sendErrToOut doesnt make sense
+   */
+  public static GrouperGroovyResult runScript(String script, boolean lightWeight, boolean sendErrToOut) {
+    return runScript(script, lightWeight);
+  }
+
+  /**
+   * cache 10000 scripts
+   */
+  private static Map<String, GrouperGroovyScript> scriptCache = Collections.synchronizedMap(new LinkedHashMap<String, GrouperGroovyScript>() {
+
+    @Override
+    protected boolean removeEldestEntry(Entry<String, GrouperGroovyScript> eldest) {
+      return size() > 10000;
+    }
     
-    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-    ByteArrayOutputStream errStream = new ByteArrayOutputStream();
     
-    // we dont need an input stream
-    ByteArrayInputStream inStream = new ByteArrayInputStream(new byte[0]);
-    long startNanos = System.nanoTime();
+  });
+  
+  
+  private static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+  
+  private static Compilable scriptEngine = (Compilable)scriptEngineManager.getEngineByName("groovy");
+  
+  /**
+   * run a script and return the result.  Note, check for exception and rethrow.
+   * Note this uses
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @return the result
+   */
+  public static void runScript(GrouperGroovyInput grouperGroovyInput, GrouperGroovyResult grouperGroovyResult) {
+    
+    grouperGroovyResult = grouperGroovyResult == null ? new GrouperGroovyResult() : grouperGroovyResult;
+    
+    long[] startNanos = new long[] {System.nanoTime()};
     
     Throwable throwable = null;
-    GrouperGroovysh shell = null;
+
+    GrouperGroovyRuntime grouperGroovyRuntime = grouperGroovyInput.getGrouperGroovyRuntime() == null ? new GrouperGroovyRuntime() : grouperGroovyInput.getGrouperGroovyRuntime();
+    grouperGroovyRuntime.assignThreadLocalGrouperGroovyRuntime();
     try {    
-      Main.setTerminalType(TerminalFactory.AUTO, false);
-      IO io = new IO(inStream, outStream, errStream);
-      CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
-      compilerConfiguration.setTolerance(0);
-//      Logger.io = io;
-      compilerConfiguration.setParameters(false);
-      boolean exitOnError = GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnProgrammaticError", true);
-      shell = new GrouperGroovysh(io, compilerConfiguration, exitOnError);
-      StringBuilder body = new StringBuilder(script);
-      body.insert(0, ":load '" + GrouperUtil.fileFromResourceName("groovysh.profile").getAbsolutePath() + "'\n");
-      body.append("\n:exit");
-      int code = shell.run(body.toString());
-      grouperGroovyResult.setResultCode(code);
+      StringBuilder script = new StringBuilder();
+      if (grouperGroovyInput.isLightWeight()) {
+        script.append(GrouperUtil.readResourceIntoString("groovy_lightWeight.profile", false)).append("\n");
+      } else {
+        script.append(GrouperUtil.readResourceIntoString("groovy.profile", false)).append("\n");
+      }
+
+      GrouperUtil.assertion(!StringUtils.isBlank(grouperGroovyInput.getScript()), "Script is required");
+      
+      script.append(grouperGroovyInput.getScript());
+      
+      String scriptString = script.toString();
+      GrouperGroovyScript grouperGroovyScript = scriptCache.get(scriptString);
+      
+      if (grouperGroovyScript == null) {
+        grouperGroovyScript = new GrouperGroovyScript();
+        grouperGroovyScript.setScript(scriptString);
+        try {
+          CompiledScript compiledScript = scriptEngine.compile(scriptString);
+          grouperGroovyScript.setCompiledScript(compiledScript);
+        } catch (ScriptException scriptException) {
+          throw new RuntimeException("error compiling script", scriptException);
+        }
+        scriptCache.put(scriptString, grouperGroovyScript);
+      }
+      
+      CompiledScript compiledScript = grouperGroovyScript.getCompiledScript();
+      
+      grouperGroovyRuntime.setInputNameToValue(grouperGroovyInput.getInputNameToValue());
+      grouperGroovyRuntime.setAverageExecutionTimeMillis(grouperGroovyScript.getAverageExecutionTimeMillis());
+
+      if (!grouperGroovyInput.isRunAsRoot()) {
+        // this throw exception if not there
+        GrouperSession.staticGrouperSession();
+      }
+      final GrouperGroovyResult GROUPER_GROOVY_RESULT = grouperGroovyResult;
+      
+      GrouperSession.internal_callbackRootGrouperSession(grouperGroovyInput.isRunAsRoot(), new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          grouperGroovyRuntime.setGrouperSession(grouperSession);
+          // reset after compile so we dont affect avg speed
+          grouperGroovyRuntime.resetStartMillis1970();
+
+          // something in thread might want results while running
+          GROUPER_GROOVY_RESULT.setDebugMap(grouperGroovyRuntime.getDebugMap());
+          GROUPER_GROOVY_RESULT.setOutString(grouperGroovyRuntime.getOutString());
+          
+          startNanos[0] = System.nanoTime();
+          
+          // might want to run this in transaction
+          HibernateSession.callbackHibernateSession(
+              grouperGroovyInput.isUseTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
+                  AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                    
+                    @Override
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      try {
+                        Object result = compiledScript.eval();
+                        
+                        GROUPER_GROOVY_RESULT.setResult(result);
+                      } catch (ScriptException scriptException) {
+                        if (scriptException.getCause() instanceof GrouperGroovyExit) {
+                          GrouperGroovyExit grouperGroovyExit = (GrouperGroovyExit)scriptException.getCause();
+                          if (grouperGroovyExit.getExitCode() != 0 || GrouperUtil.defaultIfNull(GROUPER_GROOVY_RESULT.getResultCode(), 0) == 0) {
+                            GROUPER_GROOVY_RESULT.setResultCode(grouperGroovyExit.getExitCode());
+                          }
+                          // this is a normal exit
+                        } else {
+                          throw new RuntimeException("error running script", scriptException);
+                        }
+                      }
+                      return null;
+                    }
+                  });
+          return null;
+        }
+      });
+
+      // only register when success
+      grouperGroovyScript.registerExecutionTimeMillis((System.nanoTime() - startNanos[0])/1000000);
+      
     } catch (RuntimeException e) {
       throwable = e;
-    } finally {
-      grouperGroovyResult.setMillis((System.nanoTime() - startNanos) / 1000000);
-      try {
-        grouperGroovyResult.setOutString(new String(outStream.toByteArray()));
-      } catch (Exception e) {
-        
+      if (grouperGroovyResult.getResultCode() == null || grouperGroovyResult.getResultCode() == 0) {
+        grouperGroovyResult.setResultCode(1);
       }
-      GrouperUtil.closeQuietly(outStream);
+      grouperGroovyResult.setException(e);
+    } finally {
+      grouperGroovyRuntime.setPercentDone(100);
+      grouperGroovyResult.setMillis((System.nanoTime() - startNanos[0]) / 1000000);
       
-      // ignore err since its in the exception
-      // GrouperUtil.closeQuietly(errStream);
-
-      GrouperUtil.closeQuietly(inStream);
-
-    }
-    if (shell != null && shell.getThrowable() != null) {
-      throwable = shell.getThrowable();
+      // capture system out
+      if (grouperGroovyResult.getResultCode() == null || grouperGroovyResult.getResultCode() == 0) {
+        grouperGroovyResult.setResultCode(grouperGroovyRuntime.getResultCode());
+      }
+      GrouperGroovyRuntime.removeThreadLocalGrouperGroovyRuntime();
     }
     if (throwable != null) {
-      GrouperUtil.injectInException(throwable, "Script: " + GrouperUtil.abbreviate(script, 2000) + ", Output: " + GrouperUtil.abbreviate(grouperGroovyResult.getOutString(), 10000));
-      if (throwable instanceof RuntimeException) {
-        throw (RuntimeException)throwable;
-      }
-      throw new RuntimeException("error", throwable);
+      GrouperUtil.injectInException(throwable, "Inputs:\n" + GrouperUtil.mapToString(grouperGroovyInput.getInputNameToValue()) + "\nScript (100k max):\n" + GrouperUtil.abbreviate(grouperGroovyInput.getScript(), 100000) + "\n, Output (1000k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.fullOutput(), 1000000));
     }
-    return grouperGroovyResult;
   }
   
   private boolean exitOnError;
@@ -212,5 +449,21 @@ public class GrouperGroovysh extends Groovysh {
     }
 
     super.getErrorHook().call(cause);
+  }
+  
+  /**
+   * see if there's a grouper session running; return if it's there otherwise start root session and return that.
+   * @return
+   */
+  public static GrouperSession startRootSessionIfNoSessionRunning() {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    if (grouperSession != null) {
+      return grouperSession;
+    } 
+    
+    return GrouperSession.startRootSession();
+    
   }
 }

@@ -55,7 +55,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.DeprovisioningContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -152,10 +151,10 @@ public class UiV2Deprovisioning {
       
       grouperDeprovisioningConfiguration.storeConfiguration();
 
-      if (!grouperDeprovisioningAttributeValue.isDirectAssignment()) {
-        //update for this object since now potentially inherited
-        GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(grouperObject);
-      }
+//      if (!grouperDeprovisioningAttributeValue.isDirectAssignment()) {
+//        //update for this object since now potentially inherited
+//        GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(grouperObject);
+//      }
 
       if (grouperObject instanceof Stem && !((Stem) grouperObject).isRootStem()) {
         final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];

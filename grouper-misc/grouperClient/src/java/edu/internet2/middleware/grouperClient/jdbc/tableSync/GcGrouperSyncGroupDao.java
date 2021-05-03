@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -236,7 +237,7 @@ public class GcGrouperSyncGroupDao {
   }
 
   /**
-   * select grouper sync group by group id
+   * select grouper sync group by id
    * @param gcGrouperSyncGroupId
    * @return the group
    */
@@ -246,6 +247,36 @@ public class GcGrouperSyncGroupDao {
       gcGrouperSyncGroup = internal_groupRetrieveFromDbById(gcGrouperSyncGroupId);
     }
     return gcGrouperSyncGroup;
+  }
+  
+  /**
+   * select grouper sync groups by ids
+   * @param gcGrouperSyncGroupIds
+   * @return map of ids to gcGrouperSyncGroups
+   */
+  public Map<String, GcGrouperSyncGroup> groupRetrieveByIds(Collection<String> gcGrouperSyncGroupIds) {
+    
+    Map<String, GcGrouperSyncGroup> result = new HashMap<String, GcGrouperSyncGroup>();
+    
+    Set<String> groupIdsToGetFromDb = new HashSet<String>();
+    
+    // try from cache
+    for (String gcGrouperSyncGroupId : GrouperClientUtils.nonNull(gcGrouperSyncGroupIds)) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.internalCacheSyncGroupsById.get(gcGrouperSyncGroupId);
+      if (gcGrouperSyncGroup != null) {
+        result.put(gcGrouperSyncGroupId, gcGrouperSyncGroup);
+      } else {
+        groupIdsToGetFromDb.add(gcGrouperSyncGroupId);
+      }
+    }
+    
+    // or else get from db
+    if (groupIdsToGetFromDb.size() > 0) {
+      Map<String, GcGrouperSyncGroup> fromDb = internal_groupRetrieveFromDbByIds(groupIdsToGetFromDb);
+      result.putAll(fromDb);
+    }
+    
+    return result;
   }
 
   /**
@@ -558,6 +589,35 @@ public class GcGrouperSyncGroupDao {
   
     new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeToDatabase(gcGrouperSyncGroup);
   
+  }
+
+  /**
+   * get group ids with errors after error timestamp
+   * @param errorTimestampCheckFrom if null get all
+   * @return group ids
+   */
+  public List<String> retrieveGroupIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select group_id from grouper_sync_group where grouper_sync_id = ?" + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
+        .addBindVar(this.getGcGrouperSync().getId());
+    if (errorTimestampCheckFrom != null) {
+      gcDbAccess.addBindVar(errorTimestampCheckFrom);
+    }
+    List<String> groupIds = gcDbAccess.selectList(String.class);
+    return groupIds;
+  }
+  
+  /**
+   * get count of rows per error code
+   * @return
+   */
+  public Map<String, Integer> retrieveErrorCountByCode() {
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select error_code, count(*) from grouper_sync_group where grouper_sync_id = ? and error_code is not null group by error_code")
+        .addBindVar(this.getGcGrouperSync().getId());
+    Map<String, Integer> errorCount = gcDbAccess.selectMapMultipleRows(String.class, Integer.class);
+    return errorCount;
   }
 
 }

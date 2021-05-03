@@ -60,7 +60,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
@@ -79,6 +79,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
       if ( membershipAttributeValue != null ) {
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+        JobStatistics jobStatistics = this.getJobStatistics();
+        if (jobStatistics != null) {
+          jobStatistics.insertCount.addAndGet(1);
+        }
       }
     }
   }
@@ -111,7 +115,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       return;
     }
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
@@ -124,6 +128,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
 
     if ( membershipAttributeValue != null ) {
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.deleteCount.addAndGet(1);
+      }
       scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
     }
   }
@@ -154,7 +162,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
 
       ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
-      stats.insertCount.set(correctSubjects.size());
+      stats.insertCount.addAndGet(correctSubjects.size());
 
       // Make note of the group if it was created
       if ( ldapGroup != null ) {
@@ -174,7 +182,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Update stats with the number of values removed by group deletion
       Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
-      stats.deleteCount.set(membershipValues.size());
+      stats.deleteCount.addAndGet(membershipValues.size());
 
       return true;
     }
@@ -201,7 +209,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> extraValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), currentMembershipValues, correctMembershipValues);
 
-      stats.deleteCount.set(extraValues.size());
+      stats.deleteCount.addAndGet(extraValues.size());
 
       LOG.info("{}: Group {} has {} extra values",
           new Object[] {getDisplayName(), grouperGroupInfo, extraValues.size()});
@@ -220,7 +228,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> missingValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), correctMembershipValues, currentMembershipValues);
 
-      stats.insertCount.set(missingValues.size());
+      stats.insertCount.addAndGet(missingValues.size());
 
       LOG.info("{}: Group {} has {} missing values",
           new Object[]{getDisplayName(), grouperGroupInfo, missingValues.size()});
@@ -361,6 +369,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         if ( membershipAttributeValue != null ) {
           membershipValues.add(membershipAttributeValue);
         }
+      }
+
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(membershipValues.size());
       }
 
       StringBuilder ldifForMemberships = new StringBuilder();
@@ -535,7 +548,17 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
 
     for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
-      SearchFilter groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      SearchFilter groupLdapFilter = null;
+      if (grouperGroup == null) {
+        continue;
+      }
+      try {
+        groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      } catch (DeletedGroupException dge) {
+        LOG.debug("{}: " + dge.getMessage(), getDisplayName());
+        // cant find, just let full sync deal with it
+        continue;
+      }
       try {
         LOG.debug("{}: Searching for group {} with:: {}",
                 new Object[]{getDisplayName(), grouperGroup, groupLdapFilter});
@@ -632,7 +655,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String dn = ldapGroup.getLdapObject().getDn();
     
     LOG.info("Deleting group {} by deleting DN {}", grouperGroupInfo, dn);
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
     
-    getLdapSystem().performLdapDelete(dn);;
+    getLdapSystem().performLdapDelete(dn);
   }
 }

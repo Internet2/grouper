@@ -56,6 +56,7 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="lastUpdated" column="last_updated" type="timestamp" />
 
+    <property name="errorCodeDb" column="error_code"/>
     <property name="errorMessage" column="error_message"/>
     <property name="errorTimestamp" column="error_timestamp" type="timestamp"/>
     <property name="grouperSyncId" column="grouper_sync_id"/>
@@ -67,11 +68,19 @@
     <property name="groupName" column="group_name"/>
     <property name="groupToId2" column="group_to_id2"/>
     <property name="groupToId3" column="group_to_id3"/>
+    <!-- 
+    <property name="inGrouperDb" column="in_grouper"/>
+    <property name="inGrouperEnd" column="in_grouper_end" type="timestamp"/>
+    <property name="inGrouperInsertOrExistsDb" column="in_grouper_insert_or_exists"/>
+    <property name="inGrouperStart" column="in_grouper_start" type="timestamp"/>
+    -->
     <property name="inTargetDb" column="in_target"/>
-    <property name="inTargetEnd" column="in_target_End" type="timestamp"/>
+    <property name="inTargetEnd" column="in_target_end" type="timestamp"/>
     <property name="inTargetInsertOrExistsDb" column="in_target_insert_or_exists"/>
     <property name="inTargetStart" column="in_target_start" type="timestamp"/>
+    <property name="lastGroupMetadataSyncStart" column="last_group_metadata_sync_start" type="timestamp"/>
     <property name="lastGroupMetadataSync" column="last_group_metadata_sync" type="timestamp"/>
+    <property name="lastGroupSyncStart" column="last_group_sync_start" type="timestamp"/>
     <property name="lastGroupSync" column="last_group_sync" type="timestamp"/>
     <property name="metadataUpdated" column="metadata_updated" type="timestamp"/>
     <property name="provisionableDb" column="provisionable"/>

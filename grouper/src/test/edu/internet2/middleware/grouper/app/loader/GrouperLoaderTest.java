@@ -136,13 +136,82 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderDisplayNameAndDescriptionNotManagedByLoader"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderSqlGroupList"));
   }
 
   public void testLoaderExit() {
     GrouperLoader.scheduleJobs();
   }
   
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderSqlGroupList() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader group1subj0 = new TestgrouperLoader("loader2:a:group1", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(group1subj0);
+    TestgrouperLoader group1subj1 = new TestgrouperLoader("loader2:a:group1", SubjectTestHelper.SUBJ1_ID, null);
+    testDataList.add(group1subj1);
+    TestgrouperLoader group2subj1 = new TestgrouperLoader("loader2:b:group2", SubjectTestHelper.SUBJ1_ID, null);
+    testDataList.add(group2subj1);
+    TestgrouperLoader group2subj2 = new TestgrouperLoader("loader2:b:group2", SubjectTestHelper.SUBJ2_ID, null);
+    testDataList.add(group2subj2);
+    TestgrouperLoader group3subj2 = new TestgrouperLoader("loader2:c:group3", SubjectTestHelper.SUBJ2_ID, null);
+    testDataList.add(group3subj2);
+    TestgrouperLoader group3subj3 = new TestgrouperLoader("loader2:c:group3", SubjectTestHelper.SUBJ3_ID, null);
+    testDataList.add(group3subj3);
+    TestgrouperLoader group4subj3 = new TestgrouperLoader("loader2:d:group4", SubjectTestHelper.SUBJ3_ID, null);
+    testDataList.add(group4subj3);
+    TestgrouperLoader group4subj4 = new TestgrouperLoader("loader2:d:group4", SubjectTestHelper.SUBJ4_ID, null);
+    testDataList.add(group4subj4);
+    TestgrouperLoader group6subj5 = new TestgrouperLoader("loader2:f:group6", SubjectTestHelper.SUBJ5_ID, null);
+    testDataList.add(group6subj5);
+    TestgrouperLoader group6subj6 = new TestgrouperLoader("loader2:f:group6", SubjectTestHelper.SUBJ6_ID, null);
+    testDataList.add(group6subj6);
+
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, 
+        "SQL_GROUP_LIST");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader2:a:group1", true);
+    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
+    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ6));
+    
+    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader2:b:group2", true);
+    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ2));
+    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ6));
+    
+    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader2:c:group3", true);
+    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ6));
+  }
   /**
    * 
    */
@@ -907,7 +976,7 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "my:attrRoot");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "my:attrRoot");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
 
     

@@ -58,11 +58,18 @@
 
     <property name="membershipId2" column="membership_id2"/>
     <property name="membershipId" column="membership_id"/>
+    <property name="errorCodeDb" column="error_code"/>
     <property name="errorMessage" column="error_message"/>
     <property name="errorTimestamp" column="error_timestamp" type="timestamp"/>
     <property name="grouperSyncId" column="grouper_sync_id"/>
+    <!--
+    <property name="inGrouperDb" column="in_grouper"/>
+    <property name="inGrouperEnd" column="in_grouper_end" type="timestamp"/>
+    <property name="inGrouperInsertOrExistsDb" column="in_grouper_insert_or_exists"/>
+    <property name="inGrouperStart" column="in_grouper_start" type="timestamp"/>
+    -->
     <property name="inTargetDb" column="in_target"/>
-    <property name="inTargetEnd" column="in_target_End" type="timestamp"/>
+    <property name="inTargetEnd" column="in_target_end" type="timestamp"/>
     <property name="inTargetInsertOrExistsDb" column="in_target_insert_or_exists"/>
     <property name="inTargetStart" column="in_target_start" type="timestamp"/>
 

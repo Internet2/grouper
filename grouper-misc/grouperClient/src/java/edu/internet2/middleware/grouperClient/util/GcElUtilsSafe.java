@@ -66,6 +66,41 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public class GcElUtilsSafe {
 
   /**
+   * 
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
+  public static String readFileIntoStringUtf8(String fileName) {
+    return readFileIntoStringUtf8(fileName, true);
+  }
+
+  /**
+   * 
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
+  public static String readFileIntoStringUtf8(String fileName, boolean trim) {
+    File theFile = new File(fileName);
+    if (!theFile.exists() || !theFile.isFile()) {
+      throw new RuntimeException("File doesnt exist! '" + fileName + "'");
+    }
+    try {
+      String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
+      if (trim) {
+        fileContents = trim(fileContents);
+      }
+      return fileContents;
+    } catch (RuntimeException re) {
+      GrouperClientUtils.injectInException(re, "error reading from fileName: '" + fileName + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+      throw re;
+    }
+  }
+  
+  /**
    * read from file if env var _FILE is there, or just read var
    */
   public static String processEnvVarOrFile(String envVarOrFileBase) {
@@ -104,7 +139,7 @@ public class GcElUtilsSafe {
           return fileContents;
         } catch (RuntimeException re) {
           GrouperClientUtils.injectInException(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
-
+          throw re;
         }
          
       }

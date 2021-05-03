@@ -26,6 +26,13 @@ public enum SaveResultType {
   /** group was updated */
   UPDATE,
   
+  /** group was deleted */
+  DELETE,
+  
   /** group didnt need an update */
   NO_CHANGE;
+  
+  public boolean isChanged() {
+    return this!=NO_CHANGE;
+  }
 }

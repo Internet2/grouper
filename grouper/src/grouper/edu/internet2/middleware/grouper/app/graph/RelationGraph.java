@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Internet2
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,11 +21,15 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -61,9 +65,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
-import org.hibernate.type.StringType;
-import org.hibernate.type.Type;
-
 /**
  * Class to build a directed graph from Grouper relationships. The graph is
  * initialized from a single starting node. From there it will branch to the
@@ -92,10 +93,10 @@ public class RelationGraph {
   private static final Log LOG = GrouperUtil.getLog(RelationGraph.class);
   public static final int RECURSIVE_LEVEL_LIMIT = 100;
 
-  // Class parameters for finding immediate g:gsa members and PSPNG provisioners
+  // Class parameters for finding immediate g:gsa members and provisioners
   private static Set<Source> grouperGSASources;
   private static Field grouperMemberField;
-  private static AttributeDefName provisionToAttributeDefName;
+  private static AttributeDefName provisionToPspngAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
   private static Set<Source> nonGroupSourcesCache = null;
@@ -119,6 +120,7 @@ public class RelationGraph {
   private List<Pattern> skipFolderPatterns;
   private List<Pattern> skipGroupPatterns;
   private long maxSiblings = -1;
+  private boolean viewProvisionersAllowed = false;
 
   private GraphNode startNode;
   private Map<GrouperObject, GraphNode> objectToNodeMap;
@@ -241,10 +243,10 @@ public class RelationGraph {
   }
 
   /**
-   * flags whether to show PSPNG provisioner targets. If set, this requires that the attribute
+   * flags whether to show provisioner targets. If set, this requires that the attribute
    * definition for etc:pspng:provision_to be created, otherwise an exception in the build will occur
    *
-   * @param theShowProvisionTargets whether to include PSPNG provisioner targets
+   * @param theShowProvisionTargets whether to include provisioner targets
    * @return
    */
   public RelationGraph assignShowProvisionTargets(boolean theShowProvisionTargets) {
@@ -372,10 +374,10 @@ public class RelationGraph {
   }
 
   /**
-   * returns whether PSPNG provisioner targets should be included as graph nodes
+   * returns whether provisioner targets should be included as graph nodes
    *
    * @see #assignShowProvisionTargets(boolean)
-   * @return if PSPNG provisioners should be included in the graph
+   * @return if provisioners should be included in the graph
    */
   public boolean isShowProvisionTargets() {
     return showProvisionTargets;
@@ -499,9 +501,9 @@ public class RelationGraph {
   }
 
   /**
-   * after building, returns how many distinct PSPNG provisioners were encountered
+   * after building, returns how many distinct provisioners were encountered
    *
-   * @return the number of PSPNG provisioning targets in the graph
+   * @return the number of provisioning targets in the graph
    */
   public long getNumProvisioners() {
     return numProvisioners;
@@ -526,7 +528,7 @@ public class RelationGraph {
   }
 
   /**
-   * after building, returns how many groups have one or more PSPNG provisioner targets
+   * after building, returns how many groups have one or more provisioner targets
    *
    * @return the number of groups loaded from loader jobs
    */
@@ -686,18 +688,18 @@ public class RelationGraph {
    * return the PSPNG provisioning targets (as GrouperObject wrappers) for this group,
    * as seen in the provision_to attribute
    */
-  private List<GrouperObjectProvisionerWrapper> fetchProvisioners(Group g) {
-    if (provisionToAttributeDefName == null) {
+  private List<GrouperObjectProvisionerWrapper> fetchPspngProvisioners(Group g) {
+    if (provisionToPspngAttributeDefName == null) {
       return Collections.emptyList();
     }
 
     Set<AttributeAssign> attrAssigns = null;
     try {
-      attrAssigns = g.getAttributeDelegate().retrieveAssignments(provisionToAttributeDefName);
+      attrAssigns = g.getAttributeDelegate().retrieveAssignments(provisionToPspngAttributeDefName);
     } catch (AttributeDefNotFoundException e) {
-      LOG.debug("Failed to get provisioner attribute of group " + g.getName() + " (" + e.getMessage() + ")");
+      LOG.debug("Failed to get PSPNG provisioner attribute of group " + g.getName() + " (" + e.getMessage() + ")");
     } catch (InsufficientPrivilegeException e) {
-      LOG.debug("Failed to get provisioner attribute of group " + g.getName() + " (insufficient privilege)");
+      LOG.debug("Failed to get PSPNG provisioner attribute of group " + g.getName() + " (insufficient privilege)");
     }
 
     if (attrAssigns == null || attrAssigns.size() == 0) {
@@ -705,8 +707,6 @@ public class RelationGraph {
     }
 
     List<GrouperObjectProvisionerWrapper> ret = new LinkedList<GrouperObjectProvisionerWrapper>();
-
-    ++numGroupsToProvisioners;
 
     for (AttributeAssign aa: attrAssigns) {
       String provId = aa.getValueDelegate().retrieveValueString();
@@ -987,7 +987,31 @@ public class RelationGraph {
 
       // get provisioners
       if (showProvisionTargets) {
-        List<GrouperObjectProvisionerWrapper> provTargets = fetchProvisioners(theGroup);
+        // In 2.5, handle both PSPNG and new provisioner targets
+        Set<GrouperObjectProvisionerWrapper> provTargets = new HashSet<>();
+
+        // new provisioners
+        if (viewProvisionersAllowed) {
+          try {
+            List<GrouperProvisioningAttributeValue> provisionerAttrValues = GrouperProvisioningService.getProvisioningAttributeValues(theGroup);
+            for (GrouperProvisioningAttributeValue v : provisionerAttrValues) {
+              if (!StringUtils.isEmpty(v.getDoProvision())) {
+                provTargets.add(new GrouperObjectProvisionerWrapper(v.getTargetName()));
+              }
+            }
+          } catch (Exception e) {
+            LOG.warn("Failed to get provisioner targets for group " + theGroup.getName());
+          }
+        }
+
+        // PSPNG
+        List<GrouperObjectProvisionerWrapper> pspsngProvTargets = fetchPspngProvisioners(theGroup);
+        provTargets.addAll(pspsngProvTargets);
+
+        if (!provTargets.isEmpty()) {
+          ++numGroupsToProvisioners;
+        }
+
         for (GrouperObjectProvisionerWrapper p : provTargets) {
           if (!matchesFilter(p)) {
             GraphNode provNode = fetchOrCreateNode(p);
@@ -1157,7 +1181,10 @@ public class RelationGraph {
     leafParentNodes = new HashSet<GraphNode>();
     leafChildNodes = new HashSet<GraphNode>();
 
+    Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
+
     LOG.info("Starting graph build: "
+      + "caller=Subject[" + currentSubject + "], "
       + "start object=" + startObject.toString() + ", "
       + "max parent levels=" + getParentLevels() + ", "
       + "max child levels=" + getChildLevels() + ", "
@@ -1169,6 +1196,13 @@ public class RelationGraph {
       + "show object types=" + isShowObjectTypes() + ", "
       + "include groups in member counts=" + isIncludeGroupsInMemberCounts() + ", "
       + "folder pattern filters=" + GrouperUtil.join(skipFolderNamePatterns.toArray(), "; "));
+
+    // TODO until there is real provisioner access control, just allow read from wheel
+    if (PrivilegeHelper.isWheelOrRoot(currentSubject)) {
+      viewProvisionersAllowed = true;
+    } else {
+      LOG.info("Note: user not allowed to view provisioners, so will not be included");
+    }
 
     startNode = fetchOrCreateNode(startObject);
     startNode.setStartNode(true);
@@ -1399,7 +1433,7 @@ public class RelationGraph {
 
     try {
       String prov_to = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
-      provisionToAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(prov_to, true);
+      provisionToPspngAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(prov_to, true);
     } catch (AttributeDefNameNotFoundException e) {
       LOG.warn("Unable to retrieve PSPNG provision_to attribute; results will not include provisioning relationships", e);
     }

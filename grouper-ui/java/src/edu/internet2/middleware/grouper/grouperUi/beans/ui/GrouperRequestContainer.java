@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
@@ -172,6 +173,11 @@ public class GrouperRequestContainer {
    * data for importing members into groups
    */
   private GroupImportContainer groupImportContainer;
+  
+  /**
+   * data for provisioner diagnostics
+   */
+  private GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer;
 
   /**
    * data for importing members into groups
@@ -190,6 +196,27 @@ public class GrouperRequestContainer {
    */
   public void setGroupImportContainer(GroupImportContainer groupImportContainer1) {
     this.groupImportContainer = groupImportContainer1;
+  }
+  
+  
+  /**
+   * data for provisioner diagnostics
+   * @return grouperProvisioningDiagnosticsContainer
+   */
+  public GrouperProvisioningDiagnosticsContainer getGrouperProvisioningDiagnosticsContainer() {
+    if (this.grouperProvisioningDiagnosticsContainer == null) {
+      throw new RuntimeException("Provisioning diagnostics container needs to be initted!");
+    }
+    return this.grouperProvisioningDiagnosticsContainer;
+  }
+
+  /**
+   * data for provisioner diagnostics
+   * @param grouperProvisioningDiagnosticsContainer
+   */
+  public void setGrouperProvisioningDiagnosticsContainer(
+      GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer) {
+    this.grouperProvisioningDiagnosticsContainer = grouperProvisioningDiagnosticsContainer;
   }
 
   /** 
@@ -360,6 +387,9 @@ public class GrouperRequestContainer {
     }
     
     HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    if (httpServletRequest == null) {
+      throw new RuntimeException("This is not a UI environment.  Either pass the env var: GROUPER_UI=true, or set in grouper.hibernate.properties: grouper.is.ui=true");
+    }
     String attributeName = "grouperRequestContainer";
     GrouperRequestContainer grouperRequestContainer = 
       (GrouperRequestContainer)httpServletRequest.getAttribute(attributeName);
@@ -645,6 +675,11 @@ public class GrouperRequestContainer {
   private SubjectResolutionContainer subjectResolutionContainer;
   
   /**
+   * container for subject sources
+   */
+  private SubjectSourceContainer subjectSourceContainer;
+  
+  /**
    * container for external systems
    */
   private ExternalSystemContainer externalSystemContainer;
@@ -662,6 +697,23 @@ public class GrouperRequestContainer {
     return this.externalSystemContainer;
   }
   
+  /**
+   * container for gsh templates
+   */
+  private GshTemplateContainer gshTemplateContainer;
+  
+  /**
+   * container for gsh templates
+   * @return the container
+   */
+  public GshTemplateContainer getGshTemplateContainer() {
+    if (this.gshTemplateContainer == null) {
+      this.gshTemplateContainer = new GshTemplateContainer();
+    }
+    
+    return this.gshTemplateContainer;
+  }
+
   /**
    * container for provisioner configuration
    */
@@ -755,6 +807,13 @@ public class GrouperRequestContainer {
       this.subjectResolutionContainer = new SubjectResolutionContainer();
     }
     return this.subjectResolutionContainer;
+  }
+  
+  public SubjectSourceContainer getSubjectSourceContainer() {
+    if (this.subjectSourceContainer == null) {
+      this.subjectSourceContainer = new SubjectSourceContainer();
+    }
+    return this.subjectSourceContainer;
   }
 
   /**

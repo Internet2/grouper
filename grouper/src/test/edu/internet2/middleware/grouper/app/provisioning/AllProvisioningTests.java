@@ -35,8 +35,15 @@ public class AllProvisioningTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.loader.db");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperProvisioningJobTest.class);
+    suite.addTestSuite(GrouperProvisioningObjectMetadataTest.class);
     suite.addTestSuite(GrouperProvisioningServiceTest.class);
     suite.addTestSuite(ProvisionerConfigurationTest.class);
+    suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);
+    suite.addTestSuite(GrouperProvisioningAttributePropagation.class);
+    suite.addTestSuite(ProvisionableStemSaveTest.class);
+    suite.addTestSuite(ProvisionableGroupSaveTest.class);
+    suite.addTestSuite(ProvisionableStemFinderTest.class);
+    suite.addTestSuite(ProvisionableGroupFinderTest.class);
     //$JUnit-END$
     return suite;
   }

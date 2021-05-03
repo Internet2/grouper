@@ -65,6 +65,10 @@ public class ObjectTypeContainer {
    * gui stem object types to show on auto assign screen
    */
   private List<GuiStemObjectType> guiStemObjectTypes = new ArrayList<GuiStemObjectType>();
+
+  private int totalAutoAssignSize;
+  
+  private int maxAutoAssignSize;
   
   /**
    * object type name user is currently working on
@@ -398,6 +402,26 @@ public class ObjectTypeContainer {
    */
   public boolean isObjectTypesEnabled() {
     return GrouperObjectTypesSettings.objectTypesEnabled();
+  }
+
+  
+  public int getTotalAutoAssignSize() {
+    return totalAutoAssignSize;
+  }
+
+  
+  public void setTotalAutoAssignSize(int totalAutoAssignSize) {
+    this.totalAutoAssignSize = totalAutoAssignSize;
+  }
+
+  
+  public int getMaxAutoAssignSize() {
+    return maxAutoAssignSize;
+  }
+
+  
+  public void setMaxAutoAssignSize(int maxAutoAssignSize) {
+    this.maxAutoAssignSize = maxAutoAssignSize;
   }
   
 }

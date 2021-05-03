@@ -10,12 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceGroup;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceLog;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceUser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -46,7 +47,7 @@ public class GrouperDigitalMarketplaceCommands {
    * @param args
    */
   public static void main(String[] args) {
-    
+    GrouperStartup.startup();
 //    deleteDigitalMarketplaceGroup("pg_ISC_staff", false);
 //    deleteDigitalMarketplaceGroup("pg_IT_staff", false);
 //    deleteDigitalMarketplaceGroup("pg_data_center_hosting_clients", false);
@@ -75,16 +76,16 @@ public class GrouperDigitalMarketplaceCommands {
     
 //    createDigitalMarketplaceGroup("pg_test2", "pg_test2", "comments", false);
     
-    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
-    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
-      System.out.println(grouperDigitalMarketplaceUser);
-    }
+//    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
+//    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
+//      System.out.println(grouperDigitalMarketplaceUser);
+//    }
     
-//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("cipollad");
-//    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
-//    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
-//      System.out.println(groupName);
-//    }
+    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("mchyzer");
+    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
+    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
+      System.out.println(groupName);
+    }
 
 //    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
 //    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
@@ -92,10 +93,10 @@ public class GrouperDigitalMarketplaceCommands {
 //      System.out.println(groupName);
 //    }
 
-//    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-//    GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = mapNameToGroup.get("sbe-asset-managers");
+    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
+    GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = mapNameToGroup.get("pg_ISC_staff_old");
 //    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
-//    assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
+    assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
 //    removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
     
   }
@@ -164,10 +165,10 @@ public class GrouperDigitalMarketplaceCommands {
       paramMap.put("pageSize", "" + pageSize);
       paramMap.put("startIndex", "" + startIndex);
       
-      JSONObject jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
       
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
-      debugMap.put("totalSize", jsonObject.getString("totalSize"));
+      debugMap.put("totalSize", GrouperUtil.jsonJacksonGetInteger(jsonObject, "totalSize")); 
       
       List<String> ids = new ArrayList<String>(results.keySet());
 
@@ -211,7 +212,7 @@ public class GrouperDigitalMarketplaceCommands {
       paramMap.put("startIndex", "0");
       paramMap.put("loginName", loginid);
 
-      JSONObject jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
 
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
 
@@ -243,7 +244,7 @@ public class GrouperDigitalMarketplaceCommands {
    * @param paramMap
    * @return the json object
    */
-  private static JSONObject executeGetMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
   
     HttpClient httpClient = httpClient(debugMap);
   
@@ -281,9 +282,9 @@ public class GrouperDigitalMarketplaceCommands {
       return null;
     }
     
-    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( body );     
-  
-    return jsonObject;
+    JsonNode rootNode = GrouperUtil.jsonJacksonNode(body);
+
+    return rootNode;
   }
 
   /**
@@ -376,7 +377,9 @@ public class GrouperDigitalMarketplaceCommands {
           postMethod.setRequestHeader("Content-Type", "application/json");
           postMethod.setRequestHeader("X-Requested-By", username);
           
-          JSONObject jsonObject = new JSONObject();
+          ObjectMapper objectMapper = new ObjectMapper();
+          
+          ObjectNode jsonObject = objectMapper.createObjectNode();
           jsonObject.put("id", username);
           jsonObject.put("password", wsPass);
           
@@ -460,7 +463,7 @@ public class GrouperDigitalMarketplaceCommands {
    * @param jsonObject
    * @return the map from netId to user object
    */
-  private static Map<String, GrouperDigitalMarketplaceUser> convertMarketplaceUsersFromJson(JSONObject jsonObject) {
+  private static Map<String, GrouperDigitalMarketplaceUser> convertMarketplaceUsersFromJson(JsonNode jsonObject) {
     Map<String, GrouperDigitalMarketplaceUser> results = new TreeMap<String, GrouperDigitalMarketplaceUser>();
   
     //    { 
@@ -496,10 +499,10 @@ public class GrouperDigitalMarketplaceCommands {
     //            ], ...
     //         }, 
 
-    JSONArray jsonObjectEntries = jsonObject.getJSONArray("data");
+    JsonNode jsonObjectEntries = jsonObject.get("data");
     for (int i=0; i < jsonObjectEntries.size(); i++) {
       
-      JSONObject jsonObjectUser = jsonObjectEntries.getJSONObject(i);
+      JsonNode jsonObjectUser = jsonObjectEntries.get(i);
       
       GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = new GrouperDigitalMarketplaceUser();
 
@@ -507,7 +510,7 @@ public class GrouperDigitalMarketplaceCommands {
       grouperDigitalMarketplaceUser.setJsonObject(jsonObjectUser);
       
       {
-        String userId = jsonObjectUser.getString("userId");
+        String userId = GrouperUtil.jsonJacksonGetString(jsonObjectUser, "userId");
   
         // not sure why this would happen
         if (GrouperClientUtils.isBlank(userId)) {
@@ -518,7 +521,7 @@ public class GrouperDigitalMarketplaceCommands {
       }
       
       {
-        String loginName = jsonObjectUser.getString("loginName");
+        String loginName = GrouperUtil.jsonJacksonGetString(jsonObjectUser, "loginName");
         // not sure why this would happen
         if (GrouperClientUtils.isBlank(loginName)) {
           continue;
@@ -530,9 +533,10 @@ public class GrouperDigitalMarketplaceCommands {
       }
       
       {
-        JSONArray groupsArray = jsonObjectUser.getJSONArray("groups");
+        JsonNode groupsArray = jsonObjectUser.get("groups");
         for (int j=0; j < groupsArray.size(); j++) {
-          String groupExtension = groupsArray.getString(j);
+          JsonNode jsonNode = groupsArray.get(j);
+          String groupExtension = jsonNode.asText();
           grouperDigitalMarketplaceUser.getGroups().add(groupExtension);
         }
       }
@@ -563,7 +567,7 @@ public class GrouperDigitalMarketplaceCommands {
       
       //doesnt work since the url shouldnt be encoded
       
-      JSONObject jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
       
       //  { 
       //    "totalSize":555,
@@ -591,37 +595,37 @@ public class GrouperDigitalMarketplaceCommands {
       //    ]
       // } 
       
-      JSONArray jsonObjectEntries = jsonObject.getJSONArray("data");
+      JsonNode jsonObjectEntries = jsonObject.get("data");
       for (int i=0; i < jsonObjectEntries.size(); i++) {
         
-        JSONObject jsonObjectGroup = jsonObjectEntries.getJSONObject(i);
+        JsonNode jsonObjectGroup = jsonObjectEntries.get(i);
         
         GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = new GrouperDigitalMarketplaceGroup();
   
         {
-          String groupName = jsonObjectGroup.getString("groupName");
+          String groupName = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "groupName");
           grouperDigitalMarketplaceGroup.setGroupName(groupName);
         }
         
         {
-          String comments = jsonObjectGroup.getString("comments");
+          String comments = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "comments");
           grouperDigitalMarketplaceGroup.setComments(comments);
         }
         
         {
-          String groupType = jsonObjectGroup.getString("groupType");
+          String groupType = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "groupType");
           grouperDigitalMarketplaceGroup.setGroupType(groupType);
         }
 
         {
-          String longGroupName = jsonObjectGroup.getString("longGroupName");
+          String longGroupName = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "longGroupName");
           grouperDigitalMarketplaceGroup.setLongGroupName(longGroupName);
         }
 
         {
           // note: this might be blank: com.bmc.arsys.rx.services.group.domain.RegularGroup
           if (jsonObjectGroup.has("resourceType")) {
-            String resourceType = jsonObjectGroup.getString("resourceType");
+            String resourceType = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "resourceType");
             grouperDigitalMarketplaceGroup.setResourceType(resourceType);
           }
         }
@@ -669,7 +673,7 @@ public class GrouperDigitalMarketplaceCommands {
       
       if (!GrouperClientUtils.nonNull(grouperDigitalMarketplaceUser.getGroups()).contains(grouperDigitalMarketplaceGroup.getGroupName())) {
         debugMap.put("foundExistingMembership", false);
-        JSONObject jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
+        JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
         
 //        {  
 //          "groups":[
@@ -680,19 +684,21 @@ public class GrouperDigitalMarketplaceCommands {
 //          ]
 //       }
         
-        JSONArray groups = jsonObject.getJSONArray("groups");
+        ArrayNode groups = (ArrayNode)jsonObject.get("groups");
 
         removeNonExistentGroups(groups, debugMap);
 
-        JSONObject userWithGroupsJson = new JSONObject();
-        JSONArray groupsJson = new JSONArray();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        ObjectNode userWithGroupsJson = objectMapper.createObjectNode();
+        ArrayNode groupsJson = objectMapper.createArrayNode();
 
         for (int i=0;i<groups.size();i++) {
-          groupsJson.add(groups.get(i));
+          groupsJson.add(groups.get(i).asText());
         }
         groupsJson.add(grouperDigitalMarketplaceGroup.getGroupName());
         
-        userWithGroupsJson.put("groups", groupsJson);
+        userWithGroupsJson.set("groups", groupsJson);
         
         String userJson = userWithGroupsJson.toString();
         
@@ -723,7 +729,7 @@ public class GrouperDigitalMarketplaceCommands {
    * @param isPutNotPost 
    * @return the json object
    */
-  private static JSONObject executePutPostMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
+  private static JsonNode executePutPostMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
   
     HttpClient httpClient = httpClient(debugMap);
   
@@ -775,7 +781,7 @@ public class GrouperDigitalMarketplaceCommands {
       return null;
     }
     
-    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( responseBody );     
+    JsonNode jsonObject = GrouperUtil.jsonJacksonNode( responseBody );     
   
     return jsonObject;
   }
@@ -784,8 +790,9 @@ public class GrouperDigitalMarketplaceCommands {
    * 
    * @param groups
    * @param debugMap 
+   * @return the new node with removed groups
    */
-  private static void removeNonExistentGroups(JSONArray groups, Map<String, Object> debugMap) {
+  private static void removeNonExistentGroups(ArrayNode groups, Map<String, Object> debugMap) {
 
     if (groups == null || groups.size() == 0) {
       return;
@@ -794,13 +801,16 @@ public class GrouperDigitalMarketplaceCommands {
     //get all groupNames
     Set<String> groupNames = new LinkedHashSet<String>();
     for (int i=0;i<groups.size();i++) {
-      String groupName = groups.getString(i);
+      String groupName = groups.get(i).asText();
       groupNames.add(groupName);
     }
-    
-    for (String groupName : groupNames) {
+
+    List<String> originalGroupNames = new ArrayList<String>(groupNames);
+
+    for (int i=0;i<originalGroupNames.size();i++) {
+      String groupName = originalGroupNames.get(i);
       if (!GrouperDigitalMarketplaceGroup.retrieveGroups().containsKey(groupName)) {
-        groups.remove(groupName);
+        groups.remove(i);
         debugMap.put("removeGroup_" + groupName, true);
       }
     }
@@ -812,7 +822,8 @@ public class GrouperDigitalMarketplaceCommands {
    * @param isIncremental
    * @return true if removed, false if not in there
    */
-  public static Boolean removeUserFromDigitalMarketplaceGroup(GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup, boolean isIncremental) {
+  public static Boolean removeUserFromDigitalMarketplaceGroup(GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, 
+      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup, boolean isIncremental) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -831,15 +842,15 @@ public class GrouperDigitalMarketplaceCommands {
       // restart timer
       startTime = System.nanoTime();
       
-      JSONObject jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
-      JSONArray groups = jsonObject.getJSONArray("groups");
+      JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
+      ArrayNode groups = (ArrayNode)jsonObject.get("groups");
       
       removeNonExistentGroups(groups, debugMap);
       
       int groupIndex = -1;
       
       for (int i=0;i<groups.size();i++) {
-        if (GrouperClientUtils.equals(grouperDigitalMarketplaceGroup.getGroupName(), groups.getString(i))) {
+        if (GrouperClientUtils.equals(grouperDigitalMarketplaceGroup.getGroupName(), groups.get(i).asText())) {
           groupIndex = i;
           break;
         }
@@ -849,14 +860,15 @@ public class GrouperDigitalMarketplaceCommands {
         
         groups.remove(groupIndex);
 
-        JSONObject userWithGroupsJson = new JSONObject();
-        JSONArray groupsJson = new JSONArray();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode userWithGroupsJson = objectMapper.createObjectNode();
+        ArrayNode groupsJson = objectMapper.createArrayNode();
 
         for (int i=0;i<groups.size();i++) {
           groupsJson.add(groups.get(i));
         }
         
-        userWithGroupsJson.put("groups", groupsJson);
+        userWithGroupsJson.set("groups", groupsJson);
         
         String userJson = userWithGroupsJson.toString();
         
@@ -917,7 +929,8 @@ public class GrouperDigitalMarketplaceCommands {
         //    "status": "Current", "tags" : ["virtualmarketplace"]
         //  }          
         
-        JSONObject groupJsonObject = new JSONObject();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode groupJsonObject = objectMapper.createObjectNode();
 
         groupJsonObject.put("resourceType", "com.bmc.arsys.rx.services.group.domain.RegularGroup");
         groupJsonObject.put("groupName", groupName);
@@ -930,7 +943,7 @@ public class GrouperDigitalMarketplaceCommands {
           groupJsonObject.put("comments", comments);
         }
         groupJsonObject.put("status", "Current");
-        JSONArray tagsArray = new JSONArray();
+        ArrayNode tagsArray = objectMapper.createArrayNode();
         tagsArray.add("virtualmarketplace");
         groupJsonObject.put("tags", tagsArray );
         
@@ -1009,7 +1022,7 @@ public class GrouperDigitalMarketplaceCommands {
    * @param paramMap
    * @return the json object
    */
-  private static JSONObject executeDeleteMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  private static JsonNode executeDeleteMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
   
     HttpClient httpClient = httpClient(debugMap);
   
@@ -1053,7 +1066,7 @@ public class GrouperDigitalMarketplaceCommands {
       return null;
     }
     
-    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( responseBody );     
+    JsonNode jsonObject = GrouperUtil.jsonJacksonNode( responseBody );     
   
     return jsonObject;
   }

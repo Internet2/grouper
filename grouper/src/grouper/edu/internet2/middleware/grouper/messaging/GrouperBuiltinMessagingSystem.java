@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -952,6 +953,10 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       throw new RuntimeException("queue doesnt exist '" + queueName + "'");
     }
 
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+
     //hashmap of MultiKey[source id, subject id, topic/queue extension name, action], boolean if allow or not, lazy loaded
     MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId(),
         queueName, actionSendToQueue);
@@ -975,6 +980,10 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       throw new RuntimeException("queue doesnt exist '" + queueName + "'");
     }
 
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+    
     //hashmap of MultiKey[source id, subject id, topic/queue extension name, action], boolean if allow or not, lazy loaded
     MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId(),
         queueName, actionReceive);
@@ -996,6 +1005,10 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
 
     if (topicAttributeDefName == null) {
       throw new RuntimeException("topic doesnt exist '" + topicName + "'");
+    }
+
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
     }
 
     //hashmap of MultiKey[source id, subject id, topic/queue extension name, action], boolean if allow or not, lazy loaded

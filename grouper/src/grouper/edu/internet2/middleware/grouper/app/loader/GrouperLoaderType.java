@@ -1854,6 +1854,8 @@ public enum GrouperLoaderType {
 
       final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
 
+      syncFolderList(groupNamesToSync, groupNameToDisplayName);
+      
       for (final String groupName : groupNamesToSync) {
         
         if (LOG.isDebugEnabled()) {
@@ -1917,6 +1919,61 @@ public enum GrouperLoaderType {
       statusOverall[0] = getFinalStatusAfterUnresolvables(statusOverall[0], 
           hib3GrouploaderLogOverall.getTotalCount(), hib3GrouploaderLogOverall.getUnresolvableSubjectCount());
     }
+    
+  }
+
+  /**
+   * 
+   * @param groupNamesToSync
+   * @param groupNameToDisplayName
+   */
+  private static void syncFolderList(Set<String> groupNamesToSync,
+      Map<String, String> groupNameToDisplayName) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("loader.preCreateFolders", true)) {
+      return;
+    }
+    groupNameToDisplayName = GrouperUtil.nonNull(groupNameToDisplayName);
+    
+    Map<String, String> folderNameToDisplayName = new LinkedHashMap<String, String>();
+    
+    for (String groupName : GrouperUtil.nonNull(groupNamesToSync)) {
+      
+      String groupDisplayName = groupNameToDisplayName.get(groupName);
+      groupDisplayName = GrouperUtil.defaultIfBlank(groupDisplayName, groupName);
+      
+      String folderName = GrouperUtil.parentStemNameFromName(groupName, true);
+      
+      // shouldnt happen
+      if (folderName == null) {
+        continue;
+      }
+      
+      if (folderNameToDisplayName.containsKey(folderName)) {
+        continue;
+      }
+      
+      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName);
+      
+      folderNameToDisplayName.put(folderName, folderDisplayName);
+      
+    }
+
+    if (folderNameToDisplayName.size() == 0) {
+      return;
+    }
+    
+    Set<Stem> stems = StemFinder.findByNames(folderNameToDisplayName.keySet(), false);
+    
+    for (Stem stem : GrouperUtil.nonNull(stems)) {
+      folderNameToDisplayName.remove(stem.getName());
+    }
+    
+    for (String folderName : folderNameToDisplayName.keySet()) {
+      String folderDisplayName = folderNameToDisplayName.get(folderName);
+      new StemSave().assignName(folderName).assignDisplayName(folderDisplayName).assignCreateParentStemsIfNotExist(true).save();
+    }
+    
     
   }
 

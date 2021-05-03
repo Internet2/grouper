@@ -35,8 +35,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Composite</code> DAO interface.
@@ -153,6 +157,14 @@ public interface CompositeDAO extends GrouperDAO {
    * @param composite
    */
   public void saveUpdateProperties(Composite composite);
+
+  /**
+   * find composites secure
+   * @param parentStemId
+   * @param stemScope
+   * @return composites
+   */
+  public Set<Composite> find(GrouperSession grouperSession, String parentStemId, Scope stemScope, Subject subject, Set<Privilege> privileges);
 
 } 
 

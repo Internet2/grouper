@@ -377,10 +377,10 @@ function getGraphModuleD3Legend(graph) {
 
   }
 
-  // provisioned group -- provisions to --> pspng provisioner target
+  // provisioned group -- provisions to --> provisioner target
   if (graph.styles.hasOwnProperty("provisioner") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_provisioner")) {
     theLegend += '  provisioner_source [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="provisioned group"']) + '];\n';
-    theLegend += '  provisioner [' + getStyleStringForType(graph, nodeStyles, 'provisioner', ['label="pspng provisioner target"']) + '];\n';
+    theLegend += '  provisioner [' + getStyleStringForType(graph, nodeStyles, 'provisioner', ['label="provisioner target"']) + '];\n';
 
     theLegend += '  provisioner_source -> provisioner [' + getStyleStringForType(graph, edgeStyles, 'edge_provisioner', ['label="provisions to"']) + '];\n';
   }

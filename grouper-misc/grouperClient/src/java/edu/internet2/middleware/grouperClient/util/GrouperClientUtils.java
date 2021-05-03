@@ -18,12 +18,15 @@ package edu.internet2.middleware.grouperClient.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -66,6 +69,52 @@ import edu.internet2.middleware.morphString.MorphStringConfig;
  * utility methods specific to grouper client
  */
 public class GrouperClientUtils extends GrouperClientCommonUtils {
+
+  /**
+   * to string reflection
+   * @param object
+   * @return the string representation
+   */
+  public static String toStringReflection(Object object, Set<String> fieldsToIgnore) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    result.append(object.getClass().getSimpleName()).append("(");
+    Set<String> fieldNames = GrouperClientUtils.fieldNames(object.getClass(), 
+        Object.class, null, false, false, false);
+    
+    // assume configurations cache stuff in fields.  We can make this more flexible / customizable at some point
+    if (fieldsToIgnore != null) {
+      fieldNames.removeAll(fieldsToIgnore);
+    }
+    
+    fieldNames = new TreeSet<String>(fieldNames);
+    boolean firstField = true;
+    for (String fieldName : fieldNames) {
+      
+      Object value = GrouperClientUtils.propertyValue(object, fieldName);
+      if (!GrouperClientUtils.isBlank(value)) {
+        
+        if ((value instanceof Collection) && ((Collection)value).size() == 0) {
+          continue;
+        }
+        if ((value instanceof Map) && ((Map)value).size() == 0) {
+          continue;
+        }
+        if ((value.getClass().isArray()) && Array.getLength(value) == 0) {
+          continue;
+        }
+        if (!firstField) {
+          result.append(", ");
+        }
+        firstField = false;
+        result.append(fieldName).append(" = '").append(GrouperClientUtils.toStringForLog(value, false)).append("'");
+      }
+    }
+    result.append(")");
+    return result.toString();
+  }
+
 
   /**
    * to string reflection

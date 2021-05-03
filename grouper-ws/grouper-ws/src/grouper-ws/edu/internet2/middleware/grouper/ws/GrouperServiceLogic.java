@@ -51,6 +51,12 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -148,6 +154,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults.WsGetSu
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult.WsGroupSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateExecResult.WsGshTemplateExecResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults.WsMessageAcknowledgeResultsCode;
@@ -10960,6 +10967,145 @@ public class GrouperServiceLogic {
 
     return wsGetAuditEntriesResults;
         
+  }
+  
+  /**
+   * 
+   * execute gsh template
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param configId configId of the template to execute
+   * @param ownerType stem or group
+   * @param ownerGroupLookup owner group when ownerType is group
+   * @param ownerStemLookup owner stem when ownerType is stem
+   * @param inputs name/value pairs to inject into the template at runtime
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public static WsGshTemplateExecResult executeGshTemplate(final GrouperVersion clientVersion,
+      String configId, GshTemplateOwnerType ownerType, WsGroupLookup ownerGroupLookup, WsStemLookup ownerStemLookup,
+      final WsGshTemplateInput[] inputs,
+      final WsSubjectLookup gshTemplateActAsSubjectLookup,
+      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    final WsGshTemplateExecResult wsGshTemplateExecResult = new WsGshTemplateExecResult();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGshTemplateExecResult.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", configId: " + configId
+          + ", ownerType: "+ ownerType
+          + " , inputs: "
+          + GrouperUtil.toStringForLog(inputs, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 200);
+  
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "executeGshTemplate");
+
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "params", params);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "configId", configId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ownerGroupLookup", ownerGroupLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "ownerStemLookup", ownerStemLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "inputs", inputs);
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final GrouperSession SESSION = session;
+      
+      final String THE_SUMMARY = theSummary;
+      
+      GshTemplateExec exec = new GshTemplateExec();
+      
+      if (gshTemplateActAsSubjectLookup != null) {
+        exec.assignActAsSubject(gshTemplateActAsSubjectLookup.retrieveSubject());
+      }
+      exec.assignConfigId(configId);
+      exec.assignCurrentUser(session.getSubject());
+      
+      exec.assignGshTemplateOwnerType(ownerType);
+      if (ownerGroupLookup != null) {
+        final Group group = ownerGroupLookup.retrieveGroupIfNeeded(SESSION, "ownerGroupLookup");
+        if (group == null) {
+          throw new RuntimeException("Could not resolve group based on ownerGroupLookup"); 
+        }
+        exec.assignOwnerGroupName(group.getName());
+      } else if (ownerStemLookup != null) {
+        ownerStemLookup.retrieveStemIfNeeded(SESSION, false);
+        Stem stem = ownerStemLookup.retrieveStem();
+        if (stem == null) {
+         throw new RuntimeException("Could not resolve stem based on ownerStemLookup"); 
+        }
+        exec.assignOwnerStemName(stem.getName());
+      }
+      
+      for (WsGshTemplateInput wsTemplateInput: inputs) {
+        GshTemplateInput input = new GshTemplateInput();
+        input.assignName(wsTemplateInput.getName());
+        input.assignValueString(wsTemplateInput.getValue());
+        exec.addGshTemplateInput(input);
+      }
+      
+      GshTemplateExecOutput output = exec.execute();
+      
+      if (output.getException() != null) {
+        wsGshTemplateExecResult.assignResultCodeException(output.getException(), output.getExceptionStack(), clientVersion);
+      } else {
+        wsGshTemplateExecResult.setTransaction(output.isTransaction());
+        wsGshTemplateExecResult.setGshScriptOutput(output.getGshScriptOutput());
+        
+        WsGshValidationLine[] wsGshValidationLines = new WsGshValidationLine[GrouperUtil.nonNull(output.getGshTemplateOutput().getValidationLines()).size()];
+        WsGshOutputLine[] wsGshOutputLines = new WsGshOutputLine[GrouperUtil.nonNull(output.getGshTemplateOutput().getOutputLines()).size()];
+        
+        int i = 0;
+        for (GshValidationLine gshValidation : GrouperUtil.nonNull(output.getGshTemplateOutput().getValidationLines())) {
+          WsGshValidationLine wsGshValidationLine = new WsGshValidationLine();
+          wsGshValidationLine.setInputName(gshValidation.getInputName());
+          wsGshValidationLine.setValidationText(gshValidation.getText());
+          wsGshValidationLines[i] = wsGshValidationLine;
+          i++;
+        }
+        wsGshTemplateExecResult.setGshValidationLines(wsGshValidationLines);
+        
+        i = 0;
+        for (GshOutputLine gshOutput : GrouperUtil.nonNull(output.getGshTemplateOutput().getOutputLines())) {
+          WsGshOutputLine wsGshOutputLine = new WsGshOutputLine();
+          wsGshOutputLine.setText(gshOutput.getText());
+          wsGshOutputLine.setMessageType(gshOutput.getMessageType());
+          wsGshOutputLines[i] = wsGshOutputLine;
+          i++;
+        }
+        wsGshTemplateExecResult.setGshOutputLines(wsGshOutputLines);
+        
+        
+        if (wsGshValidationLines.length > 0) {
+          wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.INVALID, clientVersion);
+        } else {
+          wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.SUCCESS, clientVersion);
+          wsGshTemplateExecResult.getResultMetadata().appendResultMessage("Success for: " + theSummary);
+        }
+        
+        
+      }
+      
+      
+    } catch (Exception e) {
+      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getFullStackTrace(e), clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsGshTemplateExecResult);
+    }
+  
+    return wsGshTemplateExecResult;
   }
   
   /**

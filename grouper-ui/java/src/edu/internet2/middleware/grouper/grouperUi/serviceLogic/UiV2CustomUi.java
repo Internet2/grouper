@@ -47,6 +47,8 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiTextType;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -130,13 +132,34 @@ public class UiV2CustomUi {
       
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
+      customUiContainer.setLeaveGroupButtonPressed(true);
       customUiContainer.setEnroll(false);
 
-      group.deleteMember(member, false);
-
       customUiGroupLogic(request, member.getSubject());   
-      
+
+      if (customUiContainer.isManageMembership()) {
+        group.deleteMember(member, false);
+        
+        customUiContainer.setHasComputedLogic(false);
+        customUiGroupLogic(request, member.getSubject());   
+      }
+
+      {
+        String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
+        if (!StringUtils.isBlank(gshScript)) {
+          customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+        }
+        
+      }
+
       customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
+      
+      String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
+      if (!StringUtils.isBlank(redirectToUrl)) {
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        return;
+      }
       
       customUiGroup(request, response);
 
@@ -146,7 +169,6 @@ public class UiV2CustomUi {
 
   }
   
-
   /**
    * custom ui group
    * @param request
@@ -417,14 +439,35 @@ public class UiV2CustomUi {
       
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
+      customUiContainer.setJoinGroupButtonPressed(true);
       customUiContainer.setEnroll(true);
-      
-      group.addMember(member.getSubject(), false);
-      
+
       customUiGroupLogic(request, member.getSubject());   
 
-      customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
+      if (customUiContainer.isManageMembership()) {
+        group.addMember(member.getSubject(), false);
+        
+        customUiContainer.setHasComputedLogic(false);
+        customUiGroupLogic(request, member.getSubject());   
+      }
       
+      {
+        String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
+        if (!StringUtils.isBlank(gshScript)) {
+          customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+        }
+        
+      }
+        
+      customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
+      //cu_grouperEnroll=true,
+      String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
+      if (!StringUtils.isBlank(redirectToUrl)) {
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        return;
+      }
+
       customUiGroup(request, response);
   
     } finally {

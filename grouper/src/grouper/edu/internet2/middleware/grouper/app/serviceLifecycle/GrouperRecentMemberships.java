@@ -42,6 +42,29 @@ public class GrouperRecentMemberships {
     AttributeDefName grouperRecentMembershipsIncludeCurrent = AttributeDefNameFinder.findByName(
         GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
 
+    
+//    if (GrouperDdlUtils.isHsql()) {
+//      regexPart = " and REGEXP_MATCHES (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') "
+//          + "and REGEXP_MATCHES (gaaagv_includeEligible.value_string, '^(true|false)$') ";
+//      minEndTimePart = "(1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_recentMemberships.value_string as int))))";
+//    } else if (GrouperDdlUtils.isOracle()) {
+//      regexPart = " and REGEXP_LIKE (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') "
+//          + "and REGEXP_LIKE (gaaagv_includeEligible.value_string, '^(true|false)$') ";
+//      minEndTimePart = "(1000000 * (((cast(current_timestamp at time zone 'UTC' as date) - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_recentMemberships.value_string AS number ))))";
+//    } else if (GrouperDdlUtils.isMysql()) {  
+//      regexPart = " and gaaagv_recentMemberships.value_string REGEXP '^[0-9]+$' and gaaagv_groupName.value_string REGEXP '^.+:.+$' "
+//          + "and gaaagv_includeEligible.value_string REGEXP '^(true|false)$' ";
+//      minEndTimePart = "(1000000 * (UNIX_TIMESTAMP() - (60*60*24*CONVERT(gaaagv_recentMemberships.value_string,UNSIGNED INTEGER))))";
+//    } else if (GrouperDdlUtils.isPostgres()) {
+//      regexPart = " and gaaagv_recentMemberships.value_string ~ '^[0-9]+$' and gaaagv_groupName.value_string ~ '^.+:.+$' "
+//          + "and gaaagv_includeEligible.value_string ~ '^(true|false)$' ";
+//      minEndTimePart = "cast((1000000 * (extract(EPOCH from clock_timestamp()) - (60*60*24*(cast(gaaagv_recentMemberships.value_string as bigint))))) as bigint)";
+//    } else {
+//      LOG.error("Cant find database type");
+//      return;
+//    }
+
+    
     if (grouperRecentMembershipsDays != null || grouperRecentMembershipsGroupName != null) {
       
       if (grouperRecentMembershipsDays != null && grouperRecentMembershipsGroupName != null) {

@@ -60,6 +60,15 @@ public class Test_U_API_XmlExporter_internal_subjectToXML extends GrouperTest {
     //TestRunner.run(new Test_U_API_XmlExporter_internal_subjectToXML("test_internal_groupToXML_escapeDisplayName"));
   }
 
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   // PRIVATE CLASS VARIABLES //
   private Group           child;
   private Subject         childAsSubject;

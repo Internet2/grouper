@@ -103,7 +103,7 @@ public class GrouperStatusServlet extends HttpServlet {
    */
   public static void registerStartup() {
     if (startupString == null) {
-      SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd kk:mm");
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
       Date startUp = new Date();
       startupString = formatter.format(startUp);
     }
@@ -267,7 +267,7 @@ public class GrouperStatusServlet extends HttpServlet {
       diagnosticErrorCount++;
       lastDiagnosticsErrorDate = System.currentTimeMillis();
       
-      SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
       Date now = new Date();
       lastDiagnosticsErrorDateString = formatter.format(now);
 

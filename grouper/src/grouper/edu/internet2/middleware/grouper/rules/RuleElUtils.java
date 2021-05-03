@@ -172,7 +172,7 @@ public class RuleElUtils {
    * @param daysInFuture
    * @return false if assignments werent there, true if it was
    */
-  public static boolean assignPermissionDisabledDaysForAttributeDefId(String attributeDefId, String memberId, int daysInFuture) {
+  public static boolean assignPermissionDisabledDaysForAttributeDefId(String attributeDefId, String memberId, double daysInFuture) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Has member: " + memberId + ", from attributeDefId: " + attributeDefId 
           + ", daysInFuture: " + daysInFuture);
@@ -208,7 +208,7 @@ public class RuleElUtils {
           
           if (attributeAssign != null) {
             
-            attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
+            attributeAssign.setDisabledTime(new Timestamp((long)(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000))));
             attributeAssign.saveOrUpdate(true);
             
             result = true;
@@ -251,7 +251,7 @@ public class RuleElUtils {
           Membership membership = ((Group)role).getImmediateMembership(Group.getDefaultList(), member, true, false);
 
           if (membership != null) {
-            membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
+            membership.setDisabledTime(new Timestamp((long)(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000))));
             membership.update();
             result = true;
           }
@@ -281,7 +281,7 @@ public class RuleElUtils {
    * @param addIfNotThere 
    * @return false if membership wasnt there, true if it was
    */
-  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, int daysInFuture, boolean addIfNotThere) {
+  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, double daysInFuture, boolean addIfNotThere) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Has member: " + memberId + ", from group: " + groupId 
           + ", daysInFuture: " + daysInFuture);
@@ -301,7 +301,7 @@ public class RuleElUtils {
       group.addMember(member.getSubject(), true);
       membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
     }
-    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
+    membership.setDisabledTime(new Timestamp((long)(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000))));
     membership.update();
     return true;
   }

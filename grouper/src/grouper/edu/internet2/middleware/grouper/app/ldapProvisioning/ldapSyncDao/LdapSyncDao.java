@@ -43,6 +43,19 @@ public abstract class LdapSyncDao {
   public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames );
   
   /**
+   * do a filter search
+   * @param ldapPoolName
+   * @param baseDn
+   * @param filter
+   * @param ldapSearchScope
+   * @param attributeNames are optional attribute names to get from the ldap object
+   * @param sizeLimit
+   * @return the data
+   */
+  public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit);
+  
+  
+  /**
    * find objects by dn's
    * @param ldapPoolName
    * @param baseDn
@@ -255,8 +268,7 @@ public abstract class LdapSyncDao {
             
             LdapModificationAttributeError attributeError = new LdapModificationAttributeError();
             attributeError.setError(e2);
-            attributeError.setLdapAttribute(item.getAttribute());
-            attributeError.setLdapModificationType(item.getLdapModificationType());
+            attributeError.setLdapModificationItem(item);
             result.addAttributeError(attributeError);
           }
         } else {
@@ -272,8 +284,7 @@ public abstract class LdapSyncDao {
                 
                 LdapModificationAttributeError attributeError = new LdapModificationAttributeError();
                 attributeError.setError(e2);
-                attributeError.setLdapAttribute(newLdapModificationItem.getAttribute());
-                attributeError.setLdapModificationType(newLdapModificationItem.getLdapModificationType());
+                attributeError.setLdapModificationItem(newLdapModificationItem);
                 result.addAttributeError(attributeError);
               }
             }
@@ -287,7 +298,7 @@ public abstract class LdapSyncDao {
     if (attributeHasMoreValues) {
       // remove everything but the last.  the last attribute should have values cleared.
       if (ldapModificationItemsBatch.size() > 1) {
-        ldapModificationItemsBatch.subList(0, ldapModificationItemsBatch.size() - 2).clear();
+        ldapModificationItemsBatch.subList(0, ldapModificationItemsBatch.size() - 1).clear();
       }
       ldapModificationItemsBatch.get(0).getAttribute().clearValues();
     } else {

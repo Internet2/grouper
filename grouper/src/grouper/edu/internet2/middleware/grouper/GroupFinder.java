@@ -59,10 +59,26 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Find groups within the Groups Registry.
- * <p/>
- * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $
+ * <p>Use this class to find groups within the Groups registry</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Group group = GroupFinder.findByName(grouperSession, "test", true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * 
+ * <p> Sample call to find groups a subject has specific privileges on
+ * <blockquote>
+ * <pre>
+ * Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
+ *       .assignField(Group.getDefaultList()).assignSubject(subject)
+ *       .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class GroupFinder {
 
@@ -82,7 +98,7 @@ public class GroupFinder {
   private static Set<Object> groupCacheAsRootIdsNamesAndIndexes = new HashSet<Object>();
 
   /**
-   * 
+   * <p>Grouper internal method only</p>
    * @param group
    */
   public static void groupCacheAsRootAddSystemGroup(Group group) {
@@ -95,6 +111,7 @@ public class GroupFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove all caches
    */
   public static void groupCacheClear() {
@@ -103,6 +120,7 @@ public class GroupFinder {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * remove this from all caches
    * @param group
    */
@@ -519,6 +537,25 @@ public class GroupFinder {
     return findByName(s, name, exceptionIfNotFound, null);
   }
 
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name, true);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @param queryOptions paging, sorting, caching options
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByName(String name, boolean exceptionIfNotFound) {
+    return findByName(GrouperSession.staticGrouperSession(), name, exceptionIfNotFound);
+  }
   
   /**
    * Find a group within the registry by name.
@@ -819,6 +856,21 @@ public class GroupFinder {
    * @return  A {@link Group}
    * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
    */
+  public static Group findByUuid(String uuid, boolean exceptionIfNotFound) {
+    return findByUuid(GrouperSession.staticGrouperSession(), uuid, exceptionIfNotFound);
+  }
+
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
   public static Group findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound) 
       throws GroupNotFoundException {
     return findByUuid(s, uuid, exceptionIfNotFound, null);
@@ -1027,6 +1079,11 @@ public class GroupFinder {
   private String attributeDefNameId;
   
   /**
+   * find groups that don't have a certain type assigned
+   */
+  private boolean attributeNotAssigned = false;
+  
+  /**
    * use security around attribute def?  default is true
    */
   private boolean attributeCheckReadOnAttributeDef = true;
@@ -1038,6 +1095,16 @@ public class GroupFinder {
    */
   public GroupFinder assignAttributeCheckReadOnAttributeDef(boolean theAttributeDefNameUseSecurity) {
     this.attributeCheckReadOnAttributeDef = theAttributeDefNameUseSecurity;
+    return this;
+  }
+  
+  /**
+   * find groups that don't have a certain type assigned
+   * @param attributeNotAssigned
+   * @return
+   */
+  public GroupFinder assignAttributeNotAssigned(boolean attributeNotAssigned) {
+    this.attributeNotAssigned = attributeNotAssigned;
     return this;
   }
   
@@ -1235,7 +1302,8 @@ public class GroupFinder {
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
             this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment, 
-            this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2);
+            this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, 
+            this.attributeValuesOnAssignment2, this.attributeNotAssigned);
     
   }
 
