@@ -7,11 +7,13 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
@@ -69,7 +71,20 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           String grouperUiCsrfFilterName = "CSRFGuard";
           Class grouperUiCsfrFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
           Dynamic grouperUiCsrfFilter = context.addFilter(grouperUiCsrfFilterName, grouperUiCsfrFilterClass);
-          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/*");
+          //grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/*");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperExternal/public/OwaspJavaScriptServlet");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperUi/app/*");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperUi/appHtml/*");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperExternal/app/*");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperExternal/public/UiV2Public.index");
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperExternal/public/UiV2Public.postIndex");
+
+          if (!StringUtils.isBlank(GrouperUiConfigInApi.retrieveConfig().propertyValueString("csrfguard.extraFilterPatterns"))) {
+            for (String pattern : GrouperUtil.splitTrim(GrouperUiConfigInApi.retrieveConfig().propertyValueString("csrfguard.extraFilterPatterns"), ",")) {
+              grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, pattern);
+            }
+          }
+          
 
           Class grouperSessionAttributeListener = Class.forName("edu.internet2.middleware.grouper.ui.GrouperSessionAttributeListener");
           context.addListener(grouperSessionAttributeListener);
