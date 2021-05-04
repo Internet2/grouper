@@ -71,35 +71,18 @@ public class GrouperProvisionerGrouperDao {
         "    gg.name, " + 
         "    gg.display_name, " + 
         "    gg.description, " + 
-        "    gg.id_index " + 
+        "    gg.id_index, " +
+        "    gsg.metadata_json " +
         "from " + 
         "    grouper_groups gg, " + 
-        "    grouper_attribute_assign gaa_marker, " + 
-        "    grouper_attribute_assign gaa_do_provision, " + 
-        "    grouper_attribute_assign_value gaav_do_provision, " + 
-        "    grouper_attribute_def_name gadn_marker, " + 
-        "    grouper_attribute_def_name gadn_do_provision " + 
+        "    grouper_sync_group gsg " + 
         "where " + 
-        "    gg.id = gaa_marker.owner_group_id " + 
-        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
-        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
-        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
-        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
-        "    and gadn_marker.name = ? " + 
-        "    and gadn_do_provision.name = ? " + 
-        "    and gaav_do_provision.value_string = ? " + 
-        "    and gaa_marker.enabled='T' " +
-        "    and gaa_do_provision.enabled='T' ";
+        "    gg.id = gsg.group_id " + 
+        "    and gsg.provisionable = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    paramsInitial.add(this.grouperProvisioner.getConfigId());
 
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
 
     List<String[]> queryResults = null;
     if (retrieveAll) {
@@ -138,8 +121,6 @@ public class GrouperProvisionerGrouperDao {
         results.addAll(GrouperUtil.nonNull(targetGroupMapFromQueryResults));
       }      
     }
-    
-    retrieveGroupMetadata(results, retrieveAll, ids);
 
     return results;
 
@@ -171,27 +152,15 @@ public class GrouperProvisionerGrouperDao {
         "from " + 
         "    grouper_members gm, " + 
         "    grouper_memberships ms, " +
-        "    grouper_group_set gs, " +
-        "    grouper_attribute_assign gaa_marker, " + 
-        "    grouper_attribute_assign gaa_do_provision, " + 
-        "    grouper_attribute_assign_value gaav_do_provision, " + 
-        "    grouper_attribute_def_name gadn_marker, " + 
-        "    grouper_attribute_def_name gadn_do_provision " + 
+        "    grouper_group_set gs, " + 
+        "    grouper_sync_group gsg " +
         (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
         "where " + 
         "    ms.owner_id = gs.member_id " +
         "    and ms.field_id = gs.member_field_id " +
         "    and ms.member_id = gm.id " +
-        "    and gs.owner_group_id = gaa_marker.owner_group_id " + 
-        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
-        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
-        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
-        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
-        "    and gadn_marker.name = ? " + 
-        "    and gadn_do_provision.name = ? " + 
-        "    and gaav_do_provision.value_string = ? " +
-        "    and gaa_marker.enabled='T' " +
-        "    and gaa_do_provision.enabled='T' " +
+        "    and gs.owner_group_id = gsg.group_id " + 
+        "    and gsg.provisionable = 'T' " +
         "    and ms.enabled='T' " +
         (retrictUsersByGroupId ? ("and gmship_to_provision.owner_id = gs_to_provision.member_id " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
@@ -220,11 +189,7 @@ public class GrouperProvisionerGrouperDao {
     }
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    paramsInitial.add(this.grouperProvisioner.getConfigId());
-    
+
     if (retrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
       paramsInitial.add(groupIdOfUsersToProvision);
@@ -234,9 +199,6 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
 
     if (retrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
@@ -335,27 +297,15 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_members gm, " + 
         "    grouper_memberships ms, " +
         "    grouper_group_set gs, " +
-        "    grouper_attribute_assign gaa_marker, " + 
-        "    grouper_attribute_assign gaa_do_provision, " + 
-        "    grouper_attribute_assign_value gaav_do_provision, " + 
-        "    grouper_attribute_def_name gadn_marker, " + 
-        "    grouper_attribute_def_name gadn_do_provision " + 
+        "    grouper_sync_group gsg " +
         (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
         "where " + 
         "    ms.owner_id = gs.member_id " +
         "    and ms.field_id = gs.member_field_id " +
         "    and gs.owner_group_id = gg.id " +
         "    and ms.member_id = gm.id " +
-        "    and gg.id = gaa_marker.owner_group_id " + 
-        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
-        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
-        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
-        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
-        "    and gadn_marker.name = ? " + 
-        "    and gadn_do_provision.name = ? " + 
-        "    and gaav_do_provision.value_string = ? " +
-        "    and gaa_marker.enabled='T' " +
-        "    and gaa_do_provision.enabled='T' " +
+        "    and gg.id = gsg.group_id " + 
+        "    and gsg.provisionable = 'T' " +
         "    and ms.enabled='T' " +
         (retrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
@@ -384,10 +334,6 @@ public class GrouperProvisionerGrouperDao {
     }
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    paramsInitial.add(this.grouperProvisioner.getConfigId());
 
     if (retrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
@@ -398,9 +344,8 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
+
+
     if (retrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
       typesInitial.add(StringType.INSTANCE);
@@ -642,6 +587,10 @@ public class GrouperProvisionerGrouperDao {
   
   private List<ProvisioningGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
     
+    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+    
+    
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
     for (String[] queryResult : queryResults) {
@@ -650,6 +599,7 @@ public class GrouperProvisionerGrouperDao {
       String displayName = queryResult[2];
       String description = queryResult[3];
       String idIndex = queryResult[4];
+      String jsonMetadata = queryResult[5];
       
       ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
       grouperProvisioningGroup.setId(id);
@@ -657,6 +607,26 @@ public class GrouperProvisionerGrouperDao {
       grouperProvisioningGroup.setDisplayName(displayName);
       grouperProvisioningGroup.setIdIndex(Long.parseLong(idIndex));
       grouperProvisioningGroup.assignAttributeValue("description", description);
+      
+      if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
+        if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+          JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+          for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+            if (grouperProvisioningObjectMetadataItem.isShowForGroup() || grouperProvisioningObjectMetadataItem.isShowForFolder()) {
+              
+              String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+              if (metadataItemName.startsWith("md_")) {
+                if (jsonNode.has(metadataItemName)) {
+                  GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                      GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+                  String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+                  grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+                }
+              }
+            }
+          }
+        }
+      }
       
       results.add(grouperProvisioningGroup);
     }
@@ -844,159 +814,6 @@ public class GrouperProvisionerGrouperDao {
   }
 
   /**
-   * decorate groups with metadata
-   * @param retrieveAll
-   * @param ids
-   * @return the groups
-   */
-  public void retrieveGroupMetadata(List<ProvisioningGroup> grouperProvisioningGroups, boolean retrieveAll, Collection<String> ids) {
-  
-    if (this.grouperProvisioner == null) {
-      throw new RuntimeException("grouperProvisioner is not set");
-    }
-    
-    if (GrouperUtil.length(grouperProvisioningGroups) == 0) {
-      return;
-    }
-    
-    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
-        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
-    
-    // no metadata
-    if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) == 0) {
-      return;
-    }
-    
-    if (retrieveAll && ids != null) {
-      throw new RuntimeException("Cant retrieve all and pass in ids to retrieve!");
-    }
-    
-    String sqlInitial = "select " + 
-        "    gg.id, " + 
-        "    gaav_metadata.value_string " + 
-        "from " + 
-        "    grouper_groups gg, " + 
-        "    grouper_attribute_assign gaa_marker, " + 
-        "    grouper_attribute_assign gaa_do_provision, " + 
-        "    grouper_attribute_assign_value gaav_do_provision, " + 
-        "    grouper_attribute_assign gaa_metadata, " + 
-        "    grouper_attribute_assign_value gaav_metadata, " + 
-        "    grouper_attribute_def_name gadn_marker, " + 
-        "    grouper_attribute_def_name gadn_do_provision, " + 
-        "    grouper_attribute_def_name gadn_metadata " + 
-        "where " + 
-        "    gg.id = gaa_marker.owner_group_id " + 
-        "    and gaa_do_provision.owner_attribute_assign_id = gaa_marker.id " + 
-        "    and gaa_metadata.owner_attribute_assign_id = gaa_marker.id " + 
-        "    and gaav_do_provision.attribute_assign_id = gaa_do_provision.id " + 
-        "    and gaav_metadata.attribute_assign_id = gaa_metadata.id " + 
-        "    and gaa_marker.attribute_def_name_id = gadn_marker.id " + 
-        "    and gaa_do_provision.attribute_def_name_id = gadn_do_provision.id " + 
-        "    and gaa_metadata.attribute_def_name_id = gadn_metadata.id " + 
-        "    and gadn_marker.name = ? " + 
-        "    and gadn_do_provision.name = ? " + 
-        "    and gadn_metadata.name = ? " + 
-        "    and gaav_do_provision.value_string = ? " +
-        "    and gaa_marker.enabled='T' " +
-        "    and gaa_do_provision.enabled='T' " +
-        "    and gaa_metadata.enabled='T' ";
-    
-    List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION);
-    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON);
-    paramsInitial.add(this.grouperProvisioner.getConfigId());
-  
-    List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-    typesInitial.add(StringType.INSTANCE);
-  
-    List<String[]> queryResults = null;
-    Map<String, String> groupIdToMetadata = new HashMap<String, String>();
-    if (retrieveAll) {
-      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(),
-          paramsInitial, typesInitial);
-      Map<String, String> tempResults = getTargetGroupMetadataMapFromQueryResults(queryResults);
-      groupIdToMetadata.putAll(GrouperUtil.nonNull(tempResults));
-    } else {
-      if (GrouperUtil.length(ids) == 0) {
-        return;
-      }
-  
-      List<String> idsList = GrouperUtil.listFromCollection(ids);
-      
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
-      for (int i = 0; i < numberOfBatches; i++) {
-        List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
-        
-        List<Object> params = new ArrayList<Object>(paramsInitial);
-        params.addAll(currentBatchIds);
-  
-        List<Type> types = new ArrayList<Type>(typesInitial);
-  
-        for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
-          types.add(StringType.INSTANCE);
-        }
-        
-        StringBuilder sql = new StringBuilder(sqlInitial);
-        sql.append(" and gg.id in (");
-        sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
-        sql.append(") ");
-        
-        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
-        
-        Map<String, String> tempResults = getTargetGroupMetadataMapFromQueryResults(queryResults);
-        groupIdToMetadata.putAll(GrouperUtil.nonNull(tempResults));
-      }      
-    }
-    
-    if (groupIdToMetadata.size() == 0) {
-      return;
-    }
-    
-    for (ProvisioningGroup grouperProvisioningGroup : grouperProvisioningGroups) {
-      
-      String jsonMetadata = groupIdToMetadata.get(grouperProvisioningGroup.getId());
-      if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
-        JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
-        for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
-          if (grouperProvisioningObjectMetadataItem.isShowForGroup() || grouperProvisioningObjectMetadataItem.isShowForFolder()) {
-            
-            String name = grouperProvisioningObjectMetadataItem.getName();
-            if (name.startsWith("md_")) {
-              if (jsonNode.has(name)) {
-                GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
-                    GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
-                String value = GrouperUtil.jsonJacksonGetString(jsonNode, name);
-                grouperProvisioningGroup.assignAttributeValue(name, grouperProvisioningObjectMetadataItemValueType.convert(value));
-              }
-            }
-            
-          }
-        }
-      }
-      
-    }
-    
-  }
-
-  private Map<String, String> getTargetGroupMetadataMapFromQueryResults(List<String[]> queryResults) {
-    
-    Map<String, String> results = new HashMap<String, String>();
-  
-    for (String[] queryResult : queryResults) {
-      String id = queryResult[0];
-      String metadata = queryResult[1];
-      
-      results.put(id, metadata);
-    }
-    
-    return results;
-  }
-
-  /**
    * get provisioning attributes for all folders
    * @return the attributes
    */
@@ -1013,6 +830,7 @@ public class GrouperProvisionerGrouperDao {
           "    gaa_marker.id, " +
           "    gs.id, " + 
           "    gs.name, " + 
+          "    gs.id_index, " +
           "    gadn_config.name, " + 
           "    gaav_config.value_string " + 
           "FROM " + 
@@ -1056,11 +874,12 @@ public class GrouperProvisionerGrouperDao {
         String markerAttributeAssignId = queryResult[0];
         String stemId = queryResult[1];
         String stemName = queryResult[2];
-        String configName = queryResult[3];
-        String configValue = queryResult[4];
+        Long idIndex = Long.parseLong(queryResult[3]);
+        String configName = queryResult[4];
+        String configValue = queryResult[5];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, idIndex, markerAttributeAssignId));
           results.get(stemName).setOwnedByStem(true);
         }
         
@@ -1086,7 +905,8 @@ public class GrouperProvisionerGrouperDao {
     {
       String sql = "SELECT distinct " + 
           "    gs_if_has_stem.id, " + 
-          "    gs_if_has_stem.name " + 
+          "    gs_if_has_stem.name, " +
+          "    gs_if_has_stem.id_index " +
           "FROM " + 
           "    grouper_stems gs, " + 
           "    grouper_attribute_assign gaa_marker, " + 
@@ -1135,9 +955,10 @@ public class GrouperProvisionerGrouperDao {
       for (String[] queryResult : queryResults) {
         String stemId = queryResult[0];
         String stemName = queryResult[1];
-        
+        Long idIndex = Long.parseLong(queryResult[2]);
+
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, null));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, idIndex, null));
           results.get(stemName).setOwnedByStem(true);
         }
       }
@@ -1163,6 +984,7 @@ public class GrouperProvisionerGrouperDao {
           "    gaa_marker.id, " +
           "    gg.id, " + 
           "    gg.name, " + 
+          "    gg.id_index, " +
           "    gadn_config.name, " + 
           "    gaav_config.value_string " + 
           "FROM " + 
@@ -1206,11 +1028,12 @@ public class GrouperProvisionerGrouperDao {
         String markerAttributeAssignId = queryResult[0];
         String groupId = queryResult[1];
         String groupName = queryResult[2];
-        String configName = queryResult[3];
-        String configValue = queryResult[4];
+        Long idIndex = Long.parseLong(queryResult[3]);
+        String configName = queryResult[4];
+        String configValue = queryResult[5];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, markerAttributeAssignId));
           results.get(groupName).setOwnedByGroup(true);
         }
         
@@ -1234,7 +1057,8 @@ public class GrouperProvisionerGrouperDao {
     {
       String sql = "SELECT distinct " + 
           "    gg.id, " + 
-          "    gg.name " + 
+          "    gg.name, " + 
+          "    gg.id_index " +
           "FROM " + 
           "    grouper_stems gs, " + 
           "    grouper_attribute_assign gaa_marker, " + 
@@ -1283,9 +1107,10 @@ public class GrouperProvisionerGrouperDao {
       for (String[] queryResult : queryResults) {
         String groupId = queryResult[0];
         String groupName = queryResult[1];
-        
+        Long idIndex = Long.parseLong(queryResult[2]);
+
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, null));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, null));
           results.get(groupName).setOwnedByGroup(true);
         }
       }
@@ -1310,6 +1135,7 @@ public class GrouperProvisionerGrouperDao {
     String sql = "SELECT " + 
         "    gaa_marker.id, " +
         "    gg.name, " + 
+        "    gg.id_index, " +
         "    gadn_config.name, " + 
         "    gaav_config.value_string " + 
         "FROM " + 
@@ -1355,11 +1181,12 @@ public class GrouperProvisionerGrouperDao {
     for (String[] queryResult : queryResults) {
       String markerAttributeAssignId = queryResult[0];
       String groupName = queryResult[1];
-      String configName = queryResult[2];
-      String configValue = queryResult[3];
+      Long idIndex = Long.parseLong(queryResult[2]);
+      String configName = queryResult[3];
+      String configValue = queryResult[4];
       
       if (result == null) {
-        result = new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId);
+        result = new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, markerAttributeAssignId);
         result.setOwnedByGroup(true);
       }
       
@@ -1396,6 +1223,7 @@ public class GrouperProvisionerGrouperDao {
         "    gaa_marker.id, " +
         "    gs_then_has_stem.id, " + 
         "    gs_then_has_stem.name, " +
+        "    gs_then_has_stem.id_index, " +
         "    gadn_config.name, " + 
         "    gaav_config.value_string " + 
         "FROM " + 
@@ -1446,11 +1274,12 @@ public class GrouperProvisionerGrouperDao {
       String markerAttributeAssignId = queryResult[0];
       String stemId = queryResult[1];
       String stemName = queryResult[2];
-      String configName = queryResult[3];
-      String configValue = queryResult[4];
+      Long idIndex = Long.parseLong(queryResult[3]);
+      String configName = queryResult[4];
+      String configValue = queryResult[5];
       
       if (results.get(stemName) == null) {
-        results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
+        results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, idIndex, markerAttributeAssignId));
         results.get(stemName).setOwnedByStem(true);
       }
       
@@ -1490,6 +1319,7 @@ public class GrouperProvisionerGrouperDao {
           "    gaa_marker.id, " +
           "    gs_if_has_stem.id, " + 
           "    gs_if_has_stem.name, " +
+          "    gs_if_has_stem.id_index, " +
           "    gadn_config.name, " + 
           "    gaav_config.value_string " + 
           "FROM " + 
@@ -1540,11 +1370,12 @@ public class GrouperProvisionerGrouperDao {
         String markerAttributeAssignId = queryResult[0];
         String stemId = queryResult[1];
         String stemName = queryResult[2];
-        String configName = queryResult[3];
-        String configValue = queryResult[4];
+        Long idIndex = Long.parseLong(queryResult[3]);
+        String configName = queryResult[4];
+        String configValue = queryResult[5];
         
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, markerAttributeAssignId));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, idIndex, markerAttributeAssignId));
           results.get(stemName).setOwnedByStem(true);
         }
         
@@ -1567,7 +1398,8 @@ public class GrouperProvisionerGrouperDao {
     {
       String sql = "SELECT " + 
           "    gs.id, " + 
-          "    gs.name " +
+          "    gs.name, " +
+          "    gs.id_index " +
           "FROM " + 
           "    grouper_stem_set gss, " +
           "    grouper_stems gs " + 
@@ -1585,9 +1417,10 @@ public class GrouperProvisionerGrouperDao {
       for (String[] queryResult : queryResults) {
         String stemId = queryResult[0];
         String stemName = queryResult[1];
-        
+        Long idIndex = Long.parseLong(queryResult[2]);
+
         if (results.get(stemName) == null) {
-          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, null));
+          results.put(stemName, new GrouperProvisioningObjectAttributes(stemId, stemName, idIndex, null));
           results.get(stemName).setOwnedByStem(true);
         }
       }
@@ -1614,6 +1447,7 @@ public class GrouperProvisionerGrouperDao {
           "    gaa_marker.id, " +
           "    gg.id, " + 
           "    gg.name, " +
+          "    gg.id_index, " +
           "    gadn_config.name, " + 
           "    gaav_config.value_string " + 
           "FROM " + 
@@ -1664,11 +1498,12 @@ public class GrouperProvisionerGrouperDao {
         String markerAttributeAssignId = queryResult[0];
         String groupId = queryResult[1];
         String groupName = queryResult[2];
-        String configName = queryResult[3];
-        String configValue = queryResult[4];
+        Long idIndex = Long.parseLong(queryResult[3]);
+        String configName = queryResult[4];
+        String configValue = queryResult[5];
         
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, markerAttributeAssignId));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, markerAttributeAssignId));
           results.get(groupName).setOwnedByGroup(true);
         }
         
@@ -1691,7 +1526,8 @@ public class GrouperProvisionerGrouperDao {
     {
       String sql = "SELECT " + 
           "    gg.id, " + 
-          "    gg.name " +
+          "    gg.name, " +
+          "    gg.id_index " +
           "FROM " + 
           "    grouper_stem_set gss, " +
           "    grouper_groups gg " + 
@@ -1709,9 +1545,10 @@ public class GrouperProvisionerGrouperDao {
       for (String[] queryResult : queryResults) {
         String groupId = queryResult[0];
         String groupName = queryResult[1];
-        
+        Long idIndex = Long.parseLong(queryResult[2]);
+
         if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, null));
+          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, null));
           results.get(groupName).setOwnedByGroup(true);
         }
       }

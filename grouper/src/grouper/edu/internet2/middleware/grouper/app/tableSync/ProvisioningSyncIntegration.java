@@ -11,14 +11,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -38,7 +35,7 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncGroups(ProvisioningSyncResult provisioningSyncGroupResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper) {
+      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
 
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -63,7 +60,7 @@ public class ProvisioningSyncIntegration {
     provisioningSyncGroupResult.setGcGrouperSync(gcGrouperSync);
     
     // start group ids to insert with all group ids minus those which have sync group objects already
-    Set<String> groupIdsToInsert = new HashSet<String>(groupUuidToProvisioningGroupWrapper.keySet());
+    Set<String> groupIdsToInsert = new HashSet<String>(groupUuidToProvisioningObjectAttributes.keySet());
     provisioningSyncGroupResult.setGroupIdsToInsert(groupIdsToInsert);
     groupIdsToInsert.removeAll(groupUuidToSyncGroup.keySet());
     
@@ -87,18 +84,20 @@ public class ProvisioningSyncIntegration {
       
       for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
         
-        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(gcGrouperSyncGroup.getGroupId());
+        GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = groupUuidToProvisioningObjectAttributes.get(gcGrouperSyncGroup.getGroupId());
 
-        ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioningGroup();
-        String newGroupName = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getName();
-        Long newGroupIdIndex = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getIdIndex();
-        boolean groupIsProvisionable = grouperProvisioningGroup != null;
+        String newGroupName = grouperProvisioningObjectAttributes == null ? null : grouperProvisioningObjectAttributes.getName();
+        Long newGroupIdIndex = grouperProvisioningObjectAttributes == null ? null : grouperProvisioningObjectAttributes.getIdIndex();
+        String newMetadataJson = grouperProvisioningObjectAttributes == null ? null : grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
+        boolean groupIsProvisionable = grouperProvisioningObjectAttributes != null;
+        
+        gcGrouperSyncGroup.setMetadataJson(newMetadataJson);
         
         processSyncGroup(groupUuidToSyncGroup,
             removeSyncRowsAfterSecondsOutOfTarget, groupIdsToInsert, groupIdsToUpdate,
             gcGrouperSyncRowsToDeleteFromDatabase, groupIdsWithChangedIdIndexes,
-            groupIdsWithChangedNames, gcGrouperSyncGroup, provisioningGroupWrapper,
-            newGroupName, newGroupIdIndex, groupIsProvisionable);
+            groupIdsWithChangedNames, gcGrouperSyncGroup, grouperProvisioningObjectAttributes,
+            newGroupName, newGroupIdIndex, newMetadataJson, groupIsProvisionable);
       }
 
       gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncRowsToDeleteFromDatabase, true, true);
@@ -111,17 +110,18 @@ public class ProvisioningSyncIntegration {
       for (String groupIdToInsert : mapGroupIdToSyncGroupInsert.keySet()) {
         
         GcGrouperSyncGroup gcGrouperSyncGroup = mapGroupIdToSyncGroupInsert.get(groupIdToInsert);
-        ProvisioningGroupWrapper provisioningGroupWrapper = groupUuidToProvisioningGroupWrapper.get(groupIdToInsert);
-        ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioningGroup();
+        initialGcGrouperSyncGroups.add(gcGrouperSyncGroup);
+        GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = groupUuidToProvisioningObjectAttributes.get(groupIdToInsert);
         
-        if (grouperProvisioningGroup == null) {
+        if (grouperProvisioningObjectAttributes == null) {
           continue;
         }
-        String groupName = grouperProvisioningGroup.getName();
-        Long groupIdIndex = grouperProvisioningGroup.getIdIndex();
+        String groupName = grouperProvisioningObjectAttributes.getName();
+        Long groupIdIndex = grouperProvisioningObjectAttributes.getIdIndex();
+        String groupMetadataJson = grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
 
         processSyncGroupInsert(gcGrouperSync, groupUuidToSyncGroup, groupIdToInsert,
-            gcGrouperSyncGroup, provisioningGroupWrapper, groupName, groupIdIndex);
+            gcGrouperSyncGroup, groupName, groupIdIndex, groupMetadataJson);
       }
       
     }
@@ -130,7 +130,7 @@ public class ProvisioningSyncIntegration {
     
     provisioningSyncGroupResult.setGroupIdsToDelete(groupIdsToDelete);
     
-    groupIdsToDelete.removeAll(groupUuidToProvisioningGroupWrapper.keySet());
+    groupIdsToDelete.removeAll(groupUuidToProvisioningObjectAttributes.keySet());
     
     processSyncGroupDelete(groupUuidToSyncGroup, groupIdsToDelete);
     
@@ -171,18 +171,19 @@ public class ProvisioningSyncIntegration {
 
   public static void processSyncGroupInsert(GcGrouperSync gcGrouperSync,
       Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup, String groupIdToInsert,
-      GcGrouperSyncGroup gcGrouperSyncGroup,
-      ProvisioningGroupWrapper provisioningGroupWrapper, String groupName,
-      Long groupIdIndex) {
+      GcGrouperSyncGroup gcGrouperSyncGroup, String groupName,
+      Long groupIdIndex, String metadataJson) {
     if (gcGrouperSyncGroup == null) {
       gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateByGroupId(groupIdToInsert);
     }
     gcGrouperSyncGroup.setGroupName(groupName);
     gcGrouperSyncGroup.setGroupIdIndex(groupIdIndex);
+    gcGrouperSyncGroup.setMetadataJson(metadataJson);
     gcGrouperSyncGroup.setProvisionable(true);
     gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
     groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);
-    provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+    
+    // TODO provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
   }
 
   public static void processSyncGroup(
@@ -192,8 +193,8 @@ public class ProvisioningSyncIntegration {
       List<GcGrouperSyncGroup> gcGrouperSyncRowsToDeleteFromDatabase,
       Set<String> groupIdsWithChangedIdIndexes, Set<String> groupIdsWithChangedNames,
       GcGrouperSyncGroup gcGrouperSyncGroup,
-      ProvisioningGroupWrapper provisioningGroupWrapper, String newGroupName,
-      Long newGroupIdIndex, boolean groupIsProvisionable) {
+      GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes, String newGroupName,
+      Long newGroupIdIndex, String newMetadataJson, boolean groupIsProvisionable) {
     
 //    {
 //      // is in grouper?
@@ -240,21 +241,19 @@ public class ProvisioningSyncIntegration {
       }
 
       // see if not provisionable
-      if (!gcGrouperSyncGroup.isProvisionable() && groupIsProvisionable
-          && (provisioningGroupWrapper == null || !provisioningGroupWrapper.isDelete())) {
+      if (!gcGrouperSyncGroup.isProvisionable() && groupIsProvisionable) {
         gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
         gcGrouperSyncGroup.setProvisionableEnd(null);
         gcGrouperSyncGroup.setProvisionable(true);
       }
-      if (gcGrouperSyncGroup.isProvisionable() && !groupIsProvisionable
-          && (provisioningGroupWrapper == null || provisioningGroupWrapper.isDelete())) {
+      if (gcGrouperSyncGroup.isProvisionable() && !groupIsProvisionable) {
         gcGrouperSyncGroup.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
         gcGrouperSyncGroup.setProvisionable(false);
       }
 
       // see if not provisionable
-      if (!gcGrouperSyncGroup.isInTarget() && groupIsProvisionable 
-          && (provisioningGroupWrapper== null || !provisioningGroupWrapper.isDelete())) {
+      if (!gcGrouperSyncGroup.isInTarget() && groupIsProvisionable) {
+        // TODO note this should be correct - these according to chris are the group ids to insert in the target.
         groupIdsToInsert.add(gcGrouperSyncGroup.getGroupId());
       }
         

@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -36,19 +35,12 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
@@ -72,9 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GrouperProvisioningService {
   
-  
-  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningService.class);
-      
+        
   /**
    * find all groups provisionable in target
    * @param target
@@ -1662,21 +1652,12 @@ public class GrouperProvisioningService {
    * @param grouperProvisioningObjectAttributesToProcess
    * @param grouperProvisioningFolderAttributes
    * @param policyGroupIds
+   * @return calculated provisioning attributes
    */
-  public static void propagateProvisioningAttributes(GrouperProvisioner grouperProvisioner, Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess, Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes, Set<String> policyGroupIds) {
+  public static Map<String, GrouperProvisioningObjectAttributes> calculateProvisioningAttributes(GrouperProvisioner grouperProvisioner, Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess, Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes, Set<String> policyGroupIds) {
     String configId = grouperProvisioner.getConfigId();
-    AttributeDefName attributeDefNameBase = GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase();
-    AttributeDefName attributeDefNameDirectAssign = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT, true);
-    AttributeDefName attributeDefNameDoProvision = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION, true);
-    AttributeDefName attributeDefNameMetadataJson = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON, true);
-    AttributeDefName attributeDefNameOwnerStemId = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID, true);
-    AttributeDefName attributeDefNameStemScope = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE, true);
-    AttributeDefName attributeDefNameTarget = AttributeDefNameFinder.findByName(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET, true);
 
-    int provisioningAttributesFoldersDeleted = 0;
-    int provisioningAttributesFoldersAddedOrUpdated = 0;
-    int provisioningAttributesGroupsDeleted = 0;
-    int provisioningAttributesGroupsAddedOrUpdated = 0;
+    Map<String, GrouperProvisioningObjectAttributes> allCalculatedProvisioningAttributes = new HashMap<String, GrouperProvisioningObjectAttributes>();
     
     // get a map of all child -> parent, maybe this is cheaper than having to recalculate it multiple times per object
     Map<String, String> childToParent = new HashMap<String, String>();
@@ -1697,10 +1678,11 @@ public class GrouperProvisioningService {
       }
     }
     
-    // go through each group/folder and recompute what the attributes should be by looking at ancestor folders and if it doesn't match what's in the db, then update db
+    // go through each group and recompute what the attributes should be by looking at ancestor folders
     for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttribute : grouperProvisioningObjectAttributesToProcess) {
 
       if ("true".equalsIgnoreCase(grouperProvisioningObjectAttribute.getProvisioningDirectAssign())) {
+        allCalculatedProvisioningAttributes.put(grouperProvisioningObjectAttribute.getId(), grouperProvisioningObjectAttribute);
         continue;
       }
       
@@ -1750,194 +1732,19 @@ public class GrouperProvisioningService {
         }
       }
       
-      if (ancestorGrouperProvisioningObjectAttribute == null) {
-        if (!GrouperUtil.isBlank(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId())) {
-          // delete the marker
-          
-          AttributeAssignable object;
-          
-          if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
-            object = GroupFinder.findByName(GrouperSession.staticGrouperSession(), grouperProvisioningObjectAttribute.getName(), false);
-          } else {
-            object = StemFinder.findByName(GrouperSession.staticGrouperSession(), grouperProvisioningObjectAttribute.getName(), false);
-          }
-          
-          if (object == null) {
-            // guess it was deleted?
-            continue;
-          }
-          
-          LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " deleting marker attribute");
-          
-          /*Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
-          for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
-            AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
-            if (attributeAssignValue != null && configId.equals(attributeAssignValue.getValueString())) {
-              markerAttributeAssign.delete();
-              break;
-            }
-          }*/
-          
-          AttributeAssign markerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId(), false);
-          if (markerAttributeAssign != null) {
-            markerAttributeAssign.delete();
-          }
-          
-          if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
-            provisioningAttributesGroupsDeleted++;
-            
-            Group group =(Group)object;
-            ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-            provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
-            provisioningMessage.setBlocking(false);
-            provisioningMessage.send(grouperProvisioningObjectAttribute.getProvisioningTarget());
-          } else {
-            provisioningAttributesFoldersDeleted++;
-          }
-        }
-      } else {
-        String existingDirectAssign = grouperProvisioningObjectAttribute.getProvisioningDirectAssign();
-        String existingDoProvision = grouperProvisioningObjectAttribute.getProvisioningDoProvision();
-        String existingMetadataJson = grouperProvisioningObjectAttribute.getProvisioningMetadataJson();
-        String existingOwnerStemId = grouperProvisioningObjectAttribute.getProvisioningOwnerStemId();
-        String existingStemScope = grouperProvisioningObjectAttribute.getProvisioningStemScope();
-        String existingTarget = grouperProvisioningObjectAttribute.getProvisioningTarget();
-        
-        String actualDirectAssign = "false";
-        String actualDoProvision = ancestorGrouperProvisioningObjectAttribute.getProvisioningDoProvision();
-        String actualMetadataJson = ancestorGrouperProvisioningObjectAttribute.getProvisioningMetadataJson();
-        String actualOwnerStemId = ancestorGrouperProvisioningObjectAttribute.getId();
-        String actualStemScope = null;
-        String actualTarget = ancestorGrouperProvisioningObjectAttribute.getProvisioningTarget();
-        
-        if (!GrouperUtil.equals(existingDirectAssign, actualDirectAssign) ||
-            !GrouperUtil.equals(existingDoProvision, actualDoProvision) ||
-            !GrouperUtil.equals(existingMetadataJson, actualMetadataJson) ||
-            !GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId) ||
-            !GrouperUtil.equals(existingStemScope, actualStemScope) ||
-            !GrouperUtil.equals(existingTarget, actualTarget)) {
-
-          AttributeAssignable object;
-          
-          if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
-            object = GroupFinder.findByName(GrouperSession.staticGrouperSession(), grouperProvisioningObjectAttribute.getName(), false);
-          } else {
-            object = StemFinder.findByName(GrouperSession.staticGrouperSession(), grouperProvisioningObjectAttribute.getName(), false);
-          }
-          
-          if (object == null) {
-            // guess it was deleted?
-            continue;
-          }
-          
-          HibernateSession.callbackHibernateSession(
-              GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-              new HibernateHandler() {
-
-                public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                    throws GrouperDAOException {
-          
-                  
-                  AttributeAssign markerAssign = null;
-                  
-                  /*
-                  Set<AttributeAssign> markerAttributeAssigns = object.getAttributeDelegate().retrieveAssignments(attributeDefNameBase);
-                  for (AttributeAssign markerAttributeAssign : GrouperUtil.nonNull(markerAttributeAssigns)) {
-                    AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefNameTarget.getName());
-                    if (attributeAssignValue != null && configId.equals(attributeAssignValue.getValueString())) {
-                      markerAssign = markerAttributeAssign;
-                      break;
-                    }
-                  }*/
-                  
-                  if (!GrouperUtil.isBlank(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId())) {
-                    markerAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(grouperProvisioningObjectAttribute.getMarkerAttributeAssignId(), false);
-                  }
-                  
-                  if (markerAssign == null) {
-                    markerAssign = object.getAttributeDelegate().internal_addAttributeHelper(null, attributeDefNameBase, false, null).getAttributeAssign();
-                  }
-                  
-                  if (!GrouperUtil.equals(existingDirectAssign, actualDirectAssign)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDirectAssign to: " + actualDirectAssign);
-                    markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDirectAssign.getName(), actualDirectAssign);
-                  }
-                  
-                  if (!GrouperUtil.equals(existingDoProvision, actualDoProvision)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningDoProvision to: " + actualDoProvision);
-                    if (GrouperUtil.isBlank(actualDoProvision)) {
-                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameDoProvision);
-                    } else {
-                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameDoProvision.getName(), actualDoProvision);
-                    }
-                  }
-                  
-                  if (!GrouperUtil.equals(existingMetadataJson, actualMetadataJson)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningMetadataJson to: " + actualMetadataJson);
-                    if (GrouperUtil.isBlank(actualMetadataJson)) {
-                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameMetadataJson);
-                    } else {
-                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameMetadataJson.getName(), actualMetadataJson);
-                    }
-                  }
-                  
-                  if (!GrouperUtil.equals(existingOwnerStemId, actualOwnerStemId)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningOwnerStemId to: " + actualOwnerStemId);
-                    if (GrouperUtil.isBlank(actualOwnerStemId)) {
-                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameOwnerStemId);
-                    } else {
-                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameOwnerStemId.getName(), actualOwnerStemId);
-                    }
-                  }
-                  
-                  if (!GrouperUtil.equals(existingStemScope, actualStemScope)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningStemScope to: " + actualStemScope);
-                    markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameStemScope.getName(), actualStemScope);
-                  }
-                  
-                  if (!GrouperUtil.equals(existingTarget, actualTarget)) {
-                    LOG.info("For " + configId + " and stemName=" + grouperProvisioningObjectAttribute.getName() + " updating provisioningTarget to: " + actualTarget);
-                    if (GrouperUtil.isBlank(actualTarget)) {
-                      markerAssign.getAttributeDelegate().removeAttribute(attributeDefNameTarget);
-                    } else {
-                      markerAssign.getAttributeValueDelegate().assignValue(attributeDefNameTarget.getName(), actualTarget);
-                    }
-                  }
-                  
-                  return null;
-                }
-              });
-          
-          if (grouperProvisioningObjectAttribute.isOwnedByGroup()) {
-            provisioningAttributesGroupsAddedOrUpdated++;
-            
-            Group group =(Group)object;
-            ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-            provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
-            provisioningMessage.setBlocking(false);
-            provisioningMessage.send(actualTarget);
-          } else {
-            provisioningAttributesFoldersAddedOrUpdated++;
-          }
-        }
+      if (ancestorGrouperProvisioningObjectAttribute != null) {
+        GrouperProvisioningObjectAttributes calculatedProvisioningAttributes = new GrouperProvisioningObjectAttributes(grouperProvisioningObjectAttribute.getId(), grouperProvisioningObjectAttribute.getName(), grouperProvisioningObjectAttribute.getIdIndex(), null);
+        calculatedProvisioningAttributes.setProvisioningDirectAssign("false");
+        calculatedProvisioningAttributes.setProvisioningDoProvision(ancestorGrouperProvisioningObjectAttribute.getProvisioningDoProvision());
+        calculatedProvisioningAttributes.setProvisioningMetadataJson(ancestorGrouperProvisioningObjectAttribute.getProvisioningMetadataJson());
+        calculatedProvisioningAttributes.setProvisioningOwnerStemId(ancestorGrouperProvisioningObjectAttribute.getId());
+        calculatedProvisioningAttributes.setProvisioningTarget(ancestorGrouperProvisioningObjectAttribute.getProvisioningTarget());
+      
+        allCalculatedProvisioningAttributes.put(calculatedProvisioningAttributes.getId(), calculatedProvisioningAttributes);
       }
     }
-    
-    if (provisioningAttributesGroupsAddedOrUpdated > 0) {
-      grouperProvisioner.getDebugMap().put("provisioningAttributesGroupsAddedOrUpdated", provisioningAttributesGroupsAddedOrUpdated);
-    }
-    
-    if (provisioningAttributesFoldersAddedOrUpdated > 0) {
-      grouperProvisioner.getDebugMap().put("provisioningAttributesFoldersAddedOrUpdated", provisioningAttributesFoldersAddedOrUpdated);
-    }
-    
-    if (provisioningAttributesGroupsDeleted > 0) {
-      grouperProvisioner.getDebugMap().put("provisioningAttributesGroupsDeleted", provisioningAttributesGroupsDeleted);
-    }
-    
-    if (provisioningAttributesFoldersDeleted > 0) {
-      grouperProvisioner.getDebugMap().put("provisioningAttributesFoldersDeleted", provisioningAttributesFoldersDeleted);
-    }
+
+    return allCalculatedProvisioningAttributes;
   }
   
   private static boolean isOnlyProvisionPolicyGroups(GrouperProvisioner grouperProvisioner, GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {    

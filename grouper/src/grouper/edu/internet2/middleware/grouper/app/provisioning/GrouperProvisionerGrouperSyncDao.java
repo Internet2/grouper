@@ -41,11 +41,7 @@ public class GrouperProvisionerGrouperSyncDao {
    * add / update / delete sync objects based on real data
    */
   public void fixSyncObjects() {
-    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
-    this.grouperProvisioner.setProvisioningSyncResult(provisioningSyncResult);
-    ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(), 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper());
+    ProvisioningSyncResult provisioningSyncResult = this.grouperProvisioner.getProvisioningSyncResult();
     ProvisioningSyncIntegration.fullSyncMembers(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper());

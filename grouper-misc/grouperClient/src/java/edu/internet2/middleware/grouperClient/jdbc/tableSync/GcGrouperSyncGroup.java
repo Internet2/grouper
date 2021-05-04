@@ -93,6 +93,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     gcGrouperSyncGroup.lastGroupSync = this.lastGroupSync;
     gcGrouperSyncGroup.lastGroupSyncStart = this.lastGroupSyncStart;
     gcGrouperSyncGroup.lastTimeWorkWasDone = this.lastTimeWorkWasDone;
+    gcGrouperSyncGroup.metadataJson = this.metadataJson;
     //lastUpdated  DONT CLONE
   
     gcGrouperSyncGroup.metadataUpdated = this.metadataUpdated;
@@ -152,6 +153,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       .append(this.lastGroupSync, other.lastGroupSync)
       .append(this.lastGroupSyncStart, other.lastGroupSyncStart)
       .append(this.lastTimeWorkWasDone, other.lastTimeWorkWasDone)
+      .append(this.metadataJson, other.metadataJson)
       //lastUpdated  DONT EQUALS
 
       .append(this.metadataUpdated, other.metadataUpdated)
@@ -439,6 +441,31 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    */
   public void setLastTimeWorkWasDone(Timestamp lastTimeWorkWasDone1) {
     this.lastTimeWorkWasDone = lastTimeWorkWasDone1;
+  }
+  
+  /**
+   * additional metadata for group
+   */
+  private String metadataJson;
+  
+  
+  
+
+  /**
+   * additional metadata for group
+   * @return metadataJson
+   */
+  public String getMetadataJson() {
+    return metadataJson;
+  }
+
+  
+  /**
+   * additional metadata for group
+   * @param metadataJson
+   */
+  public void setMetadataJson(String metadataJson) {
+    this.metadataJson = metadataJson;
   }
 
   /**

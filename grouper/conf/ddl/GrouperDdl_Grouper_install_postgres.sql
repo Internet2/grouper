@@ -1677,6 +1677,7 @@ CREATE TABLE grouper_sync_group
     error_timestamp TIMESTAMP,
     last_time_work_was_done TIMESTAMP,
     error_code VARCHAR(3),
+    metadata_json VARCHAR(4000),
     PRIMARY KEY (id)
 );
 
@@ -6810,7 +6811,7 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 36, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V36, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 37, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V37, ');
 commit;
 

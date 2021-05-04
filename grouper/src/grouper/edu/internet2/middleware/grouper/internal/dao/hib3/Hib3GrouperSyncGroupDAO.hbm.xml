@@ -61,6 +61,7 @@
     <property name="errorTimestamp" column="error_timestamp" type="timestamp"/>
     <property name="grouperSyncId" column="grouper_sync_id"/>
     <property name="lastTimeWorkWasDone" column="last_time_work_was_done" type="timestamp"/>
+    <property name="metadataJson" column="metadata_json"/>
     <property name="groupFromId2" column="group_from_id2"/>
     <property name="groupFromId3" column="group_from_id3"/>
     <property name="groupId" column="group_id"/>
