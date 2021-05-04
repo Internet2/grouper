@@ -9,6 +9,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -956,13 +957,24 @@ public abstract class GrouperProvisioner {
    * 
    */
   public void propagateProvisioningAttributes() {
+    // retrieve all grouper sync data and put in GrouperProvisioningDataSync
+    this.retrieveGrouperSyncDao().retrieveSyncDataFull();
+
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes = this.retrieveGrouperDao().retrieveAllProvisioningFolderAttributes();
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributes = this.retrieveGrouperDao().retrieveAllProvisioningGroupAttributes();
     Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
-    grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningFolderAttributes.values());
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributes.values());
     Set<String> policyGroupIds = this.retrieveGrouperDao().retrieveAllProvisioningGroupIdsThatArePolicyGroups();
-    
-    GrouperProvisioningService.propagateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
+
+    Map<String, GrouperProvisioningObjectAttributes> calculatedProvisioningAttributes = GrouperProvisioningService.calculateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
+
+    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
+    this.setProvisioningSyncResult(provisioningSyncResult);
+    ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGcGrouperSync(),
+        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(),
+        calculatedProvisioningAttributes);
+
+    this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+
   }
 }

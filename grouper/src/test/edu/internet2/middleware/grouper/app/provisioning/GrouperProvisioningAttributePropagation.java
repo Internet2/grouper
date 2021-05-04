@@ -26,13 +26,14 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import junit.textui.TestRunner;
 
 /**
@@ -48,7 +49,7 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningAttributePropagation("testFullMultipleProvisioners"));    
+    TestRunner.run(new GrouperProvisioningAttributePropagation("testIncrementalDirectToIndirectGroup"));    
   }
   
   public GrouperProvisioningAttributePropagation() {
@@ -236,22 +237,19 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup_includes").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup_includes").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
     
     runIncrementalJobs(true, true);
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
+
     testGroup.setExtension("testGroup");
     testGroup.store();
     testGroup2.setExtension("testGroup");
@@ -259,25 +257,22 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     runIncrementalJobs(true, true);
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      assertEquals(testGroup.getName(), testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
+    
     // rename again
     testGroup.setExtension("testGroup_excludes");
     testGroup.store();
@@ -286,11 +281,19 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
 
     runIncrementalJobs(true, true);
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(0, testGroup2Assigns.size());
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb()); 
+      assertEquals("test:testGroup", testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertEquals("test:test2:testGroup", testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
   }
   
   public void testFullRegexRestriction() {
@@ -440,21 +443,18 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup_includes").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup_includes").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
     
     runFullJob();
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
     
     testGroup.setExtension("testGroup");
     testGroup.store();
@@ -463,25 +463,22 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     runFullJob();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      assertEquals(testGroup.getName(), testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
+    
     // rename again
     testGroup.setExtension("testGroup_excludes");
     testGroup.store();
@@ -490,11 +487,19 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
 
     runFullJob();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(0, testGroup2Assigns.size());
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb()); 
+      assertEquals("test:testGroup", testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertEquals("test:test2:testGroup", testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
+    }
   }
   
   public void testFullPolicyRestriction() {
@@ -644,76 +649,61 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runFullJob();
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
     
     addGroupType(testGroup, "policy");
     
     runFullJob();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
 
     removeGroupTypes(testGroup);
 
     runFullJob();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
+    
     addGroupType(testGroup, "ref");
     
     runFullJob();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb());
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+    }
   }
   
   
@@ -867,76 +857,64 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runIncrementalJobs(true, true);
-    
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
+
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
+
     addGroupType(testGroup, "policy");
     
     runIncrementalJobs(true, true);
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
+    
     removeGroupTypes(testGroup);
 
     runIncrementalJobs(true, true);
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    }
+    
     addGroupType(testGroup, "ref");
     
     runIncrementalJobs(true, true);
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(0, testGroupAssigns.size());
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(5, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test2Stem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertNotNull(testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNotNull(testGroup2SyncGroup.getMetadataJson());
+    } 
   }
   
   public void testIncrementalStemScopeOne() {
@@ -1064,9 +1042,9 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     runIncrementalJobs(true, true);
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
-    Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
+    new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
-    Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
     new StemSave(this.grouperSession).assignName("anotherStem").save();
     
     GrouperProvisioningAttributeValue testStemAttributeValue = new GrouperProvisioningAttributeValue();
@@ -1080,125 +1058,43 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runIncrementalJobs(true, true);
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+    }
     
-    assertEquals(0, testGroup2Assigns.size());
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test3StemAssigns.size());
-    assertEquals(0, test4StemAssigns.size());
 
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     testStemAttributeValue.setStemScopeString("sub");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     GrouperProvisioningAttributeValue test3StemAttributeValue = new GrouperProvisioningAttributeValue();
     test3StemAttributeValue.setDirectAssignment(true);
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
@@ -1207,166 +1103,82 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     testStemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup2Assigns.size());
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(0, testGroup4Assigns.size());
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-        
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
     // create folder and group and make sure attributes are set
 
-    Stem test4bStem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
     Group testGroup3b = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroupb").save();
 
     runIncrementalJobs(true, true);
-
-    Set<AttributeAssign> test4bStemAssigns = test4bStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3bAssigns = testGroup3b.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-
-    assertEquals(1, test4bStemAssigns.size());
-    assertEquals(4, test4bStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-        
-    assertEquals(1, testGroup3bAssigns.size());
-    assertEquals(4, testGroup3bAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    
+    {
+      assertEquals(5, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      GcGrouperSyncGroup testGroup3bSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3b.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3bSyncGroup.getMetadataJson());
+    }
   }
   
   public void testFullStemScopeOne() {
@@ -1491,9 +1303,9 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
-    Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
+    new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
-    Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
     new StemSave(this.grouperSession).assignName("anotherStem").save();
     
     GrouperProvisioningAttributeValue testStemAttributeValue = new GrouperProvisioningAttributeValue();
@@ -1507,125 +1319,43 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runFullJob();
+        
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+    }
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup2Assigns.size());
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test3StemAssigns.size());
-    assertEquals(0, test4StemAssigns.size());
 
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     testStemAttributeValue.setStemScopeString("sub");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
     runFullJob();
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     GrouperProvisioningAttributeValue test3StemAttributeValue = new GrouperProvisioningAttributeValue();
     test3StemAttributeValue.setDirectAssignment(true);
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
@@ -1634,166 +1364,82 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runFullJob();
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
     testStemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
     runFullJob();
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup2Assigns.size());
 
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-
-    assertEquals(0, testGroup4Assigns.size());
-
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("one", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-        
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
     // create folder and group and make sure attributes are set
 
-    Stem test4bStem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
     Group testGroup3b = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroupb").save();
 
     runFullJob();
-
-    Set<AttributeAssign> test4bStemAssigns = test4bStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3bAssigns = testGroup3b.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-
-    assertEquals(1, test4bStemAssigns.size());
-    assertEquals(4, test4bStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4bStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-        
-    assertEquals(1, testGroup3bAssigns.size());
-    assertEquals(4, testGroup3bAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3bAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+    
+    {
+      assertEquals(5, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      GcGrouperSyncGroup testGroup3bSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3b.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3bSyncGroup.getMetadataJson());
+    }
   }
   
   public void testIncrementalStemNotProvisionable() {
@@ -1921,9 +1567,9 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     runIncrementalJobs(true, true);
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
-    Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
+    new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
-    Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
     new StemSave(this.grouperSession).assignName("anotherStem").save();
     
     GrouperProvisioningAttributeValue testStemAttributeValue = new GrouperProvisioningAttributeValue();
@@ -1944,195 +1590,70 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runIncrementalJobs(true, true);
-    
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(3, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test4StemAssigns.size());
 
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+    }
+
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
     test3StemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(3, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test4StemAssigns.size());
-
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+  
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
   }
   
   public void testFullStemNotProvisionable() {
@@ -2257,9 +1778,9 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
-    Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
+    new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
-    Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
+    new StemSave(this.grouperSession).assignName("test:test2:test3:test4").save();
     new StemSave(this.grouperSession).assignName("anotherStem").save();
     
     GrouperProvisioningAttributeValue testStemAttributeValue = new GrouperProvisioningAttributeValue();
@@ -2280,195 +1801,70 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
-    Group anotherStemTestGroup = new GroupSave(this.grouperSession).assignName("anotherStem:testGroup").save();
         
     runFullJob();
-    
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    Set<AttributeAssign> test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(3, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test4StemAssigns.size());
 
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
-    
+    {
+      assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+    }
+
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runFullJob();
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup3Assigns.size());
-    assertEquals(4, testGroup3Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup3Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup4Assigns.size());
-    assertEquals(4, testGroup4Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(test3Stem.getUuid(), testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup4Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(4, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test4StemAssigns.size());
-    assertEquals(4, test4StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(test3Stem.getUuid(), test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test4StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
 
     test3StemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
     runFullJob();
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup2Assigns = testGroup2.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup3Assigns = testGroup3.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testGroup4Assigns = testGroup4.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test2StemAssigns = test2Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test3StemAssigns = test3Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    test4StemAssigns = test4Stem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testGroup2Assigns.size());
-    assertEquals(4, testGroup2Assigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroup2Assigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, testGroup3Assigns.size());
-    assertEquals(0, testGroup4Assigns.size());
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test2StemAssigns.size());
-    assertEquals(4, test2StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(null, test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(testStem.getUuid(), test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test2StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, test3StemAssigns.size());
-    assertEquals(3, test3StemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals(null, test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", test3StemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(0, test4StemAssigns.size());
-
-    assertEquals(0, anotherStemTestGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef").size());
+  
+    {
+      assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      GcGrouperSyncGroup testGroup3SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId());
+      GcGrouperSyncGroup testGroup4SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup4.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+      
+      assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
+      assertNull(testGroup2SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup3SyncGroup.getProvisionableDb());
+      assertNull(testGroup3SyncGroup.getMetadataJson());
+      
+      assertEquals("F", testGroup4SyncGroup.getProvisionableDb());
+      assertNull(testGroup4SyncGroup.getMetadataJson());
+    }
   }
   
   public void testIncrementalDirectToIndirectGroup() {
@@ -2629,29 +2025,28 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
     assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
     
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+    }
+    
     testGroupAssigns.iterator().next().delete();
 
     testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
     assertEquals(0, testGroupAssigns.size());
 
     runIncrementalJobs(true, true);
-    
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
-    assertEquals(4, testGroupAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testGroupAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    
-    assertEquals(1, testStemAssigns.size());
-    assertEquals(4, testStemAssigns.iterator().next().getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("true", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals("sub", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningStemScope"));
-    assertEquals(null, testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", testStemAssigns.iterator().next().getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
+  
+    {
+      assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
+      GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+       
+      assertEquals("T", testGroupSyncGroup.getProvisionableDb());
+      assertNull(testGroupSyncGroup.getMetadataJson());
+    }
   }
   
   public void testFullMultipleProvisioners() {
@@ -2914,34 +2309,17 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     runFullJob();
     runFullJob2();
     
-    Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(2, testGroupAssigns.size());
+    Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
+    Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     
-    AttributeAssign markerAssign = null;
-    AttributeAssign markerAssign2 = null;
-    for (AttributeAssign markerAttributeAssign : testGroupAssigns) {
-      AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue("etc:provisioning:provisioningTarget");
-      if ("junitProvisioningAttributePropagationTest".equals(attributeAssignValue.getValueString())) {
-        markerAssign = markerAttributeAssign;
-      } else if ("junitProvisioningAttributePropagationTest2".equals(attributeAssignValue.getValueString())) {
-        markerAssign2 = markerAttributeAssign;
-      }
-    }
-    
-    assertEquals(5, markerAssign.getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals("{\"test\":\"test\"}", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
+    assertEquals(1, grouperSyncGroupIdToSyncGroup.size());
+    assertEquals("T", grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getProvisionableDb());
+    assertEquals("{\"test\":\"test\"}", grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getMetadataJson());
    
-    assertEquals(5, markerAssign2.getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals("{\"test2\":\"test2\"}", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
-
+    assertEquals(1, grouperSyncGroupIdToSyncGroup2.size());
+    assertEquals("T", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getProvisionableDb());
+    assertEquals("{\"test2\":\"test2\"}", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getMetadataJson());
+    
     testStemAttributeValue.setMetadataNameValues(Collections.singletonMap("testx", "testx"));
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
@@ -2951,33 +2329,16 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     runFullJob();
     runFullJob2();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(2, testGroupAssigns.size());
+    grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
+    grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     
-    markerAssign = null;
-    markerAssign2 = null;
-    for (AttributeAssign markerAttributeAssign : testGroupAssigns) {
-      AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue("etc:provisioning:provisioningTarget");
-      if ("junitProvisioningAttributePropagationTest".equals(attributeAssignValue.getValueString())) {
-        markerAssign = markerAttributeAssign;
-      } else if ("junitProvisioningAttributePropagationTest2".equals(attributeAssignValue.getValueString())) {
-        markerAssign2 = markerAttributeAssign;
-      }
-    }
-
-    assertEquals(5, markerAssign.getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals("{\"testx\":\"testx\"}", markerAssign.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
+    assertEquals(1, grouperSyncGroupIdToSyncGroup.size());
+    assertEquals("T", grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getProvisionableDb());
+    assertEquals("{\"testx\":\"testx\"}", grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getMetadataJson());
    
-    assertEquals(5, markerAssign2.getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals("{\"test2x\":\"test2x\"}", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
+    assertEquals(1, grouperSyncGroupIdToSyncGroup2.size());
+    assertEquals("T", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getProvisionableDb());
+    assertEquals("{\"test2x\":\"test2x\"}", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getMetadataJson());
 
     testStemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
@@ -2985,26 +2346,16 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
     runFullJob();
     runFullJob2();
     
-    testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
-    assertEquals(1, testGroupAssigns.size());
+    grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
+    grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     
-    markerAssign = null;
-    markerAssign2 = null;
-    for (AttributeAssign markerAttributeAssign : testGroupAssigns) {
-      AttributeAssignValue attributeAssignValue = markerAttributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue("etc:provisioning:provisioningTarget");
-      if ("junitProvisioningAttributePropagationTest".equals(attributeAssignValue.getValueString())) {
-        markerAssign = markerAttributeAssign;
-      } else if ("junitProvisioningAttributePropagationTest2".equals(attributeAssignValue.getValueString())) {
-        markerAssign2 = markerAttributeAssign;
-      }
-    }
+    assertEquals(1, grouperSyncGroupIdToSyncGroup.size());
+    assertEquals("F", grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getProvisionableDb());
+    assertNotNull(grouperSyncGroupIdToSyncGroup.get(testGroup.getId()).getProvisionableEnd());
     
-    assertEquals(5, markerAssign2.getAttributeDelegate().retrieveAssignments().size());
-    assertEquals("false", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDirectAssign"));
-    assertEquals(testStem.getUuid(), markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningOwnerStemId"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningDoProvision"));
-    assertEquals("junitProvisioningAttributePropagationTest2", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningTarget"));
-    assertEquals("{\"test2x\":\"test2x\"}", markerAssign2.getAttributeValueDelegate().retrieveValueString("etc:provisioning:provisioningMetadataJson"));
+    assertEquals(1, grouperSyncGroupIdToSyncGroup2.size());
+    assertEquals("T", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getProvisionableDb());
+    assertEquals("{\"test2x\":\"test2x\"}", grouperSyncGroupIdToSyncGroup2.get(testGroup.getId()).getMetadataJson());    
   }
   
   private static void addGroupType(Group group, String typeString) {

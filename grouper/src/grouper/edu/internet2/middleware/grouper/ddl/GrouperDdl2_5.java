@@ -731,6 +731,10 @@ public class GrouperDdl2_5 {
       if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
         GrouperDdl2_5_40.addGrouperSyncErrorCodeColumnsGroup(database, ddlVersionBean);
       }
+      
+      if (GrouperDdl2_5_51.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_51.addGrouperSyncGroupMetadataJsonColumn(database, ddlVersionBean);
+      }
 
     }
     
@@ -1081,6 +1085,10 @@ public class GrouperDdl2_5 {
       
       if (GrouperDdl2_5_40.buildingToThisVersionAtLeast(ddlVersionBean)) {
         GrouperDdl2_5_40.addGrouperSyncErrorCodeCommentsGroup(database, ddlVersionBean);
+      }
+      
+      if (GrouperDdl2_5_51.buildingToThisVersionAtLeast(ddlVersionBean)) {
+        GrouperDdl2_5_51.addGrouperSyncGroupMetadataJsonComment(database, ddlVersionBean);
       }
     }
     {

@@ -410,8 +410,8 @@ public class GrouperProvisioningLogic {
         }
         
         // ######### STEP 9: retrieve provisioning attributes for recalc groups and adjust sync objects
-        debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
-        grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
+        //debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
+        //grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
       
         // ######### STEP 10: filter if not provisionable
         debugMap.put("state", "filterByNotProvisionable");
@@ -1262,25 +1262,6 @@ public class GrouperProvisioningLogic {
   }
 
   public void retrieveGrouperDataFull() {
-    final RuntimeException[] RUNTIME_EXCEPTION2 = new RuntimeException[1];
-    
-    Thread grouperSyncQueryThread = new Thread(new Runnable() {
-      
-      @Override
-      public void run() {
-        
-        try {
-          // retrieve all grouper sync data and put in GrouperProvisioningDataSync
-          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperSyncDao().retrieveSyncDataFull();
-        } catch (RuntimeException re) {
-          LOG.error("error querying sync objects: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
-          RUNTIME_EXCEPTION2[0] = re;
-        }
-        
-      }
-    });
-
-    grouperSyncQueryThread.start();
     
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataSyncGrouper
@@ -1293,11 +1274,6 @@ public class GrouperProvisioningLogic {
     // point the membership pointers to groups and entities to what they should point to
     // and fix data problems (for instance race conditions as data was retrieved)
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
-    
-    GrouperClientUtils.join(grouperSyncQueryThread);
-    if (RUNTIME_EXCEPTION2[0] != null) {
-      throw RUNTIME_EXCEPTION2[0];
-    }
 
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();

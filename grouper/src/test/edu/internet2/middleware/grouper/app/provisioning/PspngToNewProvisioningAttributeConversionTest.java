@@ -45,7 +45,7 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:group1").save();
     
     Stem stem2 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test2").save();
-    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test2:group2").save();
+    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test2:group2").save();
     
     AttributeDefSave provisionToAttributeDefSave = new AttributeDefSave(grouperSession).assignName(etc+":pspng:provision_to_def").assignCreateParentStemsIfNotExist(true).assignToGroup(true).assignToStem(true).assignAttributeDefType(AttributeDefType.type).assignMultiAssignable(true).assignMultiValued(false).assignValueType(AttributeDefValueType.string);
     AttributeDef provisionToAttributeDef = provisionToAttributeDefSave.save();
@@ -110,9 +110,6 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     // copy from pspng to new provisioning attributes
     PspngToNewProvisioningAttributeConversion.copyProvisionToAttributesToNewProvisioningAttributes("sqlProvTest");
     
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    grouperProvisioner.propagateProvisioningAttributes();
-    
     // assert that stems and groups have new attributes setup correctly
     GrouperProvisioningAttributeValue provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem, "sqlProvTest");
     assertEquals(true, provisioningAttributeValue.isDirectAssignment());
@@ -121,29 +118,16 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     assertNull(provisioningAttributeValue.getOwnerStemId());
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem1, "sqlProvTest");
-    assertEquals(false, provisioningAttributeValue.isDirectAssignment());
-    assertEquals("sqlProvTest", provisioningAttributeValue.getDoProvision());
-    assertEquals(true, provisioningAttributeValue.isStemScopeSub());
-    assertEquals(stem.getId(), provisioningAttributeValue.getOwnerStemId());
+    assertNull(provisioningAttributeValue);
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(group1, "sqlProvTest");
-    assertEquals(false, provisioningAttributeValue.isDirectAssignment());
-    assertEquals("sqlProvTest", provisioningAttributeValue.getDoProvision());
-    assertEquals(true, provisioningAttributeValue.isStemScopeSub());
-    assertEquals(stem.getId(), provisioningAttributeValue.getOwnerStemId());
+    assertNull(provisioningAttributeValue);
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem2, "sqlProvTest");
     assertEquals(true, provisioningAttributeValue.isDirectAssignment());
     assertNull(provisioningAttributeValue.getDoProvision());
     assertEquals(true, provisioningAttributeValue.isStemScopeSub());
     assertNull(provisioningAttributeValue.getOwnerStemId());
-    
-    //provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(group2, "sqlProvTest");
-    //assertEquals(false, provisioningAttributeValue.isDirectAssignment());
-    //assertNull(provisioningAttributeValue.getDoProvision());
-    //assertEquals(true, provisioningAttributeValue.isStemScopeSub());
-    //assertEquals(stem2.getId(), provisioningAttributeValue.getOwnerStemId());
-    
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stemAlreadyPspngDirect, "sqlProvTest");
     assertNull(provisioningAttributeValue);

@@ -238,6 +238,9 @@ public class EsbEvent {
   private String groupName;
   
   /** */
+  private String groupIdIndex;
+  
+  /** */
   private String roleId;
 
   /** */
@@ -1101,4 +1104,12 @@ public class EsbEvent {
   }
 
   
+  public String getGroupIdIndex() {
+    return groupIdIndex;
+  }
+
+  
+  public void setGroupIdIndex(String groupIdIndex) {
+    this.groupIdIndex = groupIdIndex;
+  }
 }

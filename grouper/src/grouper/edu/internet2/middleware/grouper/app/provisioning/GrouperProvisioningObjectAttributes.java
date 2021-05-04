@@ -10,6 +10,7 @@ public class GrouperProvisioningObjectAttributes {
 
   private String id;
   private String name;
+  private Long idIndex;
   private String markerAttributeAssignId;
   
   private String provisioningTarget;
@@ -20,12 +21,14 @@ public class GrouperProvisioningObjectAttributes {
   private String provisioningStemScope;
   private boolean isOwnedByGroup;
   private boolean isOwnedByStem;
+  private boolean isDeleted = false;
   
   private Map<String, Object> metadataNameValues = null;
   
-  public GrouperProvisioningObjectAttributes(String id, String name, String markerAttributeAssignId) {
+  public GrouperProvisioningObjectAttributes(String id, String name, Long idIndex, String markerAttributeAssignId) {
     this.id = id;
     this.name = name;
+    this.idIndex = idIndex;
     this.markerAttributeAssignId = markerAttributeAssignId;
   }
   
@@ -122,6 +125,16 @@ public class GrouperProvisioningObjectAttributes {
     this.isOwnedByStem = isOwnedByStem;
   }
   
+  
+  public Long getIdIndex() {
+    return idIndex;
+  }
+
+  
+  public void setIdIndex(Long idIndex) {
+    this.idIndex = idIndex;
+  }
+
   @SuppressWarnings("unchecked")
   public Map<String, Object> getMetadataNameValues() {
     if (this.provisioningMetadataJson == null) {
@@ -137,5 +150,14 @@ public class GrouperProvisioningObjectAttributes {
     }
     
     return metadataNameValues;
+  }
+
+  
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  public void setDeleted(boolean isDeleted) {
+    this.isDeleted = isDeleted;
   }
 }

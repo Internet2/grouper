@@ -195,6 +195,7 @@ public enum EsbEventType {
       event.setGroupId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.id));
       event.setName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name));
       event.setGroupName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name));
+      event.setGroupIdIndex(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.idIndex));
       event.setParentStemId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.parentStemId));
       event.setDisplayName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.displayName));
       event.setDescription(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.description));
@@ -216,6 +217,7 @@ public enum EsbEventType {
       event.setGroupId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id));
       event.setName(retrieveLabelValue(changeLogEntry,ChangeLogLabels.GROUP_DELETE.name));
       event.setGroupName(retrieveLabelValue(changeLogEntry,ChangeLogLabels.GROUP_DELETE.name));
+      event.setGroupIdIndex(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.idIndex));
       event.setParentStemId(retrieveLabelValue(changeLogEntry,
           ChangeLogLabels.GROUP_DELETE.parentStemId));
       event.setDisplayName(retrieveLabelValue(changeLogEntry,
