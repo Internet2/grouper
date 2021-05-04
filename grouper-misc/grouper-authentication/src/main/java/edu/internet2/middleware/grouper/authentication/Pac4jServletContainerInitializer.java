@@ -4,7 +4,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.core.util.Pac4jConstants;
-import org.pac4j.jee.filter.CallbackFilter;
 import org.pac4j.jee.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +24,6 @@ public class Pac4jServletContainerInitializer implements ServletContainerInitial
 
         if (runGrouperUi && GrouperUiConfig.retrieveConfig().propertyValueBoolean("external.authentication.enabled", false)) {
             LOGGER.info("initializing pac4j");
-
-            FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", CallbackFilter.class);
-            callbackFilter.setInitParameter("defaultUrl", GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.defaultUrl", "/"));
-            callbackFilter.setInitParameter("renewSession", "true");
-            callbackFilter.addMappingForUrlPatterns(null, false, GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback"));
 
             FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", SecurityFilter.class);
 

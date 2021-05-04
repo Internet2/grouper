@@ -33,6 +33,10 @@ public class Pac4JConfigFactoryTest extends TestCase {
         TestRunner.run(new Pac4JConfigFactoryTest("testPac4JConfigFactorCAS"));
     }
 
+    public void testElConfig() {
+
+    }
+
     /**
      *
      */
