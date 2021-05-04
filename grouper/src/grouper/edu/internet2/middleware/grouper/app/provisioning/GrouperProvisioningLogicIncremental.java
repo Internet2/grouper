@@ -916,7 +916,7 @@ public class GrouperProvisioningLogicIncremental {
           (esbEventType == EsbEventType.GROUP_UPDATE && "name".equals(esbEvent.getPropertyChanged()))) {
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(esbEvent.getGroupId());
         if (grouperProvisioningObjectAttributes == null) {
-          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getGroupId(), esbEvent.getGroupName(), null);
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getGroupId(), esbEvent.getGroupName(), null, null);
           grouperProvisioningObjectAttributes.setOwnedByGroup(true);
         }
         
@@ -933,7 +933,7 @@ public class GrouperProvisioningLogicIncremental {
         
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = ancestorProvisioningGroupAttributes.get(esbEvent.getName());
         if (grouperProvisioningObjectAttributes == null) {
-          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getId(), esbEvent.getName(), null);
+          grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(esbEvent.getId(), esbEvent.getName(), null, null);
           grouperProvisioningObjectAttributes.setOwnedByStem(true);
         }
         
@@ -964,7 +964,7 @@ public class GrouperProvisioningLogicIncremental {
               if (group != null) {
                 GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
                 if (grouperProvisioningObjectAttributes == null) {
-                  grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), null);
+                  grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), group.getIdIndex(), null);
                   grouperProvisioningObjectAttributes.setOwnedByGroup(true);
                 }
 
@@ -993,7 +993,7 @@ public class GrouperProvisioningLogicIncremental {
           if (group != null) {
             GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
             if (grouperProvisioningObjectAttributes == null) {
-              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), null);
+              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), group.getIdIndex(), null);
               grouperProvisioningObjectAttributes.setOwnedByGroup(true);
             }
 
@@ -1021,7 +1021,7 @@ public class GrouperProvisioningLogicIncremental {
     Set<String> policyGroupIds = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupIdsThatArePolicyGroups(groupIds);
     
     if (grouperProvisioningObjectAttributesToProcess.size() > 0) {
-      GrouperProvisioningService.propagateProvisioningAttributes(this.getGrouperProvisioner(), grouperProvisioningObjectAttributesToProcess, allAncestorProvisioningGroupAttributes, policyGroupIds);
+      GrouperProvisioningService.calculateProvisioningAttributes(this.getGrouperProvisioner(), grouperProvisioningObjectAttributesToProcess, allAncestorProvisioningGroupAttributes, policyGroupIds);
     }
   }
 
@@ -1619,9 +1619,10 @@ public class GrouperProvisioningLogicIncremental {
         Long newIdIndex = provisionableGroup == null ? null : provisionableGroup.getIdIndex();
         boolean groupIsProvisionable = provisionableGroup != null;
         
-        ProvisioningSyncIntegration.processSyncGroup(groupUuidToSyncGroup, removeSyncRowsAfterSecondsOutOfTarget, 
-            groupIdsToInsert, groupIdsToUpdate, gcGrouperSyncRowsToDeleteFromDatabase, groupIdsWithChangedIdIndexes, 
-            groupIdsWithChangedNames, gcGrouperSyncGroup, provisioningGroupWrapper, newGroupName, newIdIndex, groupIsProvisionable);
+        // TODO fix
+        //ProvisioningSyncIntegration.processSyncGroup(groupUuidToSyncGroup, removeSyncRowsAfterSecondsOutOfTarget, 
+        //    groupIdsToInsert, groupIdsToUpdate, gcGrouperSyncRowsToDeleteFromDatabase, groupIdsWithChangedIdIndexes, 
+        //    groupIdsWithChangedNames, gcGrouperSyncGroup, provisioningGroupWrapper, newGroupName, newIdIndex, groupIsProvisionable);
       }
 
     }
@@ -1647,8 +1648,9 @@ public class GrouperProvisioningLogicIncremental {
         String groupNewName = provisionableGroup.getName();
         Long groupNewIdIndex = provisionableGroup.getIdIndex();
         
-        ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, groupUuidToSyncGroup, groupIdToInsert, 
-            gcGrouperSyncGroup, provisioningGroupWrapper, groupNewName, groupNewIdIndex);
+        // TODO fix
+        //ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, groupUuidToSyncGroup, groupIdToInsert, 
+        //    gcGrouperSyncGroup, provisioningGroupWrapper, groupNewName, groupNewIdIndex);
       }
       
     }

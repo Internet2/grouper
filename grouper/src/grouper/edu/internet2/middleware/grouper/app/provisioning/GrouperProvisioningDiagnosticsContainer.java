@@ -360,9 +360,10 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
       
-      ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, new HashMap<String, GcGrouperSyncGroup>(), this.provisioningGroupWrapper.getGrouperProvisioningGroup().getId(), 
-          gcGrouperSyncGroup, provisioningGroupWrapper, this.provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), 
-          this.provisioningGroupWrapper.getGrouperProvisioningGroup().getIdIndex());
+      // TODO fix - chris said this is not that important (user can set provisionable manually?)
+      //ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, new HashMap<String, GcGrouperSyncGroup>(), this.provisioningGroupWrapper.getGrouperProvisioningGroup().getId(), 
+      //    gcGrouperSyncGroup, provisioningGroupWrapper, this.provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), 
+      //    this.provisioningGroupWrapper.getGrouperProvisioningGroup().getIdIndex());
       gcGrouperSyncGroup = this.provisioningGroupWrapper.getGcGrouperSyncGroup();
       
     }

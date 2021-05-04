@@ -2618,12 +2618,15 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.5.51";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_5_51.addGrouperSyncGroupMetadataJsonColumn(database, ddlVersionBean);
+      GrouperDdl2_5_51.addGrouperSyncGroupMetadataJsonComment(database, ddlVersionBean);
     }
   },
   V38 {
