@@ -1866,8 +1866,10 @@ public class GrouperInstaller {
             File relatedFile = relatedFiles.iterator().next();
             File newerVersion = GrouperInstallerUtils.jarNewerVersion(relatedFile, jarFile);
             if (newerVersion != null) {
-              
-              if (newerVersion.equals(jarFile)) {
+              // ref: https://todos.internet2.edu/browse/GRP-3454
+              if (jarFile.getName().matches("okhttp.+")) {
+                System.out.println("There is a conflicting jar: " + jarFile.getAbsolutePath() + " but we're leaving it");
+              } else if (newerVersion.equals(jarFile)) {
                 System.out.println("There is a conflicting jar: " + jarFile.getAbsolutePath());
                 System.out.println("Deleting older jar: " + relatedFile.getAbsolutePath());
                 GrouperInstallerUtils.fileDelete(relatedFile);
