@@ -32,7 +32,7 @@ public class CallbackFilterFascade implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
 
-        if (runGrouperUi && isExternalAuthenticationEnabled() && isCallbackUrlCalled((HttpServletRequest) request)) {
+        if (runGrouperUi && FilterFascadeUtils.isExternalAuthenticationEnabled() && isCallbackUrlCalled((HttpServletRequest) request)) {
             this.uiDelegate.doFilter(request, response, chain);
         } else {
             chain.doFilter(request, response);
@@ -40,15 +40,7 @@ public class CallbackFilterFascade implements Filter {
     }
 
     private static boolean isCallbackUrlCalled(HttpServletRequest request) {
-        return getRequestPathInContext(request).matches(GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback"));
-    }
-
-    private static String getRequestPathInContext(HttpServletRequest request) {
-        return request.getRequestURI().replaceFirst(request.getServletContext().getContextPath(), "");
-    }
-
-    private static boolean isExternalAuthenticationEnabled() {
-        return GrouperUiConfig.retrieveConfig().propertyValueBoolean("external.authentication.enabled", false);
+        return FilterFascadeUtils.getRequestPathInContext(request).matches(GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback"));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import edu.internet2.middleware.grouper.authentication.filter.CallbackFilterFascade;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
@@ -19,11 +20,15 @@ public class Pac4jServletContainerInitializer implements ServletContainerInitial
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+        LOGGER.info("initializing pac4j");
+
+        FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", CallbackFilterFascade.class);
+        callbackFilter.addMappingForUrlPatterns(null, false, "/*");
+
         boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
         boolean runGrouperWs = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
 
         if (runGrouperUi && GrouperUiConfig.retrieveConfig().propertyValueBoolean("external.authentication.enabled", false)) {
-            LOGGER.info("initializing pac4j");
 
             FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", SecurityFilter.class);
 
