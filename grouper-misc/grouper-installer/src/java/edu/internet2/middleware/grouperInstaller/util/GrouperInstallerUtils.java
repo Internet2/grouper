@@ -7634,8 +7634,14 @@ public class GrouperInstallerUtils  {
       return result;
     }
     
-    result.add(baseName.toLowerCase());
-
+    if (fileName.toLowerCase().startsWith("okhttp-2")) {
+      result.add("okhttp-2");
+    } else if (fileName.toLowerCase().startsWith("okhttp-3")) {
+      result.add("okhttp-3");
+    } else {
+    
+      result.add(baseName.toLowerCase());
+    }
     if (baseName.endsWith("-core") && !baseName.toLowerCase().contains("aws")) {
       baseName = baseName.substring(0, baseName.length() - "-core".length());
       result.add(baseName.toLowerCase());

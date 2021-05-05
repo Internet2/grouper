@@ -1823,7 +1823,7 @@ public class GrouperInstaller {
   /**
    * @param appDir e.g. this.upgradeExistingApplicationDirectoryString
    */
-  private void reportOnConflictingJars(String appDir) {
+  public void reportOnConflictingJars(String appDir) {
     
     System.out.println("\n##################################");
     System.out.println("Looking for conflicting jars\n");
