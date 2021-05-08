@@ -67,7 +67,11 @@
                                </c:if>
                                
                                <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
+                               
+                               <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
+                                 <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
+                               </c:if>
+                           
                                <li>&nbsp;</li>                                  
                                <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['customUiConfigsConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2CustomUiConfig.deleteCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');}">${textContainer.text['customUiConfigsTableDeleteDetailsActionOption'] }</a></li>
                                  </ul>

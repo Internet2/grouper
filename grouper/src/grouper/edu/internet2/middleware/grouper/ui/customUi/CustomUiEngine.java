@@ -15,15 +15,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -96,6 +103,26 @@ public class CustomUiEngine {
     
     for (String json : GrouperUtil.nonNull(jsons)) {
       CustomUiUserQueryConfigBean customUiUserQueryConfigBean = GrouperUtil.jsonConvertFrom(json, CustomUiUserQueryConfigBean.class);
+      
+      //keeep track of enabled fields that arent default
+      if (customUiUserQueryConfigBean.getEnabled() == null || customUiUserQueryConfigBean.getEnabled()) {
+        if (StringUtils.equals("default", customUiUserQueryConfigBean.getVariableToAssign())) {
+          defaultConfigBean = customUiUserQueryConfigBean;
+        } else {
+          customUiUserQueryConfigBeans.add(customUiUserQueryConfigBean);
+        }
+      }
+    }
+    
+  }
+  
+  /**
+   * 
+   * @param jsons
+   */
+  public void populateCustomUiUserQueryConfigBeans(List<CustomUiUserQueryConfigBean> customUiUserConfigBeans) {
+    
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : GrouperUtil.nonNull(customUiUserConfigBeans)) {
       
       //keeep track of enabled fields that arent default
       if (customUiUserQueryConfigBean.getEnabled() == null || customUiUserQueryConfigBean.getEnabled()) {
@@ -442,6 +469,424 @@ public class CustomUiEngine {
   }
 
   /**
+   * 
+   * @param group
+   * @param onlyEnabled
+   * @return
+   */
+  public static String retrieveCustomUiConfigurationConfigId(Group group, boolean onlyEnabled) {
+    
+    Pattern pattern = Pattern.compile("grouperCustomUI\\.([^.]+)\\.groupUUIDOrName");
+    Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(pattern);
+    
+    for (String fullPropertyName: propertiesMap.keySet()) {
+      
+      String groupIdOrName = propertiesMap.get(fullPropertyName);
+      if (StringUtils.equals(groupIdOrName, group.getId()) || StringUtils.equals(groupIdOrName, group.getName())) {
+        Matcher matcher = pattern.matcher(fullPropertyName);
+        if (matcher.matches()) {
+          
+          String configId = matcher.group(1);
+          
+          if (onlyEnabled) {
+            pattern = Pattern.compile("grouperCustomUI\\." + configId + "\\.[^*]+");
+            Map<String, String> customUiConfigProperties = GrouperConfig.retrieveConfig().propertiesMap(pattern);
+            if (customUiConfigProperties.size() == 0) {
+              throw new RuntimeException("There should be at least a few properties set for custom ui config id "+configId);
+            }
+            
+            CustomUiConfig customUiConfig = new CustomUiConfig();
+            customUiConfig.setGroupUUIDOrName(group.getUuid());
+            
+            String configPrefix = "grouperCustomUI."+configId+".";
+            
+            String enabledString = customUiConfigProperties.getOrDefault(configPrefix+"enabled", "true");
+            if (GrouperUtil.booleanObjectValue(enabledString) == true) {
+              return configId;
+            } else {
+              return null;
+            }
+          }
+          
+          return configId;
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  public CustomUiConfig retrieveCustomUiConfigBean(Group group) {
+    
+    String configId = retrieveCustomUiConfigurationConfigId(group, true);
+    if (StringUtils.isBlank(configId)) {
+      throw new RuntimeException("No custom ui config id found for group: "+group.getName());
+    }
+    
+    Pattern pattern = Pattern.compile("grouperCustomUI\\." + configId + "\\.[^*]+");
+    Map<String, String> customUiConfigProperties = GrouperConfig.retrieveConfig().propertiesMap(pattern);
+    if (customUiConfigProperties.size() == 0) {
+      throw new RuntimeException("There should be at least a few properties set for custom ui config id "+configId);
+    }
+    
+    CustomUiConfig customUiConfig = new CustomUiConfig();
+    customUiConfig.setGroupUUIDOrName(group.getUuid());
+    
+    String configPrefix = "grouperCustomUI."+configId+".";
+    
+    String enabledString = customUiConfigProperties.getOrDefault(configPrefix+"enabled", "true");
+    customUiConfig.setEnabled(GrouperUtil.booleanValue(enabledString));
+
+    String externalizedTextString = customUiConfigProperties.getOrDefault(configPrefix+"externalizedText", "false");
+    customUiConfig.setExternalizedText(GrouperUtil.booleanValue(externalizedTextString));
+
+    List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans = new ArrayList<CustomUiUserQueryConfigBean>();
+    
+    String numberOfQueriesString = customUiConfigProperties.getOrDefault(configPrefix+"numberOfQueries", "0");
+    Integer numberOfQueries = GrouperUtil.intValue(numberOfQueriesString, 0);
+    
+    for (int i=0; i<numberOfQueries; i++) {
+
+      CustomUiUserQueryConfigBean queryConfigBean = new CustomUiUserQueryConfigBean();
+      
+      String queryPrefix = configPrefix + "cuQuery." + i + ".";
+      
+      String attributeDefId = customUiConfigProperties.get(queryPrefix + "attributeDefId");
+      queryConfigBean.setAttributeDefId(attributeDefId);
+      
+      String azureGroupId = customUiConfigProperties.get(queryPrefix + "azureGroupId");
+      queryConfigBean.setAzureGroupId(azureGroupId);
+      
+      String bindVar0 = customUiConfigProperties.get(queryPrefix + "bindVar0");
+      queryConfigBean.setBindVar0(bindVar0);
+      
+      String bindVar0Type = customUiConfigProperties.get(queryPrefix + "bindVar0Type");
+      queryConfigBean.setBindVar0type(bindVar0Type);
+      
+      String bindVar1 = customUiConfigProperties.get(queryPrefix + "bindVar1");
+      queryConfigBean.setBindVar1(bindVar1);
+      
+      String bindVar1Type = customUiConfigProperties.get(queryPrefix + "bindVar1Type");
+      queryConfigBean.setBindVar1type(bindVar1Type);
+      
+      String bindVar2 = customUiConfigProperties.get(queryPrefix + "bindVar2");
+      queryConfigBean.setBindVar2(bindVar2);
+      
+      String bindVar2Type = customUiConfigProperties.get(queryPrefix + "bindVar2Type");
+      queryConfigBean.setBindVar2type(bindVar2Type);
+      
+      String configIdForUserQuery = customUiConfigProperties.get(queryPrefix + "configId");
+      queryConfigBean.setConfigId(configIdForUserQuery);
+      
+      String enabledForUserQuery = customUiConfigProperties.get(queryPrefix + "enabled");
+      queryConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledForUserQuery));
+      
+      String errorLabel = customUiConfigProperties.get(queryPrefix + "errorLabel");
+      queryConfigBean.setErrorLabel(errorLabel);
+      
+      String fieldNames = customUiConfigProperties.get(queryPrefix + "fieldNames");
+      queryConfigBean.setFieldNames(fieldNames);
+
+      String forLoggedInUser = customUiConfigProperties.get(queryPrefix + "forLoggedInUser");
+      queryConfigBean.setForLoggedInUser(GrouperUtil.booleanObjectValue(forLoggedInUser));
+      
+      String groupId = customUiConfigProperties.get(queryPrefix + "groupId");
+      queryConfigBean.setGroupId(groupId);
+      
+      String groupName = customUiConfigProperties.get(queryPrefix + "groupName");
+      queryConfigBean.setGroupName(groupName);
+
+      String label = customUiConfigProperties.get(queryPrefix + "label");
+      if (StringUtils.isNotBlank(label)) {
+        queryConfigBean.setLabel(label);
+      } else {
+        String labelExternalizedTextKey = customUiConfigProperties.get(queryPrefix + "labelExternalizedTextKey");
+        queryConfigBean.setLabel(GrouperTextContainer.textOrNull(labelExternalizedTextKey));
+      }
+      
+      String ldapAttributeToRetrieve = customUiConfigProperties.get(queryPrefix + "ldapAttributeToRetrieve");
+      queryConfigBean.setLdapAttributeToRetrieve(ldapAttributeToRetrieve);
+
+      String ldapFilter = customUiConfigProperties.get(queryPrefix + "ldapFilter");
+      queryConfigBean.setLdapFilter(ldapFilter);
+      
+      String ldapSearchDn = customUiConfigProperties.get(queryPrefix + "ldapSearchDn");
+      queryConfigBean.setLdapSearchDn(ldapSearchDn);
+
+      String nameOfAttributeDef = customUiConfigProperties.get(queryPrefix + "nameOfAttributeDef");
+      queryConfigBean.setNameOfAttributeDef(nameOfAttributeDef);
+
+      String orderString = customUiConfigProperties.get(queryPrefix + "order");
+      queryConfigBean.setOrder(GrouperUtil.intValue(orderString, 0));
+      
+      String query = customUiConfigProperties.get(queryPrefix + "query");
+      queryConfigBean.setQuery(query);
+
+      String script = customUiConfigProperties.get(queryPrefix + "script");
+      queryConfigBean.setScript(script);
+      
+      String stemId = customUiConfigProperties.get(queryPrefix + "stemId");
+      queryConfigBean.setStemId(stemId);
+      
+      String stemName = customUiConfigProperties.get(queryPrefix + "stemName");
+      queryConfigBean.setStemName(stemName);
+
+      String userQueryType = customUiConfigProperties.get(queryPrefix + "userQueryType");
+      queryConfigBean.setUserQueryType(userQueryType);
+
+      String variableToAssign = customUiConfigProperties.get(queryPrefix + "variableToAssign");
+      queryConfigBean.setVariableToAssign(variableToAssign);
+
+      String variableToAssignOnError = customUiConfigProperties.get(queryPrefix + "variableToAssignOnError");
+      queryConfigBean.setVariableToAssignOnError(variableToAssignOnError);
+      
+      String variableType = customUiConfigProperties.get(queryPrefix + "variableType");
+      queryConfigBean.setVariableType(variableType);
+      
+      customUiUserQueryConfigBeans.add(queryConfigBean);
+    }
+    
+    customUiConfig.setCustomUiUserQueryConfigBeans(customUiUserQueryConfigBeans);
+    
+    String numberOfTextConfigsString = customUiConfigProperties.getOrDefault(configPrefix+"numberOfTextConfigs", "0");
+    Integer numberOfTextConfigs = GrouperUtil.intValue(numberOfTextConfigsString, 0);
+    
+    List<CustomUiTextConfigBean> customUiTextConfigBeans = new ArrayList<CustomUiTextConfigBean>();
+    for (int i=0; i<numberOfTextConfigs; i++) {
+      
+      CustomUiTextConfigBean customUiTextConfigBean = new CustomUiTextConfigBean();
+      
+      String textConfigPrefix = configPrefix + "cuTextConfig." + i + ".";
+      
+      String textType = customUiConfigProperties.get(textConfigPrefix + "textType");
+      customUiTextConfigBean.setCustomUiTextType(textType);
+      
+      String textBoolean = customUiConfigProperties.get(textConfigPrefix + "textBoolean");
+      String textBooleanScript = customUiConfigProperties.get(textConfigPrefix + "textBooleanScript");
+      
+      
+      String text = customUiConfigProperties.get(textConfigPrefix + "text");
+      
+      if (StringUtils.isNotBlank(text)) {
+        customUiTextConfigBean.setText(text);
+      } else if (StringUtils.isNotBlank(textBooleanScript)) {
+        customUiTextConfigBean.setText(textBooleanScript);
+      } else if (StringUtils.isNotBlank(textBoolean)) {
+        customUiTextConfigBean.setText(textBoolean);
+      }
+      
+      String script = customUiConfigProperties.get(textConfigPrefix + "script");
+      customUiTextConfigBean.setScript(script);
+
+      String endIfMatchesString = customUiConfigProperties.get(textConfigPrefix + "endIfMatches");
+      customUiTextConfigBean.setEndIfMatches(GrouperUtil.booleanObjectValue(endIfMatchesString));
+      
+      String defaultText = customUiConfigProperties.get(textConfigPrefix + "defaultText");
+      customUiTextConfigBean.setDefaultText(GrouperUtil.booleanObjectValue(defaultText));
+      
+      String enabledTextConfigString = customUiConfigProperties.get(textConfigPrefix + "enabled");
+      customUiTextConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledTextConfigString));
+      
+      String indexTextConfigString = customUiConfigProperties.get(textConfigPrefix + "index");
+      customUiTextConfigBean.setIndex(GrouperUtil.intValue(indexTextConfigString, 0));
+      
+      customUiTextConfigBeans.add(customUiTextConfigBean);
+    }
+
+    customUiConfig.setCustomUiTextConfigBeans(customUiTextConfigBeans);
+    
+    return customUiConfig;
+    
+  }
+  
+  private String getResolvedValue(String maybeExternalizedText) {
+    
+    if (StringUtils.isBlank(maybeExternalizedText)) {
+      return maybeExternalizedText;
+    }
+    Pattern pattern = Pattern.compile("^\\s*\\$\\{\\s*textContainer\\.text\\[\\s*['\"]([^'\"]+)['\"]\\s*\\]\\s*\\}\\s*$");
+    
+    Matcher matcher = pattern.matcher(maybeExternalizedText);
+    
+    if (matcher.matches()) {
+      String key = matcher.group(1);
+      return GrouperTextContainer.textOrNull(key);
+      
+    }
+    
+    return maybeExternalizedText;
+    
+  } 
+  
+  public static void main(String[] args) {
+    GrouperSession.startRootSession();
+    Group group = GroupFinder.findByUuid("b5115904553743738e1adac3cf949e4c", true);
+    new CustomUiEngine().createCustomUiConfig(group, "testa1");
+  }
+  
+  //create custom ui config based on the attributes off of the old attributes on the group
+  public void createCustomUiConfig(Group group, String customUiConfigId) {
+    
+    Pattern pattern = Pattern.compile("grouperCustomUI\\." + customUiConfigId + "\\.[.]+");
+    Map<String, String> customUiConfigProperties = GrouperConfig.retrieveConfig().propertiesMap(pattern);
+    if (customUiConfigProperties.size() > 0) {
+      throw new RuntimeException(customUiConfigId + " is already in use. Please try a different configId.");
+    }
+    
+    
+    Map<String, Set<String>> attributeDefNameToValues = CustomUiAttributeNames.retrieveAttributeValuesForGroup(group);
+    
+    Set<String> userQueryBeans = attributeDefNameToValues.get(CustomUiAttributeNames.retrieveAttributeDefNameUserQueryConfigBeans().getName());
+    parseCustomUiUserQueryConfigBeanJsons(userQueryBeans);
+    
+    Set<String> textConfigBeans = attributeDefNameToValues.get(CustomUiAttributeNames.retrieveAttributeDefNameTextConfigBeans().getName());
+    parseCustomUiTextConfigBeanJsons(textConfigBeans);
+    
+    CustomUiConfiguration customUiConfiguration = new CustomUiConfiguration();
+    
+    customUiConfiguration.setConfigId(customUiConfigId);
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = customUiConfiguration.retrieveAttributes();
+    
+    List<CustomUiUserQueryConfigBean> customQueryConfigBeans = new ArrayList<CustomUiUserQueryConfigBean>();
+    if (defaultConfigBean != null) {
+      customQueryConfigBeans.add(defaultConfigBean);
+    }
+    customQueryConfigBeans.addAll(customUiUserQueryConfigBeans);
+    
+    attributes.get("numberOfQueries").setValue(GrouperUtil.stringValue(customQueryConfigBeans.size()));
+    attributes.get("groupUUIDOrName").setValue(group.getId());
+    attributes.get("enabled").setValue("true");
+    attributes.get("externalizedText").setValue("false");
+    
+    int i=0;
+    for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean: customQueryConfigBeans) {
+      String prefix = "cuQuery."+i+".";
+      attributes.get(prefix + "userQueryType").setValue(customUiUserQueryConfigBean.getUserQueryType());
+      
+      attributes.get(prefix + "attributeDefId").setValue(customUiUserQueryConfigBean.getAttributeDefId());
+      attributes.get(prefix + "azureGroupId").setValue(customUiUserQueryConfigBean.getAzureGroupId());
+      attributes.get(prefix + "bindVar0").setValue(customUiUserQueryConfigBean.getBindVar0());
+      attributes.get(prefix + "bindVar0Type").setValue(customUiUserQueryConfigBean.getBindVar0type());
+      attributes.get(prefix + "bindVar1").setValue(customUiUserQueryConfigBean.getBindVar1());
+      attributes.get(prefix + "bindVar1Type").setValue(customUiUserQueryConfigBean.getBindVar1type());
+
+      attributes.get(prefix + "bindVar2").setValue(customUiUserQueryConfigBean.getBindVar2());
+      attributes.get(prefix + "bindVar2Type").setValue(customUiUserQueryConfigBean.getBindVar2type());
+      attributes.get(prefix + "configId").setValue(customUiUserQueryConfigBean.getConfigId());
+      attributes.get(prefix + "enabled").setValue(GrouperUtil.stringValue(customUiUserQueryConfigBean.getEnabled()));
+
+      String resolvedValueErrorLabel = getResolvedValue(customUiUserQueryConfigBean.getErrorLabel());
+      attributes.get(prefix + "errorLabel").setValue(resolvedValueErrorLabel);
+      attributes.get(prefix + "fieldNames").setValue(customUiUserQueryConfigBean.getFieldNames());
+
+      attributes.get(prefix + "forLoggedInUser").setValue(GrouperUtil.stringValue(customUiUserQueryConfigBean.getForLoggedInUser()));
+      attributes.get(prefix + "groupId").setValue(customUiUserQueryConfigBean.getGroupId());
+      attributes.get(prefix + "groupName").setValue(customUiUserQueryConfigBean.getGroupName());
+      
+      String resolvedValueLabel = getResolvedValue(customUiUserQueryConfigBean.getLabel());
+      attributes.get(prefix + "label").setValue(resolvedValueLabel);
+      
+      attributes.get(prefix + "ldapAttributeToRetrieve").setValue(customUiUserQueryConfigBean.getLdapAttributeToRetrieve());
+      attributes.get(prefix + "ldapFilter").setValue(customUiUserQueryConfigBean.getLdapFilter());
+      attributes.get(prefix + "ldapSearchDn").setValue(customUiUserQueryConfigBean.getLdapSearchDn());
+      attributes.get(prefix + "nameOfAttributeDef").setValue(customUiUserQueryConfigBean.getNameOfAttributeDef());
+      attributes.get(prefix + "order").setValue(GrouperUtil.stringValue(customUiUserQueryConfigBean.getOrder()));
+      attributes.get(prefix + "query").setValue(customUiUserQueryConfigBean.getQuery());
+      attributes.get(prefix + "script").setValue(customUiUserQueryConfigBean.getScript());
+      attributes.get(prefix + "stemId").setValue(customUiUserQueryConfigBean.getStemId());
+      attributes.get(prefix + "stemName").setValue(customUiUserQueryConfigBean.getStemName());
+      attributes.get(prefix + "variableToAssign").setValue(customUiUserQueryConfigBean.getVariableToAssign());
+      attributes.get(prefix + "variableToAssignOnError").setValue(customUiUserQueryConfigBean.getVariableToAssignOnError());
+      attributes.get(prefix + "variableType").setValue(customUiUserQueryConfigBean.getVariableType());
+      
+      i++;
+    }
+    
+    Collection<Set<CustomUiTextConfigBean>> textConfigBeansSet = customUiTextTypeToCustomUiTextConfigBean.values();
+    
+    List<CustomUiTextConfigBean> customUiTextConfigBeans = new ArrayList<CustomUiTextConfigBean>();
+    
+    for (Set<CustomUiTextConfigBean> customUiTextConfigsSet: textConfigBeansSet) {
+      customUiTextConfigBeans.addAll(customUiTextConfigsSet);
+    }
+    
+    customUiTextConfigBeans.addAll(customUiTextTypeToDefaultCustomUiTextConfigBean.values());
+    
+    attributes.get("numberOfTextConfigs").setValue(String.valueOf(customUiTextConfigBeans.size()));
+    
+    int j=0;
+    for (CustomUiTextConfigBean customUiTextConfigBean: customUiTextConfigBeans) {
+      String prefix = "cuTextConfig."+j+".";
+      attributes.get(prefix + "textType").setValue(customUiTextConfigBean.getCustomUiTextType());
+        
+      attributes.get(prefix + "enabled").setValue(GrouperUtil.stringValue(customUiTextConfigBean.getEnabled()));
+      
+      attributes.get(prefix + "endIfMatches").setValue(GrouperUtil.stringValue(customUiTextConfigBean.getEndIfMatches()));
+      
+      if (customUiTextConfigBean.getIndex() == null) {
+        attributes.get(prefix + "index").setValue("0");
+      } else {
+        attributes.get(prefix + "index").setValue(GrouperUtil.stringValue(customUiTextConfigBean.getIndex()));
+      }
+      
+      attributes.get(prefix + "defaultText").setValue(GrouperUtil.stringValue(customUiTextConfigBean.getDefaultText()));
+      
+      CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase(customUiTextConfigBean.getCustomUiTextType(), true);
+      
+      if (customUiTextType == CustomUiTextType.canAssignVariables ||
+          customUiTextType == CustomUiTextType.canSeeScreenState ||
+          customUiTextType == CustomUiTextType.canSeeUserEnvironment ||
+          customUiTextType == CustomUiTextType.emailToUser ||
+          customUiTextType == CustomUiTextType.enrollButtonShow ||
+          customUiTextType == CustomUiTextType.unenrollButtonShow || 
+          customUiTextType == CustomUiTextType.manageMembership) {
+        
+        if (StringUtils.equals(getResolvedValue(customUiTextConfigBean.getText()), "true") || StringUtils.equals(getResolvedValue(customUiTextConfigBean.getText()), "false")) {
+          attributes.get(prefix + "textBoolean").setValue(customUiTextConfigBean.getText());
+          attributes.get(prefix + "textIsScript").setValue("false");
+        } else {
+          attributes.get(prefix + "textBooleanScript").setValue(getResolvedValue(customUiTextConfigBean.getText()));
+          attributes.get(prefix + "textIsScript").setValue("true");
+        }
+          
+      } else {
+        String resolvedValueText = getResolvedValue(customUiTextConfigBean.getText());
+        attributes.get(prefix + "text").setValue(resolvedValueText);
+      }
+      if (StringUtils.isNotBlank(customUiTextConfigBean.getScript())) {
+        attributes.get(prefix + "script").setValue(customUiTextConfigBean.getScript());
+      }
+      
+      j++;
+    }
+    
+    StringBuilder message = new StringBuilder();
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    
+    customUiConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+    
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+      for (String errorToDisplay: errorsToDisplay) {
+        System.out.println("Error occurred while creating custom ui config for group: "+group.getName() + " custom ui config id: "+ customUiConfigId + " error: "+errorToDisplay);
+      }
+      for (String validationKey: validationErrorsToDisplay.keySet()) {
+        System.out.println("Error occurred while creating custom ui config for group: "+group.getName() + " custom ui config id: "+ customUiConfigId + " error: "+validationErrorsToDisplay.get(validationKey));
+      }
+      
+      return;
+
+    }
+    
+    Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().retrieveAssignments(CustomUiAttributeNames.retrieveAttributeDefNameMarker());
+    for (AttributeAssign attributeAssign: attributeAssigns) {
+      attributeAssign.delete();
+    }
+  }
+  
+  /**
    * process a group for lite ui
    * @param subjectOperatedOn1
    * @param subjectLoggedIn1
@@ -461,13 +906,10 @@ public class CustomUiEngine {
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          Map<String, Set<String>> attributeDefNameToValues = CustomUiAttributeNames.retrieveAttributeValuesForGroup(group1);
           
-          Set<String> userQueryBeans = attributeDefNameToValues.get(CustomUiAttributeNames.retrieveAttributeDefNameUserQueryConfigBeans().getName());
-          CustomUiEngine.this.runUserQueries(userQueryBeans);
-          
-          Set<String> textConfigBeans = attributeDefNameToValues.get(CustomUiAttributeNames.retrieveAttributeDefNameTextConfigBeans().getName());
-          CustomUiEngine.this.parseCustomUiTextConfigBeanJsons(textConfigBeans);
+          CustomUiConfig customUiConfigBean = retrieveCustomUiConfigBean(group);
+          CustomUiEngine.this.runUserQueries(customUiConfigBean.getCustomUiUserQueryConfigBeans());
+          CustomUiEngine.this.parseCustomUiTextConfigBeans(customUiConfigBean.getCustomUiTextConfigBeans());
           
           return null;
         }
@@ -481,6 +923,45 @@ public class CustomUiEngine {
         LOG.debug(GrouperUtil.mapToString(this.debugMap));
       }
     }
+  }
+  
+  /**
+   * 
+   * @param jsons
+   */
+  public void parseCustomUiTextConfigBeans(List<CustomUiTextConfigBean> customUiTextConfigBeans) {
+    
+    for (CustomUiTextConfigBean customUiTextConfigBean : GrouperUtil.nonNull(customUiTextConfigBeans)) {
+      
+      //keeep track of enabled fields that arent default
+      if (customUiTextConfigBean.getEnabled() == null || customUiTextConfigBean.getEnabled()) {
+        
+        CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase(customUiTextConfigBean.getCustomUiTextType(), true);
+
+        if (customUiTextConfigBean.getDefaultText() != null && customUiTextConfigBean.getDefaultText()) {
+          
+          if (customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType) != null) {
+            throw new RuntimeException("Cant have multiple defaults for custom ui text: '" + customUiTextType + "', " 
+                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getIndex() + ", " 
+                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getText() + ", " 
+                + ", " + customUiTextConfigBean.getIndex()
+                + ", " + customUiTextConfigBean.getText()
+                );
+          }
+          customUiTextTypeToDefaultCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBean);
+          
+        } else {
+          
+          Set<CustomUiTextConfigBean> customUiTextConfigBeansSet = this.customUiTextTypeToCustomUiTextConfigBean.get(customUiTextType);
+          if (customUiTextConfigBeansSet == null) {
+            customUiTextConfigBeansSet = new TreeSet<CustomUiTextConfigBean>();
+            this.customUiTextTypeToCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBeansSet);
+          }
+          customUiTextConfigBeansSet.add(customUiTextConfigBean);
+        }
+      }
+    }
+    
   }
   
   /**
@@ -537,13 +1018,12 @@ public class CustomUiEngine {
   
   
   /**
-   * 
-   * @param jsonUserQueries
+   * @param customUiUserQueryConfigBeans
    * @param subject 
    */
-  public void runUserQueries(Collection<String> jsonUserQueries) {
+  public void runUserQueries(List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans) {
     
-    this.parseCustomUiUserQueryConfigBeanJsons(jsonUserQueries);
+    this.populateCustomUiUserQueryConfigBeans(customUiUserQueryConfigBeans);
     
     this.copyDefaultsForConfigBeans();
     

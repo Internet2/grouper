@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -214,13 +215,48 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       validationErrorsToDisplay.put(groupUUIDOrNameAttribute.getHtmlForElementIdHandle(), error);
     }
     
+    if (isInsert) {
+      //Two custom UIs cannot have the same group id/group name
+      String configId = CustomUiEngine.retrieveCustomUiConfigurationConfigId(group, false);
+      if (StringUtils.isNotBlank(configId)) {
+        String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorGroupAlreadyHasCustomUi");
+        error = GrouperUtil.replace(error, "$$groupUUIDOrName$$", groupUuidOrName);
+        validationErrorsToDisplay.put(groupUUIDOrNameAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+       
+    }
+    
     // validateAttributeDefIds(validationErrorsToDisplay);
     
     if (validationErrorsToDisplay.size() == 0) {
       validateDuplicateTextConfigIndex(validationErrorsToDisplay);
     }
     
+    GrouperConfigurationModuleAttribute numberOfQueriesAttribute = attributes.get("numberOfQueries");
     
+    String valueOrExpressionEvaluation = numberOfQueriesAttribute.getValueOrExpressionEvaluation();
+    
+    int numberOfQueries = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
+    
+    for (int i=0; i<numberOfQueries; i++) {
+      GrouperConfigurationModuleAttribute variableToAssignAttribute = attributes.get("cuQuery."+i+".variableToAssign");
+      String variableToAssignAttributeValue = variableToAssignAttribute.getValueOrExpressionEvaluation();
+      if (StringUtils.isNotBlank(variableToAssignAttributeValue) && !variableToAssignAttributeValue.startsWith("cu_")) {
+        String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorVariableToAssignNotValid"); 
+        validationErrorsToDisplay.put(variableToAssignAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+      
+      GrouperConfigurationModuleAttribute variableToAssignOnErrorAttribute = attributes.get("cuQuery."+i+".variableToAssignOnError");
+      String variableToAssignOnErrorAttributeValue = variableToAssignOnErrorAttribute.getValueOrExpressionEvaluation();
+      if (StringUtils.isNotBlank(variableToAssignOnErrorAttributeValue) && !variableToAssignOnErrorAttributeValue.startsWith("cu_")) {
+        String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorVariableToAssignOnErrorNotValid"); 
+        validationErrorsToDisplay.put(variableToAssignOnErrorAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+      
+    }
   }
 
 }
