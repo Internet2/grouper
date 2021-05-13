@@ -966,13 +966,13 @@ public abstract class GrouperProvisioner {
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributes.values());
     Set<String> policyGroupIds = this.retrieveGrouperDao().retrieveAllProvisioningGroupIdsThatArePolicyGroups();
 
-    Map<String, GrouperProvisioningObjectAttributes> calculatedProvisoiningAttributes = GrouperProvisioningService.calculateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
+    Map<String, GrouperProvisioningObjectAttributes> calculatedProvisioningAttributes = GrouperProvisioningService.calculateProvisioningAttributes(this, grouperProvisioningObjectAttributesToProcess, grouperProvisioningFolderAttributes, policyGroupIds);
 
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.setProvisioningSyncResult(provisioningSyncResult);
     ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGcGrouperSync(),
         this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(),
-        calculatedProvisoiningAttributes);
+        calculatedProvisioningAttributes);
 
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 

@@ -1502,23 +1502,23 @@ public class GrouperProvisionerGrouperDao {
         String configName = queryResult[4];
         String configValue = queryResult[5];
         
-        if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, markerAttributeAssignId));
-          results.get(groupName).setOwnedByGroup(true);
+        if (results.get(groupId) == null) {
+          results.put(groupId, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, markerAttributeAssignId));
+          results.get(groupId).setOwnedByGroup(true);
         }
         
         if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT)) {
-          results.get(groupName).setProvisioningDirectAssign(configValue);
+          results.get(groupId).setProvisioningDirectAssign(configValue);
         } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION)) {
-          results.get(groupName).setProvisioningDoProvision(configValue);
+          results.get(groupId).setProvisioningDoProvision(configValue);
         } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
-          results.get(groupName).setProvisioningMetadataJson(configValue);
+          results.get(groupId).setProvisioningMetadataJson(configValue);
         } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_OWNER_STEM_ID)) {
-          results.get(groupName).setProvisioningOwnerStemId(configValue);
+          results.get(groupId).setProvisioningOwnerStemId(configValue);
         } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE)) {
-          results.get(groupName).setProvisioningStemScope(configValue);
+          results.get(groupId).setProvisioningStemScope(configValue);
         } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
-          results.get(groupName).setProvisioningTarget(configValue);
+          results.get(groupId).setProvisioningTarget(configValue);
         }
       }
     }
@@ -1547,9 +1547,9 @@ public class GrouperProvisionerGrouperDao {
         String groupName = queryResult[1];
         Long idIndex = Long.parseLong(queryResult[2]);
 
-        if (results.get(groupName) == null) {
-          results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, null));
-          results.get(groupName).setOwnedByGroup(true);
+        if (results.get(groupId) == null) {
+          results.put(groupId, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, null));
+          results.get(groupId).setOwnedByGroup(true);
         }
       }
     }

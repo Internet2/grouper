@@ -930,6 +930,13 @@ public class GrouperProvisioningService {
     }
   }
   
+  public void deleteInvalidIndirectProvisioningConfigs() {
+    Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getId(), "indirect", null);
+    for (AttributeAssign assignment : assignments) {
+      assignment.getOwnerAttributeAssign().delete();
+    }
+  }
+  
   /**
    * get number of groups in a provisioning target that are in a given stem
    * @param stemId
@@ -1659,28 +1666,13 @@ public class GrouperProvisioningService {
 
     Map<String, GrouperProvisioningObjectAttributes> allCalculatedProvisioningAttributes = new HashMap<String, GrouperProvisioningObjectAttributes>();
     
-    // get a map of all child -> parent, maybe this is cheaper than having to recalculate it multiple times per object
-    Map<String, String> childToParent = new HashMap<String, String>();
-    
-    for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttribute : grouperProvisioningObjectAttributesToProcess) {
-      String parentStemName = GrouperUtil.parentStemNameFromName(grouperProvisioningObjectAttribute.getName());
-      
-      if (parentStemName != null) {
-        childToParent.put(grouperProvisioningObjectAttribute.getName(), parentStemName);
-      }
-    }
-    
-    for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttribute : grouperProvisioningFolderAttributes.values()) {
-      String parentStemName = GrouperUtil.parentStemNameFromName(grouperProvisioningObjectAttribute.getName());
-      
-      if (parentStemName != null) {
-        childToParent.put(grouperProvisioningObjectAttribute.getName(), parentStemName);
-      }
-    }
-    
     // go through each group and recompute what the attributes should be by looking at ancestor folders
     for (GrouperProvisioningObjectAttributes grouperProvisioningObjectAttribute : grouperProvisioningObjectAttributesToProcess) {
 
+      if (grouperProvisioningObjectAttribute.isDeleted()) {
+        continue;
+      }
+      
       if ("true".equalsIgnoreCase(grouperProvisioningObjectAttribute.getProvisioningDirectAssign())) {
         allCalculatedProvisioningAttributes.put(grouperProvisioningObjectAttribute.getId(), grouperProvisioningObjectAttribute);
         continue;
@@ -1692,7 +1684,7 @@ public class GrouperProvisioningService {
       String currObjectName = grouperProvisioningObjectAttribute.getName();
       while (true) {
         depth++;
-        currObjectName = childToParent.get(currObjectName);
+        currObjectName = GrouperUtil.parentStemNameFromName(currObjectName);
         if (currObjectName == null) {
           break;
         }

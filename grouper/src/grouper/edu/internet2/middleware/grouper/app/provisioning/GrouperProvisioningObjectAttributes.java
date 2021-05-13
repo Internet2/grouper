@@ -21,6 +21,7 @@ public class GrouperProvisioningObjectAttributes {
   private String provisioningStemScope;
   private boolean isOwnedByGroup;
   private boolean isOwnedByStem;
+  private boolean isDeleted = false;
   
   private Map<String, Object> metadataNameValues = null;
   
@@ -149,5 +150,14 @@ public class GrouperProvisioningObjectAttributes {
     }
     
     return metadataNameValues;
+  }
+
+  
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  public void setDeleted(boolean isDeleted) {
+    this.isDeleted = isDeleted;
   }
 }

@@ -553,6 +553,20 @@ public class GcGrouperSyncGroupDao {
   }
   
   /**
+   * @return gcGrouperSyncGroups that have been modified
+   */
+  public Set<GcGrouperSyncGroup> retrieveUpdatedCacheSyncGroups() {
+    Set<GcGrouperSyncGroup> result = new HashSet<GcGrouperSyncGroup>();
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : this.internalCacheSyncGroups.values()) {
+      if (gcGrouperSyncGroup.dbVersionDifferent()) {
+        result.add(gcGrouperSyncGroup);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
    * store batch, generally call this from store all objects from GcGrouperSync
    * @param gcGrouperSyncGroups
    * @return number of changes
