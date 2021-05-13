@@ -354,20 +354,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.report.append("</pre>\n");
       return;
     }
-          
-    GcGrouperSyncGroup gcGrouperSyncGroup = this.provisioningGroupWrapper.getGcGrouperSyncGroup();
-    if (gcGrouperSyncGroup == null) {
-      
-      GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-      
-      // TODO fix - chris said this is not that important (user can set provisionable manually?)
-      //ProvisioningSyncIntegration.processSyncGroupInsert(gcGrouperSync, new HashMap<String, GcGrouperSyncGroup>(), this.provisioningGroupWrapper.getGrouperProvisioningGroup().getId(), 
-      //    gcGrouperSyncGroup, provisioningGroupWrapper, this.provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), 
-      //    this.provisioningGroupWrapper.getGrouperProvisioningGroup().getIdIndex());
-      gcGrouperSyncGroup = this.provisioningGroupWrapper.getGcGrouperSyncGroup();
-      
-    }
-    
+              
     try {
       this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStart();
 

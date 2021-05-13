@@ -930,10 +930,17 @@ public class GrouperProvisioningService {
     }
   }
   
-  public void deleteInvalidIndirectProvisioningConfigs() {
-    Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getId(), "indirect", null);
-    for (AttributeAssign assignment : assignments) {
-      assignment.getOwnerAttributeAssign().delete();
+  public static void deleteInvalidIndirectProvisioningAssignments() {
+    Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getId(), "false", null);
+    
+    if (assignments.size() > 0) {
+      System.out.println("Found " + assignments.size() + " invalid indirect provisioning assignments.  Deleting them now.");
+      for (AttributeAssign assignment : assignments) {
+        assignment.getOwnerAttributeAssign().delete();
+      }
+      System.out.println("Finished deleting all invalid indirect provisioning assignments.");
+    } else {
+      System.out.println("Found no invalid indirect provisioning assignments.");
     }
   }
   

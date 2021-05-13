@@ -181,9 +181,7 @@ public class ProvisioningSyncIntegration {
     gcGrouperSyncGroup.setMetadataJson(metadataJson);
     gcGrouperSyncGroup.setProvisionable(true);
     gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
-    groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);
-    
-    // TODO provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+    groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);    
   }
 
   public static void processSyncGroup(
@@ -253,7 +251,6 @@ public class ProvisioningSyncIntegration {
 
       // see if not provisionable
       if (!gcGrouperSyncGroup.isInTarget() && groupIsProvisionable) {
-        // TODO note this should be correct - these according to chris are the group ids to insert in the target.
         groupIdsToInsert.add(gcGrouperSyncGroup.getGroupId());
       }
         
