@@ -1325,7 +1325,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
   
   /**
-   * TODO test for all dbs
+   * 
    */
   public void testUpgradeFrom2_5_49To2_5_51ddlUtils() {
     

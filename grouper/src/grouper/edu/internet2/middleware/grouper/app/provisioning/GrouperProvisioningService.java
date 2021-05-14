@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -44,7 +43,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -768,119 +766,6 @@ public class GrouperProvisioningService {
     }
     
     attributeAssign.saveOrUpdate();
-  }
-  
-  /**
-   * find provisioning config in the parent hierarchy for a given grouper object and target. Assign that config to the given grouper object
-   * @param grouperObject
-   * @param targetName
-   */
-  public static void copyConfigFromParent(GrouperObject grouperObject, String targetName) {
-    
-    //don't do this now
-    if (GrouperCheckConfig.isInCheckConfig() || !GrouperProvisioningSettings.provisioningInUiEnabled()) {
-      return;
-    }
-    
-    if (grouperObject instanceof Stem && ((Stem) grouperObject).isRootStem()) {
-      return;
-    }
-    
-    deleteAttributeAssign(grouperObject, targetName);
-    
-    // if we changed from direct to indirect, we need to go through all the children
-    // and delete metadata on them that were inheriting from this stem.
-    if (grouperObject instanceof Stem) {
-      deleteAttributesOnAllChildrenWithIndirectConfig((Stem)grouperObject, targetName);
-    }
-    
-    Stem parent = grouperObject.getParentStem();
-    
-    if(parent.isRootStem()) {
-      return;
-    }
-    
-    GrouperProvisioningAttributeValue savedValue = null;
-    
-    int distanceFromParent = 1;
-    
-    while (parent != null) {
-      
-      GrouperProvisioningAttributeValue attributeValue = getProvisioningAttributeValue(parent, targetName);
-      
-      if (attributeValue != null && attributeValue.isDirectAssignment()) {
-        
-        if (attributeValue.getStemScope() == Stem.Scope.SUB || (attributeValue.getStemScope() == Stem.Scope.ONE && distanceFromParent < 2 )) {
-          savedValue = new GrouperProvisioningAttributeValue();
-          savedValue.setDirectAssignment(false);
-          savedValue.setDoProvision(attributeValue.getDoProvision());
-          savedValue.setOwnerStemId(parent.getId());
-          savedValue.setTargetName(attributeValue.getTargetName());
-          savedValue.setMetadataNameValues(attributeValue.getMetadataNameValues());
-          saveOrUpdateProvisioningAttributes(savedValue, grouperObject);
-          break;
-        }
-        
-      }
-      
-      parent = parent.getParentStem();
-      distanceFromParent++;
-      
-      if (parent.isRootStem()) {
-        break;
-      }
-      
-    }
-    
-    // if it's a stem where we changed from direct to indirect, we need to go through all the children of that stem and update the attributes with some parent's metadata if there
-    if (grouperObject instanceof Stem && savedValue != null) {
-      saveOrUpdateProvisioningAttributesOnChildren((Stem)grouperObject, savedValue, savedValue.getStemScope());
-    }
-    
-  }
-
-  /**
-   * save provisioning attributes on children of a given stem
-   * @param parentStem
-   * @param valueToSave
-   * @param scope
-   */
-  private static void saveOrUpdateProvisioningAttributesOnChildren(Stem parentStem, GrouperProvisioningAttributeValue valueToSave, Scope scope) {
-    
-    Set<String> childrenStemIds = new HashSet<String>();
-    
-    for (Stem stem: parentStem.getChildStems(scope)) {
-      childrenStemIds.add(stem.getId());
-    }
-    
-    Set<GrouperObject> children = new HashSet<GrouperObject>(parentStem.getChildGroups(scope));
-    children.addAll(parentStem.getChildStems(scope));
-    
-    for (GrouperObject childGrouperObject: children) {
-      boolean shouldSaveForThisChild = true;
-      
-      GrouperProvisioningAttributeValue mayBeGroupTypeAttributeValue = getProvisioningAttributeValue(childGrouperObject, valueToSave.getTargetName());
-      if (mayBeGroupTypeAttributeValue != null) {
-        
-        if (mayBeGroupTypeAttributeValue.isDirectAssignment()) {
-          shouldSaveForThisChild = false;
-          continue;
-        }
-        
-        String ownerStemId = mayBeGroupTypeAttributeValue.getOwnerStemId();
-
-        // some child of parentStem's settings are already configured on this group/stem, we don't need to update because we will increase the distance otherwise
-        if (childrenStemIds.contains(ownerStemId)) {
-          shouldSaveForThisChild = false;
-        }
-        
-      }
-      
-      if (shouldSaveForThisChild) {
-        saveOrUpdateProvisioningAttributes(valueToSave, childGrouperObject);
-      }
-      
-    }
   }
   
   /**
@@ -1621,34 +1506,6 @@ public class GrouperProvisioningService {
 
   }
   
-  /**
-   * delete provisioning attributes on all the children of a given stem and target
-   * @param stem
-   * @param targetName
-   */
-  private static void deleteAttributesOnAllChildrenWithIndirectConfig(Stem stem, String targetName) {
-      
-      Set<GrouperObject> children = new HashSet<GrouperObject>(stem.getChildGroups(Scope.SUB));
-      children.addAll(stem.getChildStems(Scope.SUB));
-      
-      for (GrouperObject childGrouperObject: children) {
-        GrouperProvisioningAttributeValue mayBeGroupTypeAttributeValue = getProvisioningAttributeValue(childGrouperObject, targetName);
-        if (mayBeGroupTypeAttributeValue != null) {
-          
-          if (mayBeGroupTypeAttributeValue.isDirectAssignment()) {
-            continue;
-          }
-          
-          String ownerStemId = mayBeGroupTypeAttributeValue.getOwnerStemId();
-          if (stem.getId().equals(ownerStemId)) {
-            deleteAttributeAssign(childGrouperObject, targetName);
-          }
-        }
-        
-      }
-      
-    }
-
   /**
    * delete provisioning attributes from a given grouper object and target
    * @param grouperObject

@@ -288,7 +288,7 @@ public class PspngToNewProvisioningAttributeConversion {
       
       for (Stem stemFromWhichAssignmentNeedsToBeRemoved: stemsNewProvisioningDirect) {
         System.out.println("Going to clear direct new provisioning attribute assignment from folder "+stemFromWhichAssignmentNeedsToBeRemoved.getName());
-        GrouperProvisioningService.copyConfigFromParent(stemFromWhichAssignmentNeedsToBeRemoved, provisioningConfigId);
+        GrouperProvisioningService.deleteAttributeAssign(stemFromWhichAssignmentNeedsToBeRemoved, provisioningConfigId);
         System.out.println("Successfully cleared out direct new provisioning assignment from "+stemFromWhichAssignmentNeedsToBeRemoved.getName());
       }
     }
@@ -305,7 +305,7 @@ public class PspngToNewProvisioningAttributeConversion {
       
       for (Group groupFromWhichAssignmentNeedsToBeRemoved: groupsNewProvisioningDirect) {
         System.out.println("Going to clear direct new provisioning attribute assignment from group "+groupFromWhichAssignmentNeedsToBeRemoved.getName());
-        GrouperProvisioningService.copyConfigFromParent(groupFromWhichAssignmentNeedsToBeRemoved, provisioningConfigId);
+        GrouperProvisioningService.deleteAttributeAssign(groupFromWhichAssignmentNeedsToBeRemoved, provisioningConfigId);
         System.out.println("Successfully cleared out direct new provisioning assignment from "+groupFromWhichAssignmentNeedsToBeRemoved.getName());
       }
     }
