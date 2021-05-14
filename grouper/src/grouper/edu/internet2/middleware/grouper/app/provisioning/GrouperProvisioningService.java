@@ -230,7 +230,7 @@ public class GrouperProvisioningService {
           .assignIdOfAttributeDefName(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId())
           .addAttributeValuesOnAssignment(target)
           .assignIdOfAttributeDefName2(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision().getId())
-          .addAttributeValuesOnAssignment2("true")
+          .addAttributeValuesOnAssignment2(target)
           .findGroups();
         return groups;
       }
