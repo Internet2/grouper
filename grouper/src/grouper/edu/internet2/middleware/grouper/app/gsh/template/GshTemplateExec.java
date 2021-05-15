@@ -411,100 +411,108 @@ public class GshTemplateExec {
     try {     
       GshTemplateOutput.assignThreadLocalGshTemplateOutput(gshTemplateOutput);
       GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(gshTemplateRuntime);
-      grouperSession = GrouperSession.start(grouperSessionSubject);
-
-      GrouperGroovyResult grouperGroovyResult = null;
       
-      this.gshTemplateExecOutput.setTransaction(templateConfig.isRunGshInTransaction());
-      
-      StringBuilder inputsStringBuilder = new StringBuilder();
-      for (GshTemplateInput input: this.gshTemplateInputs) {
-        inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(input.getValueString(), 100) + ";");
-      }
-      
-      final boolean success[] = {true};
-      
-      grouperGroovyResult = (GrouperGroovyResult) HibernateSession.callbackHibernateSession(
-          templateConfig.isRunGshInTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
-              templateConfig.isUseIndividualAudits() ? AuditControl.WILL_NOT_AUDIT: AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
-  
-        public Object callback(HibernateHandlerBean hibernateHandlerBean)
-            throws GrouperDAOException {
-
-          grouperGroovyInput.assignScript(scriptToRun.toString());
-          grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
+      grouperSession = GrouperSession.start(grouperSessionSubject, false);
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          GrouperGroovyResult grouperGroovyResult = null;
           
-          GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
-          gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
+          GshTemplateExec.this.gshTemplateExecOutput.setTransaction(templateConfig.isRunGshInTransaction());
+          
+          StringBuilder inputsStringBuilder = new StringBuilder();
+          for (GshTemplateInput input: GshTemplateExec.this.gshTemplateInputs) {
+            inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(input.getValueString(), 100) + ";");
+          }
+          
+          final boolean success[] = {true};
+          
+          grouperGroovyResult = (GrouperGroovyResult) HibernateSession.callbackHibernateSession(
+              templateConfig.isRunGshInTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
+                  templateConfig.isUseIndividualAudits() ? AuditControl.WILL_NOT_AUDIT: AuditControl.WILL_AUDIT,
+              new HibernateHandler() {
+      
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
 
-          GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+              grouperGroovyInput.assignScript(scriptToRun.toString());
+              grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
+              
+              GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+              gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
 
-          for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
-            if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
-              success[0] = false;
+              GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+
+              for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
+                if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
+                  success[0] = false;
+                }
+              }
+              
+              if (gshTemplateExecOutput.getGshTemplateOutput().isError() || gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+                success[0] = false;
+              }
+              
+              if ( (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) && templateConfig.isRunGshInTransaction()) {
+                hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+              
+              if (!templateConfig.isRunGshInTransaction() || (success[0] == true && templateConfig.isRunGshInTransaction())) {
+                
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
+                    "gshTemplateConfigId", configId, "status",
+                    success[0] ? "success": "error");
+                String actAsAdditionalLine = originalCurrentUser == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(originalCurrentUser) + ") ");
+                auditEntry.setDescription("Execute gsh template "+actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              return grouperGroovyResult;
+            }
+            
+          });
+          
+          
+          
+          if (GshTemplateExec.this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+            GshTemplateExec.this.gshTemplateExecOutput.setValid(false);
+            
+            Set<String> configuredInputNames = new HashSet<String>();
+            for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
+              configuredInputNames.add(inputConfig.getName());
+            }
+            
+            for (GshValidationLine gshValidationLine: GshTemplateExec.this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {
+              if (StringUtils.isNotBlank(gshValidationLine.getInputName()) && !configuredInputNames.contains(gshValidationLine.getInputName())) {
+                LOG.error(gshValidationLine.getInputName() + " is not in list of configured input names");
+              }
+             }
+            
+          }
+          
+          if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+            GshTemplateExec.this.gshTemplateExecOutput.setSuccess(false);
+          } else {
+            if (gshTemplateOutput.isError()) {
+              GshTemplateExec.this.gshTemplateExecOutput.setSuccess(false);
+            } else {
+              GshTemplateExec.this.gshTemplateExecOutput.setSuccess(true);
             }
           }
           
-          if (gshTemplateExecOutput.getGshTemplateOutput().isError() || gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-            success[0] = false;
-          }
+          GshTemplateExec.this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.fullOutput());
+          GshTemplateExec.this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());
           
-          if ( (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) && templateConfig.isRunGshInTransaction()) {
-            hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+          if (GshTemplateExec.this.gshTemplateExecOutput.getException() != null) {
+            LOG.error("Exception in GSH template: " + GshTemplateExec.this.configId + ", " + SubjectHelper.getPretty(GshTemplateExec.this.currentUser), grouperGroovyResult.getException());
+          } else {
+            LOG.debug("Exception in GSH template: " + GshTemplateExec.this.configId + ", " + SubjectHelper.getPretty(GshTemplateExec.this.currentUser), grouperGroovyResult.getException());
           }
-          
-          if (!templateConfig.isRunGshInTransaction() || (success[0] == true && templateConfig.isRunGshInTransaction())) {
-            
-            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
-                "gshTemplateConfigId", configId, "status",
-                success[0] ? "success": "error");
-            String actAsAdditionalLine = originalCurrentUser == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(originalCurrentUser) + ") ");
-            auditEntry.setDescription("Execute gsh template "+actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
-            auditEntry.saveOrUpdate(true);
-          }
-          
-          return grouperGroovyResult;
+          return null;
         }
-        
       });
       
-      
-      
-      if (this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-        this.gshTemplateExecOutput.setValid(false);
-        
-        Set<String> configuredInputNames = new HashSet<String>();
-        for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
-          configuredInputNames.add(inputConfig.getName());
-        }
-        
-        for (GshValidationLine gshValidationLine: this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {
-          if (StringUtils.isNotBlank(gshValidationLine.getInputName()) && !configuredInputNames.contains(gshValidationLine.getInputName())) {
-            LOG.error(gshValidationLine.getInputName() + " is not in list of configured input names");
-          }
-         }
-        
-      }
-      
-      if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
-        this.gshTemplateExecOutput.setSuccess(false);
-      } else {
-        if (gshTemplateOutput.isError()) {
-          this.gshTemplateExecOutput.setSuccess(false);
-        } else {
-          this.gshTemplateExecOutput.setSuccess(true);
-        }
-      }
-      
-      this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.fullOutput());
-      this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());
-      
-      if (this.gshTemplateExecOutput.getException() != null) {
-        LOG.error("Exception in GSH template: " + this.configId + ", " + SubjectHelper.getPretty(this.currentUser), grouperGroovyResult.getException());
-      } else {
-        LOG.debug("Exception in GSH template: " + this.configId + ", " + SubjectHelper.getPretty(this.currentUser), grouperGroovyResult.getException());
-      }
       
     } catch (RuntimeException e) {
       LOG.error("Error running template with config id: "+configId, e);
