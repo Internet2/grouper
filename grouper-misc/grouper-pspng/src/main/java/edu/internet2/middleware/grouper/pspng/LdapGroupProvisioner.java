@@ -391,6 +391,16 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Check to see if any attributes ended up without any values/
       for ( String attributeName : ldifEntry.getAttributeNames() ) {
+
+        // If the attribute value requires DN syntax and we allow the null DN
+        // (an empty DN) then continue and examine the next attribute.
+        if(config.allowEmptyDnAttributeValues()) {
+            List<String> attributeDnSyntaxList = Arrays.asList(config.getAttributesNeededingDnEscaping());
+            if(attributeDnSyntaxList.contains(attributeName)) {
+                LOG.debug("{}: attribute {} requires DN syntax but is allowed to hold the null DN", getDisplayName(), attributeName);
+                continue;
+            }
+        }
         LdapAttribute attribute = ldifEntry.getAttribute(attributeName);
         if ( LdapSystem.attributeHasNoValues(attribute) ) {
           LOG.warn("{}: LDIF for new group did not define any values for {}", getDisplayName(), attributeName);

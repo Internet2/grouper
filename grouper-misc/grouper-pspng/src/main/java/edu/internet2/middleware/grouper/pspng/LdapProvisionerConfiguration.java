@@ -106,6 +106,9 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     private String attributesNeededingDnEscaping[];
     protected String attributesNeededingDnEscaping_defaultValue = "dn,distinguishedName,entrydn,uniqueMember,member";
 
+    // Allow the null (empty) DN as an attribute value for attributes that hold DNs
+    private boolean allowEmptyDnAttributeValues;
+    protected boolean allowEmptyDnAttributeValues_defaultValue = false;
 
     private String ldapPoolName;
     private Properties ldaptiveProperties = new Properties();
@@ -185,6 +188,9 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "attributesNeededingDnEscaping" , attributesNeededingDnEscaping_defaultValue);
       attributesNeededingDnEscaping = attributesNeededingDnEscapingString.trim().split(" *, *");
 
+      allowEmptyDnAttributeValues = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "allowEmptyDnAttributeValues", allowEmptyDnAttributeValues_defaultValue);
+      LOG.debug("Ldap Provisioner {} - Setting allowEmptyDnAttributeValues to {}", provisionerName, allowEmptyDnAttributeValues);
+
       // Lower-case the attributes
       for ( int i=0; i<attributesNeededingDnEscaping.length; i++ ) {
           attributesNeededingDnEscaping[i] = attributesNeededingDnEscaping[i].toLowerCase();
@@ -249,4 +255,8 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     }
 
     public String[] getAttributesNeededingDnEscaping() { return attributesNeededingDnEscaping; }
+
+    public boolean allowEmptyDnAttributeValues() {
+      return allowEmptyDnAttributeValues;
+    }
 }
