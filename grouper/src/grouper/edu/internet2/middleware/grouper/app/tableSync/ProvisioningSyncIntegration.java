@@ -229,12 +229,18 @@ public class ProvisioningSyncIntegration {
       {
         if (!StringUtils.equals(newGroupName, gcGrouperSyncGroup.getGroupName())) {
           groupIdsWithChangedNames.add(gcGrouperSyncGroup.getGroupId());
+          if (newGroupName != null) {
+            gcGrouperSyncGroup.setGroupName(newGroupName);
+          }
         }
       }
       
       {
         if (!GrouperUtil.equals(newGroupIdIndex, gcGrouperSyncGroup.getGroupIdIndex())) {
           groupIdsWithChangedIdIndexes.add(gcGrouperSyncGroup.getGroupId());
+          if (newGroupIdIndex != null) {
+            gcGrouperSyncGroup.setGroupIdIndex(newGroupIdIndex);
+          }
         }
       }
 

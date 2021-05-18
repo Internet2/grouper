@@ -410,8 +410,8 @@ public class GrouperProvisioningLogic {
         }
         
         // ######### STEP 9: retrieve provisioning attributes for recalc groups and adjust sync objects
-        debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
-        grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
+        //debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
+        //grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
       
         // ######### STEP 10: filter if not provisionable
         debugMap.put("state", "filterByNotProvisionable");
