@@ -2466,6 +2466,8 @@ COMMENT ON COLUMN grouper_sync_group.error_timestamp IS 'timestamp of error if t
 
 COMMENT ON COLUMN grouper_sync_group.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
+COMMENT ON COLUMN grouper_sync_group.metadata_json IS 'additional metadata for group';
+
 COMMENT ON TABLE grouper_sync_member IS 'user metadata for sync';
 
 COMMENT ON COLUMN grouper_sync_member.id IS 'uuid of this record in this table';
