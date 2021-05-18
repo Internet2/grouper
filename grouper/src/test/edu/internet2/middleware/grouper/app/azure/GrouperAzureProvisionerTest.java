@@ -47,6 +47,9 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
    */
   public void testGroupCreateThenDownloadUuid() {
     
+    if (!tomcatRunTests()) {
+      return;
+    }
     /*
 grouper.azureConnector.myAzure.clientId = myClient
 grouper.azureConnector.myAzure.clientSecret = pass
@@ -65,7 +68,6 @@ grouper.azureConnector.myAzure.tenantId = myTenant
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("abc").value("123").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.clientId").value("myClient").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.clientSecret").value("pass").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.graphEndpoint").value("https://graph.microsoft.com").store();

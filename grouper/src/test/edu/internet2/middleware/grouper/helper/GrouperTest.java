@@ -1160,6 +1160,27 @@ public class GrouperTest extends TestCase {
   }
   
   /**
+   * if printed warning
+   */
+  private static boolean tomcatPrintedWarning = false;
+  
+  /**
+   * see if running tomcat test
+   * @return if continue
+   */
+  public static boolean tomcatRunTests() {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat", false)) {
+      if (!tomcatPrintedWarning) {
+        System.out.println("Not running tomcat tests since grouper.properties: junit.test.tomcat=false");
+        tomcatPrintedWarning = true;
+      }
+      return false;
+    }
+
+    return true;
+  }
+  
+  /**
    * start tomcat and wait for port listening
    */
   public static CommandLineExec tomcatStart() {
