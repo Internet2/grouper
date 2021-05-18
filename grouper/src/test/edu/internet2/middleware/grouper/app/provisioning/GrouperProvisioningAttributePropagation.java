@@ -246,6 +246,8 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       
       assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
       assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
 
     testGroup.setExtension("testGroup");
@@ -262,9 +264,13 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       
       assertEquals("T", testGroupSyncGroup.getProvisionableDb());
       assertNull(testGroupSyncGroup.getMetadataJson());
+      assertEquals(testGroup.getName(), testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
       
       assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
       assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
     
     // rename again
@@ -280,8 +286,13 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
       
-      assertEquals("F", testGroupSyncGroup.getProvisionableDb());      
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb()); 
+      assertEquals("test:testGroup", testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
       assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertEquals("test:test2:testGroup", testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
   }
   
@@ -441,6 +452,8 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       
       assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
       assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
     
     testGroup.setExtension("testGroup");
@@ -457,9 +470,13 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       
       assertEquals("T", testGroupSyncGroup.getProvisionableDb());
       assertNull(testGroupSyncGroup.getMetadataJson());
+      assertEquals(testGroup.getName(), testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
       
       assertEquals("T", testGroup2SyncGroup.getProvisionableDb());
       assertNotNull(testGroup2SyncGroup.getMetadataJson());
+      assertEquals(testGroup2.getName(), testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
     
     // rename again
@@ -475,8 +492,13 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
       GcGrouperSyncGroup testGroupSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       GcGrouperSyncGroup testGroup2SyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
       
-      assertEquals("F", testGroupSyncGroup.getProvisionableDb());
+      assertEquals("F", testGroupSyncGroup.getProvisionableDb()); 
+      assertEquals("test:testGroup", testGroupSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), testGroupSyncGroup.getGroupIdIndex());
+      
       assertEquals("F", testGroup2SyncGroup.getProvisionableDb());
+      assertEquals("test:test2:testGroup", testGroup2SyncGroup.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), testGroup2SyncGroup.getGroupIdIndex());
     }
   }
   

@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 import junit.textui.TestRunner;
 
 /**
@@ -86,6 +87,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     
+    SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();    
     GrouperSession.stopQuietly(this.grouperSession);
 
