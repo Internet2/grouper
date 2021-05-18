@@ -9889,4 +9889,17 @@ public class GrouperClientCommonUtils  {
     return value;
   }
 
+  /**
+   * see if we are running on windows
+   * @return true if windows
+   */
+  public static boolean isWindows() {
+    String osname = defaultString(System.getProperty("os.name"));
+
+    if (contains(osname.toLowerCase(), "windows")) {
+      return true;
+    }
+    return false;
+  }
+
 }

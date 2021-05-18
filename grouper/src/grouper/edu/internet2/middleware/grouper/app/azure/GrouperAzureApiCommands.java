@@ -37,12 +37,12 @@ public class GrouperAzureApiCommands {
 //        "http://localhost/f3/graph.microsoft.com/v1.0/");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-    "grouper.azureConnector.azure1.loginEndpoint",
-    "http://localhost:8400/grouper/mockServices/azure/auth");
+      "grouper.azureConnector.azure1.loginEndpoint",
+      "http://localhost:8400/grouper/mockServices/azure/auth");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-    "grouper.azureConnector.azure1.resourceEndpoint",
-    "http://localhost:8400/grouper/mockServices/azure");
+      "grouper.azureConnector.azure1.resourceEndpoint",
+      "http://localhost:8400/grouper/mockServices/azure");
 
     //GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("AzureProvA");
     //GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);

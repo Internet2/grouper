@@ -83,6 +83,7 @@ import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
+import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
@@ -1156,6 +1157,64 @@ public class GrouperTest extends TestCase {
     
     GrouperTest.initGroupsAndAttributes();
     
+  }
+  
+  /**
+   * start tomcat and wait for port listening
+   */
+  public static CommandLineExec tomcatStart() {
+    
+    String startCommand = GrouperConfig.retrieveConfig().propertyValueStringRequired("junit.test.tomcat.startCommand");
+    if (StringUtils.equals(startCommand, "none")) {
+      System.out.println("Start tomcat...");
+      GrouperUtil.sleep(10000);
+      return null;
+    }
+    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
+    String ipAddress = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.ipAddress", "0.0.0.0");
+    Boolean waitForProcessReturn = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.waitForProcessReturn");
+    
+    if (waitForProcessReturn == null) {
+      waitForProcessReturn = !GrouperUtil.isWindows();
+    }
+    
+    // if its listening on port now, shouldnt be
+    if (!GrouperUtil.portAvailable(port, ipAddress)) {
+      tomcatStop();
+    }
+
+    CommandLineExec commandLineExec = new CommandLineExec().assignCommand(startCommand).assignErrorOnNonZero(true);
+    commandLineExec.assignWaitForCompletion(waitForProcessReturn);
+    commandLineExec.execute();
+    boolean success = GrouperUtil.portAvailableWait(port, ipAddress, 180, true);
+    GrouperUtil.assertion(success, "Cannot stop tomcat on ip address: " + ipAddress + ", port: " + port);
+    return commandLineExec;
+  }
+  
+  /**
+   * stop tomcat and wait for port not listening
+   */
+  public static void tomcatStop() {
+    
+    String stopCommand = GrouperConfig.retrieveConfig().propertyValueStringRequired("junit.test.tomcat.stopCommand");
+    if (StringUtils.equals(stopCommand, "none")) {
+      System.out.println("Stop tomcat...");
+      GrouperUtil.sleep(10000);
+      return;
+    }
+
+    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
+    String ipAddress = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.ipAddress", "0.0.0.0");
+    
+    // if its listening on port now, shouldnt be
+    if (!GrouperUtil.portAvailable(port, ipAddress)) {
+      CommandLineExec commandLineExec = new CommandLineExec().assignCommand(stopCommand).assignErrorOnNonZero(true);
+      commandLineExec.execute();
+      System.out.println(commandLineExec.getStdout().getAllLines());
+      boolean success = GrouperUtil.portAvailableWait(port, ipAddress, 180, false);
+      GrouperUtil.assertion(success, "Cannot stop tomcat on ip address: " + ipAddress + ", port: " + port);
+    }
+
   }
   
   /**

@@ -42,6 +42,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -147,6 +148,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -8213,6 +8215,9 @@ public class GrouperUtil {
    * @param thread
    */
   public static void threadJoin(Thread thread) {
+    if (thread == null) {
+      return;
+    }
     try {
       thread.join();
     } catch (InterruptedException ie) {
@@ -13773,4 +13778,92 @@ public class GrouperUtil {
     gshReturn(0);
   }
   
+  /**
+   * Checks to see if a specific port is available.
+   *
+   * @param port the port to check for availability
+   * @param ipAddress
+   * @return true if available
+   */
+  public static boolean portAvailable(int port, String ipAddress) {
+
+    ServerSocket ss = null;
+    try {
+
+      if (isBlank(ipAddress) || "0.0.0.0".equals(ipAddress)) {
+        ss = new ServerSocket(port);
+      } else {
+        
+        Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+        
+        Matcher matcher = pattern.matcher(ipAddress);
+        
+        if (!matcher.matches()) {
+          throw new RuntimeException("IP address not valid! '" + ipAddress + "'");
+        }
+        
+        byte[] b = new byte[4];
+        for (int i=0;i<4;i++) {
+          int theInt = intValue(matcher.group(i+1));
+          if (theInt > 255 || theInt < 0) {
+            System.out.println("IP address part must be between 0 and 255: '" + theInt + "'");
+          }
+          b[i] = (byte)theInt;
+        }
+
+        //Returns an InetAddress object given the raw IP address .
+        InetAddress inetAddress = InetAddress.getByAddress(b);
+        
+        ss = new ServerSocket(port, 50, inetAddress);
+      }
+      ss.setReuseAddress(true);
+      return true;
+    } catch (IOException e) {
+    } finally {
+      if (ss != null) {
+        try {
+          ss.close();
+        } catch (IOException e) {
+          /* should not be thrown */
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   * @param port
+   * @param ipAddress
+   * @param seconds
+   * @param expectingListening
+   * @return success
+   */
+  public static boolean portAvailableWait(int port, String ipAddress, int seconds, boolean expectingListening) {
+    for (int i=0;i<60;i++) {
+      GrouperUtil.sleep(1000);
+      //check port
+      boolean portAvailable = portAvailable(port, ipAddress);
+      if (!expectingListening) {
+        if (portAvailable) {
+          return true;
+        }
+      } else {
+        if (!portAvailable) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * see if we are running on windows
+   * @return true if windows
+   */
+  public static boolean isWindows() {
+    return GrouperClientUtils.isWindows();
+  }  
+
 }

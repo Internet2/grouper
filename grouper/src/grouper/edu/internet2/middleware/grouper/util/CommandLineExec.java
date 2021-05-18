@@ -16,10 +16,28 @@ public class CommandLineExec {
   private PumpStreamHandler pumpStreamHandler;
   private int exitValue;
   private boolean errorOnNonZero = false;
+  private boolean waitForCompletion = true;
   
   private File workingDirectory;
   
+  /**
+   * if true, then just run command and wait.  if false, then run in thread
+   * @param theWaitForCompletion
+   * @return this for chaining
+   */
+  public CommandLineExec assignWaitForCompletion(boolean theWaitForCompletion) {
+    this.waitForCompletion = theWaitForCompletion;
+    return this;
+  }
   
+  /**
+   * if true, then just run command and wait.  if false, then run in thread
+   * @return if wait
+   */
+  public boolean isWaitForCompletion() {
+    return waitForCompletion;
+  }
+
   public File getWorkingDirectory() {
     return workingDirectory;
   }
@@ -54,28 +72,49 @@ public class CommandLineExec {
     if (this.workingDirectory != null) {
       this.executor.setWorkingDirectory(this.workingDirectory);
     }
-    try {
-      this.exitValue = executor.execute(this.commandLine);
-    } catch (Exception ioe) {
-      if (ioe instanceof RuntimeException) {
-        GrouperUtil.injectInException(ioe, "command: '" + this.command + "'");
-        if (this.workingDirectory != null) {
-          GrouperUtil.injectInException(ioe, "workingDirectory: '" + this.workingDirectory.getAbsolutePath() + "'");
+    Runnable runnable = new Runnable() {
+      
+      @Override
+      public void run() {
+        try {
+          CommandLineExec.this.exitValue = executor.execute(CommandLineExec.this.commandLine);
+        } catch (Exception ioe) {
+          if (ioe instanceof RuntimeException) {
+            GrouperUtil.injectInException(ioe, "command: '" + CommandLineExec.this.command + "'");
+            if (CommandLineExec.this.workingDirectory != null) {
+              GrouperUtil.injectInException(ioe, "workingDirectory: '" + CommandLineExec.this.workingDirectory.getAbsolutePath() + "'");
+            }
+            throw (RuntimeException)ioe;
+          }
+          throw new RuntimeException("command line error in command: '" + CommandLineExec.this.command + "'" 
+              + (CommandLineExec.this.workingDirectory == null ? "" : (", workingDirectory: '" + CommandLineExec.this.workingDirectory.getAbsolutePath() + "'")), ioe);
         }
-        throw (RuntimeException)ioe;
+        if (CommandLineExec.this.errorOnNonZero && CommandLineExec.this.exitValue != 0) {
+          throw new RuntimeException("Command exit value was '" + CommandLineExec.this.exitValue + "' but expecting '0', command: '" + CommandLineExec.this.command 
+              + "'" + (CommandLineExec.this.workingDirectory == null ? "" : (", workingDirectory: '" + CommandLineExec.this.workingDirectory.getAbsolutePath() + "'")) 
+              + ", output: '" + CommandLineExec.this.getStdout().getAllLines() + "', error: '" + CommandLineExec.this.getStderr().getAllLines() + "'");
+        }
+        
       }
-      throw new RuntimeException("command line error in command: '" + this.command + "'" 
-          + (this.workingDirectory == null ? "" : (", workingDirectory: '" + this.workingDirectory.getAbsolutePath() + "'")), ioe);
+    };
+    
+    if (this.waitForCompletion) {
+      runnable.run();
+    } else {
+      this.thread = new Thread(runnable);
+      this.thread.start();
+      GrouperUtil.sleep(1000);
     }
-    if (this.errorOnNonZero && this.exitValue != 0) {
-      throw new RuntimeException("Command exit value was '" + this.exitValue + "' but expecting '0', command: '" + this.command 
-          + "'" + (this.workingDirectory == null ? "" : (", workingDirectory: '" + this.workingDirectory.getAbsolutePath() + "'")) 
-          + ", output: '" + this.getStdout().getAllLines() + "', error: '" + this.getStderr().getAllLines() + "'");
-    }
+    
     return this;
   }
 
+  private Thread thread = null;
   
+  public Thread getThread() {
+    return thread;
+  }
+
   public String getCommand() {
     return command;
   }

@@ -236,8 +236,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "mailEnabled") != null, "mailEnabled is required");
 
-    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "mailNickname")) > 0, "mailNickname is required");
-    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "mailNickname")) <= 64, "displayName must be less than 64");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "mailNickname")) <= 64, "mailNickname must be less than 64");
 
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "securityEnabled") != null, "securityEnabled is required");
 
