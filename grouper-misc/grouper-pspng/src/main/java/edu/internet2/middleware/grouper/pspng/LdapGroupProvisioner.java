@@ -199,6 +199,17 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     Collection<String> currentMembershipValues = getStringSet(config.isMemberAttributeCaseSensitive(), ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
 
+    // If configured to ignore the null or empty DN on the membership attribute do
+    // so but only if the membership attribute is "member". This may be extended to
+    // other membership attributes over time but currently focuses on the use case
+    // where the objectClass is groupOfNames and the membership attribute that requires
+    // DN syntax is member.
+    if(config.allowEmptyDnAttributeValues()) {
+        if(config.getMemberAttributeName().equals("member")) {
+            currentMembershipValues.removeIf(v -> v.equals(""));
+        }
+    }
+
     LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
             new Object[] {getDisplayName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
 
@@ -258,7 +269,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     LOG.debug("{}: Making sure (non-membership) attributes of group are up to date: {}", getDisplayName(), existingLdapGroup.dn);
 
     try {
-      String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo);
+      String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo, config.removeNullDnFromGroupLdifCreationTemplate());
       LdapEntry ldapEntryFromTemplate = getLdapEntryFromLdif(ldifFromTemplate);
 
       ensureLdapOusExist(ldapEntryFromTemplate.getDn(), false);
@@ -454,16 +465,28 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   /**
    * Fills in the GroupCreationLdifTemplate for the provided group
    * @param grouperGroup
+   * @param stripMembershipAttributeWithNullDn
    * @return
    * @throws PspException
    */
-  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
+  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup, boolean stripMembershipAttributeWithNullDn) throws PspException {
     String ldif = config.getGroupCreationLdifTemplate();
+
+    if(stripMembershipAttributeWithNullDn) {
+        LOG.debug("Stripping membership attribute {} with null DN value. LDIF string before is: {}", config.getMemberAttributeName(), ldif);
+        ldif = ldif.replaceAll(config.getMemberAttributeName() + ":\\|\\|", "");
+        LOG.debug("LDIF string after is: {}", ldif);
+    }
+
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression("GroupTemplate", ldif, null, null, grouperGroup, null);
     ldif = sanityCheckDnAttributesOfLdif(ldif, "Group ldif for %s", grouperGroup);
 
     return ldif;
+  }
+
+  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
+      return getGroupLdifFromTemplate(grouperGroup, false);
   }
 
   @Override
