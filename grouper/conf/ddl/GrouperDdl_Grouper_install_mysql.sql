@@ -1577,7 +1577,7 @@ CREATE TABLE grouper_sync_group
     error_timestamp DATETIME,
     last_time_work_was_done DATETIME,
     error_code VARCHAR(3) NULL,
-    metadata_json VARCHAR(4000) NULL,
+    metadata_json text NULL,
     PRIMARY KEY (id)
 );
 
