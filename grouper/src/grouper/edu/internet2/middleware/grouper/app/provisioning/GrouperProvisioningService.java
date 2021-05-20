@@ -1538,7 +1538,9 @@ public class GrouperProvisioningService {
       }
       
       if ("true".equalsIgnoreCase(grouperProvisioningObjectAttribute.getProvisioningDirectAssign())) {
-        allCalculatedProvisioningAttributes.put(grouperProvisioningObjectAttribute.getId(), grouperProvisioningObjectAttribute);
+        if (GrouperUtil.equals(configId, grouperProvisioningObjectAttribute.getProvisioningDoProvision())) {
+          allCalculatedProvisioningAttributes.put(grouperProvisioningObjectAttribute.getId(), grouperProvisioningObjectAttribute);
+        }
         continue;
       }
       

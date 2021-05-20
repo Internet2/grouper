@@ -42,17 +42,17 @@ import junit.textui.TestRunner;
  * 
  * @author shilen
  */
-public class GrouperProvisioningAttributePropagation extends GrouperTest {
+public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningAttributePropagation("testIncrementalDirectToIndirectGroup"));    
+    TestRunner.run(new GrouperProvisioningAttributePropagationTest("testIncrementalDirectToIndirectGroup"));    
   }
   
-  public GrouperProvisioningAttributePropagation() {
+  public GrouperProvisioningAttributePropagationTest() {
     super();
   }
 
@@ -60,7 +60,7 @@ public class GrouperProvisioningAttributePropagation extends GrouperTest {
    * 
    * @param name
    */
-  public GrouperProvisioningAttributePropagation(String name) {
+  public GrouperProvisioningAttributePropagationTest(String name) {
     super(name);
   }
 
