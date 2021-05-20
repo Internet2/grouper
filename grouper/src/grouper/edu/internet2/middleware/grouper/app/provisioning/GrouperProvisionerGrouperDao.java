@@ -77,13 +77,16 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_groups gg, " + 
         "    grouper_sync_group gsg " + 
         "where " + 
-        "    gg.id = gsg.group_id " + 
+        "    gsg.grouper_sync_id = ? " +
+        "    and gg.id = gsg.group_id " + 
         "    and gsg.provisionable = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-
+    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+    
     List<Type> typesInitial = new ArrayList<Type>();
-
+    typesInitial.add(StringType.INSTANCE);
+    
     List<String[]> queryResults = null;
     if (retrieveAll) {
       queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(),
@@ -155,8 +158,9 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_group_set gs, " + 
         "    grouper_sync_group gsg " +
         (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
-        "where " + 
-        "    ms.owner_id = gs.member_id " +
+        "where " +
+        "    gsg.grouper_sync_id = ? " +
+        "    and ms.owner_id = gs.member_id " +
         "    and ms.field_id = gs.member_field_id " +
         "    and ms.member_id = gm.id " +
         "    and gs.owner_group_id = gsg.group_id " + 
@@ -189,6 +193,7 @@ public class GrouperProvisionerGrouperDao {
     }
     
     List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
 
     if (retrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
@@ -199,6 +204,7 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
 
     if (retrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
@@ -299,8 +305,9 @@ public class GrouperProvisionerGrouperDao {
         "    grouper_group_set gs, " +
         "    grouper_sync_group gsg " +
         (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
-        "where " + 
-        "    ms.owner_id = gs.member_id " +
+        "where " +
+        "    gsg.grouper_sync_id = ? " +
+        "    and ms.owner_id = gs.member_id " +
         "    and ms.field_id = gs.member_field_id " +
         "    and gs.owner_group_id = gg.id " +
         "    and ms.member_id = gm.id " +
@@ -334,6 +341,7 @@ public class GrouperProvisionerGrouperDao {
     }
     
     List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
 
     if (retrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
@@ -344,7 +352,7 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.addAll(fieldIds);
     
     List<Type> typesInitial = new ArrayList<Type>();
-
+    typesInitial.add(StringType.INSTANCE);
 
     if (retrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);

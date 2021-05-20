@@ -38,7 +38,7 @@ public class AllProvisioningTests {
     suite.addTestSuite(GrouperProvisioningServiceTest.class);
     suite.addTestSuite(ProvisionerConfigurationTest.class);
     suite.addTestSuite(PspngToNewProvisioningAttributeConversionTest.class);
-    suite.addTestSuite(GrouperProvisioningAttributePropagation.class);
+    suite.addTestSuite(GrouperProvisioningAttributePropagationTest.class);
     suite.addTestSuite(ProvisionableStemSaveTest.class);
     suite.addTestSuite(ProvisionableGroupSaveTest.class);
     suite.addTestSuite(ProvisionableStemFinderTest.class);
