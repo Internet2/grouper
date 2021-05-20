@@ -297,6 +297,9 @@ public class StemTemplateContainer {
           GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
           gshTemplateConfig.populateConfiguration();
           
+          if (StringUtils.isBlank(gshTemplateConfiguration.getConfigId())) {
+            continue;
+          }
           if (!gshTemplateConfig.canFolderRunTemplate(stem)) {
             continue;
           }
@@ -310,10 +313,12 @@ public class StemTemplateContainer {
           if (!new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
             continue;
           }
-          
-          configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateNameForUi());
 
-          if (gshTemplateConfig.isShowInMoreActions()) {
+          if (!StringUtils.isBlank(gshTemplateConfig.getTemplateNameForUi())) {
+            configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateNameForUi());
+          }
+          
+          if (gshTemplateConfig.isShowInMoreActions() && !StringUtils.isBlank(gshTemplateConfig.getMoreActionsLabelForUi())) {
             configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getMoreActionsLabelForUi());
           }
         } catch (Exception e) {
@@ -329,7 +334,16 @@ public class StemTemplateContainer {
       Collections.sort(listToShowInStemMoreActions, new Comparator<Map.Entry<String, String> >() { 
        public int compare(Map.Entry<String, String> o1,  
                           Map.Entry<String, String> o2) { 
-           return (o1.getValue()).compareTo(o2.getValue()); 
+         if (o1 == o2) {
+           return 0;
+         }
+         if (o1 == null) {
+           return -1;
+         }
+         if (o2 == null) {
+           return 1;
+         }
+         return GrouperUtil.compare(o1.getValue(), o2.getValue()); 
        } 
       }); 
       
@@ -348,7 +362,16 @@ public class StemTemplateContainer {
       Collections.sort(listToShowInTemplateTypeDropdown, new Comparator<Map.Entry<String, String> >() { 
        public int compare(Map.Entry<String, String> o1,  
                           Map.Entry<String, String> o2) { 
-           return (o1.getValue()).compareTo(o2.getValue()); 
+         if (o1 == o2) {
+           return 0;
+         }
+         if (o1 == null) {
+           return -1;
+         }
+         if (o2 == null) {
+           return 1;
+         }
+         return GrouperUtil.compare(o1.getValue(), o2.getValue()); 
        } 
       }); 
       
