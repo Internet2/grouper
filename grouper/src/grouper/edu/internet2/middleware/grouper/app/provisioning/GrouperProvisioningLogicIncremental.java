@@ -1039,14 +1039,16 @@ public class GrouperProvisioningLogicIncremental {
           new ArrayList<GcGrouperSyncGroup>(grouperSyncGroupIdToSyncGroup.values()),
           calculatedProvisioningAttributes);
 
-      for (GcGrouperSyncGroup gcGrouperSyncGroup : this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().retrieveUpdatedCacheSyncGroups()) {
-        ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-        provisioningMessage.setGroupIdsForSync(new String[] {gcGrouperSyncGroup.getGroupId()});
-        provisioningMessage.setBlocking(false);
-        provisioningMessage.send(this.grouperProvisioner.getConfigId());
-      }
-      
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+
+      for (GcGrouperSyncGroup gcGrouperSyncGroup : this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().retrieveUpdatedCacheSyncGroups()) {
+        //ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+        //provisioningMessage.setGroupIdsForSync(new String[] {gcGrouperSyncGroup.getGroupId()});
+        //provisioningMessage.setBlocking(false);
+        //provisioningMessage.send(this.grouperProvisioner.getConfigId());
+        GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput();
+        grouperProvisioningDataIncrementalInput.getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipSync().add(new GrouperIncrementalDataItem(gcGrouperSyncGroup.getGroupId(), System.currentTimeMillis()));
+      }      
     }
   }
 
