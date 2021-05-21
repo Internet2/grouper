@@ -40,14 +40,20 @@ public class GrouperIncrementalDataItem {
 
   /**
    * constructor for "with recalc"
-   * @param item
+   * @param item, could be a groupId
    */
   public GrouperIncrementalDataItem(Object item, Long millisSince1970) {
     super();
     this.item = item;
     this.millisSince1970 = millisSince1970;
   }
-
+  
+  /**
+   * 
+   * @param item, could be a groupId
+   * @param millisSince1970
+   * @param grouperIncrementalDataAction
+   */
   public GrouperIncrementalDataItem(Object item, Long millisSince1970,
       GrouperIncrementalDataAction grouperIncrementalDataAction) {
     super();
@@ -72,7 +78,7 @@ public class GrouperIncrementalDataItem {
   }
 
   /**
-   * item
+   * item, could be a groupId
    */
   private Object item;
   
@@ -81,12 +87,18 @@ public class GrouperIncrementalDataItem {
    */
   private GrouperIncrementalDataAction grouperIncrementalDataAction;
 
-  
+  /**
+   * item, could be a groupId
+   * @return
+   */
   public Object getItem() {
     return item;
   }
 
-  
+  /**
+   * item, could be a groupId
+   * @param item
+   */
   public void setItem(Object item) {
     this.item = item;
   }

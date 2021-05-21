@@ -1,11 +1,11 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
-import java.util.List;
-
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
+
+import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -28,13 +28,13 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -51,7 +51,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental2recalc"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental1"));    
   }
   
   public LdapProvisionerIncrementalTest() {
@@ -134,6 +134,9 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   }
   
   public void testIncremental1() {
+
+    long millisStart = System.currentTimeMillis();
+    GrouperUtil.sleep(100);
 
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.numberOfGroupAttributes", "6");
@@ -329,6 +332,23 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=blopez,ou=People,dc=example,dc=edu"));
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=hdavis,ou=People,dc=example,dc=edu"));
+    
+
+    // send a message to sync group, before the previous group sync, it should be ignored
+    ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+    provisioningMessage.setGroupIdsForSync(new String[] {testGroup.getId()});
+    provisioningMessage.setBlocking(false);
+    provisioningMessage.setMillisSince1970(millisStart);
+    provisioningMessage.send("ldapProvTest");
+
+    // let the message cache clear
+    GrouperUtil.sleep(20000);
+
+    runJobs(true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    
+    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("filterByGroupSyncGroups"), -1));
     
   }
   

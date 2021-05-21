@@ -180,5 +180,34 @@ public class GrouperIncrementalDataToProcess {
     this.groupUuidsMemberUuidsForMembershipSync = groupUuidsMemberUuidsForMembershipSync;
   }
 
+  /**
+   * group uuids which are going a group sync
+   * initialized in the indexData()
+   */
+  private Set<String> groupUuidsForGroupMembershipRecalc = new HashSet<String>();
+
+  /**
+   * group uuids which are going a group sync
+   * @return the set of group uuids
+   */
+  public Set<String> getGroupUuidsForGroupMembershipRecalc() {
+    return groupUuidsForGroupMembershipRecalc;
+  }
+
+  /**
+   * index data after its determined so we know if something is recalc or not
+   */
+  public void indexData() {
+    
+    this.groupUuidsForGroupMembershipRecalc.clear();
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : GrouperUtil.nonNull(this.groupUuidsForGroupMembershipSync)) {
+      
+      String groupId = (String)grouperIncrementalDataItem.getItem();
+      this.groupUuidsForGroupMembershipRecalc.add(groupId);
+      
+    }
+    
+  }
+
   
 }

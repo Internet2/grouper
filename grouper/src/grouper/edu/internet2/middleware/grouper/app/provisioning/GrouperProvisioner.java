@@ -404,6 +404,19 @@ public abstract class GrouperProvisioner {
   }
   
   /**
+   * last provisioner for junit
+   */
+  private static GrouperProvisioner internalLastProvisioner;
+  
+  /**
+   * last provisioner for junit
+   * @return provisioner
+   */
+  public static GrouperProvisioner retrieveInternalLastProvisioner() {
+    return internalLastProvisioner;
+  }
+  
+  /**
    * factory method to get a provisioner by config id
    * @param configId
    * @return the provisioner
@@ -415,6 +428,7 @@ public abstract class GrouperProvisioner {
     Class<GrouperProvisioner> provisionerClass = GrouperUtil.forName(provisionerClassName);
     GrouperProvisioner provisioner = GrouperUtil.newInstance(provisionerClass);
     provisioner.setConfigId(configId);
+    internalLastProvisioner = provisioner;
     return provisioner;
     
   }

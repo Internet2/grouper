@@ -429,6 +429,11 @@ public class GrouperProvisionerGrouperSyncDao {
 
             processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
                 grouperTargetGroup);
+            
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipRecalc().contains(gcGrouperSyncGroup.getGroupId())) {
+              gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
+              gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
+            }
           }
         }
       } else {
@@ -598,6 +603,12 @@ public class GrouperProvisionerGrouperSyncDao {
 
             processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
                 grouperTargetGroup);
+            
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipRecalc().contains(gcGrouperSyncGroup.getGroupId())) {
+              gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
+              gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
+            }
+
           }
         }
       } else {
@@ -762,8 +773,12 @@ public class GrouperProvisionerGrouperSyncDao {
                 break;
               }
             }
+
             if (fullSyncSuccess) {
-              //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipRecalc().contains(gcGrouperSyncGroup.getGroupId())) {
+                gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
+                gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
+              }
             }
           }
         }

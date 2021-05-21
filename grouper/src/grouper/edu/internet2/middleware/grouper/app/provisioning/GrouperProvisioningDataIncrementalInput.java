@@ -197,6 +197,15 @@ public class GrouperProvisioningDataIncrementalInput {
     this.getGrouperProvisioner().getDebugMap().put("hasIncrementalDataToProcess", false);
     return false;
   }
+
+  /**
+   * keep an index after everything is determined so we can easily look up if something is recalc
+   */
+  public void indexIncrementalData() {
+    this.getGrouperIncrementalDataToProcessWithoutRecalc().indexData();
+    this.getGrouperIncrementalDataToProcessWithRecalc().indexData();
+    
+  }
   
 
 }

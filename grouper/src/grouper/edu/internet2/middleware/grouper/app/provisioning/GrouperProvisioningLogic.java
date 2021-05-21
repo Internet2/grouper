@@ -336,6 +336,19 @@ public class GrouperProvisioningLogic {
   }
 
   /**
+   * when data was retrieved (i.e. when the group syncs start)
+   */
+  private long retrieveDataStartMillisSince1970 = -1;
+  
+  /**
+   * when data was retrieved (i.e. when the group syncs start)
+   * @return when data retrieved
+   */
+  public long getRetrieveDataStartMillisSince1970() {
+    return retrieveDataStartMillisSince1970;
+  }
+
+  /**
    * 
    */
   public void provisionIncremental() {
@@ -452,6 +465,9 @@ public class GrouperProvisioningLogic {
         
         this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataToProcess);
 
+        // index recalc data
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().indexIncrementalData();
+        
         if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
           // ######### STEP 15: retrieve all membership sync objects
           // ######### STEP 16: retrieve all members sync objects
@@ -473,6 +489,9 @@ public class GrouperProvisioningLogic {
           try {
             debugMap.put("state", "retrieveIncrementalDataFromGrouper");
             long start = System.currentTimeMillis();
+            this.retrieveDataStartMillisSince1970 = start;
+            // keep track of when this started so we can update when group syncs occurred
+            debugMap.put("retrieveDataStartMillisSince1970", start);
             grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveGrouperDataMillis", retrieveGrouperDataMillis);

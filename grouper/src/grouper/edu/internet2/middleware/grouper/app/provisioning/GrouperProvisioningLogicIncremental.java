@@ -362,7 +362,7 @@ public class GrouperProvisioningLogicIncremental {
     if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getLastGroupSyncStart() == null) {
       return;
     }
-    if (gcGrouperSyncGroup.getLastGroupMetadataSyncStart().getTime() > grouperIncrementalDataItem.getMillisSince1970()) {
+    if (gcGrouperSyncGroup.getLastGroupSyncStart().getTime() > grouperIncrementalDataItem.getMillisSince1970()) {
       filterByGroupSyncGroups[0]++;
       iterator.remove();
     }
