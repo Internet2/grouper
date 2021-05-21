@@ -118,10 +118,16 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     assertNull(provisioningAttributeValue.getOwnerStemId());
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem1, "sqlProvTest");
-    assertNull(provisioningAttributeValue);
+    assertEquals(false, provisioningAttributeValue.isDirectAssignment());
+    assertEquals("sqlProvTest", provisioningAttributeValue.getDoProvision());
+    assertEquals(true, provisioningAttributeValue.isStemScopeSub());
+    assertEquals(stem.getId(), provisioningAttributeValue.getOwnerStemId());
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(group1, "sqlProvTest");
-    assertNull(provisioningAttributeValue);
+    assertEquals(false, provisioningAttributeValue.isDirectAssignment());
+    assertEquals("sqlProvTest", provisioningAttributeValue.getDoProvision());
+    assertEquals(true, provisioningAttributeValue.isStemScopeSub());
+    assertEquals(stem.getId(), provisioningAttributeValue.getOwnerStemId());
     
     provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem2, "sqlProvTest");
     assertEquals(true, provisioningAttributeValue.isDirectAssignment());

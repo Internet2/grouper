@@ -371,11 +371,56 @@ public class GrouperProvisioningService {
   public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(GrouperObject grouperObject, String targetName) {
      
     AttributeAssign attributeAssign = getAttributeAssign(grouperObject, targetName);
-    if (attributeAssign == null) {
+    if (attributeAssign != null) {
+      return buildGrouperProvisioningAttributeValue(attributeAssign);
+    }
+    
+    if (!(grouperObject instanceof Group) && !(grouperObject instanceof Stem)) {
       return null;
     }
     
-    return buildGrouperProvisioningAttributeValue(attributeAssign);
+    // ok nothing direct.  let's look for indirect.
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + targetName + ".class") == null) {
+      // invalid target
+      return null;
+    }
+    
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName); 
+    provisioner.retrieveGrouperProvisioningConfiguration().configureProvisionableSettings();
+
+    GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes;
+    String parentStemId;
+    Set<String> policyGroupIds = new HashSet<String>();
+    
+    if (grouperObject instanceof Group) {
+      grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(grouperObject.getId(), grouperObject.getName(), ((Group)grouperObject).getIdIndex(), null);
+      grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+      parentStemId = ((Group)grouperObject).getParentUuid();
+      policyGroupIds = provisioner.retrieveGrouperDao().retrieveProvisioningGroupIdsThatArePolicyGroups(Collections.singleton(grouperObject.getId()));
+    } else {
+      grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(grouperObject.getId(), grouperObject.getName(), ((Stem)grouperObject).getIdIndex(), null);
+      grouperProvisioningObjectAttributes.setOwnedByStem(true);
+      parentStemId = ((Stem)grouperObject).getParentUuid();
+    }
+
+    Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = provisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(parentStemId);
+    
+    Map<String, GrouperProvisioningObjectAttributes> calculatedProvisioningAttributes = GrouperProvisioningService.calculateProvisioningAttributes(provisioner, Collections.singleton(grouperProvisioningObjectAttributes), ancestorProvisioningGroupAttributes, policyGroupIds);
+    if (calculatedProvisioningAttributes.size() == 0) {
+      return null;
+    }
+    
+    GrouperProvisioningObjectAttributes calculatedGrouperProvisioningObjectAttributes = calculatedProvisioningAttributes.values().iterator().next();
+    
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
+    grouperProvisioningAttributeValue.setDirectAssignment(false);
+    grouperProvisioningAttributeValue.setDoProvision(targetName);
+    grouperProvisioningAttributeValue.setTargetName(targetName);
+    grouperProvisioningAttributeValue.setStemScopeString(calculatedGrouperProvisioningObjectAttributes.getProvisioningStemScope());
+    grouperProvisioningAttributeValue.setOwnerStemId(calculatedGrouperProvisioningObjectAttributes.getProvisioningOwnerStemId());
+    grouperProvisioningAttributeValue.setMetadataNameValues(calculatedGrouperProvisioningObjectAttributes.getMetadataNameValues());
+    
+    return grouperProvisioningAttributeValue;
   }
   
   /**

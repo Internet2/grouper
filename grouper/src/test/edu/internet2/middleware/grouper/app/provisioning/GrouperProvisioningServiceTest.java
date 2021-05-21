@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
+import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_TARGET;
@@ -24,6 +27,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -55,7 +59,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
   }
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningServiceTest("testSaveOrUpdateProvisioningAttributes"));
+    TestRunner.run(new GrouperProvisioningServiceTest("testGetProvisioningAttributeValueWithIndirectAndRegexRestriction"));
   }
   
   @Override
@@ -590,6 +594,141 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     assertTrue(attributeValue1.isDirectAssignment());
     assertEquals("ldap", attributeValue1.getTargetName());
     
+  }
+  
+  public void testGetProvisioningAttributeValueWithIndirectAndPolicyRestriction() {
+    
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group0 = stem0.addChildGroup("group0", "group0");
+    
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
+    grouperProvisioningAttributeValue.setTargetName("ldap");
+    grouperProvisioningAttributeValue.setDirectAssignment(true);
+    grouperProvisioningAttributeValue.setDoProvision("ldap");
+    grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
+    
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, stem0);
+    
+    GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(0, attributeValue1.getMetadataNameValues().size());
+
+    // add policy group restriction to config
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.onlyProvisionPolicyGroups", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.allowPolicyGroupOverride", "true");
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertNull(attributeValue1);
+    
+    // make group0 into a policy group
+    addPolicyType(group0);
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(0, attributeValue1.getMetadataNameValues().size());
+    
+    // delete policy designation
+    group0.getAttributeDelegate().removeAttribute(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase());
+
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertNull(attributeValue1);
+    
+    // add override to folder
+    grouperProvisioningAttributeValue.getMetadataNameValues().put("md_grouper_allowPolicyGroupOverride", false);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, stem0);
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(1, attributeValue1.getMetadataNameValues().size());
+  }
+  
+  public void testGetProvisioningAttributeValueWithIndirectAndRegexRestriction() {
+    
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group0 = stem0.addChildGroup("group0_includes", "group0_includes");
+    
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
+    grouperProvisioningAttributeValue.setTargetName("ldap");
+    grouperProvisioningAttributeValue.setDirectAssignment(true);
+    grouperProvisioningAttributeValue.setDoProvision("ldap");
+    grouperProvisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
+    
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, stem0);
+    
+    GrouperProvisioningAttributeValue attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(0, attributeValue1.getMetadataNameValues().size());
+
+    // add policy group restriction to config
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.provisionableRegex", "groupExtension not matches ^.*_includes$|^.*_excludes$");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldap.allowProvisionableRegexOverride", "true");
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertNull(attributeValue1);
+    
+    // rename group
+    group0.setExtension("group0");
+    group0.store();
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(0, attributeValue1.getMetadataNameValues().size());
+    
+    // rename back
+    group0.setExtension("group0_includes");
+    group0.store();
+
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertNull(attributeValue1);
+    
+    // add override to folder
+    grouperProvisioningAttributeValue.getMetadataNameValues().put("md_grouper_allowProvisionableRegexOverride", "groupExtension not matches ^.*_includesxx$|^.*_excludesxx$");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, stem0);
+    
+    attributeValue1 = GrouperProvisioningService.getProvisioningAttributeValue(group0, "ldap");
+    
+    assertFalse(attributeValue1.isDirectAssignment());
+    assertEquals("ldap", attributeValue1.getTargetName());
+    assertEquals("ldap", attributeValue1.getDoProvision());
+    assertEquals(1, attributeValue1.getMetadataNameValues().size());
+  }
+  
+  private static void addPolicyType(Group group) {
+
+    AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
+
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "true");
+
+    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "policy");
+
+    attributeAssign.saveOrUpdate();
   }
   
   public void testGetProvisioningAttributeValues() {

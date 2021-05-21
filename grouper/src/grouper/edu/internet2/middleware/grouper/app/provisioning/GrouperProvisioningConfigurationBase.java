@@ -1556,9 +1556,12 @@ public abstract class GrouperProvisioningConfigurationBase {
       GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType) {
     this.grouperProvisioningBehaviorMembershipType = grouperProvisioningBehaviorMembershipType;
   }
-
-  public void configureGenericSettings() {
-
+  
+  public void configureProvisionableSettings() {
+    if (this.getConfigId() == null) {
+      this.setConfigId(this.grouperProvisioner.getConfigId());
+    }
+    
     this.onlyProvisionPolicyGroups = this.retrieveConfigBoolean("onlyProvisionPolicyGroups", false);
 
     this.allowPolicyGroupOverride = this.retrieveConfigBoolean("allowPolicyGroupOverride", false);
@@ -1566,7 +1569,11 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.allowProvisionableRegexOverride = this.retrieveConfigBoolean("allowProvisionableRegexOverride", false);
 
     this.provisionableRegex = this.retrieveConfigString("provisionableRegex", false);
+  }
 
+  public void configureGenericSettings() {
+    configureProvisionableSettings();
+    
     {
       Boolean operateOnGrouperMemberships = this.retrieveConfigBoolean("operateOnGrouperMemberships", false);
       if (operateOnGrouperMemberships == null) {

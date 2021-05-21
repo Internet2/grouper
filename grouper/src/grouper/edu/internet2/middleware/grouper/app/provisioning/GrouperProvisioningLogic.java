@@ -349,7 +349,7 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "incrementalCheckMessages");
       grouperProvisioningLogicIncremental.incrementalCheckMessages();
       
-      // ######### STEP 2: check messages
+      // ######### STEP 2: propagate provisioning data to group sync table
       debugMap.put("state", "propagateProvisioningAttributes");
       grouperProvisioningLogicIncremental.propagateProvisioningAttributes();
       
