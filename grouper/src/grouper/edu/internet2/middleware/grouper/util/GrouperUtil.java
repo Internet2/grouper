@@ -2208,6 +2208,17 @@ public class GrouperUtil {
    * assign a jackson field
    * @param jsonNode
    * @param fieldName
+   */
+  public static void jsonJacksonAssignLong(ObjectNode objectNode, String fieldName, Long value) {
+    if (value != null) {
+      objectNode.put(fieldName, value);
+    }
+  }
+  
+  /**
+   * assign a jackson field
+   * @param jsonNode
+   * @param fieldName
    * @return the string
    */
   public static void jsonJacksonAssignStringArray(ObjectNode objectNode, String fieldName, Collection<String> values) {

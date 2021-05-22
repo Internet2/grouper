@@ -10,9 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
-import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -40,6 +40,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   
   static {
     provisionerConfigClassNames.add(AzureProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(DuoProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());

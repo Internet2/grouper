@@ -720,8 +720,8 @@ public class CustomUiEngine {
   
   public static void main(String[] args) {
     GrouperSession.startRootSession();
-    Group group = GroupFinder.findByUuid("b5115904553743738e1adac3cf949e4c", true);
-    new CustomUiEngine().createCustomUiConfig(group, "testa1");
+    Group group = GroupFinder.findByUuid("f3b4ff574c434259af7e28cae5b477c4", true);
+    new CustomUiEngine().createCustomUiConfig(group, "newConfigGrouperDemo");
   }
   
   //create custom ui config based on the attributes off of the old attributes on the group
