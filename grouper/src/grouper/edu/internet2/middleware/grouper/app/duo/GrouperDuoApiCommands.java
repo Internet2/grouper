@@ -27,6 +27,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperDuoApiCommands {
   
   public static void main(String[] args) {
+    
+    List<GrouperDuoGroup> duoGroups = retrieveDuoGroups("duo1");
+    System.out.println("duo groups size = "+duoGroups.size());
+    
     List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
     System.out.println("duo users size = "+duoUsers.size());
     
@@ -37,7 +41,6 @@ public class GrouperDuoApiCommands {
     
     GrouperDuoUser userByName = retrieveDuoUserByName("duo1", "vivek");
     System.out.println("userByName: "+userByName);
-    
     
   }
 
@@ -448,22 +451,39 @@ public class GrouperDuoApiCommands {
     debugMap.put("method", "retrieveDuoGroups");
 
     long startTime = System.nanoTime();
-
+    
     try {
-
-      List<GrouperDuoGroup> results = new ArrayList<GrouperDuoGroup>();
-
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/groups",
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
       
-      ArrayNode groupsArray = (ArrayNode) jsonNode.get("response");
+      List<GrouperDuoGroup> results = new ArrayList<GrouperDuoGroup>();
+      
+      int limit = 100;
+      int offset = 0;
+      
+      while (offset >= 0) {
 
-      for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
-        JsonNode groupNode = groupsArray.get(i);
-        GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
-        results.add(grouperDuoGroup);
+        Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
+        
+        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/groups",
+            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+        
+        ArrayNode groupsArray = (ArrayNode) jsonNode.get("response");
+
+        for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
+          JsonNode groupNode = groupsArray.get(i);
+          GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
+          results.add(grouperDuoGroup);
+        }
+        
+        JsonNode metadata = jsonNode.get("metadata");
+        
+        if (metadata != null && metadata.get("next_offset") != null) {
+          offset = metadata.get("next_offset").asInt();
+        } else {
+          offset = -1;
+        }
+        
       }
-
+      
       debugMap.put("size", GrouperClientUtils.length(results));
 
       return results;
@@ -639,7 +659,7 @@ public class GrouperDuoApiCommands {
 
       List<GrouperDuoUser> results = new ArrayList<GrouperDuoUser>();
 
-      int limit = 1;
+      int limit = 100;
       int offset = 0;
       
       while (offset >= 0) {
