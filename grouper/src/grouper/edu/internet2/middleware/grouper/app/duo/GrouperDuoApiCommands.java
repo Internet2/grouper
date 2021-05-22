@@ -24,14 +24,21 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
-/**
- * This class interacts with the Microsoft Graph API.
- */
 public class GrouperDuoApiCommands {
   
   public static void main(String[] args) {
     List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
     System.out.println("duo users size = "+duoUsers.size());
+    
+    for (GrouperDuoUser grouperDuoUser: duoUsers) {
+      List<GrouperDuoGroup> groupsByUser = retrieveDuoGroupsByUser("duo1", grouperDuoUser.getId());
+      System.out.println("for user: "+grouperDuoUser.getUserName()+ " found: "+groupsByUser.size()+ " groups");
+    }
+    
+    GrouperDuoUser userByName = retrieveDuoUserByName("duo1", "vivek");
+    System.out.println("userByName: "+userByName);
+    
+    
   }
 
   public static void main1(String[] args) {
@@ -469,7 +476,6 @@ public class GrouperDuoApiCommands {
 
   }
   
-  //TODO implement it
   public static List<GrouperDuoGroup> retrieveDuoGroupsByUser(String configId, String userId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -480,22 +486,18 @@ public class GrouperDuoApiCommands {
 
     try {
 
-      List<GrouperDuoGroup> results = new ArrayList<GrouperDuoGroup>();
+      String urlSuffix = "/users/" + userId;
 
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/groups",
+      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
       
-      ArrayNode groupsArray = (ArrayNode) jsonNode.get("response");
-
-      for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
-        JsonNode groupNode = groupsArray.get(i);
-        GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
-        results.add(grouperDuoGroup);
+      JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
+      if (userNode == null) {
+        return new ArrayList<GrouperDuoGroup>();
       }
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
 
-      debugMap.put("size", GrouperClientUtils.length(results));
-
-      return results;
+      return new ArrayList<GrouperDuoGroup>(grouperDuoUser.getGroups());
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -507,8 +509,7 @@ public class GrouperDuoApiCommands {
 
   /**
    * @param configId
-   * @param fieldName is id or displayName
-   * @param fieldValue is value of id or displayName
+   * @param group id
    * @return the user
    */
   public static GrouperDuoGroup retrieveDuoGroup(String configId, String id) {
@@ -528,6 +529,9 @@ public class GrouperDuoApiCommands {
       
       //lets get the group node
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
+      if (groupNode == null) {
+        return null;
+      }
       GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
 
       return grouperDuoGroup;
@@ -539,6 +543,7 @@ public class GrouperDuoApiCommands {
     }
 
   }
+  
   
   /**
    * create a user
@@ -688,11 +693,56 @@ public class GrouperDuoApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
       
-      //lets get the group node
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
+      if (userNode == null) {
+        return null;
+      }
       GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
 
       return grouperDuoUser;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+
+  }
+  
+  /**
+   * @param configId
+   * @param username
+   * @return
+   */
+  public static GrouperDuoUser retrieveDuoUserByName(String configId, String username) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveDuoUserByName");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      String urlSuffix = "/users";
+      
+      Map<String, String> params = GrouperUtil.toMap("username", username);
+
+      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+      
+      ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
+      
+      if (usersArray == null || usersArray.size() == 0) {
+        return null;
+      } else if (usersArray.size() > 1) {
+        throw new RuntimeException("How can there be more than one user with the same username in duo??");
+      } else {
+        JsonNode userNode = usersArray.get(0);
+        GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+        return grouperDuoUser;
+      }
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
