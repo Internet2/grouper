@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -29,8 +28,13 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * This class interacts with the Microsoft Graph API.
  */
 public class GrouperDuoApiCommands {
-
+  
   public static void main(String[] args) {
+    List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
+    System.out.println("duo users size = "+duoUsers.size());
+  }
+
+  public static void main1(String[] args) {
 
 //    AzureMockServiceHandler.dropAzureMockTables();
 //    AzureMockServiceHandler.ensureAzureMockTables();
@@ -630,18 +634,33 @@ public class GrouperDuoApiCommands {
 
       List<GrouperDuoUser> results = new ArrayList<GrouperDuoUser>();
 
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/users",
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+      int limit = 1;
+      int offset = 0;
       
-      //TODO fetch all users in a loop so that in the end this method just returns everything and not only first 100 
-      ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
+      while (offset >= 0) {
 
-      for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
-        JsonNode userNode = usersArray.get(i);
-        GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
-        results.add(grouperDuoUser);
+        Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
+        
+        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/users",
+            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+        
+        ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
+
+        for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
+          JsonNode userNode = usersArray.get(i);
+          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+          results.add(grouperDuoUser);
+        }
+        
+        JsonNode metadata = jsonNode.get("metadata");
+        
+        if (metadata != null && metadata.get("next_offset") != null) {
+          offset = metadata.get("next_offset").asInt();
+        } else {
+          offset = -1;
+        }
+        
       }
-
       debugMap.put("size", GrouperClientUtils.length(results));
 
       return results;
