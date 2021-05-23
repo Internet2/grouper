@@ -47,6 +47,12 @@
                       	${textContainer.text['adminConfigureLink'] }</a>
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.customUiContainer.canViewCustomUiMisc}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs');" style="white-space: nowrap;"
+                      >${textContainer.text['customUiMiscLink'] }</a>
+                    </c:if>
+                    
+                    
                     <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs');" style="white-space: nowrap;"
                       >${textContainer.text['adminDaemonJobsLink'] }</a>
@@ -65,11 +71,6 @@
                     <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
                       >${textContainer.text['gshTemplatesMainLink'] }</a>
-                    </c:if>
-                    
-                    <c:if test="${grouperRequestContainer.customUiContainer.canViewCustomUiMisc}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs');" style="white-space: nowrap;"
-                      >${textContainer.text['customUiMiscLink'] }</a>
                     </c:if>
                     
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
