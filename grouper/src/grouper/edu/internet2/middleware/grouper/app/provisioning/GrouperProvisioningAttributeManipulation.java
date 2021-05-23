@@ -31,20 +31,35 @@ public class GrouperProvisioningAttributeManipulation {
     this.grouperProvisioner = grouperProvisioner;
   }
 
+  /**
+   * provisioner can decide to convert all nulls to empty
+   * @return if convert nulls to empty
+   */
+  public boolean isConvertNullValuesToEmpty() {
+    return false;
+  }
+  
   public void manipulateAttributesGroups(List<ProvisioningGroup> provisioningGroups) {
     
     int[] manipulateAttributesGroupsCount = new int[] {0};
+    int[] convertNullsEmptyCount = new int[] {0};
 
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
     
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         manipulateValue(provisioningGroup, grouperProvisioningConfigurationAttribute, manipulateAttributesGroupsCount);
+        convertNullsEmpties(provisioningGroup, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesGroupsCount[0] > 0) {
       manipulateAttributesGroupsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("manipulateAttributesGroupsCount"), 0);
       this.grouperProvisioner.getDebugMap().put("manipulateAttributesGroupsCount", manipulateAttributesGroupsCount[0]);
+      
+    }
+    if (convertNullsEmptyCount[0] > 0) {
+      convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
     }
 
@@ -53,6 +68,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void manipulateAttributesEntities(List<ProvisioningEntity> provisioningEntities) {
     
     int[] manipulateAttributesEntitiesCount = new int[] {0};
+    int[] convertNullsEmptyCount = new int[] {0};
 
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
@@ -60,6 +76,7 @@ public class GrouperProvisioningAttributeManipulation {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         manipulateValue(provisioningEntity, grouperProvisioningConfigurationAttribute, manipulateAttributesEntitiesCount);
+        convertNullsEmpties(provisioningEntity, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesEntitiesCount[0] > 0) {
@@ -67,11 +84,17 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("manipulateAttributesEntitiesCount", manipulateAttributesEntitiesCount[0]);
       
     }
+    if (convertNullsEmptyCount[0] > 0) {
+      convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
+      
+    }
   }
 
   public void manipulateAttributesMemberships(List<ProvisioningMembership> provisioningMemberships) {
     
     int[] manipulateAttributesMembershipsCount = new int[] {0};
+    int[] convertNullsEmptyCount = new int[] {0};
 
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     
@@ -79,11 +102,17 @@ public class GrouperProvisioningAttributeManipulation {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
         manipulateValue(provisioningMembership, grouperProvisioningConfigurationAttribute, manipulateAttributesMembershipsCount);
+        convertNullsEmpties(provisioningMembership, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesMembershipsCount[0] > 0) {
       manipulateAttributesMembershipsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("manipulateAttributesMembershipsCount"), 0);
       this.grouperProvisioner.getDebugMap().put("manipulateAttributesMembershipsCount", manipulateAttributesMembershipsCount[0]);
+      
+    }
+    if (convertNullsEmptyCount[0] > 0) {
+      convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
     }
   }
@@ -336,6 +365,51 @@ public class GrouperProvisioningAttributeManipulation {
       count[0]++;
     }
     provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newValue);
+  }
+
+  /**
+   * if the provisioner should equate nulls and empties, then convert nulls to empties
+   * @param provisioningUpdatable
+   * @param grouperProvisioningConfigurationAttribute
+   * @param count
+   */
+  public void convertNullsEmpties(ProvisioningUpdatable provisioningUpdatable,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
+
+    // should we convert null to empty?
+    if (!this.isConvertNullValuesToEmpty()) {
+      return;
+    }
+
+    // not sure what this is
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return;
+    }
+
+    Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
+
+    // its notnull so ignore
+    if (currentValue != null) {
+      return;
+    }
+    GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
+    
+    // only do this for strings
+    if (valueType == null || valueType != GrouperProvisioningConfigurationAttributeValueType.STRING) {
+      return;
+    }
+
+    // but not multivalued strings
+    if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+      return;
+    }
+    
+    // keep a count if supposed to
+    if (count!= null) {
+      count[0]++;
+    }
+    // assign empty
+    provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), "");
   }
 
   public void filterGroupFieldsAndAttributes(List<ProvisioningGroup> provisioningGroups, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {

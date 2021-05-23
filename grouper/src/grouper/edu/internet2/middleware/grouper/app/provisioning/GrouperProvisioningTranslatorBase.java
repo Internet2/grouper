@@ -173,6 +173,7 @@ public class GrouperProvisioningTranslatorBase {
             
             grouperTargetMembership.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
             this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetMembership, grouperProvisioningConfigurationAttribute, null);
+            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetMembership, grouperProvisioningConfigurationAttribute, null);
 
           }
         }
@@ -380,6 +381,8 @@ public class GrouperProvisioningTranslatorBase {
               }
               grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
+              this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
+
               if (required && GrouperUtil.isBlank(result)) {
                 // short circuit this since other fields might need this field and its not there and invalid anyways
                 continue PROVISIONING_ENTITY_BLOCK;
@@ -513,6 +516,8 @@ public class GrouperProvisioningTranslatorBase {
               }
               grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
+              this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
+
               if (required && GrouperUtil.isBlank(result)) {
                 // short circuit this since other fields might need this field and its not there and invalid anyways
                 continue PROVISIONING_GROUP_BLOCK;
