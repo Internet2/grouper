@@ -255,7 +255,13 @@ public class GrouperDuoApiCommands {
           paramsLine += "&";
         }
 //        paramsLine = paramsLine + GrouperUtil.escapeUrlEncode(paramName) + "="+ GrouperUtil.escapeUrlEncode(params.get(paramName));
-        paramsLine = paramsLine + GrouperUtil.escapeUrlEncode(paramName).replace("+", "%20") + "="+ GrouperUtil.escapeUrlEncode(params.get(paramName)).replace("+", "%20");
+        String paramValue = params.get(paramName);
+        try {
+          paramsLine = paramsLine + escapeUrlEncode(paramName) + "=" + escapeUrlEncode(paramValue);
+        } catch (RuntimeException e) {
+          GrouperUtil.injectInException(e, "paramName: '" + paramName + "', paramValue: '" + paramValue + "'");
+          throw e;
+        }
       }
     }
     
@@ -340,6 +346,15 @@ public class GrouperDuoApiCommands {
   }
 
   /**
+   * encode URL param
+   * @param param
+   * @return the value
+   */
+  public static String escapeUrlEncode(String param) {
+    return GrouperUtil.escapeUrlEncode(param).replace("+", "%20");
+  }
+
+  /**
    * create a group
    * @param grouperDuoGroup
    * @return the result
@@ -357,7 +372,7 @@ public class GrouperDuoApiCommands {
 
 
       Map<String, String> params = GrouperUtil.toMap("name", 
-          grouperDuoGroup.getName(), "desc", grouperDuoGroup.getDesc());
+          StringUtils.defaultString(grouperDuoGroup.getName()), "desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null);
@@ -399,7 +414,7 @@ public class GrouperDuoApiCommands {
       }
 
       Map<String, String> params = GrouperUtil.toMap("name", 
-          grouperDuoGroup.getName(), "desc", grouperDuoGroup.getDesc());
+          StringUtils.defaultString(grouperDuoGroup.getName()), "desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + id,
           GrouperUtil.toSet(200), new int[] { -1 }, params, null);
@@ -582,9 +597,9 @@ public class GrouperDuoApiCommands {
     try {
 
       Map<String, String> params = GrouperUtil.toMap("firstname", 
-          grouperDuoUser.getFirstName(), "lastname", grouperDuoUser.getLastName(),
-          "realname", grouperDuoUser.getRealName(), "email", grouperDuoUser.getEmail(),
-          "username", grouperDuoUser.getUserName());
+          StringUtils.defaultString(grouperDuoUser.getFirstName()), "lastname", StringUtils.defaultString(grouperDuoUser.getLastName()),
+          "realname", StringUtils.defaultString(grouperDuoUser.getRealName()), "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
+          "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null);
@@ -626,9 +641,9 @@ public class GrouperDuoApiCommands {
       }
 
       Map<String, String> params = GrouperUtil.toMap("firstname", 
-          grouperDuoUser.getFirstName(), "lastname", grouperDuoUser.getLastName(),
-          "realname", grouperDuoUser.getRealName(), "email", grouperDuoUser.getEmail(),
-          "username", grouperDuoUser.getUserName());
+          StringUtils.defaultString(grouperDuoUser.getFirstName()), "lastname", StringUtils.defaultString(grouperDuoUser.getLastName()),
+          "realname", StringUtils.defaultString(grouperDuoUser.getRealName()), "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
+          "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/" + id,
           GrouperUtil.toSet(200), new int[] { -1 }, params, null);
@@ -746,7 +761,7 @@ public class GrouperDuoApiCommands {
 
       String urlSuffix = "/users";
       
-      Map<String, String> params = GrouperUtil.toMap("username", username);
+      Map<String, String> params = GrouperUtil.toMap("username", StringUtils.defaultString(username));
 
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
@@ -806,7 +821,7 @@ public class GrouperDuoApiCommands {
 
     try {
       
-      Map<String, String> params = GrouperUtil.toMap("group_id", groupId);
+      Map<String, String> params = GrouperUtil.toMap("group_id", StringUtils.defaultString(groupId));
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/"+userId+"/groups",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null);
