@@ -410,7 +410,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     
   }
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName", "dbVersion", "debugMap", 
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName", "dbVersion", "debugMap", "errorMessage",
       "grouperSync", "grouperSyncId", "lastGroupMetadataSync", "lastGroupMetadataSyncStart", "lastGroupSync", "lastUpdated",
       "metadataUpdated");
   

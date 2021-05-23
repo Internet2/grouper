@@ -638,7 +638,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
   
   
   private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("connectionName",
-      "dbVersion", "grouperSync", "grouperSyncGroup", "grouperSyncId", "grouperSyncMember", "metadataUpdated");
+      "dbVersion", "errorMessage", "grouperSync", "grouperSyncGroup", "grouperSyncId", "grouperSyncMember", "metadataUpdated");
   
   /**
    * 
