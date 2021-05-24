@@ -1132,5 +1132,24 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
 
   }
 
+  /**
+   * 
+   * @param translateGrouperToGroupSyncField
+   * @param result
+   */
+  public String retrieveField(String syncField) {
+    if (GrouperClientUtils.equals("memberFromId2", syncField)) {
+      return this.getMemberFromId2();
+    } else if (GrouperClientUtils.equals("memberFromId3", syncField)) {
+      return this.getMemberFromId3();
+    } else if (GrouperClientUtils.equals("memberToId2", syncField)) {
+      return this.getMemberToId2();
+    } else if (GrouperClientUtils.equals("memberToId3", syncField)) {
+      return this.getMemberToId3();
+    } else {
+      throw new RuntimeException("Not expecting memberSyncField: '" + syncField + "'");
+    }
+
+  }
 
 }

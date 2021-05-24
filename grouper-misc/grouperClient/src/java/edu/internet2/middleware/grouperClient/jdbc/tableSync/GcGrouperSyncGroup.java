@@ -1081,4 +1081,24 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
   }
 
+  /**
+   * 
+   * @param translateGrouperToGroupSyncField
+   * @param result
+   */
+  public String retrieveField(String syncField) {
+    if (GrouperClientUtils.equals("groupFromId2", syncField)) {
+      return this.getGroupFromId2();
+    } else if (GrouperClientUtils.equals("groupFromId3", syncField)) {
+      return this.getGroupFromId3();
+    } else if (GrouperClientUtils.equals("groupToId2", syncField)) {
+      return this.getGroupToId2();
+    } else if (GrouperClientUtils.equals("groupToId3", syncField)) {
+      return this.getGroupToId3();
+    } else {
+      throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
+    }
+
+  }
+
 }

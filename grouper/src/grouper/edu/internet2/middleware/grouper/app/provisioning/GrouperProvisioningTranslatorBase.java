@@ -369,12 +369,15 @@ public class GrouperProvisioningTranslatorBase {
               expressionToUse = expression;
             }
             Object result = null;
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())
+                || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
               if (!StringUtils.isBlank(expressionToUse)) {
                 result = runScript(expressionToUse, elVariableMap);
               } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
                 result = translateFromGrouperProvisioningEntityField(grouperProvisioningEntity, 
                     grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
+              } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
+                result = translateFromMemberSyncField(gcGrouperSyncMember, grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
               }
               if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
                 gcGrouperSyncMember.assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField(), result);
@@ -505,16 +508,20 @@ public class GrouperProvisioningTranslatorBase {
               expressionToUse = expression;
             }
             Object result = null;
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+                || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
               if (!StringUtils.isBlank(expressionToUse)) {
                 result = runScript(expressionToUse, elVariableMap);
               } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
                 result = translateFromGrouperProvisioningGroupField(grouperProvisioningGroup, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
+              } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
+                result = translateFromGroupSyncField(gcGrouperSyncGroup, grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
               }
               if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
                 gcGrouperSyncGroup.assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField(), result);
               }
-              grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
+              String attributeOrFieldName = grouperProvisioningConfigurationAttribute.getName();
+              grouperTargetGroup.assignAttributeValue(attributeOrFieldName, result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
 
@@ -735,6 +742,14 @@ public class GrouperProvisioningTranslatorBase {
     } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGcGrouperSyncMember() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
       result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), 
           grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
+      translate = true;
+    } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
+      result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), 
+          grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
+      translate = true;
+    } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGcGrouperSyncMember() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
+      result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), 
+          grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField());
       translate = true;
     }
     
