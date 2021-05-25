@@ -1027,6 +1027,7 @@ public class UiV2Provisioning {
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
       provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
       List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
