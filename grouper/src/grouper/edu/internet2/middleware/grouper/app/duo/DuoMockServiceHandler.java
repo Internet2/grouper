@@ -331,17 +331,22 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     
-    int offsetInt = 0;
-    if (StringUtils.isNotBlank(offset)) {
-      offsetInt = GrouperUtil.intValue(offset);
-    }
-    
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
       if (limitInt > 300) {
         limitInt = 300;
       }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
     }
     
     List<GrouperDuoUser> grouperDuoUsers = null;
@@ -349,7 +354,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ByHqlStatic query = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperDuoUser user left join user.groups groups");
     
     QueryOptions queryOptions = new QueryOptions();
-    QueryPaging queryPaging = QueryPaging.page(limitInt, offsetInt + 1, true);
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
     queryOptions = queryOptions.paging(queryPaging);
     
     query.options(queryOptions);
@@ -431,17 +436,22 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     
-    int offsetInt = 0;
-    if (StringUtils.isNotBlank(offset)) {
-      offsetInt = GrouperUtil.intValue(offset);
-    }
-    
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
       if (limitInt > 500) {
         limitInt = 500;
       }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
     }
     
     ByHqlStatic query = HibernateSession.byHqlStatic()
@@ -449,7 +459,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
         .setString("theUserId", userId);
     
     QueryOptions queryOptions = new QueryOptions();
-    QueryPaging queryPaging = QueryPaging.page(limitInt, offsetInt + 1, true);
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
     queryOptions = queryOptions.paging(queryPaging);
     
     query.options(queryOptions);
@@ -789,14 +799,19 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     
-    int offsetInt = 0;
-    if (StringUtils.isNotBlank(offset)) {
-      offsetInt = GrouperUtil.intValue(offset);
-    }
-    
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
     }
     
     List<GrouperDuoGroup> grouperDuoGroups = null;
@@ -804,7 +819,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ByHqlStatic query = HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup");
     
     QueryOptions queryOptions = new QueryOptions();
-    QueryPaging queryPaging = QueryPaging.page(limitInt, offsetInt + 1, true);
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
     queryOptions = queryOptions.paging(queryPaging);
     
     query.options(queryOptions);

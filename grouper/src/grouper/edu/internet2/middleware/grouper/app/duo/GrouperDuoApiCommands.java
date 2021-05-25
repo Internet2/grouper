@@ -491,7 +491,7 @@ public class GrouperDuoApiCommands {
         
         JsonNode metadata = jsonNode.get("metadata");
         
-        if (metadata != null && metadata.get("next_offset") != null) {
+        if (metadata != null && metadata.get("next_offset") != null && groupsArray.size() >= limit) {
           offset = metadata.get("next_offset").asInt();
         } else {
           offset = -1;
@@ -578,7 +578,6 @@ public class GrouperDuoApiCommands {
     }
 
   }
-  
   
   /**
    * create a user
