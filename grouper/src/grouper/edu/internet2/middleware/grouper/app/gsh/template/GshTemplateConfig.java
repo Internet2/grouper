@@ -411,7 +411,7 @@ public class GshTemplateConfig {
             gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
           }
           
-          if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
+          if ((gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT || gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
             GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
             gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
             

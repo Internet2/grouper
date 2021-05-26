@@ -242,6 +242,11 @@ public class GshTemplateValidationService {
           gshTemplateInput.assignValueString(gshTemplateInput.getValueString().trim());          
         }
         
+        // textareas can have various newlines
+        if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) {
+          gshTemplateInput.assignValueString(GrouperUtil.whitespaceNormalizeNewLines(gshTemplateInput.getValueString()));
+        }
+        
         if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
@@ -315,7 +320,7 @@ public class GshTemplateValidationService {
       
       {
         //max length
-        if (StringUtils.isNotBlank(valueFromUser) && gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
+        if (StringUtils.isNotBlank(valueFromUser) && (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT || gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.maxLength.message");
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$maxLength$$", gshTemplateInputConfig.getMaxLength()+"");
