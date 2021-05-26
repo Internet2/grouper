@@ -508,10 +508,15 @@ public class UiV2Template {
             }
             
             if (StringUtils.equalsIgnoreCase(guiMessageType.name(), guiScreenAction.getMessageType())) {
-              if (newMessageForType.length() > 0) {
-                newMessageForType.append("<br />");
+              
+              String message = GrouperUtil.trimToEmpty(StringUtils.defaultString(guiScreenAction.getMessage()));
+              if (!StringUtils.isBlank(message)) {
+                if (newMessageForType.length() > 0) {
+                  newMessageForType.append("<br />");
+                }
+                
+                newMessageForType.append(message);
               }
-              newMessageForType.append(guiScreenAction.getMessage());
               iterator.remove();
             }
           }
@@ -565,7 +570,9 @@ public class UiV2Template {
           boolean displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".displayErrorOutput", false);
           if (displayErrorOutput) {
             
-            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
+            if (!StringUtils.isBlank(gshTemplateExecOutput.getGshScriptOutput())) {
+              guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(gshTemplateExecOutput.getGshScriptOutput(), true)+"</pre>"));
+            }
             
             String exceptionMessage = null; 
             if (gshTemplateExecOutput.getException() != null) {        
