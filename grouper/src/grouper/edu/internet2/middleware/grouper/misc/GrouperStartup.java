@@ -280,23 +280,24 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
+
+        started = true;
+        GcDbAccess.setGrouperIsStarted(false);
+        finishedStartupSuccessfully = false;
+
+        {
+          int delaySeconds = GrouperHibernateConfig.retrieveConfig().propertyValueInt("grouper.start.delay.seconds", 0);
+          if (delaySeconds > 0) {
+            LOG.error("Delaying start by " + delaySeconds + " seconds");
+            GrouperUtil.sleep(GrouperUtil.intValue(delaySeconds) * 1000);
+          }
+        }
         
         GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
           
           @Override
           public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             GrouperConfigHibernate.registerDatabaseCache();
-            
-            {
-              int delaySeconds = GrouperHibernateConfig.retrieveConfig().propertyValueInt("grouper.start.delay.seconds", 0);
-              if (delaySeconds > 0) {
-                LOG.error("Delaying start by " + delaySeconds + " seconds");
-                GrouperUtil.sleep(GrouperUtil.intValue(delaySeconds) * 1000);
-              }
-            }
-            GcDbAccess.setGrouperIsStarted(false);
-            started = true;
-            finishedStartupSuccessfully = false;
             
             printConfigOnce();
         
