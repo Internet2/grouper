@@ -708,34 +708,43 @@ public class GrouperProvisionerGrouperSyncDao {
     for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      
+      if (gcGrouperSyncMember == null) {
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().debugMapAdd("gcGrouperSyncMemberDeleteMissing", 1);
+      }
+
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetEntity.getException() == null && GrouperUtil.booleanValue(grouperTargetEntity.getProvisioned(), false)) {
-        gcGrouperSyncMember.setInTarget(false);
-        gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
-        //gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
-        gcGrouperSyncMember.setErrorMessage(null);
-        gcGrouperSyncMember.setErrorTimestamp(null);
-        if (includeMembershipsIfApplicable) {
-          //see if all attributes were synced
-          if (GrouperProvisioningBehaviorMembershipType.entityAttributes 
-              == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
+        if (gcGrouperSyncMember != null) {
+          gcGrouperSyncMember.setInTarget(false);
+          gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
+          //gcGrouperSyncMember.setLastUserMetadataSync(nowTimestamp);
+          gcGrouperSyncMember.setErrorMessage(null);
+          gcGrouperSyncMember.setErrorTimestamp(null);
+          if (includeMembershipsIfApplicable) {
+            //see if all attributes were synced
+            if (GrouperProvisioningBehaviorMembershipType.entityAttributes 
+                == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+              boolean fullSyncSuccess = true;
+              // see if all attributes were processed
+              for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
+                if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
+                  fullSyncSuccess = false;
+                  break;
+                }
               }
-            }
-            if (fullSyncSuccess) {
-              //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+              if (fullSyncSuccess) {
+                //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+              }
             }
           }
         }
       } else {
-        gcGrouperSyncMember.setErrorMessage(grouperTargetEntity.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetEntity.getException()));
-        gcGrouperSyncMember.setErrorTimestamp(nowTimestamp);
+        if (gcGrouperSyncMember != null) {
+          gcGrouperSyncMember.setErrorMessage(grouperTargetEntity.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetEntity.getException()));
+          gcGrouperSyncMember.setErrorTimestamp(nowTimestamp);
+        }
         this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }
@@ -753,38 +762,45 @@ public class GrouperProvisionerGrouperSyncDao {
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup == null) {
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().debugMapAdd("gcGrouperSyncGroupDeleteMissing", 1);
+      }
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetGroup.getException() == null && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
-        gcGrouperSyncGroup.setInTarget(false);
-        gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);
-        //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
-        gcGrouperSyncGroup.setErrorMessage(null);
-        gcGrouperSyncGroup.setErrorTimestamp(null);
-        if (includeMembershipsIfApplicable) {
-          //see if all attributes were synced
-          if (GrouperProvisioningBehaviorMembershipType.groupAttributes 
-              == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            boolean fullSyncSuccess = true;
-            // see if all attributes were processed
-            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetGroup.getInternal_objectChanges())) {
-              if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-                fullSyncSuccess = false;
-                break;
+        if (gcGrouperSyncGroup != null) {
+          gcGrouperSyncGroup.setInTarget(false);
+          gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);
+          //gcGrouperSyncGroup.setLastGroupMetadataSync(nowTimestamp);
+          gcGrouperSyncGroup.setErrorMessage(null);
+          gcGrouperSyncGroup.setErrorTimestamp(null);
+          if (includeMembershipsIfApplicable) {
+            //see if all attributes were synced
+            if (GrouperProvisioningBehaviorMembershipType.groupAttributes 
+                == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+              boolean fullSyncSuccess = true;
+              // see if all attributes were processed
+              for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetGroup.getInternal_objectChanges())) {
+                if (provisioningObjectChange.getException() != null || !GrouperUtil.booleanValue(provisioningObjectChange.getProvisioned(), false)) {
+                  fullSyncSuccess = false;
+                  break;
+                }
               }
-            }
-
-            if (fullSyncSuccess) {
-              if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipRecalc().contains(gcGrouperSyncGroup.getGroupId())) {
-                gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
-                gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
+  
+              if (fullSyncSuccess) {
+                if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc().getGroupUuidsForGroupMembershipRecalc().contains(gcGrouperSyncGroup.getGroupId())) {
+                  gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
+                  gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
+                }
               }
             }
           }
         }
       } else {
-        gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
-        gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+        if (gcGrouperSyncGroup != null) {
+          gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
+          gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
+        }
         this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }
@@ -800,16 +816,25 @@ public class GrouperProvisionerGrouperSyncDao {
     for (ProvisioningMembership grouperTargetMembership : GrouperUtil.nonNull(grouperTargetMembershipsToInsert)) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership.getProvisioningMembershipWrapper();
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
+      if (gcGrouperSyncMembership == null) {
+        this.getGrouperProvisioner().getGrouperProvisioningOutput().debugMapAdd("gcGrouperSyncMembershipDeleteMissing", 1);
+      }
+
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
   
       if (grouperTargetMembership.getException() == null && GrouperUtil.booleanValue(grouperTargetMembership.getProvisioned(), false)) {
-        gcGrouperSyncMembership.setInTarget(false);
-        gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
-        gcGrouperSyncMembership.setErrorMessage(null);
-        gcGrouperSyncMembership.setErrorTimestamp(null);
+        if (gcGrouperSyncMembership != null) {
+          gcGrouperSyncMembership.setInTarget(false);
+          gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+          gcGrouperSyncMembership.setErrorMessage(null);
+          gcGrouperSyncMembership.setErrorTimestamp(null);
+        }
       } else {
-        gcGrouperSyncMembership.setErrorMessage(grouperTargetMembership.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetMembership.getException()));
-        gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
+        if (gcGrouperSyncMembership != null) {
+          gcGrouperSyncMembership.setErrorMessage(grouperTargetMembership.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetMembership.getException()));
+          gcGrouperSyncMembership.setErrorTimestamp(nowTimestamp);
+        }
         this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithDeleteErrors(1);
       }
     }

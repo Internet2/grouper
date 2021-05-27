@@ -460,13 +460,17 @@ public abstract class GrouperProvisioner {
   /**
    * provisioning output
    */
-  private GrouperProvisioningOutput grouperProvisioningOutput = new GrouperProvisioningOutput();
+  private GrouperProvisioningOutput grouperProvisioningOutput = null;
   
   /**
    * provisioning output
    * @return output
    */
   public GrouperProvisioningOutput getGrouperProvisioningOutput() {
+    if (this.grouperProvisioningOutput == null) {
+      this.grouperProvisioningOutput = new GrouperProvisioningOutput();
+      this.grouperProvisioningOutput.setGrouperProvisioner(this);
+    }
     return this.grouperProvisioningOutput;
   }
 

@@ -4,9 +4,11 @@
  */
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -476,6 +478,8 @@ public class GrouperProvisioningOutput {
    * message
    */
   private String message;
+
+  private GrouperProvisioner grouperProvisioner = null;
   
   /**
    * @return the message
@@ -496,6 +500,29 @@ public class GrouperProvisioningOutput {
     hib3GrouperLoaderLog.setInsertCount(this.insert);
     hib3GrouperLoaderLog.setInsertCount(this.update);
     hib3GrouperLoaderLog.setTotalCount(this.totalCount);
+  }
+
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
+  /**
+   * increment a value in the debug map
+   * @param key
+   * @param value
+   */
+  public void debugMapAdd(String key, int value) {
+    
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    
+    Integer currentValue = GrouperUtil.defaultIfNull((Integer)debugMap.get(key), 0);
+    
+    debugMap.put(key, currentValue + value);
+    
   }
   
 }
