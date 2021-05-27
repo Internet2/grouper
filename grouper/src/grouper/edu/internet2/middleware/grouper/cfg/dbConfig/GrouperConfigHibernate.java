@@ -590,7 +590,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
       pit.setValueToSave(config.retrieveValue());
     }
     
-    pit.setLastUpdatedDb(config.getLastUpdatedDb());
+    pit.setLastUpdatedDb(System.currentTimeMillis());
     pit.setConfigVersionIndex(config.getConfigVersionIndex());
     pit.setPreviousConfigValueDb(previousConfigValue);
     pit.setPreviousConfigValueClobDb(previousConfigValueClob);
