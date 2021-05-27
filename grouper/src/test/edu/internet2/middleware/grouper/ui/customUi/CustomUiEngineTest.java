@@ -394,7 +394,7 @@ public class CustomUiEngineTest extends GrouperTest {
     }
 
     // migrate from legacy attributes to new custom ui config
-    new CustomUiEngine().createCustomUiConfig(o365twoStepSelfEnrolled, "newTestConfig");
+    new CustomUiEngine().createCustomUiConfig(o365twoStepSelfEnrolled, "newTestConfig", true);
     
     //Then
     CustomUiConfig customUiConfigBean = new CustomUiEngine().retrieveCustomUiConfigBean(o365twoStepSelfEnrolled);

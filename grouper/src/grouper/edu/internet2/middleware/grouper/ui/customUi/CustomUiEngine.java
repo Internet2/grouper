@@ -721,11 +721,11 @@ public class CustomUiEngine {
   public static void main(String[] args) {
     GrouperSession.startRootSession();
     Group group = GroupFinder.findByUuid("f3b4ff574c434259af7e28cae5b477c4", true);
-    new CustomUiEngine().createCustomUiConfig(group, "newConfigGrouperDemo");
+    new CustomUiEngine().createCustomUiConfig(group, "newConfigGrouperDemo", true);
   }
   
   //create custom ui config based on the attributes off of the old attributes on the group
-  public void createCustomUiConfig(Group group, String customUiConfigId) {
+  public void createCustomUiConfig(Group group, String customUiConfigId, boolean deleteAttributes) {
     
     Pattern pattern = Pattern.compile("grouperCustomUI\\." + customUiConfigId + "\\.[.]+");
     Map<String, String> customUiConfigProperties = GrouperConfig.retrieveConfig().propertiesMap(pattern);
@@ -880,9 +880,11 @@ public class CustomUiEngine {
 
     }
     
-    Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().retrieveAssignments(CustomUiAttributeNames.retrieveAttributeDefNameMarker());
-    for (AttributeAssign attributeAssign: attributeAssigns) {
-      attributeAssign.delete();
+    if (deleteAttributes) {
+      Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().retrieveAssignments(CustomUiAttributeNames.retrieveAttributeDefNameMarker());
+      for (AttributeAssign attributeAssign: attributeAssigns) {
+        attributeAssign.delete();
+      }
     }
   }
   
