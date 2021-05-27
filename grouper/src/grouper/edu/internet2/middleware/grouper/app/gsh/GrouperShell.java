@@ -170,6 +170,8 @@ public class GrouperShell {
 	
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
+    GrouperStartup.waitForGrouperStartup();
+
     //turn on logging
     Log bshLogger = LogFactory.getLog("bsh");
     if (bshLogger.isTraceEnabled()) {

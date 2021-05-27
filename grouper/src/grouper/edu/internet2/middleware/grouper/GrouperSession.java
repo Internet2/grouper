@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -445,6 +447,11 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * grouper system member uuid
+   */
+  private static final String GROUPER_SYSTEM_MEMBER_UUID = "41b11bed121c4248bdaa8866b981a5b3";
+  
+  /**
    * Start a session for interacting with the Grouper API.  This has 
    * threadlocal implications, so start and stop these hierarchically,
    * do not alternate.  If you need to, use the callback inverse of control.
@@ -478,21 +485,16 @@ public class GrouperSession implements Serializable {
     }
     GrouperSession s = null;
     try {
-      Member            m = null;
       StopWatch sw = new StopWatch();
       sw.start();
-  
-      //  this will create the member if it doesn't already exist
-      m   = MemberFinder.internal_findBySubject(subject, null, true); 
-      s   =  new GrouperSession();
       
+      s   =  new GrouperSession();
+      s.setSubject(subject);
+      s.getMember();
       if (LOG.isDebugEnabled()) {
         debugMap.put("hash", s.hashCode());
       }
-      
-        s.setMemberUuid( m.getUuid() );
         s.setStartTimeLong( new Date().getTime() );
-        s.setSubject(subject);
         s.setUuid( GrouperUuid.getUuid() );
       
       sw.stop();
@@ -628,16 +630,42 @@ public class GrouperSession implements Serializable {
     if ( this.cachedMember != null ) {
       return this.cachedMember;
     }
-    try {
-      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getMemberUuid(), true );
-      this.cachedMember = m;
-      return this.cachedMember;
+    
+    //  this will create the member if it doesn't already exist
+    if (GrouperStartup.isFinishedStartupSuccessfully()) {
+      if (InternalSourceAdapter.instance().rootSubject(subject)) {
+        // if root, then have a default uuid
+        this.cachedMember   = MemberFinder.internal_findBySubject(subject, GROUPER_SYSTEM_MEMBER_UUID, true);
+      } else {
+        
+        try {
+          this.cachedMember   = MemberFinder.internal_findBySubject(subject, null, true);
+        }
+        catch (MemberNotFoundException eShouldNeverHappen) {
+          throw new IllegalStateException( 
+            "this should never happen: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
+          );
+        }
+      }
+    } else {
+      //try to get it
+      try {
+        this.cachedMember   = MemberFinder.internal_findBySubject(subject, null, true);
+      } catch (Exception e) {
+        // ignore, grouper hasnt started yet, so ignore
+        LOG.debug("error finding subject: " + SubjectHelper.getPretty(this.subject), e);
+      }
+      if (this.cachedMember == null && InternalSourceAdapter.instance().rootSubject(subject)) {
+        // if we havent started yet, hard code this...
+        this.cachedMember   = new Member();
+        this.cachedMember.setSubjectId(subject.getId());
+        this.cachedMember.setSubjectSourceId(subject.getSourceId());
+        this.cachedMember.setUuid(GROUPER_SYSTEM_MEMBER_UUID);
+      }
     }
-    catch (MemberNotFoundException eShouldNeverHappen) {
-      throw new IllegalStateException( 
-        "this should never happen: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
-      );
-    }
+    
+    
+    return this.cachedMember;
   } 
 
   /**
@@ -830,13 +858,9 @@ public class GrouperSession implements Serializable {
    * @since   1.2.0
    */
   public String getMemberUuid() {
-    
-    //there are problems during configuration where the memberUuid is not correct...
-    if (GrouperCheckConfig.inCheckConfig) {
-      Member m   = MemberFinder.internal_findBySubject(subject, null, true); 
-      this.memberUUID = m.getId();
+    if (StringUtils.isBlank(this.memberUUID)) {
+      this.memberUUID = this.getMember().getUuid();
     }
-
     return this.memberUUID;
   }
 

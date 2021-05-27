@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -322,7 +324,19 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 	  return name;
   }
   
-  private String getRootName() {
+  /**
+   * if root subject
+   * @param subject
+   * @return if root
+   */
+  public boolean rootSubject(Subject subject) {
+    if (subject == null) {
+      return false;
+    }
+    return StringUtils.equals(this.getId(), subject.getSourceId()) && StringUtils.equals(this.getRootName(), subject.getId());
+  }
+  
+  public String getRootName() {
 	  String name = GrouperConfig.retrieveConfig().propertyValueString("subject.internal.groupersystem.name");
 	  if(name==null || "".equals(name)) {
 		  name = GrouperConfig.ROOT_NAME;

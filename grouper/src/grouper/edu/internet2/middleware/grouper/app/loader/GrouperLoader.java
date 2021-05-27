@@ -122,7 +122,8 @@ public class GrouperLoader {
 
     //printAllSupportDdlUtilsPlatforms();
     GrouperStartup.startup();
-    
+    GrouperStartup.waitForGrouperStartup();
+
     //make sure properties file is there
     GrouperCheckConfig.checkResource("grouper-loader.properties");
     

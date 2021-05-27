@@ -1035,7 +1035,8 @@ public class GrouperServiceJ2ee implements Filter {
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.WS, false, false);
 
     GrouperStartup.startup();
-    
+    GrouperStartup.waitForGrouperStartup();
+
     InstrumentationThread.startThread(GrouperEngineBuiltin.WS, null);
     
     
