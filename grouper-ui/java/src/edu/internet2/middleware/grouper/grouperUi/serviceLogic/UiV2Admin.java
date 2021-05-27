@@ -614,39 +614,39 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-    
+
       //if the user is allowed
       if (!daemonJobsAllowed()) {
         return;
       }
-      
+
       String jobName = request.getParameter("jobName");
-      
+
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
-      
+
       GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
-      
+
       String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
       if (configToDelete.isMultiple()) {
         configToDelete.setConfigId(configId);
       }
-      
+
       configToDelete.deleteConfig(true);
-      
+
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       JobKey jobKey = new JobKey(jobName);
       scheduler.deleteJob(jobKey);
-      
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
-      
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigDeleteSuccess")));
-      
-      } catch(SchedulerException e) {
-        throw new RuntimeException("Error removing job from scheduler");
-      } finally {
+
+    } catch(SchedulerException e) {
+      throw new RuntimeException("Error removing job from scheduler", e);
+    } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
