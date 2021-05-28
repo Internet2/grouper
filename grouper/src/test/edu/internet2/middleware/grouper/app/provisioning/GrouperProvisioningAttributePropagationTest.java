@@ -2392,12 +2392,16 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
   }
   
   private void runFullJob() {
-    GrouperProvisioningOutput grouperProvisioningOutput = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest").provision(GrouperProvisioningType.fullProvisionFull);
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
+    grouperProvisioner.getGrouperProvisioningOutput(); // make sure to initialize
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   }
   
   private void runFullJob2() {
-    GrouperProvisioningOutput grouperProvisioningOutput = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest2").provision(GrouperProvisioningType.fullProvisionFull);
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest2");
+    grouperProvisioner.getGrouperProvisioningOutput(); // make sure to initialize
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   }
 }
