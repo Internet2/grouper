@@ -571,7 +571,7 @@ public abstract class GrouperProvisioner {
         @Override
         public void run() {
 
-          logPeriodically(debugMap, GrouperProvisioner.this.grouperProvisioningOutput);
+          logPeriodically(debugMap, GrouperProvisioner.this.getGrouperProvisioningOutput());
           
         }
         
@@ -586,7 +586,7 @@ public abstract class GrouperProvisioner {
     
       this.retrieveGrouperProvisioningLogic().provision();
       
-      return this.grouperProvisioningOutput;
+      return this.getGrouperProvisioningOutput();
     } catch (RuntimeException re) {
       if (gcGrouperSyncLog != null) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
@@ -625,8 +625,8 @@ public abstract class GrouperProvisioner {
     }
 
     // TODO sum with dao, hibernate, and client
-    this.grouperProvisioningOutput.setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
-    debugMap.put("queryCount", this.grouperProvisioningOutput.getQueryCount());
+    this.getGrouperProvisioningOutput().setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
+    debugMap.put("queryCount", this.getGrouperProvisioningOutput().getQueryCount());
     
     int durationMillis = (int)((System.nanoTime()-this.startedNanos)/1000000);
     debugMap.put("tookMillis", durationMillis);
@@ -651,7 +651,7 @@ public abstract class GrouperProvisioner {
     
     // already set total
     //gcTableSyncOutput.setTotal();
-    this.grouperProvisioningOutput.setMessage(debugString);
+    this.getGrouperProvisioningOutput().setMessage(debugString);
 
     this.getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
 
