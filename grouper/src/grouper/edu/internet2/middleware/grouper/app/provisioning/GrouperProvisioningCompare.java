@@ -717,6 +717,10 @@ public class GrouperProvisioningCompare {
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
           
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.isDelete() ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+        grouperTargetGroup = null;
+      }
+      
       ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
       
       Object grouperMatchingId = grouperTargetGroup == null ? null : grouperTargetGroup.getMatchingId();
