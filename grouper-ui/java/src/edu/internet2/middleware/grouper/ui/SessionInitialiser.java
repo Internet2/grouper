@@ -271,11 +271,11 @@ public class SessionInitialiser {
     if (module != null)
       module = module.replaceAll("^/", "");
     ResourceBundle defaultInit = ResourceBundle
-        .getBundle("/resources/init");
+        .getBundle("resources/init");
     if (module == null || module.equals("")) {
       module = defaultInit.getString("default.module");
     }
-    ResourceBundle moduleInit = ResourceBundle.getBundle("/resources/"
+    ResourceBundle moduleInit = ResourceBundle.getBundle("resources/"
         + module + "/init");
     if (locale == null || locale.equals("")) {
       locale = moduleInit.getString("default.locale");

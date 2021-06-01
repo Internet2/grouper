@@ -52,6 +52,11 @@ public class ImportSubjectWrapper implements Subject {
   /** this is the row of the file, row 1 is the header */
   private int row;
   
+  
+  public CSVRecord getRowData() {
+    return rowData;
+  }
+
   /** keep row data for error message */
   private CSVRecord rowData;
   
@@ -357,5 +362,16 @@ public class ImportSubjectWrapper implements Subject {
     throw new RuntimeException("Dont call this method on an import subject");
   }
 
-  
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

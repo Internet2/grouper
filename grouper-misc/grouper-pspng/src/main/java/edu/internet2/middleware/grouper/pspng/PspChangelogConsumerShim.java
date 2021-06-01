@@ -27,6 +27,7 @@ import org.slf4j.MDC;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.pspng.FullSyncProvisioner.QUEUE_TYPE;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -60,18 +62,19 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         if (args.length != 1) {
-          throw new RuntimeException("Pass in change log consumer name");
+          throw new RuntimeException("Pass in job name, e.g. CHANGE_LOG_consumer_pspng_activedirectoryFull");
         }
         
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_pspng_oneprodFull");
+        hib3GrouploaderLog.setJobName(args[0]);
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
 //        hib3GrouploaderLog.store();
         
         try {
+          String consumerName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
 
-          ChangeLogHelper.processRecords(args[0], hib3GrouploaderLog, new PspChangelogConsumerShim());
+          ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, new PspChangelogConsumerShim());
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
           
@@ -86,23 +89,76 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
     });
   }
   
+  private Provisioner provisioner = null;
+  
+  
+  
+  
+  public Provisioner getProvisioner() {
+    return provisioner;
+  }
+
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
+    
     Date batchStartTime = new Date();
-
+    
+    JobStatistics incrementalStats = new JobStatistics();
+    JobStatistics fullSyncStats = new JobStatistics();
     try {
       String consumerName = changeLogProcessorMetadata.getConsumerName();
       MDC.put("why", "CLog/");
       MDC.put("who", consumerName+"/");
       LOG.info("{}: +processChangeLogEntries({})", consumerName, changeLogEntryList.size());
       
-      Provisioner provisioner;
       try {
-        provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
+        this.provisioner = ProvisionerFactory.getIncrementalProvisioner(consumerName);
+
+        long millisLastStoreLog = System.currentTimeMillis();
+        int pspngDontRunChangeLogDuringFullSyncForMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pspngDontRunChangeLogDuringFullSyncForMinutes", 10); 
+
+        if (pspngDontRunChangeLogDuringFullSyncForMinutes > 0) {
+          while (true) {
+            if (FullSyncProvisioner.isFullSyncRunning(this.provisioner.getConfigName())) {
+              
+              GrouperUtil.sleep(5000);
+              
+              if (System.currentTimeMillis() - millisLastStoreLog > 1000*60*pspngDontRunChangeLogDuringFullSyncForMinutes) {
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Waited for full sync for " + pspngDontRunChangeLogDuringFullSyncForMinutes + " minutes, continuing... ");
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+                break;
+              }
+              
+              // heartbeat
+              if (System.currentTimeMillis() - millisLastStoreLog > 1000*60) {
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Waiting for full sync for " + pspngDontRunChangeLogDuringFullSyncForMinutes + " minutes");
+                changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+                millisLastStoreLog = System.currentTimeMillis();
+              }
+            } else {
+              changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage("Full sync done, running... ");
+              changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
+              break;
+            }
+          }
+        }
         
+        Provisioner.allGroupsForProvisionerFromCacheClear(this.provisioner.getConfigName());
+        Provisioner.groupNameToMillisAndProvisionable(this.provisioner.getConfigName()).clear();
+        
+        this.provisioner.setJobStatistics(incrementalStats);
         // Make sure the full syncer is also created and running
-        FullSyncProvisionerFactory.getFullSyncer(provisioner);
+        FullSyncProvisioner fullSyncProvisioner = FullSyncProvisionerFactory.getFullSyncer(provisioner);
+        fullSyncProvisioner.getProvisioner().setJobStatistics(fullSyncStats);
+
+        for (QUEUE_TYPE queue_type : QUEUE_TYPE.values()) {
+          if (queue_type.usesGrouperMessagingQueue) {
+            fullSyncProvisioner.setUpGrouperMessagingQueue(queue_type);
+          }
+        }
+
+
       } catch (PspException e1) {
         LOG.error("Provisioner {} could not be created", consumerName, e1);
         throw new RuntimeException("provisioner could not be created: " + e1.getMessage());
@@ -157,6 +213,10 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
         LOG.warn("Provisioning batch summary: {}", summary);
       else
         LOG.info("Provisioning batch summary: {}", summary);
+      
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addInsertCount(incrementalStats.insertCount.get() + fullSyncStats.insertCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addDeleteCount(incrementalStats.deleteCount.get() + fullSyncStats.deleteCount.get());
+      changeLogProcessorMetadata.getHib3GrouperLoaderLog().addTotalCount(workItems.size());
       
       changeLogProcessorMetadata.getHib3GrouperLoaderLog().appendJobMessage(summary.toString());
       return lastSuccessfulChangelogEntry;

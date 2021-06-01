@@ -88,6 +88,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.insertCount.addAndGet(1);
+    }
+
     scheduleUserModification(ldapUser, AttributeModificationType.ADD, Arrays.asList(attributeValue));
   }
 
@@ -101,6 +106,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     }
     
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
+
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
 
     scheduleUserModification(ldapUser, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
   }
@@ -142,7 +152,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     extraMatches_dnList.removeAll(correctMembers_dnList);
 
     LOG.info("{}: There are {} users that need the attribute removed", getDisplayName(), extraMatches_dnList.size());
-    stats.deleteCount.set(extraMatches_dnList.size());
+    stats.deleteCount.addAndGet(extraMatches_dnList.size());
     
     for (String extraMatch_dn : extraMatches_dnList) {
       getLdapSystem().performLdapModify(
@@ -160,7 +170,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     missingMatches_dnList.removeAll(currentMatches_dnList);
 
     LOG.info("{}: There are {} users that need the attribute added", getDisplayName(), missingMatches_dnList.size());
-    stats.insertCount.set(missingMatches_dnList.size());
+    stats.insertCount.addAndGet(missingMatches_dnList.size());
 
     for (String missingMatch_dn : missingMatches_dnList) {
       getLdapSystem().performLdapModify(
@@ -277,6 +287,11 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       throws PspException {
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
+
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
 
     purgeAttributeValue(attributeName, attributeValue, new JobStatistics());
   }

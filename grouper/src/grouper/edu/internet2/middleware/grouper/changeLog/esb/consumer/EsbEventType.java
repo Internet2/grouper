@@ -16,159 +16,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum EsbEventType {
 
-  /** full sync */
-  PROVISIONING_SYNC_FULL {
-
-    /**
-     * 
-     * @param provisionerName
-     * @param syncType
-     * @param blocking
-     * @return esbevent
-     */
-    public EsbEvent createEvent(String provisionerName, String syncType, boolean blocking) {
-      EsbEvent esbEvent = new EsbEvent();
-      if(!StringUtils.isBlank(provisionerName)) {
-        esbEvent.setProvisionerName(provisionerName);
-      }
-      if (!StringUtils.isBlank(syncType)) {
-        esbEvent.setProvisionerSyncType(syncType);
-      }
-      esbEvent.setProvisionerBlocking(blocking);
-      return esbEvent;
-    }
-    
-    @Override
-    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
-        ChangeLogEntry changeLogEntry) {
-
-      throw new RuntimeException("Not a change log event");
-      
-    }
-  }, 
-  
-  /** person sync */
-  PROVISIONING_SYNC_USER {
-
-    /**
-     * 
-     * @param provisionerName required
-     * @param memberId required
-     * @param subjectId optional
-     * @param sourceId optional
-     * @return esbevent
-     */
-    public EsbEvent createEvent(String provisionerName, String memberId, String subjectId, String sourceId) {
-      EsbEvent esbEvent = new EsbEvent();
-      esbEvent.setEventType(PROVISIONING_SYNC_USER.name());
-      if(!StringUtils.isBlank(provisionerName)) {
-        esbEvent.setProvisionerName(provisionerName);
-      }
-      if (!StringUtils.isBlank(memberId)) {
-        esbEvent.setGroupId(memberId);
-      }
-      if (!StringUtils.isBlank(subjectId)) {
-        esbEvent.setGroupId(subjectId);
-      }
-      if (!StringUtils.isBlank(sourceId)) {
-        esbEvent.setGroupId(sourceId);
-      }
-      
-      return esbEvent;
-    }
-    
-    @Override
-    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
-        ChangeLogEntry changeLogEntry) {
-
-      throw new RuntimeException("Not a change log event");
-      
-    }
-  }, 
-  
-  /** group sync */
-  PROVISIONING_SYNC_GROUP {
-
-    /**
-     * 
-     * @param provisionerName required
-     * @param groupId required
-     * @param groupName optional
-     * @return esbevent
-     */
-    public EsbEvent createEvent(String provisionerName, String groupId, String groupName) {
-      EsbEvent esbEvent = new EsbEvent();
-      esbEvent.setEventType(PROVISIONING_SYNC_GROUP.name());
-      if(!StringUtils.isBlank(provisionerName)) {
-        esbEvent.setProvisionerName(provisionerName);
-      }
-      if (!StringUtils.isBlank(groupId)) {
-        esbEvent.setGroupId(groupId);
-      }
-      if (!StringUtils.isBlank(groupName)) {
-        esbEvent.setGroupId(groupName);
-      }
-      
-      return esbEvent;
-    }
-    
-    @Override
-    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
-        ChangeLogEntry changeLogEntry) {
-
-      throw new RuntimeException("Not a change log event");
-      
-    }
-  }, 
-  
-  /** full sync */
-  PROVISIONING_SYNC_MEMBERSHIP {
-
-    /**
-     * 
-     * @param provisionerName required
-     * @param groupId required
-     * @param groupName optional
-     * @param memberId required
-     * @param subjectId optional
-     * @param sourceId optional
-     * @return esbevent
-     */
-    public EsbEvent createEvent(String provisionerName, String groupId, String groupName, String memberId, String subjectId, String sourceId) {
-      EsbEvent esbEvent = new EsbEvent();
-      esbEvent.setEventType(PROVISIONING_SYNC_MEMBERSHIP.name());
-      if(!StringUtils.isBlank(provisionerName)) {
-        esbEvent.setProvisionerName(provisionerName);
-      }
-      if (!StringUtils.isBlank(groupId)) {
-        esbEvent.setGroupId(groupId);
-      }
-      if (!StringUtils.isBlank(groupName)) {
-        esbEvent.setGroupId(groupName);
-      }
-      if (!StringUtils.isBlank(memberId)) {
-        esbEvent.setGroupId(memberId);
-      }
-      if (!StringUtils.isBlank(subjectId)) {
-        esbEvent.setGroupId(subjectId);
-      }
-      if (!StringUtils.isBlank(sourceId)) {
-        esbEvent.setGroupId(sourceId);
-      }
-      
-      return esbEvent;
-    }
-    
-    @Override
-    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
-        ChangeLogEntry changeLogEntry) {
-
-      throw new RuntimeException("Not a change log event");
-      
-    }
-  }, 
-  
-
   /** ATTRIBUTE_ASSIGN_ADD event */
   ATTRIBUTE_ASSIGN_ADD {
 
@@ -348,6 +195,7 @@ public enum EsbEventType {
       event.setGroupId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.id));
       event.setName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name));
       event.setGroupName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.name));
+      event.setGroupIdIndex(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.idIndex));
       event.setParentStemId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.parentStemId));
       event.setDisplayName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.displayName));
       event.setDescription(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.description));
@@ -369,6 +217,7 @@ public enum EsbEventType {
       event.setGroupId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id));
       event.setName(retrieveLabelValue(changeLogEntry,ChangeLogLabels.GROUP_DELETE.name));
       event.setGroupName(retrieveLabelValue(changeLogEntry,ChangeLogLabels.GROUP_DELETE.name));
+      event.setGroupIdIndex(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.idIndex));
       event.setParentStemId(retrieveLabelValue(changeLogEntry,
           ChangeLogLabels.GROUP_DELETE.parentStemId));
       event.setDisplayName(retrieveLabelValue(changeLogEntry,

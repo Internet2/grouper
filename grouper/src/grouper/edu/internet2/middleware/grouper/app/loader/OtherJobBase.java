@@ -17,6 +17,11 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -28,10 +33,13 @@ import org.quartz.JobExecutionException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 /**
@@ -40,9 +48,211 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public abstract class OtherJobBase implements Job {
 
   /**
+   * other job input
+   */
+  private OtherJobInput otherJobInput = null;
+  
+  /**
+   * other job input
+   * @return
+   */
+  public OtherJobInput getOtherJobInput() {
+    return otherJobInput;
+  }
+
+  /**
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(OtherJobBase.class);
+
+  /**
+   * only update for 24 hours, then evict
+   * other job log updaters --> otherjob class, millis1970 was added as updater, millis1970 last updated
+   */
+  private static Map<OtherJobLogUpdater, MultiKey> otherJobLogUpdaters = new ConcurrentHashMap<OtherJobLogUpdater, MultiKey>();
+
+  /**
+   * this is true when work is happening
+   */
+  private static boolean otherJobLogUpdaterWorking = false;
+  
+  /**
+   * this is true when work is happening
+   */
+  private static Thread otherJobLogUpdaterThread = null;
+  
+  /**
+   * 
+   * @param otherJobInput
+   */
+  public void setOtherJobInput(OtherJobInput otherJobInput) {
+    this.otherJobInput = otherJobInput;
+  }
+
+  public static void otherJobLogUpdaterInit() {
+    if (otherJobLogUpdaterThread == null) {
+      synchronized (OtherJobBase.class) {
+        if (otherJobLogUpdaterThread == null) {
+          otherJobLogUpdaterThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+              try {
+                long millisLastStarted = -1;
+                
+                while (true) {
+                  
+                  otherJobLogUpdaterWorking = false;
+
+                  // allow an exit
+                  if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperOtherJobLogUpdaterRun", true)) {
+                    return;
+                  }
+                  
+                  int secondsToUpdateLoaderLog = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.otherJobUpdateLoaderLogDbAfterSeconds", 60);
+                  secondsToUpdateLoaderLog = Math.min(1, secondsToUpdateLoaderLog);
+                  int millisToUpdateLoaderLog = secondsToUpdateLoaderLog * 1000;
+                  
+                  long sleepForMillis = millisLastStarted <= 0 ? millisToUpdateLoaderLog : (millisToUpdateLoaderLog - (System.currentTimeMillis() - millisLastStarted));
+                  sleepForMillis = Math.min(1, sleepForMillis);
+                  sleepForMillis = Math.max(millisToUpdateLoaderLog, sleepForMillis);
+                  GrouperUtil.sleep(sleepForMillis);
+                  //Systemoutprintln("sleepForMillis: " + sleepForMillis);
+                  millisLastStarted = System.currentTimeMillis();
+                  
+                  // lets see if there is work to do
+                  if (otherJobLogUpdaters.size() > 0) {
+                    
+                    // tell removes to wait
+                    otherJobLogUpdaterWorking = true;
+                    
+                    Iterator<OtherJobLogUpdater> iterator = otherJobLogUpdaters.keySet().iterator();
+                    
+                    List<Hib3GrouperLoaderLog> hib3GrouperLoaderLogsToUpdate = new ArrayList<Hib3GrouperLoaderLog>();
+                    
+                    while (iterator.hasNext()) {
+                      
+                      OtherJobLogUpdater otherJobLogUpdater = iterator.next();
+                      try {
+                        
+                        MultiKey otherJobWhenAddedLastUpdated = otherJobLogUpdaters.get(otherJobLogUpdater);
+                        OtherJobBase otherJobBase = (OtherJobBase)otherJobWhenAddedLastUpdated.getKey(0);
+                        long whenAdded = (Long)otherJobWhenAddedLastUpdated.getKey(1);
+                        long lastUpdated = (Long)otherJobWhenAddedLastUpdated.getKey(2);
+                        
+                        //if added more than 1 day ago lets give up
+                        if (millisLastStarted - whenAdded > 1000 * 60 * 60 * 24L) {
+                          iterator.remove();
+                          continue;
+                        }
+
+                        //if updated recently (less than 29 seconds ago then ignore
+                        if (lastUpdated > 10  && millisLastStarted - lastUpdated < 1000L * Math.min(1, -1 + secondsToUpdateLoaderLog/2)) {
+                          // dont remove just skip
+                          continue;
+                        }
+
+                        // if things arent there just ignore
+                        OtherJobInput otherJobInput = otherJobBase.getOtherJobInput();
+                        if (otherJobInput == null) {
+                          iterator.remove();
+                          continue;
+                        }
+                        Hib3GrouperLoaderLog hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
+                        GrouperLoaderStatus grouperLoaderStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouperLoaderLog.getStatus(), true);
+                        // if the job is not there or its done
+                        if (hib3GrouperLoaderLog == null ||  (grouperLoaderStatus != GrouperLoaderStatus.RUNNING && grouperLoaderStatus != GrouperLoaderStatus.STARTED)) {
+                          iterator.remove();
+                          continue;
+                        }
+                        long thisLogUpdaterStarted = System.currentTimeMillis();
+
+                        //lets update
+                        otherJobLogUpdater.changeLoaderLogJavaObjectWithoutStoringToDb();
+                        
+                        // get again just in case?
+                        hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
+
+                        
+                        if (hib3GrouperLoaderLog == null ||  (grouperLoaderStatus != GrouperLoaderStatus.RUNNING && grouperLoaderStatus != GrouperLoaderStatus.STARTED)) {
+                          iterator.remove();
+                          continue;
+                        }
+
+                        hib3GrouperLoaderLogsToUpdate.add(hib3GrouperLoaderLog);
+
+                        // if something takes longer than a second, then dont include it
+                        if (System.currentTimeMillis() - thisLogUpdaterStarted > 1000) {
+                          iterator.remove();
+                          continue;
+                        }
+
+                      } catch (RuntimeException re) {
+                        LOG.error("Error updating daemon log: " + otherJobLogUpdater, re);
+                        try {
+                          iterator.remove();
+                        } catch (Exception e) {}
+                      }
+                    }
+                    
+                    if (hib3GrouperLoaderLogsToUpdate.size() > 0) {
+                      HibernateSession.byObjectStatic().update(hib3GrouperLoaderLogsToUpdate);
+                    }
+                  }
+                  
+                }
+              } catch (RuntimeException e) {
+                LOG.error("Error in other job log updater", e);
+                // throw into the ether since thread
+                throw e;
+              } finally {
+                otherJobLogUpdaterWorking = false;
+              }
+            }
+          });
+          otherJobLogUpdaterThread.start();  
+          
+        }
+      }
+    }
+    
+
+  }
+  
+  /**
+   * do not register an updater if you are updating this object too...  might be fine but might have some contention.
+   * deregister in finally block
+   * @param otherJobLogUpdater
+   */
+  public void otherJobLogUpdaterRegister(OtherJobLogUpdater otherJobLogUpdater) {
+    
+    otherJobLogUpdaterInit();
+    
+    if (this.getOtherJobInput() == null || this.getOtherJobInput().getHib3GrouperLoaderLog() == null) {
+      // not sure if there is a legitimate case where this could happen
+      LOG.error("Not other job input found when registering other job log updater!");
+      return;
+    }
+    otherJobLogUpdaters.put(otherJobLogUpdater, new MultiKey(this, System.currentTimeMillis(), 
+        GrouperUtil.longValue(this.getOtherJobInput().getHib3GrouperLoaderLog().getLastUpdated(), -1)));
+
+  }
+
+  /**
+   * 
+   * @param otherJobLogUpdater
+   */
+  public void otherJobLogUpdaterDeregister(OtherJobLogUpdater otherJobLogUpdater) {
+    otherJobLogUpdaters.remove(otherJobLogUpdater);
+
+    // the worker will take a break for a minute, in that time, this hib3 log is not being updated
+    for (int i=0;i<600;i++) {
+      if (!otherJobLogUpdaterWorking) {
+        break;
+      }
+      GrouperUtil.sleep(100);
+    }
+  }
 
   /**
    * 
@@ -225,7 +435,7 @@ public abstract class OtherJobBase implements Job {
           otherJobInput.setJobName(jobName);
           otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
           otherJobInput.setGrouperSession(grouperSession);
-          
+          OtherJobBase.this.otherJobInput = otherJobInput;
           OtherJobBase.this.run(otherJobInput);
           
           hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());

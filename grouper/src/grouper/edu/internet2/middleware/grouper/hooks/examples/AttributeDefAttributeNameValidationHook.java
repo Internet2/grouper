@@ -29,12 +29,14 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeDefBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -124,6 +126,15 @@ public class AttributeDefAttributeNameValidationHook extends AttributeDefHooks {
       index++;
     }
 
+    if (index == 0 && GrouperConfig.retrieveConfig().propertyValueBoolean("attributeDef.validateExtensionByDefault", true)) {
+
+      attributeNamePatterns.put("extension", Pattern.compile(GroupAttributeNameValidationHook.defaultRegex));
+      attributeNameRegexes.put("extension", GroupAttributeNameValidationHook.defaultRegex);
+      attributeNameVetoMessages.put("extension", GrouperTextContainer.textOrNull("veto.attributeDef.invalidDefaultChars"));
+
+      index = 1;
+    }
+    
     if (addTestValidation) {
       
       attributeNamePatterns.put(TEST_ATTRIBUTE_NAME, Pattern.compile("^" + TEST_PATTERN + "$"));
@@ -195,7 +206,7 @@ public class AttributeDefAttributeNameValidationHook extends AttributeDefHooks {
         String attributeNameErrorMessage = attributeNameVetoMessages.get(attributeName);
 
         //substitute the attribute name
-        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", attributeValue);
+        attributeNameErrorMessage = StringUtils.replace(attributeNameErrorMessage, "$attributeValue$", GrouperUtil.xmlEscape(attributeValue));
         
         throw new HookVeto("veto.attributeDef.attribute.name.regex." + attributeName, attributeNameErrorMessage);
       }
@@ -209,6 +220,16 @@ public class AttributeDefAttributeNameValidationHook extends AttributeDefHooks {
   public void attributeDefPreUpdate(HooksContext hooksContext, HooksAttributeDefBean preUpdateBean) {
     AttributeDef attributeDef = preUpdateBean.getAttributeDef();
     attributeDefPreChangeAttribute(attributeDef);
+  }
+
+  /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+    attributeNamePatterns.clear();
+    attributeNameRegexes.clear();
+    attributeNameVetoMessages.clear();
   }
   
 }

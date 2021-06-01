@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -43,9 +42,9 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -389,8 +388,25 @@ public class RuleApi {
    * @param subjectToAssign
    * @param privileges can use Privilege.getInstances() to convert from string
    * @return the assignment in case there are edits
+   * @deprecated use the method without actAs inheritAttributeDefPrivileges(Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges
    */
+  @Deprecated
   public static AttributeAssign inheritAttributeDefPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges) {
+    return inheritAttributeDefPrivileges(stem, stemScope, subjectToAssign, privileges);
+  }
+
+  /**
+   * make sure stem privileges are inherited in a attributeDef
+   * @param actAs
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign inheritAttributeDefPrivileges(Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
     
 
@@ -401,9 +417,9 @@ public class RuleApi {
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
 
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+        RuleUtils.ruleActAsSubjectSourceIdName(), SubjectFinder.findRootSubject().getSourceId());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+        RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.attributeDefCreate.name());
 
@@ -436,7 +452,23 @@ public class RuleApi {
     
     return attributeAssign;
   }
-  
+
+  /**
+   * make sure stem privileges are inherited in a stem
+   * @param actAs
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
+   * @deprecated use the method without actAs
+   */
+  @Deprecated
+  public static AttributeAssign inheritFolderPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges) {
+    return inheritFolderPrivileges(stem, stemScope, subjectToAssign, privileges);
+  }
+
   /**
    * make sure stem privileges are inherited in a stem
    * @param actAs
@@ -446,7 +478,7 @@ public class RuleApi {
    * @param privileges can use Privilege.getInstances() to convert from string
    * @return the assignment in case there are edits
    */
-  public static AttributeAssign inheritFolderPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+  public static AttributeAssign inheritFolderPrivileges(Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
@@ -456,9 +488,9 @@ public class RuleApi {
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
   
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+        RuleUtils.ruleActAsSubjectSourceIdName(), SubjectFinder.findRootSubject().getSourceId());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+        RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.stemCreate.name());
     
@@ -500,10 +532,27 @@ public class RuleApi {
    * @param subjectToAssign
    * @param privileges can use Privilege.getInstances() to convert from string
    * @return the assignment in case there are edits
+   * @deprecated use the non actAs method inheritGroupPrivileges(Stem stem, Scope stemScope, 
+   * Subject subjectToAssign, Set<Privilege> privileges)
    */
+  @Deprecated
   public static AttributeAssign inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges) {
-    return inheritGroupPrivileges(actAs, stem, stemScope, subjectToAssign, privileges, null);
+    return inheritGroupPrivileges(stem, stemScope, subjectToAssign, privileges);
+  }
+
+  /**
+   * make sure group privileges are inherited in a stem
+   * @param actAs
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign inheritGroupPrivileges(Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges) {
+    return inheritGroupPrivileges(stem, stemScope, subjectToAssign, privileges, null);
   }
 
   /**
@@ -805,8 +854,26 @@ public class RuleApi {
    * @param privileges can use Privilege.getInstances() to convert from string
    * @param sqlLikeString 
    * @return the assignment in case there are edits
+   * @deprecated use the method without actAs inheritGroupPrivileges(Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges, String sqlLikeString)
    */
+  @Deprecated
   public static AttributeAssign inheritGroupPrivileges(Subject actAs, Stem stem, Scope stemScope, 
+      Subject subjectToAssign, Set<Privilege> privileges, String sqlLikeString) {
+    return inheritGroupPrivileges(stem, stemScope, subjectToAssign, privileges, sqlLikeString);
+  }
+
+  /**
+   * make sure group privileges are inherited in a stem
+   * @param actAs
+   * @param stem
+   * @param stemScope ONE or SUB
+   * @param subjectToAssign
+   * @param privileges can use Privilege.getInstances() to convert from string
+   * @param sqlLikeString 
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign inheritGroupPrivileges(Stem stem, Scope stemScope, 
       Subject subjectToAssign, Set<Privilege> privileges, String sqlLikeString) {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader and updater group
@@ -816,9 +883,9 @@ public class RuleApi {
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
     
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+        RuleUtils.ruleActAsSubjectSourceIdName(), SubjectFinder.findRootSubject().getSourceId());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+        RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
     

@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHasContext, 
-    Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<AttributeDef> {
+    Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<GrouperObject> {
 
   /**
    * get the name of the parent stem
@@ -2132,7 +2132,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
   /**
    * @see Comparable#compareTo(Object)
    */
-  public int compareTo(AttributeDef that) {
+  public int compareTo(GrouperObject that) {
     if (that==null) {
       return 1;
     }

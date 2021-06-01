@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -372,6 +374,7 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
     int count = 1;
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
     
+
     for (PITGrouperConfigHibernate oldPitConfig: oldPitConfigs) {
       
       if (StringUtils.isBlank(oldPitConfig.getPreviousValue())) {
@@ -382,7 +385,9 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
         boolean el = oldPitConfig.getConfigKey().endsWith(".elConfig");
         StringBuilder localMessage = new StringBuilder();
         
-        DbConfigEngine.configurationFileAddEditHelper2(oldPitConfig.getConfigFileName(),
+        ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(oldPitConfig.getConfigFileName(), false);
+        ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+        DbConfigEngine.configurationFileAddEditHelper2(configFileName, configFileName.getConfigFileName(),configFileMetadata,
             oldPitConfig.getConfigKey(), 
             el ? "true": "false", oldPitConfig.getPreviousValue(), oldPitConfig.isConfigEncrypted(), message, 
                 new Boolean[] {false},

@@ -4,13 +4,15 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -19,6 +21,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -37,7 +43,14 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class CustomUiContainer {
-
+  
+  /**
+   * custom ui config user is currently viewing/editing 
+   */
+  private GuiCustomUiConfiguration guiCustomUiConfiguration;
+  
+  private List<GuiCustomUiConfiguration> guiCustomUiConfigurations = new ArrayList<GuiCustomUiConfiguration>();
+  
   /**
    * 
    * @return the value for combobox
@@ -217,6 +230,17 @@ public class CustomUiContainer {
   public CustomUiContainer() {
   }
 
+  /**
+   * 
+   * @return true if should add/remove member
+   */
+  public boolean isManageMembership() {
+    
+    String manageMembership = (String)this.getTextTypeToText().get(CustomUiTextType.manageMembership.name());
+    return GrouperUtil.booleanValue(manageMembership, true);
+
+  }
+  
   /**
    * if should show enroll button
    * @return true if should show
@@ -419,17 +443,169 @@ public class CustomUiContainer {
     this.manager = null;
   }
 
+  private boolean leaveGroupButtonPressed = false;
 
+  
+  
+  
+  public boolean isLeaveGroupButtonPressed() {
+    return leaveGroupButtonPressed;
+  }
+
+
+  
+  public void setLeaveGroupButtonPressed(boolean leaveGroupButtonPressed) {
+    this.leaveGroupButtonPressed = leaveGroupButtonPressed;
+  }
+
+  private boolean joinGroupButtonPressed = false;
+  
+
+  
+  public boolean isJoinGroupButtonPressed() {
+    return joinGroupButtonPressed;
+  }
+
+
+  
+  public void setJoinGroupButtonPressed(boolean joinGroupButtonPressed) {
+    this.joinGroupButtonPressed = joinGroupButtonPressed;
+  }
+
+  public String gshRunScript(Group group, Subject subject, Subject subjectLoggedIn, String scriptPart) {
+    final StringBuilder script = new StringBuilder();
+    
+    Map<String, Object> variables = new TreeMap<String, Object>();
+    
+    variables.putAll(GrouperUtil.nonNull(this.overrideMap()));
+    variables.putAll(GrouperUtil.nonNull(this.customUiEngine.userQueryVariables()));
+
+    GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+
+    for (String key: new TreeSet<String>(variables.keySet())) {
+      
+      Object value = variables.get(key);
+      grouperGroovyInput.assignInputValueObject(key, value);
+      if (value instanceof Number) {
+        script.append("Number " + key + " = (Number)grouperGroovyRuntime.retrieveInputValueObject(\"" + key + "\");\n");
+      } else if (value instanceof Boolean) {
+        script.append("boolean " + key + " = grouperGroovyRuntime.retrieveInputValueBoolean(\"" + key + "\");\n");
+      } else if (value instanceof String) {
+        script.append("String " + key + " = grouperGroovyRuntime.retrieveInputValueString(\"" + key + "\");\n");
+      } else if (value == null) {
+        script.append("Object " + key + " = null;\n");
+      }
+      
+    }
+   return (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        grouperGroovyInput.assignInputValueObject("subject", subject);
+        script.append("Subject subject = (Subject)grouperGroovyRuntime.retrieveInputValueObject(\"subject\");\n");
+        grouperGroovyInput.assignInputValueObject("subjectLoggedIn", subjectLoggedIn);
+        script.append("Subject subjectLoggedIn = (Subject)grouperGroovyRuntime.retrieveInputValueObject(\"subjectLoggedIn\");\n");
+        grouperGroovyInput.assignInputValueObject("group", group);
+        script.append("Group group = (Group)grouperGroovyRuntime.retrieveInputValueObject(\"group\");\n");
+        script.append("GrouperSession grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
+        script.append(scriptPart);
+        grouperGroovyInput.assignScript(script.toString());
+        GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+        GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+        if (grouperGroovyResult.getException() != null) {
+          throw grouperGroovyResult.getException();
+        }
+        if (grouperGroovyResult.getResultCode() != null && grouperGroovyResult.getResultCode() != 0) {
+          throw new RuntimeException(grouperGroovyResult.fullOutput());
+        }
+        return grouperGroovyResult.fullOutput();
+      }
+    });
+  }
+  
   /**
    * @return map
    */
   public Map<String, Object> overrideMap() {
+    
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
     substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
     substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
     substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
+    substituteMap.put("cu_joinGroupButtonPressed", false);
+    substituteMap.put("cu_leaveGroupButtonPressed", false);
+    if (this.joinGroupButtonPressed) {
+      substituteMap.put("cu_joinGroupButtonPressed", true);
+    } else if (this.leaveGroupButtonPressed) {
+      substituteMap.put("cu_leaveGroupButtonPressed", true);
+    }
     return substituteMap;
   }
+  
+  /**
+   * @return true if can view custom ui under misc
+   */
+  public boolean isCanViewCustomUiMisc() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    return false;
+  }
 
+
+  
+  public List<GuiCustomUiConfiguration> getGuiCustomUiConfigurations() {
+    return guiCustomUiConfigurations;
+  }
+
+
+  
+  public void setGuiCustomUiConfigurations(List<GuiCustomUiConfiguration> guiCustomUiConfigurations) {
+    this.guiCustomUiConfigurations = guiCustomUiConfigurations;
+  }
+  
+  public List<CustomUiConfiguration> getAllCustomUiTypes() {
+    return Arrays.asList(new CustomUiConfiguration());
+  }
+
+
+  
+  public GuiCustomUiConfiguration getGuiCustomUiConfiguration() {
+    return guiCustomUiConfiguration;
+  }
+
+
+  
+  public void setGuiCustomUiConfiguration(GuiCustomUiConfiguration guiCustomUiConfiguration) {
+    this.guiCustomUiConfiguration = guiCustomUiConfiguration;
+  }
+  
+  /**
+   * current grouped config index we are looping through
+   */
+  private int index;
+
+  
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
+  
+  private String currentConfigSuffix;
+  
+  public String getCurrentConfigSuffix() {
+    return currentConfigSuffix;
+  }
+
+  
+  public void setCurrentConfigSuffix(String currentConfigSuffix) {
+    this.currentConfigSuffix = currentConfigSuffix;
+  }
   
 }

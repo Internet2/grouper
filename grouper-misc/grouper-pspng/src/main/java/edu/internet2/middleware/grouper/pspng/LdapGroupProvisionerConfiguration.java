@@ -123,7 +123,12 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       needsTargetSystemGroups_defaultValue=true;
       needsTargetSystemUsers_defaultValue=true;
     }
-    
+
+    // Should the membership attribute with null DN value be removed from the
+    // group creation LDIF template if present?
+    private boolean removeNullDnFromGroupLdifCreationTemplate;
+    protected boolean removeNullDnFromGroupLdifCreationTemplate_defaultValue = false;
+
     @Override
     public void readConfiguration() {
       super.readConfiguration();
@@ -195,6 +200,10 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       enableBulkGroupSearching =
             GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "enableBulkGroupSearching", enableBulkGroupSearching_defaultValue);
       LOG.debug("Ldap Group Provisioner {} - Setting enableBulkGroupSearching to {}", provisionerName, enableBulkGroupSearching);
+
+      removeNullDnFromGroupLdifCreationTemplate =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "removeNullDnFromGroupLdifCreationTemplate", removeNullDnFromGroupLdifCreationTemplate_defaultValue);
+      LOG.debug("Ldap Group Provisioner {} - Setting removeNullDnFromGroupLdifCreationTemplate to {}", provisionerName, removeNullDnFromGroupLdifCreationTemplate);
     }
 
     
@@ -232,7 +241,6 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       return allGroupsSearchFilter;
     }
 
-    
     public String getSingleGroupSearchFilter() {
       return singleGroupSearchFilter;
     }
@@ -271,5 +279,5 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       variableMap.put("groupCreationBaseDn", getGroupCreationBaseDn());
     }
 
-
+    public boolean removeNullDnFromGroupLdifCreationTemplate() { return removeNullDnFromGroupLdifCreationTemplate; }
 }

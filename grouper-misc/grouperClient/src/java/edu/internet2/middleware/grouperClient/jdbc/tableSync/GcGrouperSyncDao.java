@@ -52,6 +52,16 @@ public class GcGrouperSyncDao {
    * @param id
    * @return the sync
    */
+  public static GcGrouperSync retrieveById(String id) {
+    return retrieveById(null, id);
+  }
+  
+  /**
+   * select grouper sync by id
+   * @param theConnectionName
+   * @param id
+   * @return the sync
+   */
   public static GcGrouperSync retrieveById(String theConnectionName, String id) {
     theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
     GcGrouperSync gcGrouperSync = new GcDbAccess().connectionName(theConnectionName)
@@ -96,6 +106,16 @@ public class GcGrouperSyncDao {
    * @param provisionerName
    * @return the sync
    */
+  public static GcGrouperSync retrieveByProvisionerName(String provisionerName) {
+    return retrieveByProvisionerName(null, provisionerName);
+  }
+
+  /**
+   * select grouper sync by provisioner name
+   * @param theConnectionName
+   * @param provisionerName
+   * @return the sync
+   */
   public static GcGrouperSync retrieveByProvisionerName(String theConnectionName, String provisionerName) {
     theConnectionName = GcGrouperSync.defaultConnectionName(theConnectionName);
     GcGrouperSync gcGrouperSync = new GcDbAccess().connectionName(theConnectionName)
@@ -105,6 +125,17 @@ public class GcGrouperSyncDao {
       gcGrouperSync.setConnectionName(theConnectionName);
     }
     return gcGrouperSync;
+  }
+
+  /**
+   * retrieve a sync provisioner or create
+   * @param theConnectionName
+   * @param syncEngine
+   * @param provisionerName
+   * @return the sync
+   */
+  public static GcGrouperSync retrieveOrCreateByProvisionerName(String provisionerName) {
+    return retrieveOrCreateByProvisionerName(null, provisionerName);
   }
 
   /**

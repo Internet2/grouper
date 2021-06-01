@@ -7,6 +7,6 @@ package edu.internet2.middleware.grouper.cache;
  */
 public interface GrouperCacheDatabaseClear {
 
-  public void clear();
+  public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput);
   
 }

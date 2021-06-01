@@ -35,9 +35,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -82,6 +79,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -89,6 +87,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Stem}.
@@ -106,7 +106,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testObliterateLots"));
+    TestRunner.run(new TestStem("testGetChildMembershipGroups"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -119,7 +119,7 @@ public class TestStem extends GrouperTest {
   public TestStem(String name) {
     super(name);
   }
-
+  
   /**
    * 
    */
@@ -311,6 +311,48 @@ public class TestStem extends GrouperTest {
 
   }
 
+  public void testStemSaveReplaceAllSettingsFalse() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // test stem, subject 1 and 2 have admin
+    StemSave stemSave = new StemSave(grouperSession).assignName("test")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+        .assignDescription("testDescription");
+    Stem stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    
+    stemSave = new StemSave(grouperSession).assignUuid(stem.getId())
+        .assignDisplayExtension("test1")
+        .assignAlternateName("newAlternateName")
+        .assignReplaceAllSettings(false);
+    stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    assertEquals("test1", stem.getDisplayExtension());
+    assertEquals("newAlternateName", stem.getAlternateName());
+    
+  }
+  
+  public void testStemDelete() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // test stem, subject 1 and 2 have admin
+    StemSave stemSave = new StemSave(grouperSession).assignName("test")
+        .assignCreateParentStemsIfNotExist(true).assignDisplayName("test")
+        .assignDescription("testDescription");
+    Stem stem = stemSave.save();
+    
+    assertEquals("testDescription", stem.getDescription());
+    
+    stemSave = new StemSave(grouperSession).assignUuid(stem.getId())
+        .assignSaveMode(SaveMode.DELETE);
+    stem = stemSave.save();
+    
+    assertEquals(SaveResultType.DELETE, stemSave.getSaveResultType());
+    
+  }
+  
   /**
    * 
    */
@@ -1946,6 +1988,19 @@ public class TestStem extends GrouperTest {
     }
   } // public void testGetPrivsStemmersAndCreatorsAsRoot()
 
+  
+  public void testStemSaveRunAsRoot() {
+    
+    Stem stem = new StemSave().assignRunAsRoot(true).assignName("test78:test79")
+      .assignCreateParentStemsIfNotExist(true).save();
+    
+    GrouperSession rootSession = SessionHelper.getRootSession();
+    Stem foundStem = StemFinder.findByName(rootSession, "test78:test79", true);
+    
+    assertTrue(foundStem != null);
+    
+  }
+  
   /**
    * test static save stem
    * @throws Exception if problem
@@ -2474,7 +2529,16 @@ public class TestStem extends GrouperTest {
     
     s.stop();
   } // public void testSetBadStemDisplayExtension()
-  
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   /**
    * test new performance method for child memberships
    * @throws Exception 

@@ -6,12 +6,21 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperProvisioningSettings {
+  
+  public final static ObjectMapper objectMapper = new ObjectMapper();
+  
+  static {
+    objectMapper.setSerializationInclusion(Include.NON_NULL);
+  }
   
   private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioner\\.(\\w+)\\.class$");
   

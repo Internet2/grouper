@@ -31,9 +31,75 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class Authentication {
   
+  public static void main(String[] args) {
+    System.out.println("indexOfFirst a:b:c:sddfgdfgdfgdfg: " + colonIndexOf("a:b:c:sddfgdfgdfgdfg", true));
+    System.out.println("indexOfLast a:b:c:sddfgdfgdfgdfg: " + colonIndexOf("a:b:c:sddfgdfgdfgdfg", false));
+    System.out.println("unescapeTrue a&#x3a;b&#x3a;c: " + unescapeColons("a&#x3a;b&#x3a;c", true));
+    System.out.println("unescapeFalse a&#x3a;b&#x3a;c: " + unescapeColons("a&#x3a;b&#x3a;c", false));
+    
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Authentication.class);
   
+  /**
+   * 
+   * @param credentials
+   * @return the index of the right colon
+   */
+  public static int colonIndexOf(String credentials) {
+    //  # when splitting basic auth header (which doesnt handle colons well), split on first or last colon
+    //  # first colon means usernames dont have colons, but passwords do. 
+    //  # splitting on last colon means usernames have colons (e.g. local entities), but passwords dont
+    //  # note you can also escape colons
+    //  # {valueType: "boolean", defaultValue : "false"}
+    //  grouper.authentication.splitBasicAuthOnFirstColon = false 
+    boolean splitBasicAuthOnFirstColon = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication.splitBasicAuthOnFirstColon", false);
+    return colonIndexOf(credentials, splitBasicAuthOnFirstColon);
+  }
+  /**
+   * 
+   * @param credentials
+   * @return the index of the right colon
+   */
+  private static int colonIndexOf(String credentials, boolean splitBasicAuthOnFirstColon) {
+    if (splitBasicAuthOnFirstColon) {
+      return credentials.indexOf(":");
+    }
+    return credentials.lastIndexOf(":");
+
+  }
+
+  /**
+   * if configured to unescape colons, unescape colons
+   * @param userOrPass
+   * @return the unescaped user or pass
+   */
+  public static String unescapeColons(String userOrPass) {
+    //  # You can escape colons in usernames and passwords, and they will be unescaped.  escape with &#x3a;
+    //  # set this to false to not unescape colons
+    //  # {valueType: "boolean", defaultValue : "false"}
+    //  grouper.authentication.basicAuthUnescapeColon = true 
+    boolean basicAuthUnescapeColon = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication.basicAuthUnescapeColon", true);
+    return unescapeColons(userOrPass, basicAuthUnescapeColon);
+  }
+
+  /**
+   * if configured to unescape colons, unescape colons
+   * @param userOrPass
+   * @return the unescaped user or pass
+   */
+  private static String unescapeColons(String userOrPass, boolean basicAuthUnescapeColon) {
+    if (userOrPass == null) {
+      return userOrPass;
+    }
+    
+
+    if (basicAuthUnescapeColon) {
+      return StringUtils.replace(userOrPass, "&#x3a;", ":");
+    }
+    return userOrPass;
+  }
   
   public static final String retrieveUsername(final String authHeader) {
     
@@ -49,9 +115,10 @@ public class Authentication {
         if (basic.equalsIgnoreCase("Basic")) {
           
           String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
-          int p = credentials.lastIndexOf(":");
+          int p = colonIndexOf(credentials);
           if (p != -1) {
             String user = credentials.substring(0, p).trim();
+            user = unescapeColons(user);
             return user;
           }
           
@@ -120,11 +187,13 @@ public class Authentication {
         if (basic.equalsIgnoreCase("Basic")) {
           String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
           // last index of since the local entity might contain a colon
-          int p = credentials.lastIndexOf(":");
+          int p = colonIndexOf(credentials);
           if (p != -1) {
             String user = credentials.substring(0, p).trim();
             String password = credentials.substring(p + 1).trim();
-    
+            
+            user = unescapeColons(user);
+            password = unescapeColons(password);
 
             MultiKey cacheKey = null;
             
@@ -152,6 +221,13 @@ public class Authentication {
               String configKey = "grouperPasswordConfigOverride_" + application.name() + "_" + user+ "_pass";
               String configPassword = GrouperHibernateConfig.retrieveConfig().propertyValueString(configKey);
               configPassword = Morph.decryptIfFile(configPassword);
+
+              // if its encrypted, decrypt it
+              try {
+                configPassword = Morph.decrypt(configPassword);
+              } catch (Exception e) {
+                // ignore
+              }
               correctPassword = StringUtils.equals(password, configPassword);
             }
             if (correctPassword && authenticationCache != null) {
@@ -181,10 +257,20 @@ public class Authentication {
       if (StringUtils.isBlank(grouperPasswordSave.getThePassword())) {
         throw new RuntimeException("password is required");
       }
+      
+      String thePassword = grouperPasswordSave.getThePassword();
+      
+      // if its encrypted, decrypt it, otherwise just use it
+      try {
+        thePassword = Morph.decrypt(thePassword);
+      } catch (Exception e) {
+        // ignore, not encrypted
+      }
+      
       if (null == grouperPasswordSave.getApplication()) {
         throw new RuntimeException("application is required");
       }
-      if (grouperPasswordSave.getUsername().contains(":") && grouperPasswordSave.getThePassword().contains(":")) {
+      if (grouperPasswordSave.getUsername().contains(":") && thePassword.contains(":")) {
         throw new RuntimeException("username and password cannot both contain a colon due to http basic auth");
       }
       
@@ -206,7 +292,7 @@ public class Authentication {
       }
       
       String hexSalt = Hex.encodeHexString(salt);
-      String hashedPassword = encryptionType.generateHash(hexSalt+grouperPasswordSave.getThePassword());
+      String hashedPassword = encryptionType.generateHash(hexSalt+thePassword);
       
       String encryptedPassword = Morph.encrypt(hashedPassword);
       

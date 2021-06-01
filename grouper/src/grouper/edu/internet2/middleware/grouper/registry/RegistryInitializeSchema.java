@@ -33,21 +33,18 @@
 package edu.internet2.middleware.grouper.registry;
 import java.io.File;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ddl.DdlVersionable;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
 
 /** 
  * Install the Groups Registry.
@@ -167,6 +164,12 @@ public class RegistryInitializeSchema {
         GrouperDdlUtils.compareFromDbDllVersion = false;
         
         GrouperStartup.ignoreCheckConfig = true;
+
+        if (dropOnly || theDropBeforeCreate) {
+          // dont let morphstring mess up deleting the database
+          GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ignoreMorphErrorsOnStartup", "true");
+          GrouperHibernateConfigClient.retrieveConfig().propertiesOverrideMap().put("grouper.ignoreMorphErrorsOnStartup", "true");
+        }
         
         try {
           GrouperStartup.logErrorStatic = false;

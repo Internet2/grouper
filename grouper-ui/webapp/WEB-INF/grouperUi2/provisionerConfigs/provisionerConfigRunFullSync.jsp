@@ -11,7 +11,7 @@
        <div class="page-header blue-gradient">
        
          <div class="row-fluid">
-           <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h4></div>
+           <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h1></div>
            <div class="span2 pull-right">
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
@@ -45,6 +45,18 @@
                        </select>
                        <br />
                        <span class="description">${textContainer.text['provisionerConfigSynchronousHint']}</span>
+                     </td>
+				</tr>
+				
+				<tr>
+				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigReadOnly']}</label></strong></td>
+				    <td>
+                       <select name="provisionerConfigReadOnly" id="provisionerConfigReadOnlyId" style="width: 30em">
+                         <option value="false">${textContainer.textEscapeXml['provisionerConfigReadOnlyNoOption']}</option>
+                         <option value="true">${textContainer.textEscapeXml['provisionerConfigReadOnlyYesOption']}</option>
+                       </select>
+                       <br />
+                       <span class="description">${textContainer.text['provisionerConfigReadOnlyHint']}</span>
                      </td>
 				</tr>
               

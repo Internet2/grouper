@@ -1229,39 +1229,6 @@ CREATE UNIQUE INDEX pit_rs_start_idx ON grouper_pit_role_set (start_time, source
 
 CREATE INDEX pit_rs_end_idx ON grouper_pit_role_set (end_time);
 
-CREATE TABLE grouper_pit_config
-(
-    id VARCHAR(40) NOT NULL,
-    source_id VARCHAR(40) NOT NULL,
-    config_file_name VARCHAR(100) NOT NULL,
-    config_key VARCHAR(400) NOT NULL,
-    config_value VARCHAR(4000),
-    config_comment VARCHAR(4000),
-    config_file_hierarchy VARCHAR(50) NOT NULL,
-    config_encrypted VARCHAR(1) NOT NULL,
-    config_sequence BIGINT NOT NULL,
-    config_version_index BIGINT,
-    last_updated BIGINT NOT NULL,
-    config_value_clob VARCHAR(10000000),
-    config_value_bytes BIGINT,
-    prev_config_value VARCHAR(4000),
-    prev_config_value_clob VARCHAR(10000000),
-    active VARCHAR(1) NOT NULL,
-    start_time BIGINT NOT NULL,
-    end_time BIGINT,
-    context_id VARCHAR(40),
-    hibernate_version_number BIGINT NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
-
-CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
-
-CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
-
-CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
-
 CREATE TABLE grouper_ext_subj
 (
     uuid VARCHAR(40) NOT NULL,
@@ -1649,7 +1616,9 @@ CREATE TABLE grouper_sync
     incremental_index BIGINT,
     incremental_timestamp TIMESTAMP,
     last_incremental_sync_run TIMESTAMP,
+    last_full_sync_start TIMESTAMP,
     last_full_sync_run TIMESTAMP,
+    last_full_metadata_sync_start TIMESTAMP,
     last_full_metadata_sync_run TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
@@ -1666,6 +1635,7 @@ CREATE TABLE grouper_sync_job
     sync_type VARCHAR(50) NOT NULL,
     job_state VARCHAR(50),
     last_sync_index BIGINT,
+    last_sync_start TIMESTAMP,
     last_sync_timestamp TIMESTAMP,
     last_time_work_was_done TIMESTAMP,
     heartbeat TIMESTAMP,
@@ -1694,7 +1664,9 @@ CREATE TABLE grouper_sync_group
     provisionable_start TIMESTAMP,
     provisionable_end TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
+    last_group_sync_start TIMESTAMP,
     last_group_sync TIMESTAMP,
+    last_group_metadata_sync_start TIMESTAMP,
     last_group_metadata_sync TIMESTAMP,
     group_from_id2 VARCHAR(4000),
     group_from_id3 VARCHAR(4000),
@@ -1704,6 +1676,8 @@ CREATE TABLE grouper_sync_group
     error_message VARCHAR(4000),
     error_timestamp TIMESTAMP,
     last_time_work_was_done TIMESTAMP,
+    error_code VARCHAR(3),
+    metadata_json VARCHAR(4000),
     PRIMARY KEY (id)
 );
 
@@ -1721,7 +1695,7 @@ CREATE INDEX grouper_sync_gr_t2_idx ON grouper_sync_group (grouper_sync_id, grou
 
 CREATE INDEX grouper_sync_gr_t3_idx ON grouper_sync_group (grouper_sync_id, group_to_id3);
 
-CREATE INDEX grouper_sync_gr_er_idx ON grouper_sync_group (grouper_sync_id, error_timestamp);
+CREATE INDEX grouper_sync_gr_er_idx ON grouper_sync_group (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_member
 (
@@ -1739,7 +1713,9 @@ CREATE TABLE grouper_sync_member
     provisionable_start TIMESTAMP,
     provisionable_end TIMESTAMP,
     last_updated TIMESTAMP NOT NULL,
+    last_user_sync_start TIMESTAMP,
     last_user_sync TIMESTAMP,
+    last_user_metadata_sync_start TIMESTAMP,
     last_user_metadata_sync TIMESTAMP,
     member_from_id2 VARCHAR(4000),
     member_from_id3 VARCHAR(4000),
@@ -1749,6 +1725,7 @@ CREATE TABLE grouper_sync_member
     last_time_work_was_done TIMESTAMP,
     error_message VARCHAR(4000),
     error_timestamp TIMESTAMP,
+    error_code VARCHAR(3),
     PRIMARY KEY (id)
 );
 
@@ -1766,9 +1743,9 @@ CREATE INDEX grouper_sync_us_t2_idx ON grouper_sync_member (grouper_sync_id, mem
 
 CREATE INDEX grouper_sync_us_t3_idx ON grouper_sync_member (grouper_sync_id, member_to_id3);
 
-CREATE INDEX grouper_sync_us_er_idx ON grouper_sync_member (grouper_sync_id, error_timestamp);
-
 CREATE INDEX grouper_sync_us_st_gr_idx ON grouper_sync_member (grouper_sync_id, source_id, subject_id);
+
+CREATE INDEX grouper_sync_us_er_idx ON grouper_sync_member (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_membership
 (
@@ -1786,20 +1763,21 @@ CREATE TABLE grouper_sync_membership
     metadata_updated TIMESTAMP,
     error_message VARCHAR(4000),
     error_timestamp TIMESTAMP,
+    error_code VARCHAR(3),
     PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX grouper_sync_mship_gr_idx ON grouper_sync_membership (grouper_sync_group_id, grouper_sync_member_id);
+CREATE UNIQUE INDEX grouper_sync_mship_gr_idx ON grouper_sync_membership (grouper_sync_id, grouper_sync_group_id, grouper_sync_member_id);
 
 CREATE INDEX grouper_sync_mship_me_idx ON grouper_sync_membership (grouper_sync_group_id, last_updated);
 
 CREATE INDEX grouper_sync_mship_sy_idx ON grouper_sync_membership (grouper_sync_id, last_updated);
 
-CREATE INDEX grouper_sync_mship_er_idx ON grouper_sync_membership (grouper_sync_id, error_timestamp);
-
 CREATE INDEX grouper_sync_mship_f1_idx ON grouper_sync_membership (grouper_sync_id, membership_id);
 
 CREATE INDEX grouper_sync_mship_f2_idx ON grouper_sync_membership (grouper_sync_id, membership_id2);
+
+CREATE INDEX grouper_sync_mship_er_idx ON grouper_sync_membership (grouper_sync_id, error_code, error_timestamp);
 
 CREATE TABLE grouper_sync_log
 (
@@ -1807,6 +1785,7 @@ CREATE TABLE grouper_sync_log
     grouper_sync_owner_id VARCHAR(40),
     grouper_sync_id VARCHAR(40),
     status VARCHAR(20),
+    sync_timestamp_start TIMESTAMP,
     sync_timestamp TIMESTAMP,
     description VARCHAR(4000),
     records_processed INTEGER,
@@ -1814,6 +1793,8 @@ CREATE TABLE grouper_sync_log
     job_took_millis INTEGER,
     server VARCHAR(200),
     last_updated TIMESTAMP NOT NULL,
+    description_clob VARCHAR(10000000),
+    description_bytes BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -1860,6 +1841,39 @@ CREATE TABLE grouper_recent_mships_conf
 
 CREATE INDEX grouper_recent_mships_idfr_idx ON grouper_recent_mships_conf (group_uuid_from);
 
+CREATE TABLE grouper_pit_config
+(
+    id VARCHAR(40) NOT NULL,
+    config_file_name VARCHAR(100) NOT NULL,
+    config_key VARCHAR(400) NOT NULL,
+    config_value VARCHAR(4000),
+    config_comment VARCHAR(4000),
+    config_file_hierarchy VARCHAR(50) NOT NULL,
+    config_encrypted VARCHAR(1) NOT NULL,
+    config_sequence BIGINT NOT NULL,
+    config_version_index BIGINT,
+    last_updated BIGINT NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
+    config_value_clob VARCHAR(10000000),
+    config_value_bytes BIGINT,
+    prev_config_value VARCHAR(4000),
+    prev_config_value_clob VARCHAR(10000000),
+    source_id VARCHAR(40) NOT NULL,
+    context_id VARCHAR(40),
+    active VARCHAR(1) NOT NULL,
+    start_time BIGINT NOT NULL,
+    end_time BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX pit_config_context_idx ON grouper_pit_config (context_id);
+
+CREATE INDEX pit_config_source_id_idx ON grouper_pit_config (source_id);
+
+CREATE UNIQUE INDEX pit_config_start_idx ON grouper_pit_config (start_time, source_id);
+
+CREATE INDEX pit_config_end_idx ON grouper_pit_config (end_time);
+
 CREATE TABLE grouper_file
 (
     id VARCHAR(40) NOT NULL,
@@ -1869,8 +1883,8 @@ CREATE TABLE grouper_file
     hibernate_version_number BIGINT NOT NULL,
     context_id VARCHAR(40),
     file_contents_varchar VARCHAR(4000),
-    file_contents_clob VARCHAR(10000000),
     file_contents_bytes BIGINT,
+    file_contents_clob VARCHAR(10000000),
     PRIMARY KEY (id)
 );
 
@@ -2450,6 +2464,10 @@ COMMENT ON COLUMN grouper_sync_group.error_message IS 'if there was an error whe
 
 COMMENT ON COLUMN grouper_sync_group.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
 
+COMMENT ON COLUMN grouper_sync_group.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_group.metadata_json IS 'additional metadata for group';
+
 COMMENT ON TABLE grouper_sync_member IS 'user metadata for sync';
 
 COMMENT ON COLUMN grouper_sync_member.id IS 'uuid of this record in this table';
@@ -2500,6 +2518,8 @@ COMMENT ON COLUMN grouper_sync_member.error_message IS 'if there was an error wh
 
 COMMENT ON COLUMN grouper_sync_member.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
 
+COMMENT ON COLUMN grouper_sync_member.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
 COMMENT ON TABLE grouper_sync_membership IS 'record of a sync_group and a sync_member represents a sync^ed membership';
 
 COMMENT ON COLUMN grouper_sync_membership.id IS 'uuid of this record';
@@ -2529,6 +2549,8 @@ COMMENT ON COLUMN grouper_sync_membership.metadata_updated IS 'when the metadata
 COMMENT ON COLUMN grouper_sync_membership.error_message IS 'if there was an error when syncing this object, this is the message';
 
 COMMENT ON COLUMN grouper_sync_membership.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
+
+COMMENT ON COLUMN grouper_sync_membership.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
 COMMENT ON TABLE grouper_sync_log IS 'last log for this sync that affected this group or member etc';
 
@@ -2615,6 +2637,224 @@ COMMENT ON COLUMN grouper_recent_mships_conf.group_uuid_from IS 'group_uuid_from
 COMMENT ON COLUMN grouper_recent_mships_conf.recent_micros IS 'recent_micros: number of microseconds of recent memberships';
 
 COMMENT ON COLUMN grouper_recent_mships_conf.include_eligible IS 'include_eligible: T to include people still in group, F if not';
+
+COMMENT ON COLUMN grouper_config.config_value_clob IS 'config value for large data';
+
+COMMENT ON COLUMN grouper_config.config_value_bytes IS 'size of config value in bytes';
+
+COMMENT ON TABLE grouper_pit_config IS 'keeps track of grouper config.  Records are never deleted from this table';
+
+COMMENT ON COLUMN grouper_pit_config.id IS 'uuid of record is unique for all records in table and primary key';
+
+COMMENT ON COLUMN grouper_pit_config.source_id IS 'source_id: id of the grouper_config table';
+
+COMMENT ON COLUMN grouper_pit_config.config_value_bytes IS 'size of config value in bytes';
+
+COMMENT ON COLUMN grouper_pit_config.config_value_clob IS 'config value for large data';
+
+COMMENT ON COLUMN grouper_pit_config.config_file_name IS 'Config file name of the config this record relates to, e.g. grouper.config.properties';
+
+COMMENT ON COLUMN grouper_pit_config.config_key IS 'key of the config, not including elConfig';
+
+COMMENT ON COLUMN grouper_pit_config.config_value IS 'Value of the config';
+
+COMMENT ON COLUMN grouper_pit_config.config_comment IS 'documentation of the config value';
+
+COMMENT ON COLUMN grouper_pit_config.config_file_hierarchy IS 'config file hierarchy, e.g. base, institution, or env';
+
+COMMENT ON COLUMN grouper_pit_config.config_encrypted IS 'if the value is encrypted';
+
+COMMENT ON COLUMN grouper_pit_config.config_sequence IS 'if there is more data than fits in the column this is the 0 indexed order';
+
+COMMENT ON COLUMN grouper_pit_config.config_version_index IS 'for built in configs, this is the index that will identify if the database configs should be replaced from the java code';
+
+COMMENT ON COLUMN grouper_pit_config.last_updated IS 'when this record was inserted or last updated';
+
+COMMENT ON COLUMN grouper_pit_config.hibernate_version_number IS 'hibernate uses this to version rows';
+
+COMMENT ON COLUMN grouper_pit_config.active IS 'T or F if this is an active record based on start and end dates';
+
+COMMENT ON COLUMN grouper_pit_config.start_time IS 'millis from 1970 when this record was inserted';
+
+COMMENT ON COLUMN grouper_pit_config.end_time IS 'millis from 1970 when this record was deleted';
+
+COMMENT ON COLUMN grouper_pit_config.context_id IS 'Context id links together audit entry with the row';
+
+COMMENT ON TABLE grouper_file IS 'table to store files for grouper. eg: workflow, reports';
+
+COMMENT ON COLUMN grouper_file.id IS 'uuid of record is unique for all records in table and primary key';
+
+COMMENT ON COLUMN grouper_file.system_name IS 'System name this file belongs to eg: workflow';
+
+COMMENT ON COLUMN grouper_file.file_name IS 'Name of the file';
+
+COMMENT ON COLUMN grouper_file.file_path IS 'Unique path of the file';
+
+COMMENT ON COLUMN grouper_file.hibernate_version_number IS 'hibernate uses this to version rows';
+
+COMMENT ON COLUMN grouper_file.context_id IS 'Context id links together audit entry with the row';
+
+COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if can fit into 4000 bytes';
+
+COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
+
+COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';
+
+COMMENT ON COLUMN grouper_sync.last_full_sync_start IS 'start time of last successful full sync';
+
+COMMENT ON COLUMN grouper_sync.last_full_metadata_sync_start IS 'start time of last successful full metadata sync';
+
+COMMENT ON COLUMN grouper_sync_job.last_sync_start IS 'start time of this job';
+
+COMMENT ON COLUMN grouper_sync_log.description_clob IS 'description for large data';
+
+COMMENT ON COLUMN grouper_sync_log.description_bytes IS 'size of description in bytes';
+
+COMMENT ON COLUMN grouper_sync_log.sync_timestamp_start IS 'start of sync operation for log';
+
+COMMENT ON COLUMN grouper_sync_group.last_group_sync_start IS 'start of last successful group sync';
+
+COMMENT ON COLUMN grouper_sync_group.last_group_metadata_sync_start IS 'start of last successful group metadata sync';
+
+COMMENT ON COLUMN grouper_sync_member.last_user_sync_start IS 'start of last successful user sync';
+
+COMMENT ON COLUMN grouper_sync_member.last_user_metadata_sync_start IS 'start of last successful user metadata sync';
+
+CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_id, u_subject_id, u_subject_identifier, m_in_target, m_id, m_in_target_insert_or_exists, m_in_target_start, m_in_target_end, m_last_updated, m_membership_id, m_membership_id2, m_metadata_updated, m_error_message, m_error_timestamp, s_id, s_sync_engine, s_provisioner_name, u_id, u_member_id, u_in_target, u_in_target_insert_or_exists, u_in_target_start, u_in_target_end, u_provisionable, u_provisionable_start, u_provisionable_end, u_last_updated, u_last_user_sync_start, u_last_user_sync, u_last_user_meta_sync_start, u_last_user_metadata_sync, u_member_from_id2, u_member_from_id3, u_member_to_id2, u_member_to_id3, u_metadata_updated, u_last_time_work_was_done, u_error_message, u_error_timestamp, g_id, g_group_id, g_provisionable, g_in_target, g_in_target_insert_or_exists, g_in_target_start, g_in_target_end, g_provisionable_start, g_provisionable_end, g_last_updated, g_last_group_sync_start, g_last_group_sync, g_last_group_meta_sync_start, g_last_group_metadata_sync, g_group_from_id2, g_group_from_id3, g_group_to_id2, g_group_to_id3, g_metadata_updated, g_error_message, g_error_timestamp, g_last_time_work_was_done, m_error_code, u_error_code, g_error_code) AS select g.group_name as g_group_name, g.group_id_index as g_group_id_index, u.source_id as u_source_id, u.subject_id as u_subject_id, u.subject_identifier as u_subject_identifier, m.in_target as m_in_target, m.id as m_id, m.in_target_insert_or_exists as m_in_target_insert_or_exists, m.in_target_start as m_in_target_start, m.in_target_end as m_in_target_end, m.last_updated as m_last_updated, m.membership_id as m_membership_id, m.membership_id2 as m_membership_id2, m.metadata_updated as m_metadata_updated, m.error_message as m_error_message, m.error_timestamp as m_error_timestamp, s.id as s_id, s.sync_engine as s_sync_engine, s.provisioner_name as s_provisioner_name, u.id as u_id, u.member_id as u_member_id, u.in_target as u_in_target, u.in_target_insert_or_exists as u_in_target_insert_or_exists, u.in_target_start as u_in_target_start, u.in_target_end as u_in_target_end, u.provisionable as u_provisionable, u.provisionable_start as u_provisionable_start, u.provisionable_end as u_provisionable_end, u.last_updated as u_last_updated, u.last_user_sync_start as u_last_user_sync_start, u.last_user_sync as u_last_user_sync, u.last_user_metadata_sync_start as u_last_user_meta_sync_start, u.last_user_metadata_sync as u_last_user_metadata_sync, u.member_from_id2 as u_member_from_id2, u.member_from_id3 as u_member_from_id3, u.member_to_id2 as u_member_to_id2, u.member_to_id3 as u_member_to_id3, u.metadata_updated as u_metadata_updated, u.last_time_work_was_done as u_last_time_work_was_done, u.error_message as u_error_message, u.error_timestamp as u_error_timestamp, g.id as g_id, g.group_id as g_group_id, g.provisionable as g_provisionable, g.in_target as g_in_target, g.in_target_insert_or_exists as g_in_target_insert_or_exists, g.in_target_start as g_in_target_start, g.in_target_end as g_in_target_end, g.provisionable_start as g_provisionable_start, g.provisionable_end as g_provisionable_end, g.last_updated as g_last_updated, g.last_group_sync_start as g_last_group_sync_start, g.last_group_sync as g_last_group_sync, g.last_group_metadata_sync_start as g_last_group_meta_sync_start, g.last_group_metadata_sync as g_last_group_metadata_sync, g.group_from_id2 as g_group_from_id2, g.group_from_id3 as g_group_from_id3, g.group_to_id2 as g_group_to_id2, g.group_to_id3 as g_group_to_id3, g.metadata_updated as g_metadata_updated, g.error_message as g_error_message, g.error_timestamp as g_error_timestamp, g.last_time_work_was_done as g_last_time_work_was_done,  m.error_code as m_error_code, u.error_code as u_error_code, g.error_code as g_error_code from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
+
+COMMENT ON VIEW grouper_sync_membership_v IS 'Memberships for provisioning joined with the group, member, and sync tables';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_name IS 'g_group_name: grouper group system name';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_id_index IS 'g_group_id_index: grouper group id index';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_source_id IS 'u_source_id: subject source id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_subject_id IS 'u_subject_id: subject id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_subject_identifier IS 'u_subject_identifier: subject identifier0';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target IS 'm_in_target: t/f if provisioned to target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_id IS 'm_id: sync membership id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_insert_or_exists IS 'm_in_target_insert_or_exists: t/f if it was inserted into target or already existed';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_start IS 'm_in_target_start: timestamp was inserted or detected to be in target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_in_target_end IS 'm_in_target_end: timestamp was removed from target or detected not there';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_last_updated IS 'm_last_updated: when sync membership last updated';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_membership_id IS 'm_membership_id: link membership id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_membership_id2 IS 'm_membership_id2: link membership id2';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_metadata_updated IS 'm_metadata_updated: when metadata e.g. links was last updated';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_message IS 'm_error_message: error message when last operation occurred unless a success happened afterward';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_timestamp IS 'm_error_timestamp: timestamp last error occurred unless a success happened afterward';
+
+COMMENT ON COLUMN grouper_sync_membership_v.s_id IS 's_id: sync id overall';
+
+COMMENT ON COLUMN grouper_sync_membership_v.s_sync_engine IS 's_sync_engine: sync engine';
+
+COMMENT ON COLUMN grouper_sync_membership_v.s_provisioner_name IS 's_provisioner_name: name of provisioner';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_id IS 'u_id: sync member id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_id IS 'u_member_id: grouper member uuid for subject';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target IS 'u_in_target: t/f if entity is in target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_insert_or_exists IS 'u_in_target_insert_or_exists: t/f if grouper inserted the entity or if it already existed';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_start IS 'u_in_target_start: when this entity started being in target or detected there';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_in_target_end IS 'u_in_target_end: when this entity stopped being in target or detected not there';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable IS 'u_provisionable: t/f if the entity is provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable_start IS 'u_provisionable_start: when this entity started being provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_provisionable_end IS 'u_provisionable_end: when this entity stopped being provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_updated IS 'u_last_updated: when the sync member was last updated';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_sync_start IS 'u_last_user_sync_start: when the user was last overall sync started';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_sync IS 'u_last_user_sync: when the user was last overall synced';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_meta_sync_start IS 'u_last_user_meta_sync_start: when the metadata was sync started';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_user_metadata_sync IS 'u_last_user_metadata_sync: when the metadata was last synced';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_from_id2 IS 'u_member_from_id2: link data from id2';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_from_id3 IS 'u_member_from_id3: link data from id3';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_to_id2 IS 'u_member_to_id2: link data to id2';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_member_to_id3 IS 'u_member_to_id3: link data to id3';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_metadata_updated IS 'u_metadata_updated: when metadata was last updated for entity';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_last_time_work_was_done IS 'u_last_time_work_was_done: time last work was done on user object';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_message IS 'u_error_message: error message last time work was done on user unless a success happened afterward';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_timestamp IS 'u_error_timestamp: timestamp the last error occurred unless a success happened afterwards';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_id IS 'g_id: sync group id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_id IS 'g_group_id: grouper group id';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable IS 'g_provisionable: t/f if group is provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target IS 'g_in_target: t/f if the group is in target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_insert_or_exists IS 'g_in_target_insert_or_exists: t/f if the group was inserted by grouper or already existed in target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_start IS 'g_in_target_start: when the group was detected to be in the target';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_in_target_end IS 'g_in_target_end: when the group was detected to not be in the target anymore';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable_start IS 'g_provisionable_start: when this group started being provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_provisionable_end IS 'g_provisionable_end: when this group stopped being provisionable';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_updated IS 'g_last_updated: when the sync group was last updated';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_sync_start IS 'g_last_group_sync_start: when the group was sync started';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_sync IS 'g_last_group_sync: when the group was last synced';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_meta_sync_start IS 'g_last_group_meta_sync_start: when the metadata sync started';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_group_metadata_sync IS 'g_last_group_metadata_sync: when the metadata was last synced';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_from_id2 IS 'g_group_from_id2: link data from id2';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_from_id3 IS 'g_group_from_id3: link data from id3';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_to_id2 IS 'g_group_to_id2: link data to id2';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_group_to_id3 IS 'g_group_to_id3: link data to id3';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_metadata_updated IS 'g_metadata_updated: when metadata e.g. link data was last updated';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_message IS 'g_error_message: if there is an error message last time work was done it is here';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_timestamp IS 'g_error_timestamp: timestamp if last time work was done there was an error';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_last_time_work_was_done IS 'g_last_time_work_was_done: timestamp of last time work was done on group';
+
+COMMENT ON COLUMN grouper_sync_membership_v.m_error_code IS 'm_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_membership_v.u_error_code IS 'u_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_membership_v.g_error_code IS 'g_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
 COMMENT ON TABLE grouper_ddl IS 'holds a record for each database object name, and db version, and java version';
 
@@ -6572,68 +6812,8 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
-COMMENT ON COLUMN GROUPER_CONFIG.config_value_clob IS 'config value for large data';
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 37, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V37, ');
+commit;
 
-COMMENT ON COLUMN GROUPER_CONFIG.config_value_bytes IS 'size of config value in bytes';
-
-COMMENT ON TABLE grouper_pit_config IS 'keeps track of grouper config.  Records are never deleted from this table';
-
-COMMENT ON COLUMN grouper_pit_config.id IS 'uuid of record is unique for all records in table and primary key';
-
-COMMENT ON COLUMN grouper_pit_config.source_id IS 'source_id: id of the grouper_config table';
-
-COMMENT ON COLUMN grouper_pit_config.config_file_name IS 'Config file name of the config this record relates to, e.g. grouper.config.properties';
-
-COMMENT ON COLUMN grouper_pit_config.config_key IS 'key of the config, not including elConfig';
-
-COMMENT ON COLUMN grouper_pit_config.config_value IS 'Value of the config';
-
-COMMENT ON COLUMN grouper_pit_config.config_comment IS 'documentation of the config value';
-
-COMMENT ON COLUMN grouper_pit_config.config_file_hierarchy IS 'config file hierarchy, e.g. base, institution, or env';
-
-COMMENT ON COLUMN grouper_pit_config.config_encrypted IS 'if the value is encrypted';
-
-COMMENT ON COLUMN grouper_pit_config.config_sequence IS 'if there is more data than fits in the column this is the 0 indexed order';
-
-COMMENT ON COLUMN grouper_pit_config.config_version_index IS 'for built in configs, this is the index that will identify if the database configs should be replaced from the java code';
-
-COMMENT ON COLUMN grouper_pit_config.last_updated IS 'when this record was inserted or last updated';
-
-COMMENT ON COLUMN grouper_pit_config.config_value_clob IS 'config value for large data';
-
-COMMENT ON COLUMN grouper_pit_config.config_value_bytes IS 'size of config value in bytes';
-
-COMMENT ON COLUMN grouper_pit_config.prev_config_value IS 'previous config value';
-
-COMMENT ON COLUMN grouper_pit_config.prev_config_value_clob IS 'previous config value clob';
-
-COMMENT ON COLUMN grouper_pit_config.active IS 'T or F if this is an active record based on start and end dates';
-
-COMMENT ON COLUMN grouper_pit_config.start_time IS 'millis from 1970 when this record was inserted';
-
-COMMENT ON COLUMN grouper_pit_config.end_time IS 'millis from 1970 when this record was deleted';
-
-COMMENT ON COLUMN grouper_pit_config.context_id IS 'Context id links together audit entry with the row';
-
-COMMENT ON COLUMN grouper_pit_config.hibernate_version_number IS 'hibernate uses this to version rows';
-
-COMMENT ON TABLE grouper_file IS 'table to store files for grouper. eg: workflow, reports';
-    
-COMMENT ON COLUMN grouper_file.id IS 'uuid of record is unique for all records in table and primary key';
-
-COMMENT ON COLUMN grouper_file.system_name IS 'System name this file belongs to eg: workflow';
-
-COMMENT ON COLUMN grouper_file.file_name IS 'Name of the file';
-
-COMMENT ON COLUMN grouper_file.file_path IS 'Unique path of the file';
-
-COMMENT ON COLUMN grouper_file.hibernate_version_number IS 'hibernate uses this to version rows';
-
-COMMENT ON COLUMN grouper_file.context_id IS 'Context id links together audit entry with the row';
-
-COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if can fit into 4000 bytes';
-
-COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
-
-COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';

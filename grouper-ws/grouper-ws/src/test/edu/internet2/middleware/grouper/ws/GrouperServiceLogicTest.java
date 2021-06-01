@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -157,6 +158,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateExecResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateInput;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
@@ -220,7 +223,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetMembershipsPagingForMember"));
+    TestRunner.run(new GrouperServiceLogicTest("testExecuteGshTemplate"));
   }
 
   /**
@@ -10813,6 +10816,51 @@ public class GrouperServiceLogicTest extends GrouperTest {
         auditEntriesResults.getResultMetadata().getResultCode());
     
     assertEquals(1, GrouperUtil.length(auditEntriesResults.getWsAuditEntries()));
+    
+  }
+  
+  /**
+   * test execute template
+   */
+  public void testExecuteGshTemplate() {
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    String templateConfigLines = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-template-config.properties", false);
+
+    List<String> templateConfigProperties = GrouperUtil.splitFileLines(templateConfigLines);
+    
+    for (String keyValue: templateConfigProperties) {
+      if (StringUtils.isNotBlank(keyValue)) {
+        String[] keyValueArr = keyValue.split("=", 2);
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
+      }
+    }
+    
+    String gshScript = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-script-penn.gsh", false);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", gshScript);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.name", "gsh_input_prefix");
+    
+    Stem ownerStem = new StemSave(GrouperServiceUtils.testSession).assignName("test2").save();
+    
+    WsStemLookup wsStemLookup = new WsStemLookup(ownerStem.getName(), ownerStem.getUuid());
+    
+    WsGshTemplateInput[] inputs = new WsGshTemplateInput[1];
+    WsGshTemplateInput wsGshTemplateInput = new WsGshTemplateInput();
+    wsGshTemplateInput.setName("gsh_input_prefix");
+    wsGshTemplateInput.setValue("TEST");
+    inputs[0] = wsGshTemplateInput;
+    
+    // execute gsh template
+    WsGshTemplateExecResult wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(GROUPER_VERSION, "testGshTemplateConfig", GshTemplateOwnerType.stem, null, wsStemLookup,
+        inputs, null, null, null);
+    
+    assertEquals(wsGshTemplateExecResult.getResultMetadata().getResultMessage(),
+        WsGetAuditEntriesResultsCode.SUCCESS.name(),
+        wsGshTemplateExecResult.getResultMetadata().getResultCode());
+    
+    assertEquals(0, GrouperUtil.length(wsGshTemplateExecResult.getGshValidationLines()));
+    assertTrue(wsGshTemplateExecResult.getTransaction());
     
   }
     

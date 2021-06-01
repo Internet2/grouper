@@ -1,6 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <form id="newStemTemplateFormId" class="form-horizontal">
   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+  <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
     <tbody>
 
@@ -23,7 +24,10 @@
         </select> <br /> <span class="description">${textContainer.text['stemTemplateTypeDescription']}</span>
         </td>
       </tr>
-      <c:if test="${grouperRequestContainer.stemTemplateContainer.showInThisFolderCheckbox}">
+      
+      <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.templateLogic}">
+      	
+      	<c:if test="${grouperRequestContainer.stemTemplateContainer.showInThisFolderCheckbox}">
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
             <strong><label for="createSubfolder">${textContainer.text['stemCreateTemplateInThisFolder']}</label></strong>
@@ -89,7 +93,42 @@
 	      </tr>
       </c:if>
       
-      <c:if test="${! empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
+      </c:if>
+      
+      <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
+
+        <tr class="stem-template-description">
+          <td style="vertical-align: top; white-space: nowrap;" colspan="2"><br /><strong style="font-size: larger;">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateNameForUi }</strong>
+          <br />
+          <span class="description">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateDescriptionForUi }</span><br /><br /></td>
+        </tr>
+      
+      	<c:forEach items="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+			
+			<c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>		  				
+			<c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>		  				
+								  				
+			<grouper:configFormElement 
+				formElementType="${guiGshTemplateInputConfig.gshTemplateInputConfig.configItemFormElement}"
+				configId="${guiGshTemplateInputConfig.gshTemplateInputConfig.name}" 
+				label="${guiGshTemplateInputConfig.gshTemplateInputConfig.labelForUi}"
+				readOnly="false"
+				helperText="${guiGshTemplateInputConfig.gshTemplateInputConfig.descriptionForUi}"
+				helperTextDefaultValue="${guiGshTemplateInputConfig.gshTemplateInputConfig.defaultValue}"
+				required="${guiGshTemplateInputConfig.gshTemplateInputConfig.required}"
+				shouldShow="true"
+				shouldShowElCheckbox="false"
+				value="${guiGshTemplateInputConfig.value}"
+				hasExpressionLanguage="false"
+				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.stemTemplateContainer.templateType}', {formIds: 'newStemTemplateFormId'}); return false;"
+				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+			/>
+  				
+  			</c:forEach>
+      
+      </c:if>
+      
+      <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
       <tr>
         <td colspan="2">
           ${textContainer.text['stemServiceActionsHelpText']}
@@ -126,18 +165,27 @@
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
-	          onclick="ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+	          onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
-          <c:if test="${empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
+          
+          <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
+            <input type="submit" class="btn btn-primary"
+	          aria-controls="groupFilterResultsId" id="filterSubmitId"
+	          value="${textContainer.text['stemTemplateSubmitButton'] }"
+	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+          </c:if>
+          
+          <c:if test="${empty grouperRequestContainer.stemTemplateContainer.serviceActions and grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig == null}">
             <input type="submit" class="btn btn-primary"
             aria-controls="groupFilterResultsId" id="filterSubmitId"
             value="${textContainer.text['stemTemplateNextButton'] }"
-            onclick="ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+            onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
-          &nbsp; 
+          &nbsp;
           <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemTemplateCancelButton'] }</a>
         </td>
       </tr>
     </tbody>
   </table>  
 </form>
+<div id="stemTemplateBody"></div>

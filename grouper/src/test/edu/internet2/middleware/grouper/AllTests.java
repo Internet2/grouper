@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouperClient.AllClientConfigTests;
 import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
@@ -186,6 +187,8 @@ public class AllTests extends GrouperTest {
 
     //$JUnit-BEGIN$
     suite.addTestSuite(MembershipFinderTest.class);
+    suite.addTestSuite(MembershipSaveTest.class);
+    suite.addTestSuite(CompositeSaveTest.class);
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestComposite.class);
     suite.addTestSuite(TestGroupType.class);
@@ -201,11 +204,13 @@ public class AllTests extends GrouperTest {
     suite.addTestSuite(TestCompositeModel.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestRegistrySubject.class);
+    suite.addTestSuite(PrivilegeGroupInheritanceSaveTest.class);
     //$JUnit-END$
 
     //////////////////////////////////////////
     // All manual suites from packages in alphabetical order
 
+    suite.addTest(AllClientConfigTests.suite());
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAttributeTests.suite());
     suite.addTest(AllAuditTests.suite());

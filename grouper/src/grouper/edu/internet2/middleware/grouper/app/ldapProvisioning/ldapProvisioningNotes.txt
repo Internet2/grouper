@@ -1,0 +1,48 @@
+docker run -d -p 389:389 --mount type=bind,source=/Users/mchyzer/git/grouper_v2_5/grouper-misc/grouper-pspng/pspng-docker-tests/docker-compose/ldap-seed-data,target=/etc/ldap/prepopulate -e SLAPD_PASSWORD=secret -e SLAPD_CONFIG_PASSWORD=secret -e SLAPD_DOMAIN=example.edu openldap-dinkel-grouper
+
+configId: personLdap
+url: ldap://localhost:389
+user: cn=admin,dc=example,dc=edu
+pass: secret
+
+jsmith is subject id to search for
+
+subjectApi.source.testLdapSource.id = testLdapSource
+subjectApi.source.testLdapSource.name = testLdapSource
+subjectApi.source.testLdapSource.types = person
+subjectApi.source.testLdapSource.adapterClass = edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter
+subjectApi.source.testLdapSource.param.ldapServerId.value = personLdap
+subjectApi.source.testLdapSource.param.SubjectID_AttributeType.value = uid
+subjectApi.source.testLdapSource.param.SubjectID_formatToLowerCase.value = false
+subjectApi.source.testLdapSource.param.Name_AttributeType.value = cn
+subjectApi.source.testLdapSource.param.Description_AttributeType.value = cn
+subjectApi.source.testLdapSource.param.subjectVirtualAttribute_0_searchAttribute0.value = ${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('uid'), \"\")},${subjectUtils.defaultIfBlank(subject.getAttributeValueOrCommaSeparated('cn'), \"\")}
+subjectApi.source.testLdapSource.param.sortAttribute0.value = cn
+subjectApi.source.testLdapSource.param.searchAttribute0.value = searchAttribute0
+subjectApi.source.testLdapSource.search.searchSubject.param.filter.value = (&(uid=%TERM%)(objectclass=person))
+subjectApi.source.testLdapSource.search.searchSubject.param.scope.value = SUBTREE_SCOPE
+subjectApi.source.testLdapSource.search.searchSubject.param.base.value = dc=example,dc=edu
+subjectApi.source.testLdapSource.search.searchSubjectByIdentifier.param.filter.value = (&(uid=%TERM%)(objectclass=person))
+subjectApi.source.testLdapSource.search.searchSubjectByIdentifier.param.scope.value = SUBTREE_SCOPE
+subjectApi.source.testLdapSource.search.searchSubjectByIdentifier.param.base.value = dc=example,dc=edu
+subjectApi.source.testLdapSource.search.search.param.filter.value = (&(|(uid=%TERM%)(cn=*%TERM%*))(objectclass=person))
+subjectApi.source.testLdapSource.search.search.param.scope.value = SUBTREE_SCOPE
+subjectApi.source.testLdapSource.search.search.param.base.value = dc=example,dc=edu
+subjectApi.source.testLdapSource.attributes = cn, uid, eduPersonAffiliation, givenName, sn
+subjectApi.source.testLdapSource.internalAttributes = searchAttribute0
+subjectApi.source.testLdapSource.param.subjectIdentifierAttribute0.value = uid
+
+
+
+Provisioned attribute name: description   (multivalued can have anything in there, e.g. subjectId)
+Provisioned attribute value format: ${subject.id}
+Group search attribute name: gidNumber
+Group search attribute value format: ${group.idIndex} ??
+Group search attributes blank (grouper should know its: description, gidNumber, dn, cn).  Also maybe consult the ldif template
+Group search base DN: ou=groups,dc=example,dc=edu
+Group dn type: flat
+Group object class: posixGroup
+3 ldif attributes:
+objectClass: posixGroup,top
+cn: ${group.name}
+gidNumber: ${group.idIndex}

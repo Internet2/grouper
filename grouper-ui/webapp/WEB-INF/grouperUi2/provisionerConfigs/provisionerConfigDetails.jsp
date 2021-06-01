@@ -11,7 +11,7 @@
        <div class="page-header blue-gradient">
        
          <div class="row-fluid">
-           <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h4></div>
+           <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsDetailsDescription'] }</h1></div>
            <div class="span2 pull-right">
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
@@ -49,6 +49,17 @@
 				        <tr>
              		   	  <td style="vertical-align: top; white-space: nowrap;">
              		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderLastFullSyncStartTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullSyncStartTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+				        <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
              		   		  ${textContainer.text['provisionerConfigsTableHeaderFullSyncLastRunTimestamp']}
              		   		</label></strong>
              		   	  </td>
@@ -65,6 +76,28 @@
              		   	  </td>
              		   	  <td>
              		   	 	${syncDetails.lastIncrementalSyncTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   	    ${textContainer.text['provisionerConfigsTableHeaderLastFullMetadataSyncStartTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullMetadataSyncStartTimestamp}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderLastFullMetadataSyncRunTimestamp']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.lastFullMetadataSyncTimestamp}
              		   	   </td>
              		    </tr>
              		    
@@ -100,6 +133,41 @@
              		   	 	${syncDetails.recordsCount}
              		   	   </td>
              		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderExceptionCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.exceptionCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderTargetErrorCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.targetErrorCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    <tr>
+             		   	  <td style="vertical-align: top; white-space: nowrap;">
+             		   	    <strong><label>
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderValidationErrorCount']}
+             		   		</label></strong>
+             		   	  </td>
+             		   	  <td>
+             		   	 	${syncDetails.validationErrorCount}
+             		   	   </td>
+             		    </tr>
+             		    
+             		    
              		    
              		    <c:forEach items="${syncDetails.syncJobs}" var="syncJob">
              		    	<tr>

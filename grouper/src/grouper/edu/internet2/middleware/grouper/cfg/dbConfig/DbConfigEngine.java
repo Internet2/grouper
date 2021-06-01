@@ -40,7 +40,7 @@ public class DbConfigEngine {
    * @param clearCache should always be true unless you are doing multiple things at once, then false
    * @return true if ok, false if not
    */
-  public static boolean configurationFileAddEditHelper2(String configFileString, String propertyNameString,
+  public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment, 
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache) {
@@ -49,9 +49,6 @@ public class DbConfigEngine {
       
       Map<String, Object> textReplaceMap = new HashMap<String, Object>();
       GrouperTextContainer.assignThreadLocalVariableMap(textReplaceMap);
-
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-
       
       // if not sent, thats a problem
       if (StringUtils.isBlank(configFileString)) {
@@ -80,6 +77,8 @@ public class DbConfigEngine {
       }
       boolean isExpressionLanguage = GrouperUtil.booleanValue(expressionLanguageString);
   
+      propertyNameString = StringUtils.trim(propertyNameString);
+      
       if (propertyNameString.endsWith(".elConfig") && !isExpressionLanguage) {
         
         final String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesAddEntryPropertyNameElConfig");
@@ -92,6 +91,9 @@ public class DbConfigEngine {
       }
       
       valueString = valueString == null ? null : StringUtils.trim(valueString);
+      if (StringUtils.isBlank(valueString)) {
+        valueString = null;
+      }
   
       String propertyNameToUse = (isExpressionLanguage && !propertyNameString.endsWith(".elConfig")) ? (propertyNameString + ".elConfig") : propertyNameString;
       
@@ -116,13 +118,20 @@ public class DbConfigEngine {
       
       GrouperConfigHibernate grouperConfigHibernate = grouperConfigHibernateToReturn[0];
   
-      boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, null, propertyNameString, valueString, true, userSelectedPassword);
+      boolean isPassword = GrouperConfigHibernate.isPassword(configFileName, configFileMetadata.findConfigItemMetdataFromConfig(propertyNameString), propertyNameString, valueString, true, userSelectedPassword);
+      
+      boolean makeChange = true;
+      if (isPassword && StringUtils.equals(valueString, GrouperConfigHibernate.ESCAPED_PASSWORD)) {
+        added[0] = null;
+        makeChange = false;
+      }
       
       boolean isAlreadyEncrypted = false;
-      if (!StringUtils.isBlank(valueString)) {
+      if (StringUtils.isNotBlank(valueString)) {
         try {
-          Morph.decrypt(valueString);
-          isAlreadyEncrypted = true;
+          if (StringUtils.isNotBlank(Morph.decrypt(valueString))) {
+            isAlreadyEncrypted = true;
+          }
         } catch (Exception e) {
           // ignore
         }
@@ -134,36 +143,38 @@ public class DbConfigEngine {
         }
       }
   
-      // see if we are creating a new one
-      if (grouperConfigHibernate == null) {
-        grouperConfigHibernate = new GrouperConfigHibernate();
-        added[0] = true;
-      } else {
-        
-        String value = grouperConfigHibernate.retrieveValue();
-        
-        if (StringUtils.equals(valueString, value)) {
-          added[0] = null;
+      if (makeChange) {
+        // see if we are creating a new one
+        if (grouperConfigHibernate == null) {
+          grouperConfigHibernate = new GrouperConfigHibernate();
+          added[0] = true;
         } else {
-          added[0] = false;
+          
+          String value = grouperConfigHibernate.retrieveValue();
+          
+          if (StringUtils.equals(valueString, value)) {
+            added[0] = null;
+          } else {
+            added[0] = false;
+          }
         }
-      }
-  
-      grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
-      grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
-      grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
-      // this will switch to or from .elConfig
-      grouperConfigHibernate.setConfigKey(propertyNameToUse);
-      
-  //    grouperConfigHibernate.setConfigComment(comment);
-      
-      grouperConfigHibernate.setValueToSave(valueString);
-      if (added[0] != null) {
-        grouperConfigHibernate.saveOrUpdate(added[0]);
-        if (clearCache) {
-          // get the latest and greatest
-          ConfigPropertiesCascadeBase.clearCache();
-        }
+    
+        grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
+        grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
+        grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
+        // this will switch to or from .elConfig
+        grouperConfigHibernate.setConfigKey(propertyNameToUse);
+        
+    //    grouperConfigHibernate.setConfigComment(comment);
+        valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
+        grouperConfigHibernate.setValueToSave(valueString);
+        if (added[0] != null) {
+          grouperConfigHibernate.saveOrUpdate(added[0]);
+          if (clearCache) {
+            // get the latest and greatest
+            ConfigPropertiesCascadeBase.clearCache();
+          }
+        } 
       }
       
       if (added[0] == null) {

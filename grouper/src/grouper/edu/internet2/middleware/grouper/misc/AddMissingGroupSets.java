@@ -62,6 +62,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AddMissingGroupSets {
 
+  /**
+   * 
+   * @return
+   */
+  public long getUpdateCount() {
+    return overallTotalCount;
+  }
+
+  
+  public long getProcessedCount() {
+    return processedCount;
+  }
+
+
   /** */
   private Set<String> compositeOwnerIds = new HashSet<String>();
   
@@ -152,6 +166,7 @@ public class AddMissingGroupSets {
     showStatus("Searching for missing self groupSets for groups");
     Set<Object[]> groupsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForGroups();
     totalCount = groupsAndFields.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -235,6 +250,7 @@ public class AddMissingGroupSets {
     showStatus("Searching for missing self groupSets for groups with custom fields");
     Set<Object[]> groupsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForGroupsWithCustomFields();
     totalCount = groupsAndFields.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -286,6 +302,7 @@ public class AddMissingGroupSets {
     showStatus("\n\nSearching for missing self groupSets for stems");
     Set<Object[]> stemsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForStems();
     totalCount = stemsAndFields.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -371,6 +388,7 @@ public class AddMissingGroupSets {
     showStatus("\n\nSearching for missing immediate groupSets where the owner is a group");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForGroupOwners();
     totalCount = mships.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -429,6 +447,7 @@ public class AddMissingGroupSets {
     showStatus("\n\nSearching for missing immediate groupSets where the owner is a stem");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForStemOwners();
     totalCount = mships.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -493,6 +512,10 @@ public class AddMissingGroupSets {
     }
   }
 
+  private long overallTotalCount = 0;
+  
+  
+
   /**
    * Add missing group sets for immediate memberships where the owner is a stem
    */
@@ -500,6 +523,7 @@ public class AddMissingGroupSets {
     showStatus("\n\nSearching for missing immediate groupSets where the owner is an attribute def");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForAttrDefOwners();
     totalCount = mships.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -558,6 +582,7 @@ public class AddMissingGroupSets {
     showStatus("\n\nSearching for missing self groupSets for attribute defs");
     Set<Object[]> attrDefsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForAttrDefs();
     totalCount = attrDefsAndFields.size();
+    overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing groupSets");
     
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
@@ -640,15 +665,65 @@ public class AddMissingGroupSets {
 
   private void showStatus(String message) {
     if (showResults) {
-      System.out.println(message);
+      println(message);
     }
   }
+  
+  private int detailCount = 0;
   
   private void logDetail(String detail) {
     if (logDetails) {
       LOG.info(detail);
     }
+    if (captureOutput) {
+      detailCount++;
+      if (detailCount < 4000) {
+        this.output.append(detail).append("\n");
+      }
+      if (detailCount == 4000) {
+        this.output.append("Too many details, stopping to log details\n");
+      }
+    }
   }
+  
+  /**
+   * print
+   * @param string
+   */
+  private void print(String string) {
+    if (this.captureOutput) {
+      this.output.append(string);
+    } else {
+      System.out.print(string);
+    }
+  }
+
+  /**
+   * print a line
+   * @param string
+   */
+  private void println(String string) {
+    if (this.captureOutput) {
+      this.output.append(string).append("\n");
+    } else {
+      System.out.println(string);
+    }
+  }
+  
+  private StringBuilder output = new StringBuilder();
+
+  public String getOutput() {
+    GrouperUtil.assertion(captureOutput, "Output is not being captured, call syncPitTables.captureOutput(true)");
+    return this.output.toString();
+  }
+
+  private boolean captureOutput = false;
+
+  public void captureOutput(boolean b) {
+    this.captureOutput = true;
+
+  }
+
   
   private void reset() {
     processedCount = 0;
@@ -700,13 +775,13 @@ public class AddMissingGroupSets {
                 }
               }
               
-              System.out.print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
+              print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
               
               if (endTime != 0) {
-                System.out.print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
+                print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
               }
               
-              System.out.print("\n");
+              print("\n");
             }
           }
         }          

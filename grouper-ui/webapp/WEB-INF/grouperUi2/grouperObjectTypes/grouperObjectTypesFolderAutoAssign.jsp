@@ -24,6 +24,20 @@
                 <c:choose>
 	                <c:when test="${fn:length(grouperRequestContainer.objectTypeContainer.guiStemObjectTypes) > 0}">
 	                  <form class="form-inline form-small form-filter" id="grouperObjectTypeAutoAssignFormId">
+	                  	  
+	                  	  <div class="control-group">
+	                  	  	<label class="control-label" for="notImportantXyzId">${textContainer.text['objectTypeAssignAllTypesLabel']}</label>
+		                    <input type="checkbox" style="margin-top: 0px;" name="notImportantXyzName" id="notImportantXyzId"
+		                      onchange="$('.objectType').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+	                  	  </div>
+	                  	  
+	                  	  <c:if test="${grouperRequestContainer.objectTypeContainer.totalAutoAssignSize > grouperRequestContainer.objectTypeContainer.maxAutoAssignSize}">
+		                  	  <div class="row-fluid">
+		                  	  	<div class="span12">
+		                  	  		<p class="lead" style="color: red;">${textContainer.text['objectTypeAutoAssignSizeLimitExceedMessage']}</p> 
+		                  	  	</div>
+		                  	  </div>
+	                  	  </c:if>
 	                  
 		                  <c:forEach var="guiStemObjectType" items="${grouperRequestContainer.objectTypeContainer.guiStemObjectTypes}">
 		                    <table class="table table-condensed" 
@@ -36,9 +50,18 @@
                         </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableFolderLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap; width: 30%">
+                          <strong><label>
+	                          <c:if test="${guiStemObjectType.stem}">
+	                           ${textContainer.text['objectTypeAutoAssignTableFolderLabel']}
+	                          </c:if>
+	                          <c:if test="${guiStemObjectType.stem == false}"> 
+	                           ${textContainer.text['objectTypeAutoAssignTableGroupLabel']}
+	                          </c:if>
+                          </label></strong>
+                          </td>
                           <td>
-                           ${guiStemObjectType.guiStem.linkWithIcon}
+                           ${guiStemObjectType.guiObject.linkWithIcon}
                           </td>
                         </tr>
                         
@@ -46,9 +69,16 @@
                           <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableSelectLabel']}</label></strong></td>
                           <td>
                            <label class="checkbox">
-                              <input type="checkbox" name="stemObjectType" value="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}"
+                           	<c:if test="${guiStemObjectType.stem}">
+                              <input type="checkbox" class="objectType" name="stemObjectType" value="${guiStemObjectType.guiObject.grouperObject.id}_${guiStemObjectType.stemObjectType.objectType}_stem"
                                aria-label="${textContainer.text['objectTypeAutoAssignCheckboxAriaLabel'] }"/>
+                            </c:if>
+                            <c:if test="${guiStemObjectType.stem == false}">
+	                            <input type="checkbox" class="objectType" name="stemObjectType" value="${guiStemObjectType.guiObject.grouperObject.id}_${guiStemObjectType.stemObjectType.objectType}_group"
+	                               aria-label="${textContainer.text['objectTypeAutoAssignCheckboxAriaLabel'] }"/>
+                            </c:if>
                             </label>
+                            
                           </td>
                         </tr>
                         
@@ -56,14 +86,14 @@
 	                        <tr>
 	                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableDataOwnerLabel']}</label></strong></td>
 	                          <td>
-	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_dataOwner"/>
+	                            <input type="text" name="${guiStemObjectType.guiObject.grouperObject.id}_${guiStemObjectType.stemObjectType.objectType}_dataOwner"/>
 	                          </td>
 	                        </tr>
 	                        
 	                        <tr>
 	                          <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableMemberDescriptionLabel']}</label></strong></td>
 	                          <td>
-	                            <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_memberDescription"/>
+	                            <input type="text" name="${guiStemObjectType.guiObject.grouperObject.id}_${guiStemObjectType.stemObjectType.objectType}_memberDescription"/>
 	                          </td>
 	                        </tr>
                         </c:if>
@@ -73,7 +103,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap; width: 30%"><strong><label>${textContainer.text['objectTypeAutoAssignTableServiceLabel']}</label></strong></td>
                             <td>
-                              <input type="text" name="${guiStemObjectType.guiStem.stem.id}_${guiStemObjectType.stemObjectType.objectType}_service"/>
+                              <input type="text" name="${guiStemObjectType.guiObject.grouperObject.id}_${guiStemObjectType.stemObjectType.objectType}_service"/>
                             </td>
                           </tr>
                         

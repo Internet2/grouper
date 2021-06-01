@@ -3,11 +3,15 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -17,118 +21,216 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
  */
 public class GroupImportContainer {
 
-  /**
-   * original group count of members
-   */
-  private int groupCountOriginal;
+  private String groupId;
   
-  /**
-   * new group count of members
-   */
-  private int groupCountNew;
+  private String subjectId;
   
-  /**
-   * count of added members
-   */
-  private int groupCountAdded;
+  private String sourceId;
   
-  /**
-   * count of deleted members
-   */
-  private int groupCountDeleted;
   
-  /**
-   * count of errors
-   */
-  private int groupCountErrors;
+  public String getGroupId() {
+    return groupId;
+  }
+
+
+
   
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
+  }
+
+
+
+  
+  public String getSubjectId() {
+    return subjectId;
+  }
+
+
+
+  
+  public void setSubjectId(String subjectId) {
+    this.subjectId = subjectId;
+  }
+
+
+
+  
+  public String getSourceId() {
+    return sourceId;
+  }
+
+
+
+  
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
+
   /**
-   * original group count of members
-   * @return the groupCountOriginal
+   * uniquely identifies this import as opposed to other imports in other tabs
    */
-  public int getGroupCountOriginal() {
-    return this.groupCountOriginal;
+  private String uniqueImportId;
+  
+  
+  
+  
+  public String getUniqueImportId() {
+    return uniqueImportId;
+  }
+
+
+  
+  public void setUniqueImportId(String uniqueImportId) {
+    this.uniqueImportId = uniqueImportId;
+  }
+
+  private boolean importReplaceMembers;
+
+  private boolean removeMembers;
+
+  
+  public boolean isImportReplaceMembers() {
+    return importReplaceMembers;
   }
 
   
-  /**
-   * original group count of members
-   * @param groupCountOriginal1 the groupCountOriginal to set
-   */
-  public void setGroupCountOriginal(int groupCountOriginal1) {
-    this.groupCountOriginal = groupCountOriginal1;
+  public void setImportReplaceMembers(boolean importReplaceMembers) {
+    this.importReplaceMembers = importReplaceMembers;
   }
 
   
-  /**
-   * new group count of members
-   * @return the groupCountNew
-   */
-  public int getGroupCountNew() {
-    return this.groupCountNew;
+  public boolean isRemoveMembers() {
+    return removeMembers;
   }
 
   
-  /**
-   * new group count of members
-   * @param groupCountNew1 the groupCountNew to set
-   */
-  public void setGroupCountNew(int groupCountNew1) {
-    this.groupCountNew = groupCountNew1;
+  public void setRemoveMembers(boolean removeMembers) {
+    this.removeMembers = removeMembers;
   }
 
-  
   /**
-   * count of added members
-   * @return the groupCountAdded
+   * generate a report (if needed) based on current progress
+   * @return the report
    */
-  public int getGroupCountAdded() {
-    return this.groupCountAdded;
-  }
+  public String getReport() {
+    
+    //    <%-- loop through all the groups and give each report --%>
+    //    <c:forEach items="${grouperRequestContainer.groupImportContainer.guiGroups}" var="guiGroup" >
+    //      <hr />
+    //      <h4>${guiGroup.linkWithIcon}</h4>
+    //      ${grouperRequestContainer.groupImportContainer.reportForGroupNameMap[guiGroup.group.name]}
+    //    </c:forEach>
 
-  
-  /**
-   * count of added members
-   * @param groupCountAdded1 the groupCountAdded to set
-   */
-  public void setGroupCountAdded(int groupCountAdded1) {
-    this.groupCountAdded = groupCountAdded1;
-  }
+    
+    
+    StringBuilder report = new StringBuilder("");
 
-  
-  /**
-   * count of deleted members
-   * @return the groupCountDeleted
-   */
-  public int getGroupCountDeleted() {
-    return this.groupCountDeleted;
-  }
+    for (GuiGroup guiGroup : GrouperUtil.nonNull(this.getGuiGroups())) {
 
-  
-  /**
-   * count of deleted members
-   * @param groupCountDeleted1 the groupCountDeleted to set
-   */
-  public void setGroupCountDeleted(int groupCountDeleted1) {
-    this.groupCountDeleted = groupCountDeleted1;
-  }
+      report.append("<h4>").append(guiGroup.getLinkWithIcon()).append("</h4><ul>\n");
 
-  
-  /**
-   * count of errors
-   * @return the groupCountErrors
-   */
-  public int getGroupCountErrors() {
-    return this.groupCountErrors;
-  }
+      GroupImportGroupSummary groupImportGroupSummary = this.groupImportGroupSummaryForGroupMap.get(guiGroup.getGroup());
+      
+      this.setGroupImportGroupSummary(groupImportGroupSummary);
 
+      if (groupImportGroupSummary == null) {
+        continue;
+      }
+      
+      boolean didntImportDueToSubjects = groupImportGroupSummary.getGroupCountErrors() > 0;
+
+      if (importReplaceMembers && didntImportDueToSubjects) {
+        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportNoReplaceError")).append("\n");
+      }
+
+      // dont add the error report line if there are no errors 
+      if (groupImportGroupSummary.getGroupCountErrors() > 0) {
+        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorSummary")).append("\n");
+      }
+
+      this.setGroupImportGroupSummary(groupImportGroupSummary);
+      
+      if (groupImportGroupSummary.isComplete()) {
+        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSummary")).append("\n");
+      }
+      report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSuccess")).append("\n");
+
+      if (groupImportGroupSummary.getGroupImportErrors().size() > 0) {
+        report.append("<h5>").append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorsTitle")).append("</h5>\n");
+        report.append("<ul>\n");
+        for (GroupImportError groupImportError : GrouperUtil.nonNull(groupImportGroupSummary.getGroupImportErrors())) {
+
+          this.setErrorText(groupImportError.getErrorEscaped());
+
+          this.setErrorSubject(groupImportError.getSubjectLabel());
+          this.setErrorRowNumber(-1);
+          String errorLine = null;
+          if (groupImportError.getRowNumber() != null) {
+            this.setErrorRowNumber(groupImportError.getRowNumber());
+            errorLine = TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
+          } else {
+            errorLine = TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
+          }
+          
+          report.append(errorLine).append("\n");
+          
+        }
+        
+        report.append("</ul>\n");
+      }
+      
+      report.append("</ul>\n");
+    }
+    
+    
+//    // = Errors
+//    //groupImportReportErrorLine = <li><span class="label label-important">Error</span>&nbsp;on row ${grouperRequestContainer.groupImportContainer.errorRowNumber}. ${grouperRequestContainer.groupImportContainer.errorText}: "${grouperUtil.xmlEscape(grouperRequestContainer.groupImportContainer.errorSubject)}"</li>
+//
+//    report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSummary")).append("\n");
+//    report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSuccess")).append("\n");
+//    
+//    // dont add the error report line if there are no errors 
+//    if (errorsCount > 0) {
+//      report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorSummary")).append("\n");
+//    }
+//    report.append("</ul>\n");
+//    
+//    //only add the errors section if there are errors
+//    if (errorsCount > 0) {
+//      report.append("<h5>").append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorsTitle")).append("</h5>\n");
+//      report.append("<ul>\n");
+//      report.append(errors.toString());
+//      report.append("</ul>\n");
+//    }
+//    
+//    reportByGroupName.put(group.getName(), report.toString());
+
+
+    //<ul>
+    //  <li>Before importing, the membership count was 10 and is now 12.</li>
+    //  <li>You successfully added 2 members and deleted 0 members.</li>
+    //  <li>2 members were not imported due to errors, as shown below.</li>
+    //</ul>
+    //<h5>Errors</h5>
+    //<ul>
+    //  <li><span class="label label-important">Error</span>&nbsp;on row 2. Subject not found: "foo-bar-user"</li>
+    //</ul>
+
+    return report.toString();
+  }
   
   /**
-   * count of errors
-   * @param groupCountErrors1 the groupCountErrors to set
+   * have a progress bean
    */
-  public void setGroupCountErrors(int groupCountErrors1) {
-    this.groupCountErrors = groupCountErrors1;
+  private ProgressBean progressBean = new ProgressBean();
+  
+  /**
+   * have a progress bean
+   * @return the progressBean
+   */
+  public ProgressBean getProgressBean() {
+    return this.progressBean;
   }
 
   /**
@@ -196,14 +298,35 @@ public class GroupImportContainer {
   }
 
   /**
+   * current summary for externalized text
+   */
+  private GroupImportGroupSummary groupImportGroupSummary;
+  
+  /**
+   * current summary for externalized text
+   * @return
+   */
+  public GroupImportGroupSummary getGroupImportGroupSummary() {
+    return groupImportGroupSummary;
+  }
+
+  /**
+   * current summary for externalized text
+   * @param groupImportGroupSummary
+   */
+  public void setGroupImportGroupSummary(GroupImportGroupSummary groupImportGroupSummary) {
+    this.groupImportGroupSummary = groupImportGroupSummary;
+  }
+
+  /**
    * groups which we are importing to
    */
   private Set<GuiGroup> guiGroups;
   
   /**
-   * key is group name, value is the report for the group
+   * key is group, value is the summary
    */
-  private Map<String, String> reportForGroupNameMap;
+  private Map<Group, GroupImportGroupSummary> groupImportGroupSummaryForGroupMap = new LinkedHashMap<Group, GroupImportGroupSummary>();
   
   /**
    * groups which we are importing to
@@ -225,16 +348,16 @@ public class GroupImportContainer {
    * key is group name, value is the report for the group
    * @return map
    */
-  public Map<String, String> getReportForGroupNameMap() {
-    return this.reportForGroupNameMap;
+  public Map<Group, GroupImportGroupSummary> getGroupImportGroupSummaryForGroupMap() {
+    return this.groupImportGroupSummaryForGroupMap;
   }
 
   /**
    * key is group name, value is the report for the group
-   * @param reportForGroupNameMap1
+   * @param groupImportGroupSummaryForGroupMap1
    */
-  public void setReportForGroupNameMap(Map<String, String> reportForGroupNameMap1) {
-    this.reportForGroupNameMap = reportForGroupNameMap1;
+  public void setGroupImportGroupSummaryForGroupMap(Map<Group, GroupImportGroupSummary> groupImportGroupSummaryForGroupMap1) {
+    this.groupImportGroupSummaryForGroupMap = groupImportGroupSummaryForGroupMap1;
   }
 
   /**

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -274,9 +275,12 @@ public class GcGrouperSyncMembershipDao {
       GcGrouperSyncGroup gcGrouperSyncGroup = groupIdToSyncGroup.get(groupId);
       GcGrouperSyncMember gcGrouperSyncMember = memberIdToSyncMember.get(memberId);
 
-      if (gcGrouperSyncGroup == null || gcGrouperSyncMember == null 
-          || gcGrouperSyncGroup.getId() == null || gcGrouperSyncMember.getId() == null) {
-        throw new RuntimeException("Cant find group or member! " + groupId + ", " + memberId);
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        throw new RuntimeException("Cant find group! " + groupId);
+      }
+
+      if (gcGrouperSyncMember == null || gcGrouperSyncMember.getId() == null) {
+        throw new RuntimeException("Cant find member! " + memberId);
       }
       GcGrouperSyncMembership gcGrouperSyncMembership = 
           this.internal_membershipCreateBySyncGroupIdAndSyncMemberIdHelper(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
@@ -665,6 +669,92 @@ public class GcGrouperSyncMembershipDao {
   }
 
   /**
+   * select grouper sync membership by group sync ids
+   * @param syncGroupIds
+   * @return the syncMemberships
+   */
+  public List<GcGrouperSyncMembership> internal_membershipRetrieveFromDbBySyncGroupIds(Collection<String> syncGroupIds) {
+    
+    List<GcGrouperSyncMembership> result = new ArrayList<GcGrouperSyncMembership>();
+    
+    if (GrouperClientUtils.length(syncGroupIds) == 0) {
+      return result;
+    }
+    
+    List<String> syncGroupIdsList = new ArrayList<String>(syncGroupIds);
+    
+    // two bind vars in each record to retrieve
+    int batchSize = this.getGcGrouperSync().maxBindVarsInSelect();
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(syncGroupIdsList, batchSize);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfGroupIds = GrouperClientUtils.batchList(syncGroupIdsList, batchSize, batchIndex);
+      
+      String sql = "select * from grouper_sync_membership where grouper_sync_group_id in ( " + GrouperClientUtils.appendQuestions(batchOfGroupIds.size()) + ")";
+
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName());
+
+      for (String syncGroupId : batchOfGroupIds) {
+        gcDbAccess.addBindVar(syncGroupId);
+      }
+      
+      List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcDbAccess.sql(sql).selectList(GcGrouperSyncMembership.class);
+      
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperClientUtils.nonNull(gcGrouperSyncMemberships)) {
+        result.add(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
+        this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+      }
+      
+    }
+    return result;
+  }
+
+  /**
+   * select grouper sync membership by member sync ids
+   * @param syncMemberIds
+   * @return the syncMemberships
+   */
+  public List<GcGrouperSyncMembership> internal_membershipRetrieveFromDbBySyncMemberIds(Collection<String> syncMemberIds) {
+    
+    List<GcGrouperSyncMembership> result = new ArrayList<GcGrouperSyncMembership>();
+    
+    if (GrouperClientUtils.length(syncMemberIds) == 0) {
+      return result;
+    }
+    
+    List<String> syncMemberIdsList = new ArrayList<String>(syncMemberIds);
+    
+    // two bind vars in each record to retrieve
+    int batchSize = this.getGcGrouperSync().maxBindVarsInSelect();
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(syncMemberIdsList, batchSize);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfMemberIds = GrouperClientUtils.batchList(syncMemberIdsList, batchSize, batchIndex);
+      
+      String sql = "select * from grouper_sync_membership where grouper_sync_member_id in ( " + GrouperClientUtils.appendQuestions(batchOfMemberIds.size()) + ")";
+
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName());
+
+      for (String syncMemberId : batchOfMemberIds) {
+        gcDbAccess.addBindVar(syncMemberId);
+      }
+      
+      List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcDbAccess.sql(sql).selectList(GcGrouperSyncMembership.class);
+      
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperClientUtils.nonNull(gcGrouperSyncMemberships)) {
+        result.add(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
+        this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+      }
+      
+    }
+    return result;
+  }
+
+  /**
    * select grouper sync membership by gcGrouperSyncMembershipId id
    * @param gcGrouperSyncMembershipId
    * @return the gcGrouperSyncMembership
@@ -781,7 +871,13 @@ public class GcGrouperSyncMembershipDao {
       gcGrouperSyncMembership.storePrepare();
     }
   
-    int changes = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeBatchToDatabase(gcGrouperSyncMembershipsList, batchSize);
+    int changes = -1;
+    
+    try {
+      changes = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).storeBatchToDatabase(gcGrouperSyncMembershipsList, batchSize);
+    } catch (RuntimeException re) {
+      throw re;
+    }
     
     for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperClientUtils.nonNull(gcGrouperSyncMemberships)) {
       this.internal_membershipCacheAdd(gcGrouperSyncMembership);
@@ -827,10 +923,8 @@ public class GcGrouperSyncMembershipDao {
     Set<String> groupIds = new HashSet<String>();
     Set<String> memberIds = new HashSet<String>();
     
-    Map<MultiKey, GcGrouperSyncMembership> results = new HashMap<MultiKey, GcGrouperSyncMembership>();
-    
     if (GrouperClientUtils.length(groupIdsAndMemberIds) == 0) {
-      return results;
+      return new HashMap<MultiKey, GcGrouperSyncMembership>();
     }
 
     // we need to get the sync groups and sync members
@@ -842,6 +936,10 @@ public class GcGrouperSyncMembershipDao {
     Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
     Map<String, GcGrouperSyncMember> memberIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIds);
 
+    Set<MultiKey> syncGroupIdsSyncMemberIds = new HashSet<MultiKey>();
+    
+    Map<MultiKey, MultiKey> syncGroupSyncMemberToGroupMemberIds = new HashMap<MultiKey, MultiKey>();
+    
     // go through and each and see if we have them
     for (MultiKey groupIdAndMemberId : groupIdsAndMemberIds) {
       String groupId = (String)groupIdAndMemberId.getKey(0);
@@ -853,15 +951,108 @@ public class GcGrouperSyncMembershipDao {
           || gcGrouperSyncGroup.getId() == null || gcGrouperSyncMember.getId() == null) {
         continue;
       }
-      
-      GcGrouperSyncMembership gcGrouperSyncMembership = this
-          .internal_membershipRetrieveFromDbBySyncGroupIdAndSyncMemberId(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
-      if (gcGrouperSyncMembership != null) {
-        results.put(new MultiKey(groupId, memberId), gcGrouperSyncMembership);
-      }
-      
+      MultiKey groupSyncIdMemberSyncId = new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
+      syncGroupIdsSyncMemberIds.add(groupSyncIdMemberSyncId);
+      syncGroupSyncMemberToGroupMemberIds.put(groupSyncIdMemberSyncId, groupIdAndMemberId);
     }
+
+    Map<MultiKey, GcGrouperSyncMembership> results = new HashMap<MultiKey, GcGrouperSyncMembership>();
+    
+    Set<MultiKey> syncGroupIdsSyncMemberIdsToGetFromDb = new HashSet<MultiKey>();
+    
+    // try from cache
+    for (MultiKey syncGroupIdSyncMemberId : GrouperClientUtils.nonNull(syncGroupIdsSyncMemberIds)) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = this.internalCacheSyncMemberships.get(syncGroupIdSyncMemberId);
+      if (gcGrouperSyncMembership != null) {
+        MultiKey groupIdMemberId = syncGroupSyncMemberToGroupMemberIds.get(syncGroupIdSyncMemberId);
+        results.put(groupIdMemberId, gcGrouperSyncMembership);
+      } else {
+        syncGroupIdsSyncMemberIdsToGetFromDb.add(syncGroupIdSyncMemberId);
+      }
+    }
+    
+    // or else get from db
+    if (syncGroupIdsSyncMemberIdsToGetFromDb.size() > 0) {
+      Map<MultiKey, GcGrouperSyncMembership> syncGroupIdSyncMemberIdToMembershipFromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(syncGroupIdsSyncMemberIdsToGetFromDb);
+      for (MultiKey syncGroupIdSyncMemberId : (GrouperClientUtils.nonNull(syncGroupIdSyncMemberIdToMembershipFromDb).keySet())) {
+        MultiKey groupIdMemberId = syncGroupSyncMemberToGroupMemberIds.get(syncGroupIdSyncMemberId);
+        results.put(groupIdMemberId, syncGroupIdSyncMemberIdToMembershipFromDb.get(syncGroupIdSyncMemberId));
+      }
+    }
+    
     return results;
+
+  }
+
+  public List<GcGrouperSyncMembership> membershipRetrieveByGroupIds(Set<String> groupIdsToRetrieveMemberships) {
+    Set<String> groupIds = new HashSet<String>();
+    
+    List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
+    
+    if (GrouperClientUtils.length(groupIdsToRetrieveMemberships) == 0) {
+      return results;
+    }
+
+    Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
+
+    Set<String> groupSyncIds = new HashSet<String>();
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperClientUtils.nonNull(groupIdToSyncGroup).values()) {
+      groupSyncIds.add(gcGrouperSyncGroup.getId());
+    }
+    
+    return this.internal_membershipRetrieveFromDbBySyncGroupIds(groupSyncIds);
+        
+  }
+
+  public List<GcGrouperSyncMembership> membershipRetrieveByMemberIds(Set<String> memberIdsToRetrieveMemberships) {
+    Set<String> groupIds = new HashSet<String>();
+    
+    List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
+    
+    if (GrouperClientUtils.length(memberIdsToRetrieveMemberships) == 0) {
+      return results;
+    }
+
+    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(groupIds);
+
+    Set<String> memberSyncIds = new HashSet<String>();
+    for (GcGrouperSyncMember gcGrouperSyncMember : GrouperClientUtils.nonNull(memberSyncIdToSyncMember).values()) {
+      memberSyncIds.add(gcGrouperSyncMember.getId());
+    }
+    
+    return this.internal_membershipRetrieveFromDbBySyncMemberIds(memberSyncIds);
+        
+  }
+
+  /**
+   * get membership ids with errors after error timestamp
+   * @param errorTimestampCheckFrom if null get all
+   * @return group ids and member ids
+   */
+  public List<Object[]> retrieveGroupIdMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select gsg.group_id, gsm.member_id from grouper_sync_membership gsms, grouper_sync_group gsg, grouper_sync_member gsm "
+            + "where gsms.grouper_sync_id = ? and gsms.grouper_sync_group_id = gsg.id and gsms.grouper_sync_member_id = gsm.id" 
+            + (errorTimestampCheckFrom == null ? " and gsms.error_timestamp is not null" : " and gsms.error_timestamp >= ?"))
+        .addBindVar(this.getGcGrouperSync().getId());
+    if (errorTimestampCheckFrom != null) {
+      gcDbAccess.addBindVar(errorTimestampCheckFrom);
+    }
+    List<Object[]> groupIdMemberIds = gcDbAccess.selectList(Object[].class);
+    return groupIdMemberIds;
+  }
+  
+  /**
+   * get count of rows per error code
+   * @return
+   */
+  public Map<String, Integer> retrieveErrorCountByCode() {
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select error_code, count(*) from grouper_sync_membership where grouper_sync_id = ? and error_code is not null group by error_code")
+        .addBindVar(this.getGcGrouperSync().getId());
+    Map<String, Integer> errorCount = gcDbAccess.selectMapMultipleRows(String.class, Integer.class);
+    return errorCount;
   }
 
 }

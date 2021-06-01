@@ -260,12 +260,14 @@
             <testResource>
                 <directory>confForTest</directory>
             </testResource>
+            <!--
             <testResource>
                 <directory>../../grouper/confForTest</directory>
             </testResource>
             <testResource>
                 <directory>../../grouper/conf</directory>
             </testResource>
+            -->
         </testResources>
 
         <plugins>

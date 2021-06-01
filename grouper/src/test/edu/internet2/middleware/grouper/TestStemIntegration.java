@@ -59,6 +59,15 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  */
 public class TestStemIntegration extends GrouperTest {
 
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = GrouperUtil.getLog(TestStemIntegration.class);
 

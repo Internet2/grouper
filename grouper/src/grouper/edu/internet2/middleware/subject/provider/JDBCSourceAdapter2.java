@@ -39,6 +39,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -64,48 +65,48 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * table or view where each row is a subject
    * <param-name>dbTableOrView</param-name> 
    */
-  private String dbTableOrView;
+  protected String dbTableOrView;
 
   /** 
    * column which holds the subject id
    * <param-name>subjectIdCol</param-name> 
    */
-  private String subjectIdCol;
+  protected String subjectIdCol;
 
   /**
    * column which holds the subject name 
    * <param-name>nameCol</param-name> 
    */
-  private String nameCol;
+  protected String nameCol;
 
   /**
    * col for subject description
    * <param-name>descriptionCol</param-name> 
    */
-  private String descriptionCol;
+  protected String descriptionCol;
 
   /**
    * for searches (not by id or identifier), this is the col which holds the search terms, in lower case 
    * <param-name>lowerSearchCol</param-name> 
    */
-  private String lowerSearchCol;
+  protected String lowerSearchCol;
 
   /**
    * search queries will sort by this.  Note it might be overridden by caller, e.g. UI
    * <param-name>defaultSortCol</param-name> 
    */
-  private String defaultSortCol;
+  protected String defaultSortCol;
 
   /**
    * cols which are used in a findByIdentifier query
    * <param-name>subjectIdentifierCol0</param-name> 
    */
-  private Set<String> subjectIdentifierCols = new LinkedHashSet<String>();
+  protected Set<String> subjectIdentifierCols = new LinkedHashSet<String>();
 
   /**
    * cols which are selected in queries
    */
-  private Set<String> selectCols = new LinkedHashSet<String>();
+  protected Set<String> selectCols = new LinkedHashSet<String>();
 
   /**
    * map of col to attribute name
@@ -505,6 +506,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       conn = jdbcConnectionBean.connection();
       
       stmt = conn.prepareStatement(query);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = null;
 
       rs = stmt.executeQuery();
@@ -702,9 +705,19 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     //defaults to true
     Boolean readOnly = SubjectUtils.booleanObjectValue(props.getProperty("readOnly"));
 
-    String jdbcConnectionProviderString = SubjectUtils.defaultIfBlank(props
-        .getProperty("jdbcConnectionProvider"), C3p0JdbcConnectionProvider.class
-        .getName());
+    
+    
+    String jdbcConnectionProviderString = props.getProperty("jdbcConnectionProvider");
+    
+    if (StringUtils.isBlank(jdbcConnectionProviderString)) {
+      
+      if (StringUtils.isNotBlank(jdbcConfigId)) {
+        jdbcConnectionProviderString = GrouperJdbcConnectionProvider.class.getName();
+      } else {
+        jdbcConnectionProviderString = C3p0JdbcConnectionProvider.class.getName();
+      }
+      
+    }
     Class<JdbcConnectionProvider> jdbcConnectionProviderClass = null;
     try {
       jdbcConnectionProviderClass = SubjectUtils.forName(jdbcConnectionProviderString);
@@ -1048,6 +1061,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
       
       stmt = conn.prepareStatement(query);
+      stmt.setFetchSize(1000);
+
       ResultSet rs = null;
 
       for (int i = 0; i < SubjectUtils.length(args); i++) {
@@ -1138,7 +1153,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @return subject
    * @throws SQLException 
    */
-  private Subject createSubject(ResultSet resultSet, String query, 
+  protected Subject createSubject(ResultSet resultSet, String query, 
       Collection<String> identifiersForIdentifierToMap, Map<String, Subject> resultIdentifierToSubject) throws SQLException {
 
     String name = "";
@@ -1245,7 +1260,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @return the value
    * @throws SQLException 
    */
-  private String retrieveString(ResultSet resultSet, String name, String varName,
+  protected String retrieveString(ResultSet resultSet, String name, String varName,
       String query, ResultSetMetaData resultSetMetaData) throws SQLException {
     try {
       int columnCount = resultSetMetaData.getColumnCount();
@@ -1259,6 +1274,12 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
       }
       String result = resultSet.getString(name);
+      
+      
+      if (this.getSourceAttributesToLowerCase().containsKey(name) && result != null) {
+        result = result.toLowerCase();
+      }
+      
       return result;
     } catch (SQLException se) {
       SubjectUtils.injectInException(se, "Error retrieving column name: '" + name

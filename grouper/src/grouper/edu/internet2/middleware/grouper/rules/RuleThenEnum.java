@@ -69,7 +69,7 @@ public enum RuleThenEnum {
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
 
       String days = ruleDefinition.getThen().getThenEnumArg0();
-      int daysInteger = GrouperUtil.intValue(days);
+      double daysInteger = GrouperUtil.doubleValue(days);
 
       String ownerAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
       
@@ -93,7 +93,7 @@ public enum RuleThenEnum {
       String days = ruleDefinition.getThen().getThenEnumArg0();
 
       try {
-        GrouperUtil.intValue(days);
+        GrouperUtil.doubleValue(days);
       } catch (Exception e) {
         return "ruleThenEnumArg0 should be the number of days in the future that the disabled date should be set: " + e.getMessage();
       }
@@ -117,7 +117,7 @@ public enum RuleThenEnum {
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
 
       String days = ruleDefinition.getThen().getThenEnumArg0();
-      int daysInteger = GrouperUtil.intValue(days);
+      double daysInteger = GrouperUtil.doubleValue(days);
 
       String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
       boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere);
@@ -139,7 +139,7 @@ public enum RuleThenEnum {
       String days = ruleDefinition.getThen().getThenEnumArg0();
 
       try {
-        GrouperUtil.intValue(days);
+        GrouperUtil.doubleValue(days);
       } catch (Exception e) {
         return "ruleThenEnumArg0 should be the number of days in the future that the disabled date should be set: " + e.getMessage();
       }

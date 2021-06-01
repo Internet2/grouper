@@ -75,6 +75,15 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
+  }
+
   /**
    * 
    */

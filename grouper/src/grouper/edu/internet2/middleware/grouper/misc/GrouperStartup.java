@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemConnectionRefresher;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
@@ -279,9 +280,11 @@ public class GrouperStartup {
         if (started) {
           return false;
         }
-        
-        GrouperConfigHibernate.registerDatabaseCache();
-        
+
+        started = true;
+        GcDbAccess.setGrouperIsStarted(false);
+        finishedStartupSuccessfully = false;
+
         {
           int delaySeconds = GrouperHibernateConfig.retrieveConfig().propertyValueInt("grouper.start.delay.seconds", 0);
           if (delaySeconds > 0) {
@@ -289,110 +292,116 @@ public class GrouperStartup {
             GrouperUtil.sleep(GrouperUtil.intValue(delaySeconds) * 1000);
           }
         }
-        GcDbAccess.setGrouperIsStarted(false);
-        started = true;
-        finishedStartupSuccessfully = false;
         
-        printConfigOnce();
-    
-        //check java version
-//        if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
-//          String javaVersion = System.getProperty("java.version");
-//          if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
-//            String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
-//            LOG.error(error);
-//            System.out.println(error);
-//          }
-//        }
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            GrouperConfigHibernate.registerDatabaseCache();
+            
+            printConfigOnce();
+        
+            //check java version
+//            if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
+//              String javaVersion = System.getProperty("java.version");
+//              if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
+//                String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
+//                LOG.error(error);
+//                System.out.println(error);
+//              }
+//            }
 
-//        //add in custom sources.  
-//        SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
-//        SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
-        
-//        if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
-//          
-//          SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
-//          
-//        }
-        
-        //dont print big classname, dont print nulls
-        ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
+//            //add in custom sources.  
+//            SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
+//            SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
+            
+//            if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
+//              
+//              SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
+//              
+//            }
+            
+            //dont print big classname, dont print nulls
+            ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
 
-        //first check databases
+            //first check databases
+            
+            if (!ignoreCheckConfig) {
+              GrouperCheckConfig.checkGrouperDb();
+            }
+            
+            if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.ignoreAtStartup", false)) {
+              // this prints the message about autoddl if not printed
+              GrouperDdlUtils.autoDdl2_5orAbove();
+      
+              if (runDdlBootstrap) {
+                GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+                //first make sure the DB ddl is up to date
+                new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+              }
+            }
+            
+            // we are ready to use the database
+            ConfigPropertiesCascadeBase.assignInitted();
+            
+            if (!ignoreCheckConfig) {
+              //make sure configuration is ok
+              GrouperCheckConfig.checkConfig();
+            }
+            
+            //startup hooks
+            GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
         
-        if (!ignoreCheckConfig) {
-          GrouperCheckConfig.checkGrouperDb();
-        }
-        
-        if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.ignoreAtStartup", false)) {
-          // this prints the message about autoddl if not printed
-          GrouperDdlUtils.autoDdl2_5orAbove();
-  
-          if (runDdlBootstrap) {
-            GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
-            //first make sure the DB ddl is up to date
-            new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+            //register hib objects
+            Hib3DAO.initHibernateIfNotInitted();
+            
+            initData(true);
+            
+            boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
+            
+            // skip for now if legacy attribute migration is not done
+            if (!legacyAttributeMigrationIncomplete) {
+              //init include exclude type
+              initIncludeExcludeType();
+              
+              //init loader types and attributes if configured
+              initLoaderType();
+              
+              //init membership lite config type
+              initMembershipLiteConfigType();
+            }
+            
+            if (!ignoreCheckConfig) {
+              //post steps after loader config
+              GrouperCheckConfig.checkConfig2();
+            }
+
+            // verify member search and sort config
+            verifyMemberSortAndSearchConfig();
+            
+            // verify id indexes
+            verifyTableIdIndexes();
+
+            verifyUtf8andTransactions();
+            
+            finishedStartupSuccessfully = true;
+            GcDbAccess.setGrouperIsStarted(true);
+
+            //uncache config settings
+            GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
+
+            printConfigFollowupOnce();
+            
+            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldaptiveEncodeControlChars", false)) {
+              System.setProperty("org.ldaptive.response.ENCODE_CNTRL_CHARS", "true");
+            }
+            
+            GrouperCacheDatabase.startThreadIfNotStarted();
+            GrouperExternalSystemConnectionRefresher.startThreadIfNotStarted();
+            GrouperCacheUtils.clearAllCaches();
+            return null;
           }
-        }
-        
-        // we are ready to use the database
-        ConfigPropertiesCascadeBase.assignInitted();
-        
-        if (!ignoreCheckConfig) {
-          //make sure configuration is ok
-          GrouperCheckConfig.checkConfig();
-        }
-        
-        //startup hooks
-        GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
-    
-        //register hib objects
-        Hib3DAO.initHibernateIfNotInitted();
-        
-        initData(true);
-        
-        boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
-        
-        // skip for now if legacy attribute migration is not done
-        if (!legacyAttributeMigrationIncomplete) {
-          //init include exclude type
-          initIncludeExcludeType();
-          
-          //init loader types and attributes if configured
-          initLoaderType();
-          
-          //init membership lite config type
-          initMembershipLiteConfigType();
-        }
-        
-        if (!ignoreCheckConfig) {
-          //post steps after loader config
-          GrouperCheckConfig.checkConfig2();
-        }
-
-        // verify member search and sort config
-        verifyMemberSortAndSearchConfig();
-        
-        // verify id indexes
-        verifyTableIdIndexes();
-
-        verifyUtf8andTransactions();
-        
-        finishedStartupSuccessfully = true;
-        GcDbAccess.setGrouperIsStarted(true);
-
-        //uncache config settings
-        GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
-
-        printConfigFollowupOnce();
-        
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
-          
-          SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
-          
-        }
-        GrouperCacheDatabase.startThreadIfNotStarted();
-        GrouperCacheUtils.clearAllCaches();
+        });
 
         return true;
       }

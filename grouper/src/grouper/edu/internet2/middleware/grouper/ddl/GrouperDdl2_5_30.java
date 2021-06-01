@@ -320,9 +320,9 @@ public class GrouperDdl2_5_30 {
         + "or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) "
         + "and ( grmc.include_eligible = 'T' "
         + "or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 "
-        + "WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id "
+        + "WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id "
         + "and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id "
-        + "and gs2.owner_id = grmc.group_uuid_to and mship2.enabled = 'T' ))"
+        + "and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'))"
         
         );
   }
@@ -622,7 +622,7 @@ public class GrouperDdl2_5_30 {
             + "( "
             + "   ( "
             + "      gpmship.start_time >= gpgs.start_time "
-            + "      and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null) "
+            + "      and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null) "
             + "   ) "
             + "   or "
             + "   ( "
@@ -696,7 +696,7 @@ public class GrouperDdl2_5_30 {
         + "( "
         + "   ( "
         + "      gpmship.start_time >= gpgs.start_time "
-        + "      and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null) "
+        + "      and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null) "
         + "   ) "
         + "  or "
         + "  ( "
@@ -772,7 +772,7 @@ public class GrouperDdl2_5_30 {
         + "( "
         + "   ( "
         + "      gpmship.start_time >= gpgs.start_time "
-        + "      and (gpmship.end_time >= gpmship.start_time or gpgs.end_time is null) "
+        + "      and (gpgs.end_time >= gpmship.start_time or gpgs.end_time is null) "
         + "   ) "
         + "   or "
         + "   ( "

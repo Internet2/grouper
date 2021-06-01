@@ -12,17 +12,22 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperSyncObject;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.subject.Subject;
@@ -40,9 +45,29 @@ public class ProvisioningContainer {
   private GrouperProvisioningAttributeValue grouperProvisioningAttributeValue;
   
   /**
+   * grouper proivisioning object metadata items
+   */
+  private List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
+  
+  /**
    * list of all grouper provisioning attribute values for a given group/stem
    */
   private List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
+
+  
+  private GuiGrouperProvisioningAttributeValue currentGuiGrouperProvisioningAttributeValue = null;
+  
+  
+  public GuiGrouperProvisioningAttributeValue getCurrentGuiGrouperProvisioningAttributeValue() {
+    return currentGuiGrouperProvisioningAttributeValue;
+  }
+
+  
+  public void setCurrentGuiGrouperProvisioningAttributeValue(
+      GuiGrouperProvisioningAttributeValue currentGuiGrouperProvisioningAttributeValue) {
+    this.currentGuiGrouperProvisioningAttributeValue = currentGuiGrouperProvisioningAttributeValue;
+  }
+
 
   /**
    * number of groups in a folder for a provisioner target 
@@ -60,6 +85,16 @@ public class ProvisioningContainer {
   private long membershipsCount;
   
   /**
+   * gc grouper sync group to show for a particular group and provisioner 
+   */
+  private GcGrouperSyncGroup gcGrouperSyncGroup;
+  
+  /**
+   * logs for a particular group
+   */
+  private List<GcGrouperSyncLog> gcGrouperSyncLogs = new ArrayList<GcGrouperSyncLog>();
+  
+  /**
    * grouper sync members to show on subject provisioning screen
    */
   private List<GcGrouperSyncMember> gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
@@ -68,6 +103,26 @@ public class ProvisioningContainer {
    * grouper sync memberships to show on membership provisioning screen
    */
   private List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+  
+  /**
+   * gc grouper sync membership to show for a particular membership with provisioner 
+   */
+  private GcGrouperSyncMembership gcGrouperSyncMembership;
+
+  /**
+   * gc grouper sync member to show for a particular member with provisioner 
+   */
+  private GcGrouperSyncMember gcGrouperSyncMember;
+  
+  /**
+   * encapsulate gcGrouperSyncMember/gcGrouperSyncMember with direct settings
+   */
+  private GuiGrouperSyncObject guiGrouperSyncObject;
+  
+  /**
+   * encapsulate gcGrouperSyncMember/gcGrouperSyncMember with direct settings
+   */
+  private List<GuiGrouperSyncObject> guiGrouperSyncObjects = new ArrayList<GuiGrouperSyncObject>();
   
   /**
    * @return target name user is currently working on
@@ -127,36 +182,36 @@ public class ProvisioningContainer {
       return true;
     }
 
-    Boolean allowedInProvisioningGroup = null;
-    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"))) {
-      String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
-      //null error means allow
-      allowedInProvisioningGroup = ( error == null );
-    }
-
-    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
-    
-    if (guiGroup != null) {
-      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
-        return false;
-      }
-      if (allowedInProvisioningGroup != null) {
-        return allowedInProvisioningGroup;
-      }
-      return true;
-    }
-
-    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
-    
-    if (guiStem != null) {
-      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
-        return false;
-      }
-      if (allowedInProvisioningGroup != null) {
-        return allowedInProvisioningGroup;
-      }
-      return true;
-    }
+//    Boolean allowedInProvisioningGroup = null;
+//    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"))) {
+//      String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
+//      //null error means allow
+//      allowedInProvisioningGroup = ( error == null );
+//    }
+//
+//    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+//    
+//    if (guiGroup != null) {
+//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+//        return false;
+//      }
+//      if (allowedInProvisioningGroup != null) {
+//        return allowedInProvisioningGroup;
+//      }
+//      return true;
+//    }
+//
+//    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+//    
+//    if (guiStem != null) {
+//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+//        return false;
+//      }
+//      if (allowedInProvisioningGroup != null) {
+//        return allowedInProvisioningGroup;
+//      }
+//      return true;
+//    }
     
     return false;
   }
@@ -172,36 +227,36 @@ public class ProvisioningContainer {
       return true;
     }
     
-    Boolean allowedInProvisioningGroup = null;
-    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"))) {
-      String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
-      //null error means allow
-      allowedInProvisioningGroup = ( error == null );
-    }
-
-    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
-    
-    if (guiGroup != null) {
-      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-        return false;
-      }
-      if (allowedInProvisioningGroup != null) {
-        return allowedInProvisioningGroup;
-      }
-      return true;
-    }
-
-    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
-    
-    if (guiStem != null) {
-      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
-        return false;
-      }
-      if (allowedInProvisioningGroup != null) {
-        return allowedInProvisioningGroup;
-      }
-      return true;
-    }
+//    Boolean allowedInProvisioningGroup = null;
+//    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"))) {
+//      String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
+//      //null error means allow
+//      allowedInProvisioningGroup = ( error == null );
+//    }
+//
+//    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+//    
+//    if (guiGroup != null) {
+//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+//        return false;
+//      }
+//      if (allowedInProvisioningGroup != null) {
+//        return allowedInProvisioningGroup;
+//      }
+//      return true;
+//    }
+//
+//    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+//    
+//    if (guiStem != null) {
+//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+//        return false;
+//      }
+//      if (allowedInProvisioningGroup != null) {
+//        return allowedInProvisioningGroup;
+//      }
+//      return true;
+//    }
 
     return false;
   }
@@ -361,8 +416,139 @@ public class ProvisioningContainer {
   public void setGcGrouperSyncMemberships(List<GcGrouperSyncMembership> gcGrouperSyncMemberships) {
     this.gcGrouperSyncMemberships = gcGrouperSyncMemberships;
   }
-  
-  
 
+  /**
+   * gc grouper sync group to show for a particular group and provisioner 
+   * @return
+   */
+  public GcGrouperSyncGroup getGcGrouperSyncGroup() {
+    return gcGrouperSyncGroup;
+  }
+
+  /**
+   * gc grouper sync group to show for a particular group and provisioner 
+   * @param gcGrouperSyncGroup
+   */
+  public void setGcGrouperSyncGroup(GcGrouperSyncGroup gcGrouperSyncGroup) {
+    this.gcGrouperSyncGroup = gcGrouperSyncGroup;
+  }
+
+  /**
+   * logs for a particular group
+   * @return
+   */
+  public List<GcGrouperSyncLog> getGcGrouperSyncLogs() {
+    return gcGrouperSyncLogs;
+  }
+
+  /**
+   * logs for a particular group
+   * @param gcGrouperSyncLogs
+   */
+  public void setGcGrouperSyncLogs(List<GcGrouperSyncLog> gcGrouperSyncLogs) {
+    this.gcGrouperSyncLogs = gcGrouperSyncLogs;
+  }
+  
+  /**
+   * @return gc grouper sync membership to show for a particular membership with provisioner 
+   */
+  public GcGrouperSyncMembership getGcGrouperSyncMembership() {
+    return gcGrouperSyncMembership;
+  }
+
+  /**
+   * gc grouper sync membership to show for a particular membership with provisioner 
+   * @param gcGrouperSyncMembership
+   */
+  public void setGcGrouperSyncMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
+    this.gcGrouperSyncMembership = gcGrouperSyncMembership;
+  }
+  
+  /**
+   * gc grouper sync member to show for a particular member with provisioner 
+   * @return
+   */
+  public GcGrouperSyncMember getGcGrouperSyncMember() {
+    return gcGrouperSyncMember;
+  }
+
+  /**
+   * gc grouper sync member to show for a particular member with provisioner 
+   * @param gcGrouperSyncMember
+   */
+  public void setGcGrouperSyncMember(GcGrouperSyncMember gcGrouperSyncMember) {
+    this.gcGrouperSyncMember = gcGrouperSyncMember;
+  }
+
+  /**
+   * * grouper proivisioning object metadata items
+   * @return
+   */
+  public List<GrouperProvisioningObjectMetadataItem> getGrouperProvisioningObjectMetadataItems() {
+    return grouperProvisioningObjectMetadataItems;
+  }
+
+  /**
+   * grouper proivisioning object metadata items
+   * @param grouperProvisioningObjectMetadataItems
+   */
+  public void setGrouperProvisioningObjectMetadataItems(List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems) {
+    this.grouperProvisioningObjectMetadataItems = grouperProvisioningObjectMetadataItems;
+  }
+
+
+  /**
+   * keep track of the paging on the config history screen
+   */
+  private GuiPaging guiPaging = null;
+
+  
+  /**
+   * keep track of the paging on the config history screen
+   * @return the paging object, init if not there...
+   */
+  public GuiPaging getGuiPaging() {
+    if (this.guiPaging == null) {
+      this.guiPaging = new GuiPaging();
+    }
+    return this.guiPaging;
+  }
+
+  
+  public void setGuiPaging(GuiPaging guiPaging) {
+    this.guiPaging = guiPaging;
+  }
+
+  
+  public List<GuiGrouperSyncObject> getGuiGrouperSyncObjects() {
+    return guiGrouperSyncObjects;
+  }
+
+  
+  public void setGuiGrouperSyncObjects(List<GuiGrouperSyncObject> guiGrouperSyncObjects) {
+    this.guiGrouperSyncObjects = guiGrouperSyncObjects;
+  }
+
+  
+  public GuiGrouperSyncObject getGuiGrouperSyncObject() {
+    return guiGrouperSyncObject;
+  }
+
+  
+  public void setGuiGrouperSyncObject(GuiGrouperSyncObject guiGrouperSyncObject) {
+    this.guiGrouperSyncObject = guiGrouperSyncObject;
+  }
+
+  private GrouperProvisioner grouperProvisioner;
+  
+  public void setGrouperProvisioner(GrouperProvisioner provisioner) {
+    grouperProvisioner = provisioner;
+    
+  }
+
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
   
 }

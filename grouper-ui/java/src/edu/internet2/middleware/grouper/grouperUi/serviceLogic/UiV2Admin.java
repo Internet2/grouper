@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -51,11 +52,9 @@ import org.quartz.impl.matchers.GroupMatcher;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -71,6 +70,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperDaemonConfiguration;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectSourceContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -99,37 +99,6 @@ public class UiV2Admin extends UiServiceLogicBase {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(UiV2Admin.class);
-  
-  /**
-   * show screen or subject API diagnostics
-   * @param request
-   * @param response
-   */
-  public void subjectApiDiagnostics(HttpServletRequest request, HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    //initialize the bean
-    GrouperRequestContainer.retrieveFromRequestOrCreate();
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      //if the user allowed
-      if (!subjectApiDiagnosticsAllowed()) {
-        return;
-      }
-      
-      //just show a jsp
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/admin/adminSubjectApiDiagnostics.jsp"));
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
   
   /**
    * show instrumentation screen
@@ -514,7 +483,7 @@ public class UiV2Admin extends UiServiceLogicBase {
           // daemon config type changed
           // let's get values from config files/database
         } else {
-          populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+          grouperDaemonConfiguration.populateConfigurationValuesFromUi(request);
         }
   
         GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(grouperDaemonConfiguration);
@@ -589,7 +558,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("enable value can be true or false only");
       }
       
-      populateDaemonConfigFromUi(request, grouperDaemonConfiguration);
+      grouperDaemonConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -645,39 +614,39 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-    
+
       //if the user is allowed
       if (!daemonJobsAllowed()) {
         return;
       }
-      
+
       String jobName = request.getParameter("jobName");
-      
+
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
-      
+
       GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
-      
+
       String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
       if (configToDelete.isMultiple()) {
         configToDelete.setConfigId(configId);
       }
-      
+
       configToDelete.deleteConfig(true);
-      
+
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       JobKey jobKey = new JobKey(jobName);
       scheduler.deleteJob(jobKey);
-      
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
-      
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigDeleteSuccess")));
-      
-      } catch(SchedulerException e) {
-        throw new RuntimeException("Error removing job from scheduler");
-      } finally {
+
+    } catch(SchedulerException e) {
+      throw new RuntimeException("Error removing job from scheduler", e);
+    } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
@@ -712,18 +681,21 @@ public class UiV2Admin extends UiServiceLogicBase {
         throw new RuntimeException("jobName cannnot be blank");
       }
       
+      // clear cache since the EL variables need to be cleared and other things
+      GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
-      
-      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-      if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(configId);
-      }
+
+      // daemon is already set config id in retrieveImplementationFromJobName()
+      //  String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      //  if (configToEdit.isMultiple()) {
+      //    configToEdit.setConfigId(configId);
+      //  }
         
       String previousJobName = request.getParameter("previousJobName");
       
       // change was made on the form
       if (StringUtils.isNotBlank(previousJobName)) {
-        populateDaemonConfigFromUi(request, configToEdit);
+        configToEdit.populateConfigurationValuesFromUi(request);
       }
       
       GuiGrouperDaemonConfiguration guiGrouperDaemonConfiguration = GuiGrouperDaemonConfiguration.convertFromGrouperDaemonConfiguration(configToEdit);
@@ -775,15 +747,17 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
-      
+
+      // clear cache since the EL variables need to be cleared and other things
+      GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
       
-      String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
-      if (configToEdit.isMultiple()) {
-        configToEdit.setConfigId(configId);
-      }
+      //  String configId = jobName.substring(jobName.lastIndexOf("_")+1, jobName.length());
+      //  if (configToEdit.isMultiple()) {
+      //    configToEdit.setConfigId(configId);
+      //  }
       
-      populateDaemonConfigFromUi(request, configToEdit);
+      configToEdit.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
@@ -829,31 +803,6 @@ public class UiV2Admin extends UiServiceLogicBase {
     
   }
   
-  private void populateDaemonConfigFromUi(HttpServletRequest request, GrouperDaemonConfiguration grouperDaemonConfig) {
-    
-    Map<String, GrouperConfigurationModuleAttribute> attributes = grouperDaemonConfig.retrieveAttributes();
-    
-    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
-      String name = "config_"+attribute.getConfigSuffix();
-      String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
-      
-      String elValue = request.getParameter(elCheckboxName);
-      
-      String value = request.getParameter(name);
-      
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
-        attribute.setExpressionLanguage(true);
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
-        attribute.setExpressionLanguageScript(value);
-      } else {
-        attribute.setExpressionLanguage(false);
-        attribute.setValue(value);
-      }
-        
-    }
-    
-  }
-
   public void jobHistoryChart(HttpServletRequest request, HttpServletResponse response) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -955,21 +904,26 @@ public class UiV2Admin extends UiServiceLogicBase {
     String namesLikeFilterString = request.getParameter("namesLikeFilter");
     adminContainer.setGuiJobHistoryNamesLikeFilter(namesLikeFilterString);
 
+    Junction allCriteria = Restrictions.conjunction().add(
+            Restrictions.disjunction().add(
+                    Restrictions.ge("millis", minElapsed * 1000)).add(
+                    Restrictions.isNull("millis"))
+            ).add(
+                    Restrictions.isNull("parentJobId")
+            ).add(
+                    Restrictions.disjunction().add(
+                            Restrictions.between("startedTime", dateFromDate, dateToDate)).add(
+                            Restrictions.between("lastUpdated", dateFromDate, dateToDate))
+            );
 
-    List<Criterion> criterionList = new ArrayList<>();
-    //criterionList.add(Restrictions.not(Restrictions.in("jobType", new String[]{"CHANGE_LOG", "OTHER_JOB"})));
-    criterionList.add(Restrictions.ge("millis", minElapsed * 1000));
-    criterionList.add(Restrictions.isNull("parentJobId"));
-    criterionList.add(Restrictions.between("startedTime", dateFromDate, dateToDate));
     if (!GrouperUtil.isEmpty(namesLikeFilterString)) {
+      Junction namesLikeCriteria = Restrictions.disjunction();
       String[] filterStrings = GrouperUtil.splitTrim(namesLikeFilterString, ",");
-      Criterion[] namesLikeCriteria = new Criterion[filterStrings.length];
       for (int i = 0; i < filterStrings.length; ++i) {
-        namesLikeCriteria[i] = Restrictions.like("jobName", filterStrings[i]);
+        namesLikeCriteria.add(Restrictions.like("jobName", filterStrings[i]));
       }
-      criterionList.add(Restrictions.and(Restrictions.or(namesLikeCriteria)));
+      allCriteria.add(namesLikeCriteria);
     }
-    Criterion allCriteria = HibUtils.listCrit(criterionList);
 
     QueryOptions queryOptions = new QueryOptions().sort(new QuerySort("startedTime", true));
 
@@ -986,8 +940,9 @@ public class UiV2Admin extends UiServiceLogicBase {
     for (Hib3GrouperLoaderLog log : loaderLogs) {
       String jobShortName = log.getGroupNameFromJobName();
       Map<String, String> ganttJob = new HashMap<>();
-      ganttJob.put("startDateString", dateFormat.format(log.getStartedTime()));
-      ganttJob.put("endDateString", dateFormat.format(log.getEndedTime()));
+      ganttJob.put("startDateString", log.getStartedTime() != null ? dateFormat.format(log.getStartedTime()) : "null");
+      ganttJob.put("endDateString", log.getEndedTime() != null ? dateFormat.format(log.getEndedTime()) : "null");
+      ganttJob.put("lastUpdatedDateString", log.getLastUpdated() != null ? dateFormat.format(log.getLastUpdated()) : "null");
       ganttJob.put("taskName", jobShortName);
       ganttJob.put("status", log.getStatus());
 
@@ -1002,17 +957,24 @@ public class UiV2Admin extends UiServiceLogicBase {
         .append(": ").append(log.getStatus())
         .append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStarted"))
-        .append(": ").append(dateFormat.format(log.getStartedTime()));
+        .append(": ").append(ganttJob.get("startDateString"));
       if (log.getEndedTime() != null) {
         tooltipBuilder.append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipFinished"))
-        .append(": " + dateFormat.format(log.getEndedTime()));
-        Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
+        .append(": " + ganttJob.get("endDateString"));
+        if (log.getStartedTime() != null) {
+          Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
+          tooltipBuilder.append("<br/>")
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
+              .append(":" + duration.getSeconds() + " ")
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
+          ;
+        }
+      } else if (log.getLastUpdated() != null) {
+        // no end date but still in progress, so show the last updated time
         tooltipBuilder.append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
-        .append(":" + duration.getSeconds() + " ")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
-        ;
+              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipLastUpdated"))
+              .append(": " + ganttJob.get("lastUpdatedDateString"));
       }
       tooltipBuilder.append("<br/>")
         .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipInsertPrefix"))
@@ -1411,6 +1373,9 @@ public class UiV2Admin extends UiServiceLogicBase {
           throw new RuntimeException("Cant find source by id: '" + sourceId + "'");
         }
         
+        SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
+        subjectSourceContainer.setSubjectSourceId(sourceId);
+        
         subjectId = source.getInitParam("subjectIdToFindOnCheckConfig");
         subjectId = StringUtils.defaultIfBlank(subjectId, "someSubjectId");
 
@@ -1421,11 +1386,13 @@ public class UiV2Admin extends UiServiceLogicBase {
         searchString = StringUtils.defaultIfBlank(searchString, "first last");
       }
       
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/admin/adminSubjectApiDiagnostics.jsp"));
+      
       // change the textfields
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdName", subjectId));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectIdentifierName", subjectIdentifier));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchStringName", searchString));
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

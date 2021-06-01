@@ -256,7 +256,7 @@ public class ConfigDatabaseLogic {
           // If so, then do a full refresh of all configs in DB
           debugMap.put("secondsBetweenFullRefresh", secondsBetweenFullRefresh);
           
-          int secondsSinceLastRefresh = (int)(System.currentTimeMillis() - currentDatabaseConfigCache) / 1000;
+          long secondsSinceLastRefresh = (System.currentTimeMillis() - currentDatabaseConfigCache) / 1000L;
           debugMap.put("secondsSinceLastRefresh", secondsSinceLastRefresh);
           
           final boolean needsFullRefresh = secondsSinceLastRefresh > secondsBetweenFullRefresh;
@@ -675,6 +675,7 @@ public class ConfigDatabaseLogic {
       String query = "select * from grouper_config where config_file_hierarchy = ?";
       
       preparedStatement = theConnection.prepareStatement(query);
+      preparedStatement.setFetchSize(1000);
       preparedStatement.setString(1, "INSTITUTION");
   
       resultSet = preparedStatement.executeQuery();
@@ -725,7 +726,11 @@ public class ConfigDatabaseLogic {
             value = Morph.decrypt(value);
           } catch (RuntimeException re) {
             GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
-            throw re;
+            if (GrouperHibernateConfigClient.retrieveConfig().propertyValueBoolean("grouper.ignoreMorphErrorsOnStartup", false)) {
+              LOG.error("Error decrypting", re);
+            } else {
+              throw re;
+            }
           }
         }
         
@@ -961,112 +966,6 @@ public class ConfigDatabaseLogic {
       return defaultBoolean;
     }
     return booleanValue(object);
-  }
-
-  /**
-   * create last updated record
-   */
-  private synchronized static void createLastUpdatedRecordInDatabase() {
-    
-//    try {
-      createLastUpdatedRecordInDatabaseHelper();
-//    } catch (Exception e) {
-//      closeQuietly(connection);
-//      connection = null;
-//    }
-//    createLastUpdatedRecordInDatabaseHelper();
-  }
-
-  /**
-   * get configs from database
-   * mainConfigFileName configPropertiesCascadeBase.getMainConfigFileName() e.g. grouper.properties
-   */
-  private synchronized static void createLastUpdatedRecordInDatabaseHelper() {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    long now = System.nanoTime();
-    debugMap.put("operation", "createLastUpdatedRecordInDatabase");
-    debugMap.put("readonly", readonly);
-  
-    Connection theConnection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-  
-    try {
-      
-      if (readonly) {
-        // nothing to do
-        return;
-      }
-      
-      // select from the database
-      theConnection = connection(debugMap);
-      theConnection.setAutoCommit(false);
-      debugMap.put("gotConnection", true);
-
-      preparedStatement = theConnection.prepareStatement("insert into grouper_config (id, config_file_name, config_key, config_value, "
-          + "config_comment, config_file_hierarchy, config_encrypted, config_sequence, config_version_index, last_updated, hibernate_version_number) "
-          + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-      
-      // id
-      preparedStatement.setString(1, uuid());
-      
-      // config_file_name
-      preparedStatement.setString(2, "grouper.properties");
-      
-      // config_key
-      preparedStatement.setString(3, "grouper.config.millisSinceLastDbConfigChanged");
-      
-      // config_value
-      preparedStatement.setString(4, "0");
-      
-      // config_comment
-      preparedStatement.setString(5, "This is internal for Grouper, dont edit this manually!");
-      
-      // config_file_hierarchy
-      preparedStatement.setString(6, "INSTITUTION");
-
-      // config_encrypted
-      preparedStatement.setString(7, "F");
-
-      // config_sequence
-      preparedStatement.setInt(8, 0);
-
-      // config_version_index
-      preparedStatement.setInt(9, 0);
-  
-      // last_updated
-      preparedStatement.setBigDecimal(10, new BigDecimal(System.currentTimeMillis()));
-      
-      // hibernate_version_number
-      preparedStatement.setInt(11, 0);
-      
-      int rows = preparedStatement.executeUpdate();
-      debugMap.put("rows", rows);
-      
-      theConnection.commit();
-                              
-    } catch (Exception e) {
-      try {
-        theConnection.rollback();
-      } catch (Exception e2) {
-        LOG.debug("Cant rollback", e2);
-        // ignore
-      }
-      debugMap.put("exception", e.getMessage());
-  
-      throw new RuntimeException("error", e);
-    } finally {
-      closeQuietly(resultSet);
-      closeQuietly(preparedStatement);
-      closeQuietly(theConnection);
-      if (LOG.isDebugEnabled()) {
-        debugMap.put("ms", (System.nanoTime() - now)/1000000);
-
-        LOG.debug(mapToString(debugMap));
-      }
-    }
-  
   }
 
   /**

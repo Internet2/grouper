@@ -68,7 +68,7 @@ public class RuleNameChangeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleNameChangeTest("testCheckOwnerNameUpdateOnAttributeDefNameChange"));
+    TestRunner.run(new RuleNameChangeTest("testCheckOwnerDisabledDateHours"));
   }
   
   /**
@@ -243,6 +243,53 @@ public class RuleNameChangeTest extends GrouperTest {
         calendarExpected.getTimeInMillis(), calendarActual.getTimeInMillis());
   }
   
+  /**
+   * 
+   */
+  public void testCheckOwnerDisabledDateHours() {
+
+    Group group = edu.addChildGroup("group", "group");
+
+    AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), grouperSession.getSubject().getSourceId());
+    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectIdName(), grouperSession.getSubject().getId());
+    
+    attributeValueDelegate.assignValue(RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg0Name(), "0.1");
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg1Name(), "T");
+
+    // should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    
+    // make sure rule is still working
+    long initialFirings = RuleEngine.ruleFirings;
+
+    //now add a member
+    group.addMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(initialFirings + 1, RuleEngine.ruleFirings);
+
+    //query to get the updated attribute
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ0, true);
+    
+    long expectedLow = (long)(System.currentTimeMillis() + (0.097D * 24*60*60*1000));
+    
+    long expectedHigh = (long)(System.currentTimeMillis() + (1.003D * 24*60*60*1000));
+    
+    assertNull(membership.getEnabledTime());
+    assertNotNull(membership.getDisabledTime());
+
+    assertTrue("expected low: " + expectedLow, membership.getDisabledTime().getTime() > expectedLow);
+    assertTrue("expected high: " + expectedHigh, membership.getDisabledTime().getTime() < expectedHigh);
+  }
+  
+
   /**
    * 
    */

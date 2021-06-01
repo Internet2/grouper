@@ -43,3 +43,7 @@ COMMENT ON COLUMN subjectattribute.value IS 'value of attribute';
 
 COMMENT ON COLUMN subjectattribute.searchValue IS 'search value (e.g. all lower)';
 
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
+('c08d3e076fdb4c41acdafe5992e5dc4e', 'Subject', 1, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Subject from V0 to V1, ');
+commit;

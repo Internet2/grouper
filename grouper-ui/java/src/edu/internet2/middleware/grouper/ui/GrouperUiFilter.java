@@ -292,6 +292,15 @@ public class GrouperUiFilter implements Filter {
    * @return the subject
    */
   public static Subject retrieveSubjectLoggedIn() {
+    
+    SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+    
+    // maybe we already have this
+    Subject subject = sessionContainer.getSubjectLoggedIn();
+    if (subject != null) {
+      return subject;
+    }
+
     return retrieveSubjectLoggedIn(false, null);
   }
 
@@ -329,16 +338,20 @@ public class GrouperUiFilter implements Filter {
     //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
 
-    String userIdLoggedIn = remoteUser(request);
-
     //this cant change!
     String previousRemoteUser = (String)request.getSession().getAttribute("authUser");
     
+    String userIdLoggedIn = remoteUser(request);
+
     if (!StringUtils.isBlank(previousRemoteUser) && !StringUtils.equals(previousRemoteUser, userIdLoggedIn)) {
-      request.getSession().invalidate();
-      throw new RuntimeException("New user logged in!  was: '" + previousRemoteUser + "', and now is: '" + userIdLoggedIn + "'" );
+      if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.ui.authentication.allowUserIdSwitching", false)) {
+        request.getSession().invalidate();
+        throw new RuntimeException("New user logged in!  was: '" + previousRemoteUser + "', and now is: '" + userIdLoggedIn + "'" );
+      }
     }
 
+    request.getSession().setAttribute("authUser", userIdLoggedIn);
+    
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(request.getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
       
@@ -784,6 +797,7 @@ public class GrouperUiFilter implements Filter {
    */
   public void init(FilterConfig config) throws ServletException {
     GrouperStartup.startup();
+    GrouperStartup.waitForGrouperStartup();
     
     InstrumentationThread.startThread(GrouperEngineBuiltin.UI, null);
     
@@ -1084,7 +1098,7 @@ public class GrouperUiFilter implements Filter {
       
       boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
       
-      if (runGrouperUiWithBasicAuth && session.getAttribute("REMOTE_USER") == null) {
+      if (runGrouperUiWithBasicAuth) {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         
         boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI);
@@ -1096,12 +1110,9 @@ public class GrouperUiFilter implements Filter {
           httpServletResponse.sendError(401, "Unauthorized");
           return;
         }
-      }
-
-      if (runGrouperUiWithBasicAuth && session.getAttribute("REMOTE_USER") != null) {
         httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
       }
-      
+
       httpServletRequest = initRequest(httpServletRequest, response);
   
       try {

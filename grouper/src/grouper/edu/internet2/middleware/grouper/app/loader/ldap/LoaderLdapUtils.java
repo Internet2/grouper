@@ -708,6 +708,7 @@ public class LoaderLdapUtils {
     }
     
     loaderEnvVars.put("loaderLdapElUtils", new LoaderLdapElUtils());
+    loaderEnvVars.put("ldapLookup", new LdapLookup());
     
     //get custom el classes to add
     Map<String, Object> customElClasses = limitLoaderElClasses();

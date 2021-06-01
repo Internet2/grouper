@@ -4,11 +4,26 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author vsachdeva
@@ -190,6 +205,11 @@ public class StemTemplateContainer {
   private boolean showInThisFolderCheckbox = true;
 
   /**
+   * custom template gsh template config user is executing
+   */
+  private GuiGshTemplateConfig guiGshTemplateConfig;
+
+  /**
    * if the show in this folder checkbox should show
    * @return the showInThisFolderCheckbox
    */
@@ -218,5 +238,162 @@ public class StemTemplateContainer {
   public void setCreateNoSubfolder(boolean createNoSubfolder) {
     this.createNoSubfolder = createNoSubfolder;
   }
+  
+  /**
+   * get custom gsh templates to show in template types dropdown
+   * @return
+   */
+  public Map<String, String> getCustomGshTemplates() {
+    
+    this.templatesToShowHelper();
+    return this.customGshTemplates;
+  }
 
+  /**
+   * cache this
+   */
+  private Map<String, String> customGshTemplates = null;
+  
+  
+  /**
+   * cache this
+   */
+  private Map<String, String> templatesToShowInMoreActions = null;
+  
+  /**
+   * get templates to show in more actions. map of configId to template name
+   * @return
+   */
+  public Map<String, String> getTemplatesToShowInMoreActions() {
+    
+    this.templatesToShowHelper();
+    return this.templatesToShowInMoreActions;
+
+  }
+
+  private static final Log LOG = GrouperUtil.getLog(StemTemplateContainer.class);
+
+  /**
+   * get templates to show in more actions. map of configId to template name
+   * @return
+   */
+  private void templatesToShowHelper() {
+    
+    if (this.templatesToShowInMoreActions != null) {
+      return;
+    }
+    
+    Map<String, String> configsToShowInStemMoreActions = new HashMap<String, String>();
+    Map<String, String> configsToShowInTemplateTypeDropdown = new HashMap<String, String>();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    Stem stem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem().getStem();
+    
+    List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+    for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
+      if (gshTemplateConfiguration.isEnabled()) {
+        
+        try {
+          GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
+          gshTemplateConfig.populateConfiguration();
+          
+          if (StringUtils.isBlank(gshTemplateConfiguration.getConfigId())) {
+            continue;
+          }
+          if (!gshTemplateConfig.canFolderRunTemplate(stem)) {
+            continue;
+          }
+          
+          GshTemplateExec gshTemplateExec = new GshTemplateExec()
+            .assignConfigId(gshTemplateConfiguration.getConfigId())
+            .assignCurrentUser(loggedInSubject)
+            .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
+            .assignOwnerStemName(stem.getName());
+          
+          if (!new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
+            continue;
+          }
+
+          if (!StringUtils.isBlank(gshTemplateConfig.getTemplateNameForUi())) {
+            configsToShowInTemplateTypeDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateNameForUi());
+          }
+          
+          if (gshTemplateConfig.isShowInMoreActions() && !StringUtils.isBlank(gshTemplateConfig.getMoreActionsLabelForUi())) {
+            configsToShowInStemMoreActions.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getMoreActionsLabelForUi());
+          }
+        } catch (Exception e) {
+          LOG.error("Cant decide if GSH template should display! " + gshTemplateConfiguration.getConfigId(), e);
+        }
+      }
+    }
+    
+    {
+      List<Map.Entry<String, String>> listToShowInStemMoreActions = new LinkedList<Map.Entry<String, String>>(configsToShowInStemMoreActions.entrySet()); 
+  
+      // Sort the list 
+      Collections.sort(listToShowInStemMoreActions, new Comparator<Map.Entry<String, String> >() { 
+       public int compare(Map.Entry<String, String> o1,  
+                          Map.Entry<String, String> o2) { 
+         if (o1 == o2) {
+           return 0;
+         }
+         if (o1 == null) {
+           return -1;
+         }
+         if (o2 == null) {
+           return 1;
+         }
+         return GrouperUtil.compare(o1.getValue(), o2.getValue()); 
+       } 
+      }); 
+      
+      
+      Map<String, String> sortedTemplatesByNameToShowInStemMoreActions = new LinkedHashMap<String, String>();
+      
+      for (Map.Entry<String, String> templateIdAndName : listToShowInStemMoreActions) { 
+        sortedTemplatesByNameToShowInStemMoreActions.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
+      } 
+      this.templatesToShowInMoreActions = sortedTemplatesByNameToShowInStemMoreActions;
+    }
+    {
+      List<Map.Entry<String, String>> listToShowInTemplateTypeDropdown = new LinkedList<Map.Entry<String, String>>(configsToShowInTemplateTypeDropdown.entrySet()); 
+  
+      // Sort the list 
+      Collections.sort(listToShowInTemplateTypeDropdown, new Comparator<Map.Entry<String, String> >() { 
+       public int compare(Map.Entry<String, String> o1,  
+                          Map.Entry<String, String> o2) { 
+         if (o1 == o2) {
+           return 0;
+         }
+         if (o1 == null) {
+           return -1;
+         }
+         if (o2 == null) {
+           return 1;
+         }
+         return GrouperUtil.compare(o1.getValue(), o2.getValue()); 
+       } 
+      }); 
+      
+      
+      Map<String, String> sortedTemplatesByNameToShowInTemplateTypeDropdown = new LinkedHashMap<String, String>();
+      
+      for (Map.Entry<String, String> templateIdAndName : listToShowInTemplateTypeDropdown) { 
+        sortedTemplatesByNameToShowInTemplateTypeDropdown.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
+      } 
+      this.customGshTemplates = sortedTemplatesByNameToShowInTemplateTypeDropdown;
+    }
+  }
+
+  
+  public GuiGshTemplateConfig getGuiGshTemplateConfig() {
+    return guiGshTemplateConfig;
+  }
+
+  
+  public void setGuiGshTemplateConfig(GuiGshTemplateConfig guiGshTemplateConfig) {
+    this.guiGshTemplateConfig = guiGshTemplateConfig;
+  }
+
+  
 }

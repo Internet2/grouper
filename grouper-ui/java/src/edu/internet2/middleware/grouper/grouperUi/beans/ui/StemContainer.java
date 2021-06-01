@@ -15,11 +15,24 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -44,6 +57,9 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class StemContainer {
+  
+  
+  private static final Log LOG = GrouperUtil.getLog(StemContainer.class);
 
   /**
    * if can view privilege inheritance
@@ -208,11 +224,6 @@ public class StemContainer {
   }
 
   /**
-   * if the logged in user can create groups, lazy loaded
-   */
-  private Boolean canCreateGroups;
-  
-  /**
    * if the logged in user can read attributes, lazy loaded
    */
   private Boolean canReadAttributes;
@@ -232,23 +243,8 @@ public class StemContainer {
    * @return if can admin create groups
    */
   public boolean isCanCreateGroups() {
-    
-    if (this.canCreateGroups == null) {
-      
-      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      
-      this.canCreateGroups = (Boolean)GrouperSession.callbackGrouperSession(
-          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.CREATE.getName(), false);
-            }
-          });
-      
-    }
-    
-    return this.canCreateGroups;
+    // same priv
+    return isCanCreateStems();
   }
   
   /**
@@ -743,4 +739,5 @@ public class StemContainer {
     
     return customCompositeIndexesAndUiKeys;
   }
+  
 }

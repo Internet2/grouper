@@ -81,6 +81,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
     // Make sure we can connect
     try {
+
       if (!getLdapSystem().test()) {
         throw new RuntimeException("Unable to make ldap connection");
       }
@@ -330,6 +331,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getUserCreationBaseDn());
       ldifEntry.setDn(actualDn);
 
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(1);
+      }
+
       performLdapAdd(ldifEntry);
       
       // Read the acount that was just created
@@ -390,10 +396,10 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
   @Override
-  protected void populateJexlMap(Map<String, Object> variableMap, Subject subject,
+  protected void populateJexlMap(String expression, Map<String, Object> variableMap, Subject subject,
       LdapUser ldapUser, GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup) {
     
-    super.populateJexlMap(variableMap, subject, ldapUser, grouperGroupInfo, ldapGroup);
+    super.populateJexlMap(expression, variableMap, subject, ldapUser, grouperGroupInfo, ldapGroup);
     
     if ( ldapGroup != null )
       variableMap.put("ldapGroup", ldapGroup.getLdapObject());
@@ -864,6 +870,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       // Add the current attribute from the RDN if it was not already in the ldif template
       if ( ldifEntry.getAttribute( topRdnAttribute.getName() ) == null ) {
         ldifEntry.addAttribute(topRdnAttribute);
+      }
+
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(1);
       }
 
       performLdapAdd(ldifEntry);

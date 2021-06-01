@@ -18,10 +18,5 @@
 	                            >${textContainer.text['provisioningMoreActionsEditSettings'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.provisioningContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Provisioning.runDaemon'); return false;"
-                              >${textContainer.text['provisioningMoreActionsRunDaemon'] }</a></li>
-                        </c:if>
-
                       </ul>
                     </div>

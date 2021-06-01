@@ -77,6 +77,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   
   /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
+    registeredSuccess = false;
+    requireGroupsPattern = null;
+  }
+
+  /**
    * only register once
    */
   private static boolean registered = false;
@@ -293,7 +302,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     
     //strip off something like _requireGroups15
     if (useRequireGroups) {
-      Matcher matcher = requireGroupsPattern.matcher(name);
+      Matcher matcher = requireGroupsPattern().matcher(name);
       if (matcher.matches()) {
         baseName = matcher.group(1);
       }
@@ -366,10 +375,20 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   /**
    * regex pattern for require groups
    */
-  private static final Pattern requireGroupsPattern = Pattern.compile("(.*)" 
-      + StringUtils.replace(GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.extension.suffix"), "${i}", "") 
-      + "\\d+");
+  private static Pattern requireGroupsPattern = null;
 
+  /**
+   * lazy load this
+   * @return pattern
+   */
+  private static final Pattern requireGroupsPattern() {
+    if (requireGroupsPattern == null) {
+      requireGroupsPattern = Pattern.compile("(.*)" 
+        + StringUtils.replace(GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.extension.suffix"), "${i}", "") 
+        + "\\d+");
+    }
+    return requireGroupsPattern;
+  }
   /**
    * 
    * @param args

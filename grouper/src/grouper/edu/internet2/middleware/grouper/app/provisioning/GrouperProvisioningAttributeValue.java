@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -27,9 +30,10 @@ public class GrouperProvisioningAttributeValue {
   private String stemScopeString;
   
   /**
-   * should provision?
+   * provisioning target name
+   * should provision if not null
    */
-  private boolean doProvision = true;
+  private String doProvision;
   
   /**
    * millis since last full provision
@@ -50,6 +54,14 @@ public class GrouperProvisioningAttributeValue {
    * last incremental summary
    */
   private String lastIncrementalSummary;
+  
+  
+  /**
+   * provisioning object metadata
+   */
+  // private GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata;
+  
+  private Map<String, Object> metadataNameValues = new HashMap<String, Object>();
 
   /**
    * provisioning target name
@@ -116,18 +128,27 @@ public class GrouperProvisioningAttributeValue {
   }
 
   /**
-   * should provision?
+   * provisioning target name
+   * should provision if not null
    * @return
    */
-  public boolean isDoProvision() {
+  public String getDoProvision() {
     return doProvision;
+  }
+  
+  /**
+   * @return true to provision if doProvision is not null
+   */
+  public boolean isDoProvision() {
+    return doProvision != null;
   }
 
   /**
-   * should provision?
+   * provisioning target name
+   * should provision if not null
    * @param doProvision
    */
-  public void setDoProvision(boolean doProvision) {
+  public void setDoProvision(String doProvision) {
     this.doProvision = doProvision;
   }
 
@@ -216,6 +237,7 @@ public class GrouperProvisioningAttributeValue {
     return Scope.SUB == this.getStemScope();
   }
   
+  
   /**
    * copy a given attribute value object
    * @param from
@@ -224,7 +246,7 @@ public class GrouperProvisioningAttributeValue {
   public static GrouperProvisioningAttributeValue copy(GrouperProvisioningAttributeValue from) {
     GrouperProvisioningAttributeValue value = new GrouperProvisioningAttributeValue();
     value.setDirectAssignment(from.isDirectAssignment());
-    value.setDoProvision(from.isDoProvision());
+    value.setDoProvision(from.getDoProvision());
     value.setLastFullMillisSince1970String(from.getLastFullMillisSince1970String());
     value.setLastFullSummary(from.getLastFullSummary());
     value.setLastIncrementalMillisSince1970String(from.getLastIncrementalMillisSince1970String());
@@ -232,8 +254,38 @@ public class GrouperProvisioningAttributeValue {
     value.setOwnerStemId(from.getOwnerStemId());
     value.setStemScopeString(from.getStemScopeString());
     value.setTargetName(from.getTargetName());
+    //value.setGrouperProvisioningObjectMetadata(from.getGrouperProvisioningObjectMetadata());
+    value.setMetadataNameValues(from.getMetadataNameValues());
     return value;
   }
+
+  
+  public Map<String, Object> getMetadataNameValues() {
+    return metadataNameValues;
+  }
+
+  
+  public void setMetadataNameValues(Map<String, Object> metadataNameValues) {
+    this.metadataNameValues = metadataNameValues;
+  }
+
+  
+//  /**
+//   * provisioning object metadata
+//   * @return
+//   */
+//  public GrouperProvisioningObjectMetadata getGrouperProvisioningObjectMetadata() {
+//    return grouperProvisioningObjectMetadata;
+//  }
+//
+//  /**
+//   * @param grouperProvisioningObjectMetadata
+//   */
+//  public void setGrouperProvisioningObjectMetadata(GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata) {
+//    this.grouperProvisioningObjectMetadata = grouperProvisioningObjectMetadata;
+//  }
+  
+  
   
   
 }

@@ -170,8 +170,12 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       
       try {
         SubjectSourceCache.clearCache();
-
-        SubjectFinder.findById(id, true);
+        String registrySubjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("configuration.registrySubjectSource");
+        if (!StringUtils.isBlank(registrySubjectSourceId)) {
+          SubjectFinder.findByIdAndSource(id, registrySubjectSourceId, true);
+        } else {
+          SubjectFinder.findById(id, true);
+        }
       } catch (SubjectNotFoundException snfe) {
         if (!GrouperConfig.retrieveConfig().propertyValueBoolean("allow.registry.subjects.without.resolution", false)) {
           throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need a source (e.g. the Grouper jdbc source) to resolve registry subjects!");
@@ -555,7 +559,19 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    */
   public Map<String, Set<String>> getAttributes(boolean excludeInternalAttributes) {
     return this.subject.getAttributes(excludeInternalAttributes);
+  }
+
+  @Override
+  public Map<String, Object> getTranslationMap() {
+    return null;
+  }
+
+  @Override
+  public void setTranslationMap(Map<String, Object> translationMap) {
+    throw new UnsupportedOperationException();
   } 
+  
+  
   
 }
 

@@ -725,15 +725,14 @@ public class GrouperClientCommonUtils  {
   
   /**
    * print out various types of objects
-   * 
+   *
    * @param object
    * @param maxChars is where it should stop when figuring out object.  note, result might be longer than max...
    * need to abbreviate when back
    * @param result is where to append to
    */
-  @SuppressWarnings("unchecked")
-  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
-    
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result, boolean newLines) {
+
     try {
       if (object == null) {
         result.append("null");
@@ -746,7 +745,7 @@ public class GrouperClientCommonUtils  {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                Array.get(object, i)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -763,7 +762,7 @@ public class GrouperClientCommonUtils  {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                collectionObject).append("\n");
+                toStringForLog(collectionObject, maxChars)).append(newLines ? "\n" : ", ");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -840,26 +839,38 @@ public class GrouperClientCommonUtils  {
 
   /**
    * print out various types of objects
-   * 
+   *
    * @param object
    * @return the string value
    */
   public static String toStringForLog(Object object) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
     return result.toString();
   }
 
   /**
    * print out various types of objects
-   * 
+   *
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, boolean newLines) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result, newLines);
+    return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   *
    * @param object
    * @param maxChars is the max chars that should be returned (abbreviate if longer), or -1 for any amount
    * @return the string value
    */
   public static String toStringForLog(Object object, int maxChars) {
     StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
+    toStringForLogHelper(object, -1, result, true);
     String resultString = result.toString();
     if (maxChars != -1) {
       return abbreviate(resultString, maxChars);
@@ -9876,6 +9887,19 @@ public class GrouperClientCommonUtils  {
       }
     }
     return value;
+  }
+
+  /**
+   * see if we are running on windows
+   * @return true if windows
+   */
+  public static boolean isWindows() {
+    String osname = defaultString(System.getProperty("os.name"));
+
+    if (contains(osname.toLowerCase(), "windows")) {
+      return true;
+    }
+    return false;
   }
 
 }

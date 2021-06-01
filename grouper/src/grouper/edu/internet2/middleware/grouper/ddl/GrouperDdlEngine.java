@@ -432,7 +432,7 @@ public class GrouperDdlEngine {
     //see if already in db
     if (upgradeDdlTable || ((!GrouperDdlUtils.containsDbRecord(objectName) || dropBeforeCreate) 
         && !GrouperDdlUtils.alreadyInsertedForObjectName.contains(objectName))) {
-    
+
       result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
           "last_updated, history) values ('" + GrouperUuid.getUuid() 
           +  "', '" + objectName + "', " + javaVersion + ", '" + timestamp + "', \n'" + historyString + "');\n");
@@ -806,7 +806,7 @@ public class GrouperDdlEngine {
           resources.add("ddl/GrouperDdl_" + objectName + "_install_" + scriptOverrideDatabase + ".sql");
           fromVersions.add(0);
           toVersions.add(javaVersion);
-        } else if ("Grouper".equals(objectName) && dbVersion >= 30) {
+        } else if ("Grouper".equals(objectName) && dbVersion >= 29) {
           for (int i=dbVersion;i<javaVersion;i++) {
             resources.add("ddl/GrouperDdl_" + objectName + "_" + i + "_upgradeTo_" + (i+1) 
                 + "_" + scriptOverrideDatabase + ".sql");
@@ -814,7 +814,7 @@ public class GrouperDdlEngine {
             toVersions.add(i+i);
           }
         } else {
-          throw new RuntimeException("Cant start this Grouper version against a database before 2.3.  Upgrade to 2.3 first!");
+          throw new RuntimeException("Cant start this Grouper version against a database before 2.2.1.  Upgrade to 2.2.1 first!");
         }
 
         
@@ -826,15 +826,6 @@ public class GrouperDdlEngine {
   
           script.append(localScript).append("\n");
           
-          //make sure no single quotes in any of these...
-          String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-          //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-          String summary = timestamp + ": upgrade " + objectName + " from V" + (fromVersions.get(i)) + " to V" + toVersions.get(i);
-          
-          addGrouperDdlLogEntryIfNeeded(objectName, script, historyBuilder, javaVersion,
-              timestamp, summary, upgradeDdlTable);
-          
-   
         }
         
       }
@@ -980,7 +971,7 @@ public class GrouperDdlEngine {
       
       if (this.deepCheck) {
 
-        GrouperDdlCompareResult grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
+        this.grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
 
         String script = grouperDdlCompareResult.getResult().toString();
 
@@ -988,7 +979,6 @@ public class GrouperDdlEngine {
         if (LOG.isErrorEnabled()) {
           LOG.error(script);
         }
-
       }
       
       initRegistryAndClearCache(upToDate);
@@ -1009,6 +999,15 @@ public class GrouperDdlEngine {
 
   }
 
+  private GrouperDdlCompareResult grouperDdlCompareResult;
+  
+  
+  
+  public GrouperDdlCompareResult getGrouperDdlCompareResult() {
+    return grouperDdlCompareResult;
+  }
+
+  
   private void initRegistryAndClearCache(boolean upToDate) {
     ConfigPropertiesCascadeBase.assignInitted();
     if (installDefaultGrouperData && !dropOnly && (upToDate || writeAndRunScript)) {

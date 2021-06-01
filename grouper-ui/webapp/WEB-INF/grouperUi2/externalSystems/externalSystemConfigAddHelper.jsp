@@ -24,7 +24,7 @@
       >
        
         <option value=""></option>
-        <c:forEach items="${grouperRequestContainer.externalSystemContainer.allExternalSystemTypes}" var="externalSystem">
+        <c:forEach items="${grouperRequestContainer.externalSystemContainer.allExternalSystemTypesAdd}" var="externalSystem">
           <option value="${externalSystem['class'].name}"
               ${guiGrouperExternalSystem.grouperExternalSystem['class'].name == externalSystem['class'].name ? 'selected="selected"' : '' }
               >${externalSystem.title}</option>

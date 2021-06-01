@@ -17,17 +17,13 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -35,10 +31,18 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * This is the class run by the Changelog/Loader quartz job to kick
@@ -51,6 +55,16 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 public class FullSyncStarter
         extends ChangeLogConsumerBase
         implements Job {
+  
+  public static void main(String[] args) throws Exception {
+    GrouperSession.startRootSession();
+    
+    String provisionerName="pspng_activedirectoryFull"; // Whatever your provisioner is called in grouper_loader.properties
+    FullSyncProvisioner full_provisioner=edu.internet2.middleware.grouper.pspng.FullSyncProvisionerFactory.getFullSyncer(provisionerName);
+    edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog hib3LoaderLog = new edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog();
+    full_provisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3LoaderLog);
+  }
+  
   protected final static Logger LOG = LoggerFactory.getLogger(FullSyncStarter.class);
   private ThreadLocal<Hib3GrouperLoaderLog> currentLoaderLogEntry = new ThreadLocal<>();
 
@@ -110,7 +124,7 @@ public class FullSyncStarter
       JobStatistics stats = fullSyncProvisioner.startFullSyncOfAllGroupsAndWaitForCompletion(hib3GrouploaderLog);
 
       LOG.info("Finished running full-sync job: {}", jobName);
-      hib3GrouploaderLog.setJobMessage("Finished running full-sync job.");
+      hib3GrouploaderLog.setJobMessage("Finished running full-sync job.  Stats: " + stats);
 
       stats.updateLoaderLog(hib3GrouploaderLog);
 

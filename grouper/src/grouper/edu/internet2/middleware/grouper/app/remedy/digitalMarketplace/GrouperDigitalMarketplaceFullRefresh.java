@@ -14,20 +14,10 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
 
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceCommands;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceFullRefresh;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceGroup;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceLog;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceMessageConsumer;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceUser;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceUtils;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperWsCommandsForDigitalMarketplace;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobOutput;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 
@@ -35,9 +25,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 /**
  *
  */
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-public class GrouperDigitalMarketplaceFullRefresh implements Job {
+public class GrouperDigitalMarketplaceFullRefresh {
 
   /**
    * 
@@ -122,6 +110,7 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
    * @param args
    */
   public static void main(String[] args) {
+    GrouperStartup.startup();
     fullRefreshLogic();
   }
   
@@ -137,16 +126,6 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
    * 
    */
   public GrouperDigitalMarketplaceFullRefresh() {
-  }
-
-  /**
-   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
-   */
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-
-    fullRefreshLogic();
-
-    
   }
 
   /**
@@ -179,6 +158,16 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
     new GrouperDigitalMarketplaceFullRefresh().fullRefreshLogicHelper();
   }
     
+  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+  /**
+   * 
+   * @return
+   */
+  public Map<String, Object> getDebugMap() {
+    return debugMap;
+  }
+
   /**
    * full refresh logic
    */
@@ -190,8 +179,6 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
     
     //give a tiny bit of buffer
     lastFullRefreshStart = System.currentTimeMillis() - 500;
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     long startTimeNanos = System.nanoTime();
 
@@ -387,5 +374,6 @@ public class GrouperDigitalMarketplaceFullRefresh implements Job {
       fullRefreshInProgress = false;
     }
   }
+
 
 }

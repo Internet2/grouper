@@ -259,19 +259,15 @@ public class GuiAttestation {
     return needsRecertifyHelper(daysBeforeNeeds);
   }
   
-  /**
-   * date this group needs recertify
-   * @return the date
-   */
-  public String getGrouperAttestationDateNeedsCertify() {
+  public String grouperAttestationDateNeedsCertify(String daysUntilRecertifyString) {
     if (this.grouperAttestationHasAttestation != null && this.grouperAttestationHasAttestation == false) {
       return null;
     }
 
     int daysUntilRecertify = GrouperConfig.retrieveConfig().propertyValueInt("attestation.default.daysUntilRecertify", 180);
-    if (! StringUtils.isBlank(this.grouperAttestationDaysUntilRecertify)) {
+    if (! StringUtils.isBlank(daysUntilRecertifyString)) {
       try {
-        daysUntilRecertify = GrouperUtil.intValue(this.grouperAttestationDaysUntilRecertify);
+        daysUntilRecertify = GrouperUtil.intValue(daysUntilRecertifyString);
       } catch (Exception e) {
         //swallow
       }

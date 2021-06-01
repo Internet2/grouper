@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -32,11 +32,19 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 import edu.internet2.middleware.morphString.Morph;
 
 
-
-/** 
- * <pre>Get access to the global database connections, create a new connection, 
- * and execute sql against them.</pre>
- * @author harveycg
+/**
+ * <p>Use this class to get access to the global database connections, create a new connection, 
+ * and execute sql against them.</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Timestamp lastSuccess = new GcDbAccess().sql("select max(ended_time) from grouper_loader_log where job_name = ?")
+ *   .addBindVar("CHANGE_LOG_consumer_recentMemberships").select(Timestamp.class);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
  */
 public class GcDbAccess {
 
@@ -1196,7 +1204,13 @@ public class GcDbAccess {
         List<Object> bindVarstoUse = new ArrayList<Object>();
 
         // Update if we are already saved.
-        if ((isInsert != null && !isInsert) || !isPreviouslyPersisted(object)){
+        Boolean isUpdate = null;
+        if (isInsert != null) {
+          isUpdate = !isInsert;
+        } else {
+          isUpdate = isPreviouslyPersisted(object);
+        }
+        if (isUpdate){
 
           // Create the sql.
           if (!updateSqlInitialized){
@@ -2104,6 +2118,7 @@ public class GcDbAccess {
       
       // Create the callable statement.
       callableStatement = this.connection.prepareCall(callableStatementCallback.getQuery());
+      callableStatement.setFetchSize(1000);
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
@@ -2152,6 +2167,7 @@ public class GcDbAccess {
 
       // Create the callable statement.
       preparedStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
+      preparedStatement.setFetchSize(1000);
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
@@ -2250,6 +2266,7 @@ public class GcDbAccess {
 
       // Get the statement object that we are going to use.
       preparedStatement = this.connection.prepareStatement(this.sql);
+      preparedStatement.setFetchSize(1000);
       String sqltoRecord = this.sql;
 
 
@@ -2450,6 +2467,21 @@ public class GcDbAccess {
       }
       return t;
     }
+    // If someone is selecting a list of Map then we are just going to put the object and column name in the map.
+    if (clazz.isAssignableFrom(String[].class)){
+      int columnCount = resultSet.getMetaData().getColumnCount();
+      String[] results = new String[columnCount];
+      for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
+        Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
+        results[columnNumber-1] = boundDataConversion.getFieldValue(String.class, value);
+      }
+      @SuppressWarnings("unchecked")
+      T t = (T)results;
+      if (theList != null){
+        theList.add(t);
+      }
+      return t;
+    }
 
     // Or we are just returning a primitive or single object such as Long, etc.
     Object value = retrieveObjectFromResultSetByIndex(resultSet, 1);
@@ -2533,6 +2565,10 @@ public class GcDbAccess {
         
         return resultSet.getTimestamp(columnNumberOneIndexed);
 
+      case Types.CLOB:
+        Clob clob = resultSet.getClob(columnNumberOneIndexed);
+        return clob != null ? clob.getSubString(1, (int) clob.length()) : null;
+        
       default:
         throw new RuntimeException("Not expecting column type: " + type);
     }
@@ -2670,5 +2706,4 @@ public class GcDbAccess {
     }
     return connectionCreateNew(connectionName, url);
   }
-
 }

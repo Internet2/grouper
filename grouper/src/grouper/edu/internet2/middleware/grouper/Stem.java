@@ -53,11 +53,8 @@ import org.hibernate.type.LongType;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -185,7 +182,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
+    Hib3GrouperVersioned, Comparable<GrouperObject>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
     GrouperObject {
 
   /**
@@ -372,7 +369,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Stem that) {
+  public int compareTo(GrouperObject that) {
     if (that==null) {
       return 1;
     }
@@ -2487,16 +2484,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           }
         });
     
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperAttestationJob.updateAttestationMetadataForSingleObject(group, true);
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(group);
-      GrouperObjectTypesConfiguration.copyConfigFromParent(group);
-      GrouperProvisioningService.copyConfigFromParent(group);
-      
-    }
-    
     return group;
   }
 
@@ -2674,13 +2661,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           }
         });
     
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(attributeDef);
-      
-    }
-
     return attributeDef;
     
   } 
@@ -2919,15 +2899,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
       }
     }
-    
-    //update inherited attribute after creating objects
-    if (!GrouperLoader.isDryRun()) {
-      // do these in thread?
-      GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(stem);
-      GrouperObjectTypesConfiguration.copyConfigFromParent(stem);
-      GrouperProvisioningService.copyConfigFromParent(stem);
-    }
-
     
     return stem;
   }
@@ -3927,8 +3898,23 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       try {
         currentStem = StemFinder.findByName(grouperSession, currentName, true, new QueryOptions().secondLevelCache(false));
       } catch (StemNotFoundException snfe1) {
-        //this isnt ideal, but just use the extension as the display extension
-        currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
+        try {
+          //this isnt ideal, but just use the extension as the display extension
+          currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
+        } catch (RuntimeException e) {
+          for (int j=0; j<4; j++) {
+            // could a tx need to finish?
+            GrouperUtil.sleep(500);
+            // see if another thread created it
+            currentStem = StemFinder.findByName(grouperSession, currentName, false, new QueryOptions().secondLevelCache(false));
+            if (currentName != null) {
+              break;
+            }
+          }
+          if (currentStem == null) {
+            throw e;
+          }
+        }
       }
       //increment the name, dont worry if on the last one, we are done
       if (i < stems.length-1) {

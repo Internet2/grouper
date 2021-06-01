@@ -41,13 +41,18 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameAttributeNameValidationHook;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.hooks.examples.StemAttributeNameValidationHook;
+import edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -89,46 +94,50 @@ public class GrouperHooksUtils {
   /**
    * kick off hooks init hooks if not done already
    */
-  synchronized static void fireHooksInitHooksIfNotFiredAlready() {
+  static void fireHooksInitHooksIfNotFiredAlready() {
     if (!hooksInitHooksCalled) {
-      //even if errors, only call once
-      hooksInitHooksCalled = true;
-      
-      //see if we should register test hook:
-      try {
-        Class testLifecycle = Class.forName("edu.internet2.middleware.grouper.hooks.LifecycleHooksImpl");
-        Class grouperTestClass = Class.forName("edu.internet2.middleware.grouper.helper.GrouperTest");
-        boolean testing = false;
-        
-        try {
-          testing = (Boolean)GrouperUtil.fieldValue(grouperTestClass, null, "testing", false, true, false);
-        } catch (Exception e) {
-          LOG.warn("You might have a wrong version of grouper-test.jar... if so, upgrade it", e);
-          //might have wrong version of testing jar...
-        }
-        if (testing) {
-          addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
-        }
-        
-         
-      } catch (ClassNotFoundException cnfe) {
-        //just ignore, probably not running unit tests
-      }
-      AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true);
-      AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true);
-      GroupAttributeNameValidationHook.registerHookIfNecessary(true);
-      StemAttributeNameValidationHook.registerHookIfNecessary(true);
-      
-      GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
+      synchronized (GrouperHooksUtils.class) {
+        if (!hooksInitHooksCalled) {
 
-      GroupTypeSecurityHook.registerHookIfNecessary(false);
-      
-      GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
-      
-      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
-          LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
-          (Object)null, null, null);
-      
+          //even if errors, only call once
+          hooksInitHooksCalled = true;
+          
+          //see if we should register test hook:
+          try {
+            Class testLifecycle = Class.forName("edu.internet2.middleware.grouper.hooks.LifecycleHooksImpl");
+            Class grouperTestClass = Class.forName("edu.internet2.middleware.grouper.helper.GrouperTest");
+            boolean testing = false;
+            
+            try {
+              testing = (Boolean)GrouperUtil.fieldValue(grouperTestClass, null, "testing", false, true, false);
+            } catch (Exception e) {
+              LOG.warn("You might have a wrong version of grouper-test.jar... if so, upgrade it", e);
+              //might have wrong version of testing jar...
+            }
+            if (testing) {
+              addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
+            }
+            
+             
+          } catch (ClassNotFoundException cnfe) {
+            //just ignore, probably not running unit tests
+          }
+          
+          AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true);
+          AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true);
+          GroupAttributeNameValidationHook.registerHookIfNecessary(true);
+          StemAttributeNameValidationHook.registerHookIfNecessary(true);
+          GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
+          GroupTypeSecurityHook.registerHookIfNecessary(false);
+          GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
+          
+          GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
+              LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
+              (Object)null, null, null);
+          
+
+        }
+      }
     }
   }
   
@@ -535,6 +544,30 @@ public class GrouperHooksUtils {
   private static String hookLogString(final String hookMethodName, Object hook,
       HooksContext hooksContext) {
     return "Hook " + hook.getClass().getSimpleName() + "." + hookMethodName + " id: " + hooksContext.getHookId();
+  }
+
+  /**
+   * clear out hooks and reloader (e.g. for testing)
+   */
+  public static void reloadHooks() {
+    // grouperStartupHooksCalled = false;
+
+    GrouperHookType.clearHooks();
+    hooksInitHooksCalled = false;
+
+    AttributeDefUniqueNameCaseInsensitiveHook.clearHook();
+    AttributeAutoCreateHook.clearHook();
+    AttributeDefAttributeNameValidationHook.clearHook();
+    AttributeDefNameAttributeNameValidationHook.clearHook();
+    GroupAttributeNameValidationHook.clearHook();
+    StemAttributeNameValidationHook.clearHook();
+    GroupTypeTupleIncludeExcludeHook.clearHook();
+    GroupTypeSecurityHook.clearHook();
+    GrouperAttributeAssignValueRulesConfigHook.clearHook();
+    MembershipCannotAddSelfToGroupHook.clearHook();
+    MembershipOneInFolderMaxHook.clearHook();
+    StemUniqueNameCaseInsensitiveHook.clearHook();
+
   }
 
 }

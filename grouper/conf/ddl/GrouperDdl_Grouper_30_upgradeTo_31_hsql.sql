@@ -29,4 +29,6 @@ CREATE INDEX member_subjidentifier0_idx ON GROUPER_MEMBERS (SUBJECT_IDENTIFIER0)
 
 CREATE INDEX pit_member_subjidentifier0_idx ON GROUPER_PIT_MEMBERS (SUBJECT_IDENTIFIER0);
 
+update grouper_ddl set last_updated = to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), history = substring((to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V' || db_version || ' to V31, ' || history) from 1 for 3500), db_version = 31 where object_name = 'Grouper';
 
+commit;

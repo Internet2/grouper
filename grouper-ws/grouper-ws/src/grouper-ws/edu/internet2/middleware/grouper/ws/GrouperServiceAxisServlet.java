@@ -56,7 +56,8 @@ public class GrouperServiceAxisServlet extends AxisServlet {
       IOException {
     
     GrouperStartup.startup();
-    
+    GrouperStartup.waitForGrouperStartup();
+
     GrouperStatusServlet.incrementNumberOfRequest();
     InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.WS_REQUESTS.name());
 

@@ -23,7 +23,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMe
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -32,6 +31,11 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class GcTableSyncTableMetadata {
 
+  /**
+   * keep this for error handling
+   */
+  private String metadataQuery = null;
+  
   /**
    * append the primary key where clause
    * @param sql
@@ -135,13 +139,13 @@ public class GcTableSyncTableMetadata {
    * @return the list of columns
    */
   public List<GcTableSyncColumnMetadata> lookupColumns(String columnNames) {
-    if (StringUtils.isBlank(columnNames)) {
+    if (GrouperClientUtils.isBlank(columnNames)) {
       throw new RuntimeException("Pass in columns for " + this.getConnectionName() + " -> " + this.getTableName());
     }
     
     List<GcTableSyncColumnMetadata> result = new ArrayList<GcTableSyncColumnMetadata>();
     
-    if (StringUtils.equals(columnNames, "*")) {
+    if (GrouperClientUtils.equals(columnNames, "*")) {
       result.addAll(this.getColumnMetadata());
     } else {
       
@@ -180,7 +184,8 @@ public class GcTableSyncTableMetadata {
     GcTableSyncColumnMetadata gcTableSyncColumnMetadata = this.columnUpperNameToGcColumnMetadata.get(columnName.toUpperCase());
     
     if (gcTableSyncColumnMetadata == null && exceptionOnNotFound) {
-      throw new RuntimeException("Cant find " + this.connectionName + " -> " + this.tableName + " -> " + columnName);
+      throw new RuntimeException("Cant find " + this.connectionName + " -> " 
+          + (GrouperClientUtils.isBlank(this.tableName) ? ("(" + this.metadataQuery + ")") : this.tableName) + " -> " + columnName);
     }
     
     return gcTableSyncColumnMetadata;
@@ -221,7 +226,6 @@ public class GcTableSyncTableMetadata {
     metadataCache().put(multiKey, gcTableSyncTableMetadata);
     return gcTableSyncTableMetadata;
   }
-    
 
   /**
    * get metadata for table
@@ -231,26 +235,78 @@ public class GcTableSyncTableMetadata {
    */
   public static GcTableSyncTableMetadata retrieveTableMetadataFromDatabase(String theConnectionName, String tableName) {
     
-      
     if (GrouperClientUtils.isBlank(tableName)) {
       throw new RuntimeException("tableName cannot be blank");
+    }
+    
+    String sql = "select * from " + tableName;
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = retrieveQueryMetadataFromDatabase(theConnectionName, sql);
+    gcTableSyncTableMetadata.setTableName(tableName);
+    return gcTableSyncTableMetadata;
+  }
+
+  /**
+   * get metadata for table
+   * @param theConnectionName
+   * @param tableName
+   * @return the metadata for a connection, table, and query
+   */
+  public static GcTableSyncTableMetadata retrieveQueryMetadataFromDatabase(String theConnectionName, String query) {
+    return retrieveQueryMetadataFromDatabase(theConnectionName, query, null);
+  }
+
+  /**
+   * get metadata for table
+   * @param theConnectionName
+   * @param tableName
+   * @return the metadata for a connection, table, and query
+   */
+  public static GcTableSyncTableMetadata retrieveQueryMetadataFromDatabase(String theConnectionName, String query, List<Object> bindVars) {
+    
+    if (GrouperClientUtils.isBlank(query)) {
+      throw new RuntimeException("query cannot be blank");
     }
     if (GrouperClientUtils.isBlank(theConnectionName)) {
       throw new RuntimeException("connectionName cannot be blank");
     }
+    //  + " where 1 != 1"
+    // does it already have no records?
+    // this isnt going to be perfect and is meant for simple queries without weird whitespace etc
+    if (!query.contains("1!=1") && !query.contains("1 != 1")
+        && !query.contains("0 = 1") && !query.contains("0=1") && !query.contains("1 = 0") && !query.contains("1=0")) {
+      // if union just run query
+      if (!query.toLowerCase().contains(" union ")) {
+        // does it have a where?
+        if (query.contains(" where ") || query.contains(" WHERE ")) {
+          // replace like this so it works with order by, group by, etc
+          // note this wont work with union
+          query = GrouperClientUtils.replace(query, " where ", " where 1!=1 and ");
+          query = GrouperClientUtils.replace(query, " WHERE ", " where 1!=1 and ");
+        } else {
+          if (!query.toLowerCase().contains("where") && !query.toLowerCase().contains(" order ")
+              && !query.toLowerCase().contains(" group ")) {
+            query += " where 1!=1";
+          }
+        }
+      }
+    }
     
     GcTableSyncTableMetadata gcTableSyncTableMetadata = new GcTableSyncTableMetadata();
+    gcTableSyncTableMetadata.metadataQuery = query;
     gcTableSyncTableMetadata.setConnectionName(theConnectionName);
-    gcTableSyncTableMetadata.setTableName(tableName);
-    
-    String sql = "select * from " + tableName + " where 1 != 1";
     
     final ArrayList<GcTableSyncColumnMetadata> gcTableSyncColumnMetadatas = new ArrayList<GcTableSyncColumnMetadata>();
     gcTableSyncTableMetadata.setColumnMetadata(gcTableSyncColumnMetadatas);
     
     try {
       // go to database from and look up metadata
-      new GcDbAccess().connectionName(theConnectionName).sql(sql).callbackResultSet(new GcResultSetCallback() {
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(theConnectionName).sql(query);
+      
+      if (bindVars != null) {
+        gcDbAccess.bindVars(bindVars);
+      }
+      
+      gcDbAccess.callbackResultSet(new GcResultSetCallback() {
   
         @Override
         public Object callback(ResultSet resultSet) throws Exception {
@@ -259,16 +315,17 @@ public class GcTableSyncTableMetadata {
   
           for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
             GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
-            gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
-            
-            String columnName = resultSetMetaData.getColumnName(i+1);
+            // label is the alias and column name is the column name
+            String columnName = GrouperClientUtils.defaultIfBlank(resultSetMetaData.getColumnLabel(i+1), resultSetMetaData.getColumnName(i+1));
             int dataType = resultSetMetaData.getColumnType(i+1);
             String typeName = resultSetMetaData.getColumnTypeName(i+1);
   
             gcTableSyncColumnMetadata.setColumnIndexZeroIndexed(i);
             
             gcTableSyncColumnMetadata.setColumnName(columnName);
-            
+            // dont add to set until the column name is set since it orders by that
+            gcTableSyncColumnMetadatas.add(gcTableSyncColumnMetadata);
+
             switch (dataType) {
               case Types.BIGINT: 
               case Types.DECIMAL:
@@ -338,18 +395,24 @@ public class GcTableSyncTableMetadata {
         }
         
       });
-    } catch (Exception e) {
-      LOG.error("Error finding metadata for '" + tableName + "' in database: '" + theConnectionName + "'");
+    } catch (RuntimeException e) {
+      GrouperClientUtils.injectInException(e, "Error finding metadata for '" + query + "' in database: '" + theConnectionName + "'");
+      throw e;
     }
 
     if (gcTableSyncColumnMetadatas.size() == 0) {
-      throw new RuntimeException("Cant find table metadata for '" + tableName + "' in database: '" + theConnectionName + "'");
+      throw new RuntimeException("Cant find table metadata for '" + query + "' in database: '" + theConnectionName + "'");
     }
-      
+
     return gcTableSyncTableMetadata;
   }
+
+
   
-  
+  public String getMetadataQuery() {
+    return metadataQuery;
+  }
+
   /**
    * @return the connectionName
    */

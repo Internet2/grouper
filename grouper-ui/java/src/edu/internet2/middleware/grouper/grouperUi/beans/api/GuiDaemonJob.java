@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -183,8 +184,9 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
 
     try {
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-  
+      String simpleDateFormatString = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.daemonJob.extendedSchedule.dateFormat", "yyyy-MM-dd HH:mm:ss z");
+      SimpleDateFormat sdf = new SimpleDateFormat(simpleDateFormatString);
+
       this.setJobName(jobName);
       
       GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);

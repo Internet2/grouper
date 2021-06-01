@@ -4,13 +4,13 @@
 import org.codehaus.groovy.tools.shell.CommandSupport
 import org.codehaus.groovy.tools.shell.Groovysh
 
-import edu.internet2.middleware.grouper.*
-import edu.internet2.middleware.grouper.app.gsh.*
-import edu.internet2.middleware.grouper.privs.*
-import edu.internet2.middleware.grouper.misc.*
+import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.app.gsh.*;
+import edu.internet2.middleware.grouper.privs.*;
+import edu.internet2.middleware.grouper.misc.*;
 
-class GSHFileLoad extends CommandSupport {
-  protected GSHFileLoad(final Groovysh shell) {
+class GSHFileLoad extends org.codehaus.groovy.tools.shell.CommandSupport {
+  protected GSHFileLoad(final org.codehaus.groovy.tools.shell.Groovysh shell) {
     super(shell, ':gshFileLoad', ':gshfl')
   }
 
@@ -45,19 +45,15 @@ class GSHFileLoad extends CommandSupport {
     }
 
     url.eachLine { String it, int lineNumber ->
-      if (lineNumber == 1 && it.startsWith('#!')) {
+      if (edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineExit(lineNumber, it)) {
         return
       }
 
-      if (it.equals("exit") || it.startsWith("exit ") || it.startsWith("exit;") || it.equals("quit") || it.startsWith("quit ") || it.startsWith("quit;")) {
-        return
-      }
-
-      if (!it.startsWith("#")) {
+      if (!edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.scriptLineIgnore(lineNumber, it)) {
         try {
           shell << it as String
         } catch (Throwable t) {
-          GrouperShell.handleFileLoadError(it, t);
+          edu.internet2.middleware.grouper.app.gsh.GrouperShell.handleFileLoadError(it, t);
         }
       }
     }
@@ -66,7 +62,7 @@ class GSHFileLoad extends CommandSupport {
 
 :register GSHFileLoad
 
-GrouperSession.startRootSession()
+edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.startRootSessionIfNoSessionRunning();
 
 def addComposite (String group, CompositeType type, String left, String right) {
   new addComposite().invoke(GrouperSession.staticGrouperSession(), group, type, left, right)
@@ -325,34 +321,34 @@ def xmlUpdateFromURL (URL url) {
 }
 
 // keeping these imports down here seems to improve load time of this file
-import edu.internet2.middleware.grouper.app.loader.ldap.*
-import edu.internet2.middleware.grouper.attr.*
-import edu.internet2.middleware.grouper.attr.assign.*
-import edu.internet2.middleware.grouper.attr.finder.*
-import edu.internet2.middleware.grouper.attr.value.*
-import edu.internet2.middleware.grouper.audit.*
-import edu.internet2.middleware.grouper.client.*
-import edu.internet2.middleware.grouper.entity.*
-import edu.internet2.middleware.grouper.externalSubjects.*
-import edu.internet2.middleware.grouper.group.*
-import edu.internet2.middleware.grouper.ldap.*
-import edu.internet2.middleware.grouper.app.loader.*
-import edu.internet2.middleware.grouper.xml.*
-import edu.internet2.middleware.grouper.registry.*
-import edu.internet2.middleware.grouper.app.usdu.*
-import edu.internet2.middleware.grouper.app.misc.*
-import edu.internet2.middleware.grouper.rules.*
-import edu.internet2.middleware.grouper.hibernate.*
-import edu.internet2.middleware.grouper.permissions.*
-import edu.internet2.middleware.grouper.util.*
-import edu.internet2.middleware.grouper.xml.export.*
-import edu.internet2.middleware.subject.*
-import edu.internet2.middleware.subject.provider.*
-import edu.internet2.middleware.grouper.userData.*
-import edu.internet2.middleware.grouper.messaging.*
-import edu.internet2.middleware.grouper.filter.*
-import edu.internet2.middleware.grouper.authentication.*
-import edu.internet2.middleware.grouper.j2ee.*
+import edu.internet2.middleware.grouper.app.loader.ldap.*;
+import edu.internet2.middleware.grouper.attr.*;
+import edu.internet2.middleware.grouper.attr.assign.*;
+import edu.internet2.middleware.grouper.attr.finder.*;
+import edu.internet2.middleware.grouper.attr.value.*;
+import edu.internet2.middleware.grouper.audit.*;
+import edu.internet2.middleware.grouper.client.*;
+import edu.internet2.middleware.grouper.entity.*;
+import edu.internet2.middleware.grouper.externalSubjects.*;
+import edu.internet2.middleware.grouper.group.*;
+import edu.internet2.middleware.grouper.ldap.*;
+import edu.internet2.middleware.grouper.app.loader.*;
+import edu.internet2.middleware.grouper.xml.*;
+import edu.internet2.middleware.grouper.registry.*;
+import edu.internet2.middleware.grouper.app.usdu.*;
+import edu.internet2.middleware.grouper.app.misc.*;
+import edu.internet2.middleware.grouper.rules.*;
+import edu.internet2.middleware.grouper.hibernate.*;
+import edu.internet2.middleware.grouper.permissions.*;
+import edu.internet2.middleware.grouper.util.*;
+import edu.internet2.middleware.grouper.xml.export.*;
+import edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.provider.*;
+import edu.internet2.middleware.grouper.userData.*;
+import edu.internet2.middleware.grouper.messaging.*;
+import edu.internet2.middleware.grouper.filter.*;
+import edu.internet2.middleware.grouper.authentication.*;
+import edu.internet2.middleware.grouper.j2ee.*;
 
 :set verbosity INFO
 :set interpreterMode true

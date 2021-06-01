@@ -334,7 +334,7 @@ public class UiV2GroupPermission {
       
       if (StringUtils.isBlank(permissionAssignTypeString)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
       }
       
@@ -342,7 +342,7 @@ public class UiV2GroupPermission {
       
       if (permissionAssignType ==  null) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
       }
       
@@ -1335,7 +1335,7 @@ public class UiV2GroupPermission {
 
       if (permissionAssignType ==  null) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
       }
       
@@ -1516,7 +1516,7 @@ public class UiV2GroupPermission {
 
       if (permissionType ==  null) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.requiredOwnerType")));
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
       }
       

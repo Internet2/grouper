@@ -24,6 +24,24 @@ import java.util.Map;
 public interface LdapSession {
 
   /**
+   * if we are debugging
+   * @return
+   */
+  public abstract boolean isDebug();
+
+  /**
+   * if we should capture debug info
+   * @param inDiagnostics
+   */
+  public abstract void assignDebug(boolean isDebug);
+
+  /**
+   * debug log where lines are separated by newlines
+   * @return
+   */
+  public abstract StringBuilder getDebugLog();
+  
+  /**
    * run a filter, for one attribute, and return a list of that attribute typecast as a certain type
    * note, if it is a multi-valued attributes, and there are multiple object results, it will be flattened into one list
    * @param <R>
@@ -125,5 +143,11 @@ public interface LdapSession {
    * @param password
    */
   public abstract void authenticate(final String ldapServerId, final String userDn, final String password);
+  
+  /**
+   * Check if connections need to be refreshed due to config changes
+   * @param ldapServerId
+   */
+  public abstract void refreshConnectionsIfNeeded(final String ldapServerId);
   
 }

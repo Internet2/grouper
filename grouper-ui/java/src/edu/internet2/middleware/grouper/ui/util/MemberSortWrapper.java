@@ -122,6 +122,15 @@ public class MemberSortWrapper implements Comparable {
         public String getTypeName() {
           return null;
         }
+        
+        @Override
+        public Map<String, Object> getTranslationMap() {
+          return null;
+        }
+
+        @Override
+        public void setTranslationMap(Map<String, Object> translationMap) {
+        }
 
         /**
          * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String, boolean)

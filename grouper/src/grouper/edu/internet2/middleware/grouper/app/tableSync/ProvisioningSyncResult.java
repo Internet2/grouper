@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.app.tableSync;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 /**
  * 
@@ -19,8 +21,6 @@ public class ProvisioningSyncResult {
    * number of objects stored (for logging)
    */
   private int syncObjectStoreCount;
-  
-  
   
   /**
    * number of objects stored (for logging)
@@ -80,6 +80,30 @@ public class ProvisioningSyncResult {
   public void setGroupIdsWithChangedNames(
       Set<String> oldNameToGcGrouperSyncGroup1) {
     this.groupIdsWithChangedNames = oldNameToGcGrouperSyncGroup1;
+  }
+
+  /**
+   * if subject id changes
+   */
+  private Set<String> memberIdsWithChangedSubjectIds;
+
+  
+
+  /**
+   * if subject id changes
+   * @return
+   */
+  public Set<String> getMemberIdsWithChangedSubjectIds() {
+    return memberIdsWithChangedSubjectIds;
+  }
+
+  /**
+   * if subject id changes
+   * @param memberIdsWithChangedSubjectIds
+   */
+  public void setMemberIdsWithChangedSubjectIds(
+      Set<String> memberIdsWithChangedSubjectIds) {
+    this.memberIdsWithChangedSubjectIds = memberIdsWithChangedSubjectIds;
   }
 
   /**
@@ -172,46 +196,87 @@ public class ProvisioningSyncResult {
   }
 
   /**
-   * map of group id to group
+   * member ids to delete sync member ids
    */
-  private Map<String, Group> mapGroupIdToGroup = null;
-
+  private Set<String> memberIdsToDelete;
   /**
-   * map of group id to group
-   * @return map
+   * member ids to insert sync member ids
    */
-  public Map<String, Group> getMapGroupIdToGroup() {
-    return this.mapGroupIdToGroup;
+  private Set<String> memberIdsToInsert;
+  /**
+   * member ids to update sync member ids
+   */
+  private Set<String> memberIdsToUpdate;
+  /**
+   * membership id to delete
+   */
+  private Set<MultiKey> membershipGroupIdMemberIdsToDelete;
+  /**
+   * group id member id to insert sync membership ids
+   */
+  private Set<MultiKey> membershipGroupIdMemberIdsToInsert;
+  /**
+   * membership ids to update sync membership ids
+   */
+  private Set<MultiKey> membershipGroupIdMemberIdsToUpdate;
+  public Set<String> getMemberIdsToDelete() {
+    return memberIdsToDelete;
   }
 
-  /**
-   * map of group id to group
-   * @param mapGroupIdToGroup1
-   */
-  public void setMapGroupIdToGroup(Map<String, Group> mapGroupIdToGroup1) {
-    this.mapGroupIdToGroup = mapGroupIdToGroup1;
+  
+  public void setMemberIdsToDelete(Set<String> memberIdsToDelete) {
+    this.memberIdsToDelete = memberIdsToDelete;
   }
 
-  /**
-   * map of group id to grouper sync group objects
-   */
-  private Map<String, GcGrouperSyncGroup> mapGroupIdToGcGrouperSyncGroup = null;
-
-  /**
-   * map of group id to grouper sync group objects
-   * @return map
-   */
-  public Map<String, GcGrouperSyncGroup> getMapGroupIdToGcGrouperSyncGroup() {
-    return mapGroupIdToGcGrouperSyncGroup;
+  
+  public Set<String> getMemberIdsToInsert() {
+    return memberIdsToInsert;
   }
 
-  /**
-   * map of group id to grouper sync group objects
-   * @param mapGroupIdToGcGrouperSyncGroup1
-   */
-  public void setMapGroupIdToGcGrouperSyncGroup(
-      Map<String, GcGrouperSyncGroup> mapGroupIdToGcGrouperSyncGroup1) {
-    this.mapGroupIdToGcGrouperSyncGroup = mapGroupIdToGcGrouperSyncGroup1;
+  
+  public void setMemberIdsToInsert(Set<String> memberIdsToInsert) {
+    this.memberIdsToInsert = memberIdsToInsert;
+  }
+
+  
+  public Set<String> getMemberIdsToUpdate() {
+    return memberIdsToUpdate;
+  }
+
+  
+  public void setMemberIdsToUpdate(Set<String> memberIdsToUpdate) {
+    this.memberIdsToUpdate = memberIdsToUpdate;
+  }
+
+  
+  public Set<MultiKey> getMembershipGroupIdMemberIdsToDelete() {
+    return membershipGroupIdMemberIdsToDelete;
+  }
+
+  
+  public void setMembershipGroupIdMemberIdsToDelete(Set<MultiKey> membershipIdsToDelete) {
+    this.membershipGroupIdMemberIdsToDelete = membershipIdsToDelete;
+  }
+
+  
+  public Set<MultiKey> getMembershipGroupIdMemberIdsToInsert() {
+    return membershipGroupIdMemberIdsToInsert;
+  }
+
+  
+  public void setMembershipGroupIdMemberIdsToInsert(
+      Set<MultiKey> membershipGroupIdMemberIdToInsert) {
+    this.membershipGroupIdMemberIdsToInsert = membershipGroupIdMemberIdToInsert;
+  }
+
+  
+  public Set<MultiKey> getMembershipGroupIdMemberIdsToUpdate() {
+    return membershipGroupIdMemberIdsToUpdate;
+  }
+
+  
+  public void setMembershipGroupIdMemberIdsToUpdate(Set<MultiKey> membershipIdsToUpdate) {
+    this.membershipGroupIdMemberIdsToUpdate = membershipIdsToUpdate;
   }
 
   

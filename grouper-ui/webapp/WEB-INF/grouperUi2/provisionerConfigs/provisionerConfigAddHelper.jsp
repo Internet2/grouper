@@ -6,10 +6,12 @@
     <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="provisionerConfigId">${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap; width: 5%;">&nbsp;</td>
     <td>
+      <span style="white-space: nowrap">
       <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}"
          name="provisionerConfigId" id="provisionerConfigId" />
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+      </span>
       <br />
       <span class="description">${textContainer.text['provisionerConfigIdHint']}</span>
     </td>
@@ -19,8 +21,9 @@
     <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="provisionerConfigTypeId">${textContainer.text['provisionerTypeLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap; width: 5%;">&nbsp;</td>
     <td>
+      <span style="white-space: nowrap">
       <select name="provisionerConfigType" id="provisionerConfigTypeId" style="width: 30em"
-      onchange="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration', {formIds: 'provisionerConfigDetails'}); return false;"
+      onchange="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=provisionerConfigType', {formIds: 'provisionerConfigDetails'}); return false;"
       >
        
         <option value=""></option>
@@ -32,6 +35,7 @@
       </select>
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
       data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+      </span>
       <br />
       <span class="description">${textContainer.text['provisionerTypeHint']}</span>
     </td>
@@ -39,18 +43,29 @@
   
   <c:forEach items="${guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
   		<tbody>
-  			<c:if test="${!grouper:isBlank(subSection.label)}">
+  			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
 	  			<tr>
 	  				<th colspan="3">
+              <%-- the header needs to be on a field to subsitute the name in the label if there --%>
+              <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                      property="currentConfigSuffix"
+                      value="${subSection.label}.header" />  
 	  					<h4>${subSection.title}</h4>
 	  					<p style="font-weight: normal;">${subSection.description} </p>
 	  				</th>
 	  			</tr>
   			
   			</c:if>
+  			  			
+  			<c:forEach items="${subSection.attributesValues}" var="attribute">	
   			
-  			<c:forEach items="${subSection.attributesValues}" var="attribute">
-  				
+  			<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+               	property="index"
+               	value="${attribute.repeatGroupIndex}" />	
+        	<c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
+                property="currentConfigSuffix"
+                value="${attribute.configSuffix}" />  
+  			
   				<grouper:configFormElement 
   					formElementType="${attribute.formElement}" 
   					configId="${attribute.configSuffix}" 
@@ -62,7 +77,7 @@
   					shouldShow="${attribute.show}"
   					value="${attribute.valueOrExpressionEvaluation}"
   					hasExpressionLanguage="${attribute.expressionLanguage}"
-  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
+  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
   					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
   					checkboxAttributes="${attribute.checkboxAttributes}"
   				/>
@@ -70,6 +85,6 @@
   			</c:forEach>
   			
   		</tbody>
-  
+
   </c:forEach>
   

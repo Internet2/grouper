@@ -35,11 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -53,6 +51,7 @@ import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -143,6 +142,8 @@ public class GrouperLoaderResultset {
     String defaultSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString(
         GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
     
+    int validRows = 0;
+    
     for (Row row : this.data) {
       
       if (subjectIdCol == null) {
@@ -186,6 +187,9 @@ public class GrouperLoaderResultset {
       subjectIdOrIdentifer = (String) row.getCell(subjectIdCol, false);
 
       if (StringUtils.isBlank(subjectIdOrIdentifer)) {
+        String debugInfo = ", valid rows so far: " + validRows + " of " + this.data.size() + ", columns: " 
+            + GrouperUtil.toStringForLog(this.columnNames)  + " this row: " + GrouperUtil.toStringForLog(row.rowData);
+
         boolean hasSubjectIdCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_COL);
         boolean hasSubjectIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL);
         boolean hasSubjectIdOrIdentifierCol = GrouperLoaderResultset.this.hasColumnName(GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL);
@@ -193,29 +197,25 @@ public class GrouperLoaderResultset {
             && !hasSubjectIdentifierCol       
             && !hasSubjectIdOrIdentifierCol) {
           throw new RuntimeException(
-              "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER! "
-                  + ", "
-                  + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
-                      .getColumnNames()));
+              "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER! " + debugInfo);
         }
 
         if (hasSubjectIdCol) {
-          throw new RuntimeException("Result has a null subject_id, please correct the query (maybe just filter where subject_id is not null)");
+          throw new RuntimeException("Result has a null subject_id, please correct the query (maybe just filter where subject_id is not null)" + debugInfo);
         }
         if (hasSubjectIdentifierCol) {
-          throw new RuntimeException("Result has a null subject_identifer, please correct the query (maybe just filter where subject_identifier is not null)");
+          throw new RuntimeException("Result has a null subject_identifer, please correct the query (maybe just filter where subject_identifier is not null)" + debugInfo);
         }
         if (hasSubjectIdOrIdentifierCol) {
-          throw new RuntimeException("Result has a null subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null)");
+          throw new RuntimeException("Result has a null subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null)" + debugInfo);
         }
         
         throw new RuntimeException(
             "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER and the values need to be not null! "
-                + GrouperUtil.toStringForLog(GrouperLoaderResultset.this
-                    .getColumnNames()));
+                + debugInfo);
 
       }
-      
+      validRows++;
       if (!StringUtils.isBlank(sourceId)) {
         Set<String> subjectIdsOrIdentifiersForSource = sourceToSubjectIdsOrIdentifiers.get(sourceId);
         //lazy load for source
@@ -481,9 +481,12 @@ public class GrouperLoaderResultset {
 
     this.dataIndex = null;
     
-    //small security check (not failsafe, but better than nothing)
-    if (!query.toLowerCase().trim().startsWith("select")) {
-      throw new RuntimeException("Invalid query, must start with select: " + query);
+    {
+      //small security check (not failsafe, but better than nothing)
+      String trimQuery = query.toLowerCase().trim();
+      if (trimQuery.startsWith("insert") || trimQuery.startsWith("update") || trimQuery.startsWith("delete")) {
+        throw new RuntimeException("Invalid query, should start with select: " + query);
+      }
     }
     Connection connection = null;
     Statement statement = null;
@@ -752,7 +755,7 @@ public class GrouperLoaderResultset {
               LdapAttribute groupAttribute = searchResult.getAttribute(
                   groupAttributeName);
 
-              if (groupAttribute != null) {
+              if (groupAttribute != null && !groupAttribute.getStringValues().isEmpty()) {
 
                 if (groupAttribute.getStringValues().size() > 1) {
                   throw new RuntimeException(
@@ -1052,7 +1055,7 @@ public class GrouperLoaderResultset {
 
         if (!StringUtils.isBlank(subjectAttributeName)) {
           LdapAttribute subjectAttributeObject = searchResult.getAttribute(subjectAttributeName);
-          if (subjectAttributeObject == null) {
+          if (subjectAttributeObject == null || subjectAttributeObject.getStringValues().isEmpty()) {
             throw new RuntimeException("Cant find attribute " + subjectAttributeName + " in LDAP record.  Maybe you have "
                 + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
                 + subjectNameInNamespace + "'");
@@ -1075,7 +1078,7 @@ public class GrouperLoaderResultset {
               LdapAttribute subjectAttribute = searchResult.getAttribute(
                   currSubjectAttributeName);
 
-              if (subjectAttribute != null) {
+              if (subjectAttribute != null && !subjectAttribute.getStringValues().isEmpty()) {
 
                 if (subjectAttribute.getStringValues().size() > 1) {
                   throw new RuntimeException(
@@ -1083,7 +1086,6 @@ public class GrouperLoaderResultset {
                       + currSubjectAttributeName);
                 }
                 subjectAttributes.put(currSubjectAttributeName, subjectAttribute.getStringValues().iterator().next());
-
               }
             }
           }
@@ -1174,7 +1176,7 @@ public class GrouperLoaderResultset {
                       for (String currGroupAttributeName : extraAttributeArray) {
                         LdapAttribute tmpAttribValue = searchResult.getAttribute(currGroupAttributeName);
 
-                        if (tmpAttribValue != null) {
+                        if (tmpAttribValue != null && !tmpAttribValue.getStringValues().isEmpty()) {
 
                           if (tmpAttribValue.getStringValues().size() > 1) {
                             throw new RuntimeException(

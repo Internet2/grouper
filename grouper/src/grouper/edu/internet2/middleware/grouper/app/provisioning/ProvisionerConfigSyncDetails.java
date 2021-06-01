@@ -14,9 +14,25 @@ public class ProvisionerConfigSyncDetails {
   private String lastFullSyncTimestamp;
   
   /**
+   * last full sync start
+   */
+  private String lastFullSyncStartTimestamp;
+  
+  
+  /**
    * last incremental sync timestamp
    */
   private String lastIncrementalSyncTimestamp;
+  
+  /**
+   * last full metadata sync start timestamp
+   */
+  private String lastFullMetadataSyncStartTimestamp;
+  
+  /**
+   * last full metadata sync timestamp
+   */
+  private String lastFullMetadataSyncTimestamp;
   
   /**
    * group count
@@ -32,6 +48,21 @@ public class ProvisionerConfigSyncDetails {
    * records count
    */
   private int recordsCount;
+  
+  /**
+   * number of validation errors for a given provisioner across groups, members, and memberships
+   */
+  private int validationErrorCount;
+  
+  /**
+   * number of exceptions for a given provisioner across groups, members, and memberships
+   */
+  private int exceptionCount;
+  
+  /**
+   * number of target errors for a given provisioner across groups, members, and memberships
+   */
+  private int targetErrorCount;
   
   /**
    * list of sync jobs for a provisioner config
@@ -96,6 +127,80 @@ public class ProvisionerConfigSyncDetails {
   public void setSyncJobs(List<GrouperSyncJobWrapper> syncJobs) {
     this.syncJobs = syncJobs;
   }
+
+
+  
+  public String getLastFullSyncStartTimestamp() {
+    return lastFullSyncStartTimestamp;
+  }
+
+
+  
+  public void setLastFullSyncStartTimestamp(String lastFullSyncStartTimestamp) {
+    this.lastFullSyncStartTimestamp = lastFullSyncStartTimestamp;
+  }
+
+
+  
+  public String getLastFullMetadataSyncStartTimestamp() {
+    return lastFullMetadataSyncStartTimestamp;
+  }
+
+
+  
+  public void setLastFullMetadataSyncStartTimestamp(
+      String lastFullMetadataSyncStartTimestamp) {
+    this.lastFullMetadataSyncStartTimestamp = lastFullMetadataSyncStartTimestamp;
+  }
+
+
+  
+  public String getLastFullMetadataSyncTimestamp() {
+    return lastFullMetadataSyncTimestamp;
+  }
+
+
+  
+  public void setLastFullMetadataSyncTimestamp(String lastFullMetadataSyncTimestamp) {
+    this.lastFullMetadataSyncTimestamp = lastFullMetadataSyncTimestamp;
+  }
+
+
+  
+  public int getValidationErrorCount() {
+    return validationErrorCount;
+  }
+
+
+  
+  public void setValidationErrorCount(int validationErrorCount) {
+    this.validationErrorCount = validationErrorCount;
+  }
+
+
+  
+  public int getExceptionCount() {
+    return exceptionCount;
+  }
+
+
+  
+  public void setExceptionCount(int exceptionCount) {
+    this.exceptionCount = exceptionCount;
+  }
+
+
+  
+  public int getTargetErrorCount() {
+    return targetErrorCount;
+  }
+
+
+  
+  public void setTargetErrorCount(int targetErrorCount) {
+    this.targetErrorCount = targetErrorCount;
+  }
+  
 
 }
 

@@ -35,9 +35,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
+import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -55,7 +54,14 @@ public class GroupContainer {
    * @return if has custom ui attribute
    */
   public boolean isHasCustomUi() {
-    return CustomUiAttributeNames.retrieveAttributeValuesForGroup(this.getGuiGroup().getGroup()).size() > 0;
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return CustomUiEngine.retrieveCustomUiConfigurationConfigId(GroupContainer.this.getGuiGroup().getGroup(), true) != null;
+      }
+    });
+    
   }
   
   /**

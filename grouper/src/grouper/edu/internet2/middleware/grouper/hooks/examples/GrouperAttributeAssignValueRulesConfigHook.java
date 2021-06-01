@@ -54,6 +54,14 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
   /**
    * 
    */
+  public static void clearHook() {
+    registered = false;
+    registeredSuccess = false;
+  }
+
+  /**
+   * 
+   */
   public GrouperAttributeAssignValueRulesConfigHook() {
     // TODO Auto-generated constructor stub
   }

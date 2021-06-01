@@ -628,32 +628,36 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
               }
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry();
-                
-                if (isInsert) {
+                if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(ATTRIBUTE_DEF_NAME.getAttributeDefId()) && 
+                    !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(ATTRIBUTE_DEF_NAME.getId())) {
+
+                  AuditEntry auditEntry = new AuditEntry();
                   
-                  AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, attributeAssignable);
-                  
-                  if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
-                    auditEntry.setDescription("Added attribute assignment, disallowed");
+                  if (isInsert) {
+                    
+                    AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, attributeAssignable);
+                    
+                    if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
+                      auditEntry.setDescription("Added attribute assignment, disallowed");
+                    } else {
+                      auditEntry.setDescription("Added attribute assignment");
+                    }
+    
                   } else {
-                    auditEntry.setDescription("Added attribute assignment");
+    
+                    AttributeAssign.this.getAttributeAssignType().decorateAuditEntryUpdate(auditEntry, attributeAssignable);
+                    auditEntry.setDescription("Updated attribute assignment: " + differences);
+                    
                   }
-
-                } else {
-
-                  AttributeAssign.this.getAttributeAssignType().decorateAuditEntryUpdate(auditEntry, attributeAssignable);
-                  auditEntry.setDescription("Updated attribute assignment: " + differences);
-                  
+    
+                  auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
+                  auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", ATTRIBUTE_DEF_NAME.getName());
+                  auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
+                  auditEntry.assignStringValue(auditEntry.getAuditType(), "action", ATTRIBUTE_ASSIGN_ACTION.getName());
+                  auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", theAttributeDef.getId());
+    
+                  auditEntry.saveOrUpdate(true);
                 }
-
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", ATTRIBUTE_DEF_NAME.getName());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "action", ATTRIBUTE_ASSIGN_ACTION.getName());
-                auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", theAttributeDef.getId());
-
-                auditEntry.saveOrUpdate(true);
               }
               
               //clear object has attribute cache
@@ -741,25 +745,30 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
             throw re;
           }
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-            AuditEntry auditEntry = new AuditEntry();
-            AttributeDefName theAttributeDefName = AttributeAssign.this.getAttributeDefName();
-            AttributeAssign.this.getAttributeAssignType().decorateAuditEntryDelete(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
-
-            AttributeDef theAttributeDef = theAttributeDefName.getAttributeDef();
-            
-            if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
-              auditEntry.setDescription("Deleted attribute assignment, disallowed");
-            } else {
-              auditEntry.setDescription("Deleted attribute assignment");
+            if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(
+                AttributeAssign.this.getAttributeDefName().getAttributeDefId()) && 
+                !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(
+                    AttributeAssign.this.getAttributeDefName().getId())) {
+              AuditEntry auditEntry = new AuditEntry();
+              AttributeDefName theAttributeDefName = AttributeAssign.this.getAttributeDefName();
+              AttributeAssign.this.getAttributeAssignType().decorateAuditEntryDelete(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
+    
+              AttributeDef theAttributeDef = theAttributeDefName.getAttributeDef();
+              
+              if (AttributeDefType.perm == theAttributeDef.getAttributeDefType() && AttributeAssign.this.disallowed) {
+                auditEntry.setDescription("Deleted attribute assignment, disallowed");
+              } else {
+                auditEntry.setDescription("Deleted attribute assignment");
+              }
+              
+              auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
+              auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", theAttributeDefName.getName());
+              auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
+              auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
+              auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", attributeDef.getId());
+    
+              auditEntry.saveOrUpdate(true);
             }
-            
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", theAttributeDefName.getName());
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
-            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", attributeDef.getId());
-  
-            auditEntry.saveOrUpdate(true);
           }
   
           //clear object has attribute cache

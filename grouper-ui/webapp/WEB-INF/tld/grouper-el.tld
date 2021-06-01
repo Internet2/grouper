@@ -249,6 +249,15 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+
+    <attribute>
+      <description>
+      	Should the EL checkbox be shown? default is true.
+      </description>
+      <name>shouldShowElCheckbox</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
     
     <attribute>
       <description>
@@ -314,12 +323,6 @@
     </attribute>
  
   </tag>
-
-
-
-
-
-
   
   <tag>
     <description>
@@ -755,6 +758,97 @@
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
+  
+  <tag>
+    <description>
+      Provisioning object metadata item form element
+    </description>
+    <name>provisioningMetadataItemFormElement</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperProvisioningObjectMetadataItemFormElement</tag-class>
+    <body-content>empty</body-content>
+    
+    <attribute>
+      <description>
+        name for the field
+        </description>
+      <name>name</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>value to render inside the html field.</description>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Is the field required  
+      </description>
+      <name>required</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Is the field read only  
+      </description>
+      <name>readOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	description key that shows under the html element
+      </description>
+      <name>descriptionKey</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+      	Label key for the field
+      </description>
+      <name>labelKey</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+       Standard form element type from enum ConfigItemFormElement
+        </description>
+      <name>formElementType</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+        list of multikeys for dropdown
+        </description>
+      <name>valuesAndLabels</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    
+    <attribute>
+      <description>
+        ajax callback (on a dropdown)
+        </description>
+      <name>ajaxCallback</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+ 
+  </tag>
+  
+  
   <function>
     <description>
       Abbreviate something if necessary.  3rd arg is if should put a tooltip in it with span tag.

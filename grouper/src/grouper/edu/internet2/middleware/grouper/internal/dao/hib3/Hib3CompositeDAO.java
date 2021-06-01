@@ -38,10 +38,13 @@ import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -51,6 +54,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
@@ -307,6 +313,79 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
         .setLong("theCreateTime", composite.getCreateTime())
         .setString("theContextId", composite.getContextId())
         .setString("theUuid", composite.getUuid()).executeUpdate();
+  }
+
+  @Override
+  public Set<Composite> find(GrouperSession grouperSession, String parentStemId, Scope stemScope, Subject subject, Set<Privilege> privileges) {
+    
+    if (!StringUtils.isBlank(parentStemId) && stemScope == null) {
+      throw new RuntimeException("If you pass in parent stem id, then you have to pass in stem scope");
+    }
+
+    if (subject == null && GrouperUtil.length(privileges) > 0) {
+      subject = GrouperSession.staticGrouperSession().getSubject();
+    }
+
+    StringBuilder sql = new StringBuilder(
+        "select c from Composite as c, Group as theGroup where c.factorOwnerUuid = theGroup.uuid ");
+  
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      
+      if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+        throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+      }
+      
+      if (stemScope == Scope.SUB) {
+        sql.append(", StemSet theStemSet ");
+      }
+    }      
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query
+    boolean changedQuery = false;
+    
+    if (GrouperUtil.length(privileges) > 0) {
+      changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+          sql, "theGroup.uuid", privileges);
+    }
+
+    StringBuilder whereClause = new StringBuilder();
+
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      switch(stemScope) {
+        case ONE:
+          
+          whereClause.append(" theGroup.parentUuid = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          break;
+        case SUB:
+          
+          whereClause.append(" theGroup.parentUuid = theStemSet.ifHasStemId " +
+            " and theStemSet.thenHasStemId = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          
+          break;
+        
+      }
+    }
+    
+    if (changedQuery && sql.toString().contains(" where ")) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+    sql.append(whereClause);
+    
+    Set<Composite> dtos = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".Find")
+      .listSet(Composite.class);
+    return GrouperUtil.nonNull(dtos);
   }
 
 } 

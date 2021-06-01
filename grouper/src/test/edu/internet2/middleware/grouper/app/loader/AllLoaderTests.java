@@ -41,6 +41,7 @@ public class AllLoaderTests {
     suite.addTestSuite(GrouperLoaderSecurityTest.class);
     suite.addTestSuite(GrouperLoaderTest.class);
     suite.addTestSuite(GrouperDaemonSchedulerCheckTest.class);
+    suite.addTestSuite(NotificationDaemonTest.class);
     suite.addTestSuite(OtherJobScriptTest.class);
     //$JUnit-END$
     suite.addTest(AllLoaderDbTests.suite());

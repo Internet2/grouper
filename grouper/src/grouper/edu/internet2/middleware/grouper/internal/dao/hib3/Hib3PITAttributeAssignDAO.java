@@ -145,6 +145,10 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
       throw new RuntimeException("PITAttributeAssign with sourceId=" + id + " not found");
     }
     
+    if (pitAttributeAssign.size() == 0) {
+      return null;
+    }
+    
     return pitAttributeAssign.iterator().next();
   }
   

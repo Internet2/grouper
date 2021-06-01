@@ -22,6 +22,9 @@ package edu.internet2.middleware.grouper.app.loader.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,6 +156,12 @@ public class GrouperLoaderDb {
   
   /** db driver to use to login */
   private String driver;
+  
+  /** pool properties */
+  private Map<String, Object> poolProperties = new HashMap<String, Object>();
+  
+  /** pool properties for all pools */
+  private static Map<String, Map<String, Object>> allPoolProperties = Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
 
   /**
    * logger 
@@ -374,6 +383,12 @@ public class GrouperLoaderDb {
           comboPooledDataSource.setUnreturnedConnectionTimeout(unreturnedConnectionTimeout);
         }
       }
+      
+      if (!StringUtils.isEmpty(this.connectionName)) {
+        setPoolProperties();
+        
+        allPoolProperties.put(this.connectionName, this.poolProperties);
+      }
 
       //is it there now????
       dataSource = retrieveDataSourceFromC3P0(this.url, this.user);
@@ -412,7 +427,6 @@ public class GrouperLoaderDb {
       this.pass = thePass;
 
       this.pass = Morph.decryptIfFile(this.pass);
-
     }
     
     if (StringUtils.isBlank(this.url)) {
@@ -423,6 +437,67 @@ public class GrouperLoaderDb {
       this.driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(this.url, this.driver);
     }
     GrouperUtil.forName(this.driver);
+  }
+  
+  public void setPoolProperties() {
+    this.poolProperties.put("url", this.url);
+    this.poolProperties.put("driver", this.driver);
+    this.poolProperties.put("user", this.user);
+    this.poolProperties.put("pass", this.pass);
+    this.poolProperties.put("minSize", retrievePoolConfigOrDefaultInt("min_size"));
+    this.poolProperties.put("maxSize", retrievePoolConfigOrDefaultInt("max_size"));
+    this.poolProperties.put("timeout", retrievePoolConfigOrDefaultInt("timeout"));
+    this.poolProperties.put("maxStatements", retrievePoolConfigOrDefaultInt("max_statements"));
+    this.poolProperties.put("idleTestPeriod", retrievePoolConfigOrDefaultInt("idle_test_period"));
+    this.poolProperties.put("acquireIncrement", retrievePoolConfigOrDefaultInt("acquire_increment"));
+    this.poolProperties.put("validate", retrievePoolConfigOrDefaultBoolean("validate"));
+    this.poolProperties.put("debugUnreturnedConnectionStackTraces", retrievePoolConfigOrDefaultBoolean("debugUnreturnedConnectionStackTraces"));
+    this.poolProperties.put("unreturnedConnectionTimeout", retrievePoolConfigOrDefaultInt("unreturnedConnectionTimeout"));
+  }
+  
+  public void refreshConnectionsIfNeeded() {
+    
+    synchronized (GrouperLoaderDb.class) {
+      if (StringUtils.isEmpty(this.connectionName)) {
+        return;
+      }
+      
+      if (!allPoolProperties.containsKey(this.connectionName)) {
+        return;
+      }
+      
+      try {
+        initProperties();
+        setPoolProperties();
+      } catch (Exception e) {
+        // ignore - don't throw an error or put noise in the logs if this isn't configured properly
+        return;
+      }
+      
+      // see if config is different and if so close it so a new pool will be created next time        
+      boolean isDifferent = !allPoolProperties.get(this.connectionName).equals(this.poolProperties);
+  
+      if (isDifferent) {        
+        DataSource dataSource = GrouperLoaderDb.retrieveDataSourceFromC3P0(this.getUrl(), this.getUser());
+        if (dataSource != null && dataSource instanceof PooledDataSource) {
+          // this won't close the connections in the pool immediately but prevent them from being used again.
+          allPoolProperties.remove(this.connectionName);
+          try {
+            // This will mark existing pool as broken and leave open connections that are in use.
+            // Then will recreate new connections based on min pool size config (which is not necessary but will happen).  
+            // But the pool will be marked as closed below.
+            // The end result is that connections in use will continue to be open and a new pool will be created
+            // when a new connection is checked out later.
+            ((PooledDataSource)dataSource).softResetAllUsers();
+          } catch (SQLException e) {
+            // ignore
+            LOG.warn("Failed to soft reset pool: " + this.connectionName, e);
+          }
+          C3P0Registry.markClosed((PooledDataSource)dataSource);
+          LOG.warn("Removed pool for configId=" + this.connectionName);
+        }
+      }
+    }
   }
 
   /**

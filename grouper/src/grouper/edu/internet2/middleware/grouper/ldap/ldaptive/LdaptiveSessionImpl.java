@@ -18,7 +18,9 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -97,11 +99,62 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class LdaptiveSessionImpl implements LdapSession {
 
+  /**
+   * debug log where lines are separated by newlines
+   */
+  private StringBuilder debugLog = null;
+
+  /**
+   * debug log where lines are separated by newlines
+   * @return
+   */
+  public StringBuilder getDebugLog() {
+    return debugLog;
+  }
+
+  /**
+   * if we are debugging
+   */
+  private boolean debug = false;
+  
+  /**
+   * if we are debugging
+   * @return
+   */
+  public boolean isDebug() {
+    return debug;
+  }
+
+  /**
+   * if we should capture debug info
+   * @param isDebug
+   */
+  public void assignDebug(boolean isDebug, StringBuilder theDebugLog) {
+    this.debug = isDebug;
+    if (isDebug) {
+      this.debugLog = theDebugLog;
+    } else {
+      this.debugLog = null;
+    }
+    
+  }
+
+  /**
+   * if we should capture debug info
+   * @param isDebug
+   */
+  public void assignDebug(boolean isDebug) {
+    assignDebug(isDebug, new StringBuilder());
+  }
+
   /** map of connection name to pool */
-  private static Map<String, PooledConnectionFactory> poolMap = new HashMap<String, PooledConnectionFactory>();
+  private static Map<String, PooledConnectionFactory> poolMap = Collections.synchronizedMap(new HashMap<String, PooledConnectionFactory>());
   
   /** map of connection name to properties */
-  private static Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+  private static Map<String, Properties> propertiesMap = Collections.synchronizedMap(new HashMap<String, Properties>());
+  
+  /** pools that need to be cleaned up */
+  private static List<PooledConnectionFactory> poolsNeedingCleanup = new ArrayList<PooledConnectionFactory>();
   
   /** 
    * What ldaptive properties will be decrypted if their values are Morph files?
@@ -109,7 +162,7 @@ public class LdaptiveSessionImpl implements LdapSession {
    **/
   public static final String ENCRYPTABLE_LDAPTIVE_PROPERTIES[] = new String[]{"org.ldaptive.bindCredential"};
   
-  private static Map<String, LinkedHashSet<Class<SearchEntryHandler>>> searchEntryHandlers = new HashMap<String, LinkedHashSet<Class<SearchEntryHandler>>>();
+  private static Map<String, LinkedHashSet<Class<SearchEntryHandler>>> searchEntryHandlers = Collections.synchronizedMap(new HashMap<String, LinkedHashSet<Class<SearchEntryHandler>>>());
   
   private static boolean hasWarnedAboutMissingDnAttributeForSearches = false;
   
@@ -731,20 +784,100 @@ public class LdaptiveSessionImpl implements LdapSession {
       searchRequest.setReferralHandler(new SearchReferralHandler());
     }
     
+    Response<SearchResult> response = null;
     SearchResult searchResults;
-    Integer pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pagedResultsSize");
-    
-    if (pageSize == null) {
-      SearchOperation search = new SearchOperation(ldap);
-      searchResults = search.execute(searchRequest).getResult();
-    } else {
-      PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-      searchResults = client.executeToCompletion(searchRequest).getResult();
+
+    Integer pageSize = LdapConfiguration.getConfig(ldapServerId).getPageSize();
+    if (pageSize != null) {
+      if (pageSize < 0) {
+        pageSize = null;
+      }
+    } else if (LdapConfiguration.getConfig(ldapServerId).isActiveDirectory()) {
+      pageSize = getDefaultActiveDirectoryPageSize(ldapServerId, ldap);
     }
     
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchRequest: ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
+    }
+    if (pageSize == null) {
+      SearchOperation search = new SearchOperation(ldap);
+      response = search.execute(searchRequest);
+    } else {
+      PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
+      response = client.executeToCompletion(searchRequest);
+    }
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+    }
+    searchResults = response.getResult();
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchResults: ").append(StringUtils.abbreviate(searchResults.toString(), 2000)).append("\n");
+    }
     return searchResults;
   }
   
+  private synchronized Integer getDefaultActiveDirectoryPageSize(String ldapServerId, Connection ldap) {
+    Integer pageSize = 1000;
+    
+    try {
+      LdapEntry rootLdapEntry;
+      
+      {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setSearchFilter(new SearchFilter("(objectClass=*)"));
+        searchRequest.setReturnAttributes("configurationNamingContext");
+        searchRequest.setBaseDn("");
+        searchRequest.setSearchScope(SearchScope.OBJECT);
+  
+        if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+          searchRequest.setReferralHandler(new SearchReferralHandler());
+        }
+        
+        SearchOperation search = new SearchOperation(ldap);
+        Response<SearchResult> response = search.execute(searchRequest);
+        SearchResult searchResult = response.getResult();
+        rootLdapEntry = searchResult.getEntry();
+      }
+      if (rootLdapEntry != null && rootLdapEntry.getAttribute("configurationNamingContext") != null && !GrouperUtil.isEmpty(rootLdapEntry.getAttribute("configurationNamingContext").getStringValue())) {
+        String configurationDn = rootLdapEntry.getAttribute("configurationNamingContext").getStringValue();
+        
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setSearchFilter(new SearchFilter("(&(objectClass=queryPolicy)(cn=Default Query Policy))"));
+        searchRequest.setReturnAttributes("lDAPAdminLimits");
+        searchRequest.setBaseDn(configurationDn);
+        searchRequest.setSearchScope(SearchScope.SUBTREE);
+  
+        if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+          searchRequest.setReferralHandler(new SearchReferralHandler());
+        }
+        
+        SearchOperation search = new SearchOperation(ldap);
+        Response<SearchResult> response = search.execute(searchRequest);
+        SearchResult searchResult = response.getResult();
+        LdapEntry queryPolicyLdapEntry = searchResult.getEntry();
+        if (queryPolicyLdapEntry != null && queryPolicyLdapEntry.getAttribute("lDAPAdminLimits") != null) {
+          for (String adminLimit : GrouperUtil.nonNull(queryPolicyLdapEntry.getAttribute("lDAPAdminLimits").getStringValues())) {
+            if (adminLimit != null && adminLimit.startsWith("MaxPageSize=")) {
+              String pageSizeString = adminLimit.substring("MaxPageSize=".length());
+              pageSize = Integer.parseInt(pageSizeString);
+              LOG.warn("Using pagedResultsSize from " + queryPolicyLdapEntry.getDn());
+              break;
+            }
+          }
+        }
+
+      }
+    } catch (Exception e) {
+      LOG.error("Exception trying to determine default Active Directory page size", e);
+    }
+    
+    LOG.warn("pagedResultsSize is not set for '" + ldapServerId + "' even though it is usually required with Active Directory. Set to -1 to force no paging. Defaulting to " + pageSize + ".");
+    
+    LdapConfiguration.getConfig(ldapServerId).setPageSize(pageSize);
+    
+    return pageSize;
+  }
+
   private List<edu.internet2.middleware.grouper.ldap.LdapEntry> getLdapEntriesFromSearchResult(SearchResult searchResults, String[] attributeNames) {
 
     List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<edu.internet2.middleware.grouper.ldap.LdapEntry>();
@@ -779,6 +912,11 @@ public class LdaptiveSessionImpl implements LdapSession {
   public void delete(final String ldapServerId, final String dn) {
 
     try {
+      
+      if (GrouperUtil.isEmpty(dn)) {
+        throw new RuntimeException("No dn!");
+      }
+      
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -791,9 +929,15 @@ public class LdaptiveSessionImpl implements LdapSession {
           if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
             deleteRequest.setReferralHandler(new DeleteReferralHandler());
           }
-          
+          if (debug) {
+            debugLog.append("Ldaptive deleteRequest: ").append(StringUtils.abbreviate(deleteRequest.toString(), 2000)).append("\n");
+          }
+
           try {
             Response<Void> response = delete.execute(deleteRequest);
+            if (debug) {
+              debugLog.append("Ldaptive deleteResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return null;
             } else {
@@ -801,9 +945,17 @@ public class LdaptiveSessionImpl implements LdapSession {
             }
           } catch (LdapException e) {
             
+
             // note that this only happens if an intermediate context does not exist
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+              if (debug) {
+                debugLog.append("Ldaptive deleteResultCode: NO_SUCH_OBJECT\n");
+              }
               return null;
+            }
+
+            if (debug) {
+              debugLog.append("Ldaptive delete error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             // TODO should we re-query just to be sure?
@@ -825,6 +977,10 @@ public class LdaptiveSessionImpl implements LdapSession {
     // true if created, false if updated
 
     try {
+      if (GrouperUtil.isEmpty(ldapEntry.getDn())) {
+        throw new RuntimeException("No dn!");
+      }
+      
       return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -857,31 +1013,49 @@ public class LdaptiveSessionImpl implements LdapSession {
           if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
             addRequest.setReferralHandler(new AddReferralHandler());
           }
-          
+          if (debug) {
+            debugLog.append("Ldaptive addRequest: ").append(StringUtils.abbreviate(addRequest.toString(), 2000)).append("\n");
+          }
+
           try {
             Response<Void> response = add.execute(addRequest);
+            if (debug) {
+              debugLog.append("Ldaptive addResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
             } else {
-              throw new RuntimeException("Received result code: " + response.getResultCode());
+              throw new RuntimeException("Received result code: " + (response == null ? null : response.getResultCode()));
             }
           } catch (LdapException e) {
             
             // update attributes instead
             if (e.getResultCode() == ResultCode.ENTRY_ALREADY_EXISTS) {
+              if (debug) {
+                debugLog.append("Ldaptive addResponse: ENTRY_ALREADY_EXISTS\n");
+              }
               ModifyOperation modify = new ModifyOperation(ldap);
               ModifyRequest modifyRequest = new ModifyRequest(ldapEntry.getDn(), ldaptiveModifications.toArray(new AttributeModification[] { }));
               
               if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
                 modifyRequest.setReferralHandler(new ModifyReferralHandler());
               }
-              
+              if (debug) {
+                debugLog.append("Ldaptive addModifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+              }
+
               Response<Void> response = modify.execute(modifyRequest);
+              if (debug) {
+                debugLog.append("Ldaptive addModifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+              }
               if (response.getResultCode() == ResultCode.SUCCESS) {
                 return false;
               } else {
                 throw new RuntimeException("Received result code: " + response.getResultCode());
               }
+            }
+            if (debug) {
+              debugLog.append("Ldaptive add error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             throw e;
@@ -899,6 +1073,15 @@ public class LdaptiveSessionImpl implements LdapSession {
     // return true if moved
     // return false if newDn exists and oldDn doesn't
     try {
+      
+      if (GrouperUtil.isEmpty(oldDn)) {
+        throw new RuntimeException("No oldDn!");
+      }
+      
+      if (GrouperUtil.isEmpty(newDn)) {
+        throw new RuntimeException("No newDn!");
+      }
+      
       return (Boolean)callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -915,8 +1098,14 @@ public class LdaptiveSessionImpl implements LdapSession {
             modifyDnRequest.setReferralHandler(new ModifyDnReferralHandler());
           }
           
+          if (debug) {
+            debugLog.append("Ldaptive moveRequest: ").append(StringUtils.abbreviate(modifyDnRequest.toString(), 2000)).append("\n");
+          }
           try {
             Response<Void> response = modifyDn.execute(modifyDnRequest);
+            if (debug) {
+              debugLog.append("Ldaptive moveResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
             } else {
@@ -925,6 +1114,10 @@ public class LdaptiveSessionImpl implements LdapSession {
           } catch (LdapException e) {
             
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+
+              if (debug) {
+                debugLog.append("Ldaptive moveResponse: NO_SUCH_OBJECT\n");
+              }
               // old entry doesn't exist.  if the new one does, then let's assume it was already renamed and return false
               // note that this exception could also happen if the oldDn exists but the newDn is an invalid location - in that case we should still end up throwing the original exception below
 
@@ -941,7 +1134,9 @@ public class LdaptiveSessionImpl implements LdapSession {
                 throw e2;
               }
             }   
-            
+            if (debug) {
+              debugLog.append("Ldaptive move error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
+            }            
             throw e;
           }
         }
@@ -960,6 +1155,11 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     
     try {
+      
+      if (GrouperUtil.isEmpty(dn)) {
+        throw new RuntimeException("No dn!");
+      }
+      
       callbackLdapSession(ldapServerId, new LdapHandler<Connection>() {
         
         public Object callback(LdapHandlerBean<Connection> ldapHandlerBean) throws LdapException {
@@ -986,7 +1186,14 @@ public class LdaptiveSessionImpl implements LdapSession {
             modifyRequest.setReferralHandler(new ModifyReferralHandler());
           }
           
+          if (debug) {
+            debugLog.append("Ldaptive modifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+          }
+          
           Response<Void> response = modify.execute(modifyRequest);
+          if (debug) {
+            debugLog.append("Ldaptive modifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+          }
           if (response.getResultCode() == ResultCode.SUCCESS) {
             return null;
           } else {
@@ -995,6 +1202,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         }
       });
     } catch (RuntimeException re) {
+      if (debug) {
+        debugLog.append("Ldaptive modify error: ").append(GrouperUtil.getFullStackTrace(re)).append("\n");
+      }
       GrouperUtil.injectInException(re, "Error modifying entry server id: " + ldapServerId + ", dn: " + dn);
       throw re;
     }
@@ -1023,5 +1233,30 @@ public class LdaptiveSessionImpl implements LdapSession {
           pass);
     }
     return valid;
+  }
+  
+  public void refreshConnectionsIfNeeded(final String ldapServerId) { 
+    synchronized (LdaptiveSessionImpl.class) {
+      
+      Iterator<PooledConnectionFactory> poolsNeedingCleanupIter = poolsNeedingCleanup.iterator();
+      while (poolsNeedingCleanupIter.hasNext()) {
+        PooledConnectionFactory pool = poolsNeedingCleanupIter.next();
+        if (pool.getConnectionPool().activeCount() == 0) {
+          pool.getConnectionPool().close();
+          poolsNeedingCleanupIter.remove();
+          LOG.warn("Closed old LDAP pool after confirming not in use.");
+        } else {
+          LOG.warn("Unable to close old LDAP pool since it is being used.  Will check again later.");
+        }
+      }
+      
+      if (poolMap.containsKey(ldapServerId) && propertiesMap.containsKey(ldapServerId)) {
+        if (!propertiesMap.get(ldapServerId).equals(getLdaptiveProperties(ldapServerId))) {
+          PooledConnectionFactory pool = poolMap.remove(ldapServerId);
+          poolsNeedingCleanup.add(pool);
+          LdapConfiguration.removeConfig(ldapServerId);
+        }
+      }
+    }
   }
 }

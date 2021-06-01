@@ -113,6 +113,7 @@ public class BySql extends HibernateDelegate {
       //we dont close this connection or anything since could be pooled
       Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
       preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setFetchSize(1000);
   
       BySqlStatic.attachParams(preparedStatement, params, types);
       

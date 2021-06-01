@@ -57,11 +57,27 @@ public class GrouperObjectTypesAttributeNames {
   public static final String GROUPER_OBJECT_TYPE_OWNER_STEM_ID = "grouperObjectTypeOwnerStemId";
   
   
+  private static AttributeDefName attributeDefNameBase;
+
+  private static AttributeDef attributeDefBase;
+  
+  private static AttributeDefName attributeDefNameDataOwner;
+  private static AttributeDefName attributeDefNameMemberDescription;
+  private static AttributeDefName attributeDefNameDirectAssignment;
+  private static AttributeDefName attributeDefNameTypeName;
+  private static AttributeDefName attributeDefNameServiceName;
+  private static AttributeDefName attributeDefNameOwnerStemId;
+  
+  
   /**
    * marker attribute def assigned to stem or group
    * @return the attribute def name
    */
   public static AttributeDefName retrieveAttributeDefNameBase() {
+    
+    if (attributeDefNameBase != null) {
+      return attributeDefNameBase;
+    }
     
     AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
@@ -79,35 +95,231 @@ public class GrouperObjectTypesAttributeNames {
       throw new RuntimeException("Why cant grouperObjectTypeMarker attribute def name be found?");
     }
     
+    attributeDefNameBase = attributeDefName;
     return attributeDefName;
   }
   
   
-    /**
-     * attribute value def assigned to stem or group
-     * @return the attribute def name
-     */
-    public static AttributeDef retrieveAttributeDefBaseDef() {
-      
-      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          
-          return AttributeDefFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DEF, false, new QueryOptions().secondLevelCache(false));
-          
-        }
-        
-      });
+  /**
+   * attribute value def assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDef retrieveAttributeDefBaseDef() {
     
-      if (attributeDef == null) {
-        throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
+    if (attributeDefBase != null) {
+      return attributeDefBase;
+    }
+    
+    AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DEF, false, new QueryOptions().secondLevelCache(false));
+        
       }
       
-      return attributeDef;
+    });
+  
+    if (attributeDef == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeDef attribute def be found?");
     }
+    attributeDefBase = attributeDef;
+    return attributeDef;
+  }
   
+  /**
+   * data owner attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameDataOwner() {
+    
+    if (attributeDefNameDataOwner != null) {
+      return attributeDefNameDataOwner;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
   
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeDataOwner attribute def name be found?");
+    }
+    
+    attributeDefNameDataOwner = attributeDefName;
+    return attributeDefName;
+  }
+  
+  /**
+   * member description attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameMemberDescription() {
+    
+    if (attributeDefNameMemberDescription != null) {
+      return attributeDefNameMemberDescription;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeMembersDescription attribute def name be found?");
+    }
+    
+    attributeDefNameMemberDescription = attributeDefName;
+    return attributeDefName;
+  }
+  
+  /**
+   * direct assignment attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameDirectAssignment() {
+    
+    if (attributeDefNameDirectAssignment != null) {
+      return attributeDefNameDirectAssignment;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeDirectAssignment attribute def name be found?");
+    }
+    
+    attributeDefNameDirectAssignment = attributeDefName;
+    return attributeDefName;
+  }
+  
+  /**
+   * type name attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameTypeName() {
+    
+    if (attributeDefNameTypeName != null) {
+      return attributeDefNameTypeName;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeName attribute def name be found?");
+    }
+    
+    attributeDefNameTypeName = attributeDefName;
+    return attributeDefName;
+  }
+  
+  /**
+   * service name attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameServiceName() {
+    
+    if (attributeDefNameServiceName != null) {
+      return attributeDefNameServiceName;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeServiceName attribute def name be found?");
+    }
+    
+    attributeDefNameServiceName = attributeDefName;
+    return attributeDefName;
+  }
+  
+  /**
+   * owner stem id attribute def name assigned to stem or group
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameOwnerStemId() {
+    
+    if (attributeDefNameOwnerStemId != null) {
+      return attributeDefNameOwnerStemId;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        return AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID, false, new QueryOptions().secondLevelCache(false));
+        
+      }
+      
+    });
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant grouperObjectTypeOwnerStemId attribute def name be found?");
+    }
+    
+    attributeDefNameOwnerStemId = attributeDefName;
+    return attributeDefName;
+  }
+    
+  public static void clearCache() {
+    
+    attributeDefBase = null;
+    attributeDefNameBase = null;
+    attributeDefNameDataOwner = null;
+    attributeDefNameMemberDescription = null;
+    attributeDefNameDirectAssignment = null;
+    attributeDefNameTypeName = null;
+    attributeDefNameServiceName = null;
+    attributeDefNameOwnerStemId = null;
+    
+  }
 
 }

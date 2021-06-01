@@ -135,7 +135,7 @@ public class GoogleAppsFullSync {
                     edu.internet2.middleware.grouper.Group group = connector.fetchGrouperGroup(groupKey);
 
                     if (group != null) {
-                        grouperGroups.add(new ComparableGroupItem(connector.getAddressFormatter().qualifyGroupAddress(group.getName()), group));
+                        grouperGroups.add(new ComparableGroupItem(connector.getAddressFormatter().qualifyGroupAddress(group.getName(), group.getId()), group));
                     }
                 }
             }

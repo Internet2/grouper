@@ -221,7 +221,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelCreated'] }</strong></td>
-                            <td>${grouper:formatDateLong(grouperRequestContainer.stemContainer.guiStem.stem.createTimeLong)}</td>
+                            <td>${grouperRequestContainer.stemContainer.guiStem.createdString }</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelCreator'] }</strong></td>
@@ -229,7 +229,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelLastEdited'] }</strong></td>
-                            <td>${grouper:formatDateLong(grouperRequestContainer.stemContainer.guiStem.stem.modifyTimeLong)}</td>
+                            <td>${grouperRequestContainer.stemContainer.guiStem.lastEditedString }</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelLastEditor'] }</strong></td>

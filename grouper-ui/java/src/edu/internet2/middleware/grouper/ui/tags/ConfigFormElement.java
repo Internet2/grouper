@@ -81,6 +81,11 @@ public class ConfigFormElement extends SimpleTagSupport {
   private Boolean shouldShow = true;
   
   /**
+   * should show EL checkbox
+   */
+  private Boolean shouldShowElCheckbox = true;
+  
+  /**
    * does the value have expression language
    */
   private Boolean hasExpressionLanguage = false;
@@ -147,6 +152,22 @@ public class ConfigFormElement extends SimpleTagSupport {
    */
   public void setShouldShow(Boolean shouldShow) {
     this.shouldShow = shouldShow;
+  }
+  
+  /**
+   * should show EL checkbox
+   * @return
+   */
+  public Boolean getShouldShowElCheckbox() {
+    return shouldShowElCheckbox;
+  }
+
+  /**
+   * should show EL checkbox
+   * @param shouldShowElCheckbox
+   */
+  public void setShouldShowElCheckbox(Boolean shouldShowElCheckbox) {
+    this.shouldShowElCheckbox = shouldShowElCheckbox;
   }
 
   /**
@@ -303,6 +324,10 @@ public class ConfigFormElement extends SimpleTagSupport {
   public void doTag() throws JspException, IOException {
    
     StringBuilder field = new StringBuilder();
+    if (!shouldShow) {
+      this.getJspContext().getOut().print(field.toString());
+      return;
+    }
     
     field.append("<tr id='configRow_"+configId+"_id' " + (shouldShow ? "" : " style='display:none' ") + ">");
     field.append("<td style='vertical-align: top; white-space: nowrap;'>");
@@ -310,24 +335,26 @@ public class ConfigFormElement extends SimpleTagSupport {
     field.append(label);
     field.append("</label></strong></td>");
     
-    field.append("<td style='vertical-align: top; white-space: nowrap;' >");
-    
-    if (!readOnly) {
-      field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
-      field.append("name='config_el_"+configId+"' ");
+    if (shouldShowElCheckbox) {
+      field.append("<td style='vertical-align: top; white-space: nowrap;' >");
       
-      if (hasExpressionLanguage) {
-        field.append(" checked ");
+      if (!readOnly) {
+        field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
+        field.append("name='config_el_"+configId+"' ");
+        
+        if (hasExpressionLanguage) {
+          field.append(" checked ");
+        }
+            
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
+        field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
+        field.append("</span>");
       }
-          
-      field.append("onchange=\""+ajaxCallback+"\"");
-      field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
-      field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
-      field.append("</span>");
+      field.append("</td>");
     }
-    field.append("</td>");
     
-    field.append("<td>");
+    field.append("<td><span style=\"white-space: nowrap\" id=\"config_"+configId+"_spanid\">");
     
     ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(formElementType, true);
     
@@ -391,6 +418,30 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("</select>");
     }
     
+    if (configItemFormElement == ConfigItemFormElement.RADIOBUTTON) {
+      boolean firstOption = true;
+      for (MultiKey multiKey: valuesAndLabels) {
+        
+        String key = (String) multiKey.getKey(0);
+        String radioButtonValue = (String) multiKey.getKey(1);
+        boolean checked = StringUtils.equals(key, value);
+
+        field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
+        field.append(checked ? " checked ": "");
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append(">");
+        field.append("</input>");
+        
+        if (firstOption) {
+          firstOption = false;
+          field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+        } else {
+          field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+        }
+      }
+      
+    }
+    
     if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {
       
       String[] selectedValuesArray = value != null ? value.split(","): new String[] {};
@@ -432,13 +483,14 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("</span>");
     }
     
-    field.append("<br>");
+    field.append("</span><br>");
     field.append("<span class='description'>");
     if (StringUtils.isNotBlank(helperText)) {      
       field.append(helperText);
     }
+    helperText = helperText.trim();
     if (StringUtils.isNotBlank(helperTextDefaultValue)) {
-      if (helperText.endsWith(".") == false) {
+      if (!helperText.endsWith(".") && !helperText.endsWith(",") && !helperText.endsWith("?") && !helperText.endsWith(">")) {
         field.append(".");
       }
       field.append(" ").append(GrouperTextContainer.textOrNull("grouperConfigDefaultValueHintPrefix"))

@@ -6940,11 +6940,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     if (that==null) {
       return 1;
     }
-    if (!(that instanceof Group)) {
+    if (!(that instanceof GrouperObject)) {
       return 1;
     }
     String thisName = StringUtils.defaultString(this.getName());
-    String thatName = StringUtils.defaultString(((Group)that).getName());
+    String thatName = StringUtils.defaultString(((GrouperObject)that).getName());
     return thisName.compareTo(thatName);
   }
 

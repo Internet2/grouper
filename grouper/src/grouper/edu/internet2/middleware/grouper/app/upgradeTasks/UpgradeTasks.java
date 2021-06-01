@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
+import edu.internet2.middleware.grouper.rules.RuleApi;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 
 /**
  * @author shilen
@@ -135,7 +137,18 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
     }
     
+  },
+  V5 {
+
+    @Override
+    public void updateVersionFromPrevious() {
+
+      RuleUtils.changeInheritedPrivsToActAsGrouperSystem();
+      
+    }
+    
   }
+
   ;
   
   private static int currentVersion = -1;

@@ -36,6 +36,9 @@ public class AllAttestationTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.gsh");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperAttestationJobTest.class);
+    suite.addTestSuite(AttestationGroupSaveTest.class);
+    suite.addTestSuite(AttestationStemSaveTest.class);
+    suite.addTestSuite(GrouperAttestationDaemonLogicTest.class);
     //$JUnit-END$
     return suite;
   }

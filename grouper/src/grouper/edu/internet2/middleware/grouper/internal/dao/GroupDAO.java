@@ -1043,6 +1043,7 @@ public interface GroupDAO extends GrouperDAO {
    * @param idOfAttributeDefName2 if looking for groups that have this attribute def name2
    * @param attributeValue2 if looking for groups that have this attribute value2 on the attribute def name2
    * @param attributeValuesOnAssignment2 if looking for an attribute value on an assignment2, could be multiple values
+   * @param attributeNotAssigned 
    * @return set of group
    * @since v2.3.1
    */
@@ -1053,7 +1054,8 @@ public interface GroupDAO extends GrouperDAO {
       boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
       Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue,
       Set<Object> attributeValuesOnAssignment, Boolean attributeCheckReadOnAttributeDef
-      , String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2);  
+      , String idOfAttributeDefName2, Object attributeValue2, Set<Object> attributeValuesOnAssignment2,
+      boolean attributeNotAssigned);  
   
   /**
    * find by uuid secure

@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -34,6 +35,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class GrouperReportJob implements Job {
+  
+  public static void main(String[] args) throws Exception {
+    GrouperStartup.startup();
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+
+    runJob(hib3GrouploaderLog, "grouper_report_9b758c6f0eca4656bdb374c4791c5403_be81dab88d274d0ab446ee238954e5a8");
+
+  }
   
   private static final Log LOG = GrouperUtil.getLog(GrouperReportJob.class);
   
@@ -119,8 +128,9 @@ public class GrouperReportJob implements Job {
         newReportInstance.setReportInstanceDownloadCount(0L);
         
         // run report and populate newReportInstance with values
-        GrouperReportLogic.runReport(reportConfig, newReportInstance, groupOrStem);
+        int rows = GrouperReportLogic.runReportInstance(reportConfig, newReportInstance, groupOrStem);
         
+        hib3GrouploaderLog.setTotalCount(rows);
         hib3GrouploaderLog.setJobMessage("Ran grouper report: "+reportConfig.getReportConfigName());
         
         GrouperLoaderStatus loaderStatus = newReportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
@@ -140,7 +150,7 @@ public class GrouperReportJob implements Job {
       }
       JobExecutionException jobExecutionException = (JobExecutionException)e;
       hib3GrouploaderLog.setStatus(ERROR.name());
-      hib3GrouploaderLog.setJobMessage(e.getMessage());
+      hib3GrouploaderLog.setJobMessage(GrouperUtil.getFullStackTrace(e));
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
       

@@ -5,7 +5,9 @@
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -166,6 +168,21 @@ public class ConfigFileMetadata {
           if (configItemMetadata.isRequired() && StringUtils.isNotBlank(configItemMetadata.getDefaultValue())) {
             throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
                 + "required = true and defaultValue ("+configItemMetadata.getDefaultValue() + ") is not blank. Only one property can be set.");
+          }
+          
+          if (configItemMetadata.isRequired() && StringUtils.isNotBlank(configItemMetadata.getDefaultValueEl())) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "required = true and defaultValueEl ("+configItemMetadata.getDefaultValueEl() + ") is not blank. Only one property can be set.");
+          }
+          
+          if (StringUtils.isNotBlank(configItemMetadata.getDefaultValue()) && StringUtils.isNotBlank(configItemMetadata.getDefaultValueEl())) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "defaultValue = "+configItemMetadata.getDefaultValue() +" and defaultValueEl ("+configItemMetadata.getDefaultValueEl() + ") is not blank. Only one property can be set.");
+          }
+          
+          if (!configItemMetadata.isReadOnly() && !configItemMetadata.isSaveToDb()) {
+            throw new RuntimeException("Invalid config file metadata in "+configFileName + ", "
+                + "readOnly = false and saveToDb = false. saveToDb must be true if readOnly is set to false.");
           }
           
           rawMetadataJson = null;
@@ -370,6 +387,58 @@ public class ConfigFileMetadata {
         throw re;
       }
     }
+    
+    // go through the individual metadata items and whenever we see repeatGroup and repeatCount, expand as many number of times
+    // grouping needs to stay intact
+    
+    for (ConfigSectionMetadata sectionMetadata: configFileMetadata.getConfigSectionMetadataList()) {
+
+      List<ConfigItemMetadata> expandedConfigItemMetadataListPerSection = new ArrayList<ConfigItemMetadata>();
+      
+      Set<String> repeatGroupsAlreadySeen = new HashSet<String>();
+      
+      for (ConfigItemMetadata itemMetadata: sectionMetadata.getConfigItemMetadataList()) {
+        
+        String repeatGroup = itemMetadata.getRepeatGroup();
+        
+        if (StringUtils.isBlank(repeatGroup)) {
+          expandedConfigItemMetadataListPerSection.add(itemMetadata);
+          continue;
+        }
+        
+        if (repeatGroupsAlreadySeen.contains(repeatGroup)) {
+          continue;
+        }
+        
+        repeatGroupsAlreadySeen.add(repeatGroup);
+        
+        int repeatCount = itemMetadata.getRepeatCount();
+        
+        // loop through all metadata in the section looking for that repeat group
+        List<ConfigItemMetadata> metadataItemsBelongingToSameRepeatGroup = new ArrayList<ConfigItemMetadata>();
+        
+        for (ConfigItemMetadata configMetadata: sectionMetadata.getConfigItemMetadataList()) {
+          if (StringUtils.equals(configMetadata.getRepeatGroup(), repeatGroup)) {
+            metadataItemsBelongingToSameRepeatGroup.add(configMetadata);
+          }
+        }
+        
+        for (int i=0; i<repeatCount; i++) {
+          
+          for (ConfigItemMetadata configMetadata: metadataItemsBelongingToSameRepeatGroup) {
+            ConfigItemMetadata copy = configMetadata.clone(i);
+            copy.setSubSection(copy.getRepeatGroup()+"."+i);
+            copy.setRepeatGroupIndex(i);
+            expandedConfigItemMetadataListPerSection.add(copy);
+          }
+        }
+        
+      }
+      
+      sectionMetadata.setConfigItemMetadataList(expandedConfigItemMetadataListPerSection);
+      
+    }
+    
     configFileMetadata.setValidConfig(localConfigValid);
     return configFileMetadata;
     
@@ -394,6 +463,45 @@ public class ConfigFileMetadata {
    */
   public void setConfigFileName(ConfigFileName configFileName1) {
     this.configFileName = configFileName1;
+  }
+
+  /**
+   * 
+   * @param key
+   * @return config item metadata related to this key
+   */
+  public ConfigItemMetadata findConfigItemMetdataFromConfig(String key) {
+    if (key == null) {
+      return null;
+    }
+    ConfigItemMetadata result = null;
+    for (ConfigSectionMetadata configSectionMetadata : this.getConfigSectionMetadataList()) {
+      for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
+        
+        boolean matchesRegex = false;
+        {
+          String regex = configItemMetadata.getRegex();
+          if (!StringUtils.isBlank(regex)) {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              matchesRegex = true;
+            }
+          }
+        }
+        boolean matchesKey = StringUtils.equals(key, configItemMetadata.getKey());
+
+        if (matchesKey || matchesRegex) {
+          
+          if (result == null) {
+            result = configItemMetadata;
+          } else {
+            LOG.error("Same config key or regex is in multiple files: " + configItemMetadata.getKeyOrSampleKey() + ", " + result.getKeyOrSampleKey());
+          }
+        }
+      }
+    }
+    return result;
   }
 
   /**

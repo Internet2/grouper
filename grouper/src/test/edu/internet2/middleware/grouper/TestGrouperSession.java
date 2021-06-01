@@ -31,10 +31,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import junit.textui.TestRunner;
 
 
 /**
@@ -66,7 +67,7 @@ public class TestGrouperSession extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGrouperSession("test_getAccessClass_notNull"));
+    TestRunner.run(new TestGrouperSession("testStaticSession"));
   }
   
   private GrouperSession  s;
@@ -74,54 +75,100 @@ public class TestGrouperSession extends GrouperTest {
   private String          prop_invalid  = "invalid property";
 
 
-  public void setUp() {
-    super.setUp();
-    try {
-      this.s    = GrouperSession.start( SubjectFinder.findAllSubject() );
-    }
-    catch (Exception e) {
-      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
-    }
-  }
-
   public void tearDown() {
     super.tearDown();
-    this.s.stop();
   }
 
+  public void testStaticSession() {
+    
+    GrouperSession grouperSessionTest = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    assertTrue(SubjectHelper.eq(SubjectTestHelper.SUBJ0, GrouperSession.staticGrouperSession().getSubject()));
+    
+    GrouperSession grouperSessionSystem = GrouperSession.start(SubjectFinder.findRootSubject());
+    
+    assertTrue(SubjectHelper.eq(SubjectFinder.findRootSubject(), GrouperSession.staticGrouperSession().getSubject()));
 
+    grouperSessionSystem.stop();
+    
+    grouperSessionTest.stop();
+  }
+  
+  
   public void test_getAccessClass_notNull() {
-    assertNotNull( this.s.getAccessClass() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertNotNull( this.s.getAccessClass() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
   public void test_getAccessClass_defaultAccessAdapter() {
-    assertEquals( GrouperAccessAdapter.class.getName(), this.s.getAccessClass() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertEquals( GrouperAccessAdapter.class.getName(), this.s.getAccessClass() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
   /**
    * @since   1.2.1
    */
   public void test_getAccessResolver_notNull() {
-    assertNotNull( this.s.getAccessResolver() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertNotNull( this.s.getAccessResolver() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
   /**
    * @since   1.2.1
    */
   public void test_getAccessResolver_equals() {
-    assertEquals(
-      this.s.getAccessResolver(),
-      this.s.getAccessResolver()
-    );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertEquals(
+          this.s.getAccessResolver(),
+          this.s.getAccessResolver()
+        );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
 
 
   public void test_getNamingClass_notNull() {
-    assertNotNull( this.s.getNamingClass() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertNotNull( this.s.getNamingClass() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
   public void test_getNamingClass_defaultAccessAdapter() {
-    assertEquals( GrouperNamingAdapter.class.getName(), this.s.getNamingClass() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertEquals( GrouperNamingAdapter.class.getName(), this.s.getNamingClass() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
 
@@ -129,16 +176,30 @@ public class TestGrouperSession extends GrouperTest {
    * @since   1.2.1
    */
   public void test_getNamingResolver_notNull() {
-    assertNotNull( this.s.getNamingResolver() );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertNotNull( this.s.getNamingResolver() );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
   /**
    * @since   1.2.1
    */
   public void test_getNamingResolver_equals() {
-    assertEquals(
-      this.s.getNamingResolver(),
-      this.s.getNamingResolver()
-    );
+    try {
+      this.s    = GrouperSession.start(SubjectFinder.findAllSubject() );
+      assertEquals(
+          this.s.getNamingResolver(),
+          this.s.getNamingResolver()
+        );
+    } catch (Exception e) {
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
+    } finally {
+      GrouperSession.stopQuietly(this.s);
+    }
   }
 
 }

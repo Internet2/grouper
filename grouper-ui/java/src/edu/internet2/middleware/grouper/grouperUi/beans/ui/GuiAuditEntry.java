@@ -3,14 +3,10 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,12 +21,14 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
@@ -40,7 +38,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -264,6 +261,28 @@ public class GuiAuditEntry {
    */
   private String file;
   
+  /**
+   * action when permission is added to role
+   */
+  private String action;
+  
+  /**
+   * action when permission is added to role
+   * @return
+   */
+  public String getAction() {
+    return action;
+  }
+
+  /**
+   * action when permission is added to role
+   * @param action
+   */
+  public void setAction(String action) {
+    this.action = action;
+  }
+
+
   private int importTotalAdded;
   
   private int importTotalDeleted;
@@ -330,14 +349,13 @@ public class GuiAuditEntry {
   }
   
   /**
-   * 2/1/2013 8:03 AM
-   * @return the date for screen
+   * audit date string, format based on ui property uiV2.audit.dateFormat
+   * @return formatted audit entry date
    */
   public String getGuiDate() {
-    
-    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
-    Locale locale = httpServletRequest.getLocale();
-    DateFormat guiDateFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm aa", locale);
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.audit.dateFormat", "yyyy/MM/dd h:mm aa");
+    SimpleDateFormat guiDateFormat = new SimpleDateFormat(dateFormat);
+
     return guiDateFormat.format(this.auditEntry.getCreatedOn());
   }
   
@@ -442,6 +460,12 @@ public class GuiAuditEntry {
             
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE");
 
+        case STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE:
+          
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ATTESTATION_UPDATE_LAST_CERTIFIED_DATE");
+
         case GROUP_ATTESTATION_CLEAR_LAST_CERTIFIED_DATE:
           
           this.setupGroup();
@@ -483,7 +507,14 @@ public class GuiAuditEntry {
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          }
           
         case MEMBER_DEPROVISIONING:
           
@@ -496,14 +527,28 @@ public class GuiAuditEntry {
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE");
-        
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE");
+          }
+                  
         case ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE:
           
           this.setupMember();
           this.setupAttributeDefName();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE");
+          this.setupGroup();
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE_ROLE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE");
+          }
         
         case ATTRIBUTE_ASSIGN_ASSIGN_ADD:
           
@@ -561,21 +606,39 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_ADD");
-        
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_ADD");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_ADD");
+          }
+          
         case ATTRIBUTE_ASSIGN_GROUP_DELETE:
           
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_DELETE");
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_DELETE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_DELETE");
+          }
         
         case ATTRIBUTE_ASSIGN_GROUP_UPDATE:
           
           this.setupAttributeDefName();
           this.setupGroup();
           
-          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_UPDATE");
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+              AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
+            this.setupAction();
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_UPDATE");
+          } else {
+            return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_UPDATE");
+          }
         
         case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
   
@@ -976,22 +1039,108 @@ public class GuiAuditEntry {
         
         case CONFIGURATION_ADD:
           
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Add", "<b>Added</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Add", "<b>Added</b>");
           
         case CONFIGURATION_DELETE:
 
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Delete", "<b>Deleted</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Delete", "<b>Deleted</b>");
 
         case CONFIGURATION_UPDATE:
  
-          return StringUtils.replaceOnce(this.auditEntry.getDescription(), "Update", "<b>Added</b>");
+          return StringUtils.replaceOnce(GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500)), "Update", "<b>Added</b>");
   
         case USDU_MEMBER_DELETE:
           return TextContainer.retrieveFromRequest().getText().get("audits_USDU_DELETE_MEMBER");
+          
+        case PROVISIONER_SYNC_RUN_GROUP:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_GROUP");
         
+        case PROVISIONER_SYNC_RUN:
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN");
+
+        case GROUP_DELETE_ALL_MEMBERSHIPS:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DELETE_ALL_MEMBERSHIPS");
+
+        case GROUP_DISABLE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DISABLE");
+          
+        case GROUP_ENABLE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ENABLE");
+          
+        case GROUP_REPORT_CONFIG_ADD:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_ADD");
+          
+        case GROUP_REPORT_CONFIG_DELETE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_DELETE");
+          
+        case GROUP_REPORT_CONFIG_UPDATE:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_CONFIG_UPDATE");
+          
+        case GROUP_REPORT_DOWNLONAD:
+          this.setupGroup();
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_REPORT_DOWNLONAD");
+          
+        case GSH_TEMPLATE_ADD:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_ADD");
+          
+        case GSH_TEMPLATE_DELETE:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_DELETE");
+          
+        case GSH_TEMPLATE_EXEC:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_EXEC");
+          
+        case GSH_TEMPLATE_UPDATE:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_UPDATE");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_ADD:
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_ADD");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_DELETE:
+          
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_DELETE");
+          
+        case PRIVILEGE_ATTRIBUTE_DEF_UPDATE:
+          
+          this.setupAttributeDef();
+          this.setupMember();
+          this.setupPrivilege();
+
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_ATTRIBUTE_DEF_UPDATE");          
+          
+        case STEM_REPORT_CONFIG_ADD:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_ADD");          
+          
+        case STEM_REPORT_CONFIG_DELETE:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_DELETE");          
+          
+        case STEM_REPORT_CONFIG_UPDATE:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_CONFIG_UPDATE");          
+          
+        case STEM_REPORT_DOWNLONAD:
+          this.setupStem();
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_DOWNLONAD");          
+          
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
-          return this.auditEntry.getDescription();
+          return GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500));
           
       }
     } catch (RuntimeException re) {
@@ -1013,13 +1162,18 @@ public class GuiAuditEntry {
     String groupIdName = "groupId";
     AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
     if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DISABLE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ENABLE
         || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_UPDATE) {
       groupIdName = "id";
     }
     if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_ADD 
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_DELETE
-        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE) {
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_ADD
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE) {
       groupIdName = "ownerGroupId";
     }
     if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COMPOSITE_ADD 
@@ -1164,6 +1318,11 @@ public class GuiAuditEntry {
     GuiEntity guiEntity = new GuiEntity(entity);
     this.setGuiEntity(guiEntity);
     
+  }
+  
+  private void setupAction() {
+    String action = this.auditEntry.retrieveStringValue("action");
+    this.action = action;
   }
   
   private void setupExportProperties() {

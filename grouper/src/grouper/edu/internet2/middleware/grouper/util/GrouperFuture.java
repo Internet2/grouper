@@ -119,6 +119,38 @@ public class GrouperFuture<T> implements Future<T> {
   }
 
   /**
+   * 
+   * @param future
+   * @param secondsToWait -1 to wait forever
+   * @return true if done, false if not (can also call future.isDone(), and future.get())
+   */
+  public static boolean waitForJob(GrouperFuture<?> future, int secondsToWait) {
+    
+    long millisStart = System.currentTimeMillis();
+    
+    boolean waitForever = secondsToWait < 0;
+    
+    int seconds = 0;
+    
+    while(true) {
+      long now = System.currentTimeMillis();
+      if (!waitForever && ((now - millisStart)/1000 > secondsToWait)) {
+        break;
+      }
+      
+      long waitUntil = 30+millisStart + ((seconds+1)*1000);
+      long sleepFor = Math.max(waitUntil-now, 30);
+      GrouperUtil.sleep(sleepFor);
+      if (future.isDone()) {
+        future.get();
+        return true;
+      }
+      seconds++;
+    }
+    return false;
+  }
+  
+  /**
    * relies on the callable being a GrouperCallable.  make sure there arent more threads than the max.
    * pass in 0 to wait for all.
    * @param futures

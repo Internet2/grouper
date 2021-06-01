@@ -37,6 +37,7 @@ public class AllAttributeValueTests {
         "Test for edu.internet2.middleware.grouper.attr.value");
     //$JUnit-BEGIN$
     suite.addTestSuite(AttributeAssignValueTest.class);
+    suite.addTestSuite(AttributeAssignValueSaveTest.class);
     //$JUnit-END$
     return suite;
   }

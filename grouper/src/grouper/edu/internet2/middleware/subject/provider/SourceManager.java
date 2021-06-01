@@ -26,6 +26,7 @@ package edu.internet2.middleware.subject.provider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +39,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -155,6 +162,10 @@ public class SourceManager {
     }
   }
   
+  public static void clearAllSources() {
+    manager = null;
+  }
+  
   /**
    * search string from user which represents the status.  e.g. status=active
    */
@@ -241,12 +252,32 @@ public class SourceManager {
 
   /** */
   Map<String, Source> sourceMap = new HashMap<String, Source>();
+  
+  private static Set<String> registeredDatabaseCacheNames = Collections.synchronizedSet(new HashSet<String>());
 
+  private static boolean grouperCacheClearDatabaseInitted;
   /**
    * Default constructor.
    */
   private SourceManager() {
     init();
+    
+    if (!grouperCacheClearDatabaseInitted) {
+      String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource";
+      GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
+              
+        @Override
+        public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
+          String cacheName = grouperCacheDatabaseClearInput.getCacheName();
+          String sourceId = StringUtils.substringAfterLast(cacheName, "____");
+          GrouperConfigHibernate.clearConfigsInMemory();
+          SourceManager.getInstance().reloadSource(sourceId);
+        }
+      });
+      grouperCacheClearDatabaseInitted = true;
+    }
+    
+    
   }
 
   /**
@@ -256,7 +287,11 @@ public class SourceManager {
    */
   public static SourceManager getInstance() {
     if (manager == null) {
-      manager = new SourceManager();
+      synchronized(SourceManager.class) {
+        if (manager == null) {
+          manager = new SourceManager();
+        }
+      }
     }
     return manager;
   }
@@ -314,9 +349,26 @@ public class SourceManager {
   private void init() throws RuntimeException {
     try {
       parseConfig();
+      
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
+        
+        this.loadSource(ExternalSubjectAutoSourceAdapter.instance());
+        
+      }
+      
+
     } catch (Exception ex) {
       log.error("Error initializing SourceManager: " + ex.getMessage(), ex);
       throw new RuntimeException("Error initializing SourceManager", ex);
+    }
+  }
+  
+  public synchronized void reloadSource(String sourceId) {
+    Source source = SubjectConfig.retrieveConfig().reloadSourceConfigs(sourceId);
+    if (source != null) {
+      loadSource(source);
+    } else {
+      sourceMap.remove(sourceId);
     }
   }
 
@@ -329,6 +381,21 @@ public class SourceManager {
     
     //put in map before initting
     this.sourceMap.put(source.getId(), source);
+    
+    String cacheName = "edu.internet2.middleware.subject.provider.SourceManager.reloadSource____" + source.getId();
+    if (!registeredDatabaseCacheNames.contains(cacheName)) {
+      registeredDatabaseCacheNames.add(cacheName);
+      GrouperCacheDatabase.customRegisterDatabaseClearable(cacheName, new GrouperCacheDatabaseClear() {         
+             
+             private String sourceId = source.getId();
+             
+             @Override
+             public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
+               GrouperConfigHibernate.clearConfigsInMemory();
+               SourceManager.getInstance().reloadSource(sourceId);
+             }
+          });
+    }
 
     for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext();) {
       SubjectType type = (SubjectType) it.next();
@@ -474,5 +541,13 @@ public class SourceManager {
     } catch (Exception ex) {
       log.error("Exception occurred: " + ex.getMessage(), ex);
     }
+  }
+  
+  /**
+   * remove source for testing
+   * @param sourceId
+   */
+  public void internal_removeSource(String sourceId) {
+    sourceMap.remove(sourceId);
   }
 }

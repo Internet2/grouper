@@ -94,13 +94,25 @@ public class ProgressMonitor {
       long workDone_sinceLastLog = amountOfWorkCompleted - lastLog_amountOfWorkCompleted;
       lastLog_amountOfWorkCompleted=amountOfWorkCompleted;
 
+      if (workDone_sinceLastLog < 1) {
+        workDone_sinceLastLog = 1;
+      }
+      if (amountOfWorkCompleted < 1) {
+        amountOfWorkCompleted = 1;
+      }
       double workDonePerMinute_sinceLastLog = 60.0*1000.0*workDone_sinceLastLog/howLongSinceProgressWasPrinted.getMillis();
       double workDonePerMinute_overall = 60.0*1000.0*amountOfWorkCompleted/howLongSinceStarted.getMillis();
 
       if ( totalAmountOfWorkExpected>=0 ) {
         long workLeftToDo = totalAmountOfWorkExpected - amountOfWorkCompleted;
+        if (workDonePerMinute_sinceLastLog < 1) {
+          workDonePerMinute_sinceLastLog = 1;
+        }
         long estimatedTimeLeft_seconds = (long) (60.0*workLeftToDo/workDonePerMinute_sinceLastLog);
-
+        if (estimatedTimeLeft_seconds > 922337203685477L) {
+          // https://todos.internet2.edu/browse/GRP-2968
+          estimatedTimeLeft_seconds = 922337203685477L;
+        }
         Duration estimatedTimeLeft = Duration.standardSeconds(estimatedTimeLeft_seconds);
 
         LOG.info(String.format("%s Progress: %d of %d (%s%%) in %s (%s items/min overall, %s items/min recently). %d work to go, ETA: %s",

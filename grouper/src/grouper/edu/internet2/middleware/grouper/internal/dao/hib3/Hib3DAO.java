@@ -44,10 +44,20 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureAuth;
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureGroup;
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureMembership;
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureUser;
+import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
+import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
+import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -208,6 +218,18 @@ public abstract class Hib3DAO {
       addClass(configuration, GcGrouperSyncLog.class, "Hib3GrouperSyncLogDAO");
       addClass(configuration, GcGrouperSyncMember.class, "Hib3GrouperSyncMemberDAO");
       addClass(configuration, GcGrouperSyncMembership.class, "Hib3GrouperSyncMembershipDAO");
+      if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false)) {
+        addClass(configuration, GrouperAzureGroup.class);
+        addClass(configuration, GrouperAzureUser.class);
+        addClass(configuration, GrouperAzureAuth.class);
+        addClass(configuration, GrouperAzureMembership.class);
+        addClass(configuration, GrouperScim2User.class);
+        addClass(configuration, GrouperScim2Group.class);
+        addClass(configuration, GrouperScim2Membership.class);
+        addClass(configuration, GrouperDuoGroup.class);
+        addClass(configuration, GrouperDuoUser.class);
+        addClass(configuration, GrouperDuoMembership.class);
+      }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);
       addClass(configuration, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");

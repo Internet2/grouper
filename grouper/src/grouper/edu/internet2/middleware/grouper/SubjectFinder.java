@@ -86,10 +86,17 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 
 /**
- * Find I2MI subjects.
- * <p/>
- * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
+ * <p>Use this class to find subjects</p>
+ * <p>Sample call
+ * 
+ * <blockquote>
+ * <pre>
+ * Subject subject = SubjectFinder.findById(uuid, true);
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ *
  */
 public class SubjectFinder implements CheckboxValueDriver {
 
@@ -1073,6 +1080,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * @return source
    * @since   1.2.0
    */
@@ -1093,6 +1101,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   } 
 
   /**
+   * <p>Grouper internal method only</p>
    * @param failIfError 
    * @return source
    * @since   2.1.0
@@ -1748,6 +1757,50 @@ public class SubjectFinder implements CheckboxValueDriver {
     return result;
   }
 
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @param resolveAsLazySubjects
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<MultiKey, Subject> findBySourceIdsAndSubjectIds(Collection<MultiKey> sourceIdsSubjectIds, boolean resolveAsLazySubjects) {
+
+    Map<MultiKey, Subject> sourceIdSubjectIdToSubject = new HashMap<MultiKey, Subject>();
+    
+    Map<String, Set<String>> sourceIdToSubjectIds = new HashMap<String, Set<String>>();
+
+    // get a list of subjectIds per sourceId
+    for (MultiKey sourceIdSubjectId : GrouperUtil.nonNull(sourceIdsSubjectIds)) {
+      String sourceId = (String)sourceIdSubjectId.getKey(0);
+      String subjectId = (String)sourceIdSubjectId.getKey(1);
+      
+      Set<String> subjectIds = sourceIdToSubjectIds.get(sourceId);
+      
+      if (subjectIds == null) {
+        subjectIds = new HashSet<String>();
+        sourceIdToSubjectIds.put(sourceId, subjectIds);
+      }
+      
+      subjectIds.add(subjectId);
+    }
+
+    // index these back into a result
+    for (String sourceId : sourceIdToSubjectIds.keySet()) {
+      
+      Set<String> subjectIds = sourceIdToSubjectIds.get(sourceId);
+      
+      Map<String, Subject> subjectIdToSubject = findByIds(subjectIds, sourceId, resolveAsLazySubjects);
+      
+      for (Subject subject : GrouperUtil.nonNull(subjectIdToSubject).values()) {
+        sourceIdSubjectIdToSubject.put(new MultiKey(sourceId, subject.getId()), subject);
+      }
+    }
+    return sourceIdSubjectIdToSubject;
+  }
+
   /**
    * hold a customizer
    * @author mchyzer
@@ -1885,6 +1938,7 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
 
   /**
+   * <p>Grouper internal method only</p>
    * clea the subject customizer cache
    */
   public static void internalClearSubjectCustomizerCache() {

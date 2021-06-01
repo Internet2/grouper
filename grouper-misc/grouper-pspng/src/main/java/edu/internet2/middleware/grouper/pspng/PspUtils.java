@@ -19,21 +19,20 @@ package edu.internet2.middleware.grouper.pspng;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.hibernate.*;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.pit.PITGroup;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
 import org.joda.time.DateTime;
@@ -41,10 +40,28 @@ import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.ReadableInstant;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.ldaptive.LdapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
 public class PspUtils {
@@ -129,12 +146,40 @@ public class PspUtils {
   }
   
   public static Map<String, Object> getStemAttributes(Group group) {
+    
+    // OverallAttributeValues: Stores all Stem attributes from root to parent stem
+    // If an attribute appears in multiple parent stems: 
+    //   Single-Valued: stem closest to the group wins (parent attributes take prec over grandparent)
+    //   Multi-Valued: All the attribute values are merged into a list of values for the attribute
+    Map<String, Object> stemPathAttributes = new HashMap<String, Object>();
+    
+    if (group == null) {
+      return stemPathAttributes;
+    }
+    
     // In order for stems closer to the group to take precedence, 
     // we need the stem path in reverse order (from root to group's parent)
     // We do this by walking up the stem path from the group to the root
     // and save them and then reverse them. 
     List<Stem> groupStemPath = new ArrayList<Stem>();
-    Stem stem = group.getParentStem();
+    Stem stem = null;
+    try {
+      stem = group.getParentStem();
+    } catch (Exception e) {
+      // if the group was deleted...
+      // we can get the ancestor stems in order
+      String stemName = GrouperUtil.parentStemNameFromName(group.getName(), true);
+      for (int i=0;i<1000;i++) {
+        stemName = GrouperUtil.parentStemNameFromName(stemName, true);
+        if (StringUtils.isBlank(stemName)) {
+          break;
+        }
+        stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), stemName, false);
+        if (stem != null) {
+          break;
+        }
+      }
+    }
     while ( stem != null ) {
       groupStemPath.add(stem);
       
@@ -145,12 +190,6 @@ public class PspUtils {
     }
     Collections.reverse(groupStemPath);
     
-    
-    // OverallAttributeValues: Stores all Stem attributes from root to parent stem
-    // If an attribute appears in multiple parent stems: 
-    //   Single-Valued: stem closest to the group wins (parent attributes take prec over grandparent)
-    //   Multi-Valued: All the attribute values are merged into a list of values for the attribute
-    Map<String, Object> stemPathAttributes = new HashMap<String, Object>();
     
     for ( Stem aStem : groupStemPath ) {
       Set<AttributeAssign> attributeAssigns = aStem.getAttributeDelegate().getAttributeAssigns();
@@ -188,9 +227,27 @@ public class PspUtils {
     return stemPathAttributes;
   }
 
-  public static Map<String, Object> getGroupAttributes(Group group) {
-    Map<String, Object> result = new HashMap<String, Object>();
+  /**
+   * cache for two minutes decisions about if provisionable
+   */
+  private static ExpirableCache<MultiKey, Map<String, Object>> groupOrStemAndIdToAttributes = new ExpirableCache<MultiKey, Map<String, Object>>(10);
 
+  private static int attrcount = 0;
+  
+  public static Map<String, Object> getGroupAttributes(Group group) {
+    Map<String, Object> result = null;
+
+    boolean pspngCacheGroupAndStemAttributes = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("pspngCacheGroupAndStemAttributes", true);
+//    if (pspngCacheGroupAndStemAttributes) {
+//      result = 
+//    }
+    
+    result = new HashMap<String, Object>();
+    
+    if (group == null) {
+      return result;
+    }
+    
     // Perhaps this should start with something like
     // an iteration over group.getAttributeDelegate().getAttributeAssigns()
     for ( AttributeAssign attributeAssign : group.getAttributeDelegate().getAttributeAssigns()) {

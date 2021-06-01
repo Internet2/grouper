@@ -145,6 +145,71 @@ public class ByObject extends HibernateDelegate {
 
   /**
    * <pre>
+   * call hibernate method "delete" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().deleteBatch(Rosetta.getDAO(_f));
+   * 
+   * </pre>
+   * @param collection is an object (if collection will still work), if null, will probably throw exception
+   * @throws GrouperDAOException
+   */
+  public void deleteBatch(final Collection<?> collection) throws GrouperDAOException {
+    
+    try {
+
+      HibernateSession.assertNotGrouperReadonly();
+
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session  = hibernateSession.getSession();
+      
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPreDelete(hibernateSession);
+        }
+      }
+
+      int queries = 1+(GrouperUtil.length(collection) / GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.jdbc.batch_size", 200));
+
+      GrouperContext.incrementQueryCount(queries);
+
+      
+      for (Object object : collection) {
+        
+        if (StringUtils.isBlank(this.entityName)) {
+          session.delete(object);
+        } else {
+          session.delete(this.entityName, object);
+        }
+      }
+
+      session.flush();
+      session.clear();
+
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPostDelete(hibernateSession);
+        }
+      }
+
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+      throw e;
+    }
+    
+  }
+
+  /**
+   * <pre>
    * call hibernate method "save" on a list of objects
    * 
    * HibernateSession.byObjectStatic().save(collection);

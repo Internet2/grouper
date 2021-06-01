@@ -60,7 +60,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
@@ -79,6 +79,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
       if ( membershipAttributeValue != null ) {
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+        JobStatistics jobStatistics = this.getJobStatistics();
+        if (jobStatistics != null) {
+          jobStatistics.insertCount.addAndGet(1);
+        }
       }
     }
   }
@@ -111,7 +115,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       return;
     }
 
-    if ( ldapUser == null ) {
+    if ( ldapUser == null && config.needsTargetSystemUsers() ) {
       LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
           new Object[]{getDisplayName(), grouperGroupInfo, subject});
       return;
@@ -124,6 +128,10 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String membershipAttributeValue = evaluateJexlExpression("MemberAttributeValue", config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
 
     if ( membershipAttributeValue != null ) {
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.deleteCount.addAndGet(1);
+      }
       scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
     }
   }
@@ -154,7 +162,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       }
 
       ldapGroup  = createGroup(grouperGroupInfo, correctSubjects);
-      stats.insertCount.set(correctSubjects.size());
+      stats.insertCount.addAndGet(correctSubjects.size());
 
       // Make note of the group if it was created
       if ( ldapGroup != null ) {
@@ -174,7 +182,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Update stats with the number of values removed by group deletion
       Collection<String> membershipValues = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
-      stats.deleteCount.set(membershipValues.size());
+      stats.deleteCount.addAndGet(membershipValues.size());
 
       return true;
     }
@@ -191,6 +199,17 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
     Collection<String> currentMembershipValues = getStringSet(config.isMemberAttributeCaseSensitive(), ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
 
+    // If configured to ignore the null or empty DN on the membership attribute do
+    // so but only if the membership attribute is "member". This may be extended to
+    // other membership attributes over time but currently focuses on the use case
+    // where the objectClass is groupOfNames and the membership attribute that requires
+    // DN syntax is member.
+    if(config.allowEmptyDnAttributeValues()) {
+        if(config.getMemberAttributeName().equals("member")) {
+            currentMembershipValues.removeIf(v -> v.equals(""));
+        }
+    }
+
     LOG.info("{}: Full-sync comparison for {}: Target-subject count: Correct/Actual: {}/{}",
             new Object[] {getDisplayName(), grouperGroupInfo, correctMembershipValues.size(), currentMembershipValues.size()});
 
@@ -201,7 +220,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> extraValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), currentMembershipValues, correctMembershipValues);
 
-      stats.deleteCount.set(extraValues.size());
+      stats.deleteCount.addAndGet(extraValues.size());
 
       LOG.info("{}: Group {} has {} extra values",
           new Object[] {getDisplayName(), grouperGroupInfo, extraValues.size()});
@@ -220,7 +239,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> missingValues = subtractStringCollections(
               config.isMemberAttributeCaseSensitive(), correctMembershipValues, currentMembershipValues);
 
-      stats.insertCount.set(missingValues.size());
+      stats.insertCount.addAndGet(missingValues.size());
 
       LOG.info("{}: Group {} has {} missing values",
           new Object[]{getDisplayName(), grouperGroupInfo, missingValues.size()});
@@ -250,7 +269,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     LOG.debug("{}: Making sure (non-membership) attributes of group are up to date: {}", getDisplayName(), existingLdapGroup.dn);
 
     try {
-      String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo);
+      String ldifFromTemplate = getGroupLdifFromTemplate(grouperGroupInfo, config.removeNullDnFromGroupLdifCreationTemplate());
       LdapEntry ldapEntryFromTemplate = getLdapEntryFromLdif(ldifFromTemplate);
 
       ensureLdapOusExist(ldapEntryFromTemplate.getDn(), false);
@@ -363,6 +382,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         }
       }
 
+      JobStatistics jobStatistics = this.getJobStatistics();
+      if (jobStatistics != null) {
+        jobStatistics.insertCount.addAndGet(membershipValues.size());
+      }
+
       StringBuilder ldifForMemberships = new StringBuilder();
       for ( String attributeValue : membershipValues ) {
         ldifForMemberships.append(String.format("%s: %s\n", config.getMemberAttributeName(), attributeValue));
@@ -378,6 +402,16 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
       // Check to see if any attributes ended up without any values/
       for ( String attributeName : ldifEntry.getAttributeNames() ) {
+
+        // If the attribute value requires DN syntax and we allow the null DN
+        // (an empty DN) then continue and examine the next attribute.
+        if(config.allowEmptyDnAttributeValues()) {
+            List<String> attributeDnSyntaxList = Arrays.asList(config.getAttributesNeededingDnEscaping());
+            if(attributeDnSyntaxList.contains(attributeName)) {
+                LOG.debug("{}: attribute {} requires DN syntax but is allowed to hold the null DN", getDisplayName(), attributeName);
+                continue;
+            }
+        }
         LdapAttribute attribute = ldifEntry.getAttribute(attributeName);
         if ( LdapSystem.attributeHasNoValues(attribute) ) {
           LOG.warn("{}: LDIF for new group did not define any values for {}", getDisplayName(), attributeName);
@@ -431,16 +465,28 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   /**
    * Fills in the GroupCreationLdifTemplate for the provided group
    * @param grouperGroup
+   * @param stripMembershipAttributeWithNullDn
    * @return
    * @throws PspException
    */
-  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
+  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup, boolean stripMembershipAttributeWithNullDn) throws PspException {
     String ldif = config.getGroupCreationLdifTemplate();
+
+    if(stripMembershipAttributeWithNullDn) {
+        LOG.debug("Stripping membership attribute {} with null DN value. LDIF string before is: {}", config.getMemberAttributeName(), ldif);
+        ldif = ldif.replaceAll(config.getMemberAttributeName() + ":\\|\\|", "");
+        LOG.debug("LDIF string after is: {}", ldif);
+    }
+
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression("GroupTemplate", ldif, null, null, grouperGroup, null);
     ldif = sanityCheckDnAttributesOfLdif(ldif, "Group ldif for %s", grouperGroup);
 
     return ldif;
+  }
+
+  private String getGroupLdifFromTemplate(GrouperGroupInfo grouperGroup) throws PspException {
+      return getGroupLdifFromTemplate(grouperGroup, false);
   }
 
   @Override
@@ -535,7 +581,17 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     Map<GrouperGroupInfo, LdapGroup> result = new HashMap<GrouperGroupInfo, LdapGroup>();
 
     for (GrouperGroupInfo grouperGroup : grouperGroupsToFetch) {
-      SearchFilter groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      SearchFilter groupLdapFilter = null;
+      if (grouperGroup == null) {
+        continue;
+      }
+      try {
+        groupLdapFilter = getGroupLdapFilter(grouperGroup);
+      } catch (DeletedGroupException dge) {
+        LOG.debug("{}: " + dge.getMessage(), getDisplayName());
+        // cant find, just let full sync deal with it
+        continue;
+      }
       try {
         LOG.debug("{}: Searching for group {} with:: {}",
                 new Object[]{getDisplayName(), grouperGroup, groupLdapFilter});
@@ -632,7 +688,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     String dn = ldapGroup.getLdapObject().getDn();
     
     LOG.info("Deleting group {} by deleting DN {}", grouperGroupInfo, dn);
+    JobStatistics jobStatistics = this.getJobStatistics();
+    if (jobStatistics != null) {
+      jobStatistics.deleteCount.addAndGet(1);
+    }
     
-    getLdapSystem().performLdapDelete(dn);;
+    getLdapSystem().performLdapDelete(dn);
   }
 }

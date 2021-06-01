@@ -22,11 +22,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
@@ -72,6 +75,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateExecResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
@@ -124,6 +128,7 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
@@ -616,7 +621,10 @@ public class GrouperServiceRest {
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
         .getGroupName(), false, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestHasMemberLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
+    if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(wsRestHasMemberLiteRequest.getSubjectIdentifier())) {
+      throw new WsInvalidQueryException("Input a subjectId or subjectIdentifier!");
+    }
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestHasMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
   
@@ -2796,6 +2804,46 @@ public class GrouperServiceRest {
 
     //return result
     return wsGetAuditEntriesResults;
+  }
+  
+
+  /**
+   * <pre>
+   * based on a submitted object of type WsRestGshTemplateExecRequest, execute gsh template
+   * /v1_3_000/gshTemplateExec
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestGshTemplateExecRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGshTemplateExecResult executeGshTemplate(GrouperVersion clientVersion,
+      WsRestGshTemplateExecRequest wsRestGshTemplateExecRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestGshTemplateExecRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestGshTemplateExecRequest.class.getSimpleName() + " in json");
+  
+    WsGshTemplateExecResult wsGshTemplateExecResult = new WsGshTemplateExecResult();
+
+    try {
+
+      GshTemplateOwnerType templateOwnerType = GshTemplateOwnerType.valueOfIgnoreCase(wsRestGshTemplateExecRequest.getOwnerType(), true);
+      
+      wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(clientVersion, wsRestGshTemplateExecRequest.getConfigId(),
+          templateOwnerType, wsRestGshTemplateExecRequest.getOwnerGroupLookup(), wsRestGshTemplateExecRequest.getOwnerStemLookup(),
+          wsRestGshTemplateExecRequest.getInputs(),
+          wsRestGshTemplateExecRequest.getGshTemplateActAsSubjectLookup(),
+          wsRestGshTemplateExecRequest.getActAsSubjectLookup(), wsRestGshTemplateExecRequest.getParams());
+    } catch (Exception e) {
+      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getFullStackTrace(e), clientVersion);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGshTemplateExecResult.getResultMetadata(), false);
+    
+    return wsGshTemplateExecResult;
+  
   }
 
 

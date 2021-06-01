@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -70,6 +71,15 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
    */
   public static void main(String[] args) throws Exception {
     TestRunner.run(new Test_I_API_Group_deleteMember("test_DeleteUnresolvableSubject"));
+  }
+
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stem.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDef.validateExtensionByDefault", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefName.validateExtensionByDefault", "false");
   }
 
   /**

@@ -153,7 +153,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSave(WsSampleRestType.xml);
+    groupSave(WsSampleRestType.json);
   }
 
   /**

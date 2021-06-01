@@ -1870,10 +1870,11 @@ public class SubjectSourceCache {
     }
     
     if (SubjectConfig.retrieveConfig().propertyValueBoolean("subject.cache.cloneSubjectsOnReturn", true)) {
-      subject = new SubjectImpl(subject.getId(), subject.getName(), 
+      Subject clonedSubject = new SubjectImpl(subject.getId(), subject.getName(), 
           subject.getDescription(), subject.getTypeName(), subject.getSourceId(), 
           subject.getAttributes(false));
-      return subject;
+      clonedSubject.setTranslationMap(subject.getTranslationMap());
+      return clonedSubject;
     }
     
     return subject;

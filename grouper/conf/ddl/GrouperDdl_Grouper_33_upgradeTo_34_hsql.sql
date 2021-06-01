@@ -54,4 +54,7 @@ CREATE TABLE grouper_file
 
 CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path);
 
+update grouper_ddl set last_updated = to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), history = substring((to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V' || db_version || ' to V34, ' || history) from 1 for 3500), db_version = 34 where object_name = 'Grouper';
+
+commit;
 		

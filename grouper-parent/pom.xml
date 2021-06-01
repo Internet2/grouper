@@ -103,6 +103,7 @@
         <jsch.version>0.1.55</jsch.version>
         <commons.vfs2.version>2.4.1</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
+        <commons.jexl3.version>3.0</commons.jexl3.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
         <commons.cli.version>1.4</commons.cli.version>
         <commons.codec.version>1.11</commons.codec.version>
@@ -111,6 +112,7 @@
         <commons.digester.version>2.1</commons.digester.version>
         <commons.digester3.version>3.2</commons.digester3.version>
         <commons.discovery.version>0.5</commons.discovery.version>
+        <commons.exec.version>1.3</commons.exec.version>
         <commons.httpclient.version>3.1</commons.httpclient.version>
         <commons.io.version>1.4</commons.io.version>
         <commons.lang.version>2.6</commons.lang.version>
@@ -118,6 +120,7 @@
         <commons.logging.version>1.2</commons.logging.version>
         <commons.math.version>1.2</commons.math.version>
         <commons.pool.version>1.6</commons.pool.version>
+        <commons.text.version>1.9</commons.text.version>
         <commons.validator.version>1.6</commons.validator.version>
         <commons.csv.version>1.6</commons.csv.version>
         <cron.parser.core.version>3.4</cron.parser.core.version>
@@ -166,16 +169,17 @@
         <p6spy.version>3.6.0</p6spy.version>
         <!-- hsqldb verion must match the version in tomee -->
         <hsqldb.version>2.3.5</hsqldb.version>
-        <postgresql.version>42.1.4</postgresql.version>
-        <mysql.connector.java.version>5.1.45</mysql.connector.java.version>
+        <postgresql.version>42.2.19</postgresql.version>
+        <mysql.connector.java.version>8.0.23</mysql.connector.java.version>
         <ldaptive.version>1.1.2</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
         <aws.java.sdk.core>1.11.529</aws.java.sdk.core>
         <aws.java.sdk.s3>1.11.529</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.11.529</aws.java.sdk.sqs>
         <aws.java.sdk.sns>1.11.529</aws.java.sdk.sns>
-        <httpclient>4.5.8</httpclient>
-        <httpcore>4.4.11</httpcore>
+        <httpclient>4.5.13</httpclient>
+        <httpcore>4.4.14</httpcore>
+        <httpmime>4.5.13</httpmime>
         <jackson.annotations>2.9.8</jackson.annotations>
         <jackson.core>2.9.8</jackson.core>
         <jackson.databind>2.9.8</jackson.databind>        
@@ -368,6 +372,11 @@
                 <version>${commons.discovery.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-exec</artifactId>
+                <version>${commons.exec.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>${commons.fileupload.version}</version>
@@ -381,6 +390,21 @@
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpmime</artifactId>
+              <version>${httpmime}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpclient</artifactId>
+              <version>${httpclient}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpcore</artifactId>
+              <version>${httpcore}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -456,6 +480,11 @@
                 <groupId>commons-pool</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons.text.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
@@ -535,6 +564,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>${commons.jexl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl3</artifactId>
+                <version>${commons.jexl3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ddlutils</groupId>
@@ -1118,6 +1152,7 @@
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <!-- staging profile for edu.internet2.middleware.grouper -->
                             <stagingProfileId>87a160186f8901</stagingProfileId>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -1287,17 +1322,6 @@
             <organization>Duke University</organization>
             <organizationUrl>http://www.duke.edu</organizationUrl>
             <email>shilen@duke.edu</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>bafbl</id>
-            <name>Bert Bee-Lindgren</name>
-            <organization>Georgia Tech</organization>
-            <organizationUrl>https://www.gatech.edu/</organizationUrl>
-            <email>bert.bee-lindgren@oit.gatech.edu</email>
             <roles>
                 <role>Developer</role>
             </roles>

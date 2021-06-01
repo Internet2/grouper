@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
-import edu.internet2.middleware.grouper.app.grouperTypes.StemObjectType;
+import edu.internet2.middleware.grouper.app.grouperTypes.StemOrGroupObjectType;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 
 public class GuiStemObjectType {
@@ -14,9 +16,9 @@ public class GuiStemObjectType {
   /**
    * stem and candidate object type
    */
-  private StemObjectType stemObjectType;
+  private StemOrGroupObjectType stemObjectType;
   
-  public GuiStemObjectType(StemObjectType stemObjectType) {
+  public GuiStemObjectType(StemOrGroupObjectType stemObjectType) {
     this.stemObjectType = stemObjectType;
   }
 
@@ -24,16 +26,25 @@ public class GuiStemObjectType {
    * get stem and candidate object type
    * @return
    */
-  public StemObjectType getStemObjectType() {
+  public StemOrGroupObjectType getStemObjectType() {
     return stemObjectType;
   }
 
-  /**
-   * gui stem that is candidate
-   * @return
-   */
-  public GuiStem getGuiStem() {
-    return new GuiStem(stemObjectType.getStem());
+  public GuiObjectBase getGuiObject() {
+    if (stemObjectType.getGrouperObject() instanceof Group) {
+      return new GuiGroup((Group)stemObjectType.getGrouperObject());
+    }
+    if (stemObjectType.getGrouperObject() instanceof Stem) {
+      return new GuiStem((Stem)stemObjectType.getGrouperObject());
+    }
+    throw new RuntimeException(stemObjectType.getGrouperObject() + " is not of type group or stem");
+  }
+  
+  public boolean isStem() {
+    if (stemObjectType.getGrouperObject() instanceof Stem) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -41,11 +52,11 @@ public class GuiStemObjectType {
    * @param stemObjectTypes
    * @return
    */
-  public static List<GuiStemObjectType> convertFromStemObjectType(List<StemObjectType> stemObjectTypes) {
+  public static List<GuiStemObjectType> convertFromStemObjectType(List<StemOrGroupObjectType> stemObjectTypes) {
     
     List<GuiStemObjectType> guiStemObjectTypes = new ArrayList<GuiStemObjectType>();
     
-    for (StemObjectType stemObjectType: stemObjectTypes) {
+    for (StemOrGroupObjectType stemObjectType: stemObjectTypes) {
       guiStemObjectTypes.add(new GuiStemObjectType(stemObjectType));
     }
     
@@ -53,7 +64,7 @@ public class GuiStemObjectType {
   }
   
   public boolean isShowDataOwnerMemberDescription() {
-    List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org");
+    List<String> dataOwnerRequiringTypeNames = Arrays.asList("ref", "basis", "policy", "bundle", "org", "manual");
     return dataOwnerRequiringTypeNames.contains(this.getStemObjectType().getObjectType());
   }
   

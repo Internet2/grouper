@@ -38,6 +38,7 @@ public class AllUtilTests {
     suite.addTestSuite(GrouperHtmlFilterTest.class);
     suite.addTestSuite(GrouperUtilTest.class);
     suite.addTestSuite(GrouperCacheTest.class);
+    suite.addTestSuite(GrouperEmailTest.class);
     suite.addTestSuite(XmlIndenterTest.class);
     suite.addTestSuite(JsonIndenterTest.class);
     suite.addTestSuite(GrouperUtilElSafeTest.class);

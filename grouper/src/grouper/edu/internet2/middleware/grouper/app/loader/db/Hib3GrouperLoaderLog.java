@@ -53,7 +53,20 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public static final String COLUMN_CONTEXT_ID = "context_id";
 
-
+  /**
+   * 
+   * @param jobName
+   * @return
+   */
+  public static Hib3GrouperLoaderLog retrieveMostRecentLog(String jobName) {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperLoaderLog theLoaderLog1 " +
+        "where theLoaderLog1.jobName = :jobName and theLoaderLog1.endedTime = "
+        + "(select max(theLoaderLog2.endedTime) from Hib3GrouperLoaderLog theLoaderLog2 where theLoaderLog2.jobName = theLoaderLog1.jobName)")
+        .setString("jobName", jobName)
+        .uniqueResult(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog.class);
+    return hib3GrouperLoaderLog;
+  }
+  
   /**
    * default constructor
    */
@@ -67,7 +80,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   /** job that ran in loader, might have group name in it */
   private String jobName;
   
-  /** STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus */
+  /** STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus */
   private String status;
   
   /** when the job started */
@@ -402,7 +415,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus
+   * STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus
    * @return the status
    */
   public String getStatus() {
@@ -411,7 +424,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
 
   
   /**
-   * STARTED, SUCCESS, ERROR, WARNING, GrouerLoaderStatus
+   * STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus
    * @param status1 the status to set
    */
   public void setStatus(String status1) {
@@ -804,8 +817,6 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void store() {
     
-    this.truncate();
-
     if (GrouperLoaderLogger.isLoggerEnabled()) {
       String logLabel = StringUtils.isBlank(this.getParentJobId()) ? "overallLog" : "subjobLog";
       GrouperLoaderLogger.addLogEntry(logLabel, "dryRun", GrouperLoader.isDryRun());
@@ -912,6 +923,8 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void onPreSave(HibernateSession hibernateSession) {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
+    this.truncate();
+
   }
 
   /**
@@ -919,5 +932,6 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    */
   public void onPreUpdate(HibernateSession hibernateSession) {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
+    this.truncate();
   }
 }

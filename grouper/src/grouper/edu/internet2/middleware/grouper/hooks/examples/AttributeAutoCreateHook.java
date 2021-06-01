@@ -46,6 +46,15 @@ public class AttributeAutoCreateHook extends AttributeAssignHooks {
   
   /**
    * 
+   */
+  public static void clearHook() {
+    registered = false;
+    nameOfAttributeDefNameToAttributeDefName.clear();
+    uuidsOfAutoCreateAttributes.clear();
+  }
+
+  /**
+   * 
    * @return the stem name
    */
   public static String attributeAutoCreateStemName() {

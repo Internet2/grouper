@@ -292,4 +292,11 @@ Common options:
   --grouperActAsSubjectSource=source
     grouper top layer act as built for messaging to WS bridge
   
- 
+  --wsEndpoint=https://server.school.edu/grouper-ws/servicesRest
+  --wsUser=myUserToWs
+  --wsPass=xyz123
+  --wsPassEncrypted=jg874mg85mg8
+  --wsPassFile=/some/file
+  --wsPassFileEncrypted=/some/fileWithEncryptedPassInside
+  
+  

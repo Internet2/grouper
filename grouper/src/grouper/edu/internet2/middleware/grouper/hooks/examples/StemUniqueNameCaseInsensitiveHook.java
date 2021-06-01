@@ -19,13 +19,17 @@
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -38,14 +42,46 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
  * 
  * hooks.stem.class = edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook
  * 
+ * or
+ * 
+ * grouperHook.StemUniqueNameCaseInsensitiveHook.autoRegister = true (default)
  * </pre>
  */
 public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
   
   /**
+   * only register once
+   */
+  private static boolean registered = false;
+  
+  /**
+   * see if this is configured in the grouper.properties, if so, register this hook
+   */
+  public static void registerHookIfNecessary() {
+    
+    if (registered) {
+      return;
+    }
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperHook.StemUniqueNameCaseInsensitiveHook.autoRegister", true)) {
+      //register this hook
+      GrouperHooksUtils.addHookManual(GrouperHookType.STEM.getPropertyFileKey(), 
+          StemUniqueNameCaseInsensitiveHook.class);
+    }
+    
+    registered = true;
+
+  }
+
+  /**
    * 
    */
   public static final String VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE = "veto.stem.unique.nameCaseInsensitive";
+
+  /**
+   * 
+   */
+  public static final String VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE = "veto.stem.unique.idCaseInsensitive";
 
   /**
    * 
@@ -67,33 +103,27 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
     //see if there is another stem with the same name case insensitive
     long count = HibernateSession.byHqlStatic().createQuery("select count(theStem) "
         + "from Stem as theStem where "
-        + " (lower(theStem.nameDb) = :theName or lower(theStem.alternateNameDb) = :theName) "
+        + " (lower(theStem.nameDb) in (:theName, :theName2) or lower(theStem.alternateNameDb) in (:theName, :theName2) or lower(theStem.displayNameDb) = :theName3) "
         + "and theStem.uuid != :theUuid ")
         .setString("theName", stem.getName().toLowerCase())
+        .setString("theName2", GrouperUtil.defaultIfEmpty(stem.getAlternateName(), stem.getName()).toLowerCase())
+        .setString("theName3", stem.getDisplayName().toLowerCase())
         .setString("theUuid", stem.getId()).uniqueResult(long.class);
     
-//    boolean searchByParentFolder = GrouperConfig.retrieveConfig().propertyValueBoolean("stemUniqueNameCaseInsensitiveHook.searchByParentFolder", false);
-//
-//    if (searchByParentFolder) {
-//      String parentFolderName = GrouperUtil.parentStemNameFromName(stem.getName());
-//
-//      count = HibernateSession.byHqlStatic()
-//          .createQuery("select count(theStem) from Stem theStem, Stem parentStem "
-//              + "where lower(theStem.extensionDb) = :theExtension "
-//              + "and parentStem.nameDb = :parentStemName "
-//              + " and theStem.uuid != :theUuid "
-//              + "and theStem.parentUuid = parentStem.uuid ")
-//          .setString("theExtension", StringUtils.defaultString(GrouperUtil.extensionFromName(stem.getName())).toLowerCase())
-//          .setString("parentStemName", parentFolderName)
-//          .setString("theUuid", stem.getId())
-//          .uniqueResult(long.class);
-//
-//    } else {
-
     if (count > 0) {
-      throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, "The folder ID is already in use, please use a different ID");
+      count = HibernateSession.byHqlStatic().createQuery("select count(theStem) "
+          + "from Stem as theStem where "
+          + " (lower(theStem.nameDb) in (:theName, :theName2) or lower(theStem.alternateNameDb) in (:theName, :theName2)) "
+          + "and theStem.uuid != :theUuid ")
+          .setString("theName", stem.getName().toLowerCase())
+          .setString("theName2", GrouperUtil.defaultIfEmpty(stem.getAlternateName(), stem.getName()).toLowerCase())
+          .setString("theUuid", stem.getId()).uniqueResult(long.class);
+      if (count > 0) {
+        throw new HookVeto(VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.idCaseInsensitive.default"));
+      } else {
+        throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.nameCaseInsensitive.default"));
+      }
     }
-
     
   }
   
@@ -103,9 +133,18 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
   @Override
   public void stemPreUpdate(HooksContext hooksContext, HooksStemBean preUpdateBean) {
     Stem stem = preUpdateBean.getStem();
-    if (stem.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || stem.dbVersionDifferentFields().contains(Group.FIELD_NAME)) {
+    if (stem.dbVersionDifferentFields().contains(Stem.FIELD_EXTENSION) || stem.dbVersionDifferentFields().contains(Stem.FIELD_NAME) 
+        || stem.dbVersionDifferentFields().contains(Stem.FIELD_DISPLAY_EXTENSION) || stem.dbVersionDifferentFields().contains(Stem.FIELD_DISPLAY_NAME) 
+        || stem.dbVersionDifferentFields().contains(Stem.FIELD_ALTERNATE_NAME_DB)) {
       verifyCaseInsensitiveName(stem);
     }
+  }
+
+  /**
+   * 
+   */
+  public static void clearHook() {
+    registered = false;
   }
   
 }

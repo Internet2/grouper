@@ -55,7 +55,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * type of hook, and manages the classes and instances
  */
 public enum GrouperHookType implements GrouperHookTypeInterface {
-
+  
   /**
    * external subject hooks
    */
@@ -140,6 +140,17 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
    * membership hooks
    */
   MEMBERSHIP("hooks.membership.class", MembershipHooks.class);
+
+  /**
+   * 
+   */
+  public static void clearHooks() {
+
+    hookTypesOverride.clear();
+    hookTypes.clear();
+    hookTypeMap.clear();
+    
+  }
 
   /**
    * construct
