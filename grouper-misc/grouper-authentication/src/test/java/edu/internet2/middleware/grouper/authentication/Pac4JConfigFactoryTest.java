@@ -33,6 +33,20 @@ public class Pac4JConfigFactoryTest extends TestCase {
         TestRunner.run(new Pac4JConfigFactoryTest("testPac4JConfigFactorCAS"));
     }
 
+    /*
+        reads configuration from the `grouper-ui.properties` file in the test resources directory to verify that
+        elconfig still works
+     */
+    public void testElConfig() {
+        Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
+        Config config = pac4jConfigFactory.build();
+
+        Assert.assertTrue(config.getClients().getClients().get(0) instanceof CasClient);
+
+        CasConfiguration configuration = ((CasClient) config.getClients().getClients().get(0)).getConfiguration();
+        Assert.assertEquals(configuration.getLoginUrl(), "login");
+    }
+
     /**
      *
      */

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.authentication.config;
 import edu.internet2.middleware.grouper.authentication.ConfigUtils;
 import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import org.apache.log4j.Logger;
 import org.pac4j.core.client.Client;
 import org.pac4j.oidc.client.OidcClient;
@@ -30,7 +31,7 @@ public class OidcClientProvider implements ClientProvider {
         } else {
             configuration = new ClaimAsUsernameOidcConfiguration();
         }
-        ConfigUtils.setProperties(configuration, "oidc");
+        ConfigUtils.setProperties(GrouperUiConfigInApi.retrieveConfig(), configuration, "oidc");
         OidcClient client = new OidcClient(configuration);
 
         //TODO: make configurable
