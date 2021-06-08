@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class CallbackFilterFascade implements Filter {
+public class CallbackFilterFacade implements Filter {
     private CallbackFilter uiDelegate;
 
     @Override

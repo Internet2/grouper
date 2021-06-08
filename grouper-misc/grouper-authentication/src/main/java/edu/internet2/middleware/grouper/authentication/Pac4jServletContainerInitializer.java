@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.authentication;
 
-import edu.internet2.middleware.grouper.authentication.filter.CallbackFilterFascade;
+import edu.internet2.middleware.grouper.authentication.filter.CallbackFilterFacade;
 import edu.internet2.middleware.grouper.authentication.filter.SecurityFilterFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class Pac4jServletContainerInitializer implements ServletContainerInitial
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
         LOGGER.info("initializing pac4j");
 
-        FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", CallbackFilterFascade.class);
+        FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", CallbackFilterFacade.class);
         callbackFilter.addMappingForUrlPatterns(null, false, "/*");
 
         FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", SecurityFilterFacade.class);
