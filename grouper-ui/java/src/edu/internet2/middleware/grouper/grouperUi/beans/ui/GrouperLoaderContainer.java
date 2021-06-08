@@ -2000,8 +2000,11 @@ public class GrouperLoaderContainer {
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
-    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
-      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);
+    if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanView()) {
+      return false;
+    }
+    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.edit.if.in.group"))) {
+      String error = GrouperUiFilter.requireUiGroup("uiV2.loader.edit.if.in.group", loggedInSubject, false);
       //null error means allow
       return error == null;
     }
@@ -2586,7 +2589,6 @@ public class GrouperLoaderContainer {
    * @return true if shouldl show the loader menu item
    */
   public boolean isCanSeeLoader() {
-    
     if (isCanSeeLoaderOverall()) {
       return true;
     }
@@ -2608,6 +2610,12 @@ public class GrouperLoaderContainer {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
+    }
+    if (isCanEditLoader()) {
+      return true;
+    }
+    if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanView()) {
+      return false;
     }
     if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group"))) {
       String error = GrouperUiFilter.requireUiGroup("uiV2.loader.must.be.in.group", loggedInSubject, false);

@@ -143,6 +143,7 @@ import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -1242,6 +1243,28 @@ public class GrouperCheckConfig {
             wasInCheckConfig, null,
             "Workflow editors group",
             "Workflow editors group",
+            null);
+      }
+      
+      {
+        // loader viewers
+        String loaderViewers = GrouperUiConfigInApi.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group", GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":loaderViewers");
+
+        checkGroup(grouperSession, loaderViewers, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Loader viewers",
+            "Group contains people who can see the overall loader screen in Misc, and if they have VIEW on a group they can see the loader tab and functions",
+            null);
+      }
+      
+      {
+        // loader editors
+        String loaderEditors = GrouperUiConfigInApi.retrieveConfig().propertyValueString("uiV2.loader.edit.if.in.group", GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":loaderEditors");
+
+        checkGroup(grouperSession, loaderEditors, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Loader editors",
+            "Group contains people who can see the overall loader screen in Misc, and if they have VIEW on a group they can see and edit the loader tab and settings",
             null);
       }
       

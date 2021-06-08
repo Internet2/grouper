@@ -4717,10 +4717,6 @@ public class UiV2Group {
    */
   public void updateLoaderGroup(HttpServletRequest request, HttpServletResponse response) {
 
-    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true)) {
-      throw new RuntimeException("Cant refresh loader groups from UI due to config param uiV2.group.allowGroupAdminsToRefreshLoaderJobs set to false");
-    }
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
     GrouperSession grouperSession = null;
@@ -4731,9 +4727,18 @@ public class UiV2Group {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
       if (group == null) {
+        return;
+      }
+
+      boolean adminCanRefreshGroup = group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.toString(), false) 
+          && GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true);
+
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
+
+      if (!adminCanRefreshGroup && !canEditLoader) {
         return;
       }
 
@@ -4861,9 +4866,15 @@ public class UiV2Group {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
       if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
+
+      if (!canEditLoader) {
         return;
       }
 

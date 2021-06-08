@@ -68,9 +68,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -79,7 +79,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -116,13 +115,13 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
-      
-      boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
-      
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
-      if (group == null || !canSeeLoader) {
+      if (group == null) {
+        return;
+      }
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      if (!canSeeLoader) {
         return;
       }
 
@@ -638,14 +637,14 @@ public class UiV2GrouperLoader {
   
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-
-      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       
-      boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
-      
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
-      if (group == null || !canSeeLoader) {
+      if (group == null) {
+        return;
+      }
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      if (!canSeeLoader) {
         return;
       }
 
@@ -686,11 +685,13 @@ public class UiV2GrouperLoader {
       
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
 
-      boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
-      
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
-      if (group == null || !canSeeLoader) {
+      if (group == null) {
+        return;
+      }
+      boolean canSeeLoader = grouperLoaderContainer.isCanSeeLoader();
+      if (!canSeeLoader) {
         return;
       }
       
@@ -761,15 +762,22 @@ public class UiV2GrouperLoader {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
-      UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup(); // not sure why but we get an NPE later on if we don't get the group here
 
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
       boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
-      if (canEditLoader) {
-        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-        JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
-        scheduler.pauseJob(jobKey);
+      if (!canEditLoader) {
+        return;
       }
+
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
+      scheduler.pauseJob(jobKey);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -793,15 +801,23 @@ public class UiV2GrouperLoader {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
-      UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup(); // not sure why but we get an NPE later on if we don't get the group here
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
+      if (group == null) {
+        return;
+      }
+      
       boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
-      if (canEditLoader) {
-        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-        JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
-        scheduler.resumeJob(jobKey);
+      if (!canEditLoader) {
+        return;
       }
+
+
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
+      scheduler.resumeJob(jobKey);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -830,13 +846,17 @@ public class UiV2GrouperLoader {
 
       final GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
       boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
       if (!canEditLoader) {
         return;
       }
-
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
       
       editGrouperLoaderHelper(request, grouperLoaderContainer);
 
@@ -1384,11 +1404,15 @@ public class UiV2GrouperLoader {
 
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
       boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
-
-      if (!canEditLoader || group == null) {
+      if (!canEditLoader) {
         return;
       }
 
@@ -1994,14 +2018,18 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
-
-      if (group == null || !canSeeLoader) {
+      if (group == null) {
         return;
       }
+      
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
 
+      if (!canEditLoader) {
+        return;
+      }
+      
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
@@ -2034,14 +2062,18 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
-
-      if (group == null || !canSeeLoader) {
+      if (group == null) {
         return;
       }
+      
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
 
+      if (!canEditLoader) {
+        return;
+      }
+      
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
@@ -3998,9 +4030,13 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      boolean canSeeLoaderOverall = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoaderOverall();
-      
-      if (!canSeeLoaderOverall) {
+      final Group theGroup = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (theGroup == null) {
+        return;
+      }
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      if (!canSeeLoader) {
         return;
       }
       
