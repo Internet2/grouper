@@ -242,7 +242,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     for (int i=0; i<numberOfQueries; i++) {
       GrouperConfigurationModuleAttribute variableToAssignAttribute = attributes.get("cuQuery."+i+".variableToAssign");
       String variableToAssignAttributeValue = variableToAssignAttribute.getValueOrExpressionEvaluation();
-      if (StringUtils.isNotBlank(variableToAssignAttributeValue) && !variableToAssignAttributeValue.startsWith("cu_")) {
+      if (StringUtils.isNotBlank(variableToAssignAttributeValue) && !variableToAssignAttributeValue.startsWith("cu_") && !variableToAssignAttributeValue.equals("default")) {
         String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorVariableToAssignNotValid"); 
         validationErrorsToDisplay.put(variableToAssignAttribute.getHtmlForElementIdHandle(), error);
         return;

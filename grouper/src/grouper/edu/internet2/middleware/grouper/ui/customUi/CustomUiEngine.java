@@ -548,106 +548,111 @@ public class CustomUiEngine {
     for (int i=0; i<numberOfQueries; i++) {
 
       CustomUiUserQueryConfigBean queryConfigBean = new CustomUiUserQueryConfigBean();
-      
-      String queryPrefix = configPrefix + "cuQuery." + i + ".";
-      
-      String attributeDefId = customUiConfigProperties.get(queryPrefix + "attributeDefId");
-      queryConfigBean.setAttributeDefId(attributeDefId);
-      
-      String azureGroupId = customUiConfigProperties.get(queryPrefix + "azureGroupId");
-      queryConfigBean.setAzureGroupId(azureGroupId);
-      
-      String bindVar0 = customUiConfigProperties.get(queryPrefix + "bindVar0");
-      queryConfigBean.setBindVar0(bindVar0);
-      
-      String bindVar0Type = customUiConfigProperties.get(queryPrefix + "bindVar0Type");
-      queryConfigBean.setBindVar0type(bindVar0Type);
-      
-      String bindVar1 = customUiConfigProperties.get(queryPrefix + "bindVar1");
-      queryConfigBean.setBindVar1(bindVar1);
-      
-      String bindVar1Type = customUiConfigProperties.get(queryPrefix + "bindVar1Type");
-      queryConfigBean.setBindVar1type(bindVar1Type);
-      
-      String bindVar2 = customUiConfigProperties.get(queryPrefix + "bindVar2");
-      queryConfigBean.setBindVar2(bindVar2);
-      
-      String bindVar2Type = customUiConfigProperties.get(queryPrefix + "bindVar2Type");
-      queryConfigBean.setBindVar2type(bindVar2Type);
-      
-      String configIdForUserQuery = customUiConfigProperties.get(queryPrefix + "configId");
-      queryConfigBean.setConfigId(configIdForUserQuery);
-      
-      String enabledForUserQuery = customUiConfigProperties.get(queryPrefix + "enabled");
-      queryConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledForUserQuery));
-      
-      String errorLabel = customUiConfigProperties.get(queryPrefix + "errorLabel");
-      queryConfigBean.setErrorLabel(errorLabel);
-      
-      String fieldNames = customUiConfigProperties.get(queryPrefix + "fieldNames");
-      queryConfigBean.setFieldNames(fieldNames);
-
-      String forLoggedInUser = customUiConfigProperties.get(queryPrefix + "forLoggedInUser");
-      queryConfigBean.setForLoggedInUser(GrouperUtil.booleanObjectValue(forLoggedInUser));
-      
-      String groupId = customUiConfigProperties.get(queryPrefix + "groupId");
-      queryConfigBean.setGroupId(groupId);
-      
-      String groupName = customUiConfigProperties.get(queryPrefix + "groupName");
-      queryConfigBean.setGroupName(groupName);
-
-      String label = customUiConfigProperties.get(queryPrefix + "label");
-      if (StringUtils.isNotBlank(label)) {
-        queryConfigBean.setLabel(label);
-      } else {
-        String labelExternalizedTextKey = customUiConfigProperties.get(queryPrefix + "labelExternalizedTextKey");
-        queryConfigBean.setLabel(GrouperTextContainer.textOrNull(labelExternalizedTextKey));
+      try {
+        String queryPrefix = configPrefix + "cuQuery." + i + ".";
+        
+        String userQueryType = customUiConfigProperties.get(queryPrefix + "userQueryType");
+        queryConfigBean.setUserQueryType(userQueryType);
+  
+        String variableToAssign = customUiConfigProperties.get(queryPrefix + "variableToAssign");
+        queryConfigBean.setVariableToAssign(variableToAssign);
+  
+        String attributeDefId = customUiConfigProperties.get(queryPrefix + "attributeDefId");
+        queryConfigBean.setAttributeDefId(attributeDefId);
+        
+        String azureGroupId = customUiConfigProperties.get(queryPrefix + "azureGroupId");
+        queryConfigBean.setAzureGroupId(azureGroupId);
+        
+        String bindVar0 = customUiConfigProperties.get(queryPrefix + "bindVar0");
+        queryConfigBean.setBindVar0(bindVar0);
+        
+        String bindVar0Type = customUiConfigProperties.get(queryPrefix + "bindVar0Type");
+        queryConfigBean.setBindVar0type(bindVar0Type);
+        
+        String bindVar1 = customUiConfigProperties.get(queryPrefix + "bindVar1");
+        queryConfigBean.setBindVar1(bindVar1);
+        
+        String bindVar1Type = customUiConfigProperties.get(queryPrefix + "bindVar1Type");
+        queryConfigBean.setBindVar1type(bindVar1Type);
+        
+        String bindVar2 = customUiConfigProperties.get(queryPrefix + "bindVar2");
+        queryConfigBean.setBindVar2(bindVar2);
+        
+        String bindVar2Type = customUiConfigProperties.get(queryPrefix + "bindVar2Type");
+        queryConfigBean.setBindVar2type(bindVar2Type);
+        
+        String configIdForUserQuery = customUiConfigProperties.get(queryPrefix + "configId");
+        queryConfigBean.setConfigId(configIdForUserQuery);
+        
+        String enabledForUserQuery = customUiConfigProperties.get(queryPrefix + "enabled");
+        queryConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledForUserQuery));
+        
+        String errorLabel = customUiConfigProperties.get(queryPrefix + "errorLabel");
+        queryConfigBean.setErrorLabel(errorLabel);
+        
+        String fieldNames = customUiConfigProperties.get(queryPrefix + "fieldNames");
+        queryConfigBean.setFieldNames(fieldNames);
+  
+        String forLoggedInUser = customUiConfigProperties.get(queryPrefix + "forLoggedInUser");
+        queryConfigBean.setForLoggedInUser(GrouperUtil.booleanObjectValue(forLoggedInUser));
+        
+        String groupId = customUiConfigProperties.get(queryPrefix + "groupId");
+        queryConfigBean.setGroupId(groupId);
+        
+        String groupName = customUiConfigProperties.get(queryPrefix + "groupName");
+        queryConfigBean.setGroupName(groupName);
+  
+        if (!"default".equals(variableToAssign)) {
+          String label = customUiConfigProperties.get(queryPrefix + "label");
+          if (StringUtils.isNotBlank(label)) {
+            queryConfigBean.setLabel(label);
+          } else {
+            String labelExternalizedTextKey = customUiConfigProperties.get(queryPrefix + "labelExternalizedTextKey");
+            queryConfigBean.setLabel(GrouperTextContainer.textOrNull(labelExternalizedTextKey));
+          }
+        }
+        
+        String ldapAttributeToRetrieve = customUiConfigProperties.get(queryPrefix + "ldapAttributeToRetrieve");
+        queryConfigBean.setLdapAttributeToRetrieve(ldapAttributeToRetrieve);
+  
+        String ldapFilter = customUiConfigProperties.get(queryPrefix + "ldapFilter");
+        queryConfigBean.setLdapFilter(ldapFilter);
+        
+        String ldapSearchDn = customUiConfigProperties.get(queryPrefix + "ldapSearchDn");
+        queryConfigBean.setLdapSearchDn(ldapSearchDn);
+  
+        String nameOfAttributeDef = customUiConfigProperties.get(queryPrefix + "nameOfAttributeDef");
+        queryConfigBean.setNameOfAttributeDef(nameOfAttributeDef);
+  
+        String orderString = customUiConfigProperties.get(queryPrefix + "order");
+        queryConfigBean.setOrder(GrouperUtil.intValue(orderString, 0));
+        
+        String query = customUiConfigProperties.get(queryPrefix + "query");
+        queryConfigBean.setQuery(query);
+  
+        String script = customUiConfigProperties.get(queryPrefix + "script");
+        queryConfigBean.setScript(script);
+        
+        String stemId = customUiConfigProperties.get(queryPrefix + "stemId");
+        queryConfigBean.setStemId(stemId);
+        
+        String stemName = customUiConfigProperties.get(queryPrefix + "stemName");
+        queryConfigBean.setStemName(stemName);
+  
+        String variableToAssignOnError = customUiConfigProperties.get(queryPrefix + "variableToAssignOnError");
+        queryConfigBean.setVariableToAssignOnError(variableToAssignOnError);
+        
+        String variableType = customUiConfigProperties.get(queryPrefix + "variableType");
+        queryConfigBean.setVariableType(variableType);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "Error with customUI query bean: " + queryConfigBean);
+        throw re;
       }
-      
-      String ldapAttributeToRetrieve = customUiConfigProperties.get(queryPrefix + "ldapAttributeToRetrieve");
-      queryConfigBean.setLdapAttributeToRetrieve(ldapAttributeToRetrieve);
-
-      String ldapFilter = customUiConfigProperties.get(queryPrefix + "ldapFilter");
-      queryConfigBean.setLdapFilter(ldapFilter);
-      
-      String ldapSearchDn = customUiConfigProperties.get(queryPrefix + "ldapSearchDn");
-      queryConfigBean.setLdapSearchDn(ldapSearchDn);
-
-      String nameOfAttributeDef = customUiConfigProperties.get(queryPrefix + "nameOfAttributeDef");
-      queryConfigBean.setNameOfAttributeDef(nameOfAttributeDef);
-
-      String orderString = customUiConfigProperties.get(queryPrefix + "order");
-      queryConfigBean.setOrder(GrouperUtil.intValue(orderString, 0));
-      
-      String query = customUiConfigProperties.get(queryPrefix + "query");
-      queryConfigBean.setQuery(query);
-
-      String script = customUiConfigProperties.get(queryPrefix + "script");
-      queryConfigBean.setScript(script);
-      
-      String stemId = customUiConfigProperties.get(queryPrefix + "stemId");
-      queryConfigBean.setStemId(stemId);
-      
-      String stemName = customUiConfigProperties.get(queryPrefix + "stemName");
-      queryConfigBean.setStemName(stemName);
-
-      String userQueryType = customUiConfigProperties.get(queryPrefix + "userQueryType");
-      queryConfigBean.setUserQueryType(userQueryType);
-
-      String variableToAssign = customUiConfigProperties.get(queryPrefix + "variableToAssign");
-      queryConfigBean.setVariableToAssign(variableToAssign);
-
-      String variableToAssignOnError = customUiConfigProperties.get(queryPrefix + "variableToAssignOnError");
-      queryConfigBean.setVariableToAssignOnError(variableToAssignOnError);
-      
-      String variableType = customUiConfigProperties.get(queryPrefix + "variableType");
-      queryConfigBean.setVariableType(variableType);
-      
       customUiUserQueryConfigBeans.add(queryConfigBean);
     }
     
     customUiConfig.setCustomUiUserQueryConfigBeans(customUiUserQueryConfigBeans);
-    
+
     String numberOfTextConfigsString = customUiConfigProperties.getOrDefault(configPrefix+"numberOfTextConfigs", "0");
     Integer numberOfTextConfigs = GrouperUtil.intValue(numberOfTextConfigsString, 0);
     
@@ -656,41 +661,46 @@ public class CustomUiEngine {
       
       CustomUiTextConfigBean customUiTextConfigBean = new CustomUiTextConfigBean();
       
-      String textConfigPrefix = configPrefix + "cuTextConfig." + i + ".";
-      
-      String textType = customUiConfigProperties.get(textConfigPrefix + "textType");
-      customUiTextConfigBean.setCustomUiTextType(textType);
-      
-      String textBoolean = customUiConfigProperties.get(textConfigPrefix + "textBoolean");
-      String textBooleanScript = customUiConfigProperties.get(textConfigPrefix + "textBooleanScript");
-      
-      
-      String text = customUiConfigProperties.get(textConfigPrefix + "text");
-      
-      if (StringUtils.isNotBlank(text)) {
-        customUiTextConfigBean.setText(text);
-      } else if (StringUtils.isNotBlank(textBooleanScript)) {
-        customUiTextConfigBean.setText(textBooleanScript);
-      } else if (StringUtils.isNotBlank(textBoolean)) {
-        customUiTextConfigBean.setText(textBoolean);
+      try {
+        String textConfigPrefix = configPrefix + "cuTextConfig." + i + ".";
+        
+        String textType = customUiConfigProperties.get(textConfigPrefix + "textType");
+        customUiTextConfigBean.setCustomUiTextType(textType);
+        
+        String textBoolean = customUiConfigProperties.get(textConfigPrefix + "textBoolean");
+        String textBooleanScript = customUiConfigProperties.get(textConfigPrefix + "textBooleanScript");
+        
+        
+        String text = customUiConfigProperties.get(textConfigPrefix + "text");
+        
+        if (StringUtils.isNotBlank(text)) {
+          customUiTextConfigBean.setText(text);
+        } else if (StringUtils.isNotBlank(textBooleanScript)) {
+          customUiTextConfigBean.setText(textBooleanScript);
+        } else if (StringUtils.isNotBlank(textBoolean)) {
+          customUiTextConfigBean.setText(textBoolean);
+        }
+        
+        String script = customUiConfigProperties.get(textConfigPrefix + "script");
+        customUiTextConfigBean.setScript(script);
+  
+        String endIfMatchesString = customUiConfigProperties.get(textConfigPrefix + "endIfMatches");
+        customUiTextConfigBean.setEndIfMatches(GrouperUtil.booleanObjectValue(endIfMatchesString));
+        
+        String defaultText = customUiConfigProperties.get(textConfigPrefix + "defaultText");
+        customUiTextConfigBean.setDefaultText(GrouperUtil.booleanObjectValue(defaultText));
+        
+        String enabledTextConfigString = customUiConfigProperties.get(textConfigPrefix + "enabled");
+        customUiTextConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledTextConfigString));
+        
+        String indexTextConfigString = customUiConfigProperties.get(textConfigPrefix + "index");
+        customUiTextConfigBean.setIndex(GrouperUtil.intValue(indexTextConfigString, 0));
+        
+        customUiTextConfigBeans.add(customUiTextConfigBean);
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "Error with customUI text bean: " + customUiTextConfigBean);
+        throw re;
       }
-      
-      String script = customUiConfigProperties.get(textConfigPrefix + "script");
-      customUiTextConfigBean.setScript(script);
-
-      String endIfMatchesString = customUiConfigProperties.get(textConfigPrefix + "endIfMatches");
-      customUiTextConfigBean.setEndIfMatches(GrouperUtil.booleanObjectValue(endIfMatchesString));
-      
-      String defaultText = customUiConfigProperties.get(textConfigPrefix + "defaultText");
-      customUiTextConfigBean.setDefaultText(GrouperUtil.booleanObjectValue(defaultText));
-      
-      String enabledTextConfigString = customUiConfigProperties.get(textConfigPrefix + "enabled");
-      customUiTextConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledTextConfigString));
-      
-      String indexTextConfigString = customUiConfigProperties.get(textConfigPrefix + "index");
-      customUiTextConfigBean.setIndex(GrouperUtil.intValue(indexTextConfigString, 0));
-      
-      customUiTextConfigBeans.add(customUiTextConfigBean);
     }
 
     customUiConfig.setCustomUiTextConfigBeans(customUiTextConfigBeans);
