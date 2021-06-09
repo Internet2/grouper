@@ -57,7 +57,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       
       if (runGrouperUi) {
         
-        String[] urlPatterns = new String[] {"/grouperUi/app/*", "/grouperUi/appHtml/*", "/grouperExternal/app/*", "/grouperExternal/public/UiV2Public.index", "/grouperExternal/public/UiV2Public.postIndex"};
+        String[] urlPatterns = new String[] {"/grouperUi/app/*", "/grouperExternal/app/*", "/grouperExternal/public/UiV2Public.index", "/grouperExternal/public/UiV2Public.postIndex"};
         
         try {
           String grouperUiFilterName = "GrouperUi";
@@ -67,7 +67,8 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           for (String urlPattern : urlPatterns) {
             grouperUiFilter.addMappingForUrlPatterns(null, false, urlPattern);
           }
-          
+          grouperUiFilter.addMappingForUrlPatterns(null, false, "/grouperUi/appHtml/*");
+
           String grouperUiCsrfFilterName = "CSRFGuard";
           Class grouperUiCsfrFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
           Dynamic grouperUiCsrfFilter = context.addFilter(grouperUiCsrfFilterName, grouperUiCsfrFilterClass);
@@ -76,6 +77,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           for (String urlPattern : urlPatterns) {
             grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, urlPattern);
           }
+          grouperUiCsrfFilter.addMappingForUrlPatterns(null, false, "/grouperUi/appHtml/*");
 
           if (!StringUtils.isBlank(GrouperUiConfigInApi.retrieveConfig().propertyValueString("csrfguard.extraFilterPatterns"))) {
             for (String pattern : GrouperUtil.splitTrim(GrouperUiConfigInApi.retrieveConfig().propertyValueString("csrfguard.extraFilterPatterns"), ",")) {
