@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -276,6 +275,16 @@ public class GrouperProvisioningTranslatorBase {
           runScript(script, elVariableMap);
           
         }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects &&
+            grouperTargetMembership.isEmpty()) {
+          
+          grouperTargetMembership.setProvisioningEntityId(grouperTargetEntity == null ? null: grouperTargetEntity.getId());
+          grouperTargetMembership.setProvisioningEntity(grouperTargetEntity);
+          grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
+          grouperTargetMembership.setProvisioningGroupId(grouperTargetGroup == null ? null: grouperTargetGroup.getId());
+        }
+        
       } finally {
         provisioningMembershipWrapperThreadLocal.remove();
       }
@@ -965,7 +974,12 @@ public class GrouperProvisioningTranslatorBase {
     }
 
     if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
-      return;
+      
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+        membershipIdField = "provisioningGroupId,provisioningMembershipId";
+      } else {
+        return;
+      }
     }
     
     for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {

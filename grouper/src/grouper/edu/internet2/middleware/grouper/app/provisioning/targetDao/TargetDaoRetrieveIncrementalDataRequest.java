@@ -3,11 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class TargetDaoRetrieveIncrementalDataRequest {
 

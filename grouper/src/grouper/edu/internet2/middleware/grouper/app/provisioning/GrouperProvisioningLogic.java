@@ -437,6 +437,7 @@ public class GrouperProvisioningLogic {
         grouperProvisioningLogicIncremental.filterByGroupSync();
       }
       
+      System.out.println("Test4");
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
         // ######### STEP 12: convert to group sync
         debugMap.put("state", "convertToGroupSync");
@@ -473,6 +474,7 @@ public class GrouperProvisioningLogic {
           // ######### STEP 16: retrieve all members sync objects
           debugMap.put("state", "retrieveIncrementalSyncMemberships");
           {
+            System.out.println("Test2");
             this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncMemberships();
             this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncMembers();
   
@@ -854,6 +856,7 @@ public class GrouperProvisioningLogic {
         continue;
       }
 
+      //TODO ask Chris: should it be not null
       ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
       
       if (targetGroup != null) {
@@ -1298,6 +1301,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();
 
     // put the sync objects in their respective wrapper objects
+    // this is where additional wrapper objects can be added
     assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete

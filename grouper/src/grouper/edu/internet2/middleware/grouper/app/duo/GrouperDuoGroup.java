@@ -7,8 +7,6 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -19,23 +17,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperDuoGroup {
 
-  public static void main(String[] args) {
-    
-    GrouperDuoGroup grouperDuoGroup = new GrouperDuoGroup();
-    
-    grouperDuoGroup.setDesc("desc");
-    grouperDuoGroup.setName("name");
-    grouperDuoGroup.setGroup_id("groupId");
-
-    String json = GrouperUtil.jsonJacksonToString(grouperDuoGroup.toJson());
-    System.out.println(json);
-    
-    grouperDuoGroup = GrouperDuoGroup.fromJson(GrouperUtil.jsonJacksonNode(json));
-    
-    System.out.println(grouperDuoGroup.toString());
-    
-  }
-  
   /**
    * @param ddlVersionBean
    * @param database
@@ -55,7 +36,7 @@ public class GrouperDuoGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.VARCHAR, "40", true, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_duo_group_name_idx", false, "name");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_duo_group_name_idx", true, "name");
     }
             
   }
@@ -77,13 +58,13 @@ public class GrouperDuoGroup {
     
     GrouperDuoGroup grouperDuoGroup = new GrouperDuoGroup();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("desc")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) { 
       grouperDuoGroup.setDesc(targetGroup.retrieveAttributeValueString("description"));
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
       grouperDuoGroup.setName(targetGroup.getName());
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupId")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperDuoGroup.setGroup_id(targetGroup.getId());
     }
     
@@ -154,27 +135,6 @@ public class GrouperDuoGroup {
     grouperDuoGroup.group_id = GrouperUtil.jsonJacksonGetString(groupNode, "group_id");
     
     return grouperDuoGroup;
-  }
-
-  /**
-   * convert from jackson json
-   * @param fieldNamesToSet
-   * @return the group
-   */
-  public ObjectNode toJson() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
-
-    result.put("desc", this.desc);
-    result.put("name", this.name);
-    result.put("group_id", this.group_id);
-    result.put("mobile_otp_enabled", false);
-    result.put("push_enabled", false);
-    result.put("sms_enabled", false);
-    result.put("voice_enabled", false);
-    result.put("status", "active");
-    
-    return result;
   }
 
 }

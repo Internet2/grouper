@@ -1382,6 +1382,11 @@ public class GrouperProvisioningBehavior {
         return false;
       }
     }
+    
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
+    
     return false;
   }
 

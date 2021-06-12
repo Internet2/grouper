@@ -985,15 +985,14 @@ public class GcGrouperSyncMembershipDao {
   }
 
   public List<GcGrouperSyncMembership> membershipRetrieveByGroupIds(Set<String> groupIdsToRetrieveMemberships) {
-    Set<String> groupIds = new HashSet<String>();
-    
+
     List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
     
     if (GrouperClientUtils.length(groupIdsToRetrieveMemberships) == 0) {
       return results;
     }
 
-    Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
+    Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieveMemberships);
 
     Set<String> groupSyncIds = new HashSet<String>();
     for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperClientUtils.nonNull(groupIdToSyncGroup).values()) {
@@ -1005,7 +1004,6 @@ public class GcGrouperSyncMembershipDao {
   }
 
   public List<GcGrouperSyncMembership> membershipRetrieveByMemberIds(Set<String> memberIdsToRetrieveMemberships) {
-    Set<String> groupIds = new HashSet<String>();
     
     List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
     
@@ -1013,7 +1011,7 @@ public class GcGrouperSyncMembershipDao {
       return results;
     }
 
-    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(groupIds);
+    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieveMemberships);
 
     Set<String> memberSyncIds = new HashSet<String>();
     for (GcGrouperSyncMember gcGrouperSyncMember : GrouperClientUtils.nonNull(memberSyncIdToSyncMember).values()) {

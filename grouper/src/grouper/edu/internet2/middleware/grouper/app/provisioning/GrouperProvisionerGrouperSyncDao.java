@@ -189,7 +189,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String memberId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(1);
       memberIdsToRetrieve.add(memberId);
     }
-
+    
     this.getGrouperProvisioner().getDebugMap().put("syncMembersToQuery", GrouperUtil.length(memberIdsToRetrieve));
     
     if (memberIdsToRetrieve.size() > 0) {

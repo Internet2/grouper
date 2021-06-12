@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,10 @@ public class GrouperDuoApiCommands {
     grouperDuoGroupToUpdate.setGroup_id(duoGroupCreated.getGroup_id());
     grouperDuoGroupToUpdate.setName("test name 2");
     grouperDuoGroupToUpdate.setDesc("test desc 2");
-    updateDuoGroup("duo1", grouperDuoGroupToUpdate);
+    Set<String> fieldsToUpdateOnGroup = new HashSet<String>();
+    fieldsToUpdateOnGroup.add("name");
+    fieldsToUpdateOnGroup.add("desc");
+    updateDuoGroup("duo1", grouperDuoGroupToUpdate, fieldsToUpdateOnGroup);
     
     List<GrouperDuoGroup> duoGroups = retrieveDuoGroups("duo1");
     boolean groupFound = false;
@@ -178,7 +182,13 @@ public class GrouperDuoApiCommands {
     grouperDuoUserToUpdate.setRealName("real name2");
     grouperDuoUserToUpdate.setUserName("user name");
     grouperDuoUserToUpdate.setId(duoUserCreated.getId());
-    updateDuoUser("duo1", grouperDuoUserToUpdate);
+    Set<String> fieldsToUpdateOnUser = new HashSet<String>();
+    fieldsToUpdateOnUser.add("firstname");
+    fieldsToUpdateOnUser.add("lastname");
+    fieldsToUpdateOnUser.add("realname");
+    fieldsToUpdateOnUser.add("email");
+    
+    updateDuoUser("duo1", grouperDuoUserToUpdate, fieldsToUpdateOnUser);
     
     List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
     boolean userFound = false;
@@ -218,7 +228,7 @@ public class GrouperDuoApiCommands {
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, 
       Map<String, String> params,
-      String body) {
+      String body, String version) {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     
@@ -232,7 +242,7 @@ public class GrouperDuoApiCommands {
       url = "http";
     }
     
-    url = url + "://" + adminDomainName + "/admin/v1";
+    url = url + "://" + adminDomainName + "/admin/"+version;
     
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -292,10 +302,7 @@ public class GrouperDuoApiCommands {
     String dateHeaderValue = format.format(new Date());
     grouperHttpCall.addHeader("Date", dateHeaderValue);
     
-    System.out.println(paramsLine);
-    String hmacSource = dateHeaderValue + "\n" + httpMethodName + "\n" + adminDomainName + "\n" + "/admin/v1"+urlSuffix + "\n" + paramsLine;
-    
-    System.out.println("hmacSource in api commands: \n"+hmacSource);
+    String hmacSource = dateHeaderValue + "\n" + httpMethodName + "\n" + adminDomainName + "\n" + "/admin/"+version+urlSuffix + "\n" + paramsLine;
     
     String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminSecretKey");
     String adminIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminIntegrationKey");
@@ -370,12 +377,11 @@ public class GrouperDuoApiCommands {
 
     try {
 
-
       Map<String, String> params = GrouperUtil.toMap("name", 
           StringUtils.defaultString(grouperDuoGroup.getName()), "desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups",
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
       
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
 
@@ -397,7 +403,7 @@ public class GrouperDuoApiCommands {
    * @return the result
    */
   public static GrouperDuoGroup updateDuoGroup(String configId,
-      GrouperDuoGroup grouperDuoGroup) {
+      GrouperDuoGroup grouperDuoGroup, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -412,12 +418,22 @@ public class GrouperDuoApiCommands {
       if (StringUtils.isBlank(id)) {
         throw new RuntimeException("id is null: " + grouperDuoGroup);
       }
-
-      Map<String, String> params = GrouperUtil.toMap("name", 
-          StringUtils.defaultString(grouperDuoGroup.getName()), "desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
+      
+      Map<String, String> params = GrouperUtil.toMap();
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("name")) {
+        params.put("name", StringUtils.defaultString(grouperDuoGroup.getName()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("desc")) {
+        params.put("desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
+      }
+      
+//      Map<String, String> params = GrouperUtil.toMap("name", 
+//          StringUtils.defaultString(grouperDuoGroup.getName()), "desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + id,
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
 
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       
@@ -448,7 +464,7 @@ public class GrouperDuoApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "/groups/" + groupId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -479,7 +495,7 @@ public class GrouperDuoApiCommands {
         Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
         
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/groups",
-            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null, "v1");
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("response");
 
@@ -524,7 +540,7 @@ public class GrouperDuoApiCommands {
       String urlSuffix = "/users/" + userId;
 
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       if (userNode == null) {
@@ -540,6 +556,58 @@ public class GrouperDuoApiCommands {
       GrouperDuoLog.duoLog(debugMap, startTime);
     }
 
+  }
+  
+  public static List<GrouperDuoUser> retrieveDuoUserIdsUserNamesByGroup(String configId, String groupId) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "rertrieveDuoUserIdsUserNamesByGroup");
+
+    long startTime = System.nanoTime();
+
+    try {
+      
+      List<GrouperDuoUser> results = new ArrayList<GrouperDuoUser>();
+      
+      int limit = 100;
+      int offset = 0;
+      
+      while (offset >= 0) {
+
+        Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
+        
+        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/groups/"+groupId+"/users",
+            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null, "v2");
+        
+        ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
+
+        for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
+          JsonNode userNode = usersArray.get(i);
+          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+          results.add(grouperDuoUser);
+        }
+        
+        JsonNode metadata = jsonNode.get("metadata");
+        
+        if (metadata != null && metadata.get("next_offset") != null && usersArray.size() >= limit) {
+          offset = metadata.get("next_offset").asInt();
+        } else {
+          offset = -1;
+        }
+        
+      }
+      
+      debugMap.put("size", GrouperClientUtils.length(results));
+      
+      return results;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+    
   }
 
   /**
@@ -560,7 +628,7 @@ public class GrouperDuoApiCommands {
       String urlSuffix = "/groups/" + id;
 
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
       
       //lets get the group node
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
@@ -601,7 +669,7 @@ public class GrouperDuoApiCommands {
           "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
 
@@ -620,10 +688,11 @@ public class GrouperDuoApiCommands {
   /**
    * update a user
    * @param grouperDuoUser
+   * @param fieldsToUpdate
    * @return the result
    */
   public static GrouperDuoUser updateDuoUser(String configId,
-      GrouperDuoUser grouperDuoUser) {
+      GrouperDuoUser grouperDuoUser, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -639,13 +708,35 @@ public class GrouperDuoApiCommands {
         throw new RuntimeException("id is null: " + grouperDuoUser);
       }
 
-      Map<String, String> params = GrouperUtil.toMap("firstname", 
-          StringUtils.defaultString(grouperDuoUser.getFirstName()), "lastname", StringUtils.defaultString(grouperDuoUser.getLastName()),
-          "realname", StringUtils.defaultString(grouperDuoUser.getRealName()), "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
-          "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
+//      Map<String, String> params = GrouperUtil.toMap("firstname", 
+//          StringUtils.defaultString(grouperDuoUser.getFirstName()), "lastname", StringUtils.defaultString(grouperDuoUser.getLastName()),
+//          "realname", StringUtils.defaultString(grouperDuoUser.getRealName()), "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
+//          "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
+      
+      Map<String, String> params = GrouperUtil.toMap();
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("firstname")) {
+        params.put("firstname", StringUtils.defaultString(grouperDuoUser.getFirstName()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("lastname")) {
+        params.put("lastname", StringUtils.defaultString(grouperDuoUser.getLastName()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("realname")) {
+        params.put("realname", StringUtils.defaultString(grouperDuoUser.getRealName()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("email")) {
+        params.put("email", StringUtils.defaultString(grouperDuoUser.getEmail()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("username")) {
+        params.put("username", StringUtils.defaultString(grouperDuoUser.getUserName()));
+      }
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/" + id,
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
 
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       
@@ -681,7 +772,7 @@ public class GrouperDuoApiCommands {
         Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
         
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/users",
-            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+            GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null, "v1");
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
 
@@ -725,7 +816,7 @@ public class GrouperDuoApiCommands {
       String urlSuffix = "/users/" + id;
 
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       if (userNode == null) {
@@ -763,7 +854,7 @@ public class GrouperDuoApiCommands {
       Map<String, String> params = GrouperUtil.toMap("username", StringUtils.defaultString(username));
 
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null, "v1");
       
       ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
       
@@ -800,7 +891,7 @@ public class GrouperDuoApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "/users/" + userId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -823,7 +914,7 @@ public class GrouperDuoApiCommands {
       Map<String, String> params = GrouperUtil.toMap("group_id", StringUtils.defaultString(groupId));
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/"+userId+"/groups",
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -852,7 +943,7 @@ public class GrouperDuoApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "/users/" + userId + "/groups/" + groupId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null);
+          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

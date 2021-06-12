@@ -899,7 +899,7 @@ public class GrouperProvisioningLogicIncremental {
 
   public void propagateProvisioningAttributes() {
     List<EsbEventContainer> esbEventContainers = new ArrayList<EsbEventContainer>(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
-
+    
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributesToProcess = new HashMap<String, GrouperProvisioningObjectAttributes>();
     Map<String, GrouperProvisioningObjectAttributes> allAncestorProvisioningGroupAttributes = new HashMap<String, GrouperProvisioningObjectAttributes>();
     String grouperObjectTypeName = GrouperObjectTypesSettings.objectTypesStemName() + ":" + GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
@@ -2013,6 +2013,8 @@ public class GrouperProvisioningLogicIncremental {
           continue;
         }
         
+        //!provisioningMembershipWrapper.isRecalc() && // removed because a new group with memberships thought
+        // the group part was a recalc but membership part was not
         if (!provisioningMembershipWrapper.isRecalc() && provisioningMembershipWrapper.getGrouperIncrementalDataAction() == null) {
           provisioningMembershipWrapper.setGrouperIncrementalDataAction(grouperIncrementalDataItem.getGrouperIncrementalDataAction());
         }
@@ -2239,7 +2241,10 @@ public class GrouperProvisioningLogicIncremental {
           if (retrieveGroupAndMember) {
             {
               Object groupMatchingId = provisioningGroupWrapper == null || provisioningGroupWrapper.getGrouperTargetGroup() == null ? null : provisioningGroupWrapper.getGrouperTargetGroup().getMatchingId();
-              if (groupMatchingId != null && !groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+             
+              //TODO ask Chris if the condition below is correct?
+//              if (groupMatchingId != null && !groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+              if (groupMatchingId != null && groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
                 if (targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupOnly() == null) {
                   targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(new ArrayList<ProvisioningGroup>());
                 }
