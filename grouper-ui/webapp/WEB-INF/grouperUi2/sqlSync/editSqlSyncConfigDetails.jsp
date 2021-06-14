@@ -4,16 +4,16 @@
               <ul class="breadcrumb">
 		           <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
 		           <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-		           <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs');">${textContainer.text['miscellaneousCustomUiOverallBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-		           <li class="active">${textContainer.text['miscellaneousCustomUiEditBreadcrumb'] }</li>
+		           <li><a href="#" onclick="return guiV2link('operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations');">${textContainer.text['miscellaneousSqlSyncOverallBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+		           <li class="active">${textContainer.text['miscellaneousSqlSyncEditBreadcrumb'] }</li>
 		       </ul>
               
               <div class="page-header blue-gradient">
               
                 <div class="row-fluid">
-                  <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousCustomUiMainDescription'] }</h4></div>
+                  <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousSqlSyncMainDescription'] }</h4></div>
                   <div class="span2 pull-right">
-                    <%@ include file="customUiConfigsMoreActionsButtonContents.jsp"%>
+                    <%@ include file="sqlSyncConfigsMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
               </div>
@@ -21,22 +21,22 @@
               
 			<div class="row-fluid">
 			  <div class="span12">
-			  	<form class="form-inline form-small form-filter" id="customUiConfigDetails">
-			  		<input type="hidden" name="previousCustomUiConfigId" value="${grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.configId}" />
+			  	<form class="form-inline form-small form-filter" id="sqlSyncConfigDetails">
+			  		<input type="hidden" name="previousSqlSyncConfigId" value="${grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.configId}" />
 					
 					<table class="table table-condensed table-striped">
               		  <tbody>
               		  
               		  	<tr>
-						  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['customUiConfigIdLabel']}</label></strong></td>
+						  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['sqlSyncConfigIdLabel']}</label></strong></td>
 						    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
 						    <td>
-						     ${grouper:escapeHtml(grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.configId)}
+						     ${grouper:escapeHtml(grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.configId)}
 						    </td>
 						</tr>
               		  
               		  	
-              		  	<c:forEach items="${grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.subSections}" var="subSection">
+              <c:forEach items="${grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.subSections}" var="subSection">
 					  		<tbody>
 					  			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show }">
 						  			<tr>
@@ -50,14 +50,6 @@
 					  			
 					  			<c:forEach items="${subSection.attributesValues}" var="attribute">
 					  				
-					  				<c:set target="${grouperRequestContainer.customUiContainer}"
-		                  property="index"
-		                  value="${attribute.repeatGroupIndex}" />
-                  
-				            <c:set target="${grouperRequestContainer.customUiContainer}"
-		                  property="currentConfigSuffix"
-		                  value="${attribute.configSuffix}" />
-					  				
 					  				<grouper:configFormElement 
 					  					formElementType="${attribute.formElement}" 
 					  					configId="${attribute.configSuffix}" 
@@ -69,7 +61,7 @@
 					  					shouldShow="${attribute.show}"
 					  					value="${attribute.valueOrExpressionEvaluation}"
 					  					hasExpressionLanguage="${attribute.expressionLanguage}"
-					  					ajaxCallback="ajax('../app/UiV2CustomUiConfig.editCustomUiConfig?customUiConfigId=${grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.configId}', {formIds: 'customUiConfigDetails'}); return false;"
+					  					ajaxCallback="ajax('../app/UiV2SqlSyncConfiguration.editSqlSyncConfig?sqlSyncConfigId=${grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.configId}', {formIds: 'sqlSyncConfigDetails'}); return false;"
 					  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 					  					checkboxAttributes="${attribute.checkboxAttributes}"
 					  				/>
@@ -87,12 +79,12 @@
                    
                      <input type="submit" class="btn btn-primary"
                           aria-controls="workflowConfigSubmitId" id="submitId"
-                          value="${textContainer.text['grouperExternalSystemConfigEditFormSubmitButton'] }"
-                          onclick="ajax('../app/UiV2CustomUiConfig.editCustomUiConfigSubmit?customUiConfigId=${grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.configId}', {formIds: 'customUiConfigDetails'}); return false;">
+                          value="${textContainer.text['sqlSyncConfigAddFormSubmitButton'] }"
+                          onclick="ajax('../app/UiV2SqlSyncConfiguration.editSqlSyncConfigSubmit?sqlSyncConfigId=${grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.configId}', {formIds: 'sqlSyncConfigDetails'}); return false;">
                           &nbsp; 
                      <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs'); return false;"
-                          >${textContainer.text['grouperExternalSystemConfigEditFormCancelButton'] }</a>
+                          onclick="return guiV2link('operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations'); return false;"
+                          >${textContainer.text['sqlSyncConfigAddFormCancelButton'] }</a>
                    
                    </div>
 				</form>
