@@ -1,9 +1,9 @@
 package edu.internet2.middleware.grouper.authentication.config;
 
 import edu.internet2.middleware.grouper.authentication.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.oidc.client.ClaimAsUsernameOidcClient;
 import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import org.apache.log4j.Logger;
 import org.pac4j.core.client.Client;
 import org.pac4j.oidc.client.OidcClient;
@@ -19,23 +19,33 @@ public class OidcClientProvider implements ClientProvider {
 
     @Override
     public Client getClient() {
-        OidcConfiguration configuration = new ClaimAsUsernameOidcConfiguration();
-        String implementation = GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.mechanism.oidc.clientImplementation");
+        OidcClient client;
+        String implementation = ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.mechanism.oidc.clientImplementation");
         if (implementation != null && !implementation.isEmpty()) {
             try {
-                configuration = (OidcConfiguration) Class.forName(implementation).newInstance();
+                OidcConfiguration configuration = (OidcConfiguration) Class.forName(implementation).newInstance();
+                client = new OidcClient(configuration);
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 LOGGER.warn("problem loading pac4j client implementation; using a default", e);
-                configuration = new ClaimAsUsernameOidcConfiguration();
+                client = getClaimAsUsernameOidcClient();
             }
         } else {
-            configuration = new ClaimAsUsernameOidcConfiguration();
+            client = getClaimAsUsernameOidcClient();
         }
-        ConfigUtils.setProperties(GrouperUiConfigInApi.retrieveConfig(), configuration, "oidc");
-        OidcClient client = new OidcClient(configuration);
+        ConfigUtils.setProperties(client.getConfiguration(), "oidc");
 
         //TODO: make configurable
         client.setName("client");
+        return client;
+    }
+
+    private static ClaimAsUsernameOidcClient getClaimAsUsernameOidcClient() {
+        ClaimAsUsernameOidcConfiguration configuration = new ClaimAsUsernameOidcConfiguration();
+        String claimAsUsername = ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.oidc.claimAsUsername");
+        if (claimAsUsername != null) {
+            configuration.setClaimAsUsername(claimAsUsername);
+        }
+        ClaimAsUsernameOidcClient client = new ClaimAsUsernameOidcClient(configuration);
         return client;
     }
 }

@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.authentication.filter;
 
+import edu.internet2.middleware.grouper.authentication.ConfigUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,7 +11,7 @@ public class FilterFascadeUtils {
     }
 
     protected static boolean isExternalAuthenticationEnabled() {
-        return GrouperUiConfig.retrieveConfig().propertyValueBoolean("external.authentication.enabled", false);
+        return ConfigUtils.getBestGrouperConfiguration().propertyValueBoolean("external.authentication.enabled", false);
     }
 
     protected static boolean isRunUi() {

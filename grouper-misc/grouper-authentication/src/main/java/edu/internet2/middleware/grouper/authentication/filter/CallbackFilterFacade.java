@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.authentication.filter;
 
+import edu.internet2.middleware.grouper.authentication.ConfigUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.pac4j.jee.filter.CallbackFilter;
 
 import javax.servlet.Filter;
@@ -24,7 +24,7 @@ public class CallbackFilterFacade implements Filter {
     }
 
     private void initDelegate() {
-        this.uiDelegate.setDefaultUrl(GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.defaultUrl", "/"));
+        this.uiDelegate.setDefaultUrl(ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.defaultUrl", "/"));
         this.uiDelegate.setRenewSession(true);
     }
 
@@ -40,7 +40,7 @@ public class CallbackFilterFacade implements Filter {
     }
 
     private static boolean isCallbackUrlCalled(HttpServletRequest request) {
-        return FilterFascadeUtils.getRequestPathInContext(request).matches(GrouperUiConfig.retrieveConfig().propertyValueString("external.authentication.callbackUrl", "/callback"));
+        return FilterFascadeUtils.getRequestPathInContext(request).matches(ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.callbackUrl", "/callback"));
     }
 
     @Override

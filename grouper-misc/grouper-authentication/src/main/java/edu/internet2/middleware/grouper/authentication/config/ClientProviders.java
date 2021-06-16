@@ -9,7 +9,7 @@ public enum ClientProviders {
 
     private final Class<? extends ClientProvider> providerClass;
 
-    ClientProviders(Class clazz) {
+    ClientProviders(Class<? extends ClientProvider> clazz) {
         this.providerClass = clazz;
     }
 
@@ -18,6 +18,6 @@ public enum ClientProviders {
     }
 
     public static ClientProviders fromString(String name) {
-        return ClientProviders.valueOf(name.toUpperCase(Locale.ROOT));
+        return ClientProviders.valueOf(name.toUpperCase(Locale.ENGLISH));
     }
 }

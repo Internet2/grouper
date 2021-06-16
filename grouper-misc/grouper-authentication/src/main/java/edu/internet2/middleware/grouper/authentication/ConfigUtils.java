@@ -1,9 +1,13 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import org.pac4j.core.client.config.BaseClientConfiguration;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.time.Period;
 import java.util.Arrays;
@@ -13,9 +17,38 @@ import java.util.Map;
 import java.util.Set;
 
 public class ConfigUtils {
-    public static void setProperties(ConfigPropertiesCascadeBase configPropertiesCascadeBase,BaseClientConfiguration configuration, String authMechanism) {
+    final static ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+    public static ConfigPropertiesCascadeBase getBestGrouperConfiguration() {
+        if (isGrouperUi()) {
+            return getConfigPropertiesCascadeBase("ui");
+        } else if (isGrouperWs()) {
+            return getConfigPropertiesCascadeBase("ws");
+        } else {
+            throw new RuntimeException("no appropriate configuration found");
+        }
+    }
+
+    public static ConfigPropertiesCascadeBase getConfigPropertiesCascadeBase(String type) {
+        try {
+            switch (type) {
+                case "ui":
+                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi").getMethod("retrieveConfig").invoke(null);
+                case "ws":
+                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi").getMethod("retrieveConfig").invoke(null);
+                default:
+                    throw new RuntimeException("no appropriate type found");
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e ) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setProperties(BaseClientConfiguration configuration, String authMechanism) {
+        ConfigPropertiesCascadeBase grouperConfig = getBestGrouperConfiguration();
+
         Class<?> clazz = configuration.getClass();
-        for (String name : configPropertiesCascadeBase.propertyNames()) {
+        for (String name : grouperConfig.propertyNames()) {
             if (name.startsWith("external.authentication." + authMechanism)) {
                 try {
                     String fieldName = name.substring(name.lastIndexOf('.') + 1);
@@ -24,7 +57,7 @@ public class ConfigUtils {
                     //TODO: prefer setters
 
                     field.setAccessible(true);
-                    field.set(configuration, getProperty(configPropertiesCascadeBase, field.getType(), name));
+                    field.set(configuration, getProperty(grouperConfig, field.getType(), name));
                 } catch (NoSuchFieldException e) {
                     throw new IllegalStateException("Unexpected property name: " + name);
                 } catch (IllegalAccessException e) {
@@ -88,8 +121,20 @@ public class ConfigUtils {
             case "java.time.Period" : {
                 return Period.parse(configPropertiesCascadeBase.propertyValueString(propName));
             }
+            case "org.springframework.core.io.WritableResource":
+            case "org.springframework.core.io.Resource": {
+                return resourceLoader.getResource(configPropertiesCascadeBase.propertyValueString(propName));
+            }
             default:
                 throw new IllegalStateException("Unexpected type: " + type.getTypeName());
         }
+    }
+
+    public static boolean isGrouperUi() {
+        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
+    }
+
+    public static boolean isGrouperWs() {
+        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
     }
 }

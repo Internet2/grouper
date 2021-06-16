@@ -11,6 +11,6 @@ public class ClaimAsUsernameProfile extends OidcProfile {
 
     @Override
     public String getUsername() {
-        return (String)this.getAttribute(this.claimAsUsername);
+        return this.getAttribute(this.claimAsUsername).toString();
     }
 }
