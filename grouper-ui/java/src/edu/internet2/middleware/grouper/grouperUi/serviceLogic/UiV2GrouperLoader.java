@@ -859,6 +859,10 @@ public class UiV2GrouperLoader {
         return;
       }
       
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
       editGrouperLoaderHelper(request, grouperLoaderContainer);
 
       boolean hasError = false;
@@ -1381,6 +1385,9 @@ public class UiV2GrouperLoader {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
       }
+          return null;
+        }
+      });
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;

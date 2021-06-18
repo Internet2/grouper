@@ -41,11 +41,9 @@
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
-                            <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
-                              <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                                >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
-                            </c:if>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader || mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true'}" >
+                            <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
                           </c:if>
                         </c:if>
 
