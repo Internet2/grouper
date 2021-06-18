@@ -297,6 +297,58 @@
                             </tr>
                             
                             <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSyncDisplayNameId">${textContainer.text['grouperLoaderSqlGroupsSyncDisplayNameConfig']}</label></strong></td>
+                              <td>
+                              
+	                              <select name="grouperLoaderSyncDisplayName" id="grouperLoaderSyncDisplayNameId" style="width: 25em"
+			                            onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
+			                            <option value=""></option>
+			                            
+			                            <option value="BASE_FOLDER_NAME" ${grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncType == 'BASE_FOLDER_NAME' ? 'selected="selected"' : '' } 
+                                    >${textContainer.textEscapeXml['grouperLoaderSyncDisplayNameOption__BASE_FOLDER_NAME']}</option>
+                                  <option value="LEVELS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncType == 'LEVELS' ? 'selected="selected"'  : '' }
+                                    >${textContainer.textEscapeXml['grouperLoaderSyncDisplayNameOption__LEVELS']}</option>
+			                            
+			                          </select>
+	                              <br />
+                                <span class="description">
+                                ${textContainer.text['grouperLoaderSqlGroupsSyncDisplayNameDescription']}</span>
+                              </td>
+                            </tr>
+                            
+                            <c:choose>
+                            <c:when test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncType == 'BASE_FOLDER_NAME'}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderBaseFolderNameId">${textContainer.text['grouperLoaderSyncDisplayNameBaseFolderName']}</label></strong></td>
+                                <td>
+                                  <span style="white-space: nowrap">
+                                    <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncBaseFolderName)}"
+                                       name="editLoaderBaseFolderName" id="editLoaderBaseFolderNameId" />
+                                    <%-- <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                      data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span> --%>
+                                  </span>
+                                  <br /><span class="description">${textContainer.text['grouperLoaderSyncDisplayNameBaseFolderNameDescription']}</span>
+                                </td>
+                              </tr>
+  
+                            </c:when>
+                            <c:when test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncType == 'LEVELS'}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderLevelsId">${textContainer.text['grouperLoaderSyncDisplayNameLevels']}</label></strong></td>
+                                <td>
+                                  <span style="white-space: nowrap">
+                                    <input type="text" style="width: 20em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderDisplayNameSyncLevels)}"
+                                       name="editLoaderLevels" id="editLoaderLevelsId" />
+                                    <%-- <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                      data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span> --%>
+                                  </span>
+                                  <br /><span class="description">${textContainer.text['grouperLoaderSyncDisplayNameLevelsDescription']}</span>
+                                </td>
+                              </tr>
+                            </c:when>
+                          </c:choose>
+                            
+                            <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupTypesId">${textContainer.text['grouperLoaderSqlGroupTypes']}</label></strong></td>
                               <td>
                                 <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupTypes)}"

@@ -997,6 +997,36 @@ public class LoaderJobBean {
   }
 
   /**
+   * display name sync type - It is used when syncing folders display names from source to grouper
+   */
+  GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType;
+  
+  /**
+   * when sync type is BASE_FOLDER_NAME, this property contains the base folder name
+   */
+  String displayNameSyncBaseFolderName;
+  
+  /**
+   * when sync type is LEVELS, this property contains the level number
+   */
+  Integer displayNameSyncLevels;
+  
+  
+  public GrouperLoaderDisplayNameSyncType getGrouperLoaderDisplayNameSyncType() {
+    return grouperLoaderDisplayNameSyncType;
+  }
+
+  
+  public String getDisplayNameSyncBaseFolderName() {
+    return displayNameSyncBaseFolderName;
+  }
+
+  
+  public Integer getDisplayNameSyncLevels() {
+    return displayNameSyncLevels;
+  }
+
+  /**
    * @param grouperLoaderType1
    * @param groupNameOverall1
    * @param grouperLoaderDb1
@@ -1009,13 +1039,18 @@ public class LoaderJobBean {
    * Any group in this list with no memberships and not in the group
    * metadata query will be emptied and if configured deleted
    * @param groupQuery1
-   * @param startTime1 
+   * @param startTime1
+   * @param grouperLoaderDisplayNameSyncType
+   * @param displayNameSyncBaseFolderName
+   * @param displayNameSyncLevels
    */
   public LoaderJobBean(GrouperLoaderType grouperLoaderType1,
       String groupNameOverall1, GrouperLoaderDb grouperLoaderDb1, String query1,
       Hib3GrouperLoaderLog hib3GrouploaderLogOverall1,
       GrouperSession grouperSession1, List<Group> andGroups1,
-      List<GroupType> groupTypes1, String groupLikeString1, String groupQuery1, long startTime1) {
+      List<GroupType> groupTypes1, String groupLikeString1, String groupQuery1, long startTime1,
+      GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType, String displayNameSyncBaseFolderName,
+      Integer displayNameSyncLevels) {
     this.grouperLoaderType = grouperLoaderType1;
     this.groupNameOverall = groupNameOverall1;
     this.grouperLoaderDb = grouperLoaderDb1;
@@ -1027,6 +1062,9 @@ public class LoaderJobBean {
     this.groupLikeString = groupLikeString1;
     this.groupQuery = groupQuery1;
     this.startTime = startTime1;
+    this.grouperLoaderDisplayNameSyncType = grouperLoaderDisplayNameSyncType;
+    this.displayNameSyncBaseFolderName = displayNameSyncBaseFolderName;
+    this.displayNameSyncLevels = displayNameSyncLevels;
   }
 
   /**

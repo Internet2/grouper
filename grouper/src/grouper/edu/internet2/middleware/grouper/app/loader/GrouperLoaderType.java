@@ -23,6 +23,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -110,6 +110,7 @@ import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -575,7 +576,10 @@ public enum GrouperLoaderType {
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
               statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
-              groupNameToDescription, privsToAdd, groupNamesFromGroupQuery);
+              groupNameToDescription, privsToAdd, groupNamesFromGroupQuery,
+              loaderJobBean.getGrouperLoaderDisplayNameSyncType(),
+              loaderJobBean.getDisplayNameSyncBaseFolderName(), loaderJobBean.getDisplayNameSyncLevels()
+              );
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1061,7 +1065,8 @@ public enum GrouperLoaderType {
           
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
-              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, privsToAdd, groupNames);
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, 
+              privsToAdd, groupNames, null, null, null);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1205,7 +1210,7 @@ public enum GrouperLoaderType {
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
               statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
-              groupNameToDescription, privsToAdd, null);
+              groupNameToDescription, privsToAdd, null, null, null, null);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1557,7 +1562,9 @@ public enum GrouperLoaderType {
       final String groupNameOverall, final Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
       final GrouperLoaderStatus[] statusOverall, final GrouperLoaderDb grouperLoaderDb,
       final Map<String, String> groupNameToDisplayName, final Map<String, String> groupNameToDescription,
-      final Map<String, Map<Privilege, List<Subject>>> privsToAdd, final Set<String> groupNamesFromGroupQuery) {
+      final Map<String, Map<Privilege, List<Subject>>> privsToAdd, final Set<String> groupNamesFromGroupQuery,
+      final GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType, final String displayNameSyncBaseFolderName,
+      final Integer displayNameSyncLevels) {
         
     long startTimeLoadData = 0;
     try {
@@ -1854,7 +1861,8 @@ public enum GrouperLoaderType {
 
       final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
 
-      syncFolderList(groupNamesToSync, groupNameToDisplayName);
+      syncFolderList(groupNamesToSync, groupNameToDisplayName, grouperLoaderDisplayNameSyncType, displayNameSyncBaseFolderName,
+          displayNameSyncLevels);
       
       for (final String groupName : groupNamesToSync) {
         
@@ -1923,12 +1931,51 @@ public enum GrouperLoaderType {
   }
 
   /**
+   * input: 
+   * name -> a:b:c:d
+   * displayName -> A1:B1:C1:D1
+   * 
+   * output:
+   * a -> A1
+   * a:b -> A1:B1
+   * a:b:c -> A1:B1:C1
+   * a:b:c:d -> A1:B1:C1:D1
+   */
+  private static Map<String, String> seperateNamesAndDisplayNames(String name, String displayName) {
+    
+    Map<String, String> stemNamesAndDisplayNames = new HashMap<String, String>();
+    
+    stemNamesAndDisplayNames.put(name, displayName);
+    
+    List<String> parentStemNames = new ArrayList<String>(GrouperUtil.findParentStemNames(name));
+    List<String> parentDisplayNames = new ArrayList<String>(GrouperUtil.findParentStemNames(displayName));
+    
+    if (parentStemNames != null && parentDisplayNames != null && parentStemNames.size() == parentDisplayNames.size()) {
+
+      for (int i=0; i<parentStemNames.size(); i++) {
+        String individualName = parentStemNames.get(i);
+        if (!StringUtils.equals(":", individualName)) {
+          String individualDisplayName = parentDisplayNames.get(i);
+          stemNamesAndDisplayNames.put(individualName, individualDisplayName);
+        }
+      }
+      
+    }
+    
+    return stemNamesAndDisplayNames;
+  }
+  
+  /**
    * 
    * @param groupNamesToSync
    * @param groupNameToDisplayName
+   * @param grouperLoaderDisplayNameSyncType
+   * @param displayNameSyncBaseFolderName
+   * @param displayNameSyncLevels
    */
-  private static void syncFolderList(Set<String> groupNamesToSync,
-      Map<String, String> groupNameToDisplayName) {
+  protected static void syncFolderList(Set<String> groupNamesToSync, Map<String, String> groupNameToDisplayName, 
+      final GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType,  final String displayNameSyncBaseFolderName,
+      final Integer displayNameSyncLevels) {
     
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("loader.preCreateFolders", true)) {
       return;
@@ -1949,11 +1996,17 @@ public enum GrouperLoaderType {
         continue;
       }
       
+      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName);
+      
       if (folderNameToDisplayName.containsKey(folderName)) {
+        
+        if (!StringUtils.equals(folderNameToDisplayName.get(folderName), folderDisplayName))
+        
+        LOG.error("How can the same stem: "+folderName+" have more than one display name in the same loader run: "+folderNameToDisplayName.get(folderName) 
+        +" and "+folderDisplayName); 
+        
         continue;
       }
-      
-      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName);
       
       folderNameToDisplayName.put(folderName, folderDisplayName);
       
@@ -1965,13 +2018,101 @@ public enum GrouperLoaderType {
     
     Set<Stem> stems = StemFinder.findByNames(folderNameToDisplayName.keySet(), false);
     
-    for (Stem stem : GrouperUtil.nonNull(stems)) {
-      folderNameToDisplayName.remove(stem.getName());
+    Map<String, Stem> stemNamesToStemsThatAlreadyExistInGrouper =  new HashMap<String, Stem>();
+    
+    for (Stem stem: stems) {
+      stemNamesToStemsThatAlreadyExistInGrouper.put(stem.getName(), stem);
     }
     
-    for (String folderName : folderNameToDisplayName.keySet()) {
+    
+    Map<String, String> stemNamesToNewDisplayNamesThatMightNeedToChange = new HashMap<String, String>();
+    Map<String, String> stemNamesToDisplayNamesThatNeedToBeCreated = new HashMap<String, String>();
+
+    //this is a subset of stemNamesToNewDisplayNamesThatMightNeedToChange that we are sure of need display name updated
+    Map<String, String> stemNamesToNewDisplayExtensionsThatMustChange = new HashMap<String, String>();
+    
+    for (String folderNameThatMayOrMayNotExistInGrouper: folderNameToDisplayName.keySet()) {
+      
+      if (stemNamesToStemsThatAlreadyExistInGrouper.containsKey(folderNameThatMayOrMayNotExistInGrouper)) {
+        stemNamesToNewDisplayNamesThatMightNeedToChange.put(folderNameThatMayOrMayNotExistInGrouper, folderNameToDisplayName.get(folderNameThatMayOrMayNotExistInGrouper));
+      } else {
+        stemNamesToDisplayNamesThatNeedToBeCreated.put(folderNameThatMayOrMayNotExistInGrouper, folderNameToDisplayName.get(folderNameThatMayOrMayNotExistInGrouper));
+      }
+      
+    }
+    
+    // update display names only when display sync loader config is there
+    if (grouperLoaderDisplayNameSyncType != null) {
+      
+      // recalculate base folder name for LEVELS because it might change from stem to stem
+      boolean recalculateBaseFolderName = grouperLoaderDisplayNameSyncType == GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME ? false: true;
+      String baseFolderSystemName = null;
+      if (grouperLoaderDisplayNameSyncType == GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME) {
+        baseFolderSystemName = displayNameSyncBaseFolderName;
+        
+        // 'root' means sync all display names 
+        if (StringUtils.equals(displayNameSyncBaseFolderName, "root")) {
+          baseFolderSystemName = ""; // blank internally means sync everything
+        }
+      }
+      
+      
+      for (String stemName: stemNamesToNewDisplayNamesThatMightNeedToChange.keySet()) {
+        
+        if (recalculateBaseFolderName) {
+          String[] stemNamesIndividualNodes = stemName.split(":");
+          int length = stemNamesIndividualNodes.length;
+          if (length < displayNameSyncLevels) {
+            baseFolderSystemName = ""; // sync all folders display names; blank internally means sync everything
+          } else {          
+            int elementsToConsider = length - (displayNameSyncLevels - 1); // minus 1 because group starts with 1 and here we are dealing with parent stems only
+            String[] stemNamesForBaseFolderName = Arrays.copyOf(stemNamesIndividualNodes, elementsToConsider);
+            baseFolderSystemName = String.join(":", stemNamesForBaseFolderName);
+          }
+        }
+        
+        // now we know what's the base folder system name after which we need to sync the display names
+        if (stemName.startsWith(baseFolderSystemName)) {
+          
+          String folderDisplayNameFromGrouper = stemNamesToStemsThatAlreadyExistInGrouper.get(stemName).getDisplayName();
+          String folderDisplayNameFromSource = stemNamesToNewDisplayNamesThatMightNeedToChange.get(stemName);
+          
+          
+          Map<String, String> namesAndDisplayNamesFromGrouper = seperateNamesAndDisplayNames(stemName, folderDisplayNameFromGrouper);
+          
+          Map<String, String> namesAndDisplayNamesFromSource = seperateNamesAndDisplayNames(stemName, folderDisplayNameFromSource);
+          
+          for (String oneStemPath: namesAndDisplayNamesFromGrouper.keySet()) {
+            if (oneStemPath.length() > baseFolderSystemName.length()) { // ignore all the stem names that are shorter than base path because we don't want to change their display names
+              
+              String oldDisplayNameFromGrouper = namesAndDisplayNamesFromGrouper.get(oneStemPath);
+              String newDisplayNameFromSource = namesAndDisplayNamesFromSource.get(oneStemPath);
+              
+              String oldDisplayExtensionFromGrouper = GrouperUtil.extensionFromName(oldDisplayNameFromGrouper);
+              String newDisplayExtensionFromSource = GrouperUtil.extensionFromName(newDisplayNameFromSource);
+              
+              if (!StringUtils.equals(oldDisplayExtensionFromGrouper, newDisplayExtensionFromSource)) {
+                stemNamesToNewDisplayExtensionsThatMustChange.put(oneStemPath, newDisplayExtensionFromSource);
+              }
+              
+            }
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    for (String folderName : stemNamesToDisplayNamesThatNeedToBeCreated.keySet()) {
       String folderDisplayName = folderNameToDisplayName.get(folderName);
       new StemSave().assignName(folderName).assignDisplayName(folderDisplayName).assignCreateParentStemsIfNotExist(true).save();
+    }
+    
+    for (String folderName: stemNamesToNewDisplayExtensionsThatMustChange.keySet()) {
+      String folderDisplayExtension = stemNamesToNewDisplayExtensionsThatMustChange.get(folderName);
+      new StemSave().assignName(folderName).assignDisplayExtension(folderDisplayExtension)
+      .assignSaveMode(SaveMode.UPDATE).save();
     }
     
     

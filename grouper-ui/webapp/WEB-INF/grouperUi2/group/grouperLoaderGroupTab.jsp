@@ -192,6 +192,39 @@
                             </td>
                           </tr>
                           
+                          
+                          
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupsSyncDisplayNameConfig']}</strong></td>
+                            <td style="vertical-align: top;">
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.displayNameSyncType)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderSqlGroupsLikeDescription']}</span>
+                            </td>
+                          </tr>
+                          
+                          <c:choose>
+                            <c:when test="${grouperRequestContainer.grouperLoaderContainer.displayNameSyncType == 'BASE_FOLDER_NAME'}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSyncDisplayNameBaseFolderName']}</strong></td>
+                                <td style="vertical-align: top;">
+		                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.displayNameSyncBaseFolderName)}
+		                              <br /><span class="description">${textContainer.text['grouperLoaderSyncDisplayNameBaseFolderNameDescription']}</span>
+		                            </td>
+                              </tr>
+  
+                            </c:when>
+                            <c:when test="${grouperRequestContainer.grouperLoaderContainer.displayNameSyncType == 'LEVELS'}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSyncDisplayNameLevels']}</strong></td>
+                                <td style="vertical-align: top;">
+                                  ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.displayNameSyncLevels)}
+                                  <br /><span class="description">${textContainer.text['grouperLoaderSyncDisplayNameLevelsDescription']}</span>
+                                </td>
+                              </tr>
+                            </c:when>
+                          </c:choose>
+                          
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupTypes']}</strong></td>
                             <td style="vertical-align: top;">

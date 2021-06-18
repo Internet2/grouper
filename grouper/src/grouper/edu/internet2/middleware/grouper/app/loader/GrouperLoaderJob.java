@@ -55,7 +55,6 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -419,6 +418,9 @@ public class GrouperLoaderJob implements Job {
       String groupTypesString = null;
       String groupLikeString = null;
       String groupQuery = null;
+      GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType = null;
+      String displayNameSyncBaseFolderName = null;
+      Integer displayNameSyncLevels = null;
       
       if (jobGroup != null) {
         grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
@@ -437,6 +439,18 @@ public class GrouperLoaderJob implements Job {
         if (!StringUtils.isBlank(groupQuery)) {
           GrouperLoaderLogger.addLogEntry("overallLog", "groupQuery", groupQuery);
         }
+        
+        String displayNameSyncType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_TYPE);
+        if (StringUtils.isNotBlank(displayNameSyncType)) {
+          grouperLoaderDisplayNameSyncType = GrouperLoaderDisplayNameSyncType.valueOfIgnoreCase(displayNameSyncType, false);
+        }
+        displayNameSyncBaseFolderName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_BASE_FOLDER_NAME);
+        String displayNameSyncLevelsString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_LEVELS);
+        
+        if (StringUtils.isNotBlank(displayNameSyncLevelsString)) {
+          displayNameSyncLevels = GrouperUtil.intValue(displayNameSyncLevelsString);
+        }
+        
         groupName = jobGroup.getName();
         hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
       }
@@ -454,7 +468,8 @@ public class GrouperLoaderJob implements Job {
       }
       
       LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderTypeEnum, groupName, grouperLoaderDb, grouperLoaderQuery, 
-          hib3GrouploaderLog, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery, startTime);
+          hib3GrouploaderLog, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery, startTime,
+          grouperLoaderDisplayNameSyncType, displayNameSyncBaseFolderName, displayNameSyncLevels);
       
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -265,6 +264,39 @@ public class GrouperLoaderContainer {
     
     return grouperLoaderGroupsLike;
 
+  }
+  
+  /**
+   * @return display name sync type
+   */
+  public String getDisplayNameSyncType() {
+
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderDisplayNameSyncType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_TYPE);
+    return grouperLoaderDisplayNameSyncType;
+
+  }
+
+  /**
+   * @return display name sync base folder name
+   */
+  public String getDisplayNameSyncBaseFolderName() {
+    
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderDisplayNameSyncBaseFolderName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_BASE_FOLDER_NAME);
+    return grouperLoaderDisplayNameSyncBaseFolderName;
+    
+  }
+
+  /**
+   * @return display name sync levels
+   */
+  public String getDisplayNameSyncLevels() {
+    
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderDisplayNameSyncLevels = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_LEVELS);
+    return grouperLoaderDisplayNameSyncLevels;
+    
   }
   
   /**
@@ -1250,6 +1282,52 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderLdapType(String editLoaderLdapType1) {
     this.editLoaderLdapType = editLoaderLdapType1;
+  }
+
+  /**
+   * BASE_FOLDER_NAME or LEVELS
+   */
+  private String editLoaderDisplayNameSyncType;
+  
+  
+  public String getEditLoaderDisplayNameSyncType() {
+    return editLoaderDisplayNameSyncType;
+  }
+
+  
+  public void setEditLoaderDisplayNameSyncType(String editLoaderDisplayNameSyncType) {
+    this.editLoaderDisplayNameSyncType = editLoaderDisplayNameSyncType;
+  }
+
+  /**
+   * base folder name after which display names should be synced between source and grouper
+   */
+  private String editLoaderDisplayNameSyncBaseFolderName;
+  
+  /**
+   * levels starting from the group after which display names should be synced between source and grouper
+   */
+  private String editLoaderDisplayNameSyncLevels;
+  
+  
+  public String getEditLoaderDisplayNameSyncBaseFolderName() {
+    return editLoaderDisplayNameSyncBaseFolderName;
+  }
+
+  
+  public void setEditLoaderDisplayNameSyncBaseFolderName(
+      String editLoaderDisplayNameSyncBaseFolderName) {
+    this.editLoaderDisplayNameSyncBaseFolderName = editLoaderDisplayNameSyncBaseFolderName;
+  }
+
+  
+  public String getEditLoaderDisplayNameSyncLevels() {
+    return editLoaderDisplayNameSyncLevels;
+  }
+
+  
+  public void setEditLoaderDisplayNameSyncLevels(String editLoaderDisplayNameSyncLevels) {
+    this.editLoaderDisplayNameSyncLevels = editLoaderDisplayNameSyncLevels;
   }
 
   /**

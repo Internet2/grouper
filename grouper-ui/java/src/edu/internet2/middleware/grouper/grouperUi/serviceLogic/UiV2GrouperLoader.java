@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderDisplayNameSyncType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
@@ -1059,6 +1060,49 @@ public class UiV2GrouperLoader {
               hasError = true;
             }
           }
+          
+          if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderDisplayNameSyncType()) && 
+              StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlGroupQuery()) ) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleGroupsQueryBlank")));
+            hasError = true;
+          }
+          
+          if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderDisplayNameSyncType())) {
+            
+            String displayNameSyncType = grouperLoaderContainer.getEditLoaderDisplayNameSyncType();
+            GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType = GrouperLoaderDisplayNameSyncType.valueOfIgnoreCase(displayNameSyncType, true);
+            if (grouperLoaderDisplayNameSyncType == GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME && 
+                StringUtils.isBlank(grouperLoaderContainer.getEditLoaderDisplayNameSyncBaseFolderName())) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleBaseFolderNameBlank")));
+              hasError = true;
+            }
+            
+            if (grouperLoaderDisplayNameSyncType == GrouperLoaderDisplayNameSyncType.LEVELS && 
+                StringUtils.isBlank(grouperLoaderContainer.getEditLoaderDisplayNameSyncLevels())) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditScheduleLevelsBlank")));
+              hasError = true;
+            }
+          }
+          
+          
+          if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderDisplayNameSyncLevels())) {
+            try {
+              int levelsValue = GrouperUtil.intValue(grouperLoaderContainer.getEditLoaderDisplayNameSyncLevels());
+              if (levelsValue < 1) {
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                    TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditLevelsInvalid")));
+                hasError = true;
+              }
+            } catch (Exception e) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditLevelsInvalid")));
+              hasError = true;
+            }
+          }
+          
         } else if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType())) {
 
           if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapType())) {
@@ -1259,6 +1303,10 @@ public class UiV2GrouperLoader {
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_QUERY, grouperLoaderContainer.getEditLoaderSqlQuery());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, grouperLoaderContainer.getEditLoaderScheduleType());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_TYPE, grouperLoaderContainer.getEditLoaderSqlType());
+
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_TYPE, grouperLoaderContainer.getEditLoaderDisplayNameSyncType());
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_BASE_FOLDER_NAME, grouperLoaderContainer.getEditLoaderDisplayNameSyncBaseFolderName());
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_LEVELS, grouperLoaderContainer.getEditLoaderDisplayNameSyncLevels());
             
             if (grouperLoaderContainer.getGuiDaemonJob() != null || "true".equalsIgnoreCase(request.getParameter("editLoaderScheduleJobName"))) {
               GrouperLoaderType.validateAndScheduleSqlLoad(group, null, false);
@@ -1446,6 +1494,11 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.setEditLoaderSqlGroupQuery(grouperLoaderContainer.getSqlGroupQuery());
             grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderContainer.getSqlGroupsLike());
             grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderContainer.getSqlGroupTypes());
+            
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncType(grouperLoaderContainer.getDisplayNameSyncType());
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncBaseFolderName(grouperLoaderContainer.getDisplayNameSyncBaseFolderName());
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncLevels(grouperLoaderContainer.getDisplayNameSyncLevels());
+            
           }
         } else if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType())) {
           grouperLoaderContainer.setEditLoaderLdapType(grouperLoaderContainer.getLdapLoaderType());
@@ -1702,6 +1755,33 @@ public class UiV2GrouperLoader {
           if (!error && !StringUtils.isBlank(grouperLoaderGroupsLike)) {
             
             grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderGroupsLike);
+            
+          }
+        }
+        
+        {
+          String grouperLoaderSyncDisplayName = request.getParameter("grouperLoaderSyncDisplayName");
+          if (grouperLoaderSyncDisplayName != null) {
+            
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncType(grouperLoaderSyncDisplayName);
+            
+          }
+        }
+        
+        {
+          String editLoaderBaseFolderName = StringUtils.trimToNull(request.getParameter("editLoaderBaseFolderName"));
+          if (!StringUtils.isBlank(editLoaderBaseFolderName)) {
+            
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncBaseFolderName(editLoaderBaseFolderName);
+            
+          }
+        }
+        
+        {
+          String editLoaderLevels = StringUtils.trimToNull(request.getParameter("editLoaderLevels"));
+          if (!StringUtils.isBlank(editLoaderLevels)) {
+            
+            grouperLoaderContainer.setEditLoaderDisplayNameSyncLevels(editLoaderLevels);
             
           }
         }
