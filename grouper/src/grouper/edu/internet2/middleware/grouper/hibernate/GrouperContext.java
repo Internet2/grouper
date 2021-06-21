@@ -183,13 +183,13 @@ public class GrouperContext {
    * context around a web request (e.g. UI or WS)
    */
   private static ThreadLocal<GrouperContext> currentOuterContext = 
-    new ThreadLocal<GrouperContext>();
+    new InheritableThreadLocal<GrouperContext>();
   
   /**
    * default settings if not another set
    */
   private static ThreadLocal<GrouperContext> defaultContext = 
-    new ThreadLocal<GrouperContext>();
+    new InheritableThreadLocal<GrouperContext>();
   
   /**
    * 
@@ -203,7 +203,7 @@ public class GrouperContext {
    * 
    */
   private static ThreadLocal<GrouperContext> currentInnerContext = 
-    new ThreadLocal<GrouperContext>();
+    new InheritableThreadLocal<GrouperContext>();
 
   /**
    * internal use only, current inner context

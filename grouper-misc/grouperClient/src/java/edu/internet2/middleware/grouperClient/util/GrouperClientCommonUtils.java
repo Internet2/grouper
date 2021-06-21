@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 public class GrouperClientCommonUtils  {
 
   /** override map for properties in thread local to be used in a web server or the like */
-  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
+  private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<String, Map<String, String>>>();
 
   /**
    * return the arg after the argBefore, or null if not there, or exception

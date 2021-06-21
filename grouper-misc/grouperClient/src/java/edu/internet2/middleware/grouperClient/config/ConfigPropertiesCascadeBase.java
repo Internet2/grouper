@@ -156,7 +156,7 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public Map<String, String> propertiesThreadLocalOverrideMap() {
     if (propertiesThreadLocalOverrideMap == null) {
-      propertiesThreadLocalOverrideMap = new ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
+      propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
     }
 
     Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
