@@ -24,6 +24,8 @@ public class ConfigUtils {
             return getConfigPropertiesCascadeBase("ui");
         } else if (isGrouperWs()) {
             return getConfigPropertiesCascadeBase("ws");
+        } else if (isGrouperDaemon()) {
+            return getConfigPropertiesCascadeBase("daemon");
         } else {
             throw new RuntimeException("no appropriate configuration found");
         }
@@ -36,6 +38,8 @@ public class ConfigUtils {
                     return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi").getMethod("retrieveConfig").invoke(null);
                 case "ws":
                     return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi").getMethod("retrieveConfig").invoke(null);
+                case "daemon":
+                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig").getMethod("retrieveConfig").invoke(null);
                 default:
                     throw new RuntimeException("no appropriate type found");
             }
@@ -136,5 +140,9 @@ public class ConfigUtils {
 
     public static boolean isGrouperWs() {
         return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
+    }
+
+    public static boolean isGrouperDaemon() {
+        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
     }
 }
