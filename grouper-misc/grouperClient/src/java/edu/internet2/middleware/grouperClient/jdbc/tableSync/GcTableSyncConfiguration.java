@@ -18,6 +18,21 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.String
  * create an instance, set the key, and call configure
  */
 public class GcTableSyncConfiguration {
+  
+  /**
+   * is the config enabled
+   */
+  private boolean enabled = true;
+  
+  
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
   /**
    * database from key
@@ -421,6 +436,9 @@ public class GcTableSyncConfiguration {
       //  grouperClient.syncTable.personSource.databaseFrom = pcom
       this.databaseFrom = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseFrom", false), "grouper");
       debugMap.put("configDatabaseFrom", this.databaseFrom);
+      
+      this.enabled =  GrouperClientUtils.booleanValue(this.retrieveConfigBoolean("enabled", false), true);
+      debugMap.put("configEnabled", this.enabled);
   
       //  grouperClient.syncTable.personSource.databaseTo = awsDev
       this.databaseTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("databaseTo", false), "grouper");

@@ -19,10 +19,13 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -32,10 +35,13 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
@@ -51,7 +57,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testInternalMembersNonDefaultAttributes"));
+    TestRunner.run(new TestMemberAttributes("testGroupAddNonDefault"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -90,6 +96,118 @@ public class TestMemberAttributes extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
+  }
+  
+  /**
+   * 
+   */
+  public void testSubjectIdentifierDuplicatesNewSubject() {
+    
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    GrouperSession.startRootSession();
+    
+    // add a subject
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier", "testSubjectDescription", null);
+    Subject subj = SubjectFinder.findById("testSubject", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+
+    // now delete it
+    deleteSubject(subj);
+    
+    // run usdu
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+    UsduJob.runDaemonStandalone();
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    // now add a new subject
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject2", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier", "testSubjectDescription", null);
+    Subject subj2 = SubjectFinder.findById("testSubject2", true);
+    edu.grantPriv(subj2, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+  
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
+  }
+  
+  /**
+   * 
+   */
+  public void testSubjectIdentifierDuplicatesUpdateSubject() {
+    
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    GrouperSession.startRootSession();
+    
+    // add a subject
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier", "testSubjectDescription", null);
+    Subject subj = SubjectFinder.findById("testSubject", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+
+    // now delete it
+    deleteSubject(subj);
+    
+    // run usdu
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+    UsduJob.runDaemonStandalone();
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    // now add a new subject
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject2", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier2", "testSubjectDescription", null);
+    Subject subj2 = SubjectFinder.findById("testSubject2", true);
+    edu.grantPriv(subj2, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier2", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+  
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testSubjectIdentifier', searchvalue='testsubjectidentifier' where subjectid='testSubject2' and name='loginid'", null, null);
+    SubjectFinder.flushCache();
+    SubjectFinder.findById("testSubject2", true);
+    
+    // wait for thread that updates data to finish
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
   }
   
   /**
@@ -1293,5 +1411,25 @@ public class TestMemberAttributes extends GrouperTest {
     source.addInitParam("Description_AttributeType", "description");
     ExpirableCache.clearAll();
     source.init();
+  }
+  
+  private void deleteSubject(Subject subject) {
+    
+    String subjectId = subject.getId();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from subjectattribute where subjectid='" + subjectId + "'", null, null);
+    HibernateSession.bySqlStatic().executeSql("delete from subject where subjectid='" + subjectId + "'", null, null);
+ 
+
+    SubjectFinder.flushCache();
+
+    try {
+      SubjectFinder.findById(subject.getId(), true);
+      fail("should not find subject " + subject.getId());
+    } catch (SubjectNotFoundException e) {
+      // OK
+    } catch (SubjectNotUniqueException e) {
+      fail("subject should be unique " + subject.getId());
+    }
   }
 }

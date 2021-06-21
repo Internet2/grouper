@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 import org.quartz.JobKey;
@@ -74,6 +73,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
@@ -136,7 +136,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderSqlGroupList"));
+    TestRunner.run(new GrouperLoaderTest("testSyncFolderListLevelsConfig"));
   }
 
   public void testLoaderExit() {
@@ -4213,4 +4213,103 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
   
   }
+  
+  public void testSyncFolderListNoSyncConfig() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new GroupSave(grouperSession).assignName("a:b:c:d:group1").assignDisplayName("A:B:C:D:GROUP1").assignCreateParentStemsIfNotExist(true).save();
+    
+    Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1");
+    Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11");
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, null, null, null);
+    
+    Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B:C:D", stem.getDisplayName());
+  }
+  
+  public void testSyncFolderListBaseFolderConfig() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new GroupSave(grouperSession).assignName("a:b:c:d:group1").assignDisplayName("A:B:C:D:GROUP1").assignCreateParentStemsIfNotExist(true).save();
+    
+    Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1", "a:b:c:e:group2");
+    Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11", "a:b:c:e:group2", "A1:B1:C1:E1:GROUP12");
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
+        "a:b:c:d:e", null);
+    
+    Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B:C:D", stem.getDisplayName());
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:e", true);
+    
+    assertEquals("A:B:C:E1", stem.getDisplayName());
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
+        "a:b", null);
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B:C1:D1", stem.getDisplayName());
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
+        "a", null);
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B1:C1:D1", stem.getDisplayName());
+    
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
+        "root", null); // root means everything
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A1:B1:C1:D1", stem.getDisplayName());
+    
+  }
+  
+  public void testSyncFolderListLevelsConfig() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new GroupSave(grouperSession).assignName("a:b:c:d:group1").assignDisplayName("A:B:C:D:GROUP1").assignCreateParentStemsIfNotExist(true).save();
+    
+    Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1", "a:b:c:e:group2");
+    Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11", "a:b:c:e:group2", "A1:B1:C1:E1:GROUP12");
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
+       null, 3);
+    
+    Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B:C1:D1", stem.getDisplayName());
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:e", true);
+    
+    assertEquals("A:B:C1:E1", stem.getDisplayName());
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
+        null, 4);
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A:B1:C1:D1", stem.getDisplayName());
+    
+    
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
+        null, 10); // everything
+    
+    stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
+    
+    assertEquals("A1:B1:C1:D1", stem.getDisplayName());
+    
+  }
+  
+  
 }
