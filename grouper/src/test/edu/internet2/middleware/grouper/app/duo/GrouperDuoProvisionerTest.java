@@ -485,7 +485,6 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteGroupsIfNotExistInGrouper").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteMembershipsIfGrouperDeleted").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.duoExternalSystemConfigId").value("duo1").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.hasTargetEntityLink").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.hasTargetGroupLink").value("true").store();
@@ -613,13 +612,13 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       assertEquals("testGroup", grouperDuoGroup.getName());
       
       //now remove one of the subjects from the testGroup
-//      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
-//      
-//      runJobs(true, true);
-//      
-//      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
-//      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
-      //assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      
+      runJobs(true, true);
+      
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
       
       //now delete the group and sync again
       testGroup.delete();

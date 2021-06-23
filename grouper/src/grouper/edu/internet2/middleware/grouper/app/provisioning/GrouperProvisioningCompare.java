@@ -901,7 +901,6 @@ public class GrouperProvisioningCompare {
 
 
   public void compareTargetMemberships(Collection<ProvisioningMembershipWrapper> provisioningMembershipWrappers) { 
-    
     if (GrouperUtil.length(provisioningMembershipWrappers) == 0) {
       return;
     }

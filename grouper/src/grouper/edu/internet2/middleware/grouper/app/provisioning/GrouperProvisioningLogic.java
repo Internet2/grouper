@@ -437,7 +437,6 @@ public class GrouperProvisioningLogic {
         grouperProvisioningLogicIncremental.filterByGroupSync();
       }
       
-      System.out.println("Test4");
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
         // ######### STEP 12: convert to group sync
         debugMap.put("state", "convertToGroupSync");
@@ -474,7 +473,6 @@ public class GrouperProvisioningLogic {
           // ######### STEP 16: retrieve all members sync objects
           debugMap.put("state", "retrieveIncrementalSyncMemberships");
           {
-            System.out.println("Test2");
             this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncMemberships();
             this.getGrouperProvisioner().retrieveGrouperSyncDao().retrieveIncrementalSyncMembers();
   
@@ -582,6 +580,10 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "indexMatchingIdEntities");
             
             this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+            
+//            debugMap.put("state", "indexMatchingIdMemberships");
+//            
+//            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
             
           }
           
@@ -706,6 +708,7 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "matchingIdGrouperMemberships");
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(
                 this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships());
+            
           } finally {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
           }
@@ -715,6 +718,15 @@ public class GrouperProvisioningLogic {
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+          
+          
+          for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships())) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetMembership.getMatchingId());
+            if (provisioningMembershipWrapper != null) {
+              provisioningMembershipWrapper.setTargetProvisioningMembership(targetMembership);
+            }
+            
+          }
             
           // ######### STEP 36: compare target objects
           try {
@@ -1325,9 +1337,11 @@ public class GrouperProvisioningLogic {
     assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
 
     Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
+    // we don't have the sync member objects so not much done here.
     assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
-
+    
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
+    // in the call below; since we don't have the sync member objects from the call above, syncMembershipReferenceMissing count is incremented.
     assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper,
         grouperSyncMemberIdToProvisioningEntityWrapper,
         groupUuidMemberUuidToProvisioningMembershipWrapper);

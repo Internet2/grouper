@@ -1595,6 +1595,7 @@ public class GrouperProvisioningLogicIncremental {
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
 
     Map<String, Integer> groupUuidToMembershipCount = new HashMap<String, Integer>();
+    //Map<String, String> groupUuidToMemberId = new HashMap<String, String>();
     Map<String, Long> groupUuidToLatestMillisSince1970 = new HashMap<String, Long>();
     
     //recalc or not
@@ -1603,6 +1604,8 @@ public class GrouperProvisioningLogicIncremental {
       Set<GrouperIncrementalDataItem> grouperIncrementalDataItemSet = (Set<GrouperIncrementalDataItem>)grouperIncrementalDataItemObject;
       for (GrouperIncrementalDataItem grouperIncrementalDataItem : grouperIncrementalDataItemSet) {
         String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
+        String memberId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(1);
+        //groupUuidToMemberId.put(groupId, memberId);
         Integer count = groupUuidToMembershipCount.get(groupId);
         if (count == null) {
           count = 0;
@@ -1635,6 +1638,7 @@ public class GrouperProvisioningLogicIncremental {
         
         grouperIncrementalDataToProcessWithRecalc.getGroupUuidsForGroupMembershipSync().add(new GrouperIncrementalDataItem(groupId, groupUuidToLatestMillisSince1970.get(groupId)));
         grouperIncrementalDataToProcessWithRecalc.getGroupUuidsForGroupOnly().add(new GrouperIncrementalDataItem(groupId, null));
+        //grouperIncrementalDataToProcessWithRecalc.getGroupUuidsMemberUuidsForMembershipSync().add(new GrouperIncrementalDataItem(new MultiKey(groupId, groupUuidToMemberId.get(groupId)), null));
         
         //go through and remove from elsewhere
         Iterator<GrouperIncrementalDataItem> iterator = grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsForGroupOnly().iterator();
@@ -1658,6 +1662,17 @@ public class GrouperProvisioningLogicIncremental {
         }
         
         iterator = grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsMemberUuidsForMembershipSync().iterator();
+
+        while (iterator.hasNext()) {
+          GrouperIncrementalDataItem grouperIncrementalDataItem = iterator.next();
+          String currentGroupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
+          if (StringUtils.equals(groupId, currentGroupId)) {
+            iterator.remove();
+            convertToGroupSyncMemberships++;
+          }
+        }
+        
+        iterator = grouperIncrementalDataToProcessWithRecalc.getGroupUuidsMemberUuidsForMembershipSync().iterator();
 
         while (iterator.hasNext()) {
           GrouperIncrementalDataItem grouperIncrementalDataItem = iterator.next();
@@ -2242,9 +2257,7 @@ public class GrouperProvisioningLogicIncremental {
             {
               Object groupMatchingId = provisioningGroupWrapper == null || provisioningGroupWrapper.getGrouperTargetGroup() == null ? null : provisioningGroupWrapper.getGrouperTargetGroup().getMatchingId();
              
-              //TODO ask Chris if the condition below is correct?
-//              if (groupMatchingId != null && !groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
-              if (groupMatchingId != null && groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+              if (groupMatchingId != null && !groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
                 if (targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupOnly() == null) {
                   targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(new ArrayList<ProvisioningGroup>());
                 }
@@ -2271,6 +2284,8 @@ public class GrouperProvisioningLogicIncremental {
     }
     
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().filterNonRecalcActionsCapturedByRecalc();
+    
+    targetDaoRetrieveIncrementalDataRequest.ensureAllMembershipRequestsAreInTheOnlyRequestsAlso();
     
     TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
       = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
