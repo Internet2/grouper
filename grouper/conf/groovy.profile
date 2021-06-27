@@ -304,3 +304,4 @@ import edu.internet2.middleware.grouperClient.util.*;
 import org.apache.commons.lang.*;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.*;
 import edu.internet2.middleware.grouper.exception.*;
+import edu.internet2.middleware.grouper.Stem.Scope;
