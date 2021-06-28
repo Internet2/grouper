@@ -189,7 +189,7 @@ public class GrouperProvisionerGrouperSyncDao {
       String memberId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(1);
       memberIdsToRetrieve.add(memberId);
     }
-    
+
     this.getGrouperProvisioner().getDebugMap().put("syncMembersToQuery", GrouperUtil.length(memberIdsToRetrieve));
     
     if (memberIdsToRetrieve.size() > 0) {
@@ -197,7 +197,7 @@ public class GrouperProvisionerGrouperSyncDao {
       Map<String, GcGrouperSyncMember> grouperSyncMemberIdToSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieve);
       gcGrouperSyncMembers.addAll(GrouperUtil.nonNull(grouperSyncMemberIdToSyncMember).values());
     }
-    
+
     this.getGrouperProvisioner().getDebugMap().put("syncMembersFound", GrouperUtil.length(gcGrouperSyncMembers));
 
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers() != null) {

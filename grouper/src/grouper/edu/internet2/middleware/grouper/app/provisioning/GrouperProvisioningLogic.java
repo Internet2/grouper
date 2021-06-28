@@ -581,10 +581,6 @@ public class GrouperProvisioningLogic {
             
             this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
             
-//            debugMap.put("state", "indexMatchingIdMemberships");
-//            
-//            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
-            
           }
           
           // ######### STEP 26: take all the matching ids of grouper groups/entities and index those for quick lookups
@@ -868,7 +864,6 @@ public class GrouperProvisioningLogic {
         continue;
       }
 
-      //TODO ask Chris: should it be not null
       ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
       
       if (targetGroup != null) {
@@ -1337,11 +1332,9 @@ public class GrouperProvisioningLogic {
     assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
 
     Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
-    // we don't have the sync member objects so not much done here.
     assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
     
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
-    // in the call below; since we don't have the sync member objects from the call above, syncMembershipReferenceMissing count is incremented.
     assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper,
         grouperSyncMemberIdToProvisioningEntityWrapper,
         groupUuidMemberUuidToProvisioningMembershipWrapper);
