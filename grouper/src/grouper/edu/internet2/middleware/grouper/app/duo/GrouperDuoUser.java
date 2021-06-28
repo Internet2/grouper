@@ -1,8 +1,6 @@
 package edu.internet2.middleware.grouper.app.duo;
 
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -11,9 +9,7 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -39,6 +35,38 @@ public class GrouperDuoUser {
   private String id; // userId
 
   private String userName;
+  
+  /**
+   * @param targetEntity
+   * @param fieldNamesToSet - these are the grouper names in the duo provisioner wiki. They are: id, loginId, firstname, lastname, realname, email
+   * @return
+   */
+  public static GrouperDuoUser fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
+    
+    GrouperDuoUser grouperDuoUser = new GrouperDuoUser();
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("firstname")) {      
+      grouperDuoUser.setFirstName(targetEntity.retrieveAttributeValueString("firstname"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("lastname")) {      
+      grouperDuoUser.setLastName(targetEntity.retrieveAttributeValueString("lastname"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      grouperDuoUser.setId(targetEntity.getId());
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
+      grouperDuoUser.setEmail(targetEntity.getEmail());
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("loginId")) {
+      grouperDuoUser.setUserName(targetEntity.getLoginId());
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
+      grouperDuoUser.setRealName(targetEntity.getName());
+    }
+    
+    return grouperDuoUser;
+
+  }
   
   public ProvisioningEntity toProvisioningEntity() {
     ProvisioningEntity targetEntity = new ProvisioningEntity();
@@ -124,7 +152,7 @@ public class GrouperDuoUser {
   /**
    * convert from jackson json
    * @param entityNode
-   * @return the group
+   * @return the user
    */
   public static GrouperDuoUser fromJson(JsonNode entityNode) {
     GrouperDuoUser grouperDuoUser = new GrouperDuoUser();
@@ -150,78 +178,6 @@ public class GrouperDuoUser {
     grouperDuoUser.groups = grouperDuoGroups;
     
     return grouperDuoUser;
-  }
-
-  public static void main(String[] args) {
-    
-    GrouperDuoUser grouperDuoUser = new GrouperDuoUser();
-    
-    grouperDuoUser.setFirstName("firstName");
-    grouperDuoUser.setLastName("lastName");
-    grouperDuoUser.setRealName("realName");
-    grouperDuoUser.setEmail("test@example.com");
-    grouperDuoUser.setId("id");
-    grouperDuoUser.setUserName("userName");
-    
-    Set<GrouperDuoGroup> groups = new HashSet<GrouperDuoGroup>();
-    GrouperDuoGroup grouperDuoGroup = new GrouperDuoGroup();
-    grouperDuoGroup.setDesc("test description");
-    grouperDuoGroup.setGroup_id("testGroupId");
-    grouperDuoGroup.setName("groupName");
-    groups.add(grouperDuoGroup);
-    grouperDuoUser.setGroups(groups);
-  
-    String json = GrouperUtil.jsonJacksonToString(grouperDuoUser.toJson());
-    System.out.println(json);
-    
-    grouperDuoUser = GrouperDuoUser.fromJson(GrouperUtil.jsonJacksonNode(json));
-    
-    System.out.println(grouperDuoUser.toString());
-    
-  }
-
-  /**
-   * convert from jackson json
-   * @return the grouper duo user
-   */
-  public ObjectNode toJson() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
-  
-    GrouperUtil.jsonJacksonAssignString(result, "alias1", null);
-    GrouperUtil.jsonJacksonAssignString(result, "alias2", null);
-    GrouperUtil.jsonJacksonAssignString(result, "alias3", null);
-    GrouperUtil.jsonJacksonAssignString(result, "alias4", null);
-    GrouperUtil.jsonJacksonAssignString(result, "aliases", null);
-    GrouperUtil.jsonJacksonAssignLong(result, "created", new Date().getTime()); //TODO should we store in in database?
-    GrouperUtil.jsonJacksonAssignString(result, "email", this.email);
-    GrouperUtil.jsonJacksonAssignString(result, "firstname", this.firstName);
-    GrouperUtil.jsonJacksonAssignBoolean(result, "is_enrolled", true);
-    GrouperUtil.jsonJacksonAssignLong(result, "last_directory_sync", new Date().getTime());
-    GrouperUtil.jsonJacksonAssignLong(result, "last_login", new Date().getTime());
-    
-    
-    ArrayNode groupsNode = GrouperUtil.jsonJacksonArrayNode();
-    
-    for (GrouperDuoGroup grouperDuoGroup: GrouperUtil.nonNull(this.groups)) {
-      groupsNode.add(grouperDuoGroup.toJson());
-    }
-    
-    result.set("groups", groupsNode);
-    
-    GrouperUtil.jsonJacksonAssignString(result, "lastname", this.lastName);
-    GrouperUtil.jsonJacksonAssignString(result, "notes", "");
-    GrouperUtil.jsonJacksonAssignStringArray(result, "phones", new ArrayList<String>());
-    GrouperUtil.jsonJacksonAssignString(result, "realname", this.realName);
-    GrouperUtil.jsonJacksonAssignString(result, "status", "active");
-    GrouperUtil.jsonJacksonAssignStringArray(result, "tokens", new ArrayList<String>());
-    GrouperUtil.jsonJacksonAssignStringArray(result, "u2ftokens", new ArrayList<String>());
-    
-    GrouperUtil.jsonJacksonAssignString(result, "user_id", this.id);
-    GrouperUtil.jsonJacksonAssignString(result, "username", this.userName);
-    GrouperUtil.jsonJacksonAssignStringArray(result, "webauthncredentials", new ArrayList<String>());
-    
-    return result;
   }
 
   @Override

@@ -200,7 +200,19 @@ public class GrouperProvisionerGrouperSyncDao {
 
     this.getGrouperProvisioner().getDebugMap().put("syncMembersFound", GrouperUtil.length(gcGrouperSyncMembers));
 
-    this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(gcGrouperSyncMembers);
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers() != null) {
+      
+      Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>(this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
+      gcGrouperSyncMembersSet.addAll(gcGrouperSyncMembers);
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
+    } else {
+      Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>();
+      gcGrouperSyncMembersSet.addAll(gcGrouperSyncMembers);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
+    }
+    
+//    this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(gcGrouperSyncMembers);
   
     debugMap.put("retrieveSyncMembersMillis", System.currentTimeMillis() - start);
     debugMap.put("syncMemberCount", GrouperUtil.length(gcGrouperSyncMembers));
@@ -285,6 +297,26 @@ public class GrouperProvisionerGrouperSyncDao {
     }
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMemberships(gcGrouperSyncMemberships);
+    
+    List<String> memberIdsToRetrieve = new ArrayList<String>();
+    
+    for (GcGrouperSyncMembership gcGrouperSyncMembership: gcGrouperSyncMemberships) {
+      memberIdsToRetrieve.add(gcGrouperSyncMembership.getGrouperSyncMemberId());
+    }
+
+    Map<String, GcGrouperSyncMember> memberRetrieveByIds = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByIds(memberIdsToRetrieve);
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers() != null) {
+      
+      Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>(this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers());
+      gcGrouperSyncMembersSet.addAll(memberRetrieveByIds.values());
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
+    } else {
+      Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>();
+      gcGrouperSyncMembersSet.addAll(memberRetrieveByIds.values());
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
+    }
   
     debugMap.put("retrieveSyncMembershipsMillis", System.currentTimeMillis() - start);
     debugMap.put("syncMembershipCount", GrouperUtil.length(gcGrouperSyncMemberships));

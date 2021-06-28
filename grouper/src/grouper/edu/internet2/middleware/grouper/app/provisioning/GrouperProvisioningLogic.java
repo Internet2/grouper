@@ -704,6 +704,7 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "matchingIdGrouperMemberships");
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(
                 this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships());
+            
           } finally {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
           }
@@ -713,6 +714,15 @@ public class GrouperProvisioningLogic {
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+          
+          
+          for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships())) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetMembership.getMatchingId());
+            if (provisioningMembershipWrapper != null) {
+              provisioningMembershipWrapper.setTargetProvisioningMembership(targetMembership);
+            }
+            
+          }
             
           // ######### STEP 36: compare target objects
           try {
@@ -1298,6 +1308,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperSyncDao().fixSyncObjects();
 
     // put the sync objects in their respective wrapper objects
+    // this is where additional wrapper objects can be added
     assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete
@@ -1322,7 +1333,7 @@ public class GrouperProvisioningLogic {
 
     Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
     assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
-
+    
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
     assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper,
         grouperSyncMemberIdToProvisioningEntityWrapper,

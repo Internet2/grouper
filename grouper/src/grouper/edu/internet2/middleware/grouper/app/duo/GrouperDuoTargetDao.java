@@ -3,28 +3,33 @@ package edu.internet2.middleware.grouper.app.duo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
@@ -37,13 +42,17 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
@@ -93,16 +102,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
     try {
 
-      //TODO
-      //boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false : targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
-
-      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this
-          .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
-      List<GrouperDuoUser> grouperDuoUsers = GrouperDuoApiCommands
-          .retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
+      List<GrouperDuoUser> grouperDuoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
 
       for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
         ProvisioningEntity targetEntity = grouperDuoUser.toProvisioningEntity();
@@ -126,7 +130,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      // we can retrieve by id or userPrincipalName, prefer id
+      // we can retrieve by id or username, prefer id
 
       ProvisioningEntity grouperTargetEntity = targetDaoRetrieveEntityRequest
           .getTargetEntity();
@@ -138,12 +142,10 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
             duoConfiguration.getDuoExternalSystemConfigId(), grouperTargetEntity.getId());
       }
 
-      //TODO come back to it because in GrouperDuoApiCommands we don't have the capability to fetch user by principal name
-      String userPrincipalName = grouperTargetEntity
-          .retrieveAttributeValueString("userPrincipalName");
-      if (grouperDuoUser == null && !StringUtils.isBlank(userPrincipalName)) {
-        grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUser(
-            duoConfiguration.getDuoExternalSystemConfigId(), userPrincipalName);
+      String userName = grouperTargetEntity.retrieveAttributeValueString("username");
+      if (grouperDuoUser == null && !StringUtils.isBlank(userName)) {
+        grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUserByName(
+            duoConfiguration.getDuoExternalSystemConfigId(), userName);
       }
 
       ProvisioningEntity targetEntity = grouperDuoUser == null ? null
@@ -155,38 +157,48 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
 
+  
+  private static ExpirableCache<Boolean, Map<String, GrouperDuoGroup>> cacheGroupNameToGroup = new ExpirableCache<Boolean, Map<String, GrouperDuoGroup>>(5);
+  
   @Override
-  public TargetDaoRetrieveGroupResponse retrieveGroup(
-      TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
+  public TargetDaoRetrieveGroupResponse retrieveGroup(TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
 
     long startNanos = System.nanoTime();
 
     try {
-      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this
-          .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      // we can retrieve by id or displayName
-
-      ProvisioningGroup grouperTargetGroup = targetDaoRetrieveGroupRequest
-          .getTargetGroup();
+      ProvisioningGroup grouperTargetGroup = targetDaoRetrieveGroupRequest.getTargetGroup();
 
       GrouperDuoGroup grouperDuoGroup = null;
 
-      if (!StringUtils.isBlank(grouperTargetGroup.getId())) {
-        grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(
-            duoConfiguration.getDuoExternalSystemConfigId(),
-            grouperTargetGroup.getId());
+      if (StringUtils.isNotBlank(grouperTargetGroup.getId())) {
+        grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperTargetGroup.getId());
       }
-
-      //TODO come back to it
+      
       String name = grouperTargetGroup.getName();
-      if (grouperDuoGroup == null && !StringUtils.isBlank(name)) {
-        grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(
-            duoConfiguration.getDuoExternalSystemConfigId(), name);
+      if (grouperDuoGroup == null && StringUtils.isNotBlank(name)) {
+        
+        Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+        
+        grouperDuoGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
+        
+        if (grouperDuoGroup == null) {
+          List<GrouperDuoGroup> allDuoGroups = GrouperDuoApiCommands.retrieveDuoGroups(duoConfiguration.getDuoExternalSystemConfigId());
+          
+          groupNameToGroup = new HashMap<String, GrouperDuoGroup>();
+          for (GrouperDuoGroup currentDuoGroup: GrouperUtil.nonNull(allDuoGroups)) {
+            groupNameToGroup.put(currentDuoGroup.getName(), currentDuoGroup);
+          }
+          cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
+          
+          grouperDuoGroup = groupNameToGroup.get(name);
+          
+        }
+        
       }
 
-      ProvisioningGroup targetGroup = grouperDuoGroup == null ? null
-          : grouperDuoGroup.toProvisioningGroup();
+      ProvisioningGroup targetGroup = grouperDuoGroup == null ? null : grouperDuoGroup.toProvisioningGroup();
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -197,32 +209,18 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
   public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
+    
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
 
     try {
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
-      // lets make sure we are doing the right thing
-      Set<String> fieldNamesToInsert = new HashSet<String>();
-
-      // Initialize with fields that are required but have defaults and may not be configured explicitly
-      fieldNamesToInsert.add("mailEnabled");
-      fieldNamesToInsert.add("securityEnabled");
-
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
-        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
-          fieldNamesToInsert.add(fieldName);
-        }
-      }
-      
       GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromProvisioningGroup(targetGroup, null);
       
-      //TODO come back to it - field names to insert
-      GrouperDuoGroup createdGAG = GrouperDuoApiCommands.createDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoGroup);
+      GrouperDuoGroup createdDuoGroup = GrouperDuoApiCommands.createDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoGroup);
 
-      targetGroup.setId(createdGAG.getGroup_id());
+      targetGroup.setId(createdDuoGroup.getGroup_id());
       targetGroup.setProvisioned(true);
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
@@ -242,93 +240,34 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
 
-// Im thinking since we can do batch we shouldnt do individual (reduce technical debt)  
-//  @Override
-//  public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
-//    long startNanos = System.nanoTime();
-//    ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
-//
-//    try {
-//      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//
-//      GrouperDuoApiCommands.createDuoMembership(duoConfiguration.getDuoExternalSystemConfigId(), targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
-//
-//      targetMembership.setProvisioned(true);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(true);
-//      }
-//
-//      return new TargetDaoInsertMembershipResponse();
-//    } catch (Exception e) {
-//      targetMembership.setProvisioned(false);
-//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-//        provisioningObjectChange.setProvisioned(false);
-//      }
-//      
-//      throw e;
-//    } finally {
-//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMembership", startNanos));
-//    }
-//  }
-
   @Override
-  public TargetDaoInsertMembershipsResponse insertMemberships(TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequest) {
+  public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
     long startNanos = System.nanoTime();
-    List<ProvisioningMembership> targetMemberships = targetDaoInsertMembershipsRequest.getTargetMemberships();
+    ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
 
     try {
-      
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      // lets collate by group
-      Map<String, List<String>> groupIdToUserIds = new LinkedHashMap<String, List<String>>();
+      GrouperDuoApiCommands.associateUserToGroup(duoConfiguration.getDuoExternalSystemConfigId(), targetMembership.getProvisioningEntityId(), targetMembership.getProvisioningGroupId());
 
-      // keep track to mark as complete
-      Map<MultiKey, ProvisioningMembership> groupIdUserIdToProvisioningMembership = new HashMap<MultiKey, ProvisioningMembership>();
-      
-      for (ProvisioningMembership targetMembership : targetMemberships) {
-
-        groupIdUserIdToProvisioningMembership.put(new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId()), targetMembership);
-        
-        List<String> userIds = groupIdToUserIds.get(targetMembership.getProvisioningGroupId());
-        if (userIds == null) {
-          userIds = new ArrayList<String>();
-          groupIdToUserIds.put(targetMembership.getProvisioningGroupId(), userIds);
-        }
-        userIds.add(targetMembership.getProvisioningEntityId());
+      targetMembership.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
 
-      // send batches by group
-      for (String groupId : groupIdToUserIds.keySet()) {
-
-        List<String> userIds = groupIdToUserIds.get(groupId);
-        
-        RuntimeException runtimeException = null;
-        try {
-          for (String userId: GrouperUtil.nonNull(userIds)) {
-            GrouperDuoApiCommands.associateUserToGroup(duoConfiguration.getDuoExternalSystemConfigId(), userId, groupId);
-          }
-        } catch (RuntimeException e) {
-          runtimeException = e;
-        }
-        boolean success = runtimeException == null;
-        for (String userId : GrouperUtil.nonNull(userIds)) {
-          ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
-          
-          targetMembership.setProvisioned(success);
-          targetMembership.setException(runtimeException);
-          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-            provisioningObjectChange.setProvisioned(success);
-            
-          }
-        }
+      return new TargetDaoInsertMembershipResponse();
+    } catch (Exception e) {
+      targetMembership.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
       }
       
-      return new TargetDaoInsertMembershipsResponse();
+      throw e;
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMemberships", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMembership", startNanos));
     }
   }
+
 
   public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
     long startNanos = System.nanoTime();
@@ -373,8 +312,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromProvisioningGroup(targetGroup, null);
-      //TODO come back and see if field names is needed
-      GrouperDuoApiCommands.updateDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoGroup);
+      GrouperDuoApiCommands.updateDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoGroup, fieldNamesToUpdate);
 
       targetGroup.setProvisioned(true);
 
@@ -425,8 +363,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
   }
     
   @Override
-  public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(
-      TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
+  public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
     long startNanos = System.nanoTime();
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
 
@@ -450,6 +387,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
     }
   }
+  
+  
 
 //  @Override
 //  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
@@ -476,6 +415,62 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 //      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
 //    }
 //  }
+
+  
+  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
+    
+    if (targetGroup == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetGroup.getId())) {
+      return targetGroup.getId();
+    }
+    
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
+    
+    if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
+      return null;
+    }
+    
+    return targetDaoRetrieveGroupResponse.getTargetGroup().getId();
+    
+  }
+  
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+    
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
+
+    try {
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      String targetGroupId = resolveTargetGroupId(targetGroup);
+      
+      if (StringUtils.isBlank(targetGroupId)) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<Object>());
+      }
+      
+      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUserIdsUserNamesByGroup(duoConfiguration.getDuoExternalSystemConfigId(), targetGroupId);
+      
+      List<Object> provisioningMemberships = new ArrayList<Object>(); 
+      
+      for (GrouperDuoUser duoUser : duoUsers) {
+
+        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        targetMembership.setProvisioningGroupId(targetGroup.getId());
+        targetMembership.setProvisioningEntityId(duoUser.getId());
+        provisioningMemberships.add(targetMembership);
+        
+      }
+  
+      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
+    }
+    
+  }
 
   @Override
   public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
@@ -505,22 +500,177 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
     }
   }
-
   
+  @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+    
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+
+    try {
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      // lets make sure we are doing the right thing
+      Set<String> fieldNamesToUpdate = new HashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        fieldNamesToUpdate.add(fieldName);
+      }
+      
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromProvisioningEntity(targetEntity, null);
+      GrouperDuoApiCommands.updateDuoUser(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, fieldNamesToUpdate);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    try {
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromProvisioningEntity(targetEntity, null);
+      
+      GrouperDuoUser createdDuoUser = GrouperDuoApiCommands.createDuoUser(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser);
+
+      targetEntity.setId(createdDuoUser.getId());
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
+  
+  
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+
+    try {
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromProvisioningEntity(targetEntity, null);
+      
+      GrouperDuoApiCommands.deleteDuoUser(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser.getId());
+
+      targetEntity.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+      return new TargetDaoDeleteEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  }
+  
+
+  @Override
+  public TargetDaoRetrieveAllDataResponse retrieveAllData(TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest) {
+    
+    TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse = new TargetDaoRetrieveAllDataResponse();
+    
+    GrouperProvisioningLists targetData = new GrouperProvisioningLists();
+    
+    targetDaoRetrieveAllDataResponse.setTargetData(targetData);
+    
+    long startNanos = System.nanoTime();
+
+    try {
+      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(false));
+      
+      List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse.getTargetGroups();
+      
+      targetData.setProvisioningGroups(targetGroups);
+      
+      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
+
+      List<ProvisioningMembership> targetMemberships = new ArrayList<>();
+      targetData.setProvisioningMemberships(targetMemberships);
+      
+      List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
+      targetData.setProvisioningEntities(targetEntities);
+      
+      for (GrouperDuoUser duoUser: duoUsers) {
+        
+        targetEntities.add(duoUser.toProvisioningEntity());
+        
+        Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();
+        
+        for (GrouperDuoGroup duoGroup: groupsPerUser) {
+          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          targetMembership.setProvisioningEntityId(duoUser.getId());
+          targetMembership.setProvisioningGroupId(duoGroup.getGroup_id());
+          targetMemberships.add(targetMembership);
+        }
+        
+      }
+
+      return targetDaoRetrieveAllDataResponse;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
+    }
+    
+  }
 
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
-    grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
 

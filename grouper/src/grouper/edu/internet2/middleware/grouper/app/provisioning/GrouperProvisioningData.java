@@ -48,36 +48,13 @@ public class GrouperProvisioningData {
   }
 
 
-  
-  public void setProvisioningGroupWrappers(
-      Set<ProvisioningGroupWrapper> provisioningGroupWrappers) {
-    this.provisioningGroupWrappers = provisioningGroupWrappers;
-  }
-
-
-  
   public Set<ProvisioningEntityWrapper> getProvisioningEntityWrappers() {
     return provisioningEntityWrappers;
   }
 
-
-  
-  public void setProvisioningEntityWrappers(
-      Set<ProvisioningEntityWrapper> provisioningEntityWrappers) {
-    this.provisioningEntityWrappers = provisioningEntityWrappers;
-  }
-
-
   
   public Set<ProvisioningMembershipWrapper> getProvisioningMembershipWrappers() {
     return provisioningMembershipWrappers;
-  }
-
-
-  
-  public void setProvisioningMembershipWrappers(
-      Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers) {
-    this.provisioningMembershipWrappers = provisioningMembershipWrappers;
   }
 
 

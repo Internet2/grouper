@@ -151,7 +151,13 @@ public class GrouperProvisioningMatchingIdIndex {
         
         continue;
 
+      } 
+      
+      if (provisioningMembershipWrapper.getGrouperIncrementalDataAction() == null) {
+        // if there's a group recalc and there are membership inserts; the action either needs to be provided or it needs to be recalc
+        provisioningMembershipWrapper.setRecalc(true);
       }
+      
       matchingIds.add(matchingId);
   
       membershipMatchingIdToProvisioningMembershipWrapper.put(matchingId, provisioningMembershipWrapper);

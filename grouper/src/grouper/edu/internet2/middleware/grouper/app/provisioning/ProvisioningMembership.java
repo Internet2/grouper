@@ -22,7 +22,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     if (StringUtils.isBlank(this.provisioningEntityId)
         && StringUtils.isBlank(this.id)
         && StringUtils.isBlank(this.provisioningGroupId)
-        && this.isEmptyUpdatable()) {
+        && this.isEmptyUpdatable()
+        && this.provisioningEntity == null 
+        && this.provisioningGroup == null) {
       return true;
     }
     return false;

@@ -1667,6 +1667,17 @@ public class GrouperProvisioningLogicIncremental {
             convertToGroupSyncMemberships++;
           }
         }
+        
+        iterator = grouperIncrementalDataToProcessWithRecalc.getGroupUuidsMemberUuidsForMembershipSync().iterator();
+
+        while (iterator.hasNext()) {
+          GrouperIncrementalDataItem grouperIncrementalDataItem = iterator.next();
+          String currentGroupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
+          if (StringUtils.equals(groupId, currentGroupId)) {
+            iterator.remove();
+            convertToGroupSyncMemberships++;
+          }
+        }
 
       }
       
@@ -2013,6 +2024,8 @@ public class GrouperProvisioningLogicIncremental {
           continue;
         }
         
+        //!provisioningMembershipWrapper.isRecalc() && // removed because a new group with memberships thought
+        // the group part was a recalc but membership part was not
         if (!provisioningMembershipWrapper.isRecalc() && provisioningMembershipWrapper.getGrouperIncrementalDataAction() == null) {
           provisioningMembershipWrapper.setGrouperIncrementalDataAction(grouperIncrementalDataItem.getGrouperIncrementalDataAction());
         }
@@ -2266,6 +2279,8 @@ public class GrouperProvisioningLogicIncremental {
     }
     
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().filterNonRecalcActionsCapturedByRecalc();
+    
+    targetDaoRetrieveIncrementalDataRequest.ensureAllMembershipRequestsAreInTheOnlyRequestsAlso();
     
     TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
       = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);

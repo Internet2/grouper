@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.duo;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +17,10 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -125,9 +127,9 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     
     List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
     
-    GrouperUtil.assertion(mockNamePaths.size() >= 2, "Must start with admin/v1");
+    GrouperUtil.assertion(mockNamePaths.size() >= 2, "Must start with admin/v1 or admin/v2");
     GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "admin"), "");
-    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "v1"), "");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "v1") || StringUtils.equals(mockNamePaths.get(1), "v2"), "");
     
     mockNamePaths = mockNamePaths.subList(2, mockNamePaths.size());
     
@@ -143,6 +145,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       }
       if ("groups".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         getGroup(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      
+      if ("groups".equals(mockNamePaths.get(0)) && "users".equals(mockNamePaths.get(2)) && 3 == mockNamePaths.size()) {
+        getUsersByGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
 
@@ -260,7 +267,6 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String method = mockServiceRequest.getHttpServletRequest().getMethod().toUpperCase();
     
     String path = "/"+mockServiceRequest.getPostMockNamePath();
-    System.out.println("path is "+path);
     
     Map<String, String> paramNamesToValues = new TreeMap<String, String>();
     Enumeration<String> parameterNames = mockServiceRequest.getHttpServletRequest().getParameterNames();
@@ -285,7 +291,6 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     }
     
     String hmacSource = date + "\n" + method + "\n" + adminDomainName + "\n" + path + "\n" + paramsLine;
-    System.out.println("hmacSource in service handler: \n"+hmacSource);
     
     String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminSecretKey");
     
@@ -367,7 +372,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     resultNode.put("stat", "OK");
     
     for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
-      valueNode.add(grouperDuoUser.toJson());
+      valueNode.add(toUserJson(grouperDuoUser));
     }
     
     resultNode.set("response", valueNode);
@@ -406,7 +411,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
       
       resultNode.put("stat", "OK");
-      ObjectNode objectNode = grouperDuoUsers.get(0).toJson();
+      ObjectNode objectNode = toUserJson(grouperDuoUsers.get(0));
       
       resultNode.set("response", objectNode);
       
@@ -472,7 +477,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     resultNode.put("stat", "OK");
     
     for (GrouperDuoGroup grouperDuoGroup : grouperDuoGroups) {
-      valueNode.add(grouperDuoGroup.toJson());
+      valueNode.add(toGroupJson(grouperDuoGroup));
     }
     
     resultNode.set("response", valueNode);
@@ -654,7 +659,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     resultNode.put("stat", "OK");
-    ObjectNode objectNode = grouperDuoUser.toJson();
+    ObjectNode objectNode = toUserJson(grouperDuoUser);
     
     resultNode.set("response", objectNode);
     
@@ -774,7 +779,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     resultNode.put("stat", "OK");
-    ObjectNode objectNode = grouperDuoGroup.toJson();
+    ObjectNode objectNode = toGroupJson(grouperDuoGroup);
     
     resultNode.set("response", objectNode);
     
@@ -832,7 +837,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     resultNode.put("stat", "OK");
     
     for (GrouperDuoGroup grouperDuoGroup : grouperDuoGroups) {
-      valueNode.add(grouperDuoGroup.toJson());
+      valueNode.add(toGroupJson(grouperDuoGroup));
     }
     
     resultNode.set("response", valueNode);
@@ -845,6 +850,76 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+  
+  
+  public void getUsersByGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {      
+      checkAuthorization(mockServiceRequest);
+    } catch (Exception e) {
+      mockServiceResponse.setResponseCode(401);
+      return;
+    }
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
+    
+    String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
+    
+    int limitInt = 100;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
+      if (limitInt > 500) {
+        limitInt = 500;
+      }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
+    }
+    
+    List<GrouperDuoUser> grouperDuoUsers = null;
+    
+    ByHqlStatic query = HibernateSession.byHqlStatic()
+        .createQuery("from GrouperDuoUser u where u.id in (select m.userId from GrouperDuoMembership m where m.groupId = :theGroupId) ")
+        .setString("theGroupId", groupId);
+    
+    QueryOptions queryOptions = new QueryOptions();
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
+    queryOptions = queryOptions.paging(queryPaging);
+    
+    query.options(queryOptions);
+    
+    grouperDuoUsers = query.list(GrouperDuoUser.class);
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    resultNode.put("stat", "OK");
+    
+    for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
+      valueNode.add(toUserJson(grouperDuoUser));
+    }
+    
+    resultNode.set("response", valueNode);
+    if (queryPaging.getTotalRecordCount() > offsetInt + grouperDuoUsers.size()) {
+      ObjectNode metadataNode = GrouperUtil.jsonJacksonNode();
+      metadataNode.put("next_offset", offsetInt + limitInt);
+      resultNode.set("metadata", metadataNode);
+    }
+    
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
   }
   
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -872,7 +947,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
       
       resultNode.put("stat", "OK");
-      ObjectNode objectNode = grouperDuoGroups.get(0).toJson();
+      ObjectNode objectNode = toGroupJson(grouperDuoGroups.get(0));
       
       resultNode.set("response", objectNode);
       
@@ -930,7 +1005,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     resultNode.put("stat", "OK");
-    ObjectNode objectNode = grouperDuoGroup.toJson();
+    ObjectNode objectNode = toGroupJson(grouperDuoGroup);
     
     resultNode.set("response", objectNode);
     
@@ -1097,6 +1172,73 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode)); 
         
+  }
+  
+  /**
+   * convert from jackson json
+   * @param grouperDuoUser
+   * @return the grouper duo user
+   */
+  private static ObjectNode toUserJson(GrouperDuoUser grouperDuoUser) {
+    
+    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectNode result = objectMapper.createObjectNode();
+  
+    GrouperUtil.jsonJacksonAssignString(result, "alias1", null);
+    GrouperUtil.jsonJacksonAssignString(result, "alias2", null);
+    GrouperUtil.jsonJacksonAssignString(result, "alias3", null);
+    GrouperUtil.jsonJacksonAssignString(result, "alias4", null);
+    GrouperUtil.jsonJacksonAssignString(result, "aliases", null);
+    GrouperUtil.jsonJacksonAssignLong(result, "created", new Date().getTime());
+    GrouperUtil.jsonJacksonAssignString(result, "email", grouperDuoUser.getEmail());
+    GrouperUtil.jsonJacksonAssignString(result, "firstname", grouperDuoUser.getFirstName());
+    GrouperUtil.jsonJacksonAssignBoolean(result, "is_enrolled", true);
+    GrouperUtil.jsonJacksonAssignLong(result, "last_directory_sync", new Date().getTime());
+    GrouperUtil.jsonJacksonAssignLong(result, "last_login", new Date().getTime());
+    
+    
+    ArrayNode groupsNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    for (GrouperDuoGroup grouperDuoGroup: GrouperUtil.nonNull(grouperDuoUser.getGroups())) {
+      groupsNode.add(toGroupJson(grouperDuoGroup));
+    }
+    
+    result.set("groups", groupsNode);
+    
+    GrouperUtil.jsonJacksonAssignString(result, "lastname", grouperDuoUser.getLastName());
+    GrouperUtil.jsonJacksonAssignString(result, "notes", "");
+    GrouperUtil.jsonJacksonAssignStringArray(result, "phones", new ArrayList<String>());
+    GrouperUtil.jsonJacksonAssignString(result, "realname", grouperDuoUser.getRealName());
+    GrouperUtil.jsonJacksonAssignString(result, "status", "active");
+    GrouperUtil.jsonJacksonAssignStringArray(result, "tokens", new ArrayList<String>());
+    GrouperUtil.jsonJacksonAssignStringArray(result, "u2ftokens", new ArrayList<String>());
+    
+    GrouperUtil.jsonJacksonAssignString(result, "user_id", grouperDuoUser.getId());
+    GrouperUtil.jsonJacksonAssignString(result, "username", grouperDuoUser.getUserName());
+    GrouperUtil.jsonJacksonAssignStringArray(result, "webauthncredentials", new ArrayList<String>());
+    
+    return result;
+  }
+  
+  /**
+   * convert from jackson json
+   * @param grouperDuoGroup
+   * @return the group
+   */
+  private static ObjectNode toGroupJson(GrouperDuoGroup grouperDuoGroup) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectNode result = objectMapper.createObjectNode();
+
+    result.put("desc", grouperDuoGroup.getDesc());
+    result.put("name", grouperDuoGroup.getName());
+    result.put("group_id", grouperDuoGroup.getGroup_id());
+    result.put("mobile_otp_enabled", false);
+    result.put("push_enabled", false);
+    result.put("sms_enabled", false);
+    result.put("voice_enabled", false);
+    result.put("status", "active");
+    
+    return result;
   }
 
 }

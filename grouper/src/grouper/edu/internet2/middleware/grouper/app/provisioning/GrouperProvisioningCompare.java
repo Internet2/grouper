@@ -276,7 +276,7 @@ public class GrouperProvisioningCompare {
       
     }
     
-    for (String attributeName: grouperTargetAttributes.keySet()) {
+    for (String attributeName: GrouperUtil.nonNull(grouperTargetAttributes).keySet()) {
 
 //      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateObjectAttribute(grouperProvisioningUpdatable, attributeName)) {
 //        continue;
@@ -996,7 +996,7 @@ public class GrouperProvisioningCompare {
       // memberships to delete
       Set<Object> groupIdEntityIdsToDelete = new HashSet<Object>();
       for (Object key : targetMatchingIdToTargetMembership.keySet()) {
-        ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
+        ProvisioningMembership grouperTargetMembership = targetMatchingIdToTargetMembership.get(key);
         if (grouperTargetMembership.getProvisioningMembershipWrapper().isRecalc()) {
           groupIdEntityIdsToDelete.add(key);
         }
