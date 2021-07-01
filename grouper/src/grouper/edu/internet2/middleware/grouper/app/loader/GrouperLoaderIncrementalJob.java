@@ -165,6 +165,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       String query = "select * from " + tableName + " where completed_timestamp is null order by timestamp";
       List<String> columnNames = new ArrayList<String>();
       
+      Set<String> nonFatalWarnings = new LinkedHashSet<String>();
+
       try {
         connection = grouperLoaderDb.connection();
         connection.setAutoCommit(false);
@@ -259,13 +261,15 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         // loader group name -> list of groups being managed by this loader group
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
-
+        
         for (String loaderGroupName : rowsByGroup.keySet()) {
           
           final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, false);
           
           if (loaderGroup == null) {
-            LOG.warn("Loader group " + loaderGroupName + " does not exist.  Marking incremental updates as complete.");
+            String warnMessage = "Loader group " + loaderGroupName + " does not exist.  Marking incremental updates as complete."; 
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
             setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
             continue;
           }
@@ -284,7 +288,9 @@ public class GrouperLoaderIncrementalJob implements Job {
           }
           
           if (StringUtils.isBlank(grouperLoaderType)) {
-            LOG.warn("Loader group " + loaderGroupName + " has an empty value for grouperLoaderType.  Skipping changes.");
+            String warnMessage = "Loader group " + loaderGroupName + " has an empty value for grouperLoaderType.  Skipping changes.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
             setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
             continue;
           }
@@ -293,13 +299,17 @@ public class GrouperLoaderIncrementalJob implements Job {
           String fullSyncJobName = grouperLoaderTypeEnum.name() + "__" + loaderGroup.getName() + "__" + loaderGroup.getUuid();
           
           if (skipIfFullSyncDisabled && !GrouperLoader.isJobEnabled(fullSyncJobName)) {
-            LOG.warn("The full sync job for loader group " + loaderGroupName + " is not enabled.  Skipping incremental changes.");
+            String warnMessage = "The full sync job for loader group " + loaderGroupName + " is not enabled.  Skipping incremental changes.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
             setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
             continue;
           }
           
           if (rowsByGroup.get(loaderGroupName).size() >= fullSyncThreshold) {
-            LOG.warn("Loader group " + loaderGroupName + " has too many changes.  Threshold=" + fullSyncThreshold + ".  Changes=" + rowsByGroup.get(loaderGroupName).size() + ".  Marking incremental updates as complete and triggering full sync.");
+            String warnMessage = "Loader group " + loaderGroupName + " has too many changes.  Threshold=" + fullSyncThreshold + ".  Changes=" + rowsByGroup.get(loaderGroupName).size() + ".  Marking incremental updates as complete and triggering full sync.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
             scheduleJobNow(loaderGroup, grouperLoaderType);
             setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
             continue;
@@ -418,7 +428,15 @@ public class GrouperLoaderIncrementalJob implements Job {
         GrouperUtil.closeQuietly(connection);
       }
       
-      hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+      if (nonFatalWarnings.size() == 0) {
+        hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+      } else {
+        hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
+        for (String nonFatalWarning : nonFatalWarnings) {
+          hib3GrouperloaderLog.appendJobMessage(nonFatalWarning + " ");
+        }
+      }
+      
       storeLogInDb(hib3GrouperloaderLog, true, startTime);
     } catch (Exception e) {
       
