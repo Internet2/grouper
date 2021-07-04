@@ -1194,7 +1194,7 @@ public class GrouperProvisioningBehavior {
     this.deleteGroupsIfGrouperDeleted = groupsDeleteIfDeletedFromGrouper;
   }
 
-  
+ 
   public boolean isSelectEntitiesAll() {
     if (this.selectEntitiesAll != null) {
       return selectEntitiesAll;
@@ -1204,7 +1204,10 @@ public class GrouperProvisioningBehavior {
     if (!this.isSelectEntities()) {
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false);
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
   }
 
   

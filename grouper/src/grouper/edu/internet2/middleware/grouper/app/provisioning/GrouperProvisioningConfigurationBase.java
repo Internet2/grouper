@@ -1035,6 +1035,11 @@ public abstract class GrouperProvisioningConfigurationBase {
   private boolean selectEntities = false;
   
   /**
+   * should the provisioner select all entities from the target
+   */
+  private boolean selectAllEntities = true;
+  
+  /**
    * select memberships
    */
   private boolean selectMemberships = false;
@@ -1137,6 +1142,22 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   public void setSelectEntities(boolean selectEntities) {
     this.selectEntities = selectEntities;
+  }
+  
+  /**
+   * should the provisioner select all entities from the target
+   * @return
+   */
+  public boolean isSelectAllEntities() {
+    return selectAllEntities;
+  }
+
+  /**
+   * should the provisioner select all entities from the target
+   * @param selectAllEntities
+   */
+  public void setSelectAllEntities(boolean selectAllEntities) {
+    this.selectAllEntities = selectAllEntities;
   }
 
   /**
@@ -2013,6 +2034,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), false);
 
     this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), false);
+
+    this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
 
     this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), false);
 
