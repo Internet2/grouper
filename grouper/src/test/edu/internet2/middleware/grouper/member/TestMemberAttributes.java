@@ -57,7 +57,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testGroupAddNonDefault"));
+    TestRunner.run(new TestMemberAttributes("testSubjectIdentifierDuplicatesUsdu"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -98,6 +98,107 @@ public class TestMemberAttributes extends GrouperTest {
     super.tearDown();
   }
   
+  public void testSubjectIdentifierDuplicatesUsdu() {
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    GrouperSession.startRootSession();
+    
+    // testSubject1/2 will be duplicates with both unsolvable
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject1", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier1", "testSubjectDescription", null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject2", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier1", "testSubjectDescription", null);
+    Subject subj1 = SubjectFinder.findById("testSubject1", true);
+    Subject subj2 = SubjectFinder.findById("testSubject2", true);
+    edu.grantPriv(subj1, NamingPrivilege.CREATE);
+    edu.grantPriv(subj2, NamingPrivilege.CREATE);
+    deleteSubject(subj1);
+    deleteSubject(subj2);
+    
+    // testSubject3/4 will be duplicates with one unsolvable
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject3", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier3", "testSubjectDescription", null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject4", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier3", "testSubjectDescription", null);
+    Subject subj3 = SubjectFinder.findById("testSubject3", true);
+    Subject subj4 = SubjectFinder.findById("testSubject4", true);
+    edu.grantPriv(subj3, NamingPrivilege.CREATE);
+    edu.grantPriv(subj4, NamingPrivilege.CREATE);
+    deleteSubject(subj4);
+    
+    // testSubject5/6 will be duplicates with both resolvable
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject5", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier5", "testSubjectDescription", null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject6", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier5", "testSubjectDescription", null);
+    Subject subj5 = SubjectFinder.findById("testSubject5", true);
+    Subject subj6 = SubjectFinder.findById("testSubject6", true);
+    edu.grantPriv(subj5, NamingPrivilege.CREATE);
+    edu.grantPriv(subj6, NamingPrivilege.CREATE);
+    
+    // testSubject7/8/9 will be duplicates with two unresolvable
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject7", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier7", "testSubjectDescription", null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject8", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier7", "testSubjectDescription", null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject9", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier7", "testSubjectDescription", null);
+    Subject subj7 = SubjectFinder.findById("testSubject7", true);
+    Subject subj8 = SubjectFinder.findById("testSubject8", true);
+    Subject subj9 = SubjectFinder.findById("testSubject9", true);
+    edu.grantPriv(subj7, NamingPrivilege.CREATE);
+    edu.grantPriv(subj8, NamingPrivilege.CREATE);
+    edu.grantPriv(subj9, NamingPrivilege.CREATE);
+    deleteSubject(subj8);
+    deleteSubject(subj9);
+
+    ChangeLogTempToEntity.convertRecords();
+    Hib3MemberDAO.membersCacheClear();
+    SubjectFinder.flushCache();
+
+    assertEquals("testSubjectIdentifier1", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject1", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier1", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier1", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject1", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier1", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+  
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject4", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject4", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject5", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject6", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject5", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject6", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject7", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject8", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject9", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject7", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject8", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject9", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals(1, UsduJob.checkDuplicateSubjectIdentifiers(null));
+    
+    ChangeLogTempToEntity.convertRecords();
+    Hib3MemberDAO.membersCacheClear();
+    
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject1", true).getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject1", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+  
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject4", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject4", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject5", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject6", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject5", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier5", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject6", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject7", true).getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject8", true).getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject9", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier7", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject7", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject8", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject9", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+ 
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
+  }
+  
   /**
    * 
    */
@@ -116,10 +217,6 @@ public class TestMemberAttributes extends GrouperTest {
 
     // now delete it
     deleteSubject(subj);
-    
-    // run usdu
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
-    UsduJob.runDaemonStandalone();
     
     Hib3MemberDAO.membersCacheClear();
     assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
@@ -144,6 +241,47 @@ public class TestMemberAttributes extends GrouperTest {
   
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     GrouperSession.startRootSession();
+    
+    // now add another new subject - test when duplicate subject isn't deleted but has another identifier now
+    SubjectFinder.flushCache();
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testSubjectIdentifierSomethingElse', searchvalue='testsubjectidentifiersomethingelse' where subjectid='testSubject2' and name='loginid'", null, null);
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject3", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier", "testSubjectDescription", null);
+    Subject subj3 = SubjectFinder.findById("testSubject3", true);
+    edu.grantPriv(subj3, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifierSomethingElse", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals("testSubjectIdentifierSomethingElse", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+  
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
+    
+    // now add another new subject - this time the duplicate is real
+    SubjectFinder.flushCache();
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject4", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier", "testSubjectDescription", null);
+    Subject subj4 = SubjectFinder.findById("testSubject4", true);
+    edu.grantPriv(subj4, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject4", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject4", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+  
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
   }
   
   /**
@@ -164,10 +302,6 @@ public class TestMemberAttributes extends GrouperTest {
 
     // now delete it
     deleteSubject(subj);
-    
-    // run usdu
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
-    UsduJob.runDaemonStandalone();
     
     Hib3MemberDAO.membersCacheClear();
     assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject", true).getSubjectIdentifier0());
@@ -205,6 +339,78 @@ public class TestMemberAttributes extends GrouperTest {
     Hib3MemberDAO.membersCacheClear();
     assertNull(GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject", "jdbc", "person").iterator().next().getSubjectIdentifier0());
     assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
+    
+    // now add another new subject - test when the duplicate subject isn't deleted but instead has another identifier now
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject3", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier3", "testSubjectDescription", null);
+    Subject subj3 = SubjectFinder.findById("testSubject3", true);
+    edu.grantPriv(subj3, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier3", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+  
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testSubjectIdentifier', searchvalue='testsubjectidentifier' where subjectid='testSubject3' and name='loginid'", null, null);
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testSubjectIdentifierSomethingElse', searchvalue='testsubjectidentifiersomethingelse' where subjectid='testSubject2' and name='loginid'", null, null);
+    SubjectFinder.flushCache();
+    SubjectFinder.findById("testSubject3", true);
+    
+    // wait for thread that updates data to finish
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifierSomethingElse", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject2", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifierSomethingElse", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject2", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    GrouperSession.startRootSession();
+    
+
+    // now add another new subject - this time the duplicate is real
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject4", "person", "testSubjectName", "testSubjectName", "testSubjectIdentifier4", "testSubjectDescription", null);
+    Subject subj4 = SubjectFinder.findById("testSubject4", true);
+    edu.grantPriv(subj4, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier4", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject4", true).getSubjectIdentifier0());
+  
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testSubjectIdentifier', searchvalue='testsubjectidentifier' where subjectid='testSubject4' and name='loginid'", null, null);
+    SubjectFinder.flushCache();
+    SubjectFinder.findById("testSubject4", true);
+    
+    // wait for thread that updates data to finish
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject3", true).getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getMember().findBySubject("testSubject4", true).getSubjectIdentifier0());
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    Hib3MemberDAO.membersCacheClear();
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject3", "jdbc", "person").iterator().next().getSubjectIdentifier0());
+    assertEquals("testSubjectIdentifier", GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType("testSubject4", "jdbc", "person").iterator().next().getSubjectIdentifier0());
 
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     GrouperSession.startRootSession();

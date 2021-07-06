@@ -4473,13 +4473,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       return;
     }
     
-    if (this.isSubjectResolutionDeleted()) {
-      return;
-    }
-    
-    String sql = "select id, subject_id, subject_source, subject_type from grouper_members where subject_identifier0 = ? and subject_resolution_deleted='T'";
-    List<Object> bindVars = GrouperUtil.toList(this.subjectIdentifier0);
-    List<Type> types = HibUtils.listType(StringType.INSTANCE);
+    String sql = "select id, subject_id, subject_source, subject_type from grouper_members where subject_identifier0 = ? and subject_source = ? and subject_id != ?";
+    List<Object> bindVars = GrouperUtil.toList(this.subjectIdentifier0, this.subjectSourceID, this.subjectID);
+    List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
     
     List<String[]> memberDataList = HibernateSession.bySqlStatic().listSelect(String[].class, sql, bindVars, types);
     for (String[] memberData : memberDataList) {
@@ -4488,31 +4484,45 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       String subjectSourceId = memberData[2];
       String subjectTypeId = memberData[3];
       
-      String sql2 = "update grouper_members set subject_identifier0 = null where id = ?";
-      List<Object> bindVars2 = GrouperUtil.toList(memberId);
-      List<Type> types2 = HibUtils.listType(StringType.INSTANCE);
-      HibernateSession.bySqlStatic().executeSql(sql2, bindVars2, types2);
+      // found a duplicate, let's try to resolve it.
+      Subject duplicateSubject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
       
-      String oldValue = this.subjectIdentifier0;
-      String newValue = null;
-      ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-      String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      List<Object> bindVars3 = GrouperUtil.toList(
-          (Object)GrouperUuid.getUuid(), 
-          changeLogType.getId(),
-          ChangeLogId.changeLogId(),
-          memberId,
-          subjectId,
-          subjectSourceId,
-          subjectTypeId,
-          newValue,
-          oldValue,
-          newValue,
-          "subjectIdentifier0");
-      List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
-          StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-          StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
-      HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+      if (duplicateSubject == null) {
+        // duplicate subject is not resolvable so clear out subject_identifier0
+
+        String sql2 = "update grouper_members set subject_identifier0 = null where id = ?";
+        List<Object> bindVars2 = GrouperUtil.toList(memberId);
+        List<Type> types2 = HibUtils.listType(StringType.INSTANCE);
+        HibernateSession.bySqlStatic().executeSql(sql2, bindVars2, types2);
+        
+        String oldValue = this.subjectIdentifier0;
+        String newValue = null;
+        ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
+        String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        List<Object> bindVars3 = GrouperUtil.toList(
+            (Object)GrouperUuid.getUuid(), 
+            changeLogType.getId(),
+            ChangeLogId.changeLogId(),
+            memberId,
+            subjectId,
+            subjectSourceId,
+            subjectTypeId,
+            newValue,
+            oldValue,
+            newValue,
+            "subjectIdentifier0");
+        List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
+            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+        HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+      } else {
+        String duplicateSubjectSubjectIdentifier0 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 0 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(0), false) : null;
+        if (StringUtils.equals(this.subjectIdentifier0, duplicateSubjectSubjectIdentifier0)) {
+          LOG.error("There are subjects with the same subject identifier=" + this.subjectIdentifier0 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
+        } else {
+          // nothing - the member data should have been updated to no longer be a duplicate
+        }
+      }
     }
   }
 
@@ -4620,6 +4630,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         
         public Object call() throws Exception {
           
+          GrouperSession rootSession = GrouperSession.startRootSession();
+
           try {
             
             HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -4674,6 +4686,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             LOG.error("Error updating member attributes: ", e);
           } finally {
             memberAttributeUpdateInProgress = false;
+            GrouperSession.stopQuietly(rootSession);
           }
           return null;
         }
