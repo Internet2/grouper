@@ -340,6 +340,13 @@ public class ProvisioningSyncIntegration {
             }
           }
           
+          {
+            String newSubjectIdentifier = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+            if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
+              gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);
+            }
+          }
+          
 
           // see if not provisionable
           if (!gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity != null
