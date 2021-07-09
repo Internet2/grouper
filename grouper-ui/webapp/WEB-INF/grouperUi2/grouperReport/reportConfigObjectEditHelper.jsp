@@ -189,8 +189,38 @@
                           </c:if>
                           
                         </c:if>
+
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigStoreWithNoDataId">${textContainer.text['grouperReportConfigStoreWithNoDataLabel']}</label></strong></td>
+                          <td>
+                            <select name="grouperReportConfigStoreWithNoData" id="grouperReportConfigStoreWithNoDataId" style="width: 30em"
+                                onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Edit', {formIds: 'editReportConfigFormId'}); return false;">
+                              <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotStoreWithNoDataLabel']}</option>
+                              <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesStoreWithNoDataLabel']}</option>
+                            </select>
+                            <br />
+                            <span class="description">${textContainer.text['grouperReportConfigStoreWithNoDataHint']}</span>
+                          </td>
+                        </tr>
                         
-                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigFormat == 'CSV'}">
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmail && grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData}">
+                            
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigSendEmailWithNoDataId">${textContainer.text['grouperReportConfigSendEmailWithNoDataLabel']}</label></strong></td>
+                            <td>
+                              <select name="grouperReportConfigSendEmailWithNoData" id="grouperReportConfigSendEmailWithNoDataId" style="width: 30em"
+                                  onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Edit', {formIds: 'editReportConfigFormId'}); return false;">
+                                <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailWithNoData ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotEmailWithNoDataLabel']}</option>
+                                <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailWithNoData ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesEmailWithNoDataLabel']}</option>
+                              </select>
+                              <br />
+                              <span class="description">${textContainer.text['grouperReportConfigSendEmailWithNoDataHint']}</span>
+                            </td>
+                          </tr>
+                          
+                        </c:if>
+                        
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigQueryId">${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
                             <td>

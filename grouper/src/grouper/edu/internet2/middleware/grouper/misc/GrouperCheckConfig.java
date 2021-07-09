@@ -3023,6 +3023,12 @@ public class GrouperCheckConfig {
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUARTZ_CRON, 
             "Quartz cron-like schedule", wasInCheckConfig);
         
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA, 
+            "Set to false if email should not be sent if the report has no data", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA, 
+            "Set to false if report should not be stored if the report has no data", wasInCheckConfig);
+        
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL, 
             "true/false if email should be sent", wasInCheckConfig);
         

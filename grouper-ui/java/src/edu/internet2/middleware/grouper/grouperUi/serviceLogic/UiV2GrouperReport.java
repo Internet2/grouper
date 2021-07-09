@@ -1564,6 +1564,24 @@ public class UiV2GrouperReport {
     String reportConfigQuery = request.getParameter("grouperReportConfigQuery");
     bean.setReportConfigQuery(reportConfigQuery);
     
+    {
+      String reportConfigStoreWithNoData = request.getParameter("grouperReportConfigStoreWithNoData");
+      boolean configStoreWithNoData = true;
+      if (StringUtils.isNotBlank(reportConfigStoreWithNoData)) {
+        configStoreWithNoData = BooleanUtils.toBoolean(reportConfigStoreWithNoData);
+      }
+      bean.setReportConfigStoreWithNoData(configStoreWithNoData);
+    }
+
+    {
+      String reportConfigSendEmailWithNoData = request.getParameter("grouperReportConfigSendEmailWithNoData");
+      boolean configSendEmailWithNoData = true;
+      if (StringUtils.isNotBlank(reportConfigSendEmailWithNoData)) {
+        configSendEmailWithNoData = BooleanUtils.toBoolean(reportConfigSendEmailWithNoData);
+      }
+      bean.setReportConfigSendEmailWithNoData(configSendEmailWithNoData);
+    }
+    
   }
   
   /**

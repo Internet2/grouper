@@ -102,6 +102,11 @@ public class GrouperReportLogic {
       reportInstance.setReportInstanceRows(Long.valueOf(grouperReportData.getData().size()));
       rows = GrouperUtil.intValue(reportInstance.getReportInstanceRows());
           
+      if (rows == 0 && !reportConfigBean.isReportConfigStoreWithNoData()) {
+        reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
+        return 0;
+      }
+      
       // now the file is in the report instance
       reportConfigBean.getReportConfigFormat().formatReport(grouperReportData, reportInstance);
         
@@ -177,6 +182,11 @@ public class GrouperReportLogic {
     
     if (!configBean.isReportConfigSendEmail()) {
       LOG.info("Config send email is set to false. not going to send any emails");
+      return;
+    }
+    
+    if ((reportInstance.getReportInstanceRows() == null || reportInstance.getReportInstanceRows().intValue() == 0) && !configBean.isReportConfigSendEmailWithNoData()) {
+      LOG.info("Config dont send email on empty report, and there is an empty report, not sending emails");
       return;
     }
     

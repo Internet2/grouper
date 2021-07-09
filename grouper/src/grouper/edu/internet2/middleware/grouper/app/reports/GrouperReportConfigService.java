@@ -14,6 +14,8 @@ import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAt
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_TO_VIEWERS;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_TYPE;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID;
+import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA;
+import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportSettings.reportConfigStemName;
 import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
@@ -141,6 +143,15 @@ public class GrouperReportConfigService {
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_NAME, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigName().trim());
     
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigSendEmailWithNoData()));
+    
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigStoreWithNoData()));
+    
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_NAME, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigName().trim());
+    
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUARTZ_CRON, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigQuartzCron());
     
@@ -162,7 +173,13 @@ public class GrouperReportConfigService {
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigViewersGroupId());
-    
+
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigStoreWithNoData()));
+
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigSendEmailWithNoData()));
+
     attributeAssign.saveOrUpdate();       
   }
   
@@ -317,6 +334,12 @@ public class GrouperReportConfigService {
     
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_SEND_EMAIL_TO_VIEWERS);
     result.setReportConfigSendEmailToViewers(assignValue != null ? BooleanUtils.toBoolean(assignValue.getValueString()): false);
+    
+    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA);
+    result.setReportConfigSendEmailWithNoData(assignValue != null ? BooleanUtils.toBoolean(assignValue.getValueString()): true);
+    
+    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA);
+    result.setReportConfigStoreWithNoData(assignValue != null ? BooleanUtils.toBoolean(assignValue.getValueString()): true);
     
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_TYPE);
     result.setReportConfigType(assignValue != null ? ReportConfigType.valueOfIgnoreCase(assignValue.getValueString(), false) : null);
