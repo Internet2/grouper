@@ -844,16 +844,18 @@ public class GrouperLoaderIncrementalJob implements Job {
         boolean removed = false;
         
         if (isMemberInGroup && !isMemberInSourceAfterAndGroupsConsideration) {
-          loaderGroup.deleteMember(subject);
-          removed = true;
-          synchronized (hib3GrouperloaderLog) {
-            hib3GrouperloaderLog.addDeleteCount(1);
+          if (loaderGroup.deleteMember(subject, false)) {
+            removed = true;
+            synchronized (hib3GrouperloaderLog) {
+              hib3GrouperloaderLog.addDeleteCount(1);
+            }
           }
         } else if (!isMemberInGroup && isMemberInSourceAfterAndGroupsConsideration && shouldAddSubject(grouperSession, loaderGroup, subject)) {
-          loaderGroup.addMember(subject);
-          added = true;
-          synchronized (hib3GrouperloaderLog) {
-            hib3GrouperloaderLog.addInsertCount(1);
+          if (loaderGroup.addMember(subject, false)) {
+            added = true;
+            synchronized (hib3GrouperloaderLog) {
+              hib3GrouperloaderLog.addInsertCount(1);
+            }
           }
         }
         
@@ -1019,59 +1021,60 @@ public class GrouperLoaderIncrementalJob implements Job {
       }
       
       if (shouldAddSubject(grouperSession, loaderGroup, subject)) {
-        theGroup.addMember(subject);
+        if (theGroup.addMember(subject, false)) {
       
-        GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
-
-        GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
-        GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
-        GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
-        GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+          GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
   
-        GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
-  
-        GrouperLoaderLogger.doTheLogging("membershipManagement");
-  
-        synchronized (hib3GrouperloaderLog) {
-          hib3GrouperloaderLog.addInsertCount(1);
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "add");
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+    
+          GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+    
+          GrouperLoaderLogger.doTheLogging("membershipManagement");
+    
+          synchronized (hib3GrouperloaderLog) {
+            hib3GrouperloaderLog.addInsertCount(1);
+          }
+          if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+            groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+          } else {
+            Set<Group> managedGroups = new HashSet<Group>();
+            managedGroups.add(theGroup);
+            groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+          }
         }
       }
-      
-      if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
-        groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
-      } else {
-        Set<Group> managedGroups = new HashSet<Group>();
-        managedGroups.add(theGroup);
-        groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
-      }
-      
+            
     }
     
     for (String groupName : membershipsToRemove) {
       Group theGroup = GroupFinder.findByName(grouperSession, groupName, true);
-      theGroup.deleteMember(subject);
+      if (theGroup.deleteMember(subject, false)) {
+        
+        GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
 
-      GrouperLoaderLogger.initializeThreadLocalMap("membershipManagement");
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
 
-      GrouperLoaderLogger.addLogEntry("membershipManagement", "groupName", loaderGroup.getName());
-      GrouperLoaderLogger.addLogEntry("membershipManagement", "subject", GrouperUtil.subjectToString(subject));
-      GrouperLoaderLogger.addLogEntry("membershipManagement", "operation", "remove");
-      GrouperLoaderLogger.addLogEntry("membershipManagement", "reason", "incremental");
+        GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
 
-      GrouperLoaderLogger.addLogEntry("membershipManagement", "success", true);
+        GrouperLoaderLogger.doTheLogging("membershipManagement");
 
-      GrouperLoaderLogger.doTheLogging("membershipManagement");
-
-      synchronized (hib3GrouperloaderLog) {
-        hib3GrouperloaderLog.addDeleteCount(1);
-      }
-      
-      if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
-        groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
-      } else {
-        Set<Group> managedGroups = new HashSet<Group>();
-        managedGroups.add(theGroup);
-        groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+        synchronized (hib3GrouperloaderLog) {
+          hib3GrouperloaderLog.addDeleteCount(1);
+        }
+        
+        if (groupsRequiringLoaderMetadataUpdates.containsKey(loaderGroup.getId())) {
+          groupsRequiringLoaderMetadataUpdates.get(loaderGroup.getId()).add(theGroup);
+        } else {
+          Set<Group> managedGroups = new HashSet<Group>();
+          managedGroups.add(theGroup);
+          groupsRequiringLoaderMetadataUpdates.put(loaderGroup.getId(), managedGroups);
+        }
       }
       
     }
