@@ -2704,6 +2704,8 @@ public class GrouperCheckConfig {
             "The report configuration associated with this attestation if any", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_AUTHORIZED_GROUP_ID,
             "The authorized group associated with this attestation if any", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_EMAIL_GROUP_ID,
+            "Email attestation reminders for group attestation to this group", wasInCheckConfig);
       }
 
       {

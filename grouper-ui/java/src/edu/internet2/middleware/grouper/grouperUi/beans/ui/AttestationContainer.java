@@ -149,6 +149,49 @@ public class AttestationContainer {
   }
 
   /**
+   * if should email group list
+   */
+  private boolean editAttestationEmailList;
+
+  /**
+   * if should email group list
+   * @return if email group list
+   */
+  public boolean isEditAttestationEmailList() {
+    return this.editAttestationEmailList;
+  }
+
+  /**
+   * if should email group list
+   * @param editAttestationEmailGroupList1
+   */
+  public void setEditAttestationEmailList(boolean editAttestationEmailGroupList1) {
+    this.editAttestationEmailList = editAttestationEmailGroupList1;
+  }
+
+
+  /**
+   * if should email group
+   */
+  private boolean editAttestationEmailToGroup;
+
+  /**
+   * if should email group
+   * @return if email group
+   */
+  public boolean isEditAttestationEmailToGroup() {
+    return this.editAttestationEmailToGroup;
+  }
+
+  /**
+   * if should email group
+   * @param editAttestationEmailGroup1
+   */
+  public void setEditAttestationEmailToGroup(boolean editAttestationEmailGroup1) {
+    this.editAttestationEmailToGroup = editAttestationEmailGroup1;
+  }
+
+  /**
    * if should email group managers (default to true)
    */
   private boolean editAttestationEmailGroupManagers;
@@ -301,6 +344,27 @@ public class AttestationContainer {
   }
   
   /**
+   * if should show email group
+   */
+  private boolean editAttestationShowEmailGroup;
+
+  /**
+   * if should show email group
+   * @return should show email group
+   */
+  public boolean isEditAttestationShowEmailGroup() {
+    return editAttestationShowEmailGroup;
+  }
+
+  /**
+   * if should show email group
+   * @param editAttestationShowEmailGroup1
+   */
+  public void setEditAttestationShowEmailGroup(boolean editAttestationShowEmailGroup1) {
+    this.editAttestationShowEmailGroup = editAttestationShowEmailGroup1;
+  }
+
+  /**
    * if should show authorized group
    */
   private boolean editAttestationShowAuthorizedGroup;
@@ -344,6 +408,26 @@ public class AttestationContainer {
     this.editAttestationShowFolderScope = editAttestationShowFolderScope;
   }
   
+  /**
+   * 
+   */
+  private Group editAttestationEmailGroup;
+
+  /**
+   * 
+   * @return the group
+   */
+  public Group getEditAttestationEmailGroup() {
+    return editAttestationEmailGroup;
+  }
+
+  /**
+   * 
+   * @param editAttestationEmailGroup
+   */
+  public void setEditAttestationEmailGroup(Group editAttestationEmailGroup) {
+    this.editAttestationEmailGroup = editAttestationEmailGroup;
+  }
 
   /**
    * 
@@ -414,9 +498,29 @@ public class AttestationContainer {
    * default to true
    * @return true if email group managers
    */
+  public boolean isEmailList() {
+
+    return StringUtils.isNotBlank(this.getEmailAddresses());
+    
+  }
+
+  /**
+   * default to true
+   * @return true if email group managers
+   */
   public boolean isEmailGroupManagers() {
 
-    return StringUtils.isBlank(this.getEmailAddresses());
+    return StringUtils.isBlank(this.getEmailAddresses()) && this.getEmailGroup() == null;
+    
+  }
+
+  /**
+   * default to true
+   * @return true if email group managers
+   */
+  public boolean isEmailToGroup() {
+
+    return StringUtils.isBlank(this.getEmailAddresses()) && this.getEmailGroup() != null;
     
   }
 
@@ -437,6 +541,32 @@ public class AttestationContainer {
         .retrieveValueString(
             GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses().getName());
     return attestationEmailAddresses;
+  }
+  
+  /**
+   * email group to send
+   * @return email group id
+   */
+  public Group getEmailGroup() {
+
+    this.attributeAssignableHelper();
+    AttributeAssign attributeAssign = this.getAttributeAssignable();
+
+    if (attributeAssign == null) {
+      return null;
+    }
+
+    String attestationEmailGroupId = attributeAssign.getAttributeValueDelegate()
+        .retrieveValueString(
+            GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName());
+    if (attestationEmailGroupId == null) {
+      return null;
+    }
+    
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationEmailGroupId, false);
+    
+    return group;
+
   }
   
 
@@ -1261,6 +1391,32 @@ public class AttestationContainer {
       return this.guiAttestation.getGrouperAttestationEmailAddresses();
     } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
       return this.parentGuiAttestation.getGrouperAttestationEmailAddresses();
+    } else {
+      return null;
+    }
+  }
+  
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public Group getDirectOrParentGrouperAttestationEmailGroup() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.getGrouperAttestationEmailGroup();
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.parentGuiAttestation.getGrouperAttestationEmailGroup();
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * @return return direct if this is a direct assignment, otherwise look at the parent
+   */
+  public GuiGroup getDirectOrParentGrouperAttestationEmailGuiGroup() {
+    if (this.isDirectGroupAttestationAssignment()) {
+      return this.guiAttestation.getGrouperAttestationEmailGuiGroup();
+    } else if (this.isAncestorStemAttestationAssignment() && this.parentGuiAttestation != null) {
+      return this.parentGuiAttestation.getGrouperAttestationEmailGuiGroup();
     } else {
       return null;
     }

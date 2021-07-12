@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TestGroupFinder;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.EmailObject;
@@ -37,7 +38,7 @@ public class GrouperAttestationJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAttestationJobTest("testAttestationUpgrade"));
+    TestRunner.run(new GrouperAttestationJobTest("testBuildAttestationGroupEmailsEmailGroup"));
   }
   
   /**
@@ -368,6 +369,41 @@ public class GrouperAttestationJobTest extends GrouperTest {
     assertEquals(2, attestationGroupEmails.size());
     assertTrue(attestationGroupEmails.containsKey("test@test.com"));
     assertTrue(attestationGroupEmails.containsKey("test1@test.com"));
+  }
+
+  /**
+   * 
+   */
+  public void testBuildAttestationGroupEmailsEmailGroup() {
+  
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    
+    Group group0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group0").save();
+
+    Group groupAttesters = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("testAttest:groupAttesters").save();
+    groupAttesters.addMember(SubjectTestHelper.SUBJ0);
+    groupAttesters.addMember(SubjectTestHelper.SUBJ1);
+
+    AttributeAssign attributeAssignBase = new AttributeAssignSave(grouperSession).assignOwnerGroup(group0).assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef()).save();
+    
+    AttributeAssignValue attributeAssignValueEmailGroupId = new AttributeAssignValue();
+    attributeAssignValueEmailGroupId.setValueString(groupAttesters.getId());
+    
+    new AttributeAssignSave(grouperSession).assignOwnerAttributeAssign(attributeAssignBase).assignAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId()).addAttributeAssignValue(attributeAssignValueEmailGroupId).save();
+  
+    Set<AttributeAssign> groupAttributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(
+        AttributeAssignType.group,
+        null, GrouperAttestationJob.retrieveAttributeDefNameValueDef().getId(), null,
+        null, null, null, 
+        null, 
+        Boolean.TRUE, false);
+    
+    Map<String, Set<EmailObject>> attestationGroupEmails = GrouperAttestationJob.buildAttestationGroupEmails(null, groupAttributeAssigns);
+  
+    assertEquals(2, attestationGroupEmails.size());
+    assertTrue(attestationGroupEmails.containsKey(SubjectTestHelper.SUBJ0.getAttributeValue("email")));
+    assertTrue(attestationGroupEmails.containsKey(SubjectTestHelper.SUBJ1.getAttributeValue("email")));
   }
 
 }

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.attestation;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
@@ -19,7 +21,7 @@ public class AttestationStemSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttestationStemSaveTest("testSaveAttestationAttributesOnStemByStemName"));
+    TestRunner.run(new AttestationStemSaveTest("testSaveAttestationAttributesOnStemByStemEmailGroup"));
   }
   
   /**
@@ -282,6 +284,31 @@ public class AttestationStemSaveTest extends GrouperTest {
     
     GrouperSession.startRootSession();
     assertEquals(0, stem.getAttributeDelegate().getAttributeAssigns().size());
+    
+  }
+
+  public void testSaveAttestationAttributesOnStemByStemEmailGroup() {
+    
+   Stem stem = new StemSave().assignName("test:test1").assignCreateParentStemsIfNotExist(true).save();
+   Group group = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true).save();
+
+   AttributeAssign attributeAssign = new AttestationStemSave()
+     .assignStem(stem)
+     .assignEmailGroup(group)
+     .assignAttestationType(AttestationType.group)
+     .assignDaysBeforeToRemind(5)
+     .assignDaysUntilRecertify(10)
+     .assignSendEmail(true)
+     .save();
+  
+   assertEquals(group.getId(), attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName()));
+   assertEquals("5", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName()));
+   assertEquals("10", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName()));
+   assertEquals("group", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameType().getName()));
+   assertEquals("true", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName()));
+  
+   assertEquals(1, stem.getAttributeDelegate().getAttributeAssigns().size());
+   assertEquals(stem.getId(), attributeAssign.getOwnerStemId());
     
   }
 

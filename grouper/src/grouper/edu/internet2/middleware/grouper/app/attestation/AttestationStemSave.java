@@ -304,6 +304,59 @@ public class AttestationStemSave {
   private boolean emailAddressesAssigned = false;
 
   /**
+   * email to a group for group attestation
+   */
+  private String emailGroupId = null;
+
+  /**
+   * email to a group for group attestation
+   */
+  private String emailGroupName = null;
+
+  /**
+   * email to a group for group attestation
+   */
+  private Group emailGroup = null;
+
+  /**
+   * email to a group is assigned for group attestation
+   */
+  private boolean emailGroupIdAssigned = false;
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationStemSave assignEmailGroupId(String theGroupId) {
+    this.emailGroupId = theGroupId;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationStemSave assignEmailGroupName(String theGroupName) {
+    
+    this.emailGroupName = theGroupName;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationStemSave assignEmailGroup(Group theGroup) {
+    
+    this.emailGroup = theGroup;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+
+  
+  /**
    * assign stem scope for propagation, ONE or SUB
    * Stem.Scope.ONE or Stem.Scope.SUB
    */
@@ -335,13 +388,20 @@ public class AttestationStemSave {
    */
   private boolean replaceAllSettings = true;
 
+  /**
+   * @deprecated this is not used
+   */
+  @SuppressWarnings("unused")
+  @Deprecated
   private boolean useThreadForPropagation = false;
 
   /**
    * assign use thread for propagation
    * @param theUseThreadForPropagation
    * @return this for chaining
+   * @deprecated this is not used
    */
+  @Deprecated
   public AttestationStemSave assignUseThreadForPropagation(boolean theUseThreadForPropagation) {
     this.useThreadForPropagation = theUseThreadForPropagation;
     return this;
@@ -622,6 +682,19 @@ public class AttestationStemSave {
                 markerAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName(), "true");
               }
 
+              if (AttestationStemSave.this.emailGroup == null && !StringUtils.isBlank(AttestationStemSave.this.emailGroupId)) {
+                emailGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), AttestationStemSave.this.emailGroupId, false, new QueryOptions().secondLevelCache(false));
+              }
+              if (emailGroup == null && !StringUtils.isBlank(AttestationStemSave.this.emailGroupName)) {
+                emailGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), AttestationStemSave.this.emailGroupName, false, new QueryOptions().secondLevelCache(false));
+              }
+              if (!runAsRoot && emailGroup != null) {
+                if (!emailGroup.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
+                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                    + "' cannot READ group '" + emailGroup.getName() + "'");
+                }
+              }
+
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameType(), attestationType == null ? null : attestationType.name().toLowerCase(), attestationTypeAssigned);
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
@@ -634,6 +707,9 @@ public class AttestationStemSave {
                   GrouperAttestationJob.retrieveAttributeDefNameStemScope(), stemScope == null ? Stem.Scope.SUB.name().toLowerCase() : stemScope.name().toLowerCase() , stemScopeAssigned);
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses(), GrouperUtil.length(emailAddresses) == 0 ? null : GrouperUtil.join(emailAddresses.iterator(), ','), emailAddressesAssigned);
+              hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                  GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId(), 
+                  AttestationStemSave.this.emailGroup == null ? null : AttestationStemSave.this.emailGroup.getId(), AttestationStemSave.this.emailGroupIdAssigned);
 
               // get groupId from report viewers?  hmmm  nah...
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
@@ -646,6 +722,10 @@ public class AttestationStemSave {
               if (theAttestationType == null) {
                 theAttestationType = AttestationType.valueOfIgnoreCase(markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
                     GrouperAttestationJob.retrieveAttributeDefNameType().getName()), false);
+              }
+              
+              if (theAttestationType != null && theAttestationType == AttestationType.report && AttestationStemSave.this.emailGroup != null) {
+                throw new RuntimeException("Cant have a report with an email group!  Use a groupCanAttest instead");
               }
               
               if (GrouperUtil.booleanValue(markAsAttested, false) && theAttestationType != null && theAttestationType == AttestationType.report) {

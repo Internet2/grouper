@@ -43,7 +43,7 @@ public class GrouperAttestationDaemonLogicTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperAttestationDaemonLogicTest("testIncrementalSyncLogic_deleteFromChildren"));
+    TestRunner.run(new GrouperAttestationDaemonLogicTest("testFullSyncLogic_copyFromStemToGroupsEmailGroup"));
   }
   
   
@@ -500,6 +500,84 @@ public class GrouperAttestationDaemonLogicTest extends GrouperTest {
     }
     
     return null;
+  }
+
+  public void testFullSyncLogic_copyFromStemToGroupsEmailGroup() {
+    
+    //Given
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+
+    Group groupAttesters = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test5:groupAttesters").save();
+
+    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test-group").save();
+    Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:test1:test-group1").save();
+  
+    Stem stem2 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test2").save();
+    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test2:test-group2").save();
+    Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test2:test22:test-group3").save();
+    
+    new AttestationStemSave().assignAttestationType(AttestationType.group).assignStem(stem0)
+      .assignEmailGroup(groupAttesters).assignDaysUntilRecertify(15).assignSendEmail(true).save();
+    
+    new AttestationStemSave().assignAttestationType(AttestationType.group).assignStem(stem2)
+    .assignEmailGroup(groupAttesters).assignDaysUntilRecertify(16)
+      .assignSendEmail(true)
+      .assignStemScope(Scope.ONE)
+      .save();
+    
+    //When
+    GrouperAttestationDaemonLogic.fullSyncLogic();
+    
+    //Then
+    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+        GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
+    String attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+    assertEquals("false", attestationDirectAssignment);
+    
+    String groupAttestersId = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName());
+    assertEquals(groupAttestersId, groupAttestersId);
+    
+    String attestationHasAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
+    assertEquals("true", attestationHasAttestation);
+    
+    attributeAssign = group1.getAttributeDelegate().retrieveAssignment(null, 
+        GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
+    attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+    assertEquals("false", attestationDirectAssignment);
+
+    groupAttestersId = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName());
+    assertEquals(groupAttestersId, groupAttestersId);
+
+    attestationHasAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
+    assertEquals("true", attestationHasAttestation);
+    
+    attributeAssign = group2.getAttributeDelegate().retrieveAssignment(null, 
+        GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
+    attestationDirectAssignment = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameDirectAssignment().getName());
+    assertEquals("false", attestationDirectAssignment);
+
+    groupAttestersId = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName());
+    assertEquals(groupAttestersId, groupAttestersId);
+
+    attestationHasAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameHasAttestation().getName());
+    assertEquals("true", attestationHasAttestation);
+    
+    attributeAssign = group3.getAttributeDelegate().retrieveAssignment(null, 
+        GrouperAttestationJob.retrieveAttributeDefNameValueDef(), false, false);
+    
+    assertNull(attributeAssign);
+    
   }
   
 }
