@@ -93,9 +93,23 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     }
     mockTablesThere = true;
     
+    
+    
     if (GrouperUtil.length(mockServiceRequest.getPostMockNamePaths()) == 0) {
       throw new RuntimeException("Pass in a path!");
     }
+    
+    List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
+   
+    GrouperUtil.assertion(mockNamePaths.size() >= 1, "Must start with v2/");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "v2"), "");
+    
+    mockNamePaths = mockNamePaths.subList(1, mockNamePaths.size());
+    
+    String[] paths = new String[mockNamePaths.size()];
+    paths = mockNamePaths.toArray(paths);
+    
+    mockServiceRequest.setPostMockNamePaths(paths);
 
     if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("ServiceProviderConfig".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
@@ -721,6 +735,10 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
   
+    HibernateSession.byHqlStatic()
+    .createQuery("delete from GrouperScim2Membership where groupId = :groupId")
+    .setString("groupId", id).executeUpdateInt();
+    
     int groupsDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperScim2Group where id = :theId")
         .setString("theId", id).executeUpdateInt();

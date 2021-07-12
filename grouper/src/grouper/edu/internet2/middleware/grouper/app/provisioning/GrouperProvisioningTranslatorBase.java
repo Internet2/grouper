@@ -818,8 +818,14 @@ public class GrouperProvisioningTranslatorBase {
           id = targetGroup.getIdIndex();
         } else if ("name".equals(groupIdField)) {
           id = targetGroup.getName();
+        } else if ("displayName".equals(groupIdField)) {
+          id = targetGroup.getDisplayName();
+        } else if ("displayExtension".equals(groupIdField)) {
+          id = targetGroup.getDisplayExtension();
+        } else if ("extension".equals(groupIdField)) {
+          id = targetGroup.getExtension();
         } else {
-          throw new RuntimeException("Invalid groupMatchingIdField, expecting id, idIndex, or name: '" + groupIdField + "'");
+          throw new RuntimeException("Invalid groupMatchingIdField, expecting id, idIndex, name, displayName, extension or displayExtension: '" + groupIdField + "'");
         }
         
       } else if (!StringUtils.isBlank(groupIdAttribute)) {

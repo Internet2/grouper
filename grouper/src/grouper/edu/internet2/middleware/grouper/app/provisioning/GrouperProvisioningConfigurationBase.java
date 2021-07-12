@@ -2035,7 +2035,7 @@ public abstract class GrouperProvisioningConfigurationBase {
 
     this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), false);
 
-    this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
+    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
 
     this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), false);
 

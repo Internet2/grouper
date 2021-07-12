@@ -20,6 +20,8 @@ public class GrouperProvisioningDataChanges {
   
   private GrouperProvisioningLists targetObjectDeletes = new GrouperProvisioningLists();
 
+  private GrouperProvisioningReplacesObjects targetObjectReplaces = new GrouperProvisioningReplacesObjects();
+
   /**
    * insert translation
    */
@@ -67,6 +69,12 @@ public class GrouperProvisioningDataChanges {
       GrouperProvisioningLists grouperTargetObjectsMissing) {
     this.grouperTargetObjectsMissing = grouperTargetObjectsMissing;
   }
+  
+  
+  
+  public GrouperProvisioningReplacesObjects getTargetObjectReplaces() {
+    return targetObjectReplaces;
+  }
 
   public boolean wasWorkDone() {
     if (this.targetObjectInserts.wasWorkDone()) {
@@ -76,6 +84,9 @@ public class GrouperProvisioningDataChanges {
       return true;
     }
     if (this.targetObjectDeletes.wasWorkDone()) {
+      return true;
+    }
+    if (this.targetObjectReplaces.wasWorkDone()) {
       return true;
     }
     // maybe group or entity inserts

@@ -290,6 +290,7 @@ public enum GrouperProvisioningObjectLogType {
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target updates", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target deletes", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
+      appendProvisioningObjects(grouperProvisioner, logMessage, "Target replaces", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
 
     }
   }, 
@@ -303,6 +304,17 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   }, 
+  
+  retrieveIndividualEntitiesIfNeeded {
+    
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      
+    }
+    
+  },
   matchingIdGrouperMemberships {
 
     @Override
@@ -384,6 +396,19 @@ public enum GrouperProvisioningObjectLogType {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
   }
 
+  /**
+   * 
+   * @param string
+   * @param grouperProvisioningObjects
+   */
+  private static void appendProvisioningObjects(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
+      GrouperProvisioningReplacesObjects grouperProvisioningObjects) {
+    
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships().keySet(), "groups");
+    
+  }
+
+  
   private static void appendProvisioningObjectsOfType(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
       Collection beans, String field, String type) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
@@ -477,7 +502,7 @@ public enum GrouperProvisioningObjectLogType {
     }
   }
   private static void appendProvisioningObjectsOfType(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
-      List beans, String type) {
+      Collection beans, String type) {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label,
         beans, null, type);
   }

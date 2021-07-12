@@ -110,6 +110,7 @@ public class GrouperScim2Group {
     
     if (this.displayName != null) {
       targetGroup.assignAttributeValue("displayName", this.displayName);
+      targetGroup.setDisplayName(this.displayName);
     }
     
     if (this.id != null) {

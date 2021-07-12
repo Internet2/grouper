@@ -419,7 +419,21 @@ public class GrouperProvisioningOutput {
    */
   private int update;
   
+  /**
+   * total replace
+   */
+  private int replace;
   
+  
+  public int getReplace() {
+    return replace;
+  }
+
+  
+  public void setReplace(int replace) {
+    this.replace = replace;
+  }
+
   /**
    * @return the update
    */
@@ -442,6 +456,14 @@ public class GrouperProvisioningOutput {
    */
   public void addUpdate(int updatesToAdd) {
     this.update += updatesToAdd;
+  }
+  
+  /**
+   * add replace count
+   * @param replacesToAdd
+   */
+  public void addReplace(int replacesToAdd) {
+    this.replace += replacesToAdd;
   }
 
   /**

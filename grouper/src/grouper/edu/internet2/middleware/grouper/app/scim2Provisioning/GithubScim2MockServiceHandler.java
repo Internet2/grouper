@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
-import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;

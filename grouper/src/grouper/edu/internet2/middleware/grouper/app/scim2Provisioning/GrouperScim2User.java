@@ -222,9 +222,11 @@ public class GrouperScim2User {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
   
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
-    }
+    GrouperUtil.jsonJacksonAssignBoolean(result, "active", true);
+    
+//    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+//      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
+//    }
     
     if (fieldNamesToSet == null || (fieldNamesToSet.contains("employeeNumber") || fieldNamesToSet.contains("costCenter"))) {      
       if (!StringUtils.isBlank(this.employeeNumber) || !StringUtils.isBlank(this.costCenter)) {
@@ -435,7 +437,7 @@ public class GrouperScim2User {
   
   private String userType;
   
-  private Boolean active;
+  private Boolean active = true;
   
   private String employeeNumber;
   

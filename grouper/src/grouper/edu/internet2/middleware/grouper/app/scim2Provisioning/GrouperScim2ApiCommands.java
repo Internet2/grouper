@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureLog;
-import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -35,7 +34,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class GrouperScim2ApiCommands {
   
-  public static void main(String[] args) {
+  public static void main1(String[] args) {
     
     GrouperStartup.startup();
     
@@ -79,35 +78,35 @@ public class GrouperScim2ApiCommands {
     
   }
 
-  public static void main1(String[] args) {
+  public static void main(String[] args) {
 
     GrouperStartup.startup();
 //
-//    for (int i=3;i<10;i++) {
-//      GrouperScim2User grouperScimUser = new GrouperScim2User();
+    for (int i=3;i<10;i++) {
+      GrouperScim2User grouperScimUser = new GrouperScim2User();
 //      grouperScimUser.setActive(true);
 //      grouperScimUser.setCostCenter("costCent" + i);
-//      grouperScimUser.setDisplayName("dispName" + i);
+      grouperScimUser.setDisplayName("dispName" + i);
 //      grouperScimUser.setEmailType("emailTy" + i);
 //      grouperScimUser.setEmailValue("emailVal" + i);
 //      grouperScimUser.setEmployeeNumber("123456" + i);
 //      grouperScimUser.setExternalId("extId" + i);
-//      grouperScimUser.setFamilyName("famName" + i);
+      grouperScimUser.setFamilyName("famName" + i);
 //      grouperScimUser.setFormattedName("formName" + i);
-//      grouperScimUser.setGivenName("givName" + i);
+      grouperScimUser.setGivenName("givName" + i);
 //      grouperScimUser.setMiddleName("midName" + i);
-//      grouperScimUser.setUserName("userNam" + i);
+      grouperScimUser.setUserName("userNam" + i);
 //      grouperScimUser.setUserType("userTyp" + i);
-//  
-//      createScimUser("awsConfigId", grouperScimUser, null);
-//    }
+  
+      createScimUser("awsConfigId", grouperScimUser, null);
+    }
 //
-//    for (int i=3;i<10;i++) {
-//      GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
-//      grouperScimGroup.setDisplayName("dispName" + i);
-//    
-//      createScimGroup("awsConfigId", grouperScimGroup, null);
-//    }
+    for (int i=3;i<10;i++) {
+      GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
+      grouperScimGroup.setDisplayName("dispName" + i);
+    
+      createScimGroup("awsConfigId", grouperScimGroup, null);
+    }
 
 //    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId");
 //    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
@@ -228,6 +227,10 @@ public class GrouperScim2ApiCommands {
       }
 
       ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      if (fieldsToUpdate.containsKey("active")) {
+        throw new UnsupportedOperationException("active field cannnot be modified");
+      }
 
       if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
         

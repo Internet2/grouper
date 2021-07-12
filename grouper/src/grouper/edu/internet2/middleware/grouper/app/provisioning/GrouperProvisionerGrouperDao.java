@@ -16,12 +16,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -142,36 +145,58 @@ public class GrouperProvisionerGrouperDao {
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
     
     String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupIdOfUsersToProvision();
-    boolean retrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
+    boolean restrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
     
+    StringBuilder sqlInitial = null;
+    List<Object> paramsInitial = new ArrayList<Object>();
+    List<Type> typesInitial = new ArrayList<Type>();
     
-    StringBuilder sqlInitial = new StringBuilder("select " + 
-        "    gm.id, " +
-        "    gm.subject_source, " + 
-        "    gm.subject_id, " + 
-        "    gm.subject_identifier0, " + 
-        "    gm.name, " + 
-        "    gm.description " + 
-        "from " + 
-        "    grouper_members gm, " + 
-        "    grouper_memberships ms, " +
-        "    grouper_group_set gs, " + 
-        "    grouper_sync_group gsg " +
-        (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
-        "where " +
-        "    gsg.grouper_sync_id = ? " +
-        "    and ms.owner_id = gs.member_id " +
-        "    and ms.field_id = gs.member_field_id " +
-        "    and ms.member_id = gm.id " +
-        "    and gs.owner_group_id = gsg.group_id " + 
-        "    and gsg.provisionable = 'T' " +
-        "    and ms.enabled='T' " +
-        (retrictUsersByGroupId ? ("and gmship_to_provision.owner_id = gs_to_provision.member_id " +
-            " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
-            " and gs_to_provision.field_id = ? " +
-            " and gmship_to_provision.member_id = gm.id " +
-            " and gs_to_provision.owner_group_id = ? "): ""));
-    
+    if (restrictUsersByGroupId) {
+      
+      GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true, new QueryOptions().secondLevelCache(false));
+      
+      sqlInitial = new StringBuilder("select " + 
+          "    gm.id, " +
+          "    gm.subject_source, " + 
+          "    gm.subject_id, " + 
+          "    gm.subject_identifier0, " + 
+          "    gm.name, " + 
+          "    gm.description " + 
+          "from " + 
+          "    grouper_members gm, " + 
+          "    grouper_memberships ms, " +
+          "    grouper_group_set gs " + 
+          "where " +
+          "    ms.owner_id = gs.member_id " +
+          "    and ms.field_id = gs.member_field_id " +
+          "    and ms.member_id = gm.id " +
+          "    and ms.enabled='T' " +
+          "    and gs.field_id = ? " +
+          "    and gs.owner_group_id = ? ");
+    } else {
+      sqlInitial = new StringBuilder("select " + 
+          "    gm.id, " +
+          "    gm.subject_source, " + 
+          "    gm.subject_id, " + 
+          "    gm.subject_identifier0, " + 
+          "    gm.name, " + 
+          "    gm.description " + 
+          "from " + 
+          "    grouper_members gm, " + 
+          "    grouper_memberships ms, " +
+          "    grouper_group_set gs, " + 
+          "    grouper_sync_group gsg " +
+          "where " +
+          "    gsg.grouper_sync_id = ? " +
+          "    and ms.owner_id = gs.member_id " +
+          "    and ms.field_id = gs.member_field_id " +
+          "    and ms.member_id = gm.id " +
+          "    and gs.owner_group_id = gsg.group_id " + 
+          "    and gsg.provisionable = 'T' " +
+          "    and ms.enabled='T' ");
+      paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+      typesInitial.add(StringType.INSTANCE);
+    }
     
     List<String> subjectSources = new ArrayList<String>(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
     
@@ -192,10 +217,7 @@ public class GrouperProvisionerGrouperDao {
       throw new RuntimeException("Unexpected field type: " + membershipFieldType.name());
     }
     
-    List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
-
-    if (retrictUsersByGroupId) {
+    if (restrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
       paramsInitial.add(groupIdOfUsersToProvision);
     }
@@ -203,10 +225,7 @@ public class GrouperProvisionerGrouperDao {
     paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
     
-    List<Type> typesInitial = new ArrayList<Type>();
-    typesInitial.add(StringType.INSTANCE);
-
-    if (retrictUsersByGroupId) {
+    if (restrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
       typesInitial.add(StringType.INSTANCE);
     }
