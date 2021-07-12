@@ -924,12 +924,49 @@ public class GrouperProvisioningCompare {
       }
     }
 
+    boolean handleRecalcs = true;
+    
+    // if the target cannot recalc a membership then replace the full group list here and skip the recalc below
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships() &&  this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isReplaceMemberships()) {
+      
+      handleRecalcs = false;
+      
+      Map<ProvisioningGroup, List<ProvisioningMembership>> provisioningMembershipsToReplace = new HashMap<ProvisioningGroup, List<ProvisioningMembership>>();
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) { 
+        if (provisioningMembershipWrapper.isRecalc()) {
+          
+          ProvisioningGroup provisioningGroup = provisioningMembershipWrapper.getGrouperTargetMembership().getProvisioningGroup();
+          
+          List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
+          if (provisioningMemberships == null) {
+            provisioningMemberships = new ArrayList<ProvisioningMembership>();
+          }
+          
+          if (!provisioningMembershipWrapper.isDelete()) {
+            provisioningMemberships.add(provisioningMembershipWrapper.getGrouperTargetMembership());
+          }
+          provisioningMembershipsToReplace.put(provisioningGroup, provisioningMemberships);
+          
+        }
+      }
+      
+      this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces()
+      .setProvisioningMemberships(provisioningMembershipsToReplace);
+        
+    }
+    
     Map<Object, ProvisioningMembership> grouperMatchingIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     Map<Object, ProvisioningMembership> targetMatchingIdToTargetMembership = new HashMap<Object, ProvisioningMembership>();
     
     List<ProvisioningMembership> grouperTargetMembershipsWithNullIds = new ArrayList<ProvisioningMembership>();
     
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+      
+      // if the target cannot recalc a membership then handle with the replace above and skip it here
+      if (!handleRecalcs && provisioningMembershipWrapper.isRecalc()) {
+        continue;
+      }
       
       ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.isDelete() ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
@@ -1134,6 +1171,12 @@ public class GrouperProvisioningCompare {
       int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships());
       if (membershipDeletes > 0) {
         debugMap.put("membershipDeletesAfterCompare", membershipDeletes);
+      }
+    }
+    {
+      int membershipReplaces = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces().getProvisioningMemberships());
+      if (membershipReplaces > 0) {
+        debugMap.put("membershipReplacesAfterCompare", membershipReplaces);
       }
     }
   

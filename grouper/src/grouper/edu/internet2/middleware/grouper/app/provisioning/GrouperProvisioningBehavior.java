@@ -733,14 +733,34 @@ public class GrouperProvisioningBehavior {
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      return true;
+      return false;
     }
 
     return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
   }
-
+  
+  private Boolean replaceMemberships;
+  
+  public boolean isReplaceMemberships() {
+    
+    if (replaceMemberships != null) {
+      return replaceMemberships;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      //can the provisioner even do this?
+      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+        return true;
+      }
+    }    
+    return false;
+  }
 
   
+  public void setReplaceMemberships(Boolean replaceMemberships) {
+    this.replaceMemberships = replaceMemberships;
+  }
+
+
   public void setSelectMemberships(Boolean membershipsRetrieve) {
     this.selectMemberships = membershipsRetrieve;
   }
@@ -1194,7 +1214,7 @@ public class GrouperProvisioningBehavior {
     this.deleteGroupsIfGrouperDeleted = groupsDeleteIfDeletedFromGrouper;
   }
 
-  
+ 
   public boolean isSelectEntitiesAll() {
     if (this.selectEntitiesAll != null) {
       return selectEntitiesAll;
@@ -1204,7 +1224,10 @@ public class GrouperProvisioningBehavior {
     if (!this.isSelectEntities()) {
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false);
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
   }
 
   

@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,70 +33,114 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * This class interacts with the Microsoft Graph API.
  */
 public class GrouperScim2ApiCommands {
-
-  public static void main(String[] args) {
-
+  
+  public static void main1(String[] args) {
+    
     GrouperStartup.startup();
-
-//    for (int i=3;i<10;i++) {
+    
+//    for (int i=10;i<60;i++) {
 //      GrouperScim2User grouperScimUser = new GrouperScim2User();
 //      grouperScimUser.setActive(true);
-//      grouperScimUser.setCostCenter("costCent" + i);
 //      grouperScimUser.setDisplayName("dispName" + i);
 //      grouperScimUser.setEmailType("emailTy" + i);
-//      grouperScimUser.setEmailValue("emailVal" + i);
-//      grouperScimUser.setEmployeeNumber("123456" + i);
+//      grouperScimUser.setEmailValue("emailVal" + i+"@test.com");
 //      grouperScimUser.setExternalId("extId" + i);
 //      grouperScimUser.setFamilyName("famName" + i);
 //      grouperScimUser.setFormattedName("formName" + i);
 //      grouperScimUser.setGivenName("givName" + i);
-//      grouperScimUser.setMiddleName("midName" + i);
 //      grouperScimUser.setUserName("userNam" + i);
 //      grouperScimUser.setUserType("userTyp" + i);
-//  
-//      createScimUser("awsLocal", grouperScimUser, null);
-//    }
-//
-//    for (int i=3;i<10;i++) {
-//      GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
-//      grouperScimGroup.setDisplayName("dispName" + i);
 //    
-//      createScimGroup("awsLocal", grouperScimGroup, null);
+//      createScimUser("githubLocal", grouperScimUser, null);
 //    }
+    
+//      List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("githubLocal");
+//      System.out.println("Total users are "+grouperScim2Users.size());
+//      for (GrouperScim2User grouperScim2User : grouperScim2Users) {
+//        System.out.println(grouperScim2User);
+//      }
+    
+      GrouperScim2User grouperScimUser = retrieveScimUser("githubLocal", "id", "4a16500367134ad0954d0612d8203b56");
+      System.out.println(grouperScimUser);
+    
+//      deleteScimUser("githubLocal", "49dbdc83e0744a68bd565ee9e2780e38");
+    
+      Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+      fieldToAction.put("displayName", ProvisioningObjectChangeAction.update);
+      grouperScimUser.setDisplayName("newDisplayName");
+//      fieldToAction.put("active", ProvisioningObjectChangeAction.update);
+//      grouperScimUser.setActive(false);
+      patchScimUser("githubLocal", grouperScimUser, fieldToAction);
+//    
+      grouperScimUser = retrieveScimUser("githubLocal","id", "4a16500367134ad0954d0612d8203b56");
+      System.out.println(grouperScimUser);
 
-//    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsLocal");
+    
+  }
+
+  public static void main(String[] args) {
+
+    GrouperStartup.startup();
+//
+    for (int i=3;i<10;i++) {
+      GrouperScim2User grouperScimUser = new GrouperScim2User();
+//      grouperScimUser.setActive(true);
+//      grouperScimUser.setCostCenter("costCent" + i);
+      grouperScimUser.setDisplayName("dispName" + i);
+//      grouperScimUser.setEmailType("emailTy" + i);
+//      grouperScimUser.setEmailValue("emailVal" + i);
+//      grouperScimUser.setEmployeeNumber("123456" + i);
+//      grouperScimUser.setExternalId("extId" + i);
+      grouperScimUser.setFamilyName("famName" + i);
+//      grouperScimUser.setFormattedName("formName" + i);
+      grouperScimUser.setGivenName("givName" + i);
+//      grouperScimUser.setMiddleName("midName" + i);
+      grouperScimUser.setUserName("userNam" + i);
+//      grouperScimUser.setUserType("userTyp" + i);
+  
+      createScimUser("awsConfigId", grouperScimUser, null);
+    }
+//
+    for (int i=3;i<10;i++) {
+      GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
+      grouperScimGroup.setDisplayName("dispName" + i);
+    
+      createScimGroup("awsConfigId", grouperScimGroup, null);
+    }
+
+//    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId");
 //    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
 //      System.out.println(grouperScim2User);
 //    }
 
-//    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsLocal", "id", "ce8ef11ccae741d394f37b6b78d92735");
-//    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsLocal", "displayName", "dispName4");
+//    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsConfigId", "id", "90677e12fd-bc261a14-c4a2-4d3f-b6a4-e22b72aa39cb");
+//    GrouperScim2Group grouperScimGroup = retrieveScimGroup("awsConfigId", "displayName", "dispName4");
 //    System.out.println(grouperScimGroup);
 
-    //    GrouperScimUser grouperScimUser = retrieveScimUser("awsLocal", "displayName", "dispName5");
-    //    System.out.println(grouperScimUser);
+//        GrouperScim2User grouperScimUser = retrieveScimUser("awsConfigId", "userName", "userNam3");
+//        System.out.println(grouperScimUser);
     
-    //    deleteScimUser("awsLocal", "4489fb364b7f4689bd2acc7a3c56441f");
-    //    deleteScimGroup("awsLocal", "75975fdb5bde4f2f9d89271d1f5ed6ec");
+//        deleteScimUser("awsConfigId", "90677e12fd-97190f13-5312-42ca-aa11-76655a517453");
+//        deleteScimGroup("awsConfigId", "90677e12fd-bc261a14-c4a2-4d3f-b6a4-e22b72aa39cb");
     
 //    GrouperScim2User grouperScim2User = HibernateSession.byHqlStatic()
-//      .createQuery("select groupScim2User from GrouperScim2User where id = :theId")
-//      .setString("theId", "f5a889d1f4944eaabd28c299125c8d8c")
+//      .createQuery("from GrouperScim2User where id = :theId")
+//      .setString("theId", "2c3b311291b340a0b1cf52d899d69998")
 //      .uniqueResult(GrouperScim2User.class);
 
-    //  String scimConfigId = "awsLocal";
-    //  GrouperScim2User grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
-    //  System.out.println(grouperScim2User);
-    //  
-    //  Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
-    //  fieldToAction.put("active", ProvisioningObjectChangeAction.update);
-    //  grouperScim2User.setActive(false);
-    //  patchScimUser(scimConfigId, grouperScim2User, fieldToAction);
+//      String scimConfigId = "awsConfigId";
+//      GrouperScim2User grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
+//      System.out.println(grouperScim2User);
+//
+//      Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+//      fieldToAction.put("active", ProvisioningObjectChangeAction.update);
+//      grouperScim2User.setActive(false);
+//      patchScimUser(scimConfigId, grouperScim2User, fieldToAction);
     //
     //  grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
     //  System.out.println(grouperScim2User);
 
-//    String scimConfigId = "awsReal";
+//    String scimConfigId = "awsConfigId";
 //    GrouperScim2User grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
 //    System.out.println(grouperScim2User);
 //    
@@ -107,31 +152,31 @@ public class GrouperScim2ApiCommands {
 //    grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
 //    System.out.println(grouperScim2User);
 
-//    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsLocal");
-//    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
-//      System.out.println(grouperScim2User);
-//    }
-
-//    createScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
-//        "1bc585968f974664be6144bbbecfc061", "4a47eaa93d7d47bb8e0fee0b20c6e6ee",
-//        "566d06979c4246f69d20cb0540722d4a"));
-
-//    createScimMemberships("awsReal", "906765e4ce-532dd5cb-bdc4-4046-923e-16dec5fe4b9a",
-//        GrouperUtil.toSet("906765e4ce-cf77e628-89ed-41ac-93cd-cfa0a1bc965a", 
-//            "906765e4ce-64270e1f-d1f7-4922-a487-69ac67c218b9", "906765e4ce-70466854-1917-403f-a193-c99cb07505dc"));
-
-//    deleteScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
-//      "1bc585968f974664be6144bbbecfc061", "4a47eaa93d7d47bb8e0fee0b20c6e6ee",
-//      "566d06979c4246f69d20cb0540722d4a"));
-
-//    replaceScimMemberships("awsLocal", "2137d92b4867411c8ba316a95695cb3a", GrouperUtil.toSet(
-//      //"1bc585968f974664be6144bbbecfc061",
-//      "4a47eaa93d7d47bb8e0fee0b20c6e6ee", "566d06979c4246f69d20cb0540722d4a"));
-
-    List<GrouperScim2Group> grouperScim2Groups = retrieveScimGroups("awsLocal");
-    for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
-      System.out.println(grouperScim2Group);
+    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId");
+    for (GrouperScim2User grouperScim2User : grouperScim2Users) {
+      System.out.println(grouperScim2User);
     }
+
+//    createScimMemberships("awsLocal", "39eacb03852349aa90e740353f076dbb", GrouperUtil.toSet(
+//        "442490540946446988319e21065e69d8", "5728def917c3496a8d6b83501fbb7939",
+//        "650b48cc80fe46929b4911f20ac6cde1"));
+
+//    createScimMemberships("awsConfigId", "90677e12fd-c68ad069-b25c-4913-b7f2-d07fe0f9a24c",
+//        GrouperUtil.toSet("90677e12fd-5d3836ea-44d8-41b6-8f3c-2ae2a90404f7", 
+//            "90677e12fd-2640018a-dffa-4206-9a6c-d2dd7aa70f79", "90677e12fd-fe48a053-9821-4e43-8a33-58c54ecded36"));
+
+//    deleteScimMemberships("awsConfigId", "90677e12fd-c68ad069-b25c-4913-b7f2-d07fe0f9a24c",
+//        GrouperUtil.toSet("90677e12fd-5d3836ea-44d8-41b6-8f3c-2ae2a90404f7",
+//            "90677e12fd-2640018a-dffa-4206-9a6c-d2dd7aa70f79", "90677e12fd-fe48a053-9821-4e43-8a33-58c54ecded36"));
+
+//    replaceScimMemberships("awsConfigId", "90677e12fd-c68ad069-b25c-4913-b7f2-d07fe0f9a24c", GrouperUtil.toSet(
+//      //"1bc585968f974664be6144bbbecfc061",
+//        "90677e12fd-2640018a-dffa-4206-9a6c-d2dd7aa70f79", "90677e12fd-fe48a053-9821-4e43-8a33-58c54ecded36"));
+
+//    List<GrouperScim2Group> grouperScim2Groups = retrieveScimGroups("awsLocal");
+//    for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
+//      System.out.println(grouperScim2Group);
+//    }
 
 //    deleteScimMemberships("awsReal", "906765e4ce-532dd5cb-bdc4-4046-923e-16dec5fe4b9a",
 //        GrouperUtil.toSet("906765e4ce-cf77e628-89ed-41ac-93cd-cfa0a1bc965a", 
@@ -168,7 +213,7 @@ public class GrouperScim2ApiCommands {
       //        {
       //            "op": "replace",
       //            "path": "active",
-      //            "value": "false"
+      //            "value": false
       //        }
       //    ]
       // }
@@ -182,6 +227,10 @@ public class GrouperScim2ApiCommands {
       }
 
       ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      if (fieldsToUpdate.containsKey("active")) {
+        throw new UnsupportedOperationException("active field cannnot be modified");
+      }
 
       if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
         
@@ -245,7 +294,12 @@ public class GrouperScim2ApiCommands {
             break;
           case update:
             operationNode.put("op", "replace");
-            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            Object resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
+            if (resolvedObject != null && resolvedObject instanceof Boolean) {
+              operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
+            } else {
+              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            }
             break;
           case delete:
             operationNode.put("op", "remove");
@@ -481,6 +535,11 @@ public class GrouperScim2ApiCommands {
       }
       
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      
+      if (jsonNode == null) {
+        debugMap.put("found", false);
+        return null;
+      }
 
       if (StringUtils.equals(fieldName, "id")) {
         GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(jsonNode);
@@ -534,30 +593,38 @@ public class GrouperScim2ApiCommands {
     List<GrouperScim2User> results = new ArrayList<GrouperScim2User>();
     
     try {
-
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Users",
-          GrouperUtil.toSet(200), new int[] { -1 }, null);
-
-      int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
-      int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-      int startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-
-      if (totalResults > itemsPerPage) {
-        throw new RuntimeException("Total results " + totalResults + " is greater than items per page " + itemsPerPage);
-      }
-
-      if (totalResults == 0) {
-        return results;
-      }
       
-      ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
- 
-      for (int i=0;i<resourcesNode.size();i++) {
-        JsonNode userNode = resourcesNode.get(i);
-        GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
-        results.add(grouperScimUser);
-      }
-      
+      boolean moreResults = true;
+      int startIndex = 1;
+      do {
+        
+        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Users?startIndex="+startIndex+"&count="+50,
+            GrouperUtil.toSet(200), new int[] { -1 }, null);
+
+        int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
+        int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
+        startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+
+        if (totalResults == 0) {
+          return results;
+        }
+        
+        ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+   
+        for (int i=0;i<resourcesNode.size();i++) {
+          JsonNode userNode = resourcesNode.get(i);
+          GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
+          results.add(grouperScimUser);
+        }
+        
+        if (results.size() >= totalResults) {
+          moreResults = false;
+        }
+        
+        startIndex = startIndex + itemsPerPage;
+        
+      } while (moreResults);
+        
       return results;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

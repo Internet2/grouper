@@ -4,7 +4,9 @@
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 
@@ -242,7 +244,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
           targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
           targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships());
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
       sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
     }
     return null;
@@ -1574,6 +1577,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipInserts());
       logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipUpdates());
       logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipDeletes());
+      
+      Collection<List<ProvisioningMembership>> provisioningMembershipsLists = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipReplaces().values();
+      
+      List<ProvisioningMembership> provisioningMembershipsToLog = new ArrayList<ProvisioningMembership>();
+      for (List<ProvisioningMembership> provisioningMemberships: provisioningMembershipsLists) {
+        provisioningMembershipsToLog.addAll(provisioningMemberships);
+      }
+      
+      logMemberships(provisioningMembershipsToLog);
       return targetDaoSendMembershipChangesToTargetResponse;
     }
     {
@@ -1593,9 +1605,65 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       
       this.updateMemberships(new TargetDaoUpdateMembershipsRequest(targetMembershipUpdates));
     }
+    {
+      Map<ProvisioningGroup, List<ProvisioningMembership>> targetMembershipReplaces = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipReplaces();
+      
+      for (ProvisioningGroup targetGroup: targetMembershipReplaces.keySet()) {
+        
+        this.replaceGroupMemberships(new TargetDaoReplaceGroupMembershipsRequest(targetGroup, targetMembershipReplaces.get(targetGroup)));
+      }
+      
+      
+    }
     return null;
 
   }
+
+  @Override
+  public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
+    
+    
+    if (GrouperUtil.length(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) == 0) {
+      return new TargetDaoReplaceGroupMembershipsResponse();
+    }
+
+    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+      try {
+        TargetDaoReplaceGroupMembershipsResponse targetDaoReplaceGroupMembershipsResponse = this.wrappedDao.replaceGroupMemberships(targetDaoReplaceGroupMembershipsRequest);
+        logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
+        for (ProvisioningMembership provisioningMembership : targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) { 
+          if (provisioningMembership.getProvisioned() == null) {
+            throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
+          }
+        }
+        return targetDaoReplaceGroupMembershipsResponse;
+      } catch (RuntimeException e) {
+        for (ProvisioningMembership targetMembership : targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) { 
+          
+          if (targetMembership.getProvisioned() == null) {
+            targetMembership.setProvisioned(false);
+          }
+          if (targetMembership.getException() == null) {
+            GrouperUtil.injectInException(e, targetMembership.toString());
+            targetMembership.setException(e);
+          }
+        }
+        logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
+      }
+      return null;
+    }
+    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMembership(), false)) {
+      for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships())) {
+        updateMembership(new TargetDaoUpdateMembershipRequest(provisioningMembership));
+      }
+      return null;
+    }
+
+    throw new RuntimeException("Dao cannot update membership or memberships");
+    
+  }
+  
+  
 
 
 

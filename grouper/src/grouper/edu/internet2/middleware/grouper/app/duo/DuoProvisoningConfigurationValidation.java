@@ -206,7 +206,7 @@ public class DuoProvisoningConfigurationValidation extends GrouperProvisioningCo
     }
     
     if (countOfAttributes > 2 || (countOfAttributes <= 2 && (2 - countOfAttributes) != attributesAllowed.size())) {
-      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectEntityAttributeConfigured");
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectDuoEntityAttributeConfigured");
       this.addErrorMessage(errorMessage);
     }
 

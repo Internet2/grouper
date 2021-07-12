@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
-import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -20,7 +18,10 @@ import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
 import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
@@ -29,9 +30,9 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
-public class AwsScim2MockServiceHandler extends MockServiceHandler {
+public class GithubScim2MockServiceHandler extends MockServiceHandler {
 
-  public AwsScim2MockServiceHandler() {
+  public GithubScim2MockServiceHandler() {
   }
 
   /**
@@ -47,9 +48,6 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     return doNotLogHeaders;
   }
 
-  /**
-   * 
-   */
   public static void ensureScimMockTables() {
     
     try {
@@ -93,18 +91,20 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     }
     mockTablesThere = true;
     
-    
-    
     if (GrouperUtil.length(mockServiceRequest.getPostMockNamePaths()) == 0) {
       throw new RuntimeException("Pass in a path!");
     }
     
     List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
-   
-    GrouperUtil.assertion(mockNamePaths.size() >= 1, "Must start with v2/");
-    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "v2"), "");
     
-    mockNamePaths = mockNamePaths.subList(1, mockNamePaths.size());
+    // get org name out of the url and pass that to all the methods
+    
+    GrouperUtil.assertion(mockNamePaths.size() >= 3, "Must start with v2/organizations/orgName/");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "v2"), "");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "organizations"), "");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(2), "orgName"), "");
+    
+    mockNamePaths = mockNamePaths.subList(3, mockNamePaths.size());
     
     String[] paths = new String[mockNamePaths.size()];
     paths = mockNamePaths.toArray(paths);
@@ -124,46 +124,30 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
         getUser(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        getGroups(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        getGroup(mockServiceRequest, mockServiceResponse);
-        return;
-      }
+
     }
     if (StringUtils.equals("DELETE", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
         deleteUser(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        deleteGroup(mockServiceRequest, mockServiceResponse);
-        return;
-      }
+
     }
     if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
         patchUser(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        patchGroup(mockServiceRequest, mockServiceResponse);
-        return;
-      }
+
     }
     if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
         postUsers(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("Groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        postGroups(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-    }
 
+    }
+  
     throw new RuntimeException("Not expecting request: '" + mockServiceRequest.getHttpServletRequest().getMethod() 
         + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
   }
@@ -312,11 +296,6 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     //  {
     //    "active":true,
-    //    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":{
-    //       "employeeNumber":"12345",
-    //       "costCenter":"costCent"
-    //    },
-    //    "id":"i",
     //    "displayName":"dispName",
     //    "emails":[
     //       {
@@ -328,8 +307,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     //    "name":{
     //       "formatted":"formName",
     //       "familyName":"famName",
-    //       "givenName":"givName",
-    //       "middleName":"midName"
+    //       "givenName":"givName"
     //    },
     //    "externalId":"extId",
     //    "userName":"userNam",
@@ -352,10 +330,9 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(201);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-  
     
   }
-
+  
   public void getUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
@@ -364,11 +341,38 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
     
+    String offset = mockServiceRequest.getHttpServletRequest().getParameter("startIndex");
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("count");
+    
+    int limitInt = 30;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        limitInt = 30;
+      }
+      if (limitInt > 50) {
+        limitInt = 50;
+      }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
+    queryOptions = queryOptions.paging(queryPaging);
+    
     
     List<GrouperScim2User> grouperScimUsers = null;
+    ByHqlStatic query = null;
     
     if (StringUtils.isBlank(filter)) {
-      grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class);
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User");
     } else {
       //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
       //          + "%20eq%20\"" + GrouperUtil.escapeUrlEncode(fieldValue)
@@ -380,8 +384,11 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       String value = matcher.group(2);
       value = StringEscapeUtils.unescapeJson(value);
       GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
-      grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2User.class);
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value);
     }
+    
+    query.options(queryOptions);
+    grouperScimUsers = query.list(GrouperScim2User.class);
     
     //  {
     //    "totalResults": 5,
@@ -398,9 +405,9 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    resultNode.put("totalResults", GrouperUtil.length(grouperScimUsers));
+    resultNode.put("totalResults", queryPaging.getTotalRecordCount());
     resultNode.put("itemsPerPage", GrouperUtil.length(grouperScimUsers));
-    resultNode.put("startIndex", 1);
+    resultNode.put("startIndex", offset);
 
     {
       ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
@@ -512,8 +519,8 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
 
     ArrayNode schemasNode = (ArrayNode)requestNode.get("schemas");
 
-    GrouperUtil.assertion(schemasNode.size() == 1, "schema is required");
-    GrouperUtil.assertion("urn:ietf:params:scim:api:messages:2.0:PatchOp".equals(schemasNode.get(0).asText()), "schema is required");
+//    GrouperUtil.assertion(schemasNode.size() == 1, "schema is required");
+//    GrouperUtil.assertion("urn:ietf:params:scim:api:messages:2.0:PatchOp".equals(schemasNode.get(0).asText()), "schema is required");
 
     ArrayNode operationsNode = (ArrayNode)requestNode.get("Operations");
 
@@ -537,42 +544,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       }
       String path = GrouperUtil.jsonJacksonGetString(operation, "path");
       
-      //  {
-      //    "active":true,
-      //    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":{
-      //       "employeeNumber":"12345",
-      //       "costCenter":"costCent"   e.g. urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.costCenter
-      //    },
-      //    "id":"i",
-      //    "displayName":"dispName",
-      //    "emails":[
-      //       {
-      //          "value":"emailVal", emails.value eq "emailVal" or emails[value eq "emailVal"]
-      //          "primary":true,
-      //          "type":"emailTy"  emails.type eq "work" or emails[type eq "work"]
-      //       }
-      //    ],
-      //    "name":{
-      //       "formatted":"formName",    e.g. name.formatted
-      //       "familyName":"famName",
-      //       "givenName":"givName",
-      //       "middleName":"midName"
-      //    },
-      //    "externalId":"extId",
-      //    "userName":"userNam",
-      //    "userType":"userTyp"
-      // }
-      
       GrouperUtil.assertion(!"id".equals(path), "cannot patch id");
-
-      //  costCenter : String
-      if ("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.costCenter".equals(path)) {
-        path = "costCenter";
-      }
-      //  employeeNumber : String
-      if ("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.employeeNumber".equals(path)) {
-        path = "employeeNumber";
-      }
 
       //  familyName : String
       if ("name.familyName".equals(path)) {
@@ -687,306 +659,5 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
   }
 
-  public void postGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-  
-    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
-      return;
-    }
-    
-    //  {
-    //    "meta": {
-    //        "resourceType": "Group",
-    //        "created": "2020-04-06T16:48:19Z",
-    //        "lastModified": "2020-04-06T16:48:19Z"
-    //    },
-    //    "schemas": [
-    //        "urn:ietf:params:scim:schemas:core:2.0:Group"
-    //    ],
-    //    "displayName": "Group Bar"
-    //  }
-    
-    String groupJsonString = mockServiceRequest.getRequestBody();
-    JsonNode groupJsonNode = GrouperUtil.jsonJacksonNode(groupJsonString);
-
-    //check require args
-    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "id")) == 0, "id is forbidden");
-
-    GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupJsonNode);
-    grouperScimGroup.setId(GrouperUuid.getUuid());
-    grouperScimGroup.setCreated(new Timestamp(System.currentTimeMillis()));
-    grouperScimGroup.setLastModified(new Timestamp(System.currentTimeMillis()));
-
-    HibernateSession.byObjectStatic().save(grouperScimGroup);
-
-    JsonNode resultNode = grouperScimGroup.toJson(null);
-
-    mockServiceResponse.setResponseCode(201);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-    
-  }
-
-  public void deleteGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
-      return;
-    }
-    
-    String id = mockServiceRequest.getPostMockNamePaths()[1];
-    
-    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
-  
-    HibernateSession.byHqlStatic()
-    .createQuery("delete from GrouperScim2Membership where groupId = :groupId")
-    .setString("groupId", id).executeUpdateInt();
-    
-    int groupsDeleted = HibernateSession.byHqlStatic()
-        .createQuery("delete from GrouperScim2Group where id = :theId")
-        .setString("theId", id).executeUpdateInt();
-    mockServiceRequest.getDebugMap().put("groupsDeleted", groupsDeleted);
-    
-    // not sure why but they set this content type even though no json in response
-    mockServiceResponse.setContentType("application/json");
-
-    if (groupsDeleted == 1) {
-      mockServiceResponse.setResponseCode(204);
-    } else if (groupsDeleted == 0) {
-      mockServiceResponse.setResponseCode(404);
-    } else {
-      throw new RuntimeException("groupsDeleted: " + groupsDeleted);
-    }
-        
-  }
-
-  public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-  
-    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
-      return;
-    }
-    
-    String id = mockServiceRequest.getPostMockNamePaths()[1];
-    
-    GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperScim2Group where id = :theValue").setString("theValue", id)
-        .uniqueResult(GrouperScim2Group.class);
-  
-    if (grouperScimGroup == null) {
-      mockServiceResponse.setResponseCode(404);
-      return;
-    }
-    ObjectNode objectNode = grouperScimGroup.toJson(null);
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
-  
-  }
-
-  public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-  
-    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
-      return;
-    }
-    
-    String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
-    
-    List<GrouperScim2Group> grouperScimGroups = null;
-    
-    if (StringUtils.isBlank(filter)) {
-      grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class);
-    } else {
-      //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
-      //          + "%20eq%20\"" + GrouperUtil.escapeUrlEncode(fieldValue)
-      //displayName eq "something"
-      Pattern fieldPattern = Pattern.compile("^([^\\s]+)\\s+eq\\s+\"(.+)\"$");
-      Matcher matcher = fieldPattern.matcher(filter);
-      GrouperUtil.assertion(matcher.matches(), "doesnt match regex '" + filter + "'");
-      String field = matcher.group(1);
-      String value = matcher.group(2);
-      value = StringEscapeUtils.unescapeJson(value);
-      GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
-      grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2Group.class);
-    }
-    
-    //  {
-    //    "totalResults": 5,
-    //    "Resources": [
-    //      {
-    //        "id": "11111111-2222-3333-4444-555555555555",
-    //        "displayName": "my group"
-    //      }
-    //    ]
-    //  }
-    
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-    resultNode.put("totalResults", GrouperUtil.length(grouperScimGroups));
-    resultNode.put("itemsPerPage", GrouperUtil.length(grouperScimGroups));
-    resultNode.put("startIndex", 1);
-  
-    {
-      ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
-      schemasNode.add("urn:ietf:params:scim:api:messages:2.0:ListResponse");
-      resultNode.set("schemas", schemasNode);
-    }
-    
-    ArrayNode resourcesNode = GrouperUtil.jsonJacksonArrayNode();
-    
-    for (GrouperScim2Group grouperScimGroup : grouperScimGroups) {
-      resourcesNode.add(grouperScimGroup.toJson(null));
-    }
-    
-    resultNode.set("Resources", resourcesNode);
-    
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-  
-  }
-
-  public void patchGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    
-    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
-      return;
-    }
-    
-    String id = mockServiceRequest.getPostMockNamePaths()[1];
-    
-    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
-  
-    GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperScim2Group where id = :theValue").setString("theValue", id)
-        .uniqueResult(GrouperScim2Group.class);
-
-    if (grouperScimGroup == null) {
-      mockServiceResponse.setResponseCode(404);
-      mockServiceRequest.getDebugMap().put("foundGroup", false);
-      return;
-    }
-        
-    mockServiceResponse.setContentType("application/json");
-    
-    //  {
-    //    "schemas": [
-    //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
-    //    ],
-    //    "Operations": [
-    //        {
-    //            "op": "replace",
-    //            "path": "active",
-    //            "value": "false"
-    //        }
-    //    ]
-    //  }
-    
-    String requestBodyString = mockServiceRequest.getRequestBody();
-    JsonNode requestNode = GrouperUtil.jsonJacksonNode(requestBodyString);
-  
-    ArrayNode schemasNode = (ArrayNode)requestNode.get("schemas");
-  
-    GrouperUtil.assertion(schemasNode.size() == 1, "schema is required");
-    GrouperUtil.assertion("urn:ietf:params:scim:api:messages:2.0:PatchOp".equals(schemasNode.get(0).asText()), "schema is required");
-  
-    ArrayNode operationsNode = (ArrayNode)requestNode.get("Operations");
-
-    GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
-
-    int adds = 0;
-    int removes = 0;
-    int replaces = 0;
-    
-    for (int i=0;i<operationsNode.size();i++) {
-
-      JsonNode operation = operationsNode.get(i);
-
-      //            "op": "replace",
-      //            "path": "active",
-      //            "value": "false"
-
-      // replace, add, remove
-      String op = GrouperUtil.jsonJacksonGetString(operation, "op");
-      boolean opAdd = "add".equals(op);
-      boolean opReplace = "replace".equals(op);
-      boolean opRemove = "remove".equals(op);
-      if (!opAdd && !opRemove && !opReplace) {
-        throw new RuntimeException("Invalid op, expecting add, replace, remove, but received: '" + op + "'");
-      }
-      String path = GrouperUtil.jsonJacksonGetString(operation, "path");
-
-      Set<String> userIdsToAdd = new HashSet<String>();
-      Set<String> userIdsToRemove = new HashSet<String>();
-
-      if (opRemove) {
-        
-        String userId = grouperScimGroup.validateMembersPath(path);
-        
-        if (StringUtils.isBlank(userId)) {
-          throw new RuntimeException("userId is blank: " + requestBodyString);
-        }
-
-        userIdsToRemove.add(userId);
-        
-      } else {
-        
-        GrouperUtil.assertion("members".equals(path), "'members' is only path acceptable, not '" + path + "'");
-        
-        JsonNode valueNode = GrouperUtil.jsonJacksonGetNode(operation, "value");
-        
-        if (!valueNode.isArray()) {
-          ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
-          arrayNode.add(valueNode);
-          valueNode = arrayNode;
-        }
-        for (int j=0;j<valueNode.size();j++) {
-          
-          JsonNode theValue = valueNode.get(j);
-          
-          String value = GrouperUtil.jsonJacksonGetString(theValue, "value");
-          GrouperUtil.assertion(!StringUtils.isBlank(value), "'members' is only path acceptable, not '" + path + "'");
-          userIdsToAdd.add(value);
-        }
-        
-        if (opReplace) {
-         
-          userIdsToRemove.addAll(HibernateSession.byHqlStatic()
-              .createQuery("select userId from GrouperScim2Membership where groupId = :theGroupId")
-              .setString("theGroupId", id).listSet(String.class));
-
-          Set<String> replaceWithIds = new HashSet<String>(userIdsToAdd);
-          
-          userIdsToAdd.removeAll(userIdsToRemove);
-          userIdsToRemove.removeAll(replaceWithIds);
-          replaces++;
-        }
-      }
-      
-      for (String userId : userIdsToRemove) {
-        GrouperScim2Membership grouperScim2Membership = HibernateSession.byHqlStatic()
-            .createQuery("select membership from GrouperScim2Membership membership where userId = :theUserId and groupId = :theGroupId")
-            .setString("theGroupId", id).setString("theUserId", userId).uniqueResult(GrouperScim2Membership.class);
-        
-        if (grouperScim2Membership != null) {
-          HibernateSession.byObjectStatic().delete(grouperScim2Membership);
-          removes++;
-        }
-
-      }
-
-      for (String userId : userIdsToAdd) {
-        GrouperScim2Membership grouperScim2Membership = new GrouperScim2Membership();
-        grouperScim2Membership.setId(GrouperUuid.getUuid());
-        grouperScim2Membership.setUserId(userId);
-        grouperScim2Membership.setGroupId(id);
-        HibernateSession.byObjectStatic().save(grouperScim2Membership);
-        adds++;
-      }
-
-    }
-
-    mockServiceRequest.getDebugMap().put("adds", adds);
-    mockServiceRequest.getDebugMap().put("removes", removes);
-    mockServiceRequest.getDebugMap().put("replaces", replaces);
-    mockServiceResponse.setResponseCode(204);
-    mockServiceResponse.setContentType("application/json");
-    
-  }
   
 }

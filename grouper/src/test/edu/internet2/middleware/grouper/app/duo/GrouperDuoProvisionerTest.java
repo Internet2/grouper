@@ -40,7 +40,7 @@ import junit.textui.TestRunner;
 public class GrouperDuoProvisionerTest extends GrouperTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
