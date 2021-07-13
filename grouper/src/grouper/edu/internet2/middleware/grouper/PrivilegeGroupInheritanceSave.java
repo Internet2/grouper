@@ -417,8 +417,14 @@ public class PrivilegeGroupInheritanceSave {
                 if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdAndSource(PrivilegeGroupInheritanceSave.this.subjectId, PrivilegeGroupInheritanceSave.this.subjectSourceId, false);
                 }            
+                if (subject == null && !StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findById(PrivilegeGroupInheritanceSave.this.subjectId, false);
+                }            
                 if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdentifierAndSource(PrivilegeGroupInheritanceSave.this.subjectIdentifier, PrivilegeGroupInheritanceSave.this.subjectSourceId, false);
+                }
+                if (subject == null && !StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findByIdentifier(PrivilegeGroupInheritanceSave.this.subjectIdentifier, false);
                 }
                 if (subject == null && member != null) {
                   subject = member.getSubject();

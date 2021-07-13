@@ -21,9 +21,11 @@ import java.sql.Timestamp;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.PrivilegeGroupInheritanceSave;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -74,7 +76,7 @@ public class TestDisabledGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledGroup("testAttributeDisabledDateWithAttributeAssignments"));
+    TestRunner.run(new TestDisabledGroup("testInheritedGroupPrivsOnLocalEntity"));
   }
   
   /**
@@ -1210,6 +1212,20 @@ public class TestDisabledGroup extends GrouperTest {
     assertEquals(0, Group.internal_fixEnabledDisabled());
     assertEquals(0, Membership.internal_fixEnabledDisabled());
     assertEquals(0, AttributeAssign.internal_fixEnabledDisabled());
+  }
+
+  public void testInheritedGroupPrivsOnLocalEntity() {
+    Group group1 = new GroupSave().assignCreateParentStemsIfNotExist(true).assignName("edu:group").save();
+    Group testEntity = new GroupSave().assignTypeOfGroup(TypeOfGroup.entity).assignCreateParentStemsIfNotExist(true).assignName("edu:entity").save();
+
+    new PrivilegeGroupInheritanceSave().addPrivilegeName("read").addPrivilegeName("admin").assignStemName("edu").assignSubjectId(SubjectTestHelper.SUBJ0_ID).save();
+    
+    Group testEntity2 = new GroupSave().assignTypeOfGroup(TypeOfGroup.entity).assignCreateParentStemsIfNotExist(true).assignName("edu:entity2").save();
+    
+    assertTrue(testEntity.canHavePrivilege(SubjectTestHelper.SUBJ0, "admin", false));
+    assertTrue(testEntity2.canHavePrivilege(SubjectTestHelper.SUBJ0, "admin", false));
+    assertTrue(group1.canHavePrivilege(SubjectTestHelper.SUBJ0, "admin", false));
+    assertTrue(group1.canHavePrivilege(SubjectTestHelper.SUBJ0, "read", false));
   }
   
   /**
