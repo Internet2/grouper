@@ -97,7 +97,9 @@ public class GrouperProvisioningLinkLogic {
     Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>(); 
   
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-      gcGrouperSyncMembers.add(provisioningEntityWrapper.getGcGrouperSyncMember());
+      if (provisioningEntityWrapper.getGcGrouperSyncMember() != null) {
+        gcGrouperSyncMembers.add(provisioningEntityWrapper.getGcGrouperSyncMember());
+      }
     }
     
     if (GrouperUtil.length(gcGrouperSyncMembers) == 0) {

@@ -19,17 +19,14 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.subject.Subject;
 
 public class GrouperProvisionerGrouperDao {
 
@@ -680,11 +677,7 @@ public class GrouperProvisionerGrouperDao {
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
-      
-      Subject subject = SubjectFinder.findByIdAndSource(subjectId, subjectSource, true);
-      String email = GrouperEmailUtils.getEmail(subject);
-      grouperProvisioningEntity.setEmail(email);
-      
+      //TODO do something with email?
       grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);

@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testGithubFullSync"));
+    TestRunner.run(new GrouperScimProvisionerTest("testGithubIncrementalSync"));
 
   }
   
@@ -100,6 +100,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.operateOnGrouperEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.provisioningType").value("membershipObjects").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.scimType").value("Github").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.common.subjectLink.memberFromId2").value("${subject.getAttributeValue(\"email\")}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectAllEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectMemberships").value("false").store();
@@ -136,8 +137,9 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.name").value("emailValue").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("email").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateGroups").value("false").store();
@@ -243,6 +245,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.operateOnGrouperEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.provisioningType").value("membershipObjects").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.scimType").value("Github").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.common.subjectLink.memberFromId2").value("${subject.getAttributeValue(\"email\")}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectAllEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectMemberships").value("false").store();
@@ -279,8 +282,9 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.name").value("emailValue").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("email").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateGroups").value("false").store();
