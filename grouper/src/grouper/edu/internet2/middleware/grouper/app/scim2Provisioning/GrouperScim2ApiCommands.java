@@ -60,7 +60,7 @@ public class GrouperScim2ApiCommands {
 //        System.out.println(grouperScim2User);
 //      }
     
-      GrouperScim2User grouperScimUser = retrieveScimUser("githubLocal", "id", "4a16500367134ad0954d0612d8203b56");
+      GrouperScim2User grouperScimUser = retrieveScimUser("githubLocal", null, "id", "4a16500367134ad0954d0612d8203b56");
       System.out.println(grouperScimUser);
     
 //      deleteScimUser("githubLocal", "49dbdc83e0744a68bd565ee9e2780e38");
@@ -70,9 +70,9 @@ public class GrouperScim2ApiCommands {
       grouperScimUser.setDisplayName("newDisplayName");
 //      fieldToAction.put("active", ProvisioningObjectChangeAction.update);
 //      grouperScimUser.setActive(false);
-      patchScimUser("githubLocal", grouperScimUser, fieldToAction);
+      patchScimUser("githubLocal", null, grouperScimUser, fieldToAction);
 //    
-      grouperScimUser = retrieveScimUser("githubLocal","id", "4a16500367134ad0954d0612d8203b56");
+      grouperScimUser = retrieveScimUser("githubLocal",null, "id", "4a16500367134ad0954d0612d8203b56");
       System.out.println(grouperScimUser);
 
     
@@ -98,14 +98,14 @@ public class GrouperScim2ApiCommands {
       grouperScimUser.setUserName("userNam" + i);
 //      grouperScimUser.setUserType("userTyp" + i);
   
-      createScimUser("awsConfigId", grouperScimUser, null);
+      createScimUser("awsConfigId", null, grouperScimUser, null);
     }
 //
     for (int i=3;i<10;i++) {
       GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
       grouperScimGroup.setDisplayName("dispName" + i);
     
-      createScimGroup("awsConfigId", grouperScimGroup, null);
+      createScimGroup("awsConfigId", null, grouperScimGroup, null);
     }
 
 //    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId");
@@ -152,7 +152,7 @@ public class GrouperScim2ApiCommands {
 //    grouperScim2User = retrieveScimUser(scimConfigId, "userName", "userNam5");
 //    System.out.println(grouperScim2User);
 
-    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId");
+    List<GrouperScim2User> grouperScim2Users = retrieveScimUsers("awsConfigId", null);
     for (GrouperScim2User grouperScim2User : grouperScim2Users) {
       System.out.println(grouperScim2User);
     }
@@ -194,7 +194,7 @@ public class GrouperScim2ApiCommands {
    * @param grouperScim2User
    * @return the result
    */
-  public static void patchScimUser(String configId,
+  public static void patchScimUser(String configId, String acceptHeader,
       GrouperScim2User grouperScim2User, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -333,7 +333,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       executeMethod(debugMap, "PATCH", configId, "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
-          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -353,8 +353,8 @@ public class GrouperScim2ApiCommands {
    * @return
    */
   private static GetMethod httpGetMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
-    return (GetMethod) httpMethod(debugMap, configId, urlSuffix, "GET");
+      String urlSuffix, String acceptHeader) {
+    return (GetMethod) httpMethod(debugMap, configId, urlSuffix, "GET", acceptHeader);
   }
 
   /**
@@ -365,8 +365,8 @@ public class GrouperScim2ApiCommands {
    * @return
    */
   private static PostMethod httpPostMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
-    return (PostMethod) httpMethod(debugMap, configId, urlSuffix, "POST");
+      String urlSuffix, String acceptHeader) {
+    return (PostMethod) httpMethod(debugMap, configId, urlSuffix, "POST", acceptHeader);
   }
 
   /**
@@ -378,7 +378,7 @@ public class GrouperScim2ApiCommands {
    * @return
    */
   private static HttpMethodBase httpMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix, String httpMethodName) {
+      String urlSuffix, String httpMethodName, String acceptHeader) {
     String endpoint = GrouperLoaderConfig.retrieveConfig()
         .propertyValueStringRequired(
             "grouper.wsBearerToken." + configId + ".endpoint");
@@ -413,25 +413,28 @@ public class GrouperScim2ApiCommands {
       throw new RuntimeException("Not expecting type: '" + httpMethodName + "'");
     }
     method.addRequestHeader("Authorization", "Bearer " + bearerToken);
+    if (StringUtils.isNotBlank(acceptHeader)) {
+      method.addRequestHeader("Accept", acceptHeader);
+    }
     return method;
   }
 
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
+      String urlSuffix, String acceptHeader) {
 
     return executeMethod(debugMap, "GET", configId, urlSuffix,
-        GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
+        GrouperUtil.toSet(200, 404), new int[] { -1 }, null, acceptHeader);
 
   }
 
   private static JsonNode executeMethod(Map<String, Object> debugMap,
       String httpMethodName, String configId,
-      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
+      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, String acceptHeader) {
 
     int code = -1;
     String json = null;
 
-    HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName);
+    HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName, acceptHeader);
 
     HttpClient httpClient = new HttpClient();
 
@@ -480,7 +483,7 @@ public class GrouperScim2ApiCommands {
    * @param grouperScimUser
    * @return the result
    */
-  public static GrouperScim2User createScimUser(String configId,
+  public static GrouperScim2User createScimUser(String configId, String acceptHeader,
       GrouperScim2User grouperScimUser, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -495,7 +498,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/Users",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, acceptHeader);
 
       GrouperScim2User grouperScimUserResult = GrouperScim2User.fromJson(jsonNode);
 
@@ -515,7 +518,7 @@ public class GrouperScim2ApiCommands {
    * @param fieldValue is value of id or userPrincipalName
    * @return
    */
-  public static GrouperScim2User retrieveScimUser(String configId, String fieldName,
+  public static GrouperScim2User retrieveScimUser(String configId, String acceptHeader, String fieldName,
       String fieldValue) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -534,7 +537,7 @@ public class GrouperScim2ApiCommands {
             + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + StringEscapeUtils.escapeJson(fieldValue) + "\"");
       }
       
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, acceptHeader);
       
       if (jsonNode == null) {
         debugMap.put("found", false);
@@ -582,7 +585,7 @@ public class GrouperScim2ApiCommands {
    * retrieve all users
    * @return the results
    */
-  public static List<GrouperScim2User> retrieveScimUsers(String configId) {
+  public static List<GrouperScim2User> retrieveScimUsers(String configId, String acceptHeader) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -599,7 +602,7 @@ public class GrouperScim2ApiCommands {
       do {
         
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Users?startIndex="+startIndex+"&count="+50,
-            GrouperUtil.toSet(200), new int[] { -1 }, null);
+            GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
@@ -637,7 +640,7 @@ public class GrouperScim2ApiCommands {
 
 
 
-  public static void deleteScimUser(String configId,
+  public static void deleteScimUser(String configId, String acceptHeader,
       String userId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -652,7 +655,7 @@ public class GrouperScim2ApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "/Users/" + GrouperUtil.escapeUrlEncode(userId),
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null, acceptHeader);
   
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -668,7 +671,7 @@ public class GrouperScim2ApiCommands {
    * @param grouperScimGroup
    * @return the result
    */
-  public static GrouperScim2Group createScimGroup(String configId,
+  public static GrouperScim2Group createScimGroup(String configId, String acceptHeader,
       GrouperScim2Group grouperScimGroup, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -683,7 +686,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/Groups",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, acceptHeader);
   
       GrouperScim2Group grouperScimGroupResult = GrouperScim2Group.fromJson(jsonNode);
 
@@ -698,7 +701,7 @@ public class GrouperScim2ApiCommands {
   }
 
 
-  public static void deleteScimGroup(String configId,
+  public static void deleteScimGroup(String configId, String acceptHeader,
       String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -713,7 +716,7 @@ public class GrouperScim2ApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null, acceptHeader);
   
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -730,7 +733,7 @@ public class GrouperScim2ApiCommands {
    * @param fieldValue is value of id or userPrincipalName
    * @return
    */
-  public static GrouperScim2Group retrieveScimGroup(String configId, String fieldName,
+  public static GrouperScim2Group retrieveScimGroup(String configId, String acceptHeader, String fieldName,
       String fieldValue) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -749,7 +752,7 @@ public class GrouperScim2ApiCommands {
             + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + StringEscapeUtils.escapeJson(fieldValue) + "\"");
       }
       
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, acceptHeader);
   
       if (StringUtils.equals(fieldName, "id")) {
         GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(jsonNode);
@@ -794,7 +797,7 @@ public class GrouperScim2ApiCommands {
    * @param userIds
    * @return the result
    */
-  public static void createScimMemberships(String configId,
+  public static void createScimMemberships(String configId, String acceptHeader,
       String groupId, Set<String> userIds) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -853,7 +856,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
       executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
-          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -871,7 +874,7 @@ public class GrouperScim2ApiCommands {
    * @param userIds
    * @return the result
    */
-  public static void deleteScimMemberships(String configId,
+  public static void deleteScimMemberships(String configId, String acceptHeader,
       String groupId, Set<String> userIds) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -891,7 +894,7 @@ public class GrouperScim2ApiCommands {
         
         List<String> currentBatch = GrouperUtil.batchList(userIdsList, 100, batchIndex);
         
-        deleteScimMembershipsHelper(configId, groupId, currentBatch);
+        deleteScimMembershipsHelper(configId, acceptHeader, groupId, currentBatch);
         
       }
       
@@ -910,7 +913,7 @@ public class GrouperScim2ApiCommands {
    * @param userIds
    * @return the result
    */
-  private static void deleteScimMembershipsHelper(String configId,
+  private static void deleteScimMembershipsHelper(String configId, String acceptHeader,
       String groupId, List<String> userIds) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -962,7 +965,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
       executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
-          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -980,7 +983,7 @@ public class GrouperScim2ApiCommands {
    * @param userIds
    * @return the result
    */
-  public static void replaceScimMemberships(String configId,
+  public static void replaceScimMemberships(String configId, String acceptHeader,
       String groupId, Set<String> userIds) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -1039,7 +1042,7 @@ public class GrouperScim2ApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
       executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
-          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -1055,7 +1058,7 @@ public class GrouperScim2ApiCommands {
    * retrieve all groups
    * @return the results
    */
-  public static List<GrouperScim2Group> retrieveScimGroups(String configId) {
+  public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -1068,7 +1071,7 @@ public class GrouperScim2ApiCommands {
     try {
   
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Groups",
-          GrouperUtil.toSet(200), new int[] { -1 }, null);
+          GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
   
       int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
       int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");

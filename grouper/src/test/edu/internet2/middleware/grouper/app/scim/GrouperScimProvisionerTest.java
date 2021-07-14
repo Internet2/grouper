@@ -156,13 +156,13 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.provisionerConfigId", "awsProvisioner");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.provisionerConfigId", "githubProvisioner");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.publisher.debug", "true");
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem");
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
@@ -194,15 +194,6 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
-      
-      // now delete the group and sync again
-      testGroup.delete();
-      try {
-        runJobs(true, true, "githubScimProvTestCLC");
-        fail();
-      } catch (Exception e) {
-        // good
-      }
       
     } finally {
       
@@ -304,7 +295,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem");
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
@@ -458,7 +449,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId");
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
@@ -1024,7 +1015,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId");
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();

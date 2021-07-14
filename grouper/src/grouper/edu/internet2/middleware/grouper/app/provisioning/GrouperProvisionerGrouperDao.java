@@ -808,6 +808,10 @@ public class GrouperProvisionerGrouperDao {
           groupIdsToRetrieve.add((String)groupIdMemberId.getKey(0));
           memberIdsToRetrieve.add((String)groupIdMemberId.getKey(1));
         }
+        for (GrouperIncrementalDataItem grouperIncrementalDataItem : 
+          grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly()) {
+          memberIdsToRetrieve.add((String)grouperIncrementalDataItem.getItem());
+        }
       }
       groupIdsToRetrieve.addAll(groupIdsToRetrieveForMemberships);
       memberIdsToRetrieve.addAll(memberIdsToRetrieveForMemberships);

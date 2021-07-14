@@ -145,6 +145,12 @@ public class GrouperProvisioningLogicIncremental {
 
     Set<String> validGroupIds = new HashSet<String>();
     
+//    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersToProvision();
+//    
+//    if (StringUtils.isNotBlank(groupIdOfUsersToProvision)) {
+//      validGroupIds.add(groupIdOfUsersToProvision);
+//    }
+    
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
@@ -1183,8 +1189,20 @@ public class GrouperProvisioningLogicIncremental {
         } else {
           throw new RuntimeException("Unexpected esbEventType: " + esbEventType);
         }
+        
+        String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersToProvision();
+        
+        // it's group of users and should be treated as member sync
+        if (StringUtils.isNotBlank(groupIdOfUsersToProvision) &&
+            StringUtils.equals(esbEvent.getGroupId(), groupIdOfUsersToProvision)) {
+          
+          grouperIncrementalDataToProcessWithRecalc.getMemberUuidsForEntityOnly().add(new GrouperIncrementalDataItem(esbEvent.getMemberId(), createdOnMillis, grouperIncrementalDataAction));
+          
+        }
         grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsForMembershipSync().add(
-            new GrouperIncrementalDataItem(membershipFields, createdOnMillis, grouperIncrementalDataAction));
+         new GrouperIncrementalDataItem(membershipFields, createdOnMillis, grouperIncrementalDataAction));
+        
+        
         changeLogCount++;
       }
       
