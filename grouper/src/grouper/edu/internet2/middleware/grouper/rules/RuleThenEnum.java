@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -782,6 +783,11 @@ public enum RuleThenEnum {
 
       for (String privilegeString : privilegesSet) {
         Privilege privilege = Privilege.getInstance(privilegeString);
+        
+        // if the privilege cant be assigned to entities, and this is an entity, then skip
+        if (!Privilege.isEntity(privilege) && group.getTypeOfGroup() == TypeOfGroup.entity) {
+          continue;
+        }
         if (group.grantPriv(subject, privilege, false)) {
           result = true;
         }

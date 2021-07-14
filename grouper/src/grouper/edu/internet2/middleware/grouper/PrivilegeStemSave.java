@@ -317,8 +317,14 @@ public class PrivilegeStemSave {
           if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
             subject = SubjectFinder.findByIdAndSource(PrivilegeStemSave.this.subjectId, PrivilegeStemSave.this.subjectSourceId, false);
           }            
+          if (subject == null && !StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findById(PrivilegeStemSave.this.subjectId, false);
+          }            
           if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
             subject = SubjectFinder.findByIdentifierAndSource(PrivilegeStemSave.this.subjectIdentifier, PrivilegeStemSave.this.subjectSourceId, false);
+          }
+          if (subject == null && !StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findByIdentifier(PrivilegeStemSave.this.subjectIdentifier, false);
           }
           if (subject == null && member != null) {
             subject = member.getSubject();

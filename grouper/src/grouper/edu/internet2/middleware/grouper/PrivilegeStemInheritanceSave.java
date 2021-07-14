@@ -411,8 +411,14 @@ public class PrivilegeStemInheritanceSave {
                 if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdAndSource(PrivilegeStemInheritanceSave.this.subjectId, PrivilegeStemInheritanceSave.this.subjectSourceId, false);
                 }            
+                if (subject == null && !StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findById(PrivilegeStemInheritanceSave.this.subjectId, false);
+                }            
                 if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdentifierAndSource(PrivilegeStemInheritanceSave.this.subjectIdentifier, PrivilegeStemInheritanceSave.this.subjectSourceId, false);
+                }
+                if (subject == null && !StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findByIdentifier(PrivilegeStemInheritanceSave.this.subjectIdentifier, false);
                 }
                 if (subject == null && member != null) {
                   subject = member.getSubject();
