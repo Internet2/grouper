@@ -62,11 +62,12 @@
 		          <td>${guiReportInstance.reportInstance.reportInstanceFileName}</td>
 		        </tr>
 		                
+            <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">                    
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsNumberOfRows']}</label></strong></td>
 		          <td>${guiReportInstance.reportInstance.reportInstanceRows}</td>
 		        </tr>
-		        
+            </c:if>		        
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsReportDownloadCount']}</label></strong></td>
 		          <td>${guiReportInstance.reportInstance.reportInstanceDownloadCount}</td>

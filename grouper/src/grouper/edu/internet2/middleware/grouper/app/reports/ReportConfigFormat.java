@@ -5,9 +5,11 @@
 package edu.internet2.middleware.grouper.app.reports;
 
 import java.io.FileWriter;
+import java.io.IOException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FileUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -35,8 +37,6 @@ public enum ReportConfigFormat {
 
       try {
 
-        grouperReportInstance.createEmptyReportFile();
-        
         //initialize FileWriter object
         fileWriter = new FileWriter(grouperReportInstance.getReportFileUnencrypted());
 
@@ -68,6 +68,29 @@ public enum ReportConfigFormat {
       }
     }
 
+  }, 
+  
+  /** format a file */
+  FILE {
+  
+    @Override
+    public void formatReport(GrouperReportData grouperReportData, GrouperReportInstance grouperReportInstance) {
+
+      // we will just move the file from data to result if it is different
+      if (grouperReportData.getFile() != null && !grouperReportData.getFile().equals(grouperReportInstance.getReportFileUnencrypted())) {
+        try {
+          FileUtils.moveFile(grouperReportData.getFile(), grouperReportInstance.getReportFileUnencrypted());
+        } catch (IOException ioe) {
+          throw new RuntimeException("File error while moving " + grouperReportData.getFile().getAbsolutePath() + ", " 
+              + grouperReportInstance.getReportFileUnencrypted().getAbsolutePath(), ioe);
+        }
+      }
+
+      if (grouperReportInstance != null && grouperReportInstance.getReportFileUnencrypted() != null) {
+        grouperReportInstance.setReportInstanceSizeBytes(grouperReportInstance.getReportFileUnencrypted().length());
+      }
+    }
+  
   };
   
   /**

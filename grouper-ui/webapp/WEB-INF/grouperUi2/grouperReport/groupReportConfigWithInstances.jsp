@@ -41,11 +41,13 @@
           <td>${configInstance.reportConfigBean.reportConfigType}</td>
         </tr>
         
-        <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigQuery}</td>
-        </tr>
-                
+        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">
+          <tr>
+            <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
+            <td>${configInstance.reportConfigBean.reportConfigQuery}</td>
+          </tr>
+        </c:if>
+                        
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigFormatLabel']}</label></strong></td>
           <td>${configInstance.reportConfigBean.reportConfigFormat}</td>
@@ -98,7 +100,7 @@
                    </td>
                    <td style="white-space: nowrap;">${guiReportInstance.runTime}</td>
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceStatus}</td>
-                   <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceRows}</td>
+                   <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceSizeFriendly}</td>
                    <td>
                      <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
                        ${textContainer.text['grouperReportConfigInstanceTableViewDetails']}

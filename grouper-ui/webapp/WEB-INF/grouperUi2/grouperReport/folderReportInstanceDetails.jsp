@@ -71,7 +71,7 @@
 			        </tr>
 			      </c:if>
 		                
-            <c:if test="${guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">		                
+            <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL' && guiReportInstance.reportInstance.reportInstanceStatus == 'SUCCESS'}">		                
 			        <tr>
 			          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsNumberOfRows']}</label></strong></td>
 			          <td>${guiReportInstance.reportInstance.reportInstanceRows}</td>

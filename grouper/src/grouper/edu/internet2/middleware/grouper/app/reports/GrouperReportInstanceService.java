@@ -144,7 +144,8 @@ public class GrouperReportInstanceService {
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportElapsedMillis()));
       
       attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_ROWS, true);
-      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportInstanceRows()));
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), 
+          String.valueOf(reportInstance.getGrouperReportConfigurationBean().getReportConfigType() == ReportConfigType.SQL ? reportInstance.getReportInstanceRows() : -1));
       
       attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_SIZE_BYTES, true);
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportInstanceSizeBytes()));
