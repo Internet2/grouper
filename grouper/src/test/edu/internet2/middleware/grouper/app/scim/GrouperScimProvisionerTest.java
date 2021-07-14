@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testGithubIncrementalSync"));
+    TestRunner.run(new GrouperScimProvisionerTest("testGithubFullSync"));
 
   }
   
