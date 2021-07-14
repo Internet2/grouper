@@ -83,7 +83,7 @@
                    <td style="white-space: nowrap;">
                      <c:choose>
                       <c:when test="${not empty guiReportConfig.mostRecentReportInstance}">                    
-                        ${guiReportConfig.mostRecentReportInstance.reportInstanceRows}
+                        ${guiReportConfig.mostRecentReportInstance.reportInstanceSizeFriendly}
                       </c:when>
                       <c:otherwise>
                         ${textContainer.text['grouperReportInstanceNeverRun']}

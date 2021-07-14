@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -25,6 +26,29 @@ public class GrouperReportData {
   public GrouperReportData(List<String> headers1, List<String[]> data1) {
     this.headers = headers1;
     this.data = data1;
+  }
+
+  /**
+   * file of data if its not a normal grid
+   */
+  private File file = null;
+  
+  
+  
+  /**
+   * file of data if its not a normal grid
+   * @return the file
+   */
+  public File getFile() {
+    return this.file;
+  }
+
+  /**
+   * file of data if its not a normal grid
+   * @param file1
+   */
+  public void setFile(File file1) {
+    this.file = file1;
   }
 
   /**

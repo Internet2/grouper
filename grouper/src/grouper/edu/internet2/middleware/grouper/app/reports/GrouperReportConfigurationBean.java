@@ -173,6 +173,27 @@ public class GrouperReportConfigurationBean {
   }
 
   /**
+   * reportConfigScript  Script e.g. GSH
+   */
+  private String reportConfigScript;
+
+  /**
+   * reportConfigScript  Script e.g. GSH
+   * @return script
+   */
+  public String getReportConfigScript() {
+    return this.reportConfigScript;
+  }
+
+  /**
+   * reportConfigScript  Script e.g. GSH
+   * @param reportConfigScript1
+   */
+  public void setReportConfigScript(String reportConfigScript1) {
+    this.reportConfigScript = reportConfigScript1;
+  }
+
+  /**
    * reportConfigValueDef  SQL for the report. The columns must be named in the SQL (e.g. not select *) and generally this comes from a view
    */
   private String reportConfigQuery;

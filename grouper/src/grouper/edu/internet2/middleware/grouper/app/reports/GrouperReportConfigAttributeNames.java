@@ -119,6 +119,10 @@ public class GrouperReportConfigAttributeNames {
    */
   public static final String GROUPER_REPORT_CONFIG_QUERY = "reportConfigQuery";
   
+  /**
+   * GSH script for report
+   */
+  public static final String GROUPER_REPORT_CONFIG_SCRIPT = "reportConfigScript";
   
   /**
    * logic from loader enabled, either enable or disabled this job
