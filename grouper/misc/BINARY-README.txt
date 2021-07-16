@@ -14,7 +14,7 @@
     limitations under the License.
 ====
 
-Grouper binary distribution:
+Grouper binary distribution
 
 - There is no build.xml, everything is built
 - Follow these instructions to upgrade grouper from v1.6:

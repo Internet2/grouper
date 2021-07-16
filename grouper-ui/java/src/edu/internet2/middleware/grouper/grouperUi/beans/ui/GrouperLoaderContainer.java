@@ -2671,8 +2671,10 @@ public class GrouperLoaderContainer {
       return true;
     }
     if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.loader.view.by.group.admins", true)) {
-      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-        return true;
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup() != null) {
+        if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+          return true;
+        }
       }
     }
     
