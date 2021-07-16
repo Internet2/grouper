@@ -4117,11 +4117,6 @@ public class UiV2GrouperLoader {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      final Group theGroup = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
-
-      if (theGroup == null) {
-        return;
-      }
       boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
       if (!canSeeLoader) {
         return;
