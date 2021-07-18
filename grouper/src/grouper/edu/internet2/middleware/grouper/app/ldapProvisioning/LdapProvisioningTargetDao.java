@@ -18,6 +18,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -41,6 +42,10 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
@@ -855,8 +860,23 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
 
+  }
+  
+
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
+
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoRetrieveMembershipsByGroupsResponse();
+    }
+    
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
+        new TargetDaoRetrieveGroupsRequest(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), true));
+    return new TargetDaoRetrieveMembershipsByGroupsResponse((List<Object>)(Object)targetDaoRetrieveGroupsResponse.getTargetGroups());
+    
   }
 
   @Override
