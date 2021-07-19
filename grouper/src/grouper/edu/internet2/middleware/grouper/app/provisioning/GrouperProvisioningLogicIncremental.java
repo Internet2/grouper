@@ -2074,10 +2074,10 @@ public class GrouperProvisioningLogicIncremental {
               grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
             }
           } else {
-            // TODO look at "state" here too
             if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
               // we need to retrieve or create this, its probably already a recalc but...
               grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
+              provisioningGroupWrapper.setRecalc(true);
             }
           }
         }
@@ -2115,10 +2115,10 @@ public class GrouperProvisioningLogicIncremental {
               grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
             }
           } else {
-            // TODO look at "state" here too
             if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
               // we need to retrieve or create this, its probably already a recalc but...
               grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+              provisioningEntityWrapper.setRecalc(true);
             }
           } 
         }
