@@ -21,6 +21,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDele
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
@@ -508,12 +510,44 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   
+  @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    try {
+      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromProvisioningEntity(targetEntity, null);
+      
+      GrouperAzureUser createdAzureUser = GrouperAzureApiCommands.createAzureUser(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureUser, null);
+
+      targetEntity.setId(createdAzureUser.getId());
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
 
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);

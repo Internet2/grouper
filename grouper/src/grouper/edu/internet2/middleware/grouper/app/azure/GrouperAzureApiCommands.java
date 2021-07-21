@@ -2,18 +2,22 @@ package edu.internet2.middleware.grouper.app.azure;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -233,6 +237,66 @@ public class GrouperAzureApiCommands {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
 
+  }
+  
+  //https://www.baeldung.com/java-generate-secure-password
+  private static String generateRandomPassword() {
+    String upperCaseLetters = RandomStringUtils.random(2, 65, 90, true, true);
+    String lowerCaseLetters = RandomStringUtils.random(2, 97, 122, true, true);
+    String numbers = RandomStringUtils.randomNumeric(2);
+    String specialChar = RandomStringUtils.random(2, 33, 47, false, false);
+    String totalChars = RandomStringUtils.randomAlphanumeric(2);
+    String combinedChars = upperCaseLetters.concat(lowerCaseLetters)
+      .concat(numbers)
+      .concat(specialChar)
+      .concat(totalChars);
+    List<Character> pwdChars = combinedChars.chars()
+      .mapToObj(c -> (char) c)
+      .collect(Collectors.toList());
+    Collections.shuffle(pwdChars);
+    String password = pwdChars.stream()
+      .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+      .toString();
+    return password;
+  }
+  
+  /**
+   * create a user
+   * @param configId
+   * @param grouperAzureUser
+   * @return
+   */
+  public static GrouperAzureUser createAzureUser(String configId, GrouperAzureUser grouperAzureUser, Set<String> fieldsToCreate) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "createAzureUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+      
+      String password = generateRandomPassword();
+      grouperAzureUser.setPassword(password);
+      
+      JsonNode jsonToSend = grouperAzureUser.toJson(fieldsToCreate);
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
+          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+      
+      GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(jsonNode);
+
+      return grouperAzureUserResult;
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDuoLog.duoLog(debugMap, startTime);
+    }
+    
+    
   }
 
   /**

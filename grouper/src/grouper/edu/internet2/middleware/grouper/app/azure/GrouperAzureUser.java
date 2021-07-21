@@ -30,6 +30,10 @@ public class GrouperAzureUser {
   private String onPremisesImmutableId;
 
   private String userPrincipalName;
+  
+  private String password;
+  
+  private boolean forceChangePasswordNextSignIn = true;
 
   public static final String fieldsToSelect="accountEnabled,displayName,id,mailNickname,onPremisesImmutableId,userPrincipalName";
   
@@ -43,6 +47,44 @@ public class GrouperAzureUser {
     targetEntity.assignAttributeValue("onPremisesImmutableId", this.onPremisesImmutableId);
     targetEntity.assignAttributeValue("userPrincipalName", this.userPrincipalName);
     return targetEntity;
+  }
+  
+  
+  /**
+   * 
+   * @param targetEntity
+   * @return
+   */
+  public static GrouperAzureUser fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
+    
+    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("accountEnabled")) {      
+      grouperAzureUser.setAccountEnabled(targetEntity.retrieveAttributeValueBoolean("accountEnabled"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
+      grouperAzureUser.setDisplayName(targetEntity.retrieveAttributeValueString("displayName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {      
+      grouperAzureUser.setMailNickname(targetEntity.retrieveAttributeValueString("mailNickname"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("onPremisesImmutableId")) {      
+      grouperAzureUser.setOnPremisesImmutableId(targetEntity.retrieveAttributeValueString("onPremisesImmutableId"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("userPrincipalName")) {      
+      grouperAzureUser.setUserPrincipalName(targetEntity.retrieveAttributeValueString("userPrincipalName"));
+    }
+   
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      grouperAzureUser.setId(targetEntity.getId());
+    }
+    
+    return grouperAzureUser;
+
   }
 
   public String getId() {
@@ -100,7 +142,12 @@ public class GrouperAzureUser {
   public void setUserPrincipalName(String userPrincipalName) {
     this.userPrincipalName = userPrincipalName;
   }
-
+  
+  
+  public void setPassword(String password) {
+    this.password = password;
+  }
+  
   /**
    * convert from jackson json
    * @param entityNode
@@ -109,6 +156,22 @@ public class GrouperAzureUser {
   public static GrouperAzureUser fromJson(JsonNode entityNode) {
     GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
     
+    /**
+     * {
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users/$entity",
+    "id": "54396678-d966-46b7-98cb-868a3001587e",
+    "businessPhones": [],
+    "displayName": "Adele Vance1",
+    "givenName": null,
+    "jobTitle": null,
+    "mail": null,
+    "mobilePhone": null,
+    "officeLocation": null,
+    "preferredLanguage": null,
+    "surname": null,
+    "userPrincipalName": "Adele1V@erviveksachdevaoutlook.onmicrosoft.com"
+}
+     */
     grouperAzureUser.accountEnabled = GrouperUtil.jsonJacksonGetBoolean(entityNode, "accountEnabled", false);
     grouperAzureUser.displayName = GrouperUtil.jsonJacksonGetString(entityNode, "displayName");
     grouperAzureUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "id");
@@ -167,6 +230,14 @@ public class GrouperAzureUser {
       GrouperUtil.jsonJacksonAssignString(result, "userPrincipalName", this.userPrincipalName);
     }
     
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("password")) {
+      
+      ObjectNode passwordProfileObjectNode = result.putObject("passwordProfile");
+      
+      GrouperUtil.jsonJacksonAssignString(passwordProfileObjectNode, "password", this.password);
+      GrouperUtil.jsonJacksonAssignBoolean(passwordProfileObjectNode, "forceChangePasswordNextSignIn", this.forceChangePasswordNextSignIn);
+    }
+    
     return result;
   }
 
@@ -193,11 +264,10 @@ public class GrouperAzureUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "256", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_immutable_id", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_immutable_id", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_principal_name", Types.VARCHAR, "256", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_user_upn_idx", false, "user_principal_name");
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_user_opii_idx", false, "on_premises_immutable_id");
     }
     
   }
