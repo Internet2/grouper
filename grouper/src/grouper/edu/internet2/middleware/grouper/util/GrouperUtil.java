@@ -12732,12 +12732,17 @@ public class GrouperUtil {
   }
 
   /**
+   * matches 123.234.12.34
+   */
+  private static Pattern ipv4regex = Pattern.compile("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+  
+  /**
    * see if an ip address is on a network
    *
    * @param ipString
    *          is the ip address to check
    * @param networkIpStrings
-   *          are the ip addresses of the networks, e.g. 1.2.3.4/12, 2.3.4.5/24
+   *          are the ip addresses of the networks, e.g. 1.2.3.4/12, 2.3.4.5/24, 1.2.3.4
    * @return boolean
    */
   public static boolean ipOnNetworks(String ipString, String networkIpStrings) {
@@ -12747,6 +12752,10 @@ public class GrouperUtil {
     //check each one
     for (String networkIpString : networkIpStringsArray) {
 
+      if (ipv4regex.matcher(networkIpString).matches()) {
+        networkIpString = networkIpString + "/32";
+      }
+      
       if (!contains(networkIpString, "/")) {
         throw new RuntimeException("String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
       }
