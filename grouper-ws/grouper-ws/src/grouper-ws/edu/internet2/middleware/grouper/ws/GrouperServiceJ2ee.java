@@ -51,6 +51,7 @@ import org.apache.ws.security.handler.WSHandlerResult;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -642,7 +644,12 @@ public class GrouperServiceJ2ee implements Filter {
           GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
-              Group group = GroupFinder.findByName(rootGrouperSession, userGroupName, true);
+              Group group = null;
+              try {
+                group = GroupFinder.findByName(rootGrouperSession, userGroupName, true);
+              } catch (GroupNotFoundException gnfe) {
+                group = new GroupSave().assignName(userGroupName).assignCreateParentStemsIfNotExist(true).save();
+              }
               if (!group.hasMember(loggedInSubject)) {
                 //not allowed, cache it
                 subjectAllowedCache().put(cacheKey, false);
@@ -660,7 +667,7 @@ public class GrouperServiceJ2ee implements Filter {
         }
       } catch (Exception e) {
         LOG.error("user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
-            + "', and therefore is not authorized to use the app (configured in local media.properties penn.uiGroup", e);
+            + "', and therefore is not authorized to use the app (configured in local grouper-ws.properties ws.client.user.group.name", e);
         throw new RuntimeException("User is not authorized", e);
       } finally {
         GrouperSession.stopQuietly(grouperSession);
