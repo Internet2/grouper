@@ -283,7 +283,7 @@ public class GrouperAzureApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
-          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
       
       GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(jsonNode);
 
@@ -318,7 +318,7 @@ public class GrouperAzureApiCommands {
       ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
 
       String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-          "grouper.azureConnector.azure1.resourceEndpoint");
+          "grouper.azureConnector."+configId+".resourceEndpoint");
       
       objectNode.put("@odata.id", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
@@ -374,7 +374,7 @@ public class GrouperAzureApiCommands {
         ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
         
         String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "grouper.azureConnector.azure1.resourceEndpoint");
+            "grouper.azureConnector."+configId+".resourceEndpoint");
         
         for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
           String userId = batchOfUserIds.get(i);
@@ -445,6 +445,50 @@ public class GrouperAzureApiCommands {
       GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
 
       return grouperAzureGroupResult;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+
+  }
+  
+  /**
+   * update a user
+   * @param grouperAzureUser
+   * @return the result
+   */
+  public static GrouperAzureUser updateAzureUser(String configId,
+      GrouperAzureUser grouperAzureUser, Set<String> fieldsToUpdate) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "updateAzureUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      String id = grouperAzureUser.getId();
+      
+      if (StringUtils.isBlank(id)) {
+        throw new RuntimeException("id is null: " + grouperAzureUser);
+      }
+
+      if (fieldsToUpdate.contains("id")) {
+        throw new RuntimeException("Cant update the id field: " + grouperAzureUser + ", " + GrouperUtil.setToString(fieldsToUpdate));
+      }
+      
+      JsonNode jsonToSend = grouperAzureUser.toJson(fieldsToUpdate);
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+      JsonNode jsonNode = executeMethod(debugMap, "PATCH", configId, "/users/" + GrouperUtil.escapeUrlEncode(id),
+          GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
+
+      GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(jsonNode);
+
+      return grouperAzureUserResult;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -690,7 +734,7 @@ public class GrouperAzureApiCommands {
           break;
         }
         String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
-            "grouper.azureConnector.azure1.resourceEndpoint");
+            "grouper.azureConnector."+configId+".resourceEndpoint");
         if (!nextLink.startsWith(resourceEndpoint)) {
           if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperAzureAllowNextLinkPrefixMismatch", false)) {
             throw new RuntimeException("@odata.nextLink is going to a different URL! '" + nextLink + "', '" + resourceEndpoint + "'");

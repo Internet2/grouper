@@ -43,7 +43,7 @@ public class GrouperAzureUser {
     targetEntity.assignAttributeValue("accountEnabled", this.accountEnabled);
     targetEntity.assignAttributeValue("displayName", this.displayName);
     targetEntity.setId(this.id);
-    targetEntity.assignAttributeValue("mailNickName", this.mailNickname);
+    targetEntity.assignAttributeValue("mailNickname", this.mailNickname);
     targetEntity.assignAttributeValue("onPremisesImmutableId", this.onPremisesImmutableId);
     targetEntity.assignAttributeValue("userPrincipalName", this.userPrincipalName);
     return targetEntity;
@@ -131,8 +131,8 @@ public class GrouperAzureUser {
     return mailNickname;
   }
 
-  public void setMailNickname(String mailNickName) {
-    this.mailNickname = mailNickName;
+  public void setMailNickname(String mailNickname) {
+    this.mailNickname = mailNickname;
   }
 
   public String getUserPrincipalName() {

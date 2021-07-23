@@ -354,7 +354,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
     
@@ -760,7 +760,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     int responseCode = 204;
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
     
     for (int i=0;i<membersNode.size();i++) {
 
@@ -817,7 +817,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
 
     String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint")) + "/directoryObjects/";
+        "grouper.azureConnector.myAzure.resourceEndpoint")) + "/directoryObjects/";
     
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
 
@@ -957,7 +957,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       grouperAzureMemberships.remove(grouperAzureMemberships.size()-1);
       
       // e.g. http://localhost:8400/grouper/mockServices/azure
-      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.azure1.resourceEndpoint"));
+      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.resourceEndpoint"));
 
       String odataNextLink = azureLink + "/groups/" + GrouperUtil.escapeUrlEncode(groupId) 
         + "/members?$skiptoken=" + GrouperUtil.escapeUrlEncode(grouperAzureMemberships.get(grouperAzureMemberships.size()-1).getUserId())
@@ -971,7 +971,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
 
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#directoryObjects");
 

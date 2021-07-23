@@ -42,6 +42,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -397,6 +399,47 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+    
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+
+    try {
+      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      // lets make sure we are doing the right thing
+      Set<String> fieldNamesToUpdate = new HashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        fieldNamesToUpdate.add(fieldName);
+      }
+      
+      GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromProvisioningEntity(targetEntity, null);
+      
+      GrouperAzureApiCommands.updateAzureUser(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureUser, fieldNamesToUpdate);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+    
+    
+  }
+
+  @Override
   public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
     
     long startNanos = System.nanoTime();
@@ -452,17 +495,44 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
 
+  
+  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
+    
+    if (targetGroup == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetGroup.getId())) {
+      return targetGroup.getId();
+    }
+    
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
+    
+    if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
+      return null;
+    }
+    
+    return targetDaoRetrieveGroupResponse.getTargetGroup().getId();
+    
+  }
+  
+  
   @Override
   public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
-
+    
+    String targetGroupId = resolveTargetGroupId(targetGroup);
+    List<Object> provisioningMemberships = new ArrayList<Object>();
+    
+    if (StringUtils.isBlank(targetGroupId)) {
+      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+    }
+    
     try {
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers(azureConfiguration.getAzureExternalSystemConfigId(), targetGroup.getId());
-      
-      List<Object> provisioningMemberships = new ArrayList<Object>();
+      Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers(azureConfiguration.getAzureExternalSystemConfigId(), targetGroupId);
       
       for (String userId : userIds) {
 
@@ -557,6 +627,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
 
