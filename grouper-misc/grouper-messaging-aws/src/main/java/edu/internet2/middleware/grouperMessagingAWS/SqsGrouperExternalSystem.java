@@ -25,4 +25,9 @@ public class SqsGrouperExternalSystem extends GrouperExternalSystem {
     return "^(grouper\\.sqsConnector)\\.([^.]+)\\.(.*)$";
   }
   
+  @Override
+  public String getConfigIdThatIdentifiesThisConfig() {
+    return "myConnector";
+  }
+  
 }

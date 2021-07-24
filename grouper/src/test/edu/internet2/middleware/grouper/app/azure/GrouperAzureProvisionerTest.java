@@ -16,6 +16,9 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutp
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
@@ -224,6 +227,24 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
       GrouperAzureGroup grouperAzureGroup = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).get(0);
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+        assertTrue(provisioningGroupWrapper.isRecalc());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        assertTrue(provisioningEntityWrapper.isRecalc());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        assertTrue(provisioningMembershipWrapper.isRecalc());
+      }
       
       assertEquals("test:testGroup", grouperAzureGroup.getDisplayName());
       
