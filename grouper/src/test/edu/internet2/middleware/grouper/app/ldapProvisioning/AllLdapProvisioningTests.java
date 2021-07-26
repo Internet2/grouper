@@ -30,6 +30,7 @@ public class AllLdapProvisioningTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.ldapProvisioning");
     //$JUnit-BEGIN$
+    suite.addTestSuite(LdapProvisionerTargetDaoTest.class);
     suite.addTestSuite(SimpleLdapProvisionerTest.class);
     suite.addTestSuite(LdapProvisionerWithGroupAndEntityLinksTest.class);
     suite.addTestSuite(LdapProvisionerIncrementalTest.class);
