@@ -863,7 +863,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
+    //grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
   }
 
   @Override
