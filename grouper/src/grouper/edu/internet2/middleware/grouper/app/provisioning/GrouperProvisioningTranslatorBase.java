@@ -137,6 +137,10 @@ public class GrouperProvisioningTranslatorBase {
 
 
       ProvisioningMembership grouperTargetMembership = new ProvisioningMembership();
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetMembership = grouperProvisioningMembership.clone();
+      }
+      
       grouperTargetMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
  
       provisioningMembershipWrapperThreadLocal.set(provisioningMembershipWrapper);
@@ -353,6 +357,9 @@ public class GrouperProvisioningTranslatorBase {
     PROVISIONING_ENTITY_BLOCK: for (ProvisioningEntity grouperProvisioningEntity: GrouperUtil.nonNull(grouperProvisioningEntities)) {
       
       ProvisioningEntity grouperTargetEntity = new ProvisioningEntity();
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetEntity = grouperProvisioningEntity.clone();
+      }
       grouperTargetEntity.setProvisioningEntityWrapper(grouperProvisioningEntity.getProvisioningEntityWrapper());
 
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
@@ -492,6 +499,11 @@ public class GrouperProvisioningTranslatorBase {
     PROVISIONING_GROUP_BLOCK: for (ProvisioningGroup grouperProvisioningGroup: GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       ProvisioningGroup grouperTargetGroup = new ProvisioningGroup();
+      
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetGroup = grouperProvisioningGroup.clone();
+      }
+      
       grouperTargetGroup.setProvisioningGroupWrapper(grouperProvisioningGroup.getProvisioningGroupWrapper());
 
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
@@ -1099,5 +1111,13 @@ public class GrouperProvisioningTranslatorBase {
     }
     throw new RuntimeException("Not expecting grouperProvisioningGroupField: '" + field + "'");
   }
+
+  private boolean translateGrouperToTargetAutomatically;
+  
+  public void setTranslateGrouperToTargetAutomatically(boolean translateGrouperToTargetAutomatically) {
+    this.translateGrouperToTargetAutomatically = translateGrouperToTargetAutomatically;
+  }
+  
+  
 
 }
