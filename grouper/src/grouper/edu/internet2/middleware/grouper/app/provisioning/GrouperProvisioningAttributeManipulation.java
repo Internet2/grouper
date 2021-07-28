@@ -268,7 +268,7 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     String defaultValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
-    if (defaultValue.equals(DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+    if (StringUtils.equals(defaultValue, DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
       defaultValue = "";
     }
 
