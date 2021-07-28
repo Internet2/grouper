@@ -197,14 +197,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               ldapAttribute.addValue(singleValue);
             } else {
               String singleStringValue = GrouperUtil.stringValue(singleValue);
-              if (!StringUtils.isEmpty(singleStringValue)) {
+              if (singleStringValue != null) {
                 ldapAttribute.addValue(singleStringValue);
               }
             }
           }
         } else {
           String stringValue = GrouperUtil.stringValue(value);
-          if (!StringUtils.isEmpty(stringValue)) {
+          if (stringValue != null) {
             ldapAttribute.addValue(stringValue);
           }
         }
@@ -304,16 +304,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         
         if (newValue != null && !(newValue instanceof byte[])) {
           newValue = GrouperUtil.stringValue(newValue);
-          if (StringUtils.isEmpty((String)newValue)) {
-            newValue = null;
-          }
         }
         
         if (oldValue != null && !(oldValue instanceof byte[])) {
           oldValue = GrouperUtil.stringValue(oldValue);
-          if (StringUtils.isEmpty((String)oldValue)) {
-            oldValue = null;
-          }
         }
         
         if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
@@ -809,14 +803,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               ldapAttribute.addValue(singleValue);
             } else {
               String singleStringValue = GrouperUtil.stringValue(singleValue);
-              if (!StringUtils.isEmpty(singleStringValue)) {
+              if (singleStringValue != null) {
                 ldapAttribute.addValue(singleStringValue);
               }
             }
           }
         } else {
           String stringValue = GrouperUtil.stringValue(value);
-          if (!StringUtils.isEmpty(stringValue)) {
+          if (stringValue != null) {
             ldapAttribute.addValue(stringValue);
           }
         }
@@ -979,16 +973,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
         if (newValue != null && !(newValue instanceof byte[])) {
           newValue = GrouperUtil.stringValue(newValue);
-          if (StringUtils.isEmpty((String)newValue)) {
-            newValue = null;
-          }
         }
         
         if (oldValue != null && !(oldValue instanceof byte[])) {
           oldValue = GrouperUtil.stringValue(oldValue);
-          if (StringUtils.isEmpty((String)oldValue)) {
-            oldValue = null;
-          }
         }
         
         if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {

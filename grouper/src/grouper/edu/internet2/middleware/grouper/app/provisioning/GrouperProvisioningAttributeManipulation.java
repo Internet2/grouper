@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 
 public class GrouperProvisioningAttributeManipulation {
 
+  public static final String DEFAULT_VALUE_EMPTY_STRING_CONFIG = "<emptyString>";
+  
   public GrouperProvisioningAttributeManipulation() {
   }
   
@@ -247,6 +249,10 @@ public class GrouperProvisioningAttributeManipulation {
       // set a default value if blank and is a grouper object
       if (currentValue == null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
         assignDefaultFieldsAndAttributesCount[0]++;
+        if (grouperProvisioningConfigurationAttribute.getDefaultValue().equals(DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+          return "";
+        }
+        
         return grouperProvisioningConfigurationAttribute.getDefaultValue();
       }
     }
@@ -260,13 +266,18 @@ public class GrouperProvisioningAttributeManipulation {
     if (grouperProvisioningConfigurationAttribute == null || StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
       return;
     }
+    
+    String defaultValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+    if (defaultValue.equals(DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+      defaultValue = "";
+    }
 
     Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
     
     // scalar
     if (!grouperProvisioningConfigurationAttribute.isMultiValued()) {
       if (currentValue == null) {
-        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), grouperProvisioningConfigurationAttribute.getDefaultValue());
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), defaultValue);
         count[0]++;
       }
       return;
@@ -274,20 +285,20 @@ public class GrouperProvisioningAttributeManipulation {
 
     if (currentValue == null) {
       count[0]++;
-      provisioningUpdatable.addAttributeValue(grouperProvisioningConfigurationAttribute.getName(), grouperProvisioningConfigurationAttribute.getDefaultValue());
+      provisioningUpdatable.addAttributeValue(grouperProvisioningConfigurationAttribute.getName(), defaultValue);
       return;
     }
     if (currentValue instanceof Collection) {
       Collection currentValueCollection = (Collection)currentValue;
       if (currentValueCollection.size() == 0) {
-        currentValueCollection.add(grouperProvisioningConfigurationAttribute.getDefaultValue());
+        currentValueCollection.add(defaultValue);
         count[0]++;
       }
       return;
     }
     if (currentValue != null && currentValue.getClass().isArray()) {
       if (Array.getLength(currentValue) == 0) {
-        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), new Object[] {grouperProvisioningConfigurationAttribute.getDefaultValue()});
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), new Object[] {defaultValue});
         count[0]++;
       }
       return;
