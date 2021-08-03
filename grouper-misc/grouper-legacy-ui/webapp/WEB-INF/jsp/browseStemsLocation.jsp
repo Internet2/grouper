@@ -7,7 +7,7 @@
   @version $Id: browseStemsLocation.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="browseStemsLocation">
 <c:choose>
 	<c:when test="${! isFlat}">
@@ -50,4 +50,4 @@
 </c:choose>
   </div>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

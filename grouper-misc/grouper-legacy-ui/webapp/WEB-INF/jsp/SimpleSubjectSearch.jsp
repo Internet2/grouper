@@ -6,7 +6,7 @@
   @version $Id: SimpleSubjectSearch.jsp,v 1.11 2009-10-30 15:06:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic"
+<grouperlegacy:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
 
@@ -49,4 +49,4 @@
   </html:form></div>
   </div>
   <a name="endSearch" id="endSearch"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -7,7 +7,7 @@
   @version $Id: message.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <%-- included at least from body.jsp --%>
 <div class="grouperMessage">
 <c:if test="${empty messages}">
@@ -35,4 +35,4 @@ request.setAttribute("messages",messages);
 </c:forEach> 
 </div><c:remove var="message" scope="request" /><c:remove var="messages" scope="request" />
 <p>&nbsp;</p>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

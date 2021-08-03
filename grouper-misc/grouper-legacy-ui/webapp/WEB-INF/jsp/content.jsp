@@ -9,6 +9,6 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute name="tile"/>
-<grouper:recordTile key="Not dynamic" tile="${tile}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${tile}">
 	<tiles:insert page="${tile}"/>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

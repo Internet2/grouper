@@ -6,7 +6,7 @@
   @version $Id: showStemsLocation.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endLocation" class="noCSSOnly"><grouper:message key="page.skip.current-location"/><br/></a>
 <div class="browseStemsLocation"><strong><grouper:message key="find.browse.here"/></strong>
 <%-- CH 20080324 change spacing: --%>  <br /><div class="currentLocationList">
@@ -27,4 +27,4 @@
     </div>
 </div>
 <a name="endLocation" id="endLocation"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -5,7 +5,7 @@
   @version $Id: callerPageButton.jsp,v 1.4 2009-09-09 15:10:03 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute ignore="true"/>
 
 <c:if test="${empty form}">
@@ -33,4 +33,4 @@
 	</html:link>	
 </c:when>
 </c:choose>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

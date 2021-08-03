@@ -7,7 +7,7 @@
   @version $Id: browseStemsFind.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute />
 <c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
 <div class="browseChildren">
@@ -47,4 +47,4 @@
 			<tiles:put name="listInstruction" value="list.instructions.find-new"/>
 		</tiles:insert>  
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

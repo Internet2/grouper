@@ -5,7 +5,7 @@
   @version $Id: subjectLinks.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSubjectLinks" class="noCSSOnly"><grouper:message key="page.skip.subject-links"/></a>
 <div class="subjectLinks" style="clear:none;">
 <div class="linkButton">
@@ -60,4 +60,4 @@
 </div>		
 	
 <a name="endSubjectLinks" id="endSubjectLinks"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

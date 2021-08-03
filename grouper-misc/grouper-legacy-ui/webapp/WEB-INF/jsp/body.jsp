@@ -1,7 +1,7 @@
 <%-- @annotation@ Moved visible body parts here expect sites to copy and 
 change definition for this --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 	<tiles:importAttribute ignore="true"/>
 	<body>
 	<%-- note, the tooltips require the javascript to be put there, right below body tag --%>
@@ -53,4 +53,4 @@ change definition for this --%>
 				<tiles:insert attribute="footer" />
 			</div><!--Footer-->
     </div><!--/ContentSpace--> 
-</grouper:recordTile>
+</grouperlegacy:recordTile>

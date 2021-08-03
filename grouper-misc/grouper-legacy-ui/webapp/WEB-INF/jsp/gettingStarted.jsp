@@ -6,7 +6,7 @@
   @version $Id: gettingStarted.jsp,v 1.10 2008-10-22 03:24:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
 <h2>Grouper - intro</h2>
 <p>Grouper is a system for creating and maintaining institutional groups in a 
   central repository. Such groups may be used for many different purposes 
@@ -313,4 +313,4 @@ and not to any subfolders contained within it (i.e. there is no hierarchical inh
   </dd>
 </dl>
 
-</grouper:recordTile> 
+</grouperlegacy:recordTile> 

@@ -7,7 +7,7 @@
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <html:form styleId="GroupOrStemMemberFormBean" action="/saveStemMember" method="post">
 	<html:hidden property="asMemberOf"/>
 	<html:hidden property="contextGroup"/>
@@ -29,4 +29,4 @@
 	<html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['priv.assign']}"/> 
 </html:form>
 <tiles:insert definition="effectivePrivsDef"/>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

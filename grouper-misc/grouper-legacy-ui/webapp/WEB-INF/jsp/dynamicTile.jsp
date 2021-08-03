@@ -12,7 +12,7 @@
 --></c:if><%
 ComponentContext tContext = ComponentContext.getContext(request);
 pageContext.setAttribute("parentTilesContext",tContext);
-%>	<grouper:recordTile view="${view}" 
+%>	<grouperlegacy:recordTile view="${view}" 
                         type="${dynamicObjectType}" 
 						key="${dynamicTemplateKey}" 
 						tile="${dynamicTemplate}"
@@ -36,4 +36,4 @@ pageContext.setAttribute("parentTilesContext",tContext);
 <c:if test="${not empty uiException}">
 	<c:set var="uiException" scope="request" value="${uiException}"/>
 </c:if>	
-	</grouper:recordTile>
+	</grouperlegacy:recordTile>

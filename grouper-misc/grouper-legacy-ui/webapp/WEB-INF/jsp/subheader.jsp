@@ -5,7 +5,7 @@
   @version $Id: subheader.jsp,v 1.11 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div id="LeftInNav"  class="printerFriendlyNot"><span/></div>
 <div id="RightInNav" >
 	<c:if test="${!empty AuthSubject}">
@@ -30,5 +30,5 @@
 		</c:if>
 	</c:if>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 

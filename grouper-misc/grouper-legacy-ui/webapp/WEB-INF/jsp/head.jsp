@@ -7,7 +7,7 @@
   @version $Id: head.jsp,v 1.11 2009-11-30 17:14:02 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <%
 StringBuffer base = new StringBuffer("http");
 if(request.isSecure()) base.append("s");
@@ -56,4 +56,4 @@ base.append("/");
 <script src="grouperExternal/public/OwaspJavaScriptServlet"></script>
 <script type="text/javascript" src="i2mi/signet.js"></script>
 <script type="text/javascript" src="scripts/grouper.js"></script> 
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -4,7 +4,7 @@
   @author Gary Brown.
   @version $Id: selectGroupSearchFields.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <tiles:importAttribute ignore="true"/>
 		<tr class="formTableRow">
@@ -59,4 +59,4 @@
    
 </c:forEach>
 
-</grouper:recordTile>
+</grouperlegacy:recordTile>

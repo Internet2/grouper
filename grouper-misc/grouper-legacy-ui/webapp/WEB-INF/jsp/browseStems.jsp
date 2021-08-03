@@ -12,7 +12,7 @@
                     <tiles:insert definition="messageDef" />   
             </c:if>
 <div class="sectionBody">
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:choose>
 	<c:when test="${!empty initialStems}">
 		<tiles:insert definition="initialStemsDef"/>
@@ -33,5 +33,5 @@
 		</div>
 	</c:otherwise>
 	</c:choose>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 </div>

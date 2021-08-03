@@ -6,7 +6,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="section searchGroups">
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
 <grouper:subtitle key="groups.heading.search">
   <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message 
@@ -49,5 +49,5 @@
 	</html:form>
 </div>
 <a name="endSearch" id="endSearch"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 </div>

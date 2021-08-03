@@ -5,7 +5,7 @@
   @version $Id: advancedSearchStems.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <div class="section">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
@@ -39,4 +39,4 @@
 </div>
 <a name="endSearch" id="endSearch"></a>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

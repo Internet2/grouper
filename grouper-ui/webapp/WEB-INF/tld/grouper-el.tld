@@ -375,36 +375,6 @@
     </attribute>
   </tag>
   
-    <tag>
-        <name>recordTile</name>
-        <tag-class>edu.internet2.middleware.grouper.ui.ELTileRecorderTag</tag-class>
-        <description>registers with UIThreadLocal that a tile was loaded</description>
-        <attribute>
-            <name>view</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>type</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-         <attribute>
-            <name>key</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>tile</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-		<attribute>
-            <name>silent</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
   <tag>
     <name>message</name>
     <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag</tag-class>

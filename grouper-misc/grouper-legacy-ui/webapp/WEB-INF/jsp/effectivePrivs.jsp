@@ -7,7 +7,7 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <jsp:useBean id="membershipMap" class="java.util.HashMap"/>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:set target="${membershipMap}" property="subjectId" value="${subject.id}"/>
 <c:set target="${membershipMap}" property="subjectType" value="${subject.subjectType}"/>
 <c:set target="${membershipMap}" property="sourceId" value="${subject.sourceId}"/>
@@ -39,4 +39,4 @@
 </c:forEach>
 
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
