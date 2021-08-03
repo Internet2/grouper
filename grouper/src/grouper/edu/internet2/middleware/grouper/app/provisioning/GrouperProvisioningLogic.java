@@ -989,39 +989,45 @@ public class GrouperProvisioningLogic {
       }
     }
     
-    //retrieve so we have a copy
-    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
-        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
-    
-    List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
+    List<ProvisioningGroup> targetGroups = null;
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+      //retrieve so we have a copy
+      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
+          this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
+      
+      targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
+      
+      registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
+      
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(targetGroups, true, false, false);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(targetGroups);
 
-    registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
-    
-    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(targetGroups, true, false, false);
-    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(targetGroups);
-
-    // index
-    this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(targetGroups);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
-    
-    this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
+      // index
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups(targetGroups);
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
+      
+    }
 
     this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsCreated);
-
-    Map<Object, ProvisioningGroupWrapper> matchingIdToProvisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
-    
-    // match these up with retrieved groups
-    // set these in the wrapper so they are linked with grouper group
-    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+     
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+      Map<Object, ProvisioningGroupWrapper> matchingIdToProvisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
       
-      // look up the grouper group that looked this up
-      ProvisioningGroupWrapper provisioningGroupWrapper = matchingIdToProvisioningGroupWrapper.get(targetGroup.getMatchingId());
-      
-      // not sure why it wouldnt match or exist...
-      provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
-      
-      // this is already created!  :)
-      provisioningGroupWrapper.setCreate(false);
+      // match these up with retrieved groups
+      // set these in the wrapper so they are linked with grouper group
+      for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+        
+        // look up the grouper group that looked this up
+        ProvisioningGroupWrapper provisioningGroupWrapper = matchingIdToProvisioningGroupWrapper.get(targetGroup.getMatchingId());
+        
+        // not sure why it wouldnt match or exist...
+        provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
+        
+        // this is already created!  :)
+        provisioningGroupWrapper.setCreate(false);
+      }
     }
     
   }
@@ -1225,34 +1231,43 @@ public class GrouperProvisioningLogic {
         GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
       }
     }
-    //retrieve so we have a copy
-    TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
-        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntitiesToInsert, false));
     
-    List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
-    
-    registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
-    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(targetEntities, true, false, false);
-    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(targetEntities);
-    // index
-    this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(targetEntities);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
-    this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
-    this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesCreated);
-    Map<Object, ProvisioningEntityWrapper> matchingIdToProvisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
-    
-    // match these up with retrieved entities
-    // set these in the wrapper so they are linked with grouper entity
-    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+    List<ProvisioningEntity> targetEntities = null;
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+     //retrieve so we have a copy
+      TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
+          this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntitiesToInsert, false));
       
-      // look up the grouper group that looked this up
-      ProvisioningEntityWrapper provisioningEntityWrapper = matchingIdToProvisioningEntityWrapper.get(targetEntity.getMatchingId());
+      targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
       
-      // not sure why it wouldnt match or exist...
-      provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
-      // this is already created!  :)
-      provisioningEntityWrapper.setCreate(false);
+      registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(targetEntities, true, false, false);
+      this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(targetEntities);
+      // index
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetEntities(targetEntities);
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
     }
+    
+    this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesCreated);
+    
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+      Map<Object, ProvisioningEntityWrapper> matchingIdToProvisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
+      
+      // match these up with retrieved entities
+      // set these in the wrapper so they are linked with grouper entity
+      for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+        
+        // look up the grouper group that looked this up
+        ProvisioningEntityWrapper provisioningEntityWrapper = matchingIdToProvisioningEntityWrapper.get(targetEntity.getMatchingId());
+        
+        // not sure why it wouldnt match or exist...
+        provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
+        // this is already created!  :)
+        provisioningEntityWrapper.setCreate(false);
+      }
+    }
+    
   }
 
   /**

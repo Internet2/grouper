@@ -147,8 +147,7 @@ public class GrouperMessagingApiCommands {
   }
   
   public static GrouperMessageSendResult sendUpdateGroupMesssage(GrouperMessagingConfiguration grouperMessagingConfiguration,
-      GrouperMessagingGroup grouperMessagingGroup, Long indexToBeAdded,
-      String propertyChanged, Object propertyOldValue, Object propertyNewValue) {
+      GrouperMessagingGroup grouperMessagingGroup, Long indexToBeAdded) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -162,10 +161,6 @@ public class GrouperMessagingApiCommands {
       ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration);
       
       messageObjectNode.put("eventType", "GROUP_UPDATE");
-      
-      messageObjectNode.put("propertyChanged", propertyChanged);
-      messageObjectNode.put("propertyOldValue", propertyOldValue == null ? null: propertyOldValue.toString());
-      messageObjectNode.put("propertyNewValue", propertyNewValue == null ? null: propertyNewValue.toString());
       
       return sendMessage(grouperMessagingConfiguration, messageObjectNode, indexToBeAdded);
 

@@ -1117,7 +1117,11 @@ public class GrouperProvisioningTranslatorBase {
   public void setTranslateGrouperToTargetAutomatically(boolean translateGrouperToTargetAutomatically) {
     this.translateGrouperToTargetAutomatically = translateGrouperToTargetAutomatically;
   }
+
   
+  public boolean isTranslateGrouperToTargetAutomatically() {
+    return translateGrouperToTargetAutomatically;
+  }
   
 
 }

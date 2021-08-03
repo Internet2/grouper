@@ -515,7 +515,7 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       
-      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.isDelete() ? null : provisioningEntityWrapper.getGrouperTargetEntity();
+      ProvisioningEntity grouperTargetEntity = (provisioningEntityWrapper.isDelete() && provisioningEntityWrapper.isRecalc()) ? null : provisioningEntityWrapper.getGrouperTargetEntity();
       ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
       
       Object grouperMatchingId = grouperTargetEntity == null ? null : grouperTargetEntity.getMatchingId();
@@ -716,8 +716,8 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
           
-      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.isDelete() ? null : provisioningGroupWrapper.getGrouperTargetGroup();
-      if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+      ProvisioningGroup grouperTargetGroup = (provisioningGroupWrapper.isDelete() && provisioningGroupWrapper.isRecalc()) ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
         grouperTargetGroup = null;
       }
       
@@ -787,12 +787,24 @@ public class GrouperProvisioningCompare {
 
       {
         List<ProvisioningGroup> provisioningGroupsToDelete = new ArrayList<ProvisioningGroup>();
-        
+        // get the recalcs to delete
         for (Object groupIdToDelete: groupIdsToDelete) {
           
           ProvisioningGroup groupToDelete = targetMatchingIdToTargetGroup.get(groupIdToDelete);
           
           provisioningGroupsToDelete.add(groupToDelete);
+          
+        }
+        
+        // get the non-recalcs to delete
+        for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
+          if (!provisioningGroupWrapper.isRecalc() && provisioningGroupWrapper.isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
+              && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+            provisioningGroupsToDelete.add(provisioningGroupWrapper.getGrouperTargetGroup());
+          }
+        }
+          
+        for (ProvisioningGroup groupToDelete: provisioningGroupsToDelete) {
           
           if (groupToDelete.getId() != null) {
             groupToDelete.addInternal_objectChange(
@@ -854,7 +866,15 @@ public class GrouperProvisioningCompare {
             targetProvisioningGroup == null ? null : targetProvisioningGroup.getAttributes(), 
                 grouperTargetGroup);
           
-      }  
+      } 
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
+        if (!provisioningGroupWrapper.isRecalc() && provisioningGroupWrapper.isUpdate() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
+            && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+          provisioningGroupsToUpdate.add(provisioningGroupWrapper.getGrouperTargetGroup());
+        }
+      }
+      
       this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().setProvisioningGroups(provisioningGroupsToUpdate);
     }
     
@@ -968,7 +988,7 @@ public class GrouperProvisioningCompare {
         continue;
       }
       
-      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.isDelete() ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
+      ProvisioningMembership grouperTargetMembership = (provisioningMembershipWrapper.isDelete() && provisioningMembershipWrapper.isRecalc()) ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
       
       Object grouperMatchingId = grouperTargetMembership == null ? null : grouperTargetMembership.getMatchingId();
@@ -1042,7 +1062,8 @@ public class GrouperProvisioningCompare {
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().isRecalc()) {
-          if (grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete) {
+          if (grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete || 
+              grouperTargetMembership.getProvisioningMembershipWrapper().isDelete()) {
             groupIdEntityIdsToDelete.add(key);
           }
         }
@@ -1051,8 +1072,15 @@ public class GrouperProvisioningCompare {
       {
         List<ProvisioningMembership> provisioningMembershipsToDelete = new ArrayList<ProvisioningMembership>();
 
-        for (Object matchingIdsToDelete: groupIdEntityIdsToDelete) {
-          ProvisioningMembership membershipToDelete = targetMatchingIdToTargetMembership.get(matchingIdsToDelete);
+        for (Object matchingIdToDelete: groupIdEntityIdsToDelete) {
+          ProvisioningMembership membershipToDelete = targetMatchingIdToTargetMembership.get(matchingIdToDelete);
+          
+          if (membershipToDelete == null) {
+            // target probably doesn't allow retrieving memberships so we need to send membership delete based on grouper side only
+            membershipToDelete = grouperMatchingIdToTargetMembership.get(matchingIdToDelete);
+          }
+          
+          
           GcGrouperSyncMembership gcGrouperSyncMembership = membershipToDelete.getProvisioningMembershipWrapper().getGcGrouperSyncMembership();
           if (grouperProvisioningBehavior.isDeleteMembership(gcGrouperSyncMembership)) {
 
@@ -1113,9 +1141,9 @@ public class GrouperProvisioningCompare {
 
   public void compareTargetObjects() {
     
-    compareTargetGroups(grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper().values());
-    compareTargetEntities(grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper().values());
-    compareTargetMemberships(grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper().values());
+    compareTargetGroups(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+    compareTargetEntities(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+    compareTargetMemberships(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
   
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     

@@ -47,7 +47,12 @@ public class GrouperIncrementalDataToProcess {
    * note, these are also included in groupUuidsForGroupOnly
    */
   private Set<GrouperIncrementalDataItem> groupUuidsForGroupMembershipSync = new HashSet<GrouperIncrementalDataItem>();
-  
+
+  /**
+   * get the group objects
+   */
+  private Set<GrouperIncrementalDataItem> groupUuidsForGroupSync = new HashSet<GrouperIncrementalDataItem>();
+
   
   /**
    * get the group objects and the memberships for these.
@@ -207,6 +212,11 @@ public class GrouperIncrementalDataToProcess {
       
     }
     
+  }
+
+  
+  public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupSync() {
+    return groupUuidsForGroupSync;
   }
 
   

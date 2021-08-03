@@ -359,9 +359,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     provisioningMembership.id = this.id;
     provisioningMembership.provisioningEntityId = this.provisioningEntityId;
     // set this later
-    provisioningMembership.provisioningEntity = null;
+    provisioningMembership.provisioningEntity = this.provisioningEntity != null ? this.provisioningEntity.clone(): null;
     provisioningMembership.provisioningGroupId = this.provisioningGroupId;
-    provisioningMembership.provisioningGroup = null;
+    provisioningMembership.provisioningGroup = this.provisioningGroup != null ? this.provisioningGroup.clone(): null;
     provisioningMembership.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
     return provisioningMembership;
   }

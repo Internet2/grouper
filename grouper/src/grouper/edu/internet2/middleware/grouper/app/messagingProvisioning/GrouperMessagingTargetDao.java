@@ -231,14 +231,8 @@ public class GrouperMessagingTargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperMessagingGroup grouperMessagingGroup = GrouperMessagingGroup.fromProvisioningGroup(targetGroup);
       
-      // each property change is one unique message
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
-
-        GrouperMessagingApiCommands.sendUpdateGroupMesssage(messagingConfiguration, 
-            grouperMessagingGroup, indexToBeAdded, fieldName, provisioningObjectChange.getOldValue(), provisioningObjectChange.getNewValue());
-        
-      }
+      GrouperMessagingApiCommands.sendUpdateGroupMesssage(messagingConfiguration, 
+          grouperMessagingGroup, indexToBeAdded);
 
       targetGroup.setProvisioned(true);
 
