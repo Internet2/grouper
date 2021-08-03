@@ -7,9 +7,9 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute/>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:if test="${!empty browsePath}">
 	<tiles:insert definition="searchFromDef"/>
 </c:if>
 <tiles:insert definition="searchGroupResultFieldChoiceDef"/>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -6,7 +6,7 @@
   @version $Id: selectStemPrivilege.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <html:form action="populateStemPriviligees" method="post">
 <fieldset>
 	<html:hidden property="stemId"/>
@@ -18,4 +18,4 @@
 	</html:select> <grouper:message key="priv.privilege"/>
 </fieldset>
 </html:form>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

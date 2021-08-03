@@ -17,7 +17,7 @@
 <%@page import="org.apache.struts.tiles.ComponentContext"%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<grouper:recordTile key="Not dynamic" tile="/WEB-INF/jsp/template.jsp">
+<grouperlegacy:recordTile key="Not dynamic" tile="/WEB-INF/jsp/template.jsp">
 <html:html lang="en" xhtml="true">
 <html:xhtml/>
 <%@page import="java.io.PrintWriter"%>
@@ -90,4 +90,4 @@ request.setAttribute("modulePrefix",prefix);
   </c:if>	        
 </body>
 </html:html>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

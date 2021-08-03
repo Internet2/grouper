@@ -7,7 +7,7 @@
   @version $Id: groupInfo.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic"
+<grouperlegacy:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
   <table class="formTable formTableSpaced" cellspacing="2">
@@ -62,4 +62,4 @@
       </tr>
     </c:if>
   </table>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

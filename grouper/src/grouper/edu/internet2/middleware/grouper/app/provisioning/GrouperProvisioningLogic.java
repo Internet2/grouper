@@ -397,6 +397,9 @@ public class GrouperProvisioningLogic {
     }
     
     // Step 3 - Go through the full logic and see if any other processing is done on the target entities
+    this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForEntities(
+        this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), null);
+
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(
         this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), true, false, false);
    

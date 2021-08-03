@@ -5,7 +5,7 @@
   @version $Id: searchGroupResultFieldChoice.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute ignore="true"/>
 <%
 	Map map = (Map)session.getAttribute("mediaMap");
@@ -53,4 +53,4 @@
 <%
 }
 %>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

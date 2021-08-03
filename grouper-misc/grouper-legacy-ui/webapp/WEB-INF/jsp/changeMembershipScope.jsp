@@ -9,7 +9,7 @@
   @version $Id: changeMembershipScope.jsp,v 1.12 2009-10-16 12:16:32 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <html:form  action="/populateGroupMembers" enctype="multipart/form-data">
 <html:hidden property="groupId"/>
@@ -89,4 +89,4 @@
 	</c:if>
 	</fieldset>
 </html:form>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
