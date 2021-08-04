@@ -1116,13 +1116,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
     for (String stemId: stemIdToNamesAddAndAttributeChange.keySet()) {
       
       String stemName = stemIdToNamesAddAndAttributeChange.get(stemId);
-      
-      String parentFolderName = GrouperUtil.parentStemNameFromName(stemName);
-      
-      if (StringUtils.isNotBlank(parentFolderName)) {
-        stemNamesToProcess.add(parentFolderName);
-      }
-      
+      stemNamesToProcess.add(stemName);
       
     }
     
