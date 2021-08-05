@@ -33,11 +33,6 @@
                               >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.deprovisioningContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.runDaemon'); return false;"
-                              >${textContainer.text['groupDeprovisioningMoreActionsRunDaemon'] }</a></li>
-                        </c:if>
-
                       </ul>
                     </div>
 

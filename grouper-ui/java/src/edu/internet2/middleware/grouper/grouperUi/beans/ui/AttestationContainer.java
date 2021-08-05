@@ -1054,20 +1054,6 @@ public class AttestationContainer {
   
   /**
    * 
-   * @return true if can run daemon
-   */
-  public boolean isCanRunDaemon() {
-    
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    return false;
-  }
-
-  /**
-   * 
    * @return true if can write
    */
   public boolean isCanWriteAttestation() {

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -28,7 +27,6 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeStemSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesJob;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.grouperTypes.StemOrGroupObjectType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -52,10 +50,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2GrouperObjectTypes {
-  
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(UiV2GrouperObjectTypes.class);
-  
   
   /**
    * make sure attribute def is there and enabled etc
@@ -954,74 +948,6 @@ public class UiV2GrouperObjectTypes {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-    
-  }
-  
-  /**
-   * @param request
-   * @param response
-   */
-  public void runDaemon(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-  
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-        
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-      final ObjectTypeContainer objectTypeContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer();
-
-      if (!objectTypeContainer.isCanRunDaemon()) {
-        throw new RuntimeException("Not allowed!!!!!");
-      }
-      
-      final boolean[] DONE = new boolean[]{false};
-      
-      Thread thread = new Thread(new Runnable() {
-
-        @Override
-        public void run() {
-          GrouperSession grouperSession = GrouperSession.startRootSession();
-          try {
-            GrouperObjectTypesJob.runDaemonStandalone();
-            DONE[0] = true;
-          } catch (RuntimeException re) {
-            LOG.error("Error in running daemon", re);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          
-        }
-        
-      });
-
-      thread.start();
-      
-      try {
-        thread.join(45000);
-      } catch (Exception e) {
-        throw new RuntimeException("Exception in thread", e);
-      }
-
-      if (DONE[0]) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("objectTypeSuccessDaemonRan")));
-        
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-            TextContainer.retrieveFromRequest().getText().get("objectTypeInfoDaemonInRunning")));
-
-      }
-  
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-    
     
   }
   

@@ -35,11 +35,6 @@
                               >${textContainer.text['groupAttestationMoreActionsViewFolderAttestation'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.attestationContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Attestation.runDaemon'); return false;"
-                              >${textContainer.text['groupAttestationMoreActionsRunDaemon'] }</a></li>
-                        </c:if>
-
                         <c:if test="${grouperRequestContainer.attestationContainer.canReadAttestation}" >
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.viewGroupAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupAttestationViewAuditButton'] }</a></li>

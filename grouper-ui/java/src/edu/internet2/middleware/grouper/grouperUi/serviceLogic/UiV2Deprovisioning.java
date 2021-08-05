@@ -35,7 +35,6 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningEmailService;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningEmailService.EmailPerPerson;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
@@ -2384,77 +2383,6 @@ public class UiV2Deprovisioning {
     }
     
   }
-  
-  /**
-   * @param request
-   * @param response
-   */
-  public void runDaemon(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-  
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-        
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-      DeprovisioningContainer deprovisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate()
-          .getDeprovisioningContainer();
-
-      if (!deprovisioningContainer.isCanRunDaemon()) {
-        throw new RuntimeException("Not allowed!!!!!");
-      }
-      
-      final boolean[] DONE = new boolean[]{false};
-      
-      Thread thread = new Thread(new Runnable() {
-
-        @Override
-        public void run() {
-          GrouperSession grouperSession = GrouperSession.startRootSession();
-          try {
-            GrouperDeprovisioningJob.runDaemonStandalone();
-            DONE[0] = true;
-          } catch (RuntimeException re) {
-            LOG.error("Error in running daemon", re);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          
-        }
-        
-      });
-
-      thread.start();
-      
-      try {
-        thread.join(45000);
-      } catch (Exception e) {
-        throw new RuntimeException("Exception in thread", e);
-      }
-
-      if (DONE[0]) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningSuccessDaemonRan")));
-        
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningInfoDaemonInRunning")));
-
-      }
-      
-  
-  
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-    
-  }
-
   
   /**
    * @param request

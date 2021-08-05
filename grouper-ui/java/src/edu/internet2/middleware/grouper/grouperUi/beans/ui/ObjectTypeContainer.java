@@ -383,20 +383,6 @@ public class ObjectTypeContainer {
   }
   
   /**
-   * 
-   * @return true if can run daemon
-   */
-  public boolean isCanRunDaemon() {
-    
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    return false;
-  }
-  
-  /**
    * if object types are even enabled in the config
    * @return true if enabled
    */
