@@ -577,7 +577,7 @@ public class ProvisioningSyncIntegration {
     if (GrouperUtil.length(groupIdMemberIdsToInsert) > 0) {
       
       Map<MultiKey, GcGrouperSyncMembership> mapGroupIdMemberIdToSyncMembershipInsert = gcGrouperSync.getGcGrouperSyncMembershipDao()
-          .membershipRetrieveOrCreateByGroupIdsAndMemberIds(groupIdMemberIdsToInsert);
+          .membershipRetrieveOrCreateByGroupIdsAndMemberIds(gcGrouperSync.getId(), groupIdMemberIdsToInsert);
       
       for (MultiKey groupIdMemberIdToInsert : mapGroupIdMemberIdToSyncMembershipInsert.keySet()) {
         
