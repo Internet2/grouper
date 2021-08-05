@@ -315,7 +315,7 @@ public class GrouperProvisionerGrouperSyncDao {
             GrouperUtil.length(groupIdsMemberIdsToRetrieve));
         Map<MultiKey, GcGrouperSyncMembership> grouperSyncMembershipMap = gcGrouperSync
             .getGcGrouperSyncMembershipDao()
-            .membershipRetrieveByGroupIdsAndMemberIds(groupIdsMemberIdsToRetrieve);
+            .membershipRetrieveByGroupIdsAndMemberIds(gcGrouperSync.getId(), groupIdsMemberIdsToRetrieve);
         this.getGrouperProvisioner().getDebugMap().put("syncMembershipsFromMembership",
             GrouperUtil.length(grouperSyncMembershipMap));
         gcGrouperSyncMemberships
