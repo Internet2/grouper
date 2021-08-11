@@ -25,7 +25,7 @@ public class SecurityFilterFacade implements Filter {
         this.initDelegate();
     }
 
-    private void initDelegate() {
+    public void initDelegate() {
         if (ConfigUtils.isGrouperUi() && FilterFascadeUtils.isExternalAuthenticationEnabled()) {
             this.uiDelegate.setSharedConfig(ConfigBuilder.build(Pac4jConfigFactory.class.getCanonicalName()));
             this.uiDelegate.setClients("client");

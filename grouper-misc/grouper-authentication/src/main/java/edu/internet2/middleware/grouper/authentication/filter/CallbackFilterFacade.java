@@ -23,7 +23,7 @@ public class CallbackFilterFacade implements Filter {
         this.initDelegate();
     }
 
-    private void initDelegate() {
+    public void initDelegate() {
         this.uiDelegate.setDefaultUrl(ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.defaultUrl", "/"));
         this.uiDelegate.setRenewSession(true);
     }
