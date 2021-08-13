@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -682,38 +684,106 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoRetrieveMembershipsResponse();
     }
 
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
-      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
-      logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
-      return targetDaoRetrieveMembershipsResponse;
-    }
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
-      
-      List<Object> results = new ArrayList<Object>();
-      
-      for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
-
-        TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(provisioningMembership));
-        if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
-          results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
-        }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+        TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsResponse;
       }
-      return new TargetDaoRetrieveMembershipsResponse(results);
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
+        
+        List<Object> results = new ArrayList<Object>();
+        
+        for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+
+          TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(provisioningMembership));
+          if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
+            results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
+          }
+        }
+        return new TargetDaoRetrieveMembershipsResponse(results);
+      }
     }
-    // TODO add in support for groupMemberships and entityAttributes for recalc for memberships that doesnt involve full group sync
-    //    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-    //      TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest = new TargetDaoRetrieveMembershipsByGroupsRequest();
-    //      targetDaoRetrieveMembershipsByGroupsRequest.
-    //    }
-    //      retrieveMembershipsByGroups()
-    //      for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
-    //        
-    //        
-    //        targetDaoRetrieveMembershipsRequest.getTargetMemberships()
-    //  
-    //  }
     
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+        TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsResponse;
+      }
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
+        
+        List<Object> results = new ArrayList<Object>();
+        
+        String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+        
+        for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+
+          ProvisioningGroup provisioningGroup = (ProvisioningGroup) provisioningMembership;
+          
+          
+          Set<Object> attributeValueSet = (Set<Object>) provisioningGroup.retrieveAttributeValueSet(attributeForMemberships);
+          
+          for (Object attributeValue: GrouperUtil.nonNull(attributeValueSet)) {
+            
+            ProvisioningGroup clonedProvisioningGroup = provisioningGroup.clone();
+            ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+            provisioningAttribute.setValue(GrouperUtil.toSet(attributeValue));
+            provisioningAttribute.setName(attributeForMemberships);
+            
+            clonedProvisioningGroup.getAttributes().put(attributeForMemberships, provisioningAttribute);
+            
+            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningGroup));
+            if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
+              results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
+            }
+            
+          }
+        
+        }
+        return new TargetDaoRetrieveMembershipsResponse(results);
+      }
+    }
     
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+        TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsResponse;
+      }
+      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
+        
+        List<Object> results = new ArrayList<Object>();
+        
+        String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+        
+        for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+
+          ProvisioningEntity provisioningEntity = (ProvisioningEntity) provisioningMembership;
+          
+          
+          Set<Object> attributeValueSet = (Set<Object>) provisioningEntity.retrieveAttributeValueSet(attributeForMemberships);
+          
+          for (Object attributeValue: GrouperUtil.nonNull(attributeValueSet)) {
+            
+            ProvisioningEntity clonedProvisioningEntity = provisioningEntity.clone();
+            ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+            provisioningAttribute.setValue(GrouperUtil.toSet(attributeValue));
+            provisioningAttribute.setName(attributeForMemberships);
+            
+            clonedProvisioningEntity.getAttributes().put(attributeForMemberships, provisioningAttribute);
+            
+            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningEntity));
+            if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
+              results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
+            }
+            
+          }
+        
+        }
+        return new TargetDaoRetrieveMembershipsResponse(results);
+      }
+    }
     
     throw new RuntimeException("Dao cannot retrieve memberships or membership");
   }

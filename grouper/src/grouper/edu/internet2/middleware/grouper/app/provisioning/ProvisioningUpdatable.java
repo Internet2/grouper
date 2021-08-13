@@ -233,9 +233,7 @@ public abstract class ProvisioningUpdatable {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
     }
 
-    if (!provisioningMembershipWrapper.isDelete()) {
-      this.addAttributeValue(name, value);
-    }
+    this.addAttributeValue(name, value);
 
     // keep track of membership this attribute value represents
     ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
@@ -580,7 +578,7 @@ public abstract class ProvisioningUpdatable {
   public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable) {
 
     Map<String, ProvisioningAttribute> newAttributes = null;
-    if (provisioningUpdatable.attributes != null) {
+    if (this.attributes != null) {
       newAttributes = new HashMap<String, ProvisioningAttribute>();
       for (String attributeName : this.attributes.keySet()) {
         ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);

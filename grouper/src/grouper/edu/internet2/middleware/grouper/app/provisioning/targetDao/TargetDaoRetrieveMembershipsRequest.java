@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
-
 public class TargetDaoRetrieveMembershipsRequest {
 
   /**

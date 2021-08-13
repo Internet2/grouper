@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +22,8 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
@@ -2154,6 +2158,107 @@ public class GrouperProvisioningLogicIncremental {
     }
   }
 
+  
+  public void retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc() {
+    
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
+      return;
+    }
+    
+    TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest = new TargetDaoRetrieveMembershipsRequest();
+    
+    // groupAttributes is the same as group memberships
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      
+      // group A has John and Sally in grouper and target
+      // remove John and add Ed on the grouper side // group A is not a recalc
+      
+      Set<ProvisioningGroupWrapper> groupWrappersFromMembershipsWithoutRecalc = new HashSet<ProvisioningGroupWrapper>();
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        
+        ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper();
+        if (!groupWrapper.isRecalc() && provisioningMembershipWrapper.isRecalc()) {
+          groupWrappersFromMembershipsWithoutRecalc.add(groupWrapper);
+        }
+      }
+      
+      // we need to send this list to the target dao and ask about certain memberships
+      List<Object> requestGrouperTargetGroups = new ArrayList<Object>();
+      
+      String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+      
+      for (ProvisioningGroupWrapper groupWrapperFromMembership: groupWrappersFromMembershipsWithoutRecalc) {
+        
+        ProvisioningGroup clonedGrouperTargetGroup = groupWrapperFromMembership.getGrouperTargetGroup().clone();
+        
+        Object attributeValue = clonedGrouperTargetGroup.retrieveAttributeValue(attributeForMemberships);
+        
+        ProvisioningAttribute grouperAttribute = GrouperUtil.nonNull(clonedGrouperTargetGroup.getAttributes()).get(attributeForMemberships);
+        
+        if (attributeValue instanceof Collection) {
+          
+          Iterator valueIterator = ((Collection) attributeValue).iterator();
+          
+          while (valueIterator.hasNext()) {
+            Object value = valueIterator.next();
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+            if (!provisioningMembershipWrapper.isRecalc()) {
+              valueIterator.remove();
+            }
+           
+          }
+        } else if (attributeValue != null && attributeValue.getClass().isArray()){
+          // array
+          
+          List<Object> recalcMemberships = new ArrayList<Object>();
+          
+          for (int i=0;i<GrouperUtil.length(attributeValue);i++) {
+            Object value = Array.get(attributeValue, i);
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+            if (provisioningMembershipWrapper.isRecalc()) {
+              recalcMemberships.add(value);
+            }
+            
+          }
+          
+          grouperAttribute.setValue(GrouperUtil.toArray(recalcMemberships, Object.class));
+        }
+        
+        requestGrouperTargetGroups.add(clonedGrouperTargetGroup);
+        
+      }
+      
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(requestGrouperTargetGroups);
+      
+      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+
+      List<Object> targetGroupsWithMemberships = membershipsResponse.getTargetMemberships();
+      
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups((List<ProvisioningGroup>)(Object)targetGroupsWithMemberships);
+      
+      for (Object provisioningGroupObject: GrouperUtil.nonNull(targetGroupsWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
+        
+        ProvisioningGroup provisioningGroupFromTarget = (ProvisioningGroup) provisioningGroupObject;
+        
+        Set<Object> attributeValueSet = (Set<Object>)provisioningGroupFromTarget.retrieveAttributeValueSet(attributeForMemberships);
+        
+        ProvisioningGroupWrapper originalTargetGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getGroupMatchingIdToProvisioningGroupWrapper().get(provisioningGroupFromTarget.getMatchingId());
+        
+        ProvisioningGroup originalTargetGroup = originalTargetGroupWrapper.getTargetProvisioningGroup();
+        
+        for (Object value: GrouperUtil.nonNull(attributeValueSet)) {
+          
+          originalTargetGroup.addAttributeValue(attributeForMemberships, value);
+          
+        }
+        
+      }
+      
+    }
+    
+    
+  }
   
   public void retrieveIncrementalTargetData() {
     TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = new TargetDaoRetrieveIncrementalDataRequest();

@@ -743,7 +743,7 @@ public class GrouperProvisioningLogic {
             {
               List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships();
               List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
-                  grouperProvisioningMemberships, false);
+                  grouperProvisioningMemberships, true);
               this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
             }    
   
@@ -789,6 +789,19 @@ public class GrouperProvisioningLogic {
             
           }
             
+          
+          // ######## Retrieve memberships from target that are recalc where the group is not recalc
+          try {
+            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc");
+            long start = System.currentTimeMillis();
+            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc();
+            long retrieveTargetDataMillis = System.currentTimeMillis()-start;
+            debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
+          } finally {
+            this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc);
+          }
+          
+          
           // ######### STEP 36: compare target objects
           try {
             debugMap.put("state", "compareTargetObjectsIncremental");
@@ -1676,9 +1689,7 @@ public class GrouperProvisioningLogic {
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntity(gcGrouperSyncMember)) {
-          provisioningEntityWrapper.setDelete(true);
-        }
+        provisioningEntityWrapper.setDelete(true);
         
         memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       }
@@ -1722,9 +1733,7 @@ public class GrouperProvisioningLogic {
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroup(gcGrouperSyncGroup)) {
-          provisioningGroupWrapper.setDelete(true);
-        }
+        provisioningGroupWrapper.setDelete(true);
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -1801,9 +1810,7 @@ public class GrouperProvisioningLogic {
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembership(gcGrouperSyncMembership)) {
-          provisioningMembershipWrapper.setDelete(true);
-        }
+        provisioningMembershipWrapper.setDelete(true);
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         

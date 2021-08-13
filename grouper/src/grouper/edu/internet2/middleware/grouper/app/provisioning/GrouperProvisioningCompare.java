@@ -243,7 +243,9 @@ public class GrouperProvisioningCompare {
         }
         for (Object value : GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).keySet()) {
           ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
-          
+          if (provisioningMembershipWrapper.isRecalc()) {
+            continue;
+          }
           switch (provisioningMembershipWrapper.getGrouperIncrementalDataAction()) {
             case delete:
               
@@ -271,7 +273,6 @@ public class GrouperProvisioningCompare {
           addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
               grouperProvisioningUpdatable);
         }
-        return;
       }
       
     }
@@ -284,6 +285,7 @@ public class GrouperProvisioningCompare {
 
       ProvisioningAttribute targetAttribute = targetProvisioningAttributes.get(attributeName);
       ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
+      
       Object grouperValue = grouperAttribute == null ? null : grouperAttribute.getValue();
       Object targetValue = targetAttribute == null ? null : targetAttribute.getValue();
 
@@ -293,6 +295,9 @@ public class GrouperProvisioningCompare {
           if (GrouperUtil.isArrayOrCollection(grouperValue)) {
             if (grouperValue instanceof Collection) {
               for (Object value : (Collection)grouperValue) {
+                
+                value = filterDeletedMemberships(grouperAttribute, value);
+                
                 grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                         ProvisioningObjectChangeAction.insert, null, value)
@@ -302,6 +307,7 @@ public class GrouperProvisioningCompare {
               // array
               for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
                 Object value = Array.get(grouperValue, i);
+                value = filterDeletedMemberships(grouperAttribute, value);
                 grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                         ProvisioningObjectChangeAction.insert, null, value)
@@ -334,7 +340,7 @@ public class GrouperProvisioningCompare {
         Collection<Object> grouperCollection = null;
         if (grouperValue != null) {
           if (grouperValue instanceof Collection) {
-            grouperCollection = (Collection)grouperValue;
+            grouperCollection = new HashSet<Object>((Collection)grouperValue);
           } else if (grouperValue.getClass().isArray()) {
             grouperCollection = new HashSet<Object>();
             for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
@@ -342,6 +348,18 @@ public class GrouperProvisioningCompare {
             }
           }
         }
+        
+        if (grouperCollection != null) {
+          Iterator<Object> iterator = grouperCollection.iterator();
+          while (iterator.hasNext()) {
+            Object value = iterator.next();
+            value = filterDeletedMemberships(grouperAttribute, value);
+            if (value == null) {
+              iterator.remove();
+            }
+          }
+        }
+        
         // scalar
         if (grouperCollection == null && targetCollection == null) {
           if (!attributeValueEquals(grouperValue, targetValue)) {
@@ -452,6 +470,28 @@ public class GrouperProvisioningCompare {
       addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
           grouperProvisioningUpdatable);
     }
+  }
+  
+  /**
+   * if this is a membership and the membership is deleted, return null
+   * @param grouperAttribute
+   * @param grouperValue
+   * @return
+   */
+  private Object filterDeletedMemberships(ProvisioningAttribute grouperAttribute, Object grouperValue) {
+    
+    if (grouperAttribute == null || grouperAttribute.getValueToProvisioningMembershipWrapper() == null) {
+      return grouperValue;
+    }
+    
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(grouperValue);
+    
+    if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isDelete()) {
+      grouperValue = null;
+    }
+
+    return grouperValue;
+    
   }
 
   /**

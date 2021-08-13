@@ -50,7 +50,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalNullDefaultValue"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testDoNotDeleteIncremental"));    
   }
   
   public LdapProvisionerWithGroupAndEntityLinksTest() {

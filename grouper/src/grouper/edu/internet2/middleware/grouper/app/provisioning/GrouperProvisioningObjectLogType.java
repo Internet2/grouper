@@ -294,6 +294,16 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
+  
+  retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc {
+  
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target memberships", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+    }
+    
+  },
   matchingIdGrouperGroupsEntities {
 
     @Override
