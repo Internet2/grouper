@@ -1867,4 +1867,56 @@ public class GrouperProvisionerGrouperDao {
     
     return policyGroupIds;
   }
+
+  public int retrieveMembershipCountForGroup(ProvisioningGroupWrapper provisioningGroupWrapper) {
+    
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    String sqlInitial = "SELECT " + 
+        "    count(sync_membership.id) " + 
+        "FROM " + 
+        "    grouper_sync_group sync_group, " + 
+        "    grouper_sync_membership sync_membership " +  
+        "WHERE " +      
+        "    sync_membership.grouper_sync_group_id = sync_group.id " +
+        "    AND sync_group.group_id = ? " +
+        "    AND sync_membership.in_target = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(provisioningGroupWrapper.getGroupId());
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    
+    return HibernateSession.bySqlStatic().select(Integer.class, sqlInitial, paramsInitial, typesInitial);
+    
+  }
+  
+  public int retrieveMembershipCountForEntity(ProvisioningEntityWrapper provisioningEntityWrapper) {
+    
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    String sqlInitial = "SELECT " + 
+        "    count(sync_membership.id) " + 
+        "FROM " + 
+        "    grouper_sync_member sync_member, " + 
+        "    grouper_sync_membership sync_membership " +  
+        "WHERE " +      
+        "    sync_membership.grouper_sync_member_id = sync_member.id " +
+        "    AND sync_member.member_id = ? " +
+        "    AND sync_membership.in_target = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(provisioningEntityWrapper.getMemberId());
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    
+    return HibernateSession.bySqlStatic().select(Integer.class, sqlInitial, paramsInitial, typesInitial);
+    
+  }
 }

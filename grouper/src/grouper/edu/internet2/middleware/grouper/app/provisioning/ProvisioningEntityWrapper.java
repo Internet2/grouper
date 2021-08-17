@@ -174,34 +174,6 @@ public class ProvisioningEntityWrapper {
   private boolean delete;
   
   
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private boolean update;
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isUpdate() {
-    return this.update;
-  }
-
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param update
-   */
-  public void setUpdate(boolean update) {
-    this.update = update;
-  }
-
   
   public ProvisioningEntity getGrouperProvisioningEntity() {
     return grouperProvisioningEntity;

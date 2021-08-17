@@ -310,9 +310,9 @@ public class GrouperProvisioningTranslatorBase {
       } 
 
       grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembership(grouperTargetMembership);
-      if (includeDelete) {
-        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
-      }
+//      if (includeDelete) {
+//        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
+//      }
 
       grouperTargetMemberships.add(grouperTargetMembership); 
     }
