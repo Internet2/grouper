@@ -293,7 +293,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
       boolean hasRenameFailure = false;
-      
+      List<Exception> exceptions = new ArrayList<Exception>();
+
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -334,6 +335,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisionObjectChange.setException(e);
             targetGroup.setProvisioned(false);
             hasRenameFailure = true;
+            exceptions.add(e);
           }
         } else if (attributeName == null) {
           throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
@@ -400,11 +402,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           } else {
             provisionObjectChange.setProvisioned(false);
             provisionObjectChange.setException(attributeError.getError());
-            
-            // this should go in the framework?
-            if (!provisionObjectChange.getAttributeName().equalsIgnoreCase(ldapSyncConfiguration.getGroupAttributeNameForMemberships())) {
-              targetGroup.setProvisioned(false);
-            }
+            targetGroup.setProvisioned(false);
+            exceptions.add(attributeError.getError());
           }
         }
         
@@ -413,6 +412,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisioningObjectChange.setProvisioned(true);
           }
         }
+      }
+      
+      if (exceptions.size() > 0) {
+        throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
       }
       
       return new TargetDaoUpdateGroupResponse();
@@ -962,6 +965,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
       boolean hasRenameFailure = false;
+      List<Exception> exceptions = new ArrayList<Exception>();
       
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
@@ -990,6 +994,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisionObjectChange.setException(e);
             targetEntity.setProvisioned(false);
             hasRenameFailure = true;
+            exceptions.add(e);
           }
         } else if (attributeName == null) {
           throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
@@ -1056,11 +1061,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           } else {
             provisionObjectChange.setProvisioned(false);
             provisionObjectChange.setException(attributeError.getError());
-            
-            // this should go in the framework?
-            if (!provisionObjectChange.getAttributeName().equalsIgnoreCase(ldapSyncConfiguration.getGroupAttributeNameForMemberships())) {
-              targetEntity.setProvisioned(false);
-            }
+            targetEntity.setProvisioned(false);
+            exceptions.add(attributeError.getError());
           }
         }
         
@@ -1069,6 +1071,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisioningObjectChange.setProvisioned(true);
           }
         }
+      }
+      
+      if (exceptions.size() > 0) {
+        throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
       }
       
       return new TargetDaoUpdateEntityResponse();
