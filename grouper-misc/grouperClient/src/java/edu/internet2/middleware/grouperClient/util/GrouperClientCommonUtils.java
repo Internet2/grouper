@@ -1220,6 +1220,28 @@ public class GrouperClientCommonUtils  {
   public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
   /**
+   * format on screen of config for milestone: 2015-04-22 00:00:00.0
+   */
+  public static final String TIMESTAMP_DASHES_TENTHS_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+
+  
+  /**
+   * match regex pattern 12345678
+   */
+  private static Pattern timestampNumericPattern = Pattern.compile("^\\d+$");
+
+  /**
+   * match regex pattern 2015-04-22 00:00:00.0
+   */
+  private static Pattern timestampDashesTenthsPattern = Pattern.compile("^(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})\\.(\\d{1})$");
+
+  /**
+   * date format, make sure to synchronize
+   */
+  final static SimpleDateFormat timestampDashesTenthsFormat = new SimpleDateFormat(TIMESTAMP_DASHES_TENTHS_FORMAT);
+
+
+  /**
    * format on screen of config for milestone: yyyyMMdd HH:mm:ss.SSS
    */
   public static final String TIMESTAMP_NO_SLASH_FORMAT = "yyyyMMdd HH:mm:ss.SSS";
@@ -4367,6 +4389,8 @@ public class GrouperClientCommonUtils  {
       return new Timestamp(((Date)input).getTime());
     } else if (input instanceof java.sql.Date) {
       return new Timestamp(((java.sql.Date)input).getTime());
+    } else if (input instanceof Long) {
+      return new Timestamp((Long)input);
     } else {
       throw new RuntimeException("Cannot convert Object to timestamp : " + input);
     }
@@ -4528,6 +4552,16 @@ public class GrouperClientCommonUtils  {
         
         return dateFormat().parse(input);
       }
+      
+      if (timestampNumericPattern.matcher(input).matches()) {
+        new Timestamp(longValue(input));
+      }
+      
+      // 2015-04-22 00:00:00.0
+      if (timestampDashesTenthsPattern.matcher(input).matches()) {
+        return timestampDashesTenthsFormat.parse(input);
+      }
+      
       if (!contains(input, '.')) {
         if (contains(input, '/')) {
           return dateMinutesSecondsFormat.parse(input);

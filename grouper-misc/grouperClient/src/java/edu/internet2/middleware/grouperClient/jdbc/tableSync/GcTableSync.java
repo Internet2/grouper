@@ -580,6 +580,12 @@ public class GcTableSync {
     return this.gcTableSyncOutput;
   }
 
+  
+  public void setGcTableSyncConfiguration(
+      GcTableSyncConfiguration gcTableSyncConfiguration) {
+    this.gcTableSyncConfiguration = gcTableSyncConfiguration;
+  }
+
   /**
    * goes from column name to index of passed in memberships array
    */
