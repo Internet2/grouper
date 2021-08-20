@@ -1341,7 +1341,11 @@ public class GrouperProvisioningCompare {
       
       ProvisioningObjectChange defaultObjectChange = new ProvisioningObjectChange();
       defaultObjectChange.setAttributeName(attributeForMemberships);
-      defaultObjectChange.setNewValue(attribute.getDefaultValue());
+      if (StringUtils.equals(attribute.getDefaultValue(), "<emptyString>")) {
+        defaultObjectChange.setNewValue("");
+      } else {
+        defaultObjectChange.setNewValue(attribute.getDefaultValue());
+      }
       defaultObjectChange.setProvisioningObjectChangeAction(ProvisioningObjectChangeAction.insert);
       grouperTargetGroupForUpdate.addInternal_objectChange(defaultObjectChange);
       
@@ -1404,7 +1408,11 @@ public class GrouperProvisioningCompare {
       
       ProvisioningObjectChange defaultObjectChange = new ProvisioningObjectChange();
       defaultObjectChange.setAttributeName(attributeForMemberships);
-      defaultObjectChange.setNewValue(attribute.getDefaultValue());
+      if (StringUtils.equals(attribute.getDefaultValue(), "<emptyString>")) {
+        defaultObjectChange.setNewValue("");
+      } else {
+        defaultObjectChange.setNewValue(attribute.getDefaultValue());
+      }
       defaultObjectChange.setProvisioningObjectChangeAction(ProvisioningObjectChangeAction.insert);
       grouperTargetEntityForUpdate.addInternal_objectChange(defaultObjectChange);
       
