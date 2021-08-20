@@ -105,6 +105,17 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
     otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(GrouperUtil.intValue(this.debugMap.get("updatesCount"), 0));
     otherJobInput.getHib3GrouperLoaderLog().setTotalCount(GrouperUtil.intValue(this.debugMap.get("ldapRecords"), 0));
     
+    // change micros to millis in the logs
+    for (String label : debugMap.keySet()) {
+      if (label.endsWith("Millis")) {
+        Object value = debugMap.get(label);
+        if (value instanceof Number) {
+          long millis = ((Number)value).longValue()/1000;
+          debugMap.put(label, millis);
+        }
+      }
+    }
+
     otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
     return null;
   }
