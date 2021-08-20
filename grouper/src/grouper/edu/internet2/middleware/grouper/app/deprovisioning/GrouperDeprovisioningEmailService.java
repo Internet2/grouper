@@ -81,7 +81,7 @@ public class GrouperDeprovisioningEmailService {
       
       for (Member member: deprovisionedUsers) {
         
-        Set<Object[]> membershipsSet = new MembershipFinder().addMemberId(member.getId()).addSource(member.getSubjectSource()).findMembershipsMembers();
+        Set<Object[]> membershipsSet = new MembershipFinder().addMemberId(member.getId()).addSource(member.getSubjectSource()).assignEnabled(true).findMembershipsMembers();
         
         for (Object[] membershipArray: membershipsSet) {
           Membership membership = (Membership)membershipArray[0];
@@ -179,7 +179,7 @@ public class GrouperDeprovisioningEmailService {
     }
     
     if (callFromDaemon) {
-      Membership membership = new MembershipFinder().addGroup(affiliation.getUsersWhoHaveBeenDeprovisionedGroup()).addSubject(subject).findMembership(false);
+      Membership membership = new MembershipFinder().addGroup(affiliation.getUsersWhoHaveBeenDeprovisionedGroup()).addSubject(subject).assignEnabled(true).findMembership(false);
       if (membership == null) {
         LOG.error("How come subject is not a member of deprovisioned group??? "+subject.getName());
         return;

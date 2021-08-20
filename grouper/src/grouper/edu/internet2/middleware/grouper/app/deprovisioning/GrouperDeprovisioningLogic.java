@@ -305,7 +305,7 @@ public class GrouperDeprovisioningLogic {
               GROUPER_DEPROVISIONING_CACHE[0].setDeprovisionedSubjectSet(new HashSet<MultiKey>());
               GROUPER_DEPROVISIONING_CACHE[0].setDeprovisionedSubjectSetMap(new HashMap<MultiKey, Set<Subject>>());
   
-              MembershipFinder membershipFinder = new MembershipFinder();
+              MembershipFinder membershipFinder = new MembershipFinder().assignEnabled(true);
               
               Map<String, MultiKey> mapGroupNameFirstTwoKeys = new HashMap<String, MultiKey>();
               

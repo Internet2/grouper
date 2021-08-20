@@ -157,7 +157,8 @@ public class GcTableSyncColumnMetadata {
         }
         
         if (input instanceof String) {
-          return new Timestamp(GrouperClientUtils.longValue(input));
+          
+          return GrouperClientUtils.toTimestamp(input);
         }
         
         if (input instanceof Timestamp) {

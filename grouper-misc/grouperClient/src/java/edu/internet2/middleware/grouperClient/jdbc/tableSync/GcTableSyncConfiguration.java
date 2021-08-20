@@ -122,7 +122,7 @@ public class GcTableSyncConfiguration {
   /**
    * number of bind vars in select
    */
-  private int maxBindVarsInSelect;
+  private int maxBindVarsInSelect = 900;
 
   
   /**
@@ -144,7 +144,7 @@ public class GcTableSyncConfiguration {
   /**
    * batch size when batching data
    */
-  private int batchSize;
+  private int batchSize = 800;
   
   
   /**
@@ -167,7 +167,7 @@ public class GcTableSyncConfiguration {
   /**
    * how many to group by
    */
-  private int groupingSize;
+  private int groupingSize = 10000;
 
   /**
    * @return the groupSize
