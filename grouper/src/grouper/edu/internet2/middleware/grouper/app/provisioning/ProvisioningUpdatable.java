@@ -256,7 +256,10 @@ public abstract class ProvisioningUpdatable {
       provisioningAttribute.setValueToProvisioningMembershipWrapper(valueToProvisioningMembershipWrapper);
     }
 
-    valueToProvisioningMembershipWrapper.put(value, provisioningMembershipWrapper);
+    // If there are two memberships with the same value, overwrite if the previous one was marked as delete.
+    if (!valueToProvisioningMembershipWrapper.containsKey(value) || valueToProvisioningMembershipWrapper.get(value).isDelete()) {
+      valueToProvisioningMembershipWrapper.put(value, provisioningMembershipWrapper);
+    }
 
   }
 
