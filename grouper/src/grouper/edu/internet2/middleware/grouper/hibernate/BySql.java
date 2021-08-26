@@ -27,6 +27,7 @@ import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 /**
  * 
@@ -108,8 +109,9 @@ public class BySql extends HibernateDelegate {
     hibernateSession.misc().flush();
     
     PreparedStatement preparedStatement = null;
+    long startNanos = System.nanoTime();
     try {
-      
+
       //we dont close this connection or anything since could be pooled
       Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
       preparedStatement = connection.prepareStatement(sql);
@@ -126,6 +128,8 @@ public class BySql extends HibernateDelegate {
       throw new RuntimeException("Problem with query in bysqlstatic: " + sql, e);
     } finally {
       GrouperUtil.closeQuietly(preparedStatement);
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
   
   }

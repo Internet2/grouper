@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 /**
  * 
@@ -265,7 +266,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
   public <T> T uniqueResult(@SuppressWarnings("unused") Class<T> returnType) throws GrouperDAOException {
 
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
-
+    long startNanos = System.nanoTime();
     try {
 
       GrouperContext.incrementQueryCount();
@@ -303,6 +304,8 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }    
   }
 
@@ -328,11 +331,17 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * TODO remove in new grouper version
    */
   public int executeUpdateInt() throws GrouperDAOException {
-    GrouperContext.incrementQueryCount();
-    HibernateSession hibernateSession = this.getHibernateSession();
-    Session session  = hibernateSession.getSession();
-    Query query = ByHql.this.attachQueryInfo(session);
-    return query.executeUpdate();
+    long startNanos = System.nanoTime();
+    try {
+
+      GrouperContext.incrementQueryCount();
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session  = hibernateSession.getSession();
+      Query query = ByHql.this.attachQueryInfo(session);
+      return query.executeUpdate();
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+    }
   }
   
   /** query count exec queries, used for testing */
@@ -356,7 +365,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    */
   public <T> List<T> list(@SuppressWarnings("unused") Class<T> returnType) {
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
-
+    long startNanos = System.nanoTime();
     try {
 
       GrouperContext.incrementQueryCount();
@@ -449,7 +458,8 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
   }
   

@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 /**
  * 
@@ -232,7 +233,9 @@ public class ByCriteriaStatic {
   public <T> T uniqueResult(Class<T> returnType, Criterion theCriterions) throws GrouperDAOException {
     this.persistentClass = returnType;
     this.criterions = theCriterions;
+    long startNanos = System.nanoTime();
     try {
+
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
@@ -269,6 +272,8 @@ public class ByCriteriaStatic {
       }
 
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
     }
     
   }
@@ -296,7 +301,9 @@ public class ByCriteriaStatic {
   public <T> List<T> list(Class<T> returnType, Criterion theCriterions) throws GrouperDAOException {
     this.persistentClass = returnType;
     this.criterions = theCriterions;
+    long startNanos = System.nanoTime();
     try {
+
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
@@ -393,6 +400,8 @@ public class ByCriteriaStatic {
     } catch (RuntimeException e) {
       GrouperUtil.injectInException(e, "Exception in list: (" + returnType + "), " + this);
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
     }
     
   }
