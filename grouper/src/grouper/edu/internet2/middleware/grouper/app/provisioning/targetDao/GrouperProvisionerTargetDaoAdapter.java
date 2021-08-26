@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +19,9 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -316,6 +320,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             GrouperUtil.injectInException(e, targetGroup.toString());
             targetGroup.setException(e);
           }
+          setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
         }
         logGroups(targetDaoUpdateGroupsRequest.getTargetGroups());
       }
@@ -928,6 +933,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         if (targetGroup.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updated group as provisioned: " + this.wrappedDao);
         }
+        
         return targetDaoUpdateGroupResponse;
       } catch (RuntimeException e) {
         
@@ -938,9 +944,24 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           GrouperUtil.injectInException(e, targetGroup.toString());
           targetGroup.setException(e);
         }
+        
+        setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
+        
         logGroup(targetGroup);
       }
       return null;
+      
+      /**
+       * 
+       * if it's group attributes
+       * get the results back
+       * if there are exceptions in the object change
+       * get the attribute value
+       * based on the attribute value, get the membership object (there's a map of attribute value to membership wrapper)
+       * on that membership object set exception, failure
+       * 
+       */
+      
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroups(), false)) {
       this.updateGroups(new TargetDaoUpdateGroupsRequest(GrouperUtil.toList(targetGroup)));
@@ -1301,6 +1322,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           GrouperUtil.injectInException(e, targetEntity.toString());
           targetEntity.setException(e);
         }
+        
+        setExceptionForMembershipsWhenGroupOrEntityAttributes(targetEntity, null, e);
       }
       return null;
     }
@@ -1313,6 +1336,98 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   }
 
 
+  private void setExceptionForMembershipsWhenGroupOrEntityAttributes(ProvisioningEntity targetEntity, ProvisioningGroup targetGroup, Exception e) {
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      
+      Set<ProvisioningObjectChange> provisionObjectChanges = targetEntity.getInternal_objectChanges();
+      for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
+        if (provisioningObjectChange.getException() != null) {
+          
+          ProvisioningAttribute provisioningAttribute = targetEntity.getAttributes().get(provisioningObjectChange.getAttributeName());
+          
+          if (provisioningAttribute != null) {
+            Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+            
+            if (valueToProvisioningMembershipWrapper != null) {
+              
+              
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+              if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert || 
+                  provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
+                
+                provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getNewValue());
+              } else {
+                provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
+              }
+              
+              if (provisioningMembershipWrapper.getGrouperTargetMembership() != null) {
+                provisioningMembershipWrapper.getGrouperTargetMembership().setException(e);
+                provisioningMembershipWrapper.getGrouperTargetMembership().setProvisioned(false);
+              } else {
+                if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
+                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorMessage(GrouperUtil.getFullStackTrace(e));
+                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                }
+                
+              }
+             
+            }
+          }
+          
+        }
+        
+      }
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      
+      Set<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
+      for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
+        if (provisioningObjectChange.getException() != null) {
+          
+          ProvisioningAttribute provisioningAttribute = targetGroup.getAttributes().get(provisioningObjectChange.getAttributeName());
+          
+          if (provisioningAttribute != null) {
+            Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+            
+            if (valueToProvisioningMembershipWrapper != null) {
+              
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+              if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert || 
+                  provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
+                
+                provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getNewValue());
+              } else {
+                provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(provisioningObjectChange.getOldValue());
+              }
+              
+              if (provisioningMembershipWrapper == null) {
+                continue;
+              }
+              
+              if (provisioningMembershipWrapper.getGrouperTargetMembership() != null) {
+                provisioningMembershipWrapper.getGrouperTargetMembership().setException(e);
+                provisioningMembershipWrapper.getGrouperTargetMembership().setProvisioned(false);
+              } else {
+                if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
+                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorMessage(GrouperUtil.getFullStackTrace(e));
+                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                }
+                
+              }
+              
+             
+            }
+          }
+          
+        }
+        
+      }
+    }
+    
+  }
+  
   @Override
   public TargetDaoUpdateEntitiesResponse updateEntities(
       TargetDaoUpdateEntitiesRequest targetDaoUpdateEntitiesRequest) {
@@ -1341,7 +1456,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             GrouperUtil.injectInException(e, targetEntity.toString());
             targetEntity.setException(e);
           }
+          
+          setExceptionForMembershipsWhenGroupOrEntityAttributes(targetEntity, null, e);
         }
+        
         logEntities(targetDaoUpdateEntitiesRequest.getTargetEntities());
       }
       return null;

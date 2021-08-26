@@ -950,6 +950,11 @@ public class GrouperProvisionerGrouperSyncDao {
           }
         }
       } else {
+        
+        if (GrouperProvisioningBehaviorMembershipType.groupAttributes == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp, grouperTargetGroup);
+        }
+        
         gcGrouperSyncGroup
             .setErrorMessage(grouperTargetGroup.getException() == null ? null
                 : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
@@ -980,6 +985,9 @@ public class GrouperProvisionerGrouperSyncDao {
     if (fullSyncSuccess) {
       //gcGrouperSyncGroup.setLastGroupSync(nowTimestamp);
     }
+    
+    String membershipAttributeName = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    
     // see if all attributes were processed
     for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil
         .nonNull(provisioningUpdatable.getInternal_objectChanges())) {
@@ -988,7 +996,9 @@ public class GrouperProvisionerGrouperSyncDao {
         continue;
       }
       if (provisioningObjectChange
-          .getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute) {
+          .getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute && 
+          StringUtils.equals(membershipAttributeName, provisioningObjectChange.getAttributeName())) {
+        
         ProvisioningAttribute provisioningAttribute = provisioningUpdatable
             .getAttributes().get(provisioningObjectChange.getAttributeName());
         Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute
