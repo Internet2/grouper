@@ -17,11 +17,15 @@ package edu.internet2.middleware.grouper.j2ee.status;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -46,6 +50,26 @@ public class DaemonJobStatus {
     Long lastSuccess = timestamp == null ? null : timestamp.getTime();
     
     boolean isSuccess = lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess;
+
+    if (!isSuccess) {
+
+      //OTHER_JOB_syncAllSetTables  
+      if (!StringUtils.isBlank(jobName) && jobName.startsWith("OTHER_JOB_")) {
+        String innerJobName = GrouperUtil.prefixOrSuffix(jobName, "OTHER_JOB_", false);
+        String otherJobQuartzCron = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + innerJobName + ".quartzCron");
+        if (StringUtils.equals(otherJobQuartzCron, "59 59 23 31 12 ? 2099")) {
+          Timestamp timestampError = HibernateSession.byHqlStatic().createQuery("select max(theLoaderLog.endedTime) from Hib3GrouperLoaderLog theLoaderLog " +
+              "where theLoaderLog.jobName = :theJobName and theLoaderLog.status not in ( 'SUCCESS', 'STARTED')").setString("theJobName", jobName).uniqueResult(Timestamp.class);
+          Long lastError = timestampError == null ? null : timestampError.getTime();
+          if (lastError == null || (lastSuccess != null && lastSuccess > lastError)) {
+            // this isnt supposed to run or last run was success
+            isSuccess = true;
+          }
+        }
+      }
+
+    }
+    
     if (!isSuccess) {
       if (jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX) && 
           GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.successIfChangeLogConsumerProgress", true)) {
