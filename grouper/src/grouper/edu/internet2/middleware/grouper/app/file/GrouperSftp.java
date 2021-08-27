@@ -270,6 +270,41 @@ public class GrouperSftp {
 
     //create options for sftp
     FileSystemOptions options = new FileSystemOptions();
+    
+    String proxyHost = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".proxyHost");
+    Integer proxyPort = null;
+    String proxyType = null;
+    if (!StringUtils.isBlank(proxyHost)) {
+      proxyPort = GrouperConfig.retrieveConfig().propertyValueIntRequired("grouperSftp.site." + configId + ".proxyPort");
+      proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".proxyType", "PROXY_HTTP");
+      
+    } else {
+      proxyHost = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.proxyHost");
+      if (!StringUtils.isBlank(proxyHost)) {
+        proxyPort = GrouperConfig.retrieveConfig().propertyValueIntRequired("grouperSftp.proxyPort");
+        proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".proxyType", "PROXY_HTTP");
+        
+      }
+    }
+        
+    if (!StringUtils.isBlank(proxyHost)) {
+      SftpFileSystemConfigBuilder.getInstance().setProxyHost(options, proxyHost);
+      SftpFileSystemConfigBuilder.getInstance().setProxyPort(options, proxyPort);
+      switch (proxyType) {
+        case "PROXY_HTTP":
+            SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_HTTP);
+            break;
+        case "PROXY_SOCKS5":
+            SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_SOCKS5);
+            break;
+        case "PROXY_STREAM":
+            SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_STREAM);
+            break;
+        default:
+            throw new RuntimeException("Invalid proxyType: '" + proxyType + "'");
+      }
+    }     
+        
     //ssh key
     try {
       SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(options, "yes");
