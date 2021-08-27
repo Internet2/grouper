@@ -282,7 +282,7 @@ public class GrouperProvisioningCompare {
 //        continue;
 //      }
 
-      ProvisioningAttribute targetAttribute = targetProvisioningAttributes.get(attributeName);
+      ProvisioningAttribute targetAttribute = GrouperUtil.nonNull(targetProvisioningAttributes).get(attributeName);
       ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
       
       Object grouperValue = grouperAttribute == null ? null : grouperAttribute.getValue();
@@ -413,7 +413,7 @@ public class GrouperProvisioningCompare {
       }        
     }
     
-    for (String attributeName: targetProvisioningAttributes.keySet()) {
+    for (String attributeName: GrouperUtil.nonNull(targetProvisioningAttributes).keySet()) {
       if (grouperProvisioningUpdatable.canDeleteAttribute(attributeName)) {
   
         ProvisioningAttribute grouperAttribute = grouperTargetAttributes.get(attributeName);
