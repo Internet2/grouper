@@ -87,6 +87,10 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
@@ -118,7 +122,7 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testDefaultInvalidChars"));
+    TestRunner.run(new TestGroup("testNoSameCaseByDefault"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
     //TestRunner.run(TestGroup.class);
   }
@@ -257,6 +261,9 @@ public class TestGroup extends GrouperTest {
   }
   
   public void testNoSameCaseByDefault() {
+    GrouperHooksUtils.addHookManual(GrouperHookType.GROUP.getPropertyFileKey(), GroupUniqueNameCaseInsensitiveHook.class);
+    GrouperHooksUtils.addHookManual(GrouperHookType.ATTRIBUTE_DEF_NAME.getPropertyFileKey(), AttributeDefNameUniqueNameCaseInsensitiveHook.class);
+    
     new StemSave().assignName("test").save();
     
     try {

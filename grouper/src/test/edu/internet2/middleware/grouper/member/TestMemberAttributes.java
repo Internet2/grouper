@@ -57,7 +57,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testSubjectIdentifierDuplicatesUsdu"));
+    TestRunner.run(new TestMemberAttributes("testGroupAddNonDefault"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -743,6 +743,7 @@ public class TestMemberAttributes extends GrouperTest {
     ExpirableCache.clearAll();
     source.setSearchAttributes(null);
     source.setSortAttributes(null);
+    SourceManager.getInstance().loadSource(source);
     Group group = edu.addChildGroup("Test", "Test Display");
 
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
