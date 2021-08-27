@@ -311,7 +311,7 @@ public class GrouperProvisioningLogic {
         gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
       }
       gcGrouperSyncJob.setPercentComplete(100);
-
+      // 257 this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao()
       // do this in the right spot, after assigning correct sync info about sync
       int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
       this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
@@ -801,6 +801,23 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc);
           }
           
+          
+          //TODO confirm with Chris if the following logic is correct
+          {
+            // index the memberships
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+
+            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+            
+            // validate memberships
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
+
+          }
           
           // ######### STEP 36: compare target objects
           try {
