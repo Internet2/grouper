@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -113,14 +114,19 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Stem testStem = new StemSave(grouperSession).assignName("test").save();
-    Stem testStem2 = new StemSave(grouperSession).assignName("Test").save();
+    Stem testStem2 = new StemSave(grouperSession).assignName("Test2").save();
     
     testStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
     testStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+    
+    Stem root = StemFinder.findRootStem(grouperSession);
 
     testStem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
     testStem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
 
+    root.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    root.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+    
     GrouperSession.stopQuietly(grouperSession);
 
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
@@ -141,7 +147,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE);
+      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
     }
 
     try {
@@ -151,7 +157,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE);
+      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
     }
 
     try {
@@ -161,7 +167,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE);
+      assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
     }
 
     try {
@@ -171,7 +177,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE);
+      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
     }
 
     try {
@@ -181,7 +187,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_NAME_CASE_INSENSITIVE);
+      assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
     }
 
   }

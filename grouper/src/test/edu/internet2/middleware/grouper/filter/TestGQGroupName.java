@@ -74,7 +74,7 @@ public class TestGQGroupName extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGQGroupName("testGroupNameFilterSomethingNamePaged"));
+    TestRunner.run(new TestGQGroupName("testGroupNameFilterAlternateNameScoped"));
   }
   
   public TestGQGroupName(String name) {
@@ -509,8 +509,8 @@ public class TestGQGroupName extends GrouperTest {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            edu2  = StemHelper.addChildStem(root, "2edu", "education");
-    Stem            edu3  = StemHelper.addChildStem(root, "ed", "education");
+    Stem            edu2  = StemHelper.addChildStem(root, "2edu", "education2");
+    Stem            edu3  = StemHelper.addChildStem(root, "ed", "education3");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "Internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "UofC", "UChicago");
     Group           uofc2  = StemHelper.addChildGroup(edu2, "UofC", "UChicago");
