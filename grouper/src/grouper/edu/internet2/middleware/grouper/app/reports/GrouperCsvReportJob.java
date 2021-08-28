@@ -219,17 +219,22 @@ public class GrouperCsvReportJob extends OtherJobBase {
     
     List<String> originalHeaders = GrouperUtil.splitTrimToList(headersString, ",");
     
-    
-    // lets convert headers from USER_NAME to UserName
     List<String> headers = new ArrayList<String>();
-    for (String originalHeader : originalHeaders) {
-      StringBuilder headerBuilder = new StringBuilder();
-      for (String headerPart : StringUtils.split(originalHeader, "_")) {
-        headerBuilder.append(StringUtils.capitalize(headerPart));
+
+    if (removeUnderscoresAndCapitalizeHeaders) {
+      // lets convert headers from USER_NAME to UserName
+      for (String originalHeader : originalHeaders) {
+        StringBuilder headerBuilder = new StringBuilder();
+        for (String headerPart : StringUtils.split(originalHeader, "_")) {
+          headerBuilder.append(StringUtils.capitalize(headerPart));
+        }
+        headers.add(headerBuilder.toString());
       }
-      headers.add(headerBuilder.toString());
+    } else {
+      headers.addAll(originalHeaders);        
     }
     return headers;
+  
   }
   
   /**
