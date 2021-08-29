@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -252,27 +253,35 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
     if (e instanceof SubjectTooManyResults) {
 
       this.assignResultCode(WsGetSubjectsResultsCode.INSUFFICIENT_PRIVILEGES);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
     } else if (e instanceof InsufficientPrivilegeException) {
 
       this.assignResultCode(WsGetSubjectsResultsCode.INSUFFICIENT_PRIVILEGES);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
     
     } else if (e instanceof GroupNotFoundException) {
 
       this.assignResultCode(WsGetSubjectsResultsCode.GROUP_NOT_FOUND);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
       
     } else if (e instanceof TooManyResultsWhenFilteringByGroupException) {
       this.assignResultCode(WsGetSubjectsResultsCode.TOO_MANY_GROUP_FILTER_RESULTS);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
       
     } else if (e instanceof WsInvalidQueryException) {
@@ -283,8 +292,10 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetMembershipsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
 
     } else {
@@ -293,8 +304,10 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(
+            theError + ExceptionUtils.getFullStackTrace(e));
+      }
       this.assignResultCode(wsGetMembershipsResultsCodeOverride);
 
     }

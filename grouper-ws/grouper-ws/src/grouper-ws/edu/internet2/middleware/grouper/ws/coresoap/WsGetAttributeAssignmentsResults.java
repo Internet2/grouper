@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -213,8 +214,10 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
           wsGetAttributeAssignmentsResultsCodeOverride, WsGetAttributeAssignmentsResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
 
     } else {
@@ -223,8 +226,10 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(
+            theError + ExceptionUtils.getFullStackTrace(e));
+      }
       this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
 
     }

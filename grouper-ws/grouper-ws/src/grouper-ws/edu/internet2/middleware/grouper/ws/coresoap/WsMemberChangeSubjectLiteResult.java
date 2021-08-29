@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -101,8 +102,10 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMe
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
 
     } else {

@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult.WsGetMembersLiteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -178,7 +179,9 @@ public class WsGetMembersResult  implements ResultMetadataHolder {
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetMembersResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage()+ ", " + wsGroupLookup + ", " + theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage()+ ", " + wsGroupLookup + ", " + theError);
+      }
       LOG.warn(e);
 
     } else {
@@ -187,8 +190,10 @@ public class WsGetMembersResult  implements ResultMetadataHolder {
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ", group: " + wsGroupLookup + ", "  + ExceptionUtils.getFullStackTrace(e));
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(
+            theError + ", group: " + wsGroupLookup + ", "  + ExceptionUtils.getFullStackTrace(e));
+      }
       this.assignResultCode(wsGetMembersResultsCodeOverride);
 
     }

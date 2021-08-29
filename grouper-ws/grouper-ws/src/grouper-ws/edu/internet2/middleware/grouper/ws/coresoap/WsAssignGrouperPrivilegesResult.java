@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult.WsAssignGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult;
@@ -114,8 +115,10 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(e.getMessage());
+        this.getResultMetadata().appendResultMessage(theError);
+      }
       LOG.warn(e);
 
     } else {
@@ -124,8 +127,10 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+        this.getResultMetadata().appendResultMessage(
+            theError + ExceptionUtils.getFullStackTrace(e));
+      }
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
 
     }

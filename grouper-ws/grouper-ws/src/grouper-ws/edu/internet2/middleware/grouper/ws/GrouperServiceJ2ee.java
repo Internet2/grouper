@@ -1013,9 +1013,16 @@ public class GrouperServiceJ2ee implements Filter {
       
       filterChain.doFilter(request, response);
 
+    } catch (ServletException se) {
+      handleException(se);
+      throw se;
+    } catch (IOException ioe) {
+      handleException(ioe);
+      throw ioe;
     } catch (RuntimeException re) {
       LOG.info("error in request", re);
       debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+      handleException(re);
       throw re;
     } finally {
       
@@ -1032,6 +1039,61 @@ public class GrouperServiceJ2ee implements Filter {
 
     }
 
+  }
+
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(IOException se) throws IOException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (IOException) se;
+    }
+  }
+
+
+  
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(ServletException se) throws ServletException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (ServletException) se;
+    }
+  }
+
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(RuntimeException se) throws ServletException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (RuntimeException) se;
+    }
+  }
+
+  /**
+   * dont throw simple exception if configured not to throw detailed exception
+   * this method will throw the exception
+   * @param se
+   */
+  private void handleExceptionHelper(Throwable se) throws Throwable {
+
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      return;
+    }
+    LOG.error("Error processing request", se);
+    throw new RuntimeException("Error processing request, check logs");
   }
 
   /**

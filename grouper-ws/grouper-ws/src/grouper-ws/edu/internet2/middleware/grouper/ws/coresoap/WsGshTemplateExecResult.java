@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -144,7 +145,9 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
    */
   public void assignResultCodeException(Exception e, String stack, GrouperVersion clientVersion) {
     this.assignResultCode(WsGshTemplateExecResultCode.EXCEPTION, clientVersion);
-    this.getResultMetadata().appendResultMessage(stack);
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      this.getResultMetadata().appendResultMessage(stack);
+    }
   }
 
   

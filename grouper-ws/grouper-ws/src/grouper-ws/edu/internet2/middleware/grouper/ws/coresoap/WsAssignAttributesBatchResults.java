@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
@@ -153,8 +154,10 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
     //a helpful exception will probably be in the getMessage()
     this.assignResultCode(wsAssignAttributesBatchResultsCode);
     theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-    this.getResultMetadata().appendResultMessage(
-        theError + ExceptionUtils.getFullStackTrace(e));
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      this.getResultMetadata().appendResultMessage(
+          theError + ExceptionUtils.getFullStackTrace(e));
+    }
     LOG.error(theError, e);
 
   }
