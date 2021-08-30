@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -31,6 +29,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult.WsGetGroupsLiteResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -49,9 +48,6 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  */
 public class WsGetGroupsResult implements ResultMetadataHolder {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsGetGroupsResult.class);
 
   /**
    * result code of a request
@@ -253,13 +249,12 @@ public class WsGetGroupsResult implements ResultMetadataHolder {
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(wsSubjectLookup.toString(), e);
+      GrouperWsException.logWarn(wsSubjectLookup.toString(), e);
 
     } else {
       wsGetGroupsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetGroupsResultsCodeOverride, WsGetGroupsResultCode.EXCEPTION);
-      LOG.error(theError + ", " + wsSubjectLookup, e);
-
+      GrouperWsException.logError(theError + ", " + wsSubjectLookup, e);
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
         this.getResultMetadata().appendResultMessage(

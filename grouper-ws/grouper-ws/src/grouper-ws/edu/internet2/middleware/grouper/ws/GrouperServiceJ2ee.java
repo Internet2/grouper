@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
@@ -620,6 +621,8 @@ public class GrouperServiceJ2ee implements Filter {
   private static Subject retrieveSubjectActAsHelper(WsSubjectLookup actAsLookup)
       throws WsInvalidQueryException {
 
+    final String USER_IS_NOT_AUTHORIZED = "User is not authorized: ";
+
     final Subject loggedInSubject = retrieveSubjectLoggedIn();
 
     HooksContext.assignSubjectLoggedIn(loggedInSubject);
@@ -653,7 +656,7 @@ public class GrouperServiceJ2ee implements Filter {
               if (!group.hasMember(loggedInSubject)) {
                 //not allowed, cache it
                 subjectAllowedCache().put(cacheKey, false);
-                throw new RuntimeException("User is not authorized: " + loggedInSubject + ", " + group);
+                throw new RuntimeException(USER_IS_NOT_AUTHORIZED + loggedInSubject + ", " + group);
               }
               subjectAllowedCache().put(cacheKey, true);
               return null;
@@ -662,13 +665,19 @@ public class GrouperServiceJ2ee implements Filter {
         } else {
           //if in cache, reflect that
           if (!allowedInCache) {
-            throw new RuntimeException("User is not authorized: " + loggedInSubject);
+            throw new RuntimeException(USER_IS_NOT_AUTHORIZED + loggedInSubject);
           }
         }
       } catch (Exception e) {
-        LOG.error("user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
-            + "', and therefore is not authorized to use the app (configured in local grouper-ws.properties ws.client.user.group.name", e);
-        throw new RuntimeException("User is not authorized", e);
+        String errorMessage = "user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
+            + "', and therefore is not authorized to use the app (configured in local grouper-ws.properties ws.client.user.group.name";
+        if (e.getMessage().startsWith(USER_IS_NOT_AUTHORIZED)) {
+          LOG.error(errorMessage);
+          throw new GrouperWsException("User is not authorized", e).assignLogStack(false);
+          
+        }
+        LOG.error(errorMessage, e);
+        throw new GrouperWsException("User is not authorized", e);
       } finally {
         GrouperSession.stopQuietly(grouperSession);
       }

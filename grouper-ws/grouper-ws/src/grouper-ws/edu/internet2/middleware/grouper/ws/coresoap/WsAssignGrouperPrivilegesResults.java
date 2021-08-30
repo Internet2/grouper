@@ -23,8 +23,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -37,6 +35,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -62,11 +61,6 @@ public class WsAssignGrouperPrivilegesResults implements WsResponseBean, ResultM
   public WsAssignGrouperPrivilegesResults() {
     //empty
   }
-
-  /** logger */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAssignGrouperPrivilegesResults.class);
-
 
   /**
    * prcess an exception, log, etc
@@ -99,12 +93,12 @@ public class WsAssignGrouperPrivilegesResults implements WsResponseBean, ResultM
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
-
+      GrouperWsException.logWarn(theError, e);
+      
     } else {
       wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
           wsMemberChangeSubjectLiteResultCodeOverride, WsAssignGrouperPrivilegesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
@@ -328,7 +322,7 @@ public class WsAssignGrouperPrivilegesResults implements WsResponseBean, ResultM
                 + " failures of users assigned privileges.   ");
         this.assignResultCode(WsAssignGrouperPrivilegesResultsCode.PROBLEM_WITH_ASSIGNMENT);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsAssignGrouperPrivilegesResultsCode.SUCCESS);

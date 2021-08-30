@@ -19,8 +19,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -30,6 +28,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -126,9 +125,6 @@ public class WsMemberChangeSubjectResults implements WsResponseBean, ResultMetad
    */
   private WsMemberChangeSubjectResult[] results;
 
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsMemberChangeSubjectResults.class);
-
   /**
    * prcess an exception, log, etc
    * @param wsMemberChangeSubjectResultsCodeOverride
@@ -147,12 +143,12 @@ public class WsMemberChangeSubjectResults implements WsResponseBean, ResultMetad
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
-
+      GrouperWsException.logWarn(theError, e);
+      
     } else {
       wsMemberChangeSubjectResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsMemberChangeSubjectResultsCodeOverride, WsMemberChangeSubjectResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
@@ -212,7 +208,7 @@ public class WsMemberChangeSubjectResults implements WsResponseBean, ResultMetad
                 + " failures of changing members subjects.   ");
         this.assignResultCode(WsMemberChangeSubjectResultsCode.PROBLEM_WITH_CHANGE);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsMemberChangeSubjectResultsCode.SUCCESS);

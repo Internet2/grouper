@@ -19,8 +19,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -30,6 +28,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -47,9 +46,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
  * @author mchyzer
  */
 public class WsExternalSubjectDeleteResults implements WsResponseBean, ResultMetadataHolder {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsExternalSubjectDeleteResults.class);
 
   /**
    * result code of a request
@@ -172,12 +168,12 @@ public class WsExternalSubjectDeleteResults implements WsResponseBean, ResultMet
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
+      GrouperWsException.logWarn(theError, e);
 
     } else {
       wsExternalSubjectDeleteResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsExternalSubjectDeleteResultsCodeOverride, WsExternalSubjectDeleteResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
@@ -239,7 +235,7 @@ public class WsExternalSubjectDeleteResults implements WsResponseBean, ResultMet
                 + " failures of deleting externalSubjects.   ");
         this.assignResultCode(WsExternalSubjectDeleteResultsCode.PROBLEM_DELETING_EXTERNAL_SUBJECTS);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsExternalSubjectDeleteResultsCode.SUCCESS);

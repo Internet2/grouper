@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -28,6 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
@@ -38,9 +37,6 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
  * 
  */
 public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsFindGroupsResults.class);
 
   /**
    * result code of a request
@@ -173,12 +169,12 @@ public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
+      GrouperWsException.logWarn(theError, e);
 
     } else {
       wsFindGroupsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsFindGroupsResultsCodeOverride, WsFindGroupsResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {

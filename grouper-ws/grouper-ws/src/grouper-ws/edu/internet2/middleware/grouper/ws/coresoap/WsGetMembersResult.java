@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -28,6 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult.WsGetMembersLiteResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -45,11 +44,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsGetMembersResult  implements ResultMetadataHolder {
-
-  /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsGetMembersResult.class);
 
   /** group that we are checking */
   private WsGroup wsGroup;
@@ -182,12 +176,12 @@ public class WsGetMembersResult  implements ResultMetadataHolder {
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
         this.getResultMetadata().appendResultMessage(e.getMessage()+ ", " + wsGroupLookup + ", " + theError);
       }
-      LOG.warn(e);
+      GrouperWsException.logWarn(theError, e);
 
     } else {
       wsGetMembersResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetMembersResultsCodeOverride, WsGetMembersResultCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {

@@ -21,8 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -31,9 +29,8 @@ import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -119,7 +116,7 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
                 + " failures of assigning attributes.   ");
         this.assignResultCode(WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsAssignAttributesBatchResultsCode.SUCCESS);
@@ -158,15 +155,10 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
     }
-    LOG.error(theError, e);
+    GrouperWsException.logError(theError, e);
 
   }
 
-
-  /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAssignAttributesBatchResults.class);
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)

@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -28,6 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
@@ -128,9 +127,6 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
    */
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsFindAttributeDefNamesResults.class);
-
   /**
    * has 0 to many attribute def names that match the query by example
    * 
@@ -225,12 +221,12 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
+      GrouperWsException.logWarn(theError, e);
   
     } else {
       wsFindAttributeDefNamesResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsFindAttributeDefNamesResultsCodeOverride, WsFindAttributeDefNamesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
   
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {

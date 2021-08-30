@@ -17,8 +17,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -28,6 +26,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -118,11 +117,6 @@ public class WsAttributeDefSaveResults implements WsResponseBean, ResultMetadata
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefSaveResults.class);
-
-  /**
    * results for each attribute def sent in
    * @return the results
    */
@@ -200,12 +194,12 @@ public class WsAttributeDefSaveResults implements WsResponseBean, ResultMetadata
         this.getResultMetadata().appendResultMessage(e.getMessage());
         this.getResultMetadata().appendResultMessage(theError);
       }
-      LOG.warn(e);
+      GrouperWsException.logWarn(theError, e);
 
     } else {
       wsAttributeDefSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsAttributeDefSaveResultsCodeOverride, WsAttributeDefSaveResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
@@ -283,7 +277,7 @@ public class WsAttributeDefSaveResults implements WsResponseBean, ResultMetadata
         this.assignResultCode(
             WsAttributeDefSaveResultsCode.PROBLEM_SAVING_ATTRIBUTE_DEFS, clientVersion);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsAttributeDefSaveResultsCode.SUCCESS, clientVersion);
