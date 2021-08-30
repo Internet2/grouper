@@ -235,6 +235,9 @@ public class GrouperDdlDataMigration {
         for (GrouperDdlScript current : grouperDdlScripts) {
           current.runTableScript();
         }
+        for (GrouperDdlScript current : grouperDdlScripts) {
+          current.runDmlScript();
+        }
         state = "STEP2: complete";
         result.append(state + "\n");
         debugMap.put("state", state);

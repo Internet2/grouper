@@ -22,6 +22,8 @@ public class GrouperDdlScript {
 
   private List<String> createViewLines = new ArrayList<String>();
 
+  private List<String> dmlLines = new ArrayList<String>();
+
   private static enum ScriptType {
     table {
 
@@ -53,6 +55,13 @@ public class GrouperDdlScript {
       public void appendLine(GrouperDdlScript grouperDdlScript, String line) {
         grouperDdlScript.createViewLines.add(line);
       }
+    },
+    dml {
+
+      @Override
+      public void appendLine(GrouperDdlScript grouperDdlScript, String line) {
+        grouperDdlScript.dmlLines.add(line);
+      }
     };
     
     public static ScriptType findType(String scriptLine) {
@@ -77,6 +86,11 @@ public class GrouperDdlScript {
       if (scriptLine.startsWith("comment on")) {
         return ScriptType.view;
       }
+      
+      if (scriptLine.startsWith("insert") || scriptLine.startsWith("commit")) {
+        return ScriptType.dml;
+      }
+      
       throw new RuntimeException("Cant parse line: '" + scriptLine +"'");
     }
     
@@ -145,6 +159,10 @@ public class GrouperDdlScript {
   }
   public GrouperDdlScript runViewScript() {
     this.runScriptHelper(this.createViewLines);
+    return this;
+  }
+  public GrouperDdlScript runDmlScript() {
+    this.runScriptHelper(this.dmlLines);
     return this;
   }
 
