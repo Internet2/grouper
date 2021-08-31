@@ -303,7 +303,7 @@ function getGraphModuleD3Legend(graph) {
   var theLegend = "";
 
   var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor'];
-  var edgeStyles = ["arrowtail", "dir", "color", "style"];
+  var edgeStyles = ["arrowtail", "dir", "color", "style", "headlabel", "labeldistance"];
   theLegend += 'subgraph cluster1 {\n';
   theLegend += '  label = "Legend" ;\n';
   theLegend += '  shape=rectangle ;\n';
@@ -361,7 +361,7 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="right factor"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
-    theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', ['label="in left factor but not right"']) + '];\n';
+    theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', ['label="include group minus exclude"']) + '];\n';
     theLegend += '  complement_group -> complement_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_right', null) + '];\n';
   }
 
@@ -491,7 +491,7 @@ function drawGraphModuleD3() {
 
     graph.links.forEach(
       function(link) {
-        var props = getStyleArray(graph, ["arrowtail", "dir", "color", "style"], link);
+        var props = getStyleArray(graph, ["arrowtail", "dir", "color", "style", "headlabel", "labeldistance"], link);
         var source = graph.nodes[link.source];
         var target = graph.nodes[link.target];
         //debugger;

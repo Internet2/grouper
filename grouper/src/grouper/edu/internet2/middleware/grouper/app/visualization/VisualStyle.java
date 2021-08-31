@@ -39,7 +39,8 @@ public class VisualStyle {
   public enum Property {
     INHERIT("inherit"), STYLE("style"), COLOR("color"), BGCOLOR("bgcolor"), BORDER("border"), FONT("font"),
     FONT_SIZE("font-size"), FONT_COLOR("font-color"), SHAPE("shape"), SHAPE_STYLE("shape-style"),
-    ARROWTAIL("arrowtail"), ARROWHEAD("arrowhead"), DIR("dir");
+    ARROWTAIL("arrowtail"), ARROWHEAD("arrowhead"), DIR("dir"), HEADLABEL("headlabel"),
+    LABELDISTANCE("labeldistance");
 
     private String name;
 
