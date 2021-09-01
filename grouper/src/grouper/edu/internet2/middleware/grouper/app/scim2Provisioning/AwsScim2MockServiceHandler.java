@@ -453,6 +453,11 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     String id = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
+    
+    int membershipsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperScim2Membership where userId = :userId")
+        .setString("userId", id).executeUpdateInt();
+    mockServiceRequest.getDebugMap().put("membershipsDeleted", membershipsDeleted);
   
     int usersDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperScim2User where id = :theId")
@@ -735,9 +740,10 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
   
-    HibernateSession.byHqlStatic()
+    int membershipsDeleted = HibernateSession.byHqlStatic()
     .createQuery("delete from GrouperScim2Membership where groupId = :groupId")
     .setString("groupId", id).executeUpdateInt();
+    mockServiceRequest.getDebugMap().put("membershipsDeleted", membershipsDeleted);
     
     int groupsDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperScim2Group where id = :theId")

@@ -355,8 +355,7 @@ public class ProvisioningSyncIntegration {
             gcGrouperSyncMember.setProvisionableEnd(null);
             gcGrouperSyncMember.setProvisionable(true);
           }
-          if (gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity == null
-              && (provisioningEntityWrapper == null || provisioningEntityWrapper.isDelete())) {
+          if (gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity == null) {
             gcGrouperSyncMember.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncMember.setProvisionable(false);
           }
@@ -536,8 +535,7 @@ public class ProvisioningSyncIntegration {
           gcGrouperSyncMember.setProvisionableEnd(null);
           gcGrouperSyncMember.setProvisionable(true);
         }
-        if (membershipProvisionable && grouperProvisioningMembership == null
-            && (provisioningMembershipWrapper == null || provisioningMembershipWrapper.isDelete())) {
+        if (membershipProvisionable && grouperProvisioningMembership == null) {
           gcGrouperSyncMember.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
           gcGrouperSyncMember.setProvisionable(false);
         }

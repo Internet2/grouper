@@ -1282,6 +1282,11 @@ public class GrouperProvisionerGrouperSyncDao {
       Collection<ProvisioningGroupWrapper> values) {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil
         .nonNull(values)) {
+      
+      if (!provisioningGroupWrapper.isRecalc()) {
+        continue;
+      }
+      
       ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper
           .getTargetProvisioningGroup();
 
@@ -1319,6 +1324,11 @@ public class GrouperProvisionerGrouperSyncDao {
       Collection<ProvisioningEntityWrapper> values) {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil
         .nonNull(values)) {
+      
+      if (!provisioningEntityWrapper.isRecalc()) {
+        continue;
+      }
+      
       ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper
           .getTargetProvisioningEntity();
 
@@ -1467,6 +1477,11 @@ public class GrouperProvisionerGrouperSyncDao {
           // remaining ones are not in target
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed
               .values()) {
+            
+            if (!provisioningMembershipWrapper.isRecalc()) {
+              continue;
+            }
+            
             GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper
                 .getGcGrouperSyncMembership();
 
@@ -1589,6 +1604,11 @@ public class GrouperProvisionerGrouperSyncDao {
           // remaining ones are not in target
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed
               .values()) {
+            
+            if (!provisioningMembershipWrapper.isRecalc()) {
+              continue;
+            }
+            
             GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper
                 .getGcGrouperSyncMembership();
 
@@ -1612,6 +1632,11 @@ public class GrouperProvisionerGrouperSyncDao {
 
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil
             .nonNull(provisioningMembershipWrappers)) {
+          
+          if (!provisioningMembershipWrapper.isRecalc()) {
+            continue;
+          }
+          
           ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper
               .getTargetProvisioningMembership();
 

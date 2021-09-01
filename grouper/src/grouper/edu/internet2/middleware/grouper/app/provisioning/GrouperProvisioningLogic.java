@@ -801,21 +801,27 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc);
           }
           
-          
-          //TODO confirm with Chris if the following logic is correct
           {
             // index the memberships
-            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+//            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
 
-            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
-            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
-            this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(
-                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
-                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
-                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+              this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+            }
+            
+            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+              this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+            }
+            
+            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
+              this.grouperProvisioner.retrieveGrouperSyncDao().processResultsSelectMembershipsFull(
+                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
+                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
+                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+            }
             
             // validate memberships
-            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
+//            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
 
           }
           
@@ -1202,7 +1208,7 @@ public class GrouperProvisioningLogic {
       
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalc()) {
+      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalc() || provisioningEntityWrapper.isDelete()) {
         continue;
       }
       
@@ -1219,7 +1225,8 @@ public class GrouperProvisioningLogic {
       }
       
       missingEntities.add(provisioningEntity);
-      missingEntityWrappers.add(provisioningEntityWrapper);    }
+      missingEntityWrappers.add(provisioningEntityWrapper);    
+    }
     if (GrouperUtil.length(missingEntities) == 0) {
       return;
     }
