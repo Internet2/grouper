@@ -357,8 +357,8 @@ function getGraphModuleD3Legend(graph) {
   // complement group -- in first but not second --<= first factor/second factor
   if (graph.styles.hasOwnProperty("complement_group") /* && graph.styles.hasOwnProperty("group")*/ ) {
     theLegend += '  complement_group [' + getStyleStringForType(graph, nodeStyles, 'complement_group', ['label="complement group"']) + '];\n';
-    theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="left factor"']) + '];\n';
-    theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="right factor"']) + '];\n';
+    theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="include group"']) + '];\n';
+    theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="exclude group"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
     theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', ['label="include group minus exclude"']) + '];\n';
@@ -368,11 +368,11 @@ function getGraphModuleD3Legend(graph) {
   // intersect group -- in first and in second --<= first factor/second factor
   if (graph.styles.hasOwnProperty("intersect_group") /* && graph.styles.hasOwnProperty("group")*/) {
     theLegend += '  intersect_group [' + getStyleStringForType(graph, nodeStyles, 'intersect_group', ['label="intersect group"']) + '];\n';
-    theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="left factor"']) + '];\n';
-    theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="right factor"']) + '];\n';
+    theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
+    theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
-    theLegend += '  intersect_group -> intersect_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_left', ['label="in left factor and in right"']) + '];\n';
+    theLegend += '  intersect_group -> intersect_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_left', ['label="in both group 1 and group 2"']) + '];\n';
     theLegend += '  intersect_group -> intersect_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_right', null) + '];\n';
 
   }
