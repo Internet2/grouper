@@ -245,21 +245,16 @@ public class WsGetGroupsResult implements ResultMetadataHolder {
 
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetGroupsResultsCodeOverride);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(wsSubjectLookup.toString(), e);
 
     } else {
       wsGetGroupsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetGroupsResultsCodeOverride, WsGetGroupsResultCode.EXCEPTION);
       GrouperWsException.logError(theError + ", " + wsSubjectLookup, e);
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(
-            theError + ExceptionUtils.getFullStackTrace(e));
-      }
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsGetGroupsResultsCodeOverride);
 
     }

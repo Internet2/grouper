@@ -24,6 +24,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -89,6 +91,38 @@ public class WsResultMeta {
   @XStreamOmitField
   private int httpStatusCode = 500;
 
+  /**
+   * append result stack if configured to send stack to client.  or just send exception message if configured.  or nothing
+   * @param error
+   */
+  public void appendResultMessageError(Throwable t) {
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      if (this.resultMessage != null && this.resultMessage.length() > 0) {
+        this.appendResultMessage(", ");
+      }
+      this.appendResultMessage(GrouperUtil.getFullStackTrace(t));
+    } else if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.sendErrorMessageToClient", true)) {
+      if (this.resultMessage != null && this.resultMessage.length() > 0) {
+        this.appendResultMessage(", ");
+      }
+      this.appendResultMessage(t.getMessage());
+    }
+  }
+
+  /**
+   * append result message error if configured to send errors to client
+   * @param error
+   */
+  public void appendResultMessageError(String error) {
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)
+        || GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.sendErrorMessageToClient", true)) {
+      if (this.resultMessage != null && this.resultMessage.length() > 0) {
+        this.appendResultMessage(", ");
+      }
+      this.appendResultMessage(error);
+    }
+  }
+  
   /**
    * append error message to list of error messages
    * 

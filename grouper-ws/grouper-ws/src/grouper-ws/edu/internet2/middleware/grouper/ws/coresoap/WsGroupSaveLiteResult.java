@@ -172,10 +172,8 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
       //      }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(theError, e);
 
     } else {
@@ -183,11 +181,8 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
           wsGroupSaveResultsCodeOverride, WsGroupSaveLiteResultCode.EXCEPTION);
       GrouperWsException.logError(theError, e);
 
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(
-            theError + ExceptionUtils.getFullStackTrace(e));
-      }
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
 
     }

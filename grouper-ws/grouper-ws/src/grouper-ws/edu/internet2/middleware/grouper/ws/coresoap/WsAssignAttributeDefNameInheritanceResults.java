@@ -152,10 +152,8 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(theError, e);
 
     } else if (e instanceof InsufficientPrivilegeException ) {
@@ -163,10 +161,8 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.INSUFFICIENT_PRIVILEGES);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(theError, e);
   
 
@@ -175,11 +171,8 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
       GrouperWsException.logError(theError, e);
 
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(
-            theError + ExceptionUtils.getFullStackTrace(e));
-      }
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
   
     }
