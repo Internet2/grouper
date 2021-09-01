@@ -150,11 +150,8 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
         wsAssignAttributesBatchResultsCode, WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT);
     //a helpful exception will probably be in the getMessage()
     this.assignResultCode(wsAssignAttributesBatchResultsCode);
-    theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-    }
+    this.getResultMetadata().appendResultMessageError(theError);
+    this.getResultMetadata().appendResultMessageError(e);
     GrouperWsException.logError(theError, e);
 
   }

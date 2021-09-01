@@ -96,10 +96,8 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMe
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(theError, e);
       
     } else {

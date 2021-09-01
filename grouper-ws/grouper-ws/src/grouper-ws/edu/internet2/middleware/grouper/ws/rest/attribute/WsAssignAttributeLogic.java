@@ -627,9 +627,7 @@ public class WsAssignAttributeLogic {
     
     if (errorMessage.length() > 0) {
       wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.INVALID_QUERY);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        wsAssignAttributesResults.getResultMetadata().appendResultMessage(errorMessage.toString());
-      }
+      wsAssignAttributesResults.getResultMetadata().appendResultMessageError(errorMessage.toString());
     } else {
       wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.SUCCESS);
     }

@@ -217,10 +217,8 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
           wsFindAttributeDefNamesResultsCodeOverride, WsFindAttributeDefNamesResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsFindAttributeDefNamesResultsCodeOverride);
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(e.getMessage());
-        this.getResultMetadata().appendResultMessage(theError);
-      }
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
       GrouperWsException.logWarn(theError, e);
   
     } else {
@@ -228,11 +226,8 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
           wsFindAttributeDefNamesResultsCodeOverride, WsFindAttributeDefNamesResultsCode.EXCEPTION);
       GrouperWsException.logError(theError, e);
   
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-        this.getResultMetadata().appendResultMessage(
-            theError + ExceptionUtils.getFullStackTrace(e));
-      }
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsFindAttributeDefNamesResultsCodeOverride);
   
     }

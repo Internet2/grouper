@@ -1098,11 +1098,10 @@ public class GrouperServiceJ2ee implements Filter {
    */
   private void handleExceptionHelper(Throwable se) throws Throwable {
 
-    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
-      return;
-    }
     LOG.error("Error processing request", se);
-    throw new RuntimeException("Error processing request, check logs");
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      throw new RuntimeException("Error processing request, check logs", se);
+    }
   }
 
   /**

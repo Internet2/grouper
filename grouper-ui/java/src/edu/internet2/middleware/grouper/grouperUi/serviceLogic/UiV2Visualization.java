@@ -625,7 +625,8 @@ public class UiV2Visualization {
     styleTypes.add(StyleObjectType.GRAPH);
 
     for (StyleObjectType styleType: styleTypes) {
-      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail", "dir", "linkType", "displayTag"}) {
+      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
+              "dir", "linkType", "displayTag", "headlabel", "labeldistance"}) {
         String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
@@ -638,7 +639,8 @@ public class UiV2Visualization {
     // to detect which ones are actually being used
     for (String styleName: new String[]{"group", "edge_complement_left", "edge_complement_right", "edge_intersect_left",
             "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader"}) {
-      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail", "dir"}) {
+      for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
+              "dir", "headlabel", "labeldistance"}) {
         String propertyValue = styleSet.getStyleProperty(styleName, propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addFallbackStyleProperty(styleName, propertyName, propertyValue);
