@@ -132,7 +132,7 @@ public class GrouperDeprovisioningLogicTest extends GrouperTest {
         grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getOriginalConfig();
         assertTrue(stem.getName(), grouperDeprovisioningAttributeValue.isDeprovision());
 
-        for (int k=0; k<5; k++) {
+        for (int k=0; k<sizeK; k++) {
           Group group = new GroupSave(grouperSession).assignName(stem.getName() + ":group_" + k).assignCreateParentStemsIfNotExist(true).save();
           //make sure its there
           grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
