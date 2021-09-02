@@ -92,7 +92,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesDaemon"));
+    TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
@@ -4603,17 +4603,17 @@ public class RuleApiTest extends GrouperTest {
     groupA.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ1);
   
-    // stem2 inherits SUB to groupA read/update
-    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"));
+    // stem2 inherits SUB to groupA stemAdmin/create
+    AttributeAssign attributeAssign_stem2_SUB_groupA_stemAdminCreate = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"));
   
-    // stem2 inherits SUB to SUBJ3 read
-    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("stemAdmin"));
+    // stem2 inherits SUB to SUBJ3 stemAdmin
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_stemAdmin = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("stemAdmin"));
     
-    // stem2:sub inherits SUB to groupA read
-    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin"));
+    // stem2:sub inherits SUB to groupA stemAdmin
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_stemAdmin = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin"));
     
-    // stem2 inherits ONE to SUBJ0 update
-    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("create"));
+    // stem2 inherits ONE to SUBJ0 create
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_create = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("create"));
   
     long initialFirings = RuleEngine.ruleFirings;
   
@@ -4655,16 +4655,20 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(stem2_sub2_c.hasCreate(SubjectTestHelper.SUBJ0));
     assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ3));
 
-    assertFalse(stem2.hasCreate(groupA.toSubject()));
-    assertFalse(stem2.hasStemAdmin(groupA.toSubject()));
+    assertTrue(stem2.hasCreate(groupA.toSubject()));
+    assertTrue(stem2.hasStemAdmin(groupA.toSubject()));
 
+    // revoke and confirm it gets fixed
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.STEM_ADMIN);
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.CREATE);
+    
     RuleApi.runRulesForOwner(stem2);
     
     assertTrue(stem2.hasCreate(groupA.toSubject()));
     assertTrue(stem2.hasStemAdmin(groupA.toSubject()));
 
     // REMOVE THIS: stem2 inherits SUB to groupA read/update
-    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    attributeAssign_stem2_SUB_groupA_stemAdminCreate.delete();
     //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
     //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
     //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
