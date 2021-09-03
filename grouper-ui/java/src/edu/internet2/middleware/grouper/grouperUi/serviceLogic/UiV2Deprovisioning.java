@@ -165,7 +165,9 @@ public class UiV2Deprovisioning {
               GrouperSession.startRootSession();
   
               //since this is a folder, we need to update things for this object
-              GrouperDeprovisioningLogic.updateDeprovisioningMetadata((Stem)grouperObject);
+              
+              // TODO fix??
+              // GrouperDeprovisioningLogic.updateDeprovisioningMetadata((Stem)grouperObject);
   
               FINISHED[0] = true;
             } catch (RuntimeException re) {
