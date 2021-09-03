@@ -155,43 +155,6 @@ public class UiV2Deprovisioning {
 //        GrouperDeprovisioningLogic.updateDeprovisioningMetadataForSingleObject(grouperObject);
 //      }
 
-      if (grouperObject instanceof Stem && !((Stem) grouperObject).isRootStem()) {
-        final RuntimeException[] RUNTIME_EXCEPTION = new RuntimeException[1];
-        Thread thread = new Thread(new Runnable() {
-  
-          public void run() {
-  
-            try {
-              GrouperSession.startRootSession();
-  
-              //since this is a folder, we need to update things for this object
-              
-              // TODO fix??
-              // GrouperDeprovisioningLogic.updateDeprovisioningMetadata((Stem)grouperObject);
-  
-              FINISHED[0] = true;
-            } catch (RuntimeException re) {
-              //log incase thread didnt finish when screen was drawing
-              LOG.error("Error updating deprovisioning stem parts", re);
-              RUNTIME_EXCEPTION[0] = re;
-            }
-            
-          }
-          
-        });
-  
-        thread.start();
-        
-        try {
-          thread.join(30000);
-        } catch (InterruptedException ie) {
-          throw new RuntimeException(ie);
-        }
-  
-        if (RUNTIME_EXCEPTION[0] != null) {
-          throw RUNTIME_EXCEPTION[0];
-        }
-      }
     }
     return hasError;
   }
