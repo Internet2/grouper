@@ -120,14 +120,13 @@ public class UiV2Deprovisioning {
   }
   /**
    * @param request
-   * @param FINISHED
    * @param deprovisioningContainer
    * @param guiScreenActions
    * @param hasError
    * @return
    */
   private boolean deprovisioningOnObjectEditSaveHelper(final HttpServletRequest request,
-      final boolean[] FINISHED, final DeprovisioningContainer deprovisioningContainer,
+      final DeprovisioningContainer deprovisioningContainer,
       List<GuiScreenAction> guiScreenActions, boolean hasError, final GrouperObject grouperObject) {
     String affiliation = request.getParameter("grouperDeprovisioningHasAffiliationName");
     deprovisioningContainer.setAffiliation(affiliation);
@@ -517,8 +516,6 @@ public class UiV2Deprovisioning {
   
     Stem stem = null;
 
-    final boolean[] FINISHED = new boolean[]{false};
-
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -569,21 +566,14 @@ public class UiV2Deprovisioning {
           List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
           boolean hasError = false;
           
-          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, FINISHED, deprovisioningContainer, guiScreenActions, hasError, STEM);
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, deprovisioningContainer, guiScreenActions, hasError, STEM);
           
           if (!hasError) {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolder&stemId=" + STEM.getId() + "')"));
 
-            if (!FINISHED[0]) {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                  TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccessNotFinished")));
-
-            } else {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                  TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
-
-            }
-
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("deprovisioningEditSaveSuccess")));
+            
           } else {
             
             guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1896,7 +1886,7 @@ public class UiV2Deprovisioning {
           List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
           boolean hasError = false;
           
-          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, null, deprovisioningContainer, guiScreenActions, hasError, GROUP);
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, deprovisioningContainer, guiScreenActions, hasError, GROUP);
           
           if (!hasError) {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnGroup&groupId=" + GROUP.getId() + "')"));
@@ -2132,7 +2122,7 @@ public class UiV2Deprovisioning {
           List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
           boolean hasError = false;
           
-          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, null, deprovisioningContainer, guiScreenActions, hasError, ATTRIBUTE_DEF);
+          hasError = UiV2Deprovisioning.this.deprovisioningOnObjectEditSaveHelper(request, deprovisioningContainer, guiScreenActions, hasError, ATTRIBUTE_DEF);
           
           if (!hasError) {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=" + ATTRIBUTE_DEF.getId() + "')"));
