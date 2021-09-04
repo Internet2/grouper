@@ -10,11 +10,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleSubSection;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import junit.textui.TestRunner;
 
@@ -25,7 +26,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
   }
   
   public static void main(String[] args) {
-    TestRunner.run(new ProvisionerConfigurationTest("testSqlProvisionerConfigurationInsertEditDelete"));
+    TestRunner.run(new ProvisionerConfigurationTest("testLdapProvisionerConfigurationInsertEditDelete"));
   }
   
   public void testLdapProvisionerConfigurationInsertEditDelete() {
@@ -56,7 +57,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute.setValue("ldapExternalSystem");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
-    attribute.setValue("mySubjectSource");
+    attribute.setValue("jdbc");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
     attribute.setValue("groupAttributes");
@@ -68,6 +69,46 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetGroupLink");
     attribute.setValue("true");
     
+    attribute = provisionerConfiguration.retrieveAttributes().get("operateOnGrouperGroups");
+    attribute.setValue("true");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("insertGroups");
+    attribute.setValue("true");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("common.groupLink.groupFromId2");
+    attribute.setValue("test");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.url", "ldap://localhost:389");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.user", "cn=admin,dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.pass", "secret");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.fieldName");
+    attribute.setValue("name");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.isFieldElseAttribute");
+    attribute.setValue("true");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.insert");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.select");
+    attribute.setValue("true");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
+    
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
+    
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.update", "true");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
+    
     StringBuilder message = new StringBuilder();
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
@@ -76,6 +117,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
     
     assertEquals(0, validationErrorsToDisplay.size());
+    assertEquals(0, errorsToDisplay.size());
     
     provisionerConfiguration = new LdapProvisionerConfiguration();
     provisionerConfiguration.setConfigId("myLdapProvisioner");
@@ -86,7 +128,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
     String value = attribute.getValue();
-    assertEquals("mySubjectSource", value);
+    assertEquals("jdbc", value);
     
     attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
     value = attribute.getValue();
@@ -117,7 +159,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     // before we delete - let's set up some grouper sync data because
     // we want to make sure that sync data gets deleted when provisioner is deleted
     
-    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName("myLdapProvisioner");
     gcGrouperSync.setSyncEngine("temp");
     gcGrouperSync.setProvisionerName("myLdapProvisioner");
     gcGrouperSync.setUserCount(10);
@@ -128,13 +170,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSync.setLastIncrementalSyncRun(new Timestamp(System.currentTimeMillis() - 700000));
     gcGrouperSync.getGcGrouperSyncDao().store();
     
-    GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
-    gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
-    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
-    gcGrouperSyncJob.setLastSyncIndex(135L);
-    gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
-    gcGrouperSyncJob.setSyncType("testSyncType");
-    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+    List<GcGrouperSyncJob> gcGrouperSyncJobs = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+    
+    assertEquals(1, gcGrouperSyncJobs.size());
     
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
     gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
@@ -147,7 +185,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSyncLog.setRecordsProcessed(23);
     gcGrouperSyncLog.setGrouperSyncId(gcGrouperSync.getId());
     gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis() - 2000));
-    gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncJob.getId());
+    gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncJobs.get(0).getId());
     gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
     
     
@@ -163,10 +201,6 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     List<GrouperSyncJobWrapper> syncJobs = syncDetails.getSyncJobs();
     assertEquals(1, syncJobs.size());
-    
-    GcGrouperSyncJob grouperSyncJob = syncJobs.get(0).getGcGrouperSyncJob();
-    assertEquals(135L, grouperSyncJob.getLastSyncIndex().longValue());
-    assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
     assertEquals("desc", grouperSyncLog.getDescriptionOrDescriptionClob());
@@ -220,6 +254,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     GrouperConfigurationModuleAttribute attribute = provisionerConfiguration.retrieveAttributes().get("userTableName");
     attribute.setValue("userTableName");
     
+    attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
+    attribute.setValue("membershipObjects");
+    
     attribute = provisionerConfiguration.retrieveAttributes().get("groupTableName");
     attribute.setValue("groupTableName");
     
@@ -227,10 +264,13 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute.setValue("membership_table");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
-    attribute.setValue("mySubjectSource");
+    attribute.setValue("jdbc");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("dbExternalSystemConfigId");
     attribute.setValue("Database External System");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("common.entityLink.memberFromId2");
+    attribute.setValue("test");
     
     // set the following two values so that we can test that some internal attributes are also being saved correctly in the db.
     attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetEntityLink");
@@ -238,6 +278,12 @@ public class ProvisionerConfigurationTest extends GrouperTest {
 
     attribute = provisionerConfiguration.retrieveAttributes().get("userPrimaryKey");
     attribute.setValue("user_pk");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("operateOnGrouperGroups");
+    attribute.setValue("true");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("insertGroups");
+    attribute.setValue("true");
 
     StringBuilder message = new StringBuilder();
     List<String> errorsToDisplay = new ArrayList<String>();
@@ -247,6 +293,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
     
     assertEquals(0, validationErrorsToDisplay.size());
+    assertEquals(0, errorsToDisplay.size());
     
     provisionerConfiguration = new SqlProvisionerConfiguration();
     provisionerConfiguration.setConfigId("mySqlProvisioner");
@@ -261,7 +308,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
     value = attribute.getValue();
-    assertEquals("mySubjectSource", value);
+    assertEquals("jdbc", value);
     
     attribute = provisionerConfiguration.retrieveAttributes().get("dbExternalSystemConfigId");
     value = attribute.getValue();
@@ -275,10 +322,6 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("membershipTableName");
     attribute.setValue("membership_table_updated");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
-    value = attribute.getValue();
-    attribute.setValue("mySubjectSourceUpdated");
-    
     provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
     assertEquals(0, validationErrorsToDisplay.size());
     
@@ -290,14 +333,10 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     value = attribute.getValue();
     assertEquals("membership_table_updated", value);
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
-    value = attribute.getValue();
-    assertEquals("mySubjectSourceUpdated", value);
-    
     // before we delete - let's set up some grouper sync data because
     // we want to make sure that sync data gets deleted when provisioner is deleted
     
-    GcGrouperSync gcGrouperSync = new GcGrouperSync();
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName("mySqlProvisioner");
     gcGrouperSync.setSyncEngine("temp");
     gcGrouperSync.setProvisionerName("mySqlProvisioner");
     gcGrouperSync.setUserCount(10);
@@ -308,13 +347,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSync.setLastIncrementalSyncRun(new Timestamp(System.currentTimeMillis() - 700000));
     gcGrouperSync.getGcGrouperSyncDao().store();
     
-    GcGrouperSyncJob gcGrouperSyncJob = new GcGrouperSyncJob();
-    gcGrouperSyncJob.setGrouperSync(gcGrouperSync);
-    gcGrouperSyncJob.setJobState(GcGrouperSyncJobState.notRunning);
-    gcGrouperSyncJob.setLastSyncIndex(135L);
-    gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
-    gcGrouperSyncJob.setSyncType("testSyncType");
-    gcGrouperSync.getGcGrouperSyncJobDao().internal_jobStore(gcGrouperSyncJob);
+    List<GcGrouperSyncJob> gcGrouperSyncJobs = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+    
+    assertEquals(1, gcGrouperSyncJobs.size());
     
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("myId");
     gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
@@ -327,7 +362,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     gcGrouperSyncLog.setRecordsProcessed(23);
     gcGrouperSyncLog.setSyncTimestamp(new Timestamp(System.currentTimeMillis() - 2000));
     gcGrouperSyncLog.setGrouperSyncId(gcGrouperSync.getId());
-    gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncJob.getId());
+    gcGrouperSyncLog.setGrouperSyncOwnerId(gcGrouperSyncJobs.get(0).getId());
     gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
     
     provisionerConfiguration = new SqlProvisionerConfiguration();
@@ -342,10 +377,6 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     List<GrouperSyncJobWrapper> syncJobs = syncDetails.getSyncJobs();
     assertEquals(1, syncJobs.size());
-    
-    GcGrouperSyncJob grouperSyncJob = syncJobs.get(0).getGcGrouperSyncJob();
-    assertEquals(135L, grouperSyncJob.getLastSyncIndex().longValue());
-    assertEquals("testSyncType", grouperSyncJob.getSyncType());
     
     GcGrouperSyncLog grouperSyncLog = syncJobs.get(0).getGcGrouperSyncLog();
     assertEquals("desc", grouperSyncLog.getDescriptionOrDescriptionClob());

@@ -142,20 +142,20 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       runJobs(true, true);
       
-      // one group add, two members add, two memberships add, one group update, one membership remove
-      assertEquals(new Integer(7), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
+      // one group add, two members add, two memberships add, one group update, one member remove, one membership remove
+      assertEquals(new Integer(8), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       testGroup.addMember(SubjectTestHelper.SUBJ3);
       runJobs(true, true);
       
-      // one group add, three members add, three memberships add, one group update, one membership remove
-      assertEquals(new Integer(9), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
+      // one group add, three members add, three memberships add, one group update, one member remove, one membership remove
+      assertEquals(new Integer(10), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       //now delete the group and sync again
       testGroup.delete();
       runJobs(true, true);
       
-      assertEquals(new Integer(12), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
+      assertEquals(new Integer(15), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
     } finally {
 //      tomcatStop();

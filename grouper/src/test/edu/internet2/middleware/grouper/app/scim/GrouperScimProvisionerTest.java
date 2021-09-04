@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testGithubIncrementalSync"));
+    TestRunner.run(new GrouperScimProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
@@ -355,7 +355,6 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
     String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value(token).store();
@@ -366,9 +365,15 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfNotExistInGrouper").value("true").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfNotExistInGrouper").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfGrouperDeleted").value("true").store();
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfNotExistInGrouper").value("true").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfNotExistInGrouper").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfGrouperDeleted").value("true").store();
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetGroupLink").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetEntityLink").value("true").store();
@@ -471,6 +476,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
       
+      testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
       testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
       testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
       
@@ -498,7 +504,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).get(0);
-//      
+
       assertEquals("testGroup", grouperScimGroup.getDisplayName());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "awsProvisioner");
@@ -511,22 +517,22 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
       assertEquals(2, gcGrouperSync.getUserCount().intValue());
       assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
-      assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
+      assertTrue(started <=  gcGrouperSync.getLastFullSyncRun().getTime());
       assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
-          System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
-      assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
+      System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
+      assertTrue(started <= gcGrouperSync.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
       
       GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
       assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
       assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
-      assertTrue(started < gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+      assertTrue(started <= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
-      assertTrue(started < gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+      assertTrue(started <= gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
-      assertTrue(started < gcGrouperSyncJob.getHeartbeat().getTime());
+      assertTrue(started <= gcGrouperSyncJob.getHeartbeat().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getHeartbeat().getTime());
-      assertTrue(started < gcGrouperSyncJob.getLastUpdated().getTime());
+      assertTrue(started <= gcGrouperSyncJob.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastUpdated().getTime());
       assertNull(gcGrouperSyncJob.getErrorMessage());
       assertNull(gcGrouperSyncJob.getErrorTimestamp());
@@ -537,13 +543,13 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
       assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
       assertEquals("T", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
-      assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+      assertTrue(started <= gcGrouperSyncGroup.getInTargetStart().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getInTargetStart().getTime());
       assertNull(gcGrouperSyncGroup.getInTargetEnd());
-      assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+      assertTrue(started <= gcGrouperSyncGroup.getProvisionableStart().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getProvisionableStart().getTime());
       assertNull(gcGrouperSyncGroup.getProvisionableEnd());
-      assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
+      assertTrue(started <= gcGrouperSyncGroup.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
       assertNotNull(gcGrouperSyncGroup.getGroupToId2());
       assertNull(gcGrouperSyncGroup.getGroupFromId2());
@@ -565,12 +571,12 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals("T", gcGrouperSyncMember.getProvisionableDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
-      assertTrue(started < gcGrouperSyncMember.getInTargetStart().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getInTargetStart().getTime());
       assertNull(gcGrouperSyncMember.getInTargetEnd());
-      assertTrue(started < gcGrouperSyncMember.getProvisionableStart().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertNull(gcGrouperSyncMember.getProvisionableEnd());
-      assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
       assertNull(gcGrouperSyncMember.getMemberFromId2());
       assertNull(gcGrouperSyncMember.getMemberFromId3());
@@ -589,12 +595,12 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals("T", gcGrouperSyncMember.getProvisionableDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
-      assertTrue(started < gcGrouperSyncMember.getInTargetStart().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getInTargetStart().getTime());
       assertNull(gcGrouperSyncMember.getInTargetEnd());
-      assertTrue(started < gcGrouperSyncMember.getProvisionableStart().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertNull(gcGrouperSyncMember.getProvisionableEnd());
-      assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
+      assertTrue(started <= gcGrouperSyncMember.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
       assertNull(gcGrouperSyncMember.getMemberFromId2());
       assertNull(gcGrouperSyncMember.getMemberFromId3());
@@ -632,8 +638,6 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertNull(gcGrouperSyncMembership.getErrorTimestamp());
       
       
-      //assertEquals(grouperScimGroup.getGroup_id(), gcGrouperSyncGroup.getGroupToId2());
-      
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
@@ -644,7 +648,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       
@@ -726,11 +730,11 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(testSubject1member.getId(), gcGrouperSyncMember.getMemberId());
       assertEquals(testSubject1member.getSubjectId(), gcGrouperSyncMember.getSubjectId());
       assertEquals(testSubject1member.getSubjectSourceId(), gcGrouperSyncMember.getSourceId());
-      assertEquals(testSubject1member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
+//      assertEquals(testSubject1member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
       assertEquals("F", gcGrouperSyncMember.getProvisionableDb());
-      assertEquals("T", gcGrouperSyncMember.getInTargetDb());
+      assertEquals("F", gcGrouperSyncMember.getInTargetDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
-      assertNull(gcGrouperSyncMember.getInTargetEnd());
+      assertNotNull(gcGrouperSyncMember.getInTargetEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertNotNull(gcGrouperSyncMember.getProvisionableEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
@@ -773,9 +777,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
-      //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "awsProvisioner");
@@ -829,12 +832,11 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(testSubject0member.getId(), gcGrouperSyncMember.getMemberId());
       assertEquals(testSubject0member.getSubjectId(), gcGrouperSyncMember.getSubjectId());
       assertEquals(testSubject0member.getSubjectSourceId(), gcGrouperSyncMember.getSourceId());
-      assertEquals(testSubject0member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
       assertEquals("F", gcGrouperSyncMember.getProvisionableDb());
-      assertEquals("T", gcGrouperSyncMember.getInTargetDb());
+      assertEquals("F", gcGrouperSyncMember.getInTargetDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
       assertTrue(started > gcGrouperSyncMember.getInTargetStart().getTime());
-      assertNull(gcGrouperSyncMember.getInTargetEnd());
+      assertNotNull(gcGrouperSyncMember.getInTargetEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertNotNull(gcGrouperSyncMember.getProvisionableEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
@@ -851,11 +853,10 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(testSubject1member.getId(), gcGrouperSyncMember.getMemberId());
       assertEquals(testSubject1member.getSubjectId(), gcGrouperSyncMember.getSubjectId());
       assertEquals(testSubject1member.getSubjectSourceId(), gcGrouperSyncMember.getSourceId());
-      assertEquals(testSubject1member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
       assertEquals("F", gcGrouperSyncMember.getProvisionableDb());
-      assertEquals("T", gcGrouperSyncMember.getInTargetDb());
+      assertEquals("F", gcGrouperSyncMember.getInTargetDb());
       assertEquals("T", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
-      assertNull(gcGrouperSyncMember.getInTargetEnd());
+      assertNotNull(gcGrouperSyncMember.getInTargetEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
       assertNotNull(gcGrouperSyncMember.getProvisionableEnd());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
@@ -906,7 +907,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       return;
     }
 
-    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
+//    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
+    int port = 8081;
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
@@ -1204,7 +1206,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       runJobs(true, true, "awsScimProvTestCLC");
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       
@@ -1212,7 +1214,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       testGroup.addMember(SubjectTestHelper.SUBJ3, false);
       runJobs(true, true, "awsScimProvTestCLC");
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       //now delete the group and sync again
@@ -1222,7 +1224,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
     } finally {
