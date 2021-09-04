@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.LockoutGroup;
 import edu.internet2.middleware.grouper.group.RequireGroup;
@@ -260,7 +261,13 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
     String baseGroup = templateContainer.getTemplateKey();
     String baseGroupFriendlyName = templateContainer.getTemplateFriendlyName();
 
-    
+    // GRP-3559: Refactor UI templates to not depend on the UI
+    // Mystery how this works. Adding an EL variable stemTemplateContainer makes ${grouperRequestContainer.stemTemplateContainer}
+    // evaluate to stemTemplateContainer, even when grouperRequestContainer is null
+    Map<String, Object> substituteMap = new HashMap<String, Object>();
+    substituteMap.put("stemTemplateContainer", templateContainer);
+    GrouperTextContainer.assignThreadLocalVariableMap(substituteMap);
+
     if (StringUtils.isBlank(baseGroupFriendlyName)) {
       baseGroupFriendlyName = baseGroup;
     }
