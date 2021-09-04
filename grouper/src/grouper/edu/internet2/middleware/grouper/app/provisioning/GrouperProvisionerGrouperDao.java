@@ -812,6 +812,9 @@ public class GrouperProvisionerGrouperDao {
           grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly()) {
           memberIdsToRetrieve.add((String)grouperIncrementalDataItem.getItem());
         }
+        for (GrouperIncrementalDataItem grouperIncrementalDataItem : grouperIncrementalDataToProcess.getGroupUuidsForGroupOnly()) {
+          groupIdsToRetrieve.add((String)grouperIncrementalDataItem.getItem());
+        }
       }
       groupIdsToRetrieve.addAll(groupIdsToRetrieveForMemberships);
       memberIdsToRetrieve.addAll(memberIdsToRetrieveForMemberships);

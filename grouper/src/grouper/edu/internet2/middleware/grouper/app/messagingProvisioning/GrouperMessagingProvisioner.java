@@ -26,9 +26,11 @@ public class GrouperMessagingProvisioner extends GrouperProvisioner {
 
   @Override
   public GrouperProvisioner initialize(GrouperProvisioningType grouperProvisioningType1) {
+
+    this.retrieveGrouperTranslator().setTranslateGrouperToTargetAutomatically(true);
+    
     super.initialize(grouperProvisioningType1);
     
-    this.retrieveGrouperTranslator().setTranslateGrouperToTargetAutomatically(true);
     
     return this;
   }

@@ -214,7 +214,10 @@ public class GrouperIncrementalDataToProcess {
     
   }
 
-  
+  /**
+   * non recalc group add/update/delete
+   * @return
+   */
   public Set<GrouperIncrementalDataItem> getGroupUuidsForGroupSync() {
     return groupUuidsForGroupSync;
   }
