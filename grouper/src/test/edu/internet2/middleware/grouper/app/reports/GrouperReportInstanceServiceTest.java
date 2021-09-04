@@ -22,8 +22,21 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import junit.textui.TestRunner;
 
 public class GrouperReportInstanceServiceTest extends GrouperTest {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperReportInstanceServiceTest("testSaveReportInstanceAttributes"));
+  }
+  
+  public GrouperReportInstanceServiceTest(String name) {
+    super(name);
+  }
   
   @Override
   protected void setUp() {
@@ -134,6 +147,9 @@ public class GrouperReportInstanceServiceTest extends GrouperTest {
     instance.setReportInstanceMillisSince1970(System.currentTimeMillis()-10000L);
     instance.setReportInstanceFileName("data.csv");
     instance.setReportInstanceFilePointer("/tmp/reports/data.csv");
+    
+    GrouperReportConfigurationBean reportConfig = GrouperReportConfigService.getGrouperReportConfigBean(configAttributeAssignId);
+    instance.setGrouperReportConfigurationBean(reportConfig);
     
     return instance;
     

@@ -186,11 +186,13 @@ public class StemAttributeNameValidationHook extends StemHooks {
   private static void stemPreChangeAttribute(Stem stem) {
 
     stemPreChangeAttribute("description", stem.getDescription());
-    stemPreChangeAttribute("extension", stem.getExtension());
-    stemPreChangeAttribute("displayExtension", stem.getDisplayExtension());
-    stemPreChangeAttribute("name", stem.getName());
-    stemPreChangeAttribute("displayName", stem.getDisplayName());
-
+    
+    if (!stem.isRootStem()) {
+      stemPreChangeAttribute("extension", stem.getExtension());
+      stemPreChangeAttribute("displayExtension", stem.getDisplayExtension());
+      stemPreChangeAttribute("name", stem.getName());
+      stemPreChangeAttribute("displayName", stem.getDisplayName());
+    }
   }
 
   /** cache of attribute names to patterns */

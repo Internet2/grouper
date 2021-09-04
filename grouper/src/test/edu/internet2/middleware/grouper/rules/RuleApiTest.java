@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -91,7 +92,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testFixInheritedPrivs"));
+    TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
@@ -3366,9 +3367,16 @@ public class RuleApiTest extends GrouperTest {
     attributeDefD.getPrivilegeDelegate().grantPriv(groupA.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
     attributeDefD.getPrivilegeDelegate().grantPriv(groupA.toSubject(), AttributeDefPrivilege.ATTR_READ, false);
     
-    RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("attrRead, attrUpdate"));
-  
     long initialFirings = RuleEngine.ruleFirings;
+    RuleApi.inheritAttributeDefPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("attrRead, attrUpdate"));
+    
+    // ruleapi propagates rules
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+
+    // revoke and let daemon do it again
+    attributeDefC.getPrivilegeDelegate().revokePriv(groupA.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);  // true to confirm it was actually set
+    attributeDefB.getPrivilegeDelegate().revokePriv(groupA.toSubject(), AttributeDefPrivilege.ATTR_READ, true);  // true to confirm it was actually set
+    attributeDefB.getPrivilegeDelegate().revokePriv(groupA.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);  // true to confirm it was actually set
 
     //run the daemon
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
@@ -3376,7 +3384,7 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(status, status.toLowerCase().contains("success"));
 
     //count rule firings
-    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialFirings+6, RuleEngine.ruleFirings);
   
     //make sure allowed
     assertTrue(attributeDefB.getPrivilegeDelegate().hasAttrUpdate(groupA.toSubject()));
@@ -3418,9 +3426,16 @@ public class RuleApiTest extends GrouperTest {
     groupD.grantPriv(groupA.toSubject(), AccessPrivilege.UPDATE, false);
     groupD.grantPriv(groupA.toSubject(), AccessPrivilege.READ, false);
 
+    long initialFirings = RuleEngine.ruleFirings;
     RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
   
-    long initialFirings = RuleEngine.ruleFirings;
+    // ruleapi propagates rules
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+
+    // revoke and let daemon do it again
+    groupB.revokePriv(groupA.toSubject(), AccessPrivilege.READ, true); // true to confirm it was actually set
+    groupB.revokePriv(groupA.toSubject(), AccessPrivilege.UPDATE, true); // true to confirm it was actually set
+    groupC.revokePriv(groupA.toSubject(), AccessPrivilege.UPDATE, true); // true to confirm it was actually set
     
     //run the daemon
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
@@ -3428,7 +3443,7 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(status, status.toLowerCase().contains("success"));
 
     //count rule firings
-    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+    assertEquals(initialFirings+6, RuleEngine.ruleFirings);
   
     //make sure allowed
     assertTrue(groupB.hasUpdate(groupA.toSubject()));
@@ -3470,9 +3485,18 @@ public class RuleApiTest extends GrouperTest {
     //stemD can stem but not create
     stemD.grantPriv(groupA.toSubject(), NamingPrivilege.STEM, false);
     
-    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stem, create"));
-  
     long initialFirings = RuleEngine.ruleFirings;
+    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stem, create"));
+
+    // ruleapi propagates rules
+    assertEquals(initialFirings+5, RuleEngine.ruleFirings);
+
+    // revoke and let the daemon do it again
+    stemB.revokePriv(groupA.toSubject(), NamingPrivilege.STEM, true); // true to confirm it was actually set
+    stemB.revokePriv(groupA.toSubject(), NamingPrivilege.CREATE, true); // true to confirm it was actually set
+    stemD.revokePriv(groupA.toSubject(), NamingPrivilege.CREATE, true); // true to confirm it was actually set
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.STEM, true); // true to confirm it was actually set
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.CREATE, true); // true to confirm it was actually set
     
     //run the daemon
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
@@ -3481,7 +3505,7 @@ public class RuleApiTest extends GrouperTest {
 
     //count rule firings (expected 88 but was 90) expected:<3> but was:<5>
     //one for each stem and one for parent
-    assertEquals(initialFirings+5, RuleEngine.ruleFirings);
+    assertEquals(initialFirings+10, RuleEngine.ruleFirings);
   
     //make sure allowed
     assertTrue(stemB.hasCreate(subject0));
@@ -4244,10 +4268,15 @@ public class RuleApiTest extends GrouperTest {
   
     Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
     
-
+    long initialFirings = RuleEngine.ruleFirings;
     RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"), "stem2:%someGroup");
     
-    long initialFirings = RuleEngine.ruleFirings;
+    // ruleapi propagates rules
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    // revoke and let daemon do it again
+    someGroup.revokePriv(groupA.toSubject(), AccessPrivilege.READ, true); // true to confirm it was actually set
+    someGroup.revokePriv(groupA.toSubject(), AccessPrivilege.UPDATE, true); // true to confirm it was actually set
     
     //run the daemon
     String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
@@ -4255,7 +4284,7 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(status.toLowerCase().contains("success"));
     
     //count rule firings, one for the one group for two privs
-    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialFirings+4, RuleEngine.ruleFirings);
 
     //make sure not allowed
     assertFalse(groupB.hasUpdate(subject0));
@@ -4277,7 +4306,7 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(status.toLowerCase().contains("success"));
     
     //not much changed
-    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+    assertEquals(initialFirings+4, RuleEngine.ruleFirings);
 
     //make sure not allowed
     assertFalse(groupB.hasUpdate(subject0));
@@ -4574,17 +4603,17 @@ public class RuleApiTest extends GrouperTest {
     groupA.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ1);
   
-    // stem2 inherits SUB to groupA read/update
-    AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"));
+    // stem2 inherits SUB to groupA stemAdmin/create
+    AttributeAssign attributeAssign_stem2_SUB_groupA_stemAdminCreate = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin, create"));
   
-    // stem2 inherits SUB to SUBJ3 read
-    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("stemAdmin"));
+    // stem2 inherits SUB to SUBJ3 stemAdmin
+    AttributeAssign attributeAssign_stem2_SUB_SUBJ3_stemAdmin = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, SubjectTestHelper.SUBJ3, Privilege.getInstances("stemAdmin"));
     
-    // stem2:sub inherits SUB to groupA read
-    AttributeAssign attributeAssign_stem2sub_SUB_groupA_read = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin"));
+    // stem2:sub inherits SUB to groupA stemAdmin
+    AttributeAssign attributeAssign_stem2sub_SUB_groupA_stemAdmin = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2sub, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stemAdmin"));
     
-    // stem2 inherits ONE to SUBJ0 update
-    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_update = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("create"));
+    // stem2 inherits ONE to SUBJ0 create
+    AttributeAssign attributeAssign_stem2_ONE_SUBJ0_create = RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ0, Privilege.getInstances("create"));
   
     long initialFirings = RuleEngine.ruleFirings;
   
@@ -4626,16 +4655,20 @@ public class RuleApiTest extends GrouperTest {
     assertTrue(stem2_sub2_c.hasCreate(SubjectTestHelper.SUBJ0));
     assertTrue(stem2_sub2_c.hasStemAdmin(SubjectTestHelper.SUBJ3));
 
-    assertFalse(stem2.hasCreate(groupA.toSubject()));
-    assertFalse(stem2.hasStemAdmin(groupA.toSubject()));
+    assertTrue(stem2.hasCreate(groupA.toSubject()));
+    assertTrue(stem2.hasStemAdmin(groupA.toSubject()));
 
+    // revoke and confirm it gets fixed
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.STEM_ADMIN);
+    stem2.revokePriv(groupA.toSubject(), NamingPrivilege.CREATE);
+    
     RuleApi.runRulesForOwner(stem2);
     
     assertTrue(stem2.hasCreate(groupA.toSubject()));
     assertTrue(stem2.hasStemAdmin(groupA.toSubject()));
 
     // REMOVE THIS: stem2 inherits SUB to groupA read/update
-    attributeAssign_stem2_SUB_groupA_readUpdate.delete();
+    attributeAssign_stem2_SUB_groupA_stemAdminCreate.delete();
     //RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign_stem2_SUB_groupA_readUpdate.getId());
     //Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
     //AttributeAssign attributeAssign_stem2_SUB_groupA_readUpdate
