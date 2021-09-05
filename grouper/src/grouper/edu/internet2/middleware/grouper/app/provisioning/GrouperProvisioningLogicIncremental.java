@@ -2531,39 +2531,24 @@ public class GrouperProvisioningLogicIncremental {
         
         case membershipObjects:
 
-          List<ProvisioningMembership> provisioningMemberships = result.getProvisioningMemberships();
-          if (provisioningMemberships == null) {
-            provisioningMemberships = new ArrayList<ProvisioningMembership>();
-            result.setProvisioningMemberships(provisioningMemberships);
-          }
           for (Object object : targetDaoRetrieveIncrementalDataResponse.getProvisioningMemberships()) {
-            provisioningMemberships.add((ProvisioningMembership)object);
+            addMembershipToProvisioningLists(object, result);
           }
           
           break;
 
         case entityAttributes:
 
-          List<ProvisioningEntity> provisioningEntities = result.getProvisioningEntities();
-          if (provisioningEntities == null) {
-            provisioningEntities = new ArrayList<ProvisioningEntity>();
-            result.setProvisioningEntities(provisioningEntities);
-          }
           for (Object object : targetDaoRetrieveIncrementalDataResponse.getProvisioningMemberships()) {
-            provisioningEntities.add((ProvisioningEntity)object);
+            addMembershipToProvisioningLists(object, result);
           }
 
           break;
           
         case groupAttributes:
           
-          List<ProvisioningGroup> provisioningGroups = result.getProvisioningGroups();
-          if (provisioningGroups == null) {
-            provisioningGroups = new ArrayList<ProvisioningGroup>();
-            result.setProvisioningGroups(provisioningGroups);
-          }
           for (Object object : targetDaoRetrieveIncrementalDataResponse.getProvisioningMemberships()) {
-            provisioningGroups.add((ProvisioningGroup)object);
+            addMembershipToProvisioningLists(object, result);
           }
 
           break;
@@ -2576,6 +2561,46 @@ public class GrouperProvisioningLogicIncremental {
     
   }
 
+  
+  private void addMembershipToProvisioningLists(Object object, GrouperProvisioningLists result) {
+    
+    if (object instanceof ProvisioningGroup) {
+      
+      List<ProvisioningGroup> provisioningGroups = result.getProvisioningGroups();
+      
+      if (provisioningGroups == null) {
+        provisioningGroups = new ArrayList<ProvisioningGroup>();
+        result.setProvisioningGroups(provisioningGroups);
+      }
+      
+      provisioningGroups.add((ProvisioningGroup)object);
+      
+    } else if (object instanceof ProvisioningEntity) {
+      
+      List<ProvisioningEntity> provisioningEntities = result.getProvisioningEntities();
+      
+      if (provisioningEntities == null) {
+        provisioningEntities = new ArrayList<ProvisioningEntity>();
+        result.setProvisioningEntities(provisioningEntities);
+      }
+      
+      provisioningEntities.add((ProvisioningEntity)object);
+      
+    } else if (object instanceof ProvisioningMembership) {
+      List<ProvisioningMembership> provisioningMemberships = result.getProvisioningMemberships();
+      
+      if (provisioningMemberships == null) {
+        provisioningMemberships = new ArrayList<ProvisioningMembership>();
+        result.setProvisioningMemberships(provisioningMemberships);
+      }
+      
+      provisioningMemberships.add((ProvisioningMembership)object);
+      
+    } else {
+      throw new RuntimeException("Invalid object type. It needs to be one of ProvisioningGroup or ProvisioningEntity or ProvisioningMembership");
+    }
+    
+  }
 
   
 
