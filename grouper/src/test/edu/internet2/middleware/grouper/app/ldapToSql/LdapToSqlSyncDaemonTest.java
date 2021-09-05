@@ -1,10 +1,19 @@
 package edu.internet2.middleware.grouper.app.ldapToSql;
 
+import java.sql.Types;
 import java.util.List;
 
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
+
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,50 +37,48 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
 
   public void testExecuteJobExecutionContext() {
 
-// TODO remove comment
-//    // create a table
-//    final String tableName = "testgrouper_ldapsync";
-//
-//
-//    try {
-//      // if you cant connrc to it, its not there
-//      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
-//      try {
-//        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
-//      } catch (Exception e) {
-//      }
-//      try {
-//        // if you cant connrc to it, its not there
-//        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
-//        throw new RuntimeException("Cant drop table: '" + tableName + "'");
-//      } catch (Exception e) {
-//        return;
-//      }
-//    } catch (Exception e) {
-//    }
-//
-//    try {
-//      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
-//    } catch (Exception e) {
-//
-//      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-//        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-//
-//          Database database = ddlVersionBean.getDatabase();
-//
-//          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-//          
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_dn", Types.VARCHAR, "200", true, true);
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "cn", Types.VARCHAR, "200", false, false);
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_date", Types.DATE, null, false, false);
-//        }
-//      });
-//    }
+    // create a table
+    final String tableName = "testgrouper_ldapsync";
+
+
+    try {
+      // if you cant connrc to it, its not there
+      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+      try {
+        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
+      } catch (Exception e) {
+      }
+      try {
+        // if you cant connrc to it, its not there
+        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+        throw new RuntimeException("Cant drop table: '" + tableName + "'");
+      } catch (Exception e) {
+        return;
+      }
+    } catch (Exception e) {
+    }
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+
+          Database database = ddlVersionBean.getDatabase();
+
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_dn", Types.VARCHAR, "200", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "cn", Types.VARCHAR, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_date", Types.DATE, null, false, false);
+        }
+      });
+    }
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
-// TODO remove comment
-//    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
-//    LdapProvisionerTestUtils.startLdapContainer();
+    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+    LdapProvisionerTestUtils.startLdapContainer();
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlTest.class", "edu.internet2.middleware.grouper.app.ldapToSql.LdapToSqlSyncDaemon");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlTest.ldapSqlAttribute.0.ldapName", "dn");
