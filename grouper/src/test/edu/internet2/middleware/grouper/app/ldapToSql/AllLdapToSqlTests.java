@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.app.ldapToSql;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -29,9 +30,11 @@ public class AllLdapToSqlTests {
    */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.ldapToSql");
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.ldap.dinkel", false)) {
     //$JUnit-BEGIN$
     suite.addTestSuite(LdapToSqlSyncDaemonTest.class);
     //$JUnit-END$
+    }
     return suite;
   }
 
