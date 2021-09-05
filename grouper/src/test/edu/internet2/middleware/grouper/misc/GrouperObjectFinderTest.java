@@ -76,7 +76,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new GrouperObjectFinderTest("testFindFoldersAllowed"));
+    TestRunner.run(new GrouperObjectFinderTest("testFindObjects"));
 
   }
 
@@ -89,6 +89,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "true");
     
   }
 
@@ -170,7 +171,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
 
     List<GrouperObject> results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
     
-    assertEquals(7, results.size());
+    assertEquals(GrouperUtil.toStringForLog(results), 7, results.size());
     assertEquals(stem1.getName(), results.get(0).getName());
     assertEquals(stem2.getName(), results.get(1).getName());
     assertEquals(stem4.getName(), results.get(2).getName());
