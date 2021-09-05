@@ -657,6 +657,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       String userSearchAllFilter = ldapSyncConfiguration.getEntitySearchAllFilter();
       
       if (StringUtils.isEmpty(userSearchAllFilter)) {
+        userSearchAllFilter = this.generateUserSearchAllFilter();
+      }
+
+      if (StringUtils.isEmpty(userSearchAllFilter)) {
         throw new RuntimeException("Why is userSearchAllFilter empty?");
       }
   
@@ -1237,6 +1241,57 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     } catch (LDAPException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * look at object classes and the search attribute
+   * @return the filter
+   */
+  public String generateUserSearchAllFilter() {
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  
+    // get the search attribute
+    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getEntitySearchAttributes();
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
+    }
+    String searchFilter = null;
+    if (grouperProvisioningConfigurationAttributes.size() == 1) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
+      searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=*)";
+  
+    } else {
+      throw new RuntimeException("Why is entitySearchAllFilter empty?");
+    }
+  
+    Set<String> objectClasses = null;
+    // see if there are object classes
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetEntityAttributeNameToConfig()).values()) {
+      if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
+        // lets try to evaluate the scriptlet to get the object classes
+        if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
+          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
+              .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
+          if (objectClassResult != null && objectClassResult.getClass().isArray()) {
+            objectClasses = (Set<String>)(Object)GrouperUtil.toSet(objectClassResult);
+          } else {
+            objectClasses = (Set<String>)objectClassResult;
+          }
+          break;
+        }
+      }
+    }
+  
+    if (GrouperUtil.length(objectClasses) == 0) {
+      return searchFilter;
+    }
+    StringBuilder filterBuilder = new StringBuilder("(&" + searchFilter);
+    for (String objectClass : objectClasses) {
+      filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
+    }
+    filterBuilder.append(")");
+    return filterBuilder.toString();
   }
 
   /*
