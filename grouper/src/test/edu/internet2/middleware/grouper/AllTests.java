@@ -209,8 +209,8 @@ public class AllTests extends GrouperTest {
 
     //////////////////////////////////////////
     // All manual suites from packages in alphabetical order
-
-    suite.addTest(AllClientConfigTests.suite());
+    boolean testClientConfigs = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.clientConfig", false);
+    suite.addTest(AllClientConfigTests.suite(testClientConfigs));
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAttributeTests.suite());
     suite.addTest(AllAuditTests.suite());
