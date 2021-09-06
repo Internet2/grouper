@@ -38,6 +38,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -63,7 +66,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testEnabledDisabledDaemon"));
+    TestRunner.run(new HibernateSessionTest("testNestedTransactionsAndSavepoints"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -239,14 +242,14 @@ public class HibernateSessionTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         
-        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        insertIntoDb();
         
         GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
           
           public Object callback(GrouperTransaction grouperTransaction)
               throws GrouperDAOException {
             
-            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            insertIntoDb();
             
             return null;
           }
@@ -268,14 +271,14 @@ public class HibernateSessionTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         
-        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        insertIntoDb();
         
         GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
           
           public Object callback(GrouperTransaction grouperTransaction)
               throws GrouperDAOException {
             
-            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            insertIntoDb();
             
             return null;
           }
@@ -297,14 +300,14 @@ public class HibernateSessionTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         
-        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        insertIntoDb();
         
         GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
           
           public Object callback(GrouperTransaction grouperTransaction)
               throws GrouperDAOException {
             
-            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            insertIntoDb();
             
             GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
               
@@ -336,21 +339,21 @@ public class HibernateSessionTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         
-        new GroupSave(grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+        insertIntoDb();
         
         GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
           
           public Object callback(GrouperTransaction grouperTransaction)
               throws GrouperDAOException {
             
-            new GroupSave(grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+            insertIntoDb();
             
             GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW, new GrouperTransactionHandler() {
               
               public Object callback(GrouperTransaction grouperTransaction)
                   throws GrouperDAOException {
                 
-                new GroupSave(grouperSession).assignName("a:e").assignCreateParentStemsIfNotExist(true).save();
+                insertIntoDb();
                 
                 return null;
               }
@@ -368,6 +371,19 @@ public class HibernateSessionTest extends GrouperTest {
     
     GrouperSession.stopQuietly(grouperSession);
     
+  }
+  
+  public static void insertIntoDb() {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    String jobName = "OTHER_JOB_attestationDaemon";
+
+    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+    HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouperLoaderLog);
+
   }
   
   /**
