@@ -9814,13 +9814,13 @@ public class GrouperClientCommonUtils  {
         grouperVersionString = jarVersion(GrouperClientCommonUtils.class);
       } catch (Exception e) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Can't find version of grouperClient jar, using 2.5.0", e);
+          LOG.debug("Can't find version of grouperClient jar, using 2.6.0", e);
         } else {
-          LOG.warn("Can't find version of grouperClient jar, using 2.5.0");
+          LOG.warn("Can't find version of grouperClient jar, using 2.6.0");
         }
       }
       if (grouperVersionString == null) {
-        grouperVersionString = "2.5.0";
+        grouperVersionString = "2.6.0";
       }
     }
     return grouperVersionString;
