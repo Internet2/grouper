@@ -387,6 +387,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     GrouperUtil.sleep(10000);
 
     assertEquals(fullCount, GrouperCacheDatabase.fullCountForTesting);
+    // not sure why this doesnt work on testing server but it works locally
     assertEquals(incrementalCount + 2, GrouperCacheDatabase.incrementalCountForTesting);
     
     // has not been cleared
