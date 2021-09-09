@@ -741,6 +741,33 @@ public class GrouperProvisioningCompare {
           continue;
         }
         
+        boolean shouldDelete = false;
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntitiesIfNotExistInGrouper()) {
+          shouldDelete = true;
+        }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntitiesIfGrouperDeleted()) {
+          
+          if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+            shouldDelete = true;
+          }
+          
+        }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntitiesIfGrouperCreated()) {
+          
+          if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isInTargetInsertOrExists() 
+                && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+            shouldDelete = true;
+          }
+          
+        }
+        
+        if (!shouldDelete) {
+          continue;
+        }
+        
         provisioningEntitiesToDelete.add(entityToDelete);
         
         if (entityToDelete.getId() != null) {
@@ -935,6 +962,34 @@ public class GrouperProvisioningCompare {
         }
         
         if (groupToDelete == null) {
+          continue;
+        }
+        
+        boolean shouldDelete = false;
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfNotExistInGrouper()) {
+          shouldDelete = true;
+        }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfGrouperDeleted()) {
+          
+          if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+            shouldDelete = true;
+          }
+          
+        }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfGrouperCreated()) {
+          
+          if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTargetInsertOrExists() 
+                && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+            shouldDelete = true;
+          }
+          
+        }
+        
+        
+        if (!shouldDelete) {
           continue;
         }
         
@@ -1243,8 +1298,36 @@ public class GrouperProvisioningCompare {
           }
           
           
-          GcGrouperSyncMembership gcGrouperSyncMembership = membershipToDelete.getProvisioningMembershipWrapper().getGcGrouperSyncMembership();
+          ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipToDelete.getProvisioningMembershipWrapper();
+          
+          GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
           if (grouperProvisioningBehavior.isDeleteMembership(gcGrouperSyncMembership)) {
+            
+//            boolean shouldDelete = false;
+//            
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper()) {
+//              shouldDelete = true;
+//            }
+//            
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfGrouperDeleted()) {
+//              
+//              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+//                shouldDelete = true;
+//              }
+//              
+//            }
+//            
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfGrouperCreated()) {
+//              
+//              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTargetInsertOrExists() && gcGrouperSyncMembership.isInTarget()) {
+//                shouldDelete = true;
+//              }
+//              
+//            }
+//            
+//            if (!shouldDelete) {
+//              continue;
+//            }
 
             provisioningMembershipsToDelete.add(membershipToDelete);
 
