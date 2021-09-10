@@ -34,7 +34,7 @@
                             <td>
                             <c:if test="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership != null}">
                             <c:choose>
-			                  <c:when test="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetInsertOrExistsDb}">
+			                  <c:when test="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetInsertOrExists}">
 			                    ${textContainer.text['privsioningConfigDetailsInTargetInsertsOrExistsTrueLabel']}
 			                  </c:when>
 			                  <c:otherwise>
