@@ -19,12 +19,22 @@
 package edu.internet2.middleware.grouper.ws;
 
 import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.PublicKey;
+import java.security.interfaces.RSAKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -49,6 +59,12 @@ import org.apache.ws.security.WSUsernameTokenPrincipal;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -59,6 +75,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -953,38 +970,202 @@ public class GrouperServiceJ2ee implements Filter {
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
       
-      boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
-      if (runGrouperWsWithBasicAuth) {
-        String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+      String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+      if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtTrusted_")) {
         
-        boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
-        
-        if (!isValid) {
-          ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
-          ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+        String[] tokens = authHeader.split("_");
+        if (tokens.length < 3) {
+          ((HttpServletResponse) response).sendError(401, "Unauthorized");   
           return;
-        } else {
-          String userName = Authentication.retrieveUsername(authHeader);
-          ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+        }
+        
+        String configId = tokens[1];
+        
+        boolean configIdMatchFound = false;
+        
+        Pattern patternForConfigId = Pattern.compile("^(grouper.jwt.trusted.)\\\\.([^.]+)\\\\.(.*)$");
+        
+        Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(patternForConfigId);
+        
+        for (String key: propertiesMap.keySet()) {
+          Matcher matcher = patternForConfigId.matcher(key);
+          if (!matcher.matches()) {
+            // should never happen because we're fetching properties based on the pattern
+            continue;
+          }
+          
+          String configIdFromGrouperProperties = matcher.group(2);
+          if (StringUtils.equals(configIdFromGrouperProperties, configId)) {
+            configIdMatchFound = true;
+            break;
+          }
+          
+        }
+        
+        if (!configIdMatchFound) {
+          ((HttpServletResponse) response).sendError(401, "Unauthorized"); 
+          return;
+        }
+        
+        
+        int numberOfKeys = GrouperConfig.retrieveConfig().propertyValueIntRequired("grouper.jwt.trusted."+configId+".numberOfKeys");
+        
+        for (int i=0; i<numberOfKeys; i++) {
+          
+          /**
+           * grouper.jwt.trusted.configId.key.0.publicKey = abc123
+ 
+            grouper.jwt.trusted.configId.key.0.encryptionType = RS-256
+             
+            # optional: yyyy-mm-dd hh:mm:ss.SSS
+            grouper.jwt.trusted.configId.key.0.expiresOn = 2021-11-01 00:00:00.000
+           */
+          
+          String expiresOnString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.jwt.trusted."+configId+".key."+i+".expiresOn");
+          
+          Timestamp expiresOnTimestamp = GrouperUtil.stringToTimestamp(expiresOnString);
+           
+          if (expiresOnTimestamp.before(new Timestamp(System.currentTimeMillis()))) {
+            // try another key
+            continue;
+          }
+          
+          try {
+            
+            DecodedJWT decodedJwt = JWT.decode(tokens[2]);
+            
+            Date expiresAt = decodedJwt.getExpiresAt();
+            
+            if (expiresAt != null && expiresAt.before(new Date())) {
+              ((HttpServletResponse) response).sendError(401, "Unauthorized"); 
+              return;
+            }
+             
+            // grouper.jwt.trusted.configId.expirationSeconds
+            int expirationSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.jwt.trusted."+configId+".expirationSeconds", -1);
+            
+            Date issuedAt = decodedJwt.getIssuedAt();
+            
+            if (expirationSeconds >= 0 && (issuedAt == null || issuedAt.before(new Date(System.currentTimeMillis() + expirationSeconds * 1000)))) {
+              ((HttpServletResponse) response).sendError(401, "Unauthorized"); 
+              return;
+            }
+            
+            String publicKeyString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.jwt.trusted."+configId+".key."+i+".publicKey");
+
+            String encryptionType = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.jwt.trusted."+configId+".key."+i+".encryptionType");
+            
+            PublicKey publicKey = null;
+            
+            try {
+              KeyFactory kf = KeyFactory.getInstance(encryptionType);
+              EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyString.getBytes());
+              publicKey = kf.generatePublic(publicKeySpec);
+            } catch (NoSuchAlgorithmException e) {
+              throw new RuntimeException(
+                  "Could not reconstruct the public key, the given algorithm oculd not be found.", e);
+            } catch (InvalidKeySpecException e) {
+              throw new RuntimeException("Could not reconstruct the public key", e);
+            }
+            
+            Algorithm publicAlgorithm = null;
+            if (!StringUtils.equals(encryptionType, "RS-256")) {
+              throw new RuntimeException("Invalid encryption type: '"+encryptionType+"'");
+            }
+                
+            publicAlgorithm = Algorithm.RSA256((RSAKey)publicKey);
+            
+            publicAlgorithm.verify(decodedJwt);
+            
+            String subjectSourceId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.jwt.trusted."+configId+".subjectSource");
+            
+            Claim claim = decodedJwt.getClaim("subjectSourceId");
+            if (!claim.isNull()) {
+              subjectSourceId = claim.asString();
+            }
+            
+            Subject subject = null;
+            
+            claim = decodedJwt.getClaim("subjectId");
+            if (!claim.isNull()) {
+              String subjectId = claim.asString();
+              if (StringUtils.isBlank(subjectSourceId)) {
+                subject = SubjectFinder.findById(subjectId, false);
+              } else {
+                subject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
+              }
+            }
+            
+            claim = decodedJwt.getClaim("subjectIdentifier");
+            if (!claim.isNull()) {
+              String subjectIdentifier = claim.asString();
+              if (StringUtils.isBlank(subjectSourceId)) {
+                subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
+              } else {
+                subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, subjectSourceId, false);
+              }
+            }
+            
+            claim = decodedJwt.getClaim("subjectIdOrIdentifier");
+            if (!claim.isNull()) {
+              String subjectIdOrIdentifier = claim.asString();
+              if (StringUtils.isBlank(subjectSourceId)) {
+                subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+              } else {
+                subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, subjectSourceId, false);
+              }
+            }
+            
+            if (subject == null) {
+              ((HttpServletResponse) response).sendError(401, "Unauthorized"); 
+              return;
+            }
+            
+            ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
+            
+          } catch (JWTVerificationException exception) {
+              //Invalid signature/claims
+            System.out.println("invalid signature/claims");
+          }
+          
         }
         
       } else {
-        // also return 401 if authentication fails and using custom authentication, not sure about the rampart case
-        String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
-        boolean checkAuthentication = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.security.non-rampart.error.401.authentication.error", true);
         
-        if (!StringUtils.isEmpty(authenticationClassName) && checkAuthentication) {
-          Class<? extends WsCustomAuthentication> theClass = GrouperUtil.forName(authenticationClassName);
-
-          WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
-
-          String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
-          if (StringUtils.isBlank(userIdLoggedIn)) {
+        boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
+        if (runGrouperWsWithBasicAuth) {
+          // String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+          
+          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+          
+          if (!isValid) {
             ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
             ((HttpServletResponse) response).sendError(401, "Unauthorized");          
             return;
+          } else {
+            String userName = Authentication.retrieveUsername(authHeader);
+            ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+          }
+          
+        } else {
+          // also return 401 if authentication fails and using custom authentication, not sure about the rampart case
+          String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
+          boolean checkAuthentication = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.security.non-rampart.error.401.authentication.error", true);
+          
+          if (!StringUtils.isEmpty(authenticationClassName) && checkAuthentication) {
+            Class<? extends WsCustomAuthentication> theClass = GrouperUtil.forName(authenticationClassName);
+
+            WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
+
+            String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
+            if (StringUtils.isBlank(userIdLoggedIn)) {
+              ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+              ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+              return;
+            }
           }
         }
+        
       }
       
       request.setAttribute("debugMap", debugMap);
