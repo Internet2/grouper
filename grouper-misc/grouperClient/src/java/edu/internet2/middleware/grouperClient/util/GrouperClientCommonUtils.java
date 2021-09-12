@@ -9819,7 +9819,7 @@ public class GrouperClientCommonUtils  {
           LOG.warn("Can't find version of grouperClient jar, using 2.6.0");
         }
       }
-      if (grouperVersionString == null) {
+      if (grouperVersionString == null || "${version}".equals(grouperVersionString)) {
         grouperVersionString = "2.6.0";
       }
     }

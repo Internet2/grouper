@@ -124,6 +124,8 @@
       </fileset>
       <fileset dir="${main.confDir}">
         <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
+        <include name="grouper.client.base.properties"/>      <!-- base config -->
+        <include name="morphString.base.properties"/>      <!-- base config -->
       </fileset>
       <fileset dir="${basedir}">
         <include name="README.txt"/>      <!-- sample config -->
