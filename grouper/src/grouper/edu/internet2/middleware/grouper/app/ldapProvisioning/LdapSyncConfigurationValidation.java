@@ -48,21 +48,25 @@ public class LdapSyncConfigurationValidation
     GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");
-      if (grouperProvisioningConfigurationAttribute == null) {
-        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupDn"));
-      }
-      if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+      if (grouperProvisioningConfiguration.isSelectGroups() || grouperProvisioningConfiguration.isUpdateGroups() || grouperProvisioningConfiguration.isDeleteGroups() || grouperProvisioningConfiguration.isInsertGroups()) {
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");
+        if (grouperProvisioningConfigurationAttribute == null) {
+          this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupDn"));
+        }
+        if (grouperProvisioningConfiguration.isSelectGroups() && grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+        }
       }
     }
     if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig().get("name");
-      if (grouperProvisioningConfigurationAttribute == null) {
-        this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityDn"));
-      }
-      if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+      if (grouperProvisioningConfiguration.isSelectEntities() || grouperProvisioningConfiguration.isUpdateEntities() || grouperProvisioningConfiguration.isDeleteEntities() || grouperProvisioningConfiguration.isInsertEntities()) {
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig().get("name");
+        if (grouperProvisioningConfigurationAttribute == null) {
+          this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityDn"));
+        }
+        if (grouperProvisioningConfiguration.isSelectEntities() && grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
+          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+        }
       }
     }
     
