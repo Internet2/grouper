@@ -245,28 +245,29 @@ public class GrouperProvisioningCompare {
           if (provisioningMembershipWrapper.isRecalc()) {
             continue;
           }
-          switch (provisioningMembershipWrapper.getGrouperIncrementalDataAction()) {
-            case delete:
-              
-              if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                  new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
-                      ProvisioningObjectChangeAction.delete, value, null)
-                );
-              }
-              break;
-            case insert:
-              if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertMemberships()) {
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                  new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
-                      ProvisioningObjectChangeAction.insert, null, value)
-                );
-              }
-              break;
-            default:
-              throw new RuntimeException("Not expecting grouperIncrementalDataAction for " + grouperProvisioningUpdatable);
-          }
-          
+          if (provisioningMembershipWrapper.getGrouperIncrementalDataAction() != null) {
+            switch (provisioningMembershipWrapper.getGrouperIncrementalDataAction()) {
+              case delete:
+                
+                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
+                  grouperProvisioningUpdatable.addInternal_objectChange(
+                    new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
+                        ProvisioningObjectChangeAction.delete, value, null)
+                  );
+                }
+                break;
+              case insert:
+                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertMemberships()) {
+                  grouperProvisioningUpdatable.addInternal_objectChange(
+                    new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
+                        ProvisioningObjectChangeAction.insert, null, value)
+                  );
+                }
+                break;
+              default:
+                throw new RuntimeException("Not expecting grouperIncrementalDataAction for " + grouperProvisioningUpdatable);
+            }
+          }          
         }
         if (GrouperUtil.length(grouperProvisioningUpdatable.getInternal_objectChanges()) > 0) {
           addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
