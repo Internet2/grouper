@@ -14,7 +14,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -32,7 +35,7 @@ public class GrouperTrustedJwt {
   /**
    * bearer token pattern
    */
-  private static Pattern bearerTokenPattern = Pattern.compile("^[bB]earer jwtTrusted_(.+)_([^_]+)$");
+  private static Pattern bearerTokenPattern = Pattern.compile("^Bearer jwtTrusted_([^_]+)_(.*)$");
   
   /**
    * string like:
@@ -159,85 +162,95 @@ public class GrouperTrustedJwt {
       
       debugMap.put("subjectSourceId", subjectSourceId);
       
-      Subject subject = null;
+      final String SUBJECT_SOURCE_ID = subjectSourceId;
+      
+      Subject subject = (Subject) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Subject subject = null;
+          {
+            String subjectIdClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectId" : null;
+            if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectId") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
+              
+              subjectIdClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
+              
+            }
+      
+            if (!StringUtils.isBlank(subjectIdClaimName)) {
+             
+              debugMap.put("subjectIdClaimName", subjectIdClaimName);
+              
+              Claim claim = decodedJwt.getClaim(subjectIdClaimName);
+              if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
+                String subjectId = claim.asString();
+                debugMap.put("subjectId", subjectId);
+                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
+                  subject = SubjectFinder.findById(subjectId, false);
+                } else {
+                  subject = SubjectFinder.findByIdAndSource(subjectId, SUBJECT_SOURCE_ID, false);
+                }
+              }
+              
+            }
+          }
 
-      {
-        String subjectIdClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectId" : null;
-        if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectId") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
-          
-          subjectIdClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
-          
-        }
-  
-        if (!StringUtils.isBlank(subjectIdClaimName)) {
-         
-          debugMap.put("subjectIdClaimName", subjectIdClaimName);
-          
-          claim = decodedJwt.getClaim(subjectIdClaimName);
-          if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
-            String subjectId = claim.asString();
-            debugMap.put("subjectId", subjectId);
-            if (StringUtils.isBlank(subjectSourceId)) {
-              subject = SubjectFinder.findById(subjectId, false);
-            } else {
-              subject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
+          {
+            String subjectIdentifierClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectIdentifier" : null;
+            if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectIdentifier") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
+              
+              subjectIdentifierClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
+              
+            }
+      
+            if (!StringUtils.isBlank(subjectIdentifierClaimName)) {
+             
+              debugMap.put("subjectIdentifierClaimName", subjectIdentifierClaimName);
+              
+              Claim claim = decodedJwt.getClaim(subjectIdentifierClaimName);
+              if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
+                String subjectIdentifier = claim.asString();
+                debugMap.put("subjectIdentifier", subjectIdentifier);
+                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
+                  subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
+                } else {
+                  subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, SUBJECT_SOURCE_ID, false);
+                }
+              }
+              
+            }
+          }
+
+          {
+            String subjectIdOrIdentifierClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectIdOrIdentifier" : null;
+            if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectIdOrIdentifier") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
+              
+              subjectIdOrIdentifierClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
+              
+            }
+      
+            if (!StringUtils.isBlank(subjectIdOrIdentifierClaimName)) {
+             
+              debugMap.put("subjectIdOrIdentifierClaimName", subjectIdOrIdentifierClaimName);
+              
+              Claim claim = decodedJwt.getClaim(subjectIdOrIdentifierClaimName);
+              if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
+                String subjectIdentifier = claim.asString();
+                debugMap.put("subjectIdOrIdentifier", subjectIdentifier);
+                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
+                  subject = SubjectFinder.findByIdOrIdentifier(subjectIdentifier, false);
+                } else {
+                  subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdentifier, SUBJECT_SOURCE_ID, false);
+                }
+              }
+              
             }
           }
           
+          return subject;
         }
-      }
-
-      {
-        String subjectIdentifierClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectIdentifier" : null;
-        if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectIdentifier") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
-          
-          subjectIdentifierClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
-          
-        }
-  
-        if (!StringUtils.isBlank(subjectIdentifierClaimName)) {
-         
-          debugMap.put("subjectIdentifierClaimName", subjectIdentifierClaimName);
-          
-          claim = decodedJwt.getClaim(subjectIdentifierClaimName);
-          if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
-            String subjectIdentifier = claim.asString();
-            debugMap.put("subjectIdentifier", subjectIdentifier);
-            if (StringUtils.isBlank(subjectSourceId)) {
-              subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
-            } else {
-              subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, subjectSourceId, false);
-            }
-          }
-          
-        }
-      }
-
-      {
-        String subjectIdOrIdentifierClaimName = StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdType()) ? "subjectIdOrIdentifier" : null;
-        if (StringUtils.equals(grouperTrustedJwtConfig.getSubjectIdType(), "subjectIdOrIdentifier") && !StringUtils.isBlank(grouperTrustedJwtConfig.getSubjectIdClaimName())) {
-          
-          subjectIdOrIdentifierClaimName = grouperTrustedJwtConfig.getSubjectIdClaimName();
-          
-        }
-  
-        if (!StringUtils.isBlank(subjectIdOrIdentifierClaimName)) {
-         
-          debugMap.put("subjectIdOrIdentifierClaimName", subjectIdOrIdentifierClaimName);
-          
-          claim = decodedJwt.getClaim(subjectIdOrIdentifierClaimName);
-          if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
-            String subjectIdentifier = claim.asString();
-            debugMap.put("subjectIdOrIdentifier", subjectIdentifier);
-            if (StringUtils.isBlank(subjectSourceId)) {
-              subject = SubjectFinder.findByIdOrIdentifier(subjectIdentifier, false);
-            } else {
-              subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdentifier, subjectSourceId, false);
-            }
-          }
-          
-        }
-      }
+      });
 
       debugMap.put("subjectFound", subject != null);
       return subject;

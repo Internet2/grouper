@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.authentication;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -66,8 +66,8 @@ public class GrouperTrustedJwtConfig {
         String expiresOn = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".key." + i + ".expiresOn");
         
         if (!StringUtils.isBlank(expiresOn)) {
-          Timestamp expiresOnTimestamp = GrouperUtil.stringToTimestamp(expiresOn);
-          grouperTrustedJwtConfigKey.setExpiresOn(expiresOnTimestamp);
+          Date expiresOnDate = GrouperUtil.stringToDate2(expiresOn);
+          grouperTrustedJwtConfigKey.setExpiresOn(expiresOnDate);
         }
         if (!grouperTrustedJwtConfigKey.isExpired()) {
           grouperTrustedJwtConfig.grouperTrustedJwtConfigKeys.add(grouperTrustedJwtConfigKey);

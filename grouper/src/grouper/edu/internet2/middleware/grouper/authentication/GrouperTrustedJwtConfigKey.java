@@ -10,6 +10,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
 import com.auth0.jwt.algorithms.Algorithm;
@@ -47,8 +48,9 @@ public class GrouperTrustedJwtConfigKey implements RSAKeyProvider {
     if (publicKey == null) {
 
       try {
-        KeyFactory kf = KeyFactory.getInstance(encryptionType);
-        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyString.getBytes());
+        byte[] publicKeyBytes = Base64.decodeBase64(publicKeyString);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         publicKey = kf.generatePublic(publicKeySpec);
       } catch (NoSuchAlgorithmException e) {
         throw new RuntimeException(
