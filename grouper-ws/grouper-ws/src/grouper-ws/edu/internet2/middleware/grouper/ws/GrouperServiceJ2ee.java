@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperOidc;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperTrustedJwt;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -961,6 +962,14 @@ public class GrouperServiceJ2ee implements Filter {
       String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
       if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtTrusted_")) {
         Subject subject = new GrouperTrustedJwt().assignBearerTokenHeader(authHeader).decode();
+        if (subject != null) {
+          ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
+        } else {
+          ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+          return;
+        }
+      } else if (StringUtils.isNotBlank(authHeader) && (authHeader.startsWith("Bearer oidc_") || authHeader.startsWith("Bearer oidcWithRedirectUri_"))) {
+        Subject subject = new GrouperOidc().assignBearerTokenHeader(authHeader).decode();
         if (subject != null) {
           ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
         } else {
