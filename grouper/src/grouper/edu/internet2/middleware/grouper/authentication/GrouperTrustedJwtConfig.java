@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.morphString.Morph;
 
 public class GrouperTrustedJwtConfig {
 
@@ -56,6 +57,7 @@ public class GrouperTrustedJwtConfig {
     for (int i=0;i<10;i++) {
       String publicKey = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".key." + i + ".publicKey");
       if (!StringUtils.isBlank(publicKey)) {
+        publicKey = Morph.decrypt(publicKey);
         
         GrouperTrustedJwtConfigKey grouperTrustedJwtConfigKey = new GrouperTrustedJwtConfigKey();
         grouperTrustedJwtConfigKey.setPublicKey(publicKey);
