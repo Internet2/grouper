@@ -960,7 +960,7 @@ public class UiV2Configure {
         return;
       }
       
-      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
       
       if (!grouperRequestWrapper.isMultipart()) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
