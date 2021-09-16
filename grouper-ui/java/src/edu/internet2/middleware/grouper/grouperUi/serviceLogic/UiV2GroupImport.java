@@ -532,7 +532,7 @@ public class UiV2GroupImport {
   
         if (StringUtils.equals(bulkAddOption, "import")) {
           
-          GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+          GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
           
           FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
   

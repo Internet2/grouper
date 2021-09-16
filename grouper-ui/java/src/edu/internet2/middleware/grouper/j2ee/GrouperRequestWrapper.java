@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
@@ -54,6 +55,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperRequestWrapper extends HttpServletRequestWrapper {
 
+  /**
+   * get the grouper request wrapper
+   * @return
+   */
+  public static GrouperRequestWrapper retrieveGrouperRequestWrapper(ServletRequest servletRequest) {
+    
+    if (servletRequest instanceof GrouperRequestWrapper) {
+      return (GrouperRequestWrapper)servletRequest;
+    }
+    
+    HttpServletRequest httpServletRequest2 = GrouperUiFilter.retrieveHttpServletRequest();
+    if (httpServletRequest2 instanceof GrouperRequestWrapper) {
+      return (GrouperRequestWrapper)httpServletRequest2;
+    }
+
+    throw new RuntimeException("Cannot find GrouperRequestWrapper from " 
+        + (servletRequest == null ? null : servletRequest.getClass().getName())
+        + ", " + (httpServletRequest2 == null ? null : httpServletRequest2.getClass().getName()));
+
+  }
+  
   /**
    * 
    */

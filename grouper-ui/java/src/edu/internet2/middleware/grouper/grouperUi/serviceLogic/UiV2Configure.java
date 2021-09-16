@@ -961,7 +961,7 @@ public class UiV2Configure {
         return;
       }
       
-      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
       
       // get the type first
       String howToAdd = grouperRequestWrapper.getParameter("configurationImportHowAdd");

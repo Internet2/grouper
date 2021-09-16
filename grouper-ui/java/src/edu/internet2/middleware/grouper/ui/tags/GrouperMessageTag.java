@@ -657,7 +657,7 @@ public class GrouperMessageTag extends MessageTag {
     
     boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
     if (needsThreadLocalInit) {
-      GrouperRequestWrapper grouperRequestWrapper = new GrouperRequestWrapper((HttpServletRequest) this.pageContext.getRequest());
+      GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper( this.pageContext.getRequest());
       GrouperUiFilter.initRequest(grouperRequestWrapper, this.pageContext.getResponse());
     }
 
