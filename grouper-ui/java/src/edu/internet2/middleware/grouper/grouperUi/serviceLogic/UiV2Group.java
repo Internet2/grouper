@@ -4717,10 +4717,6 @@ public class UiV2Group {
    */
   public void updateLoaderGroup(HttpServletRequest request, HttpServletResponse response) {
 
-    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true)) {
-      throw new RuntimeException("Cant refresh loader groups from UI due to config param uiV2.group.allowGroupAdminsToRefreshLoaderJobs set to false");
-    }
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
     GrouperSession grouperSession = null;
@@ -4731,9 +4727,18 @@ public class UiV2Group {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
       if (group == null) {
+        return;
+      }
+
+      boolean adminCanRefreshGroup = group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.toString(), false) 
+          && GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true);
+
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
+
+      if (!adminCanRefreshGroup && !canEditLoader) {
         return;
       }
 
@@ -4796,15 +4801,30 @@ public class UiV2Group {
         return;
       }
       
-      AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, false);
+      final AttributeDefName[] loaderMetadataAttributeDefName = new AttributeDefName[1];
+      final AttributeDefName[] loaderMetadataLoadedAttributeDefName = new AttributeDefName[1];
+      final AttributeDefName[] loaderMetadataValueAttributeDefName = new AttributeDefName[1];
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          loaderMetadataAttributeDefName[0] = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+          loaderMetadataLoadedAttributeDefName[0] = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, false);
+          loaderMetadataValueAttributeDefName[0] = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+
+          return null;
+        }
+      });
+      
 
       //get all groups with settings
       int maxPageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.grouperLoader.maxGroupsShown", 200);
       Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
-          .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
+          .assignIdOfAttributeDefName(loaderMetadataAttributeDefName[0].getId())
           .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(group.getId()))
-          .assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName.getId())
+          .assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName[0].getId())
           .assignAttributeValuesOnAssignment2(GrouperUtil.toSetObjectType("true"))
           .assignAttributeCheckReadOnAttributeDef(false)
           .assignQueryOptions(QueryOptions.create("displayName", true, 1, maxPageSize))
@@ -4812,12 +4832,9 @@ public class UiV2Group {
       
       if (GrouperUtil.length(groupsWithLoaderMetadata) > 0) {
         
-        String loaderMetadataAttributeName = GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF;
-        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-        
         AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()
             .assignOwnerGroupsOfAssignAssign(groupsWithLoaderMetadata)
-            .addAttributeDefNameId(attributeDefName.getId())
+            .addAttributeDefNameId(loaderMetadataValueAttributeDefName[0].getId())
             .assignAttributeCheckReadOnAttributeDef(false)
             .findAttributeAssignValuesResult();
         
@@ -4861,55 +4878,72 @@ public class UiV2Group {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
 
       if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
+
+      if (!canEditLoader) {
         return;
       }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      try {
-        boolean foundLoaderType = false;
-    
-        // check sql first
-        AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-            .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
-    
-        if (grouperLoader != null) {
-          if (group.getAttributeDelegate().hasAttribute(grouperLoader)) {
-            foundLoaderType = true;
-            GrouperLoaderType.validateAndScheduleSqlLoad(group, null, false);
-          }
-        }
+      final Group GROUP = group;
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
-        // ok now check ldap
-        if (!foundLoaderType) {
-          AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
-              .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
-          
-          if (grouperLoaderLdapName != null) {
-            AttributeAssign assign = group.getAttributeDelegate().retrieveAssignment("assign", grouperLoaderLdapName, true, false);
-            if (assign != null) {
-              foundLoaderType = true;
-              GrouperLoaderType.validateAndScheduleLdapLoad(assign, null, false);
-            }
-          }
-        }
-        
-        if (!foundLoaderType) {
-          throw new RuntimeException("Group is not a loader group.");
-        }
-      } catch (Exception e) {
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-        LOG.error("Error scheduling loader job from ui for group: " + group.getName(), e);
+          try {
+            boolean foundLoaderType = false;
         
-        //lets show an error message on the new screen  
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("loaderGroupScheduleError") + "<br />"
-                + e.getMessage()));
-        return;
-      }
+            // check sql first
+            AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+                .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+        
+            if (grouperLoader != null) {
+              if (GROUP.getAttributeDelegate().hasAttribute(grouperLoader)) {
+                foundLoaderType = true;
+                GrouperLoaderType.validateAndScheduleSqlLoad(GROUP, null, false);
+              }
+            }
+            
+            // ok now check ldap
+            if (!foundLoaderType) {
+              AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+                  .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+              
+              if (grouperLoaderLdapName != null) {
+                AttributeAssign assign = GROUP.getAttributeDelegate().retrieveAssignment("assign", grouperLoaderLdapName, true, false);
+                if (assign != null) {
+                  foundLoaderType = true;
+                  GrouperLoaderType.validateAndScheduleLdapLoad(assign, null, false);
+                }
+              }
+            }
+            
+            if (!foundLoaderType) {
+              throw new RuntimeException("Group is not a loader group.");
+            }
+          } catch (Exception e) {
+
+            LOG.error("Error scheduling loader job from ui for group: " + GROUP.getName(), e);
+            
+            //lets show an error message on the new screen  
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("loaderGroupScheduleError") + "<br />"
+                    + e.getMessage()));
+            return null;
+          }
+
+          return null;
+        }
+      });
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,

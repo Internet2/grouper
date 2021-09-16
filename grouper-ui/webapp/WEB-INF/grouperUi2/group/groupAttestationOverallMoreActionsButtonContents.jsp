@@ -15,11 +15,5 @@
                         <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.allSettings'); return false;"
                             >${textContainer.text['groupAttestationOverallMoreActionsAllSettings'] }</a></li>
 
-                        <c:if test="${grouperRequestContainer.attestationContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Attestation.runDaemon'); return false;"
-                              >${textContainer.text['groupAttestationMoreActionsRunDaemon'] }</a></li>
-                        </c:if>
-
-
                       </ul>
                     </div>

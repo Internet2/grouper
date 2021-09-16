@@ -535,18 +535,4 @@ public class DeprovisioningContainer {
     this.affiliation = affiliation1;
   }
 
-  /**
-   * 
-   * @return true if can run daemon
-   */
-  public boolean isCanRunDaemon() {
-    
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    return false;
-  }
-  
 }

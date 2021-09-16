@@ -50,13 +50,13 @@
 					  			
 					  			<c:forEach items="${subSection.attributesValues}" var="attribute">
 					  				
-					  				<c:set target="${grouperRequestContainer.gshTemplateContainer}"
-						               	property="index"
-						               	value="${attribute.repeatGroupIndex}" />
-					               		
-					        		<c:set target="${grouperRequestContainer.gshTemplateContainer}"
-						                property="currentConfigSuffix"
-						                value="${attribute.configSuffix}" />
+					  				<c:set target="${grouperRequestContainer.customUiContainer}"
+		                  property="index"
+		                  value="${attribute.repeatGroupIndex}" />
+                  
+				            <c:set target="${grouperRequestContainer.customUiContainer}"
+		                  property="currentConfigSuffix"
+		                  value="${attribute.configSuffix}" />
 					  				
 					  				<grouper:configFormElement 
 					  					formElementType="${attribute.formElement}" 

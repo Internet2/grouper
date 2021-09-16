@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
@@ -144,7 +145,8 @@ public class GrouperReportInstanceService {
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportElapsedMillis()));
       
       attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_ROWS, true);
-      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportInstanceRows()));
+      attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), 
+          String.valueOf(reportInstance.getGrouperReportConfigurationBean().getReportConfigType() == ReportConfigType.SQL ? GrouperUtil.longValue(reportInstance.getReportInstanceRows(), -1L) : -1));
       
       attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_SIZE_BYTES, true);
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), String.valueOf(reportInstance.getReportInstanceSizeBytes()));

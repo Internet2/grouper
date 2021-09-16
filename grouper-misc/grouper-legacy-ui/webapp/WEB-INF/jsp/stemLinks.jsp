@@ -7,7 +7,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="section">
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><grouper:message key="page.skip.stem-links"/></a>
 
 <grouper:subtitle key="stems.heading.manage" />
@@ -59,5 +59,5 @@
 <!--/stemLinks.jsp-->
 </div>
 <a name="endStemLinks" id="endStemLinks"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 </div>

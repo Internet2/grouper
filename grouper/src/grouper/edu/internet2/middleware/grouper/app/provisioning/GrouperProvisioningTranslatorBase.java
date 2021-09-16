@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,6 +137,10 @@ public class GrouperProvisioningTranslatorBase {
 
 
       ProvisioningMembership grouperTargetMembership = new ProvisioningMembership();
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetMembership = grouperProvisioningMembership.clone();
+      }
+      
       grouperTargetMembership.setProvisioningMembershipWrapper(provisioningMembershipWrapper);
  
       provisioningMembershipWrapperThreadLocal.set(provisioningMembershipWrapper);
@@ -276,6 +279,16 @@ public class GrouperProvisioningTranslatorBase {
           runScript(script, elVariableMap);
           
         }
+        
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects &&
+            grouperTargetMembership.isEmpty()) {
+          
+          grouperTargetMembership.setProvisioningEntityId(grouperTargetEntity == null ? null: grouperTargetEntity.getId());
+          grouperTargetMembership.setProvisioningEntity(grouperTargetEntity);
+          grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
+          grouperTargetMembership.setProvisioningGroupId(grouperTargetGroup == null ? null: grouperTargetGroup.getId());
+        }
+        
       } finally {
         provisioningMembershipWrapperThreadLocal.remove();
       }
@@ -297,9 +310,9 @@ public class GrouperProvisioningTranslatorBase {
       } 
 
       grouperTargetMembership.getProvisioningMembershipWrapper().setGrouperTargetMembership(grouperTargetMembership);
-      if (includeDelete) {
-        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
-      }
+//      if (includeDelete) {
+//        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
+//      }
 
       grouperTargetMemberships.add(grouperTargetMembership); 
     }
@@ -344,6 +357,9 @@ public class GrouperProvisioningTranslatorBase {
     PROVISIONING_ENTITY_BLOCK: for (ProvisioningEntity grouperProvisioningEntity: GrouperUtil.nonNull(grouperProvisioningEntities)) {
       
       ProvisioningEntity grouperTargetEntity = new ProvisioningEntity();
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetEntity = grouperProvisioningEntity.clone();
+      }
       grouperTargetEntity.setProvisioningEntityWrapper(grouperProvisioningEntity.getProvisioningEntityWrapper());
 
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
@@ -483,6 +499,11 @@ public class GrouperProvisioningTranslatorBase {
     PROVISIONING_GROUP_BLOCK: for (ProvisioningGroup grouperProvisioningGroup: GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       ProvisioningGroup grouperTargetGroup = new ProvisioningGroup();
+      
+      if (this.translateGrouperToTargetAutomatically) {
+        grouperTargetGroup = grouperProvisioningGroup.clone();
+      }
+      
       grouperTargetGroup.setProvisioningGroupWrapper(grouperProvisioningGroup.getProvisioningGroupWrapper());
 
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
@@ -809,8 +830,14 @@ public class GrouperProvisioningTranslatorBase {
           id = targetGroup.getIdIndex();
         } else if ("name".equals(groupIdField)) {
           id = targetGroup.getName();
+        } else if ("displayName".equals(groupIdField)) {
+          id = targetGroup.getDisplayName();
+        } else if ("displayExtension".equals(groupIdField)) {
+          id = targetGroup.getDisplayExtension();
+        } else if ("extension".equals(groupIdField)) {
+          id = targetGroup.getExtension();
         } else {
-          throw new RuntimeException("Invalid groupMatchingIdField, expecting id, idIndex, or name: '" + groupIdField + "'");
+          throw new RuntimeException("Invalid groupMatchingIdField, expecting id, idIndex, name, displayName, extension or displayExtension: '" + groupIdField + "'");
         }
         
       } else if (!StringUtils.isBlank(groupIdAttribute)) {
@@ -965,7 +992,12 @@ public class GrouperProvisioningTranslatorBase {
     }
 
     if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
-      return;
+      
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+        membershipIdField = "provisioningGroupId,provisioningMembershipId";
+      } else {
+        return;
+      }
     }
     
     for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
@@ -1079,5 +1111,17 @@ public class GrouperProvisioningTranslatorBase {
     }
     throw new RuntimeException("Not expecting grouperProvisioningGroupField: '" + field + "'");
   }
+
+  private boolean translateGrouperToTargetAutomatically;
+  
+  public void setTranslateGrouperToTargetAutomatically(boolean translateGrouperToTargetAutomatically) {
+    this.translateGrouperToTargetAutomatically = translateGrouperToTargetAutomatically;
+  }
+
+  
+  public boolean isTranslateGrouperToTargetAutomatically() {
+    return translateGrouperToTargetAutomatically;
+  }
+  
 
 }

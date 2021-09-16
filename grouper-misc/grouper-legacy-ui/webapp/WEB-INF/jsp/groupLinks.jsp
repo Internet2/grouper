@@ -6,7 +6,7 @@
   @version $Id: groupLinks.jsp,v 1.17 2009-10-20 15:05:59 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endGroupLinks" class="noCSSOnly"><grouper:message key="page.skip.group-links"/></a>
 <div class="groupLinks">
 <div class="linkButton">
@@ -130,4 +130,4 @@
 <tiles:insert definition="selectListFieldsDef"/>
 </div>
 <a name="endGroupLinks" id="endGroupLinks"></a>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -88,7 +88,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * 
  * <blockquote>
  * <pre>
- * Membership membership1 = new MembershipFinder().addGroup(group1).addSubject(subject).findMembership(true);
+ * Membership membership1 = new MembershipFinder().addGroup(group1).addSubject(subject).assignEnabled(true).findMembership(true);
  * </pre>
  * </blockquote>
  * 

@@ -51,7 +51,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental1"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental2recalc"));    
   }
   
   public LdapProvisionerIncrementalTest() {

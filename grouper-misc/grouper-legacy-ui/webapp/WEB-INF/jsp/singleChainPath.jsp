@@ -3,7 +3,7 @@
 	Called from chainPath which iterates over all steps	
  --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <li><tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="group"/>
 	  <tiles:put name="view" value="chainPath"/>
@@ -29,4 +29,4 @@
 		<tiles:put name="linkText" value="${linkText}"/>
 	</tiles:insert>
 </li>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

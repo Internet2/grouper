@@ -21,14 +21,14 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult.WsAssignGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -87,11 +87,6 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
     //empty
   }
 
-  /** logger */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAssignGrouperPrivilegesResult.class);
-
-
   /**
    * prcess an exception, log, etc
    * @param wsMemberChangeSubjectLiteResultCodeOverride
@@ -114,18 +109,17 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
+      
     } else {
       wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
           wsMemberChangeSubjectLiteResultCodeOverride, WsAssignGrouperPrivilegesResultCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
 
     }

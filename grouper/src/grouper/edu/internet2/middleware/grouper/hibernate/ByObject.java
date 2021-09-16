@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsExcepti
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 
 
@@ -104,6 +105,7 @@ public class ByObject extends HibernateDelegate {
       delete((Collection)object);
       return;
     }
+    long startNanos = System.nanoTime();
     try {
 
       HibernateSession.assertNotGrouperReadonly();
@@ -139,6 +141,9 @@ public class ByObject extends HibernateDelegate {
         LOG.error(errorString, e);
       }
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -154,7 +159,7 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void deleteBatch(final Collection<?> collection) throws GrouperDAOException {
-    
+    long startNanos = System.nanoTime();
     try {
 
       HibernateSession.assertNotGrouperReadonly();
@@ -204,6 +209,9 @@ public class ByObject extends HibernateDelegate {
         LOG.error(errorString, e);
       }
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -263,6 +271,7 @@ public class ByObject extends HibernateDelegate {
       save((Collection)object);
       return null;
     }
+    long startNanos = System.nanoTime();
     try {
 
       HibernateSession.assertNotGrouperReadonly();
@@ -275,16 +284,19 @@ public class ByObject extends HibernateDelegate {
       }
 
       GrouperContext.incrementQueryCount();
-      
       Serializable id = null;
-      if (StringUtils.isBlank(this.entityName)) {
-
-        id = session.save(object);
-      } else {
-        id = session.save(this.entityName, object);
+      try {
+        if (StringUtils.isBlank(this.entityName)) {
+  
+          id = session.save(object);
+        } else {
+          id = session.save(this.entityName, object);
+        }
+  
+        session.flush();
+      } finally {
+        PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
       }
-
-      session.flush();
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
@@ -308,6 +320,7 @@ public class ByObject extends HibernateDelegate {
       }
 
       throw e;
+
     }
     
   }
@@ -321,7 +334,9 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void saveBatch(final Collection<?> collection) throws GrouperDAOException {
+    long startNanos = System.nanoTime();
     try {
+
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session = hibernateSession.getSession();
 
@@ -372,6 +387,9 @@ public class ByObject extends HibernateDelegate {
       }
 
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -431,6 +449,7 @@ public class ByObject extends HibernateDelegate {
       saveOrUpdate((Collection)object);
       return;
     }
+    long startNanos = System.nanoTime();
     try {
 
       HibernateSession.assertNotGrouperReadonly();
@@ -484,6 +503,9 @@ public class ByObject extends HibernateDelegate {
       }
 
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -500,7 +522,9 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public <T> T load(final Class<T> theClass, Serializable id) throws GrouperDAOException {
+    long startNanos = System.nanoTime();
     try {
+
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
       GrouperContext.incrementQueryCount();
@@ -527,6 +551,9 @@ public class ByObject extends HibernateDelegate {
       }
 
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
   }
 
@@ -574,7 +601,7 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void update(final Object object) throws GrouperDAOException {
-
+    long startNanos = System.nanoTime();
     try {
 
       HibernateSession.assertNotGrouperReadonly();
@@ -615,6 +642,9 @@ public class ByObject extends HibernateDelegate {
       }
 
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -646,7 +676,9 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void updateBatch(final Collection<?> collection) throws GrouperDAOException {
+    long startNanos = System.nanoTime();
     try {
+
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session = hibernateSession.getSession();
   
@@ -696,6 +728,9 @@ public class ByObject extends HibernateDelegate {
       }
   
       throw e;
+    } finally {
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }

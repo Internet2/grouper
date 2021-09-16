@@ -7,7 +7,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
-<grouper:recordTile key="Not dynamic"
+<grouperlegacy:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
   <%-- if something in advanced is entered, then show advanced panel --%>
@@ -79,4 +79,4 @@
  }
  %> <c:remove var="checked" />
     </c:forEach>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

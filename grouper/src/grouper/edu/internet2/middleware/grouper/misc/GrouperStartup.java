@@ -19,10 +19,10 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
+
 import java.io.File;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -44,12 +44,10 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
-import edu.internet2.middleware.grouper.ddl.GrouperDdl2_5;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
@@ -57,7 +55,6 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -67,7 +64,6 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
-import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 
 /**
@@ -711,6 +707,10 @@ public class GrouperStartup {
             loaderType.addAttribute(grouperSession,"grouperLoaderGroupTypes", false);
             loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", false);
             loaderType.addAttribute(grouperSession,"grouperLoaderGroupQuery", false);
+
+            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncBaseFolderName", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncLevels", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncType", false);
 
           } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

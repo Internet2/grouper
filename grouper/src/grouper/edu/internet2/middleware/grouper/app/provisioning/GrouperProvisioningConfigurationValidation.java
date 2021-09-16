@@ -202,17 +202,18 @@ public class GrouperProvisioningConfigurationValidation {
     
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
     GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-    
-    if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
-      if (!grouperProvisioningConfiguration.isSelectGroups() && !grouperProvisioningConfiguration.isInsertGroups()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertGroups"), "operateOnGrouperGroups");
-      }
-    }
-    if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
-      if (!grouperProvisioningConfiguration.isSelectEntities() && !grouperProvisioningConfiguration.isInsertEntities()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), "operateOnGrouperEntities");
-      }
-    }
+
+    // you might be using groups or entities as translations only
+//    if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
+//      if (!grouperProvisioningConfiguration.isSelectGroups() && !grouperProvisioningConfiguration.isInsertGroups()) {
+//        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertGroups"), "operateOnGrouperGroups");
+//      }
+//    }
+//    if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
+//      if (!grouperProvisioningConfiguration.isSelectEntities() && !grouperProvisioningConfiguration.isInsertEntities()) {
+//        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), "operateOnGrouperEntities");
+//      }
+//    }
     if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships()) {
       if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
         this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships"),"operateOnGrouperMemberships");

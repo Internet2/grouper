@@ -8,6 +8,11 @@ public class TargetDaoRetrieveMembershipRequest {
   }
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * ProvisioningGroup {
+   *   name: cn=a:b:c,ou=groups,ou=institution,dc=edu
+   *   attribute: member
+   *      value: cn=jsmith,ou=users,ou=institution,dc=edu
+   * }
    */
   private Object targetMembership;
   

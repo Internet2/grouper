@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 
 /**
@@ -504,7 +505,8 @@ public class GroupSave {
 
 
   private boolean replaceAllSettings = true;
-  
+
+
   /**
    * get the save type
    * @return save type
@@ -539,6 +541,10 @@ public class GroupSave {
     return this.save();
   }
 
+  /**
+   * use this for performance log label
+   */
+  public static final String PERFORMANCE_LOG_LABEL = "GroupSave";
   
   /**
    * <pre>
@@ -595,6 +601,8 @@ public class GroupSave {
     GroupSave.this.saveMode = (SaveMode)ObjectUtils.defaultIfNull(GroupSave.this.saveMode, SaveMode.INSERT_OR_UPDATE);
     final SaveMode SAVE_MODE = GroupSave.this.saveMode;
 
+    PerformanceLogger.performanceTimingStart(GroupSave.PERFORMANCE_LOG_LABEL, false);
+    
     try {
       //do this in a transaction
       Group group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
@@ -613,6 +621,8 @@ public class GroupSave {
               
               String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
 
+              PerformanceLogger.performanceTimingData(GroupSave.PERFORMANCE_LOG_LABEL, "name", GroupSave.this.name);
+              
               // delete
               if (saveMode == SaveMode.DELETE) {
                 Group group = null;
@@ -627,6 +637,7 @@ public class GroupSave {
                   GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                   return null;
                 }
+                PerformanceLogger.performanceTimingData(GroupSave.PERFORMANCE_LOG_LABEL, "operation", "delete");
                 group.delete();
                 GroupSave.this.saveResultType = SaveResultType.DELETE;
                 return group;
@@ -689,6 +700,7 @@ public class GroupSave {
                     }
                   } else {
                     parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                    PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "createParentStems");
                   }
                 } else {
                   throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
@@ -746,7 +758,7 @@ public class GroupSave {
                 } else {
                   throw new RuntimeException("Not expecting type of group: " + GroupSave.this.typeOfGroup);
                 }
-                
+                PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "insertGroup");
               } else {
                 //check if different so it doesnt make unneeded queries
                 if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
@@ -856,6 +868,7 @@ public class GroupSave {
               //only store once
               if (needsSave) {
                 theGroup.store();
+                PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "updateGroup");
               }
 
               boolean changedPrivs = false;
@@ -916,6 +929,7 @@ public class GroupSave {
               }
               
               if (changedPrivs) {
+                PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "assignPrivs");
                 if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                   GroupSave.this.saveResultType = SaveResultType.UPDATE;
                 }
@@ -958,6 +972,11 @@ public class GroupSave {
       }
       //must just be runtime
       throw re;
+    } finally {
+      PerformanceLogger.performanceTimingData(GroupSave.PERFORMANCE_LOG_LABEL, "resultType", this.saveResultType);
+      if (PerformanceLogger.performanceTimingEnabled(GroupSave.PERFORMANCE_LOG_LABEL)) {
+        PerformanceLogger.performanceLog().info(PerformanceLogger.performanceTimingDataResult(GroupSave.PERFORMANCE_LOG_LABEL));
+      }
     }
 
   }

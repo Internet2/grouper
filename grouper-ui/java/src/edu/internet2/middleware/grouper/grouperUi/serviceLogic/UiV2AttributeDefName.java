@@ -76,7 +76,9 @@ import edu.internet2.middleware.subject.Subject;
  * @author vsachdeva
  */
 public class UiV2AttributeDefName {
-  
+
+  public static final String PROPERTY_PREVENT_DELETE_IN_UI = "uiV2.attributeDefName.preventDeleteInUi";
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2AttributeDefName.class);
   
@@ -101,6 +103,13 @@ public class UiV2AttributeDefName {
       attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDefName();
       
       if (attributeDefName == null) {
+        return;
+      }
+
+      if (GrouperUiConfig.retrieveConfig().propertyValueBoolean(PROPERTY_PREVENT_DELETE_IN_UI, false)) {
+        LOG.error("Attempted to delete attribute name " + attributeDefName.getName() + "; UI deletion disallowed per property " + PROPERTY_PREVENT_DELETE_IN_UI);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("attributeDefNameDeleteUiDisallowedText")));
         return;
       }
 

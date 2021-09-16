@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
@@ -14,16 +15,19 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import com.rabbitmq.client.NullTrustManager;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
   
   INSTANCE {
     
     private Map<String, Connection> messagingSystemNameConnection = new HashMap<String, Connection>();
+    private final Log LOG = GrouperUtil.getLog(RabbitMQConnectionFactoryImpl.class);
     
     @Override
     public Connection getConnection(String messagingSystemName) {
@@ -98,7 +102,18 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
               factory.useSslProtocol(c);
             }
             
-            connection = factory.newConnection();
+            if (LOG.isDebugEnabled()) {
+              Map<String, Object> debugMap = new LinkedHashMap<>();
+              debugMap.put("host", factory.getHost());
+              debugMap.put("virtualHost", factory.getVirtualHost());
+              debugMap.put("username", factory.getUsername());
+              debugMap.put("port", Integer.toString(factory.getPort()));
+              debugMap.put("isSSL", factory.isSSL());
+              LOG.debug(GrouperUtil.mapToString(debugMap));
+            }
+
+            factory.setAutomaticRecoveryEnabled(true);
+            connection = factory.newConnection("grouper messagingSystem: " + messagingSystemName);
             messagingSystemNameConnection.put(messagingSystemName, connection);
             
           } catch (Exception e) {
@@ -130,8 +145,5 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
       }
       
     }
-  };
-  
-
-
+  }
 }

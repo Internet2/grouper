@@ -221,7 +221,7 @@ public abstract class GrouperConfigurationModuleBase {
     List<GrouperConfigurationModuleBase> result = new ArrayList<GrouperConfigurationModuleBase>();
     
     for (String className: classNames) {
-      try {        
+      try {
         Class<GrouperConfigurationModuleBase> configClass = (Class<GrouperConfigurationModuleBase>) GrouperUtil.forName(className);
         GrouperConfigurationModuleBase config = GrouperUtil.newInstance(configClass);
         result.addAll(config.listAllConfigurationsOfThisType());

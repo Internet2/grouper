@@ -5,7 +5,7 @@
   @version $Id: selectListFields.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:if test="${listFieldsSize gt 0}">
 <div id="selectListField">
 <h3><grouper:message key="groups.summary.select-list"/></h3>
@@ -21,4 +21,4 @@
 </form>
 </div>
 </c:if>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

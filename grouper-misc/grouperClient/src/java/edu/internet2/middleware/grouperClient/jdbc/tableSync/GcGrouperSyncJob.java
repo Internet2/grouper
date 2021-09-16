@@ -194,13 +194,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
    */
   public static void reset() {
     
-    try {
-      // if its not there forget about it... TODO remove this in 2.5+
-      new GcDbAccess().connectionName("grouper").sql("select * from " + GcPersistableHelper.tableName(GcGrouperSyncJob.class) + " where 1 != 1").select(Integer.class);
-    } catch (Exception e) {
-      return;
-    }
-
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GcGrouperSyncJob.class)).executeSql();
   }
 

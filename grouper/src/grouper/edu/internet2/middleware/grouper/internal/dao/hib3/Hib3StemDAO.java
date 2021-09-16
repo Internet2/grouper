@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -98,6 +99,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.stem.StemHierarchyType;
 import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
@@ -139,14 +141,19 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               
               byObject.save(_group);
               
+              PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "saveGroup");
+              
               // take care of group sets
               createGroupSetsForGroup(_group);
-              
+
+              PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "groupSets");
+
               //MCH 2009/03/23 remove this for optimistic locking
               //hibernateSession.byObject().update( _stem );
               hibernateSession.misc().flush();
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _member.getUuid() ) ) {
                 byObject.save( _member );
+                PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "member");
               }
               return null;
             }

@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
@@ -766,8 +768,14 @@ public enum RuleThenEnum {
 
       Group group = rulesBean.getGroup();
       
-      Subject subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
-
+      Subject subject = null;
+      
+      try {
+        subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
+      } catch (SubjectNotFoundException snfe) {
+        LOG.error("Subject not found in rule then arg0: " + ruleDefinition.getThen().getThenEnumArg0());
+        return false;
+      }
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
 
       if (LOG.isDebugEnabled()) {
@@ -782,6 +790,11 @@ public enum RuleThenEnum {
 
       for (String privilegeString : privilegesSet) {
         Privilege privilege = Privilege.getInstance(privilegeString);
+        
+        // if the privilege cant be assigned to entities, and this is an entity, then skip
+        if (!Privilege.isEntity(privilege) && group.getTypeOfGroup() == TypeOfGroup.entity) {
+          continue;
+        }
         if (group.grantPriv(subject, privilege, false)) {
           result = true;
         }
@@ -849,7 +862,14 @@ public enum RuleThenEnum {
       Stem stem = rulesBean.getStem();
       
       Subject subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
-  
+      
+      try {
+        subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
+      } catch (SubjectNotFoundException snfe) {
+        LOG.error("Subject not found in rule then arg0: " + ruleDefinition.getThen().getThenEnumArg0());
+        return false;
+      }
+      
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
   
       if (LOG.isDebugEnabled()) {
@@ -930,8 +950,15 @@ public enum RuleThenEnum {
   
       AttributeDef attributeDef = rulesBean.getAttributeDef();
       
-      Subject subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
-  
+      Subject subject = null;
+      
+      try {
+        subject = SubjectFinder.findByPackedSubjectString(ruleDefinition.getThen().getThenEnumArg0(), true);
+      } catch (SubjectNotFoundException snfe) {
+        LOG.error("Subject not found in rule then arg0: " + ruleDefinition.getThen().getThenEnumArg0());
+        return false;
+      }
+
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
 
       if (LOG.isDebugEnabled()) {

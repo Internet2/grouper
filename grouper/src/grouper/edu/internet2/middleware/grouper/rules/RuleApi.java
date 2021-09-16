@@ -450,6 +450,8 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
     
+    RuleApi.runRulesForOwner(stem);
+
     return attributeAssign;
   }
 
@@ -521,6 +523,8 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
     
+    RuleApi.runRulesForOwner(stem);
+
     return attributeAssign;
   }
 
@@ -925,6 +929,8 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
     
+    RuleApi.runRulesForOwner(stem);
+
     return attributeAssign;
 
   }

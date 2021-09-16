@@ -733,14 +733,71 @@ public class GrouperProvisioningBehavior {
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      return true;
+      return false;
     }
 
     return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
   }
+  
+  private Boolean selectMembershipsForGroup;
+  
+  public void setSelectMembershipsForGroup(Boolean selectMembershipsForGroup) {
+    this.selectMembershipsForGroup = selectMembershipsForGroup;
+  }
 
+
+  public boolean isSelectMembershipsForGroup() {
+    if (this.selectMembershipsForGroup != null) {
+      return selectMembershipsForGroup;
+    }
+    
+    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false) ||
+        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false);
+  }
+  
+  private Boolean selectMembershipsForEntity;
+  
+  
+  public void setSelectMembershipsForEntity(Boolean selectMembershipsForEntity) {
+    this.selectMembershipsForEntity = selectMembershipsForEntity;
+  }
+
+
+  public boolean isSelectMembershipsForEntity() {
+    if (this.selectMembershipsForEntity != null) {
+      return selectMembershipsForEntity;
+    }
+    
+    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false) ||
+        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false) ;
+  }
+  
+  private Boolean replaceMemberships;
+  
+  public boolean isReplaceMemberships() {
+    
+    if (replaceMemberships != null) {
+      return replaceMemberships;
+    }
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      //can the provisioner even do this?
+      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+        return true;
+      }
+    }    
+    return false;
+  }
 
   
+  public void setReplaceMemberships(Boolean replaceMemberships) {
+    this.replaceMemberships = replaceMemberships;
+  }
+
+
   public void setSelectMemberships(Boolean membershipsRetrieve) {
     this.selectMemberships = membershipsRetrieve;
   }
@@ -1194,7 +1251,7 @@ public class GrouperProvisioningBehavior {
     this.deleteGroupsIfGrouperDeleted = groupsDeleteIfDeletedFromGrouper;
   }
 
-  
+ 
   public boolean isSelectEntitiesAll() {
     if (this.selectEntitiesAll != null) {
       return selectEntitiesAll;
@@ -1204,7 +1261,10 @@ public class GrouperProvisioningBehavior {
     if (!this.isSelectEntities()) {
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false);
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
   }
 
   
@@ -1382,6 +1442,11 @@ public class GrouperProvisioningBehavior {
         return false;
       }
     }
+    
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return true;
+    }
+    
     return false;
   }
 

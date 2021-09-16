@@ -19,7 +19,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperCacheDatabaseTest("testCustomCachePrefix"));
+    TestRunner.run(new GrouperCacheDatabaseTest("testCustomCache"));
   }
   
   public GrouperCacheDatabaseTest(String name) {
@@ -225,7 +225,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     // make a cache
     final Map<String, Integer> someCache = new HashMap<String, Integer>();
     GrouperCacheDatabase.customRegisterDatabaseClearable(
-        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest", new GrouperCacheDatabaseClear() {
+        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2", new GrouperCacheDatabaseClear() {
           
           @Override
           public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
@@ -239,7 +239,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     someCache.put("test", 5);
     // this will tell the database to do an update
     GrouperCacheDatabase.customNotifyDatabaseOfChanges(
-        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest");
+        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2");
 
   
     long cacheOverallLastUpdatedNanos = new GcDbAccess().sql("select nanos_since_1970 from grouper_cache_overall where overall_cache = 0").select(Long.class);
@@ -247,7 +247,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     assertTrue(cacheOverallLastUpdatedNanos > nowNanos);
       
     long cacheInstanceLastUpdatedNanosMyTest = new GcDbAccess().sql("select nanos_since_1970 from grouper_cache_instance where cache_name = ?")
-      .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest").select(Long.class);
+      .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2").select(Long.class);
     
     assertTrue(cacheInstanceLastUpdatedNanosMyTest > nowNanos);
     
@@ -264,14 +264,14 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     someCache.put("test2", 6);
     // this will tell the database to do an update
     GrouperCacheDatabase.customNotifyDatabaseOfChanges(
-        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest");
+        "edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2");
 
     long cacheOverallLastUpdatedNanosLatest = new GcDbAccess().sql("select nanos_since_1970 from grouper_cache_overall where overall_cache = 0").select(Long.class);
   
     assertTrue(cacheOverallLastUpdatedNanos + " is not greater than " + nowNanos, cacheOverallLastUpdatedNanosLatest > nowNanos);
   
     long cacheInstanceLastUpdatedNanosMyTestLatest = new GcDbAccess().sql("select nanos_since_1970 from grouper_cache_instance where cache_name = ?")
-      .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest").select(Long.class);
+      .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2").select(Long.class);
   
     assertTrue(cacheInstanceLastUpdatedNanosMyTestLatest > nowNanos);
     assertTrue(cacheInstanceLastUpdatedNanosMyTestLatest > cacheInstanceLastUpdatedNanosMyTest);
@@ -293,7 +293,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     assertEquals(cacheOverallLastUpdatedNanosLatest, cacheOverallLastUpdatedNanos);
   
     cacheInstanceLastUpdatedNanosMyTestLatest = new GcDbAccess().sql("select nanos_since_1970 from grouper_cache_instance where cache_name = ?")
-        .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest").select(Long.class);
+        .addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2").select(Long.class);
   
     assertEquals(cacheInstanceLastUpdatedNanosMyTestLatest, cacheInstanceLastUpdatedNanosMyTest);
   
@@ -308,7 +308,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     
     int rowsUpdated = new GcDbAccess()
       .sql("update grouper_cache_instance set nanos_since_1970 = ? where cache_name = ?")
-      .addBindVar(nowNanos).addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest").executeSql();
+      .addBindVar(nowNanos).addBindVar("custom__edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseTest.myTest2").executeSql();
   
     assertEquals(1, rowsUpdated);
     
@@ -387,6 +387,7 @@ public class GrouperCacheDatabaseTest extends GrouperTest {
     GrouperUtil.sleep(10000);
 
     assertEquals(fullCount, GrouperCacheDatabase.fullCountForTesting);
+    // not sure why this doesnt work on testing server but it works locally
     assertEquals(incrementalCount + 2, GrouperCacheDatabase.incrementalCountForTesting);
     
     // has not been cleared

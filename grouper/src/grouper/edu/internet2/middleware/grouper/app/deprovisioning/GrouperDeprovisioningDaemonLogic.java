@@ -888,21 +888,28 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
         }
       }
     }
-    
+    boolean madeChanges = false;
     if (deprovisioningAttributesGroupsAddedOrUpdated > 0) {
       debugMap.put(affiliationName+"_deprovisioningAttributesGroupsAddedOrUpdated", deprovisioningAttributesGroupsAddedOrUpdated);
+      madeChanges=true;
     }
     
     if (deprovisioningAttributesFoldersAddedOrUpdated > 0) {
       debugMap.put(affiliationName+"_deprovisioningAttributesFoldersAddedOrUpdated", deprovisioningAttributesFoldersAddedOrUpdated);
+      madeChanges=true;
     }
     
     if (deprovisioningAttributesGroupsDeleted > 0) {
       debugMap.put(affiliationName+"_deprovisioningAttributesGroupsDeleted", deprovisioningAttributesGroupsDeleted);
+      madeChanges=true;
     }
     
     if (deprovisioningAttributesFoldersDeleted > 0) {
       debugMap.put(affiliationName+"_deprovisioningAttributesFoldersDeleted", deprovisioningAttributesFoldersDeleted);
+      madeChanges=true;
+    }
+    if (madeChanges) {
+      GrouperDeprovisioningOverallConfiguration.cacheClear();
     }
   }
   

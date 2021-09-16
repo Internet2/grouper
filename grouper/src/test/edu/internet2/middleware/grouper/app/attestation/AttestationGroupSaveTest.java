@@ -19,7 +19,7 @@ public class AttestationGroupSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttestationGroupSaveTest("testSaveAttestationAttributesOnGroupReplaceAllExistingSettings"));
+    TestRunner.run(new AttestationGroupSaveTest("testDeleteAttestationAttributesOnGroupByGroupEmailGroup"));
   }
   
   /**
@@ -53,7 +53,6 @@ public class AttestationGroupSaveTest extends GrouperTest {
   
   public void testDeleteAttestationAttributesOnGroupByGroup() {
     
-    
     Group group = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true).save();
 
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
@@ -72,6 +71,51 @@ public class AttestationGroupSaveTest extends GrouperTest {
      assertEquals("10", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName()));
      assertEquals("group", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameType().getName()));
      assertEquals("true", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName()));
+     
+     assertEquals(1, group.getAttributeDelegate().getAttributeAssigns().size());
+     assertEquals(group.getId(), attributeAssign.getOwnerGroupId());
+     
+     int auditEntriesSizeBeforeDelete = HibernateSession.byHqlStatic()
+         .createQuery("from AuditEntry").list(AuditEntry.class).size();
+     
+     assertTrue(auditEntriesSizeBeforeDelete > 0);
+     
+     //now delete the assignment
+     attributeAssign = new AttestationGroupSave()
+         .assignGroup(group)
+         .assignSaveMode(SaveMode.DELETE)
+         .save();
+     
+     assertEquals(0, group.getAttributeDelegate().getAttributeAssigns().size());
+     
+     int auditEntriesSizeAfterDelete = HibernateSession.byHqlStatic()
+         .createQuery("from AuditEntry").list(AuditEntry.class).size();
+     
+     assertTrue(auditEntriesSizeAfterDelete > auditEntriesSizeBeforeDelete);
+  }
+  
+  public void testDeleteAttestationAttributesOnGroupByGroupEmailGroup() {
+    
+    
+    Group group = new GroupSave().assignName("d:e:f").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave().assignName("a:b:c").assignCreateParentStemsIfNotExist(true).save();
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+    
+     AttributeAssign attributeAssign = new AttestationGroupSave()
+       .assignGroup(group)
+       .assignAttestationType(AttestationType.group)
+       .assignDaysBeforeToRemind(5)
+       .assignDaysUntilRecertify(10)
+       .assignSendEmail(true)
+       .assignEmailGroup(group2)
+       .save();
+     
+     assertEquals("5", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind().getName()));
+     assertEquals("10", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName()));
+     assertEquals("group", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameType().getName()));
+     assertEquals("true", attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameSendEmail().getName()));
+     assertEquals(group2.getId(), attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId().getName()));
      
      assertEquals(1, group.getAttributeDelegate().getAttributeAssigns().size());
      assertEquals(group.getId(), attributeAssign.getOwnerGroupId());

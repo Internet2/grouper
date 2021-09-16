@@ -59,20 +59,18 @@
                           </td>
                         </tr>
                         
-                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigFormat == 'CSV'}">
-                          <tr>
-	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigFileNameId">${textContainer.text['grouperReportConfigFileNameLabel']}</label></strong></td>
-	                          <td>
-	                            <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigFilename)}"
-	                                name="grouperReportConfigFileName" id="grouperReportConfigFileNameId" />
-	                            
-	                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                                data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-	                            <br />
-	                            <span class="description">${textContainer.text['grouperReportConfigFileNameHint']}</span>
-	                          </td>
-                          </tr>
-                        </c:if>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigFileNameId">${textContainer.text['grouperReportConfigFileNameLabel']}</label></strong></td>
+                          <td>
+                            <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigFilename)}"
+                                name="grouperReportConfigFileName" id="grouperReportConfigFileNameId" />
+                            
+                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                            <br />
+                            <span class="description">${textContainer.text['grouperReportConfigFileNameHint']}</span>
+                          </td>
+                        </tr>
                         
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigDescriptionId">${textContainer.text['grouperReportConfigDescriptionLabel']}</label></strong></td>
@@ -176,21 +174,65 @@
 	                          </tr>
                           
                           </c:if>
+                        </c:if>
+                          
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigStoreWithNoDataId">${textContainer.text['grouperReportConfigStoreWithNoDataLabel']}</label></strong></td>
+                          <td>
+                            <select name="grouperReportConfigStoreWithNoData" id="grouperReportConfigStoreWithNoDataId" style="width: 30em"
+                                onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Add', {formIds: 'addReportConfigFormId'}); return false;">
+                              <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotStoreWithNoDataLabel']}</option>
+                              <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesStoreWithNoDataLabel']}</option>
+                            </select>
+                            <br />
+                            <span class="description">${textContainer.text['grouperReportConfigStoreWithNoDataHint']}</span>
+                          </td>
+                        </tr>
+                        
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmail && grouperRequestContainer.grouperReportContainer.configBean.reportConfigStoreWithNoData}">
+                            
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigSendEmailWithNoDataId">${textContainer.text['grouperReportConfigSendEmailWithNoDataLabel']}</label></strong></td>
+                            <td>
+                              <select name="grouperReportConfigSendEmailWithNoData" id="grouperReportConfigSendEmailWithNoDataId" style="width: 30em"
+                                  onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Add', {formIds: 'addReportConfigFormId'}); return false;">
+                                <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailWithNoData ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotEmailWithNoDataLabel']}</option>
+                                <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailWithNoData ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesEmailWithNoDataLabel']}</option>
+                              </select>
+                              <br />
+                              <span class="description">${textContainer.text['grouperReportConfigSendEmailWithNoDataHint']}</span>
+                            </td>
+                          </tr>
+                        
+                        
                           
                         </c:if>
-                        
-                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigFormat == 'CSV'}">
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">
                           <tr>
-	                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigQueryId">${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
-	                          <td>
-	                            <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigQuery)}"
-	                                name="grouperReportConfigQuery" id="grouperReportConfigQueryId" />
-	                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigQueryId">${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
+                            <td>
+                              <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigQuery)}"
+                                  name="grouperReportConfigQuery" id="grouperReportConfigQueryId" />
+                              <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-	                            <br />
-	                            <span class="description">${textContainer.text['grouperReportConfigQueryHint']}</span>
-	                          </td>
-                        </tr>
+                              <br />
+                              <span class="description">${textContainer.text['grouperReportConfigQueryHint']}</span>
+                            </td>
+                          </tr>
                         </c:if>
-                        
+                        <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'GSH'}">
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigScriptId">${textContainer.text['grouperReportConfigScriptLabel']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap;">
+                              <textarea id="grouperReportConfigScriptId" name="grouperReportConfigScript" rows="10" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigScript)}</textarea>
+                              <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text['grouperReportConfigScriptHint']}</span>
+                            </td>
+                          </tr>
+                        </c:if>
+                          
                       </c:if>

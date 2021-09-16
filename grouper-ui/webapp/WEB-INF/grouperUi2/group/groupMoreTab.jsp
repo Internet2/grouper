@@ -18,7 +18,7 @@
                       <li><a href="#" onclick="return guiV2link('operation=UiV2Group.provisioning&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['groupMenuItemProvisioning'] }</a></li>
                     </c:if>
                     --%>
-                    <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoader && grouperRequestContainer.groupContainer.canAdmin}">   
+                    <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoader}">   
                       <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['grouperMenuItemLoader'] }</a></li>
                     </c:if>
                   </ul>

@@ -53,8 +53,7 @@ public class GrouperProvisioningLists {
     return provisioningMemberships;
   }
   
-  public void setProvisioningMemberships(
-      List<ProvisioningMembership> provisioningMemberships) {
+  public void setProvisioningMemberships(List<ProvisioningMembership> provisioningMemberships) {
     this.provisioningMemberships = provisioningMemberships;
   }
   

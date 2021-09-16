@@ -194,6 +194,10 @@ if [ -n "$GSH_CYGWIN" ]; then
 	GROUPER_CP=$(cygpath --path --windows "$GROUPER_CP")
 fi
 
+if [ -f /opt/tomee/lib/servlet-api.jar ]; then
+        GROUPER_CP=${GROUPER_CP}:/opt/tomee/lib/servlet-api.jar
+fi
+
 retVal=0
 
 

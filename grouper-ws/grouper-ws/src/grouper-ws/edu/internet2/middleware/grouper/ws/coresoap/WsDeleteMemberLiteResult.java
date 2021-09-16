@@ -20,14 +20,14 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -39,10 +39,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsDeleteMemberLiteResult implements WsResponseBean, ResultMetadataHolder {
-
-  /** logger */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsDeleteMemberLiteResult.class);
 
   /**
    * result code of a request
@@ -390,18 +386,17 @@ public class WsDeleteMemberLiteResult implements WsResponseBean, ResultMetadataH
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsAddMemberLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
   
     } else {
       wsAddMemberLiteResultCodeOverride = GrouperUtil.defaultIfNull(
           wsAddMemberLiteResultCodeOverride, WsDeleteMemberLiteResultCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
   
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsAddMemberLiteResultCodeOverride);
   
     }

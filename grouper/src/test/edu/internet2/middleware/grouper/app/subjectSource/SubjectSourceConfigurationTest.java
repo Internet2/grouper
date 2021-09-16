@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectSave;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -44,6 +45,9 @@ public class SubjectSourceConfigurationTest extends GrouperTest {
   
   public void testLdapSubjectSourceConfig() {
     
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.ldap.dinkel", false)) {
+      return;
+    }
     GrouperSession.startRootSession();
     
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();

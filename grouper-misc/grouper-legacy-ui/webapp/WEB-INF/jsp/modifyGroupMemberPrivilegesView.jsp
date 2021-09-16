@@ -6,7 +6,7 @@
   @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.14 2009-11-07 15:50:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <html:form styleId="GroupOrStemMemberFormBean" action="/saveGroupMember" method="post">
 <fieldset>
 	<html:hidden property="asMemberOf"/>
@@ -54,4 +54,4 @@
 	</c:if>
 </fieldset>
 </html:form>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
  * tuple of group and entity in target system
@@ -22,7 +21,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     if (StringUtils.isBlank(this.provisioningEntityId)
         && StringUtils.isBlank(this.id)
         && StringUtils.isBlank(this.provisioningGroupId)
-        && this.isEmptyUpdatable()) {
+        && this.isEmptyUpdatable()
+        && this.provisioningEntity == null 
+        && this.provisioningGroup == null) {
       return true;
     }
     return false;
@@ -358,9 +359,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     provisioningMembership.id = this.id;
     provisioningMembership.provisioningEntityId = this.provisioningEntityId;
     // set this later
-    provisioningMembership.provisioningEntity = null;
+    provisioningMembership.provisioningEntity = this.provisioningEntity != null ? this.provisioningEntity.clone(): null;
     provisioningMembership.provisioningGroupId = this.provisioningGroupId;
-    provisioningMembership.provisioningGroup = null;
+    provisioningMembership.provisioningGroup = this.provisioningGroup != null ? this.provisioningGroup.clone(): null;
     provisioningMembership.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
     return provisioningMembership;
   }

@@ -213,7 +213,7 @@ public class GrouperRestServlet extends HttpServlet {
       //this is a user error, but an error nonetheless
       LOG.error(error, glir);
 
-      wsResultMeta.appendResultMessage(error);
+      wsResultMeta.appendResultMessageError(error);
       wsResultMeta.assignHttpStatusCode(400);
       wsResultMeta.assignResultCode("INVALID_QUERY");
       wsResultMeta.assignSuccess("F");
@@ -225,8 +225,9 @@ public class GrouperRestServlet extends HttpServlet {
       wsResponseBean = new WsRestResultProblem();
       LOG.error("Problem with request: " + requestDebugInfo(request), e);
       WsResultMeta wsResultMeta = wsResponseBean.getResultMetadata();
-      wsResultMeta.appendResultMessage("Problem with request: "
-          + requestDebugInfo(request) + ",\n" + ExceptionUtils.getFullStackTrace(e));
+      wsResultMeta.appendResultMessageError("Problem with request: "
+          + requestDebugInfo(request));
+      wsResultMeta.appendResultMessageError(e);
       wsResultMeta.assignSuccess("F");
       wsResultMeta.assignResultCode("EXCEPTION");
       wsResultMeta.assignHttpStatusCode(500);

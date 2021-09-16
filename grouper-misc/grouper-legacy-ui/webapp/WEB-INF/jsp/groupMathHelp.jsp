@@ -5,7 +5,7 @@
   @version $Id: groupMathHelp.jsp,v 1.3 2008-04-16 01:10:19 mchyzer Exp $
 --%>
 
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <h2 id="groupMathHelp">Group math</h2>
 <p>Grouper allows the membership of a group to be defined as the <em>union</em> (or), 
   <em>intersection</em> (and) or <em>complement</em> (not) of two other groups. This special 
@@ -16,7 +16,7 @@
   <li>fionas = Fiona Windsor, Fiona Benson, Fiona Tarbuck</li>
   <li>bensons= Keith Benson, Fiona Benson, Ian Benson</li>
 </ol>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 <dl>
   <dt>fionas 
     <em><strong>union</strong></em> bensons= Fiona Windsor, Fiona Benson, Fiona 

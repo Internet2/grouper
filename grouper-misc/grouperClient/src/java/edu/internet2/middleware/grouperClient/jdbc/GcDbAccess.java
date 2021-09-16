@@ -1376,7 +1376,8 @@ public class GcDbAccess {
    * @return the thing that you want to return.
    */
   public <T> T callbackTransaction(GcTransactionCallback<T> transactionCallback){
-    
+    long startNanos = System.nanoTime();
+
     ConnectionBean connectionBean = null;
     
     try{
@@ -1398,6 +1399,8 @@ public class GcDbAccess {
       throw new RuntimeException(e);
     } finally {
       ConnectionBean.closeIfStarted(connectionBean);
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
     
   }
@@ -2104,6 +2107,7 @@ public class GcDbAccess {
    */
   public  <T> T callbackCallableStatement (GcCallableStatementCallback<T> callableStatementCallback){
 
+    long startNanos = System.nanoTime();
 
     CallableStatement callableStatement = null;
 
@@ -2139,6 +2143,8 @@ public class GcDbAccess {
         // Nothing to do here.
       }
       ConnectionBean.closeIfStarted(connectionBean);
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
 
   }
@@ -2153,6 +2159,7 @@ public class GcDbAccess {
    */
   public  <T> T callbackPreparedStatement (GcPreparedStatementCallback<T> preparedStatementCallback){
 
+    long startNanos = System.nanoTime();
 
     PreparedStatement preparedStatement = null;
 
@@ -2195,6 +2202,8 @@ public class GcDbAccess {
         // Nothing to do here.
       }
       ConnectionBean.closeIfStarted(connectionBean);
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
 
   }
@@ -2211,7 +2220,8 @@ public class GcDbAccess {
   public  <T> T callbackConnection (GcConnectionCallback<T> connectionCallback){
 
     ConnectionBean connectionBean = null;
-    
+    long startNanos = System.nanoTime();
+
     try{
 
       connectionBean = connection(false, true, this.connectionName);
@@ -2232,6 +2242,8 @@ public class GcDbAccess {
       throw new RuntimeException(e);
     } finally {
       ConnectionBean.closeIfStarted(connectionBean);
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }
 
   }
@@ -2247,6 +2259,7 @@ public class GcDbAccess {
   public  <T> T callbackResultSet (GcResultSetCallback<T> resultSetCallback){
 
     threadLocalQueryCountIncrement(1);
+    long startNanos = System.nanoTime();
     
     // At very least, we have to have sql and a connection.
     if (this.sql == null){
@@ -2332,6 +2345,7 @@ public class GcDbAccess {
         }
       }
       ConnectionBean.closeIfStarted(connectionBean);
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
     }
   }
 

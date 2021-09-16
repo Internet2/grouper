@@ -143,6 +143,7 @@ import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -1242,6 +1243,28 @@ public class GrouperCheckConfig {
             wasInCheckConfig, null,
             "Workflow editors group",
             "Workflow editors group",
+            null);
+      }
+      
+      {
+        // loader viewers
+        String loaderViewers = GrouperUiConfigInApi.retrieveConfig().propertyValueString("uiV2.loader.must.be.in.group", GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":loaderViewers");
+
+        checkGroup(grouperSession, loaderViewers, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Loader viewers",
+            "Group contains people who can see the overall loader screen in Misc, and if they have VIEW on a group they can see the loader tab and functions",
+            null);
+      }
+      
+      {
+        // loader editors
+        String loaderEditors = GrouperUiConfigInApi.retrieveConfig().propertyValueString("uiV2.loader.edit.if.in.group", GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":loaderEditors");
+
+        checkGroup(grouperSession, loaderEditors, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Loader editors",
+            "Group contains people who can see the overall loader screen in Misc, and if they have VIEW on a group they can see and edit the loader tab and settings",
             null);
       }
       
@@ -2681,6 +2704,8 @@ public class GrouperCheckConfig {
             "The report configuration associated with this attestation if any", wasInCheckConfig);
         checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_AUTHORIZED_GROUP_ID,
             "The authorized group associated with this attestation if any", wasInCheckConfig);
+        checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_EMAIL_GROUP_ID,
+            "Email attestation reminders for group attestation to this group", wasInCheckConfig);
       }
 
       {
@@ -3000,6 +3025,12 @@ public class GrouperCheckConfig {
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUARTZ_CRON, 
             "Quartz cron-like schedule", wasInCheckConfig);
         
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA, 
+            "Set to false if email should not be sent if the report has no data", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA, 
+            "Set to false if report should not be stored if the report has no data", wasInCheckConfig);
+        
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL, 
             "true/false if email should be sent", wasInCheckConfig);
         
@@ -3017,6 +3048,9 @@ public class GrouperCheckConfig {
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUERY, 
             "SQL for the report. The columns must be named in the SQL (e.g. not select *) and generally this comes from a view", wasInCheckConfig);
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SCRIPT, 
+            "GSH script for the report.  Put report file in: gsh_builtin_gshReportRuntime.getGrouperReportData().getFile()", wasInCheckConfig);
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ENABLED, 
             "logic from loader enabled, either enable or disabled this job", wasInCheckConfig);

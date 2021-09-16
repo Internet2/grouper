@@ -19,6 +19,48 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperReportConfigurationBean {
 
   /**
+   * true/false if email should be sent when non data is found
+   */
+  private boolean reportConfigSendEmailWithNoData = true;
+  
+  /**
+   * true/false if email should be sent
+   * @param reportConfigSendEmail
+   */
+  public void setReportConfigSendEmailWithNoData(boolean reportConfigSendEmailWithNoData) {
+    this.reportConfigSendEmailWithNoData = reportConfigSendEmailWithNoData;
+  }
+
+  /**
+   * true/false if email should be sent when the report has no data
+   * @return reportConfigSendEmailWithNoData
+   */
+  public boolean isReportConfigSendEmailWithNoData() {
+    return this.reportConfigSendEmailWithNoData;
+  }
+  
+  /**
+   * true/false if report should be stored when non data is found
+   */
+  private boolean reportConfigStoreWithNoData = true;
+
+  /**
+   * true/false if report should be stored when non data is found
+   * @return stored when no data found
+   */
+  public boolean isReportConfigStoreWithNoData() {
+    return this.reportConfigStoreWithNoData;
+  }
+
+  /**
+   * true/false if report should be stored when non data is found
+   * @param reportConfigStoreWithNoData1
+   */
+  public void setReportConfigStoreWithNoData(boolean reportConfigStoreWithNoData1) {
+    this.reportConfigStoreWithNoData = reportConfigStoreWithNoData1;
+  }
+
+  /**
    * 
    */
   public GrouperReportConfigurationBean() {
@@ -128,6 +170,27 @@ public class GrouperReportConfigurationBean {
    */
   public void setReportConfigFilename(String reportConfigFilename1) {
     this.reportConfigFilename = reportConfigFilename1;
+  }
+
+  /**
+   * reportConfigScript  Script e.g. GSH
+   */
+  private String reportConfigScript;
+
+  /**
+   * reportConfigScript  Script e.g. GSH
+   * @return script
+   */
+  public String getReportConfigScript() {
+    return this.reportConfigScript;
+  }
+
+  /**
+   * reportConfigScript  Script e.g. GSH
+   * @param reportConfigScript1
+   */
+  public void setReportConfigScript(String reportConfigScript1) {
+    this.reportConfigScript = reportConfigScript1;
   }
 
   /**

@@ -16,9 +16,28 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.textui.TestRunner;
 
 public class GrouperReportLogicTest extends GrouperTest {
   
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperReportLogicTest("testSaveReportInDatabase"));
+  }
+  
+  
+  
+  public GrouperReportLogicTest() {
+    super();
+  }
+
+
+
+  public GrouperReportLogicTest(String name) {
+    super(name);
+  }
+
+
+
   @Override
   protected void setUp() {
     super.setUp();

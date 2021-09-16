@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -203,6 +204,13 @@ public class UsduJob extends OtherJobBase {
       otherJobInput.getHib3GrouperLoaderLog().store();
           
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects.");
+      
+      int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
+      
+      if (duplicateSubjectIdentifierIssuesCount > 0) {
+        // force an error
+        throw new RuntimeException("There were duplicate subject identifiers in the grouper_members table.  See job message for details.");
+      }
       
       LOG.info("UsduJob finished successfully.");
     } finally {
@@ -639,6 +647,65 @@ public class UsduJob extends OtherJobBase {
     
     return newValue;
     
+  }
+  
+  public static int checkDuplicateSubjectIdentifiers(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    int issues = 0;
+    
+    String sqlAllDuplicates = "select subjectSourceIdDb, subjectIdentifier0 from Member where subjectIdentifier0 is not null group by subjectSourceIdDb, subjectIdentifier0 having count(*) > 1";
+
+    Set<Object[]> resultsAllDuplicates = HibernateSession.byHqlStatic().createQuery(sqlAllDuplicates).setCacheable(false).listSet(Object[].class);
+
+    for (Object[] result : resultsAllDuplicates) {
+      String sourceId = (String)result[0];
+      String subjectIdentifier = (String)result[1];
+
+      Set<Member> members = HibernateSession.byHqlStatic()
+        .createQuery("from Member where subjectIdentifier0 = :subjectIdentifier0 and subjectSourceIdDb = :subjectSourceIdDb")
+        .setString("subjectIdentifier0", subjectIdentifier)
+        .setString("subjectSourceIdDb", sourceId)
+        .listSet(Member.class);
+            
+      Set<Member> resolvableMembersWithSameIdentifier = new HashSet<Member>();
+      
+      try {
+        for (Member member : members) {
+          Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), false);
+          if (subject == null) {
+            member.setSubjectIdentifier0(null);
+            member.store();
+            LOG.info("Cleared duplicate subject identifier for subjectId=" + member.getSubjectId());
+          } else {
+            member.updateMemberAttributes(subject, false); // resolving it above should store it.  just need to make sure we have the new data.
+  
+            if (StringUtils.equals(subjectIdentifier, member.getSubjectIdentifier0())) {
+              resolvableMembersWithSameIdentifier.add(member);
+            }
+          }
+        }
+      } catch (SourceUnavailableException e) {
+        // might be an old/unused source.  skip.
+        LOG.warn("Skipping duplicate fix due to source error", e);
+        
+        continue;
+      }
+      
+      if (resolvableMembersWithSameIdentifier.size() > 1) {
+        issues++;
+        
+        // ok duplicates still exist after resolving.
+        if (hib3GrouperLoaderLog != null) {
+          Set<String> subjectIds = new HashSet<String>();
+          for (Member member : resolvableMembersWithSameIdentifier) {
+            subjectIds.add(member.getSubjectId());
+          }
+          
+          hib3GrouperLoaderLog.appendJobMessage(" There are subjects with the same subject identifier=" + subjectIdentifier + ", subjectIds=" + String.join(",", subjectIds) + ". ");
+        }
+      }
+    }
+
+    return issues;
   }
   
   public static long deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {

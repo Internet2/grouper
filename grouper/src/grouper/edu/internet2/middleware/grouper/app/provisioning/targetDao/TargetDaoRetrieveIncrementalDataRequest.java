@@ -1,13 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class TargetDaoRetrieveIncrementalDataRequest {
 
@@ -143,6 +142,53 @@ public class TargetDaoRetrieveIncrementalDataRequest {
   public void setTargetMembershipObjectsForMembershipSync(
       List<Object> targetMembershipObjectsForMembershipSync) {
     this.targetMembershipObjectsForMembershipSync = targetMembershipObjectsForMembershipSync;
+  }
+  
+  /**
+   * make sure that all the target requests that include memberships also are requesting the group or entities in the "only" lists.
+   */
+  public void ensureAllMembershipRequestsAreInTheOnlyRequestsAlso() {
+    
+    if (GrouperUtil.length(targetGroupsForGroupMembershipSync) > 0) {
+      
+      Set<Object> groupMatchingIdsForGroupOnly = new HashSet<Object>();
+      this.targetGroupsForGroupOnly = GrouperUtil.nonNull(this.targetGroupsForGroupOnly);
+      
+      // indexing the groups that are already there
+      for (ProvisioningGroup targetGroupForGroupOnly: targetGroupsForGroupOnly) {
+        groupMatchingIdsForGroupOnly.add(targetGroupForGroupOnly.getMatchingId());
+      }
+      
+      // if a membership object is not there then add it
+      for (ProvisioningGroup targetGroupForGroupMembershipSync: targetGroupsForGroupMembershipSync) {
+        if (!groupMatchingIdsForGroupOnly.contains(targetGroupForGroupMembershipSync.getMatchingId())) {
+          this.targetGroupsForGroupOnly.add(targetGroupForGroupMembershipSync);
+          groupMatchingIdsForGroupOnly.add(targetGroupForGroupMembershipSync.getMatchingId());
+        }
+      }
+      
+    }
+    
+    if (GrouperUtil.length(targetEntitiesForEntityMembershipSync) > 0) {
+      
+      Set<Object> entityMatchingIdsForEntityOnly = new HashSet<Object>();
+      this.targetEntitiesForEntityOnly = GrouperUtil.nonNull(this.targetEntitiesForEntityOnly);
+      
+      // indexing the groups that are already there
+      for (ProvisioningEntity targetEntityForEntityOnly: targetEntitiesForEntityOnly) {
+        entityMatchingIdsForEntityOnly.add(targetEntityForEntityOnly.getMatchingId());
+      }
+      
+      // if a membership object is not there then add it
+      for (ProvisioningEntity targetEntityForEntityMembershipSync: targetEntitiesForEntityMembershipSync) {
+        if (!entityMatchingIdsForEntityOnly.contains(targetEntityForEntityMembershipSync.getMatchingId())) {
+          this.targetEntitiesForEntityOnly.add(targetEntityForEntityMembershipSync);
+          entityMatchingIdsForEntityOnly.add(targetEntityForEntityMembershipSync.getMatchingId());
+        }
+      }
+      
+    }
+    
   }
   
 }

@@ -37,6 +37,7 @@ import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 
 /**
  * 
@@ -104,8 +105,10 @@ public class BySqlStatic {
         hibernateSession.misc().flush();
         
         PreparedStatement preparedStatement = null;
+        long startNanos = System.nanoTime();
+        
         try {
-          
+
           //we dont close this connection or anything since could be pooled
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
@@ -122,6 +125,8 @@ public class BySqlStatic {
           throw new RuntimeException("Problem with query in bysqlstatic: " + sql, e);
         } finally {
           GrouperUtil.closeQuietly(preparedStatement);
+          PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
         }
       }
       
@@ -175,8 +180,10 @@ public class BySqlStatic {
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        long startNanos = System.nanoTime();
+        
         try {
-          
+
           //we dont close this connection or anything since could be pooled
           Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
@@ -228,6 +235,8 @@ public class BySqlStatic {
           throw new RuntimeException("Problem with query in select: " + sql, e);
         } finally {
           GrouperUtil.closeQuietly(preparedStatement);
+          PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
         }
       }
     });

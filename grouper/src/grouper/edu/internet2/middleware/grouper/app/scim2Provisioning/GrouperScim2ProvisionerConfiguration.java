@@ -5,11 +5,17 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningConfigurationBase {
 
   private String bearerTokenExternalSystemConfigId;
+  
+  private String scimType;
+  
+  private String acceptHeader;
 
   @Override
   public void configureSpecificSettings() {
     
     this.bearerTokenExternalSystemConfigId = this.retrieveConfigString("bearerTokenExternalSystemConfigId", true);
+    this.scimType = this.retrieveConfigString("scimType", true);
+    this.acceptHeader = this.retrieveConfigString("acceptHeader", false);
   }
 
   public String getBearerTokenExternalSystemConfigId() {
@@ -19,4 +25,26 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   public void setBearerTokenExternalSystemConfigId(String azureExternalSystemConfigId) {
     this.bearerTokenExternalSystemConfigId = azureExternalSystemConfigId;
   }
+
+  
+  public String getScimType() {
+    return scimType;
+  }
+
+  
+  public void setScimType(String scimType) {
+    this.scimType = scimType;
+  }
+
+  
+  public String getAcceptHeader() {
+    return acceptHeader;
+  }
+
+  
+  public void setAcceptHeader(String acceptHeader) {
+    this.acceptHeader = acceptHeader;
+  }
+  
+  
 }

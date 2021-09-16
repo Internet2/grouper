@@ -41,6 +41,7 @@ public class GrouperScim2User {
     grouperScimUser.setMiddleName("midName");
     grouperScimUser.setUserName("userNam");
     grouperScimUser.setUserType("userTyp");
+    grouperScimUser.setOrg("org");
   
     String json = GrouperUtil.jsonJacksonToString(grouperScimUser.toJson(null));
     System.out.println(json);
@@ -68,6 +69,10 @@ public class GrouperScim2User {
 
     if (this.costCenter != null) {
       targetEntity.assignAttributeValue("costCenter", this.costCenter);
+    }
+    
+    if (this.org != null) {
+      targetEntity.assignAttributeValue("org", this.org);
     }
     
     if (this.displayName != null) {
@@ -140,6 +145,7 @@ public class GrouperScim2User {
     }
     
     grouperScimUser.displayName = GrouperUtil.jsonJacksonGetString(entityNode, "displayName");
+    grouperScimUser.org = GrouperUtil.jsonJacksonGetString(entityNode, "org");
     
     if (entityNode.has("emails")) {
       ArrayNode emailsNode = (ArrayNode)entityNode.get("emails");
@@ -216,9 +222,11 @@ public class GrouperScim2User {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
   
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
-    }
+    GrouperUtil.jsonJacksonAssignBoolean(result, "active", true);
+    
+//    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+//      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
+//    }
     
     if (fieldNamesToSet == null || (fieldNamesToSet.contains("employeeNumber") || fieldNamesToSet.contains("costCenter"))) {      
       if (!StringUtils.isBlank(this.employeeNumber) || !StringUtils.isBlank(this.costCenter)) {
@@ -238,6 +246,11 @@ public class GrouperScim2User {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
     }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("org")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "org", this.org);
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue")) {     
       if (!StringUtils.isBlank(this.emailValue)) {
         
@@ -315,8 +328,10 @@ public class GrouperScim2User {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "middle_name", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_name", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_type", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "org", Types.VARCHAR, "256", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_idx", false, "user_name");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_org_idx", false, "user_name", "org");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_empn_idx", false, "employee_number");
     }
     
@@ -422,11 +437,13 @@ public class GrouperScim2User {
   
   private String userType;
   
-  private Boolean active;
+  private Boolean active = true;
   
   private String employeeNumber;
   
   private String costCenter;
+  
+  private String org;
 
   
   public String getId() {
@@ -574,6 +591,15 @@ public class GrouperScim2User {
   public void setActiveDb(String theActive) {
     this.active = GrouperUtil.booleanObjectValue(theActive);
   }
+  
+  
+  public String getOrg() {
+    return org;
+  }
+  
+  public void setOrg(String org) {
+    this.org = org;
+  }
 
   /**
    * 
@@ -590,6 +616,10 @@ public class GrouperScim2User {
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("costCenter")) {      
       grouperScim2User.setCostCenter(targetEntity.retrieveAttributeValueString("costCenter"));
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("org")) {      
+      grouperScim2User.setOrg(targetEntity.retrieveAttributeValueString("org"));
     }
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      

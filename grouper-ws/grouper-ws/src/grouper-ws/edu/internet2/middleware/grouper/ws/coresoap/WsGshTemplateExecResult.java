@@ -1,19 +1,13 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHolder {
-  
-  /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsGshTemplateExecResult.class);
   
   /**
    * result code of a request
@@ -144,7 +138,11 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
    */
   public void assignResultCodeException(Exception e, String stack, GrouperVersion clientVersion) {
     this.assignResultCode(WsGshTemplateExecResultCode.EXCEPTION, clientVersion);
-    this.getResultMetadata().appendResultMessage(stack);
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      this.getResultMetadata().appendResultMessage(stack);
+    } else {
+      GrouperWsException.logError(stack, e);
+    }
   }
 
   

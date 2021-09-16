@@ -51,14 +51,18 @@ import org.apache.ws.security.handler.WSHandlerResult;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperOidc;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperTrustedJwt;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -72,6 +76,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
@@ -172,49 +177,53 @@ public class GrouperServiceJ2ee implements Filter {
     String authenticationClassName = GrouperWsConfig.getPropertyString(
         GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS,
         WsGrouperDefaultAuthentication.class.getName());
-    String userIdLoggedIn = null;
-    if (wssecServlet()) {
-
-      MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-      Vector results = null;
-      if ((results = (Vector) msgCtx.getProperty(WSHandlerConstants.RECV_RESULTS)) == null) {
-        throw new RuntimeException("No Rampart security results!");
-      }
-      LOG.debug("Number of rampart results: " + results.size());
-      OUTER: for (int i = 0; i < results.size(); i++) {
-        WSHandlerResult rResult = (WSHandlerResult) results.get(i);
-        Vector wsSecEngineResults = rResult.getResults();
-
-        for (int j = 0; j < wsSecEngineResults.size(); j++) {
-          WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults
-              .get(j);
-          if (wser.getAction() == WSConstants.UT && wser.getPrincipal() != null) {
-
-            //Extract the principal
-            WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wser
-                .getPrincipal();
-
-            //Get user
-            userIdLoggedIn = principal.getName();
-            break OUTER;
-
+    
+    // add this in for JWT
+    String userIdLoggedIn = (String)retrieveHttpServletRequest().getAttribute("REMOTE_USER");
+    if (StringUtils.isBlank(userIdLoggedIn)) {
+      if (wssecServlet()) {
+  
+        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
+        Vector results = null;
+        if ((results = (Vector) msgCtx.getProperty(WSHandlerConstants.RECV_RESULTS)) == null) {
+          throw new RuntimeException("No Rampart security results!");
+        }
+        LOG.debug("Number of rampart results: " + results.size());
+        OUTER: for (int i = 0; i < results.size(); i++) {
+          WSHandlerResult rResult = (WSHandlerResult) results.get(i);
+          Vector wsSecEngineResults = rResult.getResults();
+  
+          for (int j = 0; j < wsSecEngineResults.size(); j++) {
+            WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults
+                .get(j);
+            if (wser.getAction() == WSConstants.UT && wser.getPrincipal() != null) {
+  
+              //Extract the principal
+              WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wser
+                  .getPrincipal();
+  
+              //Get user
+              userIdLoggedIn = principal.getName();
+              break OUTER;
+  
+            }
           }
         }
+        GrouperUtil.assertion(StringUtils.isNotBlank(userIdLoggedIn),
+            "There is no Rampart user logged in, make sure the container requires authentication");
+      } else {
+        //this is for container auth (or custom auth, non-rampart)
+        //get an instance
+        Class<? extends WsCustomAuthentication> theClass = GrouperUtil
+            .forName(authenticationClassName);
+  
+        WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
+  
+        userIdLoggedIn = wsAuthentication
+            .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
       }
-      GrouperUtil.assertion(StringUtils.isNotBlank(userIdLoggedIn),
-          "There is no Rampart user logged in, make sure the container requires authentication");
-    } else {
-      //this is for container auth (or custom auth, non-rampart)
-      //get an instance
-      Class<? extends WsCustomAuthentication> theClass = GrouperUtil
-          .forName(authenticationClassName);
-
-      WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
-
-      userIdLoggedIn = wsAuthentication
-          .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
     }
-
+    
     // cant be blank!
     if (StringUtils.isBlank(userIdLoggedIn)) {
       //server is having trouble if got this far, but also the user's fault
@@ -618,6 +627,8 @@ public class GrouperServiceJ2ee implements Filter {
   private static Subject retrieveSubjectActAsHelper(WsSubjectLookup actAsLookup)
       throws WsInvalidQueryException {
 
+    final String USER_IS_NOT_AUTHORIZED = "User is not authorized: ";
+
     final Subject loggedInSubject = retrieveSubjectLoggedIn();
 
     HooksContext.assignSubjectLoggedIn(loggedInSubject);
@@ -642,11 +653,16 @@ public class GrouperServiceJ2ee implements Filter {
           GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
-              Group group = GroupFinder.findByName(rootGrouperSession, userGroupName, true);
+              Group group = null;
+              try {
+                group = GroupFinder.findByName(rootGrouperSession, userGroupName, true);
+              } catch (GroupNotFoundException gnfe) {
+                group = new GroupSave().assignName(userGroupName).assignCreateParentStemsIfNotExist(true).save();
+              }
               if (!group.hasMember(loggedInSubject)) {
                 //not allowed, cache it
                 subjectAllowedCache().put(cacheKey, false);
-                throw new RuntimeException("User is not authorized: " + loggedInSubject + ", " + group);
+                throw new RuntimeException(USER_IS_NOT_AUTHORIZED + loggedInSubject + ", " + group);
               }
               subjectAllowedCache().put(cacheKey, true);
               return null;
@@ -655,13 +671,19 @@ public class GrouperServiceJ2ee implements Filter {
         } else {
           //if in cache, reflect that
           if (!allowedInCache) {
-            throw new RuntimeException("User is not authorized: " + loggedInSubject);
+            throw new RuntimeException(USER_IS_NOT_AUTHORIZED + loggedInSubject);
           }
         }
       } catch (Exception e) {
-        LOG.error("user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
-            + "', and therefore is not authorized to use the app (configured in local media.properties penn.uiGroup", e);
-        throw new RuntimeException("User is not authorized", e);
+        String errorMessage = "user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
+            + "', and therefore is not authorized to use the app (configured in local grouper-ws.properties ws.client.user.group.name";
+        if (e.getMessage().startsWith(USER_IS_NOT_AUTHORIZED)) {
+          LOG.error(errorMessage);
+          throw new GrouperWsException("User is not authorized", e).assignLogStack(false);
+          
+        }
+        LOG.error(errorMessage, e);
+        throw new GrouperWsException("User is not authorized", e);
       } finally {
         GrouperSession.stopQuietly(grouperSession);
       }
@@ -937,38 +959,60 @@ public class GrouperServiceJ2ee implements Filter {
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
       
-      boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
-      if (runGrouperWsWithBasicAuth) {
-        String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
-        
-        boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
-        
-        if (!isValid) {
-          ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+      String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+      if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtTrusted_")) {
+        Subject subject = new GrouperTrustedJwt().assignBearerTokenHeader(authHeader).decode();
+        if (subject != null) {
+          ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
+        } else {
           ((HttpServletResponse) response).sendError(401, "Unauthorized");          
           return;
+        }
+      } else if (StringUtils.isNotBlank(authHeader) && (authHeader.startsWith("Bearer oidc_") || authHeader.startsWith("Bearer oidcWithRedirectUri_"))) {
+        Subject subject = new GrouperOidc().assignBearerTokenHeader(authHeader).decode();
+        if (subject != null) {
+          ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
         } else {
-          String userName = Authentication.retrieveUsername(authHeader);
-          ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+          ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+          return;
         }
         
       } else {
-        // also return 401 if authentication fails and using custom authentication, not sure about the rampart case
-        String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
-        boolean checkAuthentication = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.security.non-rampart.error.401.authentication.error", true);
         
-        if (!StringUtils.isEmpty(authenticationClassName) && checkAuthentication) {
-          Class<? extends WsCustomAuthentication> theClass = GrouperUtil.forName(authenticationClassName);
-
-          WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
-
-          String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
-          if (StringUtils.isBlank(userIdLoggedIn)) {
+        boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);
+        if (runGrouperWsWithBasicAuth) {
+          // String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
+          
+          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+          
+          if (!isValid) {
             ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
             ((HttpServletResponse) response).sendError(401, "Unauthorized");          
             return;
+          } else {
+            String userName = Authentication.retrieveUsername(authHeader);
+            ((HttpServletRequest) request).setAttribute("REMOTE_USER", userName);
+          }
+          
+        } else {
+          // also return 401 if authentication fails and using custom authentication, not sure about the rampart case
+          String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
+          boolean checkAuthentication = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.security.non-rampart.error.401.authentication.error", true);
+          
+          if (!StringUtils.isEmpty(authenticationClassName) && checkAuthentication) {
+            Class<? extends WsCustomAuthentication> theClass = GrouperUtil.forName(authenticationClassName);
+
+            WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
+
+            String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
+            if (StringUtils.isBlank(userIdLoggedIn)) {
+              ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+              ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+              return;
+            }
           }
         }
+        
       }
       
       request.setAttribute("debugMap", debugMap);
@@ -1006,9 +1050,16 @@ public class GrouperServiceJ2ee implements Filter {
       
       filterChain.doFilter(request, response);
 
+    } catch (ServletException se) {
+      handleException(se);
+      throw se;
+    } catch (IOException ioe) {
+      handleException(ioe);
+      throw ioe;
     } catch (RuntimeException re) {
       LOG.info("error in request", re);
       debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+      handleException(re);
       throw re;
     } finally {
       
@@ -1025,6 +1076,60 @@ public class GrouperServiceJ2ee implements Filter {
 
     }
 
+  }
+
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(IOException se) throws IOException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (IOException) se;
+    }
+  }
+
+
+  
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(ServletException se) throws ServletException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (ServletException) se;
+    }
+  }
+
+  /**
+   * 
+   * @param se
+   * @throws ServletException
+   */
+  private void handleException(RuntimeException se) throws ServletException {
+    try {
+      handleExceptionHelper(se);
+    } catch (Throwable t) {
+      throw (RuntimeException) se;
+    }
+  }
+
+  /**
+   * dont throw simple exception if configured not to throw detailed exception
+   * this method will throw the exception
+   * @param se
+   */
+  private void handleExceptionHelper(Throwable se) throws Throwable {
+
+    LOG.error("Error processing request", se);
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+      throw new RuntimeException("Error processing request, check logs", se);
+    }
   }
 
   /**

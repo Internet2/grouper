@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -121,5 +122,13 @@ public class AttributeDefNameContainer {
     this.guiPaging = guiPaging;
   }
 
+  /**
+   * if deletion of an attribute name is disallowed from the UI
+   * @return true if UI does not allow deleting attributeDefNames
+   */
+  public boolean isConfigPreventUiDeletion() {
+    return GrouperUiConfig.retrieveConfig()
+            .propertyValueBoolean("uiV2.attributeDefName.preventDeleteInUi", false);
+  }
 
 }

@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -229,6 +230,17 @@ public class GrouperReportInstance {
     this.reportInstanceMillisSince1970 = reportInstanceMillisSince1970;
   }
 
+  /**
+   * 
+   * @return friendly size
+   */
+  public String getReportInstanceSizeFriendly() {
+    if (reportInstanceSizeBytes == null || reportInstanceSizeBytes == 0L) {
+      return "0";
+    }
+    return FileUtils.byteCountToDisplaySize(reportInstanceSizeBytes);
+  }
+  
   /**
    * size of report in bytes
    * @return

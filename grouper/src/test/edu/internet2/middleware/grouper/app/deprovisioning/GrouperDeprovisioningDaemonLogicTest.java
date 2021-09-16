@@ -12,9 +12,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeStemSave;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypeObjectAttributes;
-import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesDaemonLogic;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -57,7 +54,7 @@ public class GrouperDeprovisioningDaemonLogicTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperDeprovisioningDaemonLogicTest("testRetrieveDeprovisioningAttributesByStem"));
+    TestRunner.run(new GrouperDeprovisioningDaemonLogicTest("testIncrementalSyncLogic_deleteFromChildren"));
   }
   
   public void testRetrieveAllFoldersOfInterestForDeprovisioning() {
@@ -449,15 +446,11 @@ public class GrouperDeprovisioningDaemonLogicTest extends GrouperTest {
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("student");
@@ -644,33 +637,23 @@ public class GrouperDeprovisioningDaemonLogicTest extends GrouperTest {
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group0, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
   }
   
@@ -799,15 +782,11 @@ public class GrouperDeprovisioningDaemonLogicTest extends GrouperTest {
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem0, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("student");
@@ -994,33 +973,23 @@ public class GrouperDeprovisioningDaemonLogicTest extends GrouperTest {
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group0, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(stem2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group1, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
     grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group2, false);
     grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
-    grouperDeprovisioningAttributeValue = grouperDeprovisioningConfiguration.getNewConfig();
-    assertEquals("employee", grouperDeprovisioningAttributeValue.getAffiliationString());
-    assertNull(grouperDeprovisioningAttributeValue.getAllowAddsWhileDeprovisionedString());
+    assertNull(grouperDeprovisioningConfiguration);
     
   }
   

@@ -59,6 +59,15 @@ public class GrouperReportConfigAttributeNames {
    */
   public static final String GROUPER_REPORT_CONFIG_DESCRIPTION = "reportConfigDescription";
   
+  /**
+   * Set to false if should not send report email if no data
+   */
+  public static final String GROUPER_REPORT_CONFIG_SEND_EMAIL_WITH_NO_DATA = "reportConfigSendEmailWithNoData";
+  
+  /**
+   * Set to false if should not store if no data
+   */
+  public static final String GROUPER_REPORT_CONFIG_STORE_WITH_NO_DATA = "reportConfigStoreWithNoData";
   
   /**
    * GroupId of people who can view this report. Grouper admins can view any report
@@ -110,6 +119,10 @@ public class GrouperReportConfigAttributeNames {
    */
   public static final String GROUPER_REPORT_CONFIG_QUERY = "reportConfigQuery";
   
+  /**
+   * GSH script for report
+   */
+  public static final String GROUPER_REPORT_CONFIG_SCRIPT = "reportConfigScript";
   
   /**
    * logic from loader enabled, either enable or disabled this job

@@ -95,13 +95,28 @@ public class GrouperReportLogic {
     File fileToDelete = null;
     int rows = -1;
     try {
-      // get report data
-      GrouperReportData grouperReportData = reportConfigBean.getReportConfigType().retrieveReportDataByConfig(reportConfigBean);
-  
+      
       reportInstance.setGrouperReportConfigurationBean(reportConfigBean);
-      reportInstance.setReportInstanceRows(Long.valueOf(grouperReportData.getData().size()));
+
+      reportInstance.createEmptyReportFile();
+      
+      // get report data
+      GrouperReportData grouperReportData = reportConfigBean.getReportConfigType().retrieveReportDataByConfig(reportConfigBean, reportInstance);
+      if (grouperReportData.getData() != null) {
+        reportInstance.setReportInstanceRows(Long.valueOf(grouperReportData.getData().size()));
+      } else if (grouperReportData.getFile() != null) {
+        reportInstance.setReportInstanceRows(-1L);
+      }
       rows = GrouperUtil.intValue(reportInstance.getReportInstanceRows());
-          
+
+      boolean emptyRows = rows == 0;
+      boolean emptyFile = grouperReportData.getFile() == null || !grouperReportData.getFile().exists() || grouperReportData.getFile().length() == 0L;
+      
+      if (emptyRows && emptyFile && !reportConfigBean.isReportConfigStoreWithNoData()) {
+        reportInstance.setReportInstanceStatus(GrouperReportInstance.STATUS_SUCCESS);
+        return 0;
+      }
+      
       // now the file is in the report instance
       reportConfigBean.getReportConfigFormat().formatReport(grouperReportData, reportInstance);
         
@@ -177,6 +192,15 @@ public class GrouperReportLogic {
     
     if (!configBean.isReportConfigSendEmail()) {
       LOG.info("Config send email is set to false. not going to send any emails");
+      return;
+    }
+    
+    if ((reportInstance.getReportInstanceRows() == null || reportInstance.getReportInstanceRows().intValue() == 0) && !configBean.isReportConfigSendEmailWithNoData()) {
+      LOG.info("Config dont send email on empty report, and there is an empty report, not sending emails");
+      return;
+    }
+    if ((reportInstance.getReportInstanceSizeBytes() == null || reportInstance.getReportInstanceSizeBytes().intValue() == 0) && !configBean.isReportConfigSendEmailWithNoData()) {
+      LOG.info("Config dont send email on empty report, and there is an empty report, not sending emails");
       return;
     }
     

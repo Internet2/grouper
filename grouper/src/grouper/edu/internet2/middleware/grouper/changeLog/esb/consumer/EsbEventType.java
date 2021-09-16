@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;

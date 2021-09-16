@@ -8,7 +8,7 @@
   @version $Id: flatten.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic"
+<grouperlegacy:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
   <tiles:importAttribute />
@@ -38,4 +38,4 @@
       <grouper:message key="find.browse.hide-quick-links" />
     </html:link>
   </c:if>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

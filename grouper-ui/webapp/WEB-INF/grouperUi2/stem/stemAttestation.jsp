@@ -140,19 +140,36 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationSendEmailLabel']}</strong></td>
                             <td>
                               <c:choose>
-                                <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
-                                  ${textContainer.textEscapeXml['grouperAttestationYesSendEmailLabel']}
+                                <c:when test="grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report'">
+                                  <c:choose>
+                                    <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail == null 
+                                          || grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                                      ${textContainer.textEscapeXml['grouperAttestationYesSendEmailLabel']}
+                                    </c:when>
+                                    <c:otherwise>
+                                      ${textContainer.textEscapeXml['grouperAttestationNoDoNotSendEmailLabel']}                              
+                                    </c:otherwise>
+                                  </c:choose>
                                 </c:when>
                                 <c:otherwise>
-                                  ${textContainer.textEscapeXml['grouperAttestationNoDoNotSendEmailLabel']}                              
+                                  <c:choose>
+                                    <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses != null}">
+                                      ${textContainer.textEscapeXml['grouperAttestationEmailCustomListLabel']}
+                                    </c:when>
+                                    <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailGroup != null}">
+                                      ${textContainer.textEscapeXml['grouperAttestationEmailGroupLabel']}
+                                    </c:when>
+                                    <c:otherwise>
+                                      ${textContainer.textEscapeXml['grouperAttestationEmailManagersLabel']}                              
+                                    </c:otherwise>
+                                  </c:choose>
                                 </c:otherwise>
                               </c:choose>
                               <br />
                               <span class="description">${textContainer.text['grouperAttestationSendEmailDescription']}</span>
                             </td>
                           </tr>
-                          <c:if
-                            test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
+                          <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationSendEmail}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>
                                 ${textContainer.text[grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report' ? 'attestationReportEmailManagersLabel' : 'attestationEmailManagersLabel']}</strong></td>
@@ -175,6 +192,15 @@
                                 <td>
                                 ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailAddresses)}
                                   <br /> <span class="description">${textContainer.text[grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationType == 'report' ? 'grouperAttestationReportEmailAddressesDescription' : 'grouperAttestationEmailAddressesDescription']}</span>
+                                </td>
+                              </tr>
+                            </c:if>
+                            <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailGroup != null}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationEmailGroupLabel']}</strong></td>
+                                <td>
+                                ${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationEmailGuiGroup.linkWithIcon}
+                                  <br /> <span class="description">${textContainer.text['attestationEmailGroupDescription']}</span>
                                 </td>
                               </tr>
                             </c:if>

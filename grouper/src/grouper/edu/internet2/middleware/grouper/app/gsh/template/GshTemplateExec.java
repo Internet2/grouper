@@ -436,6 +436,7 @@ public class GshTemplateExec {
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
 
+              grouperGroovyInput.assignUseTransaction(templateConfig.isRunGshInTransaction());
               grouperGroovyInput.assignScript(scriptToRun.toString());
               grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
               

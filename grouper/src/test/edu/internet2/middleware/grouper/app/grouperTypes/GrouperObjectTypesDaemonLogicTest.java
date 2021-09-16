@@ -47,7 +47,7 @@ public class GrouperObjectTypesDaemonLogicTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperObjectTypesDaemonLogicTest("testIncrementalSyncLogic_deleteFromChildren"));
+    TestRunner.run(new GrouperObjectTypesDaemonLogicTest("testIncrementalSyncLogic_copyFromStemToChildren"));
   }
   
   
@@ -356,6 +356,48 @@ public class GrouperObjectTypesDaemonLogicTest extends GrouperTest {
     assertEquals(stem0.getId(), stemObjectTypeAttributeValue.getObjectTypeOwnerStemId());
     assertEquals(null, stemObjectTypeAttributeValue.getObjectTypeServiceName());
     assertFalse(stemObjectTypeAttributeValue.isDirectAssignment());
+    
+    //modify the values and confirm they are reflected on the children
+    new GdgTypeStemSave().assignDataOwner("do1").assignMemberDescription("md1").assignStem(stem0).assignType("ref").save();
+    
+    runJobs(true, true);
+    
+    gdgTypeStemAssignments = new GdgTypeStemFinder().assignStem(stem1).findGdgTypeStemAssignments();
+    assertEquals(1, gdgTypeStemAssignments.size());
+    
+    stemObjectTypeAttributeValue = gdgTypeStemAssignments.iterator().next();
+    
+    assertEquals("do1", stemObjectTypeAttributeValue.getObjectTypeDataOwner());
+    assertEquals("md1", stemObjectTypeAttributeValue.getObjectTypeMemberDescription());
+    assertEquals("ref", stemObjectTypeAttributeValue.getObjectTypeName());
+    assertEquals(stem0.getId(), stemObjectTypeAttributeValue.getObjectTypeOwnerStemId());
+    assertEquals(null, stemObjectTypeAttributeValue.getObjectTypeServiceName());
+    assertFalse(stemObjectTypeAttributeValue.isDirectAssignment());
+    
+    gdgTypeGroupAssignments = new GdgTypeGroupFinder().assignGroup(group0).findGdgTypeGroupAssignments();
+    assertEquals(1, gdgTypeGroupAssignments.size());
+    
+    groupObjectTypeAttributeValue = gdgTypeGroupAssignments.iterator().next();
+    
+    assertEquals("do1", groupObjectTypeAttributeValue.getObjectTypeDataOwner());
+    assertEquals("md1", groupObjectTypeAttributeValue.getObjectTypeMemberDescription());
+    assertEquals("ref", groupObjectTypeAttributeValue.getObjectTypeName());
+    assertEquals(stem0.getId(), groupObjectTypeAttributeValue.getObjectTypeOwnerStemId());
+    assertEquals(null, groupObjectTypeAttributeValue.getObjectTypeServiceName());
+    assertFalse(groupObjectTypeAttributeValue.isDirectAssignment());
+    
+    gdgTypeStemAssignments = new GdgTypeStemFinder().assignStem(stem2).findGdgTypeStemAssignments();
+    assertEquals(1, gdgTypeStemAssignments.size());
+    
+    stemObjectTypeAttributeValue = gdgTypeStemAssignments.iterator().next();
+    
+    assertEquals("do1", stemObjectTypeAttributeValue.getObjectTypeDataOwner());
+    assertEquals("md1", stemObjectTypeAttributeValue.getObjectTypeMemberDescription());
+    assertEquals("ref", stemObjectTypeAttributeValue.getObjectTypeName());
+    assertEquals(stem0.getId(), stemObjectTypeAttributeValue.getObjectTypeOwnerStemId());
+    assertEquals(null, stemObjectTypeAttributeValue.getObjectTypeServiceName());
+    assertFalse(stemObjectTypeAttributeValue.isDirectAssignment());
+    
     
   }
   

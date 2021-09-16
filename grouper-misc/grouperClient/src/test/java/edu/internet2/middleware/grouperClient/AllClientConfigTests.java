@@ -34,12 +34,12 @@ public class AllClientConfigTests {
    * suite
    * @return the test
    */
-  public static Test suite() {
+  public static Test suite(boolean testClientConfigs) {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouperClient.config");
-    //$JUnit-BEGIN$
-    suite.addTestSuite(ConfigPropertiesCascadeBaseTest.class);
+    if (testClientConfigs) {
+      suite.addTestSuite(ConfigPropertiesCascadeBaseTest.class);
+    }
     suite.addTestSuite(ExpirableCacheTest.class);
-    //$JUnit-END$
     return suite;
   }
 

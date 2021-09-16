@@ -156,7 +156,7 @@ public class GrouperGroovysh extends Groovysh {
      * @return the outString
      */
     public String getOutString() {
-      return this.outString.toString();
+      return this.outString == null ? null : this.outString.toString();
     }
     
     /**

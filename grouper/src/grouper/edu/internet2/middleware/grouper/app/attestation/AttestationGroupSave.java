@@ -134,6 +134,58 @@ public class AttestationGroupSave {
   }
 
   /**
+   * email to a group for group attestation
+   */
+  private String emailGroupId = null;
+
+  /**
+   * email to a group for group attestation
+   */
+  private String emailGroupName = null;
+
+  /**
+   * email to a group for group attestation
+   */
+  private Group emailGroup = null;
+
+  /**
+   * email to a group is assigned for group attestation
+   */
+  private boolean emailGroupIdAssigned = false;
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignEmailGroupId(String theGroupId) {
+    this.emailGroupId = theGroupId;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignEmailGroupName(String theGroupName) {
+    
+    this.emailGroupName = theGroupName;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+
+  /**
+   * assign group to email for group attestation
+   * @return this for chaining
+   */
+  public AttestationGroupSave assignEmailGroup(Group theGroup) {
+    
+    this.emailGroup = theGroup;
+    emailGroupIdAssigned = true;
+    return this;
+  }
+  
+  /**
    * add email address
    * @return this for chaining
    */
@@ -386,7 +438,20 @@ public class AttestationGroupSave {
               if (!runAsRoot) {
                 if (!group.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.UPDATE.getName(), false)) {
                   throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
-                    + "' cannot ADMIN group '" + group.getName() + "'");
+                    + "' cannot UPDATE group '" + group.getName() + "'");
+                }
+              }
+
+              if (AttestationGroupSave.this.emailGroup == null && !StringUtils.isBlank(AttestationGroupSave.this.emailGroupId)) {
+                emailGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), AttestationGroupSave.this.emailGroupId, false, new QueryOptions().secondLevelCache(false));
+              }
+              if (emailGroup == null && !StringUtils.isBlank(AttestationGroupSave.this.emailGroupName)) {
+                emailGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), AttestationGroupSave.this.emailGroupName, false, new QueryOptions().secondLevelCache(false));
+              }
+              if (!runAsRoot && emailGroup != null) {
+                if (!emailGroup.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
+                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                    + "' cannot READ group '" + emailGroup.getName() + "'");
                 }
               }
               
@@ -456,6 +521,9 @@ public class AttestationGroupSave {
                   GrouperAttestationJob.retrieveAttributeDefNameSendEmail(), sendEmail == null ? null : (sendEmail ? "true" : "false") , sendEmailAssigned);
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses(), GrouperUtil.length(emailAddresses) == 0 ? null : GrouperUtil.join(emailAddresses.iterator(), ','), emailAddressesAssigned);
+              hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                  GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId(), 
+                  AttestationGroupSave.this.emailGroup == null ? null : AttestationGroupSave.this.emailGroup.getId(), AttestationGroupSave.this.emailGroupIdAssigned);
 
               if (!markerAttributeNewlyAssigned && !hasChange) {
                 AttestationGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;

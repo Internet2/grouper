@@ -21,8 +21,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
@@ -40,12 +42,6 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
  * @author mchyzer
  */
 public class WsAssignAttributesLiteResults implements WsResponseBean, ResultMetadataHolder {
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAssignAttributesLiteResults.class);
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)
@@ -293,18 +289,17 @@ public class WsAssignAttributesLiteResults implements WsResponseBean, ResultMeta
           wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
+      
     } else {
       wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
   
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
   
     }

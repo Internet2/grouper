@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -61,8 +60,10 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
@@ -75,9 +76,9 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 /**
@@ -626,7 +627,7 @@ public class WsAssignAttributeLogic {
     
     if (errorMessage.length() > 0) {
       wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.INVALID_QUERY);
-      wsAssignAttributesResults.getResultMetadata().appendResultMessage(errorMessage.toString());
+      wsAssignAttributesResults.getResultMetadata().appendResultMessageError(errorMessage.toString());
     } else {
       wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.SUCCESS);
     }

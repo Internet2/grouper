@@ -79,7 +79,7 @@
                   
                   <td style="white-space: nowrap;">
                       <c:choose>
-		                <c:when test="${grouperSyncMember.inTargetInsertOrExistsDb}">
+		                <c:when test="${grouperSyncMember.inTargetInsertOrExists}">
 		                  ${textContainer.text['privsioningConfigDetailsInTargetInsertsOrExistsTrueLabel']}
 		                </c:when>
 		                <c:otherwise>

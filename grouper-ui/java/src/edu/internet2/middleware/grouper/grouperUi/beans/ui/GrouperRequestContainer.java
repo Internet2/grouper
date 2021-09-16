@@ -698,6 +698,24 @@ public class GrouperRequestContainer {
   }
   
   /**
+   * container for sql sync configs
+   */
+  private SqlSyncConfigurationContainer sqlSyncConfigurationContainer;
+  
+  /**
+   * container for sql sync configs
+   * @return the container
+   */
+  public SqlSyncConfigurationContainer getSqlSyncConfigurationContainer() {
+   
+    if (this.sqlSyncConfigurationContainer == null) {
+      this.sqlSyncConfigurationContainer = new SqlSyncConfigurationContainer();
+    }
+    
+    return this.sqlSyncConfigurationContainer;
+  }
+
+  /**
    * container for gsh templates
    */
   private GshTemplateContainer gshTemplateContainer;

@@ -71,6 +71,33 @@ import edu.internet2.middleware.morphString.MorphStringConfig;
 public class GrouperClientUtils extends GrouperClientCommonUtils {
 
   /**
+   * 
+   * @param key
+   * @param durationNanos
+   */
+  public static void performanceTimingAllDuration(String key, long durationNanos) {
+    
+    String className = "edu.internet2.middleware.grouper.util.PerformanceLogger";
+    Class<?> theClass = null;
+    try {
+    
+      theClass = forName(className);
+    } catch (Exception e) {
+      //ignore
+      return;
+    }
+    
+    callMethod(theClass, "performanceTimingAllDuration", new Class[] {String.class, long.class}, new Object[] {key, durationNanos});
+    
+  }
+  
+  /**
+   * use this for performance log label for sql queries
+   */
+  public static final String PERFORMANCE_LOG_LABEL_SQL = "sqlQueries";
+
+  
+  /**
    * to string reflection
    * @param object
    * @return the string representation

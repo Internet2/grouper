@@ -403,8 +403,14 @@ public class PrivilegeAttributeDefInheritanceSave {
                 if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdAndSource(PrivilegeAttributeDefInheritanceSave.this.subjectId, PrivilegeAttributeDefInheritanceSave.this.subjectSourceId, false);
                 }            
+                if (subject == null && !StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findById(PrivilegeAttributeDefInheritanceSave.this.subjectId, false);
+                }            
                 if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
                   subject = SubjectFinder.findByIdentifierAndSource(PrivilegeAttributeDefInheritanceSave.this.subjectIdentifier, PrivilegeAttributeDefInheritanceSave.this.subjectSourceId, false);
+                }
+                if (subject == null && !StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(subjectSourceId)) {
+                  subject = SubjectFinder.findByIdentifier(PrivilegeAttributeDefInheritanceSave.this.subjectIdentifier, false);
                 }
                 if (subject == null && member != null) {
                   subject = member.getSubject();

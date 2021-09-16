@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.app.daemon.AllDaemonTests;
 import edu.internet2.middleware.grouper.app.deprovisioning.AllDeprovisioningTests;
 import edu.internet2.middleware.grouper.app.externalSystem.AllExternalSystemTests;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
+import edu.internet2.middleware.grouper.app.ldapToSql.AllLdapToSqlTests;
 import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.messaging.AllAppMessagingTests;
 import edu.internet2.middleware.grouper.app.messaging.MessageConsumerDaemonTest;
@@ -67,6 +68,7 @@ public class AllAppTests {
     suite.addTest(AllAttestationTests.suite());
     suite.addTest(AllDeprovisioningTests.suite());
     suite.addTest(AllExternalSystemTests.suite());
+    suite.addTest(AllLdapToSqlTests.suite());
     suite.addTest(AllProvisioningTests.suite());
     suite.addTest(AllReportsTests.suite());
     suite.addTest(AllServiceLifecycleTests.suite());

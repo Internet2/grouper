@@ -5,7 +5,7 @@
   @version $Id: generalHelp.jsp,v 1.11 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
 <h2>Menu</h2>
 <dl>
   <dt>My Memberships*</dt>
@@ -120,4 +120,4 @@ Entities can be found by:<br/>
   
 <tiles:insert definition="groupMathHelpDef"/>
 <tiles:insert definition="customTypesHelpDef"/>
-</grouper:recordTile> 
+</grouperlegacy:recordTile> 

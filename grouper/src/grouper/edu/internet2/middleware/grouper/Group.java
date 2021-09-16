@@ -32,7 +32,19 @@
 
 package edu.internet2.middleware.grouper;
 
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.*;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeDescription;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeDisplayExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeDescription;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeDisplayExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.overallDescription;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesDescription;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesDisplayExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordDescription;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordDisplayExtensionSuffix;
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -46,7 +58,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -170,6 +181,7 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
 import edu.internet2.middleware.grouper.validator.CanOptinValidator;
@@ -182,6 +194,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -6192,6 +6205,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this, Group.class);
       
       InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_GROUP_ADD.name());
+      
+      PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "postSaveHook");
+
     }
   }
 
@@ -6655,6 +6671,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
 
+    PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "preSaveHook");
+
     if (this.getTypeOfGroup() == TypeOfGroup.entity) {
 
       //change log into temp table
@@ -6677,6 +6695,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
 
     }
+    PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "changeLog");
+
   }
 
   /**

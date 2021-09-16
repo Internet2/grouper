@@ -18,11 +18,13 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
@@ -41,6 +43,10 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
@@ -78,6 +84,57 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     return LdapSessionUtils.logEnd();
   }
 
+  /**
+   * look at object classes and the search attribute
+   * @return the filter
+   */
+  public String generateGroupSearchAllFilter() {
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    // get the search attribute
+    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getGroupSearchAttributes();
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
+    }
+    String searchFilter = null;
+    if (grouperProvisioningConfigurationAttributes.size() == 1) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
+      searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=*)";
+
+    } else {
+      throw new RuntimeException("Why is groupSearchAllFilter empty?");
+    }
+
+    Set<String> objectClasses = null;
+    // see if there are object classes
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetGroupAttributeNameToConfig()).values()) {
+      if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
+        // lets try to evaluate the scriptlet to get the object classes
+        if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
+          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
+              .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
+          if (objectClassResult != null && objectClassResult.getClass().isArray()) {
+            objectClasses = (Set<String>)(Object)GrouperUtil.toSet(objectClassResult);
+          } else {
+            objectClasses = (Set<String>)objectClassResult;
+          }
+          break;
+        }
+      }
+    }
+
+    if (GrouperUtil.length(objectClasses) == 0) {
+      return searchFilter;
+    }
+    StringBuilder filterBuilder = new StringBuilder("(&" + searchFilter);
+    for (String objectClass : objectClasses) {
+      filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
+    }
+    filterBuilder.append(")");
+    return filterBuilder.toString();
+  }
+  
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     
@@ -93,7 +150,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       String groupSearchAllFilter = ldapSyncConfiguration.getGroupSearchAllFilter();
       
       if (StringUtils.isEmpty(groupSearchAllFilter)) {
-        throw new RuntimeException("Why is groupSearchAllFilter empty?");
+        groupSearchAllFilter = this.generateGroupSearchAllFilter();
       }
   
       String groupSearchBaseDn = ldapSyncConfiguration.getGroupSearchBaseDn();
@@ -191,14 +248,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               ldapAttribute.addValue(singleValue);
             } else {
               String singleStringValue = GrouperUtil.stringValue(singleValue);
-              if (!StringUtils.isEmpty(singleStringValue)) {
+              if (singleStringValue != null) {
                 ldapAttribute.addValue(singleStringValue);
               }
             }
           }
         } else {
           String stringValue = GrouperUtil.stringValue(value);
-          if (!StringUtils.isEmpty(stringValue)) {
+          if (stringValue != null) {
             ldapAttribute.addValue(stringValue);
           }
         }
@@ -287,7 +344,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
       boolean hasRenameFailure = false;
-      
+      List<Exception> exceptions = new ArrayList<Exception>();
+
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -298,16 +356,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         
         if (newValue != null && !(newValue instanceof byte[])) {
           newValue = GrouperUtil.stringValue(newValue);
-          if (StringUtils.isEmpty((String)newValue)) {
-            newValue = null;
-          }
         }
         
         if (oldValue != null && !(oldValue instanceof byte[])) {
           oldValue = GrouperUtil.stringValue(oldValue);
-          if (StringUtils.isEmpty((String)oldValue)) {
-            oldValue = null;
-          }
         }
         
         if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
@@ -334,6 +386,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisionObjectChange.setException(e);
             targetGroup.setProvisioned(false);
             hasRenameFailure = true;
+            exceptions.add(e);
           }
         } else if (attributeName == null) {
           throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
@@ -400,11 +453,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           } else {
             provisionObjectChange.setProvisioned(false);
             provisionObjectChange.setException(attributeError.getError());
-            
-            // this should go in the framework?
-            if (!provisionObjectChange.getAttributeName().equalsIgnoreCase(ldapSyncConfiguration.getGroupAttributeNameForMemberships())) {
-              targetGroup.setProvisioned(false);
-            }
+            targetGroup.setProvisioned(false);
+            exceptions.add(attributeError.getError());
           }
         }
         
@@ -413,6 +463,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisioningObjectChange.setProvisioned(true);
           }
         }
+      }
+      
+      if (exceptions.size() > 0) {
+        throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
       }
       
       return new TargetDaoUpdateGroupResponse();
@@ -603,6 +657,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       String userSearchAllFilter = ldapSyncConfiguration.getEntitySearchAllFilter();
       
       if (StringUtils.isEmpty(userSearchAllFilter)) {
+        userSearchAllFilter = this.generateUserSearchAllFilter();
+      }
+
+      if (StringUtils.isEmpty(userSearchAllFilter)) {
         throw new RuntimeException("Why is userSearchAllFilter empty?");
       }
   
@@ -716,7 +774,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               
               GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
               String value = targetEntity.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-              searchFilter = "(" + grouperProvisioningConfigurationAttribute + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+              searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
 
             } else {
               throw new RuntimeException("Why is groupSearchFilter empty?");
@@ -803,14 +861,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               ldapAttribute.addValue(singleValue);
             } else {
               String singleStringValue = GrouperUtil.stringValue(singleValue);
-              if (!StringUtils.isEmpty(singleStringValue)) {
+              if (singleStringValue != null) {
                 ldapAttribute.addValue(singleStringValue);
               }
             }
           }
         } else {
           String stringValue = GrouperUtil.stringValue(value);
-          if (!StringUtils.isEmpty(stringValue)) {
+          if (stringValue != null) {
             ldapAttribute.addValue(stringValue);
           }
         }
@@ -855,8 +913,65 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
+  }
 
+  @Override
+  public TargetDaoRetrieveMembershipResponse retrieveMembership(TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest) {
+    TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = new TargetDaoRetrieveMembershipResponse();
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    String membershipAttributeName;
+    String dn;
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttributeName = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      dn = ((ProvisioningGroup)targetDaoRetrieveMembershipRequest.getTargetMembership()).getName();
+    } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      membershipAttributeName = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+      dn = ((ProvisioningEntity)targetDaoRetrieveMembershipRequest.getTargetMembership()).getName();
+    } else {
+      throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
+    }
+
+    Set<?> membershipAttributeValueSet = ((ProvisioningUpdatable)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueSet(membershipAttributeName);
+    String membershipAttributeValue = (String)membershipAttributeValueSet.iterator().next();
+    String filter = "(" + membershipAttributeName + "=" + GrouperUtil.ldapFilterEscape(membershipAttributeValue) + ")";
+
+    LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+    
+    try {
+      List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, filter, LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
+      
+      if (ldapEntries.size() > 0) {
+        targetDaoRetrieveMembershipResponse.setTargetMembership(targetDaoRetrieveMembershipRequest.getTargetMembership());
+      }
+    } catch (Exception e) {
+      if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+        // ok
+      } else {
+        throw e;
+      }
+    }
+    
+    return targetDaoRetrieveMembershipResponse;
+  }
+
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
+
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) == 0) {
+      return new TargetDaoRetrieveMembershipsByGroupsResponse();
+    }
+    
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
+        new TargetDaoRetrieveGroupsRequest(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), true));
+    return new TargetDaoRetrieveMembershipsByGroupsResponse((List<Object>)(Object)targetDaoRetrieveGroupsResponse.getTargetGroups());
+    
   }
 
   @Override
@@ -905,6 +1020,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<LdapModificationItem, ProvisioningObjectChange> ldapModificationItems = new LinkedHashMap<LdapModificationItem, ProvisioningObjectChange>();
           
       boolean hasRenameFailure = false;
+      List<Exception> exceptions = new ArrayList<Exception>();
       
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
@@ -916,16 +1032,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
         if (newValue != null && !(newValue instanceof byte[])) {
           newValue = GrouperUtil.stringValue(newValue);
-          if (StringUtils.isEmpty((String)newValue)) {
-            newValue = null;
-          }
         }
         
         if (oldValue != null && !(oldValue instanceof byte[])) {
           oldValue = GrouperUtil.stringValue(oldValue);
-          if (StringUtils.isEmpty((String)oldValue)) {
-            oldValue = null;
-          }
         }
         
         if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
@@ -939,6 +1049,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisionObjectChange.setException(e);
             targetEntity.setProvisioned(false);
             hasRenameFailure = true;
+            exceptions.add(e);
           }
         } else if (attributeName == null) {
           throw new RuntimeException("Unexpected update for attributeName=" + attributeName + ", fieldName=" + fieldName + ", action=" + action);
@@ -1005,11 +1116,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           } else {
             provisionObjectChange.setProvisioned(false);
             provisionObjectChange.setException(attributeError.getError());
-            
-            // this should go in the framework?
-            if (!provisionObjectChange.getAttributeName().equalsIgnoreCase(ldapSyncConfiguration.getGroupAttributeNameForMemberships())) {
-              targetEntity.setProvisioned(false);
-            }
+            targetEntity.setProvisioned(false);
+            exceptions.add(attributeError.getError());
           }
         }
         
@@ -1018,6 +1126,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             provisioningObjectChange.setProvisioned(true);
           }
         }
+      }
+      
+      if (exceptions.size() > 0) {
+        throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
       }
       
       return new TargetDaoUpdateEntityResponse();
@@ -1129,6 +1241,57 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     } catch (LDAPException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * look at object classes and the search attribute
+   * @return the filter
+   */
+  public String generateUserSearchAllFilter() {
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  
+    // get the search attribute
+    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getEntitySearchAttributes();
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
+    }
+    String searchFilter = null;
+    if (grouperProvisioningConfigurationAttributes.size() == 1) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
+      searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=*)";
+  
+    } else {
+      throw new RuntimeException("Why is entitySearchAllFilter empty?");
+    }
+  
+    Set<String> objectClasses = null;
+    // see if there are object classes
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetEntityAttributeNameToConfig()).values()) {
+      if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
+        // lets try to evaluate the scriptlet to get the object classes
+        if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
+          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
+              .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
+          if (objectClassResult != null && objectClassResult.getClass().isArray()) {
+            objectClasses = (Set<String>)(Object)GrouperUtil.toSet(objectClassResult);
+          } else {
+            objectClasses = (Set<String>)objectClassResult;
+          }
+          break;
+        }
+      }
+    }
+  
+    if (GrouperUtil.length(objectClasses) == 0) {
+      return searchFilter;
+    }
+    StringBuilder filterBuilder = new StringBuilder("(&" + searchFilter);
+    for (String objectClass : objectClasses) {
+      filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
+    }
+    filterBuilder.append(")");
+    return filterBuilder.toString();
   }
 
   /*

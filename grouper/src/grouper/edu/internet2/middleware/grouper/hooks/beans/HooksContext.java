@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -38,6 +37,7 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -333,7 +333,7 @@ public class HooksContext {
   /**
    * thread local hooks attribute, access from: threadLocalAttribute()
    */
-  private static ThreadLocal<Map<String, HooksAttribute>> threadLocalAttribute = new ThreadLocal<Map<String, HooksAttribute>>();
+  private static ThreadLocal<Map<String, HooksAttribute>> threadLocalAttribute = new InheritableThreadLocal<Map<String, HooksAttribute>>();
 
   /**
    * lazy load the threadlocal attribute

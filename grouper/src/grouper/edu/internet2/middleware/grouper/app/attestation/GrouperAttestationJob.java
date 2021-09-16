@@ -293,6 +293,11 @@ public class GrouperAttestationJob extends OtherJobBase {
    */
   public static final String ATTESTATION_AUTHORIZED_GROUP_ID = "attestationAuthorizedGroupId";
   
+  /**
+   * attestationEmailGroupId
+   */
+  public static final String ATTESTATION_EMAIL_GROUP_ID = "attestationEmailGroupId";
+  
   private static AttributeDefName attributeDefNameType;
   
   /**
@@ -359,6 +364,30 @@ public class GrouperAttestationJob extends OtherJobBase {
     }
     
     attributeDefNameAuthorizedGroupId = attributeDefName;
+    
+    return attributeDefName;
+
+  }
+  
+  private static AttributeDefName attributeDefNameEmailGroupId;
+  /**
+   * email group id
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveAttributeDefNameEmailGroupId() {
+    
+    if (attributeDefNameEmailGroupId != null) {
+      return attributeDefNameEmailGroupId;
+    }
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+        GrouperAttestationJob.attestationStemName() + ":" + ATTESTATION_EMAIL_GROUP_ID, true);
+
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant attestation email group id attribute def name be found?");
+    }
+    
+    attributeDefNameEmailGroupId = attributeDefName;
     
     return attributeDefName;
 
@@ -1196,6 +1225,7 @@ public class GrouperAttestationJob extends OtherJobBase {
     if (StringUtils.isBlank(attestationEmailAddresses)) {
       
       String attestationAuthorizedGroupId = attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameAuthorizedGroupId().getName());
+      String attestationEmailGroupId = StringUtils.trim(attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameEmailGroupId().getName()));
       if (!StringUtils.isEmpty(attestationAuthorizedGroupId)) {
         Group authorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationAuthorizedGroupId, true);
 
@@ -1218,7 +1248,42 @@ public class GrouperAttestationJob extends OtherJobBase {
         }
         
         emailAddresses = addresses.toArray(new String[addresses.size()]); 
-      }
+//      not sure this applies        
+//      } else if (!StringUtils.isBlank(attestationEmailGroupId)) {
+//      
+//        Set<Subject> groupMembers = null;
+//        Set<String> addresses = new HashSet<String>();
+//
+//        Group emailGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationEmailGroupId, false);
+//        if (emailGroup == null) {
+//          LOG.error("Cant find attestation email stem with uuid: '" + attestationEmailGroupId + "' for stem from attribute assign id: " + attributeAssign.getId());
+//        } else {
+//          groupMembers = new HashSet<Subject>();
+//          for (Member member : emailGroup.getMembers()) {
+//            Subject subject = member.getSubject();
+//            if (subject != null) {
+//              groupMembers.add(subject);
+//            }
+//          }
+//          // go through each subject and find the email address.
+//          for (Subject subject: GrouperUtil.nonNull(groupMembers)) {
+//            if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
+//              String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+//              if (!StringUtils.isBlank(emailAttributeName)) {
+//                String emailAddress = subject.getAttributeValue(emailAttributeName);
+//                if (!StringUtils.isBlank(emailAddress)) {
+//                  addresses.add(emailAddress);
+//                }
+//              }
+//            }
+//          }
+//          
+//          emailAddresses = addresses.toArray(new String[addresses.size()]);
+//
+//        }
+        
+      } 
+
     } else {
       emailAddresses = GrouperUtil.splitTrim(attestationEmailAddresses, ",");
     }
@@ -1239,20 +1304,42 @@ public class GrouperAttestationJob extends OtherJobBase {
     String[] emailAddresses = null;
     if (StringUtils.isBlank(attestationEmailAddresses)) {
       
-      // get the group's admins and updaters-and-readers (must be both)
-      Set<Subject> groupMembers = GrouperUtil.nonNull(group.getAdmins());
+      Set<String> addresses = new HashSet<String>();
 
-      //if someone is a reader and an updater then add their email address
-      for (Subject subject : GrouperUtil.nonNull(group.getUpdaters())) {
-        if (SubjectHelper.inList(GrouperUtil.nonNull(group.getReaders()), subject)) {
-          groupMembers.add(subject);
+      String attestationEmailGroupId = StringUtils.trim(attributeAssign.getAttributeValueDelegate().retrieveValueString(retrieveAttributeDefNameEmailGroupId().getName()));
+      Set<Subject> groupMembers = null;
+      
+      if (!StringUtils.isBlank(attestationEmailGroupId)) {
+        
+        Group emailGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attestationEmailGroupId, false);
+        if (emailGroup == null) {
+          LOG.error("Cant find attestation email group with uuid: '" + attestationEmailGroupId + "' for group: " + group.getName());
+        } else {
+          groupMembers = new HashSet<Subject>();
+          for (Member member : emailGroup.getMembers()) {
+            Subject subject = member.getSubject();
+            if (subject != null) {
+              groupMembers.add(subject);
+            }
+          }
+        }
+        
+      } else {
+      
+        // get the group's admins and updaters-and-readers (must be both)
+        groupMembers = GrouperUtil.nonNull(group.getAdmins());
+  
+        //if someone is a reader and an updater then add their email address
+        Set<Subject> groupReaders = GrouperUtil.nonNull(group.getReaders());
+        for (Subject subject : GrouperUtil.nonNull(group.getUpdaters())) {
+          if (SubjectHelper.inList(groupReaders, subject)) {
+            groupMembers.add(subject);
+          }
         }
       }
       
-      Set<String> addresses = new HashSet<String>();
-      
       // go through each subject and find the email address.
-      for (Subject subject: groupMembers) {
+      for (Subject subject: GrouperUtil.nonNull(groupMembers)) {
         if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
           String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
           if (!StringUtils.isBlank(emailAttributeName)) {
@@ -1847,6 +1934,7 @@ public class GrouperAttestationJob extends OtherJobBase {
       }
       attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameSendEmail());
       attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailAddresses());
+      attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId());
       attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify());
       attributeAssign.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameDaysBeforeToRemind());
 

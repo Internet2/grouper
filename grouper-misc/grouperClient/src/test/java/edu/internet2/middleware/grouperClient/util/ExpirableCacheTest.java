@@ -63,7 +63,7 @@ public class ExpirableCacheTest extends TestCase {
     
     noCache.put(true, true);
     
-    assertNull(noCache.get(true));
+    assertTrue(noCache.get(true));
   }
   
 }

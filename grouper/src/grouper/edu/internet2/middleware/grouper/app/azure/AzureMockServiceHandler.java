@@ -157,6 +157,12 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         postGroups(mockServiceRequest, mockServiceResponse);
         return;
       }
+      
+      if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+        postUsers(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 4 == mockServiceRequest.getPostMockNamePaths().length
           && "members".equals(mockServiceRequest.getPostMockNamePaths()[2]) && "$ref".equals(mockServiceRequest.getPostMockNamePaths()[3])) {
         postMembership(mockServiceRequest, mockServiceResponse);
@@ -261,6 +267,49 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     
   }
+  
+  public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+
+    checkRequestContentType(mockServiceRequest);
+
+//    {
+//      "accountEnabled": true,
+//      "displayName": "Adele Vance1",
+//      "mailNickname": "AdeleV1",
+//      "userPrincipalName": "Adele1V@erviveksachdevaoutlook.onmicrosoft.com",
+//      "passwordProfile" : {
+//        "forceChangePasswordNextSignIn": true,
+//        "password": "xWwvJ]6NMw+bWH-d1"
+//      }
+//    }
+    
+    String userJsonString = mockServiceRequest.getRequestBody();
+    JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
+
+    //check require args
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "displayName")) > 0, "displayName is required");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "displayName")) <= 256, "displayName must be less than 256");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "mailNickname")) <= 64, "mailNickname must be less than 64");
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(userJsonNode, "accountEnabled") != null, "accountEnabled is required");
+    
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "userPrincipalName")) > 0, "userPrincipalName is required");
+
+
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "id")) == 0, "id is forbidden");
+
+    GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userJsonNode);
+    grouperAzureUser.setId(GrouperUuid.getUuid());
+    
+    HibernateSession.byObjectStatic().save(grouperAzureUser);
+    
+    JsonNode resultNode = grouperAzureUser.toJson(null);
+
+    mockServiceResponse.setResponseCode(201);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
+  }
 
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
@@ -305,7 +354,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
     
@@ -711,7 +760,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     int responseCode = 204;
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
     
     for (int i=0;i<membersNode.size();i++) {
 
@@ -768,7 +817,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
 
     String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint")) + "/directoryObjects/";
+        "grouper.azureConnector.myAzure.resourceEndpoint")) + "/directoryObjects/";
     
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
 
@@ -908,7 +957,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       grouperAzureMemberships.remove(grouperAzureMemberships.size()-1);
       
       // e.g. http://localhost:8400/grouper/mockServices/azure
-      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.azure1.resourceEndpoint"));
+      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.resourceEndpoint"));
 
       String odataNextLink = azureLink + "/groups/" + GrouperUtil.escapeUrlEncode(groupId) 
         + "/members?$skiptoken=" + GrouperUtil.escapeUrlEncode(grouperAzureMemberships.get(grouperAzureMemberships.size()-1).getUserId())
@@ -922,7 +971,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
 
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector.azure1.resourceEndpoint");
+        "grouper.azureConnector.myAzure.resourceEndpoint");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#directoryObjects");
 

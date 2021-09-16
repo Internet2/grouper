@@ -197,6 +197,21 @@ public class GrouperLoader {
    * else defaults to SQL_SIMPLE
    */
   public static final String GROUPER_LOADER_TYPE = "grouperLoaderType";
+  
+  /**
+   * grouper loader display name sync type. BASE_FOLDER_NAME or LEVELS
+   */
+  public static final String GROUPER_LOADER_DISPLAY_NAME_SYNC_TYPE = "grouperLoaderDisplayNameSyncType";
+  
+  /**
+   * folder name after which display names need to be synced between source and grouper
+   */
+  public static final String GROUPER_LOADER_DISPLAY_NAME_SYNC_BASE_FOLDER_NAME = "grouperLoaderDisplayNameSyncBaseFolderName";
+  
+  /**
+   * levels starting from the group after which display names need to be synced between source and grouper
+   */
+  public static final String GROUPER_LOADER_DISPLAY_NAME_SYNC_LEVELS = "grouperLoaderDisplayNameSyncLevels";
 
   /**
    * groups to and with to restrict members (e.g. "and" with activeEmployees)

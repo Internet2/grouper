@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -960,64 +961,116 @@ public class UiV2Configure {
         return;
       }
       
-      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
       
-      if (!grouperRequestWrapper.isMultipart()) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportUploadFile",
-            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
-        return;
-      }
+      // get the type first
+      String howToAdd = grouperRequestWrapper.getParameter("configurationImportHowAdd");
       
-      FileItem importConfigFile = grouperRequestWrapper.getParameterFileItem("importConfigFile");
-
-      if (importConfigFile == null) {
-        
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportUploadFile",
-            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
-        return;
-      }
-
-      String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
-
-      // GRP-2836: Configuration file upload fails on browsers that include full file path
-      if (fileName.contains("/")) {
-        fileName = GrouperUtil.prefixOrSuffix(fileName, "/", false);
-      }
-      if (fileName.contains("\\")) {
-        fileName = GrouperUtil.prefixOrSuffix(fileName, "\\", false);
-      }
       ConfigFileName configFileName = null;
-      
-      try {
-        configFileName = ConfigFileName.valueOfIgnoreCase(fileName, false);
-      } catch (Exception e) {
-        // ignore
-      }
-      
-      if (configFileName == null) {
-        
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportUploadFile",
-            TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileNotValid")));
-        return;
-      }
-      
-      Reader reader = null;
       Properties propertiesToImport = new Properties();
       
-      // load properties from file
-      try {
-        reader = new InputStreamReader(importConfigFile.getInputStream());
+      if (StringUtils.equals(howToAdd, "file")) {
+        if (!grouperRequestWrapper.isMultipart()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importConfigFileId",
+              TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
+          return;
+        }
         
-        propertiesToImport.load(reader);
+        FileItem importConfigFile = grouperRequestWrapper.getParameterFileItem("importConfigFile");
 
-      } catch (Exception e) {
-        throw new RuntimeException("Cant process config import: '" + fileName + "'", e);
-      } finally {
-        GrouperUtil.closeQuietly(reader);
+        if (importConfigFile == null) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importConfigFileId",
+              TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
+          return;
+        }
+
+        String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
+
+        // GRP-2836: Configuration file upload fails on browsers that include full file path
+        if (fileName.contains("/")) {
+          fileName = GrouperUtil.prefixOrSuffix(fileName, "/", false);
+        }
+        if (fileName.contains("\\")) {
+          fileName = GrouperUtil.prefixOrSuffix(fileName, "\\", false);
+        }
+        
+        try {
+          configFileName = ConfigFileName.valueOfIgnoreCase(fileName, false);
+        } catch (Exception e) {
+          // ignore
+        }
+        
+        if (configFileName == null) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importConfigFileId",
+              TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileNotValid")));
+          return;
+        }
+        
+        Reader reader = null;
+        
+        // load properties from file
+        try {
+          reader = new InputStreamReader(importConfigFile.getInputStream());
+          
+          propertiesToImport.load(reader);
+
+        } catch (Exception e) {
+          throw new RuntimeException("Cant process config import: '" + fileName + "'", e);
+        } finally {
+          GrouperUtil.closeQuietly(reader);
+        }
+
+      } else if (StringUtils.equals(howToAdd, "copyPaste")) {
+
+        String fileName = grouperRequestWrapper.getParameter("configFile");
+        
+        try {
+          configFileName = ConfigFileName.valueOfIgnoreCase(fileName, false);
+        } catch (Exception e) {
+          // ignore
+        }
+        
+        if (configFileName == null) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#configFileSelect",
+              TextContainer.retrieveFromRequest().getText().get("configurationImportCopyPasteFileTypeRequired")));
+          return;
+        }
+        
+        String configFileContents = grouperRequestWrapper.getParameter("configInputCopyPasteName");
+        
+        if (StringUtils.isBlank(configFileContents)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#configInputCopyPasteId",
+              TextContainer.retrieveFromRequest().getText().get("configurationImportConfigFileCopyPasteRequired")));
+          return;
+          
+        }
+        
+        // create a new reader
+        StringReader reader = new StringReader(configFileContents);
+
+        try {
+           // load from input stream
+          propertiesToImport.load(reader);
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#configurationImportHowAddImportFileErrorId",
+            TextContainer.retrieveFromRequest().getText().get("configurationImportHowAddRequired")));
+        return;
+        
       }
+      
+      
       
       configurationfileImportSubmitHelper(message, configFileName, propertiesToImport, true);
 

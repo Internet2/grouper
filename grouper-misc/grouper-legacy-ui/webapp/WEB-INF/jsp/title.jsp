@@ -7,7 +7,7 @@
   @version $Id: title.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic"
+<grouperlegacy:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
   <c:if test="${!empty title || !empty subtitle}">
@@ -84,5 +84,5 @@
       </c:if>
   
   </c:if>
-</grouper:recordTile>
+</grouperlegacy:recordTile>
 

@@ -19,17 +19,17 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
@@ -47,9 +47,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsLog;
  * @author mchyzer
  */
 public class WsDeleteMemberResults implements WsResponseBean, ResultMetadataHolder {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsDeleteMemberResults.class);
 
   /**
    * prcess an exception, log, etc
@@ -69,18 +66,17 @@ public class WsDeleteMemberResults implements WsResponseBean, ResultMetadataHold
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsDeleteMemberResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
 
     } else {
       wsDeleteMemberResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsDeleteMemberResultsCodeOverride, WsDeleteMemberResultsCode.EXCEPTION);
-      LOG.error(theError, e);
+      GrouperWsException.logError(theError, e);
 
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsDeleteMemberResultsCodeOverride);
 
     }
@@ -202,7 +198,7 @@ public class WsDeleteMemberResults implements WsResponseBean, ResultMetadataHold
                 + " failures of users deleted from the group.   ");
         this.assignResultCode(WsDeleteMemberResultsCode.PROBLEM_DELETING_MEMBERS);
         //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
+        GrouperWsException.logWarn(this.getResultMetadata().getResultMessage());
 
       } else {
         this.assignResultCode(WsDeleteMemberResultsCode.SUCCESS);

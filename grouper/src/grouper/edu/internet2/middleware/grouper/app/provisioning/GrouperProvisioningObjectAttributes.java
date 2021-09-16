@@ -22,6 +22,7 @@ public class GrouperProvisioningObjectAttributes {
   private boolean isOwnedByGroup;
   private boolean isOwnedByStem;
   private boolean isDeleted = false;
+  private boolean isUpdated = false;
   
   private Map<String, Object> metadataNameValues = null;
   
@@ -160,4 +161,15 @@ public class GrouperProvisioningObjectAttributes {
   public void setDeleted(boolean isDeleted) {
     this.isDeleted = isDeleted;
   }
+
+  
+  public boolean isUpdated() {
+    return isUpdated;
+  }
+
+  
+  public void setUpdated(boolean isUpdated) {
+    this.isUpdated = isUpdated;
+  }
+  
 }

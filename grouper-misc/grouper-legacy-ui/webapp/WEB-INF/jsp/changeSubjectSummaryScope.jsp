@@ -7,7 +7,7 @@
   @version $Id: changeSubjectSummaryScope.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="changeScope">
 <html:form method="post" action="/populateSubjectSummary">
 <html:hidden property="subjectId"/>
@@ -64,4 +64,4 @@
 	</fieldset>
 </html:form>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

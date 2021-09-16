@@ -6,7 +6,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <jsp:useBean id="tabStyle" class="java.util.HashMap"/>
 
 <c:forEach var="menuItem" items="${menuItems}">
@@ -47,4 +47,4 @@
     </html:link>
   </div>
  </c:forEach>       
-</grouper:recordTile>
+</grouperlegacy:recordTile>

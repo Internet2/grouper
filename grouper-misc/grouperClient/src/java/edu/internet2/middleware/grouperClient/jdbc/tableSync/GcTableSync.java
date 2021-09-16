@@ -300,87 +300,93 @@ public class GcTableSync {
       debugMap.put("provisionerName", this.getGcTableSyncConfiguration().getConfigKey());
       debugMap.put("syncType", this.getGcTableSyncConfiguration().getGcTableSyncSubtype());
 
-      this.dataBeanFrom = new GcTableSyncTableBean(this);
-      this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
-      this.dataBeanFrom.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
-      this.dataBeanFrom.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
-      this.dataBeanFrom.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
-        this.dataBeanFrom.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
-      }
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
-        this.dataBeanFrom.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
-      }
-      // if the incremental is there, use it
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString())) {
-        this.dataBeanFrom.getTableMetadata().assignIncrementalAllCoumnsColumn(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString());
-      }
-      debugMap.put("databaseFrom", this.getDataBeanFrom().getTableMetadata().getConnectionName());
-      debugMap.put("tableFrom", this.getDataBeanFrom().getTableMetadata().getTableName());
       
-      this.dataBeanTo = new GcTableSyncTableBean(this);
-      this.dataBeanTo.configureMetadata(this.gcTableSyncConfiguration.getDatabaseTo(), this.gcTableSyncConfiguration.getTableTo());
-      this.dataBeanTo.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseToOrReadonly());
-      this.dataBeanTo.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
-      this.dataBeanTo.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
-        this.dataBeanTo.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
-      }
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
-        this.dataBeanTo.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
-      }
-      debugMap.put("databaseTo", this.getDataBeanTo().getTableMetadata().getConnectionName());
-      debugMap.put("tableTo", this.getDataBeanTo().getTableMetadata().getTableName());
-
-      if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable())) {
-        this.dataBeanRealTime = new GcTableSyncTableBean(this);
-        this.dataBeanRealTime.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable());
-        this.dataBeanRealTime.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
-        this.dataBeanRealTime.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString() + ", " + this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
-        this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
-        this.dataBeanRealTime.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
-        debugMap.put("tableIncremental", this.getDataBeanRealTime().getTableMetadata().getTableName());
-      }
-      
-      // step 0, do we have groups to do?
-      if (GrouperClientUtils.length(this.groupIdsToSync) > 0) {
-        GcTableSyncSubtype.syncGroupings(debugMap, this, this.groupIdsToSync);
-      }
-      
-      this.convertPrimaryKeysFromMembershipsToPrimaryKeys();
-      
-      if ((GrouperClientUtils.length(this.primaryKeysToSync) > 0 ) 
-          && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() != GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
-        throw new RuntimeException("If passing in primaryKeysToSync, then the sync subtype must be incrementalFromIdentifiedPrimaryKeys");
-      }
-      if ((GrouperClientUtils.length(this.primaryKeysToSync) == 0 ) 
-          && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() == GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
-        throw new RuntimeException("If incrementalFromIdentifiedPrimaryKeys, then you ust pass in primaryKeysToSync");
-      }
-      
-      // step 1
-      debugMap.put("state", "retrieveData");
-      this.gcTableSyncConfiguration.getGcTableSyncSubtype().retrieveData(debugMap, this);
-      
-      this.gcGrouperSyncLog.setRecordsProcessed(Math.max(this.gcTableSyncOutput.getRowsSelectedFrom(), this.gcTableSyncOutput.getRowsSelectedTo()));
-
-      if (this.gcGrouperSyncHeartbeat.isInterrupted()) {
-        debugMap.put("interrupted", true);
-        debugMap.put("state", "done");
-        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
-        return this.gcTableSyncOutput;
-      }
-      
-      // step 2
-      debugMap.put("state", "syncData");
-      {
-        Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this);
-        if (recordsChanged != null) {
-          this.gcGrouperSyncLog.setRecordsChanged(recordsChanged);
-          this.gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis()));
+      if (!this.getGcTableSyncConfiguration().isEnabled()) {
+        debugMap.put("enabled", false);
+      } else {
+        this.dataBeanFrom = new GcTableSyncTableBean(this);
+        this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
+        this.dataBeanFrom.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
+        this.dataBeanFrom.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
+        this.dataBeanFrom.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
+          this.dataBeanFrom.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
         }
-      }
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
+          this.dataBeanFrom.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
+        }
+        // if the incremental is there, use it
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString())) {
+          this.dataBeanFrom.getTableMetadata().assignIncrementalAllCoumnsColumn(this.gcTableSyncConfiguration.getIncrementalAllColumnsColumnString());
+        }
+        debugMap.put("databaseFrom", this.getDataBeanFrom().getTableMetadata().getConnectionName());
+        debugMap.put("tableFrom", this.getDataBeanFrom().getTableMetadata().getTableName());
+        
+        this.dataBeanTo = new GcTableSyncTableBean(this);
+        this.dataBeanTo.configureMetadata(this.gcTableSyncConfiguration.getDatabaseTo(), this.gcTableSyncConfiguration.getTableTo());
+        this.dataBeanTo.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseToOrReadonly());
+        this.dataBeanTo.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
+        this.dataBeanTo.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getChangeFlagColumnString())) {
+          this.dataBeanTo.getTableMetadata().assignChangeFlagColumn(this.gcTableSyncConfiguration.getChangeFlagColumnString());
+        }
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getGroupColumnString())) {
+          this.dataBeanTo.getTableMetadata().assignGroupColumn(this.gcTableSyncConfiguration.getGroupColumnString());
+        }
+        debugMap.put("databaseTo", this.getDataBeanTo().getTableMetadata().getConnectionName());
+        debugMap.put("tableTo", this.getDataBeanTo().getTableMetadata().getTableName());
 
+        if (!GrouperClientUtils.isBlank(this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable())) {
+          this.dataBeanRealTime = new GcTableSyncTableBean(this);
+          this.dataBeanRealTime.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getIncrementalPrimaryKeyTable());
+          this.dataBeanRealTime.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
+          this.dataBeanRealTime.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString() + ", " + this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
+          this.dataBeanRealTime.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());
+          this.dataBeanRealTime.getTableMetadata().assignIncrementalProgressColumn(this.gcTableSyncConfiguration.getIncrementalProgressColumnString());
+          debugMap.put("tableIncremental", this.getDataBeanRealTime().getTableMetadata().getTableName());
+        }
+        
+        // step 0, do we have groups to do?
+        if (GrouperClientUtils.length(this.groupIdsToSync) > 0) {
+          GcTableSyncSubtype.syncGroupings(debugMap, this, this.groupIdsToSync);
+        }
+        
+        this.convertPrimaryKeysFromMembershipsToPrimaryKeys();
+        
+        if ((GrouperClientUtils.length(this.primaryKeysToSync) > 0 ) 
+            && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() != GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
+          throw new RuntimeException("If passing in primaryKeysToSync, then the sync subtype must be incrementalFromIdentifiedPrimaryKeys");
+        }
+        if ((GrouperClientUtils.length(this.primaryKeysToSync) == 0 ) 
+            && (this.getGcTableSyncConfiguration().getGcTableSyncSubtype() == GcTableSyncSubtype.incrementalFromIdentifiedPrimaryKeys)) {
+          throw new RuntimeException("If incrementalFromIdentifiedPrimaryKeys, then you ust pass in primaryKeysToSync");
+        }
+        
+        // step 1
+        debugMap.put("state", "retrieveData");
+        this.gcTableSyncConfiguration.getGcTableSyncSubtype().retrieveData(debugMap, this);
+        
+        this.gcGrouperSyncLog.setRecordsProcessed(Math.max(this.gcTableSyncOutput.getRowsSelectedFrom(), this.gcTableSyncOutput.getRowsSelectedTo()));
+
+        if (this.gcGrouperSyncHeartbeat.isInterrupted()) {
+          debugMap.put("interrupted", true);
+          debugMap.put("state", "done");
+          gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
+          return this.gcTableSyncOutput;
+        }
+        
+        // step 2
+        debugMap.put("state", "syncData");
+        {
+          Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this);
+          if (recordsChanged != null) {
+            this.gcGrouperSyncLog.setRecordsChanged(recordsChanged);
+            this.gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis()));
+          }
+        }
+
+      }
+      
       debugMap.put("state", "done");
 
       // change micros to millis in the logs
@@ -572,6 +578,12 @@ public class GcTableSync {
       
     }
     return this.gcTableSyncOutput;
+  }
+
+  
+  public void setGcTableSyncConfiguration(
+      GcTableSyncConfiguration gcTableSyncConfiguration) {
+    this.gcTableSyncConfiguration = gcTableSyncConfiguration;
   }
 
   /**

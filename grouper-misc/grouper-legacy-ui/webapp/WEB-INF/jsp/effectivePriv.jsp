@@ -7,7 +7,7 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:set target="${params}" property="subjectId" value="${subject.id}"/>
 <c:set target="${params}" property="subjectType" value="${subject.subjectType}"/>
 <c:set target="${params}" property="sourceId" value="${subject.sourceId}"/>
@@ -96,4 +96,4 @@
 		</div>
 	</c:if>
 
-</grouper:recordTile>  
+</grouperlegacy:recordTile>  

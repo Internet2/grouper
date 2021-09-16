@@ -17,14 +17,14 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
@@ -97,11 +97,6 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
   }
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAssignAttributeDefNameInheritanceResults.class);
-
-  /**
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
@@ -157,28 +152,27 @@ public class WsAssignAttributeDefNameInheritanceResults implements WsResponseBea
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
 
     } else if (e instanceof InsufficientPrivilegeException ) {
       wsAssignAttributeDefNameInheritanceResultsOverrideCode = GrouperUtil.defaultIfNull(
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.INSUFFICIENT_PRIVILEGES);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
+      this.getResultMetadata().appendResultMessageError(e.getMessage());
+      this.getResultMetadata().appendResultMessageError(theError);
+      GrouperWsException.logWarn(theError, e);
   
 
     } else {
       wsAssignAttributeDefNameInheritanceResultsOverrideCode = GrouperUtil.defaultIfNull(
           wsAssignAttributeDefNameInheritanceResultsOverrideCode, WsAssignAttributeDefNameInheritanceResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+      GrouperWsException.logError(theError, e);
+
+      this.getResultMetadata().appendResultMessageError(theError);
+      this.getResultMetadata().appendResultMessageError(e);
       this.assignResultCode(wsAssignAttributeDefNameInheritanceResultsOverrideCode);
   
     }

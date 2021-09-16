@@ -1547,7 +1547,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     MultiKey memberhip1multiKey = new MultiKey("group1", "member1");
     MultiKey memberhip2multiKey = new MultiKey("group2", "member2");
     Map<MultiKey, GcGrouperSyncMembership> groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdsAndMemberIds(
-        GrouperUtil.toList(memberhip1multiKey, memberhip2multiKey));
+        gcGrouperSync.getId(), GrouperUtil.toList(memberhip1multiKey, memberhip2multiKey));
     gcGrouperSyncMembership1 = groupIdToGcGrouperSyncMembership.get(memberhip1multiKey);
     gcGrouperSyncMembership2 = groupIdToGcGrouperSyncMembership.get(memberhip2multiKey);
     GcGrouperSyncMembership gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveOrCreateByGroupIdAndMemberId("group3", "member3");
@@ -1595,7 +1595,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
   
     assertNotNull(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveById(gcGrouperSyncMembership6.getId()));
     
-    groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(GrouperUtil.toSet(
+    groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdsAndMemberIds(gcGrouperSync.getId(), GrouperUtil.toSet(
         new MultiKey(gcGrouperSyncGroup1.getGroupId(), gcGrouperSyncMember1.getMemberId()), 
         new MultiKey(gcGrouperSyncGroup2.getGroupId(), gcGrouperSyncMember2.getMemberId())));
   
@@ -1604,6 +1604,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertTrue(groupIdToGcGrouperSyncMembership.containsKey(new MultiKey(gcGrouperSyncGroup2.getGroupId(), gcGrouperSyncMember2.getMemberId())));
     
     groupIdToGcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(
+        gcGrouperSync.getId(),
         GrouperUtil.toSet(new MultiKey(gcGrouperSyncMembership1.getGrouperSyncGroupId(), gcGrouperSyncMembership1.getGrouperSyncMemberId()),
             new MultiKey(gcGrouperSyncMembership2.getGrouperSyncGroupId(), gcGrouperSyncMembership2.getGrouperSyncMemberId())));
   

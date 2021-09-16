@@ -6,5 +6,5 @@
   @version $Id: right.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-</grouper:recordTile>
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+</grouperlegacy:recordTile>

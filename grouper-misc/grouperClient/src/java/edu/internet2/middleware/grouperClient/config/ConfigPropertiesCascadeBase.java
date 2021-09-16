@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -156,7 +157,7 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public Map<String, String> propertiesThreadLocalOverrideMap() {
     if (propertiesThreadLocalOverrideMap == null) {
-      propertiesThreadLocalOverrideMap = new ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
+      propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
     }
 
     Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
@@ -978,6 +979,9 @@ public abstract class ConfigPropertiesCascadeBase {
       result.configFiles.add(configFile);
       
       boolean replaceWithBlank = false;
+      
+      String configFileContents = null;
+      boolean grouperClientConfigNextToJar = false;
       //lets append the properties
       if (configFile.getConfigFileType() == ConfigFileType.CLASSPATH) {
         if (GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.properties")
@@ -994,13 +998,26 @@ public abstract class ConfigPropertiesCascadeBase {
           String resource = GrouperClientUtils.stripPrefix(overrideConfigString, "classpath:");
           URL url = GrouperClientUtils.computeUrl(resource, true);
           if (url == null) {
-            replaceWithBlank = true;
+            if (GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.client.properties") && mainConfigFile != null && mainConfigFile.size() > 0) {
+              // dont clear out, its next to the jar
+              grouperClientConfigNextToJar = true;
+            } else {
+              replaceWithBlank = true;
+            }
           }
         }
       }
-      String configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
-      configFile.setContents(configFileContents);
       
+      if (!grouperClientConfigNextToJar) {
+        configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
+      } else {
+        File jarFile = ConfigPropertiesCascadeUtils.jarFile(this.getClassInSiblingJar());
+        File parentDir = jarFile == null ? null : jarFile.getParentFile();
+        String fileName = parentDir == null ? null 
+            : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + this.getMainConfigFileName());
+        configFileContents = GrouperClientCommonUtils.readFileIntoStringUtf8(new File(fileName));
+      }      
+      configFile.setContents(configFileContents);
       try {
         // keep a copy in here for config screen
         configFile.setProperties(new Properties());

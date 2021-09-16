@@ -6,7 +6,7 @@
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <%@page import="java.io.PrintWriter"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="exception">
 <c:choose>
 	<c:when test="${!empty exception}">
@@ -24,4 +24,4 @@
 	</c:otherwise>
 </c:choose>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

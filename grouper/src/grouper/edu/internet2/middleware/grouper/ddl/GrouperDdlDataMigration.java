@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateParam;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperDdlDataMigration {
@@ -71,7 +72,7 @@ public class GrouperDdlDataMigration {
   private static <T> List<T> hqlList(String connectionName, String hql, List<HibernateParam> bindVarNameParams) {
 
     GrouperContext.incrementQueryCount();
-
+    long startNanos = System.nanoTime();
     Session session = null;
     
     try {
@@ -86,6 +87,7 @@ public class GrouperDdlDataMigration {
       return list;
     } finally {
       sessionEnd(session, false);
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
     }    
   }
   
@@ -232,6 +234,9 @@ public class GrouperDdlDataMigration {
         result.append(state+"\n");
         for (GrouperDdlScript current : grouperDdlScripts) {
           current.runTableScript();
+        }
+        for (GrouperDdlScript current : grouperDdlScripts) {
+          current.runDmlScript();
         }
         state = "STEP2: complete";
         result.append(state + "\n");
@@ -633,7 +638,9 @@ public class GrouperDdlDataMigration {
 
     Session session = null;
     
+    long startNanos = System.nanoTime();
     try {
+
       session = Hib3DAO.session(connectionName);
       Transaction transaction = session.beginTransaction();
       int queries = 1+(GrouperUtil.length(collection) / GrouperHibernateConfig.retrieveConfig().propertyValueInt("hibernate.jdbc.batch_size", 200));
@@ -660,6 +667,8 @@ public class GrouperDdlDataMigration {
       throw new RuntimeException("error", e);
     } finally {
       sessionEnd(session, false);
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+
     }    
 
     

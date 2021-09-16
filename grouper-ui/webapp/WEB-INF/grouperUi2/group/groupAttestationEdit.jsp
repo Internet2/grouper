@@ -88,15 +88,17 @@
               id="grouperAttestationEmailGroupManagersId"
               style="width: 25em"
               onchange="ajax('../app/UiV2Attestation.editGroupAttestation', {formIds: 'editGroupAttestationFormId'}); return false;">
-                <option value="true"
+                <option value="groupManagers"
                   ${grouperRequestContainer.attestationContainer.editAttestationEmailGroupManagers ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationEmailManagersLabel']}</option>
-                <option value="false"
-                  ${grouperRequestContainer.attestationContainer.editAttestationEmailGroupManagers ? '' : 'selected="selected"' }>${textContainer.textEscapeXml['grouperAttestationDontEmailManagersLabel']}</option>
+                <option value="emailList"
+                  ${grouperRequestContainer.attestationContainer.editAttestationEmailList ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationEmailCustomListLabel']}</option>
+                <option value="emailGroup"
+                  ${grouperRequestContainer.attestationContainer.editAttestationEmailToGroup ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperAttestationEmailGroupLabel']}</option>
+                  
             </select> <br /> <span class="description">${textContainer.text['grouperAttestationEmailManagersDescription']}</span>
             </td>
           </tr>
-          <c:if
-            test="${grouperRequestContainer.attestationContainer.editAttestationShowEmailAddresses}">
+          <c:if test="${grouperRequestContainer.attestationContainer.editAttestationShowEmailAddresses}">
             <tr>
               <td style="vertical-align: top; white-space: nowrap;"><strong><label
                   for="grouperAttestationEmailAddressesId">${textContainer.text['attestationEmailAddressesLabel']}</label></strong></td>
@@ -113,6 +115,27 @@
                 
               </td>
             </tr>
+          </c:if>
+          <c:if test="${grouperRequestContainer.attestationContainer.editAttestationShowEmailGroup}">
+            <tr>
+              <td style="vertical-align: top; white-space: nowrap;"><strong><label
+                  for="grouperAttestationEmailGroupComboId">${textContainer.text['attestationEmailGroupLabel']}</label></strong></td>
+              <td id="grouperAttestationEmailGroupComboTd">
+                <style>#grouperAttestationEmailGroupComboTd td {padding: 0; border: 0}</style>
+                <table style="padding: 0; border-spacing: 0"><tr><td>
+                  <grouper:combobox2 idBase="grouperAttestationEmailGroupCombo" style="width: 30em"
+                    value="${grouperRequestContainer.attestationContainer.editAttestationEmailGroup == null ? null : grouperRequestContainer.attestationContainer.editAttestationEmailGroup.id}"
+                    filterOperation="../app/UiV2Group.groupReadFilter" />
+                  </td><td>
+                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                    </td></tr></table>
+              
+                <span class="description">${textContainer.text['grouperAttestationEmailGroupDescription']}</span>
+                
+              </td>
+            </tr>
+
           </c:if>
         </c:if>
         <tr>

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -133,7 +134,7 @@ public class GrouperReportJob implements Job {
         hib3GrouploaderLog.setTotalCount(rows);
         hib3GrouploaderLog.setJobMessage("Ran grouper report: "+reportConfig.getReportConfigName());
         
-        GrouperLoaderStatus loaderStatus = newReportInstance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
+        GrouperLoaderStatus loaderStatus = StringUtils.equals(newReportInstance.getReportInstanceStatus(), GrouperReportInstance.STATUS_SUCCESS) ? SUCCESS: ERROR;
         
         hib3GrouploaderLog.setStatus(loaderStatus.name());
         

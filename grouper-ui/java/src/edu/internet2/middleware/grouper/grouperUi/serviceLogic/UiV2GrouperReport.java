@@ -1204,8 +1204,8 @@ public class UiV2GrouperReport {
         
         String reportContent = GrouperReportLogic.getReportContent(reportInstance);
         
-        response.setContentType("text/csv");
-        response.setHeader ("Content-Disposition", "inline;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
         
         PrintWriter out = response.getWriter();
         out.write(reportContent);
@@ -1292,8 +1292,8 @@ public class UiV2GrouperReport {
         
         String reportContent = GrouperReportLogic.getReportContent(reportInstance);
         
-        response.setContentType("text/csv");
-        response.setHeader ("Content-Disposition", "inline;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
         
         PrintWriter out = response.getWriter();
         out.write(reportContent);
@@ -1564,6 +1564,27 @@ public class UiV2GrouperReport {
     String reportConfigQuery = request.getParameter("grouperReportConfigQuery");
     bean.setReportConfigQuery(reportConfigQuery);
     
+    String reportConfigScript = request.getParameter("grouperReportConfigScript");
+    bean.setReportConfigScript(reportConfigScript);
+    
+    {
+      String reportConfigStoreWithNoData = request.getParameter("grouperReportConfigStoreWithNoData");
+      boolean configStoreWithNoData = true;
+      if (StringUtils.isNotBlank(reportConfigStoreWithNoData)) {
+        configStoreWithNoData = BooleanUtils.toBoolean(reportConfigStoreWithNoData);
+      }
+      bean.setReportConfigStoreWithNoData(configStoreWithNoData);
+    }
+
+    {
+      String reportConfigSendEmailWithNoData = request.getParameter("grouperReportConfigSendEmailWithNoData");
+      boolean configSendEmailWithNoData = true;
+      if (StringUtils.isNotBlank(reportConfigSendEmailWithNoData)) {
+        configSendEmailWithNoData = BooleanUtils.toBoolean(reportConfigSendEmailWithNoData);
+      }
+      bean.setReportConfigSendEmailWithNoData(configSendEmailWithNoData);
+    }
+    
   }
   
   /**
@@ -1682,10 +1703,17 @@ public class UiV2GrouperReport {
       }
     }
     
-    if (StringUtils.isBlank(bean.getReportConfigQuery())) {
+    if (bean.getReportConfigType() == ReportConfigType.SQL && StringUtils.isBlank(bean.getReportConfigQuery())) {
       guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
           "#grouperReportConfigQueryId",
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigQueryBlankError")));
+      return false;
+    }
+    
+    if (bean.getReportConfigType() == ReportConfigType.GSH && StringUtils.isBlank(bean.getReportConfigScript())) {
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+          "#grouperReportConfigScriptId",
+          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigScriptBlankError")));
       return false;
     }
     

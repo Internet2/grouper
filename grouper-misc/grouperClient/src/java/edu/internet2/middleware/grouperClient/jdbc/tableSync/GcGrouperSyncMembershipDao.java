@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * membership dao
@@ -238,13 +239,24 @@ public class GcGrouperSyncMembershipDao {
   /**
    * select or create grouper sync membership by group uuid and member uuid, note this assumes the syncGroup and syncMember have been retrieved and
    * are in cache.  if they arent there this is an error.  create the groups and members before the membership!
-   * @param groupId
-   * @param memberId 
+   * @param groupIdsAndMemberIds 
    * @return the membership
+   * @deprecated
    */
   public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveOrCreateByGroupIdsAndMemberIds(Collection<MultiKey> groupIdsAndMemberIds) {
+    return membershipRetrieveOrCreateByGroupIdsAndMemberIds(null, groupIdsAndMemberIds);
+  }
+  
+  /**
+   * select or create grouper sync membership by group uuid and member uuid, note this assumes the syncGroup and syncMember have been retrieved and
+   * are in cache.  if they arent there this is an error.  create the groups and members before the membership!
+   * @param grouperSyncId
+   * @param groupIdsAndMemberIds 
+   * @return the membership
+   */
+  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveOrCreateByGroupIdsAndMemberIds(String grouperSyncId, Collection<MultiKey> groupIdsAndMemberIds) {
     
-    Map<MultiKey, GcGrouperSyncMembership> result = this.membershipRetrieveByGroupIdsAndMemberIds(groupIdsAndMemberIds);
+    Map<MultiKey, GcGrouperSyncMembership> result = this.membershipRetrieveByGroupIdsAndMemberIds(grouperSyncId, groupIdsAndMemberIds);
     
     // if done, return
     if (GrouperClientUtils.length(groupIdsAndMemberIds) == 0 || groupIdsAndMemberIds.size() == result.size()) {
@@ -318,15 +330,25 @@ public class GcGrouperSyncMembershipDao {
         gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId());
     return gcGrouperSyncMembership;
   }
+  
+  /**
+   * select grouper sync membership by sync id and membership id
+   * @param syncGroupIdsAndSyncMemberIds
+   * @return the membershipId to syncMembership map
+   * @deprecated
+   */
+  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveBySyncGroupIdsAndSyncMemberIds(
+      Collection<MultiKey> syncGroupIdsAndSyncMemberIds) {
+    return membershipRetrieveBySyncGroupIdsAndSyncMemberIds(null, syncGroupIdsAndSyncMemberIds);
+  }
 
   /**
    * select grouper sync membership by sync id and membership id
-   * @param grouperSyncId
-   * @param grouperMembershipIdsCollection
-   * @param provisionerName
+   * @param syncGroupIdsAndSyncMemberIds
    * @return the membershipId to syncMembership map
    */
   public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveBySyncGroupIdsAndSyncMemberIds(
+      String grouperSyncId,
       Collection<MultiKey> syncGroupIdsAndSyncMemberIds) {
   
     Map<MultiKey, GcGrouperSyncMembership> result = new HashMap<MultiKey, GcGrouperSyncMembership>();
@@ -345,7 +367,7 @@ public class GcGrouperSyncMembershipDao {
     
     // or else get from db
     if (membershipIdsToGetFromDb.size() > 0) {
-      Map<MultiKey, GcGrouperSyncMembership> fromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(membershipIdsToGetFromDb);
+      Map<MultiKey, GcGrouperSyncMembership> fromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(grouperSyncId, membershipIdsToGetFromDb);
       result.putAll(fromDb);
     }
     
@@ -496,18 +518,29 @@ public class GcGrouperSyncMembershipDao {
         "delete from grouper_sync_membership where grouper_sync_member_id = ?")
       .bindVars(syncMemberId).executeSql();
   }
+  
+  /**
+   * select grouper sync membership by membership id.  note, this does not store the memberships to the database, do that later
+   * @param syncGroupIdsAndSyncMemberIdsCollection
+   * @return the membershipId to syncMembership map
+   * @deprecated
+   */
+  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveOrCreateBySyncGroupIdsAndSyncMemberIds(
+      Collection<MultiKey> syncGroupIdsAndSyncMemberIdsCollection) {
+    return membershipRetrieveOrCreateBySyncGroupIdsAndSyncMemberIds(null, syncGroupIdsAndSyncMemberIdsCollection);
+  }
 
   /**
    * select grouper sync membership by membership id.  note, this does not store the memberships to the database, do that later
    * @param grouperSyncId
    * @param syncGroupIdsAndSyncMemberIdsCollection
-   * @param provisionerName
    * @return the membershipId to syncMembership map
    */
   public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveOrCreateBySyncGroupIdsAndSyncMemberIds(
+      String grouperSyncId,
       Collection<MultiKey> syncGroupIdsAndSyncMemberIdsCollection) {
 
-    Map<MultiKey, GcGrouperSyncMembership> result = this.membershipRetrieveBySyncGroupIdsAndSyncMemberIds(syncGroupIdsAndSyncMemberIdsCollection);
+    Map<MultiKey, GcGrouperSyncMembership> result = this.membershipRetrieveBySyncGroupIdsAndSyncMemberIds(grouperSyncId, syncGroupIdsAndSyncMemberIdsCollection);
   
     // if done, return
     if (GrouperClientUtils.length(syncGroupIdsAndSyncMemberIdsCollection) == 0 || syncGroupIdsAndSyncMemberIdsCollection.size() == result.size()) {
@@ -624,7 +657,7 @@ public class GcGrouperSyncMembershipDao {
    * @param provisionerName
    * @return the membershipId to syncMembership map
    */
-  public Map<MultiKey, GcGrouperSyncMembership> internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(Collection<MultiKey> syncGroupIdsAndSyncMemberIds) {
+  public Map<MultiKey, GcGrouperSyncMembership> internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(String grouperSyncId, Collection<MultiKey> syncGroupIdsAndSyncMemberIds) {
     
     Map<MultiKey, GcGrouperSyncMembership> result = new HashMap<MultiKey, GcGrouperSyncMembership>();
     
@@ -645,7 +678,12 @@ public class GcGrouperSyncMembershipDao {
       StringBuilder sql = new StringBuilder("select * from grouper_sync_membership where ");
       
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName());
-          
+      
+      if (!StringUtils.isEmpty(grouperSyncId)) {
+        sql.append(" grouper_sync_id = ? and ( ");
+        gcDbAccess.addBindVar(grouperSyncId);
+      }
+      
       for (int i=0;i<batchOfMembershipIds.size();i++) {
         if (i>0) {
           sql.append(" or ");
@@ -654,6 +692,10 @@ public class GcGrouperSyncMembershipDao {
         MultiKey syncGroupIdAndSyncMemberId = batchOfMembershipIds.get(i);
         gcDbAccess.addBindVar(syncGroupIdAndSyncMemberId.getKey(0));
         gcDbAccess.addBindVar(syncGroupIdAndSyncMemberId.getKey(1));
+      }
+      
+      if (!StringUtils.isEmpty(grouperSyncId)) {
+        sql.append(")");
       }
       
       List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcDbAccess.sql(sql.toString()).selectList(GcGrouperSyncMembership.class);
@@ -911,14 +953,24 @@ public class GcGrouperSyncMembershipDao {
     }
     return gcGrouperSyncMembership;
   }
+  
+  /**
+   * select grouper syncs membership by group uuids and member uuids, note this assumes the syncGroup and syncMember exist
+   * @param groupIdsAndMemberIds 
+   * @return the membership
+   * @deprecated
+   */
+  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveByGroupIdsAndMemberIds(Collection<MultiKey> groupIdsAndMemberIds) {
+    return membershipRetrieveByGroupIdsAndMemberIds(null, groupIdsAndMemberIds);
+  }
 
   /**
    * select grouper syncs membership by group uuids and member uuids, note this assumes the syncGroup and syncMember exist
-   * @param groupId
-   * @param memberId 
+   * @param grouperSyncId
+   * @param groupIdsAndMemberIds 
    * @return the membership
    */
-  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveByGroupIdsAndMemberIds(Collection<MultiKey> groupIdsAndMemberIds) {
+  public Map<MultiKey, GcGrouperSyncMembership> membershipRetrieveByGroupIdsAndMemberIds(String grouperSyncId, Collection<MultiKey> groupIdsAndMemberIds) {
     
     Set<String> groupIds = new HashSet<String>();
     Set<String> memberIds = new HashSet<String>();
@@ -973,7 +1025,7 @@ public class GcGrouperSyncMembershipDao {
     
     // or else get from db
     if (syncGroupIdsSyncMemberIdsToGetFromDb.size() > 0) {
-      Map<MultiKey, GcGrouperSyncMembership> syncGroupIdSyncMemberIdToMembershipFromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(syncGroupIdsSyncMemberIdsToGetFromDb);
+      Map<MultiKey, GcGrouperSyncMembership> syncGroupIdSyncMemberIdToMembershipFromDb = internal_membershipRetrieveFromDbBySyncGroupIdsAndSyncMemberIds(grouperSyncId, syncGroupIdsSyncMemberIdsToGetFromDb);
       for (MultiKey syncGroupIdSyncMemberId : (GrouperClientUtils.nonNull(syncGroupIdSyncMemberIdToMembershipFromDb).keySet())) {
         MultiKey groupIdMemberId = syncGroupSyncMemberToGroupMemberIds.get(syncGroupIdSyncMemberId);
         results.put(groupIdMemberId, syncGroupIdSyncMemberIdToMembershipFromDb.get(syncGroupIdSyncMemberId));
@@ -985,15 +1037,14 @@ public class GcGrouperSyncMembershipDao {
   }
 
   public List<GcGrouperSyncMembership> membershipRetrieveByGroupIds(Set<String> groupIdsToRetrieveMemberships) {
-    Set<String> groupIds = new HashSet<String>();
-    
+
     List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
     
     if (GrouperClientUtils.length(groupIdsToRetrieveMemberships) == 0) {
       return results;
     }
 
-    Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIds);
+    Map<String, GcGrouperSyncGroup> groupIdToSyncGroup = this.gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieveMemberships);
 
     Set<String> groupSyncIds = new HashSet<String>();
     for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperClientUtils.nonNull(groupIdToSyncGroup).values()) {
@@ -1005,7 +1056,6 @@ public class GcGrouperSyncMembershipDao {
   }
 
   public List<GcGrouperSyncMembership> membershipRetrieveByMemberIds(Set<String> memberIdsToRetrieveMemberships) {
-    Set<String> groupIds = new HashSet<String>();
     
     List<GcGrouperSyncMembership> results = new ArrayList<GcGrouperSyncMembership>();
     
@@ -1013,7 +1063,7 @@ public class GcGrouperSyncMembershipDao {
       return results;
     }
 
-    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(groupIds);
+    Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = this.gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieveMemberships);
 
     Set<String> memberSyncIds = new HashSet<String>();
     for (GcGrouperSyncMember gcGrouperSyncMember : GrouperClientUtils.nonNull(memberSyncIdToSyncMember).values()) {

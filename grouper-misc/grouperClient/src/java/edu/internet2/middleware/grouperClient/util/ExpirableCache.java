@@ -151,10 +151,12 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(int defaultTimeToLiveInMinutes) {
     super();
-    //make sure this is less than the max
-    long newTimeToLiveMillis = (long)defaultTimeToLiveInMinutes * 60 * 1000;
-    if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
-      this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
+    if (defaultTimeToLiveInMinutes >=0) {
+      //make sure this is less than the max
+      long newTimeToLiveMillis = (long)defaultTimeToLiveInMinutes * 60 * 1000;
+      if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
+        this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
+      }
     }
   }
 
@@ -203,11 +205,12 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(ExpirableCacheUnit expirableCacheUnit, int defaultTimeToLive) {
     super();
-
-    //make sure this is less than the max
-    long newTimeToLiveMillis = expirableCacheUnit.defaultTimeToLiveMillis(defaultTimeToLive);
-    if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
-      this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
+    if (defaultTimeToLive >=0) {
+      //make sure this is less than the max
+      long newTimeToLiveMillis = expirableCacheUnit.defaultTimeToLiveMillis(defaultTimeToLive);
+      if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
+        this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
+      }
     }
   }
 
@@ -279,7 +282,7 @@ public class ExpirableCache<K,V> implements Serializable {
     this.checkForEvictions(true);
     long newTimeToLiveInMillis = this.defaultTimeToLiveInMillis;
     //dont use what was inputted if it is out of range
-    if (proposedTimeToLiveInMillis > 0 
+    if (proposedTimeToLiveInMillis >= 0 
         && proposedTimeToLiveInMillis <= ExpirableCache.MAX_TIME_TO_LIVE_MILLIS) {
       newTimeToLiveInMillis = proposedTimeToLiveInMillis;
     }

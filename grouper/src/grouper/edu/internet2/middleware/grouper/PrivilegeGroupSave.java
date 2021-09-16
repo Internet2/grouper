@@ -317,8 +317,14 @@ public class PrivilegeGroupSave {
           if (subject == null && !StringUtils.isBlank(subjectId) && !StringUtils.isBlank(subjectSourceId)) {
             subject = SubjectFinder.findByIdAndSource(PrivilegeGroupSave.this.subjectId, PrivilegeGroupSave.this.subjectSourceId, false);
           }            
+          if (subject == null && !StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findById(PrivilegeGroupSave.this.subjectId, false);
+          }            
           if (subject == null && !StringUtils.isBlank(subjectIdentifier) && !StringUtils.isBlank(subjectSourceId)) {
             subject = SubjectFinder.findByIdentifierAndSource(PrivilegeGroupSave.this.subjectIdentifier, PrivilegeGroupSave.this.subjectSourceId, false);
+          }
+          if (subject == null && !StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(subjectSourceId)) {
+            subject = SubjectFinder.findByIdentifier(PrivilegeGroupSave.this.subjectIdentifier, false);
           }
           if (subject == null && member != null) {
             subject = member.getSubject();

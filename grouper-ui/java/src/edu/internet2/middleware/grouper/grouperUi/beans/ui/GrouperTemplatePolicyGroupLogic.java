@@ -20,12 +20,10 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.LockoutGroup;
 import edu.internet2.middleware.grouper.group.RequireGroup;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -257,14 +255,17 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
   public List<ServiceAction> getServiceActions() {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     Stem stem = StemFinder.findByUuid(grouperSession, this.getStemId(), true);
     
     StemTemplateContainer templateContainer = this.getStemTemplateContainer();
     String baseGroup = templateContainer.getTemplateKey();
     String baseGroupFriendlyName = templateContainer.getTemplateFriendlyName();
 
-    
+    // GRP-3559: Refactor UI templates to not depend on the UI
+    // Mystery how this works. Adding an EL variable stemTemplateContainer makes ${grouperRequestContainer.stemTemplateContainer}
+    // evaluate to stemTemplateContainer, even when grouperRequestContainer is null
+    GrouperTextContainer.assignThreadLocalVariable("stemTemplateContainer", templateContainer);
+
     if (StringUtils.isBlank(baseGroupFriendlyName)) {
       baseGroupFriendlyName = baseGroup;
     }
@@ -277,20 +278,10 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
     
     List<ServiceAction> serviceActionsForStem = new ArrayList<ServiceAction>();
 
-    if (StringUtils.isBlank(baseGroup)) {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-          TextContainer.retrieveFromRequest().getText().get("policyGroupTemplateRootFolderError")));
-      return serviceActionsForStem;
-      
+    if (StringUtils.isBlank(baseGroup) || stem.isRootStem()) {
+      throw new RuntimeException(TextContainer.retrieveFromRequest().getText().get("policyGroupTemplateRootFolderError"));
     }
 
-
-    if (stem.isRootStem()) {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-          TextContainer.retrieveFromRequest().getText().get("policyGroupTemplateRootFolderError")));
-      return serviceActionsForStem;
-    }
-    
     stemPrefix = stem.getName()+":";
     stemPrefixDisplayName = stem.getDisplayName()+":";
 

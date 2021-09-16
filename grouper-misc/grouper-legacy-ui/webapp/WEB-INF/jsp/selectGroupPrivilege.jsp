@@ -6,7 +6,7 @@
   @version $Id: selectGroupPrivilege.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="selectGroupPrivilege">
 <html:form action="populateGroupPriviligees" method="post">
 <fieldset>
@@ -19,4 +19,4 @@
 	</fieldset>
 </html:form>
 </div>
-</grouper:recordTile>
+</grouperlegacy:recordTile>

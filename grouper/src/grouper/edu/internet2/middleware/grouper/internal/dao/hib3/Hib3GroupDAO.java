@@ -2923,6 +2923,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       byHqlStatic.setString("sqlLikeString", sqlLikeString);
     }
     
+    if (!Privilege.isEntity(privilege)) {
+      sql.append(" and theGroup.typeOfGroupDb != 'entity' ");
+    }
 
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
