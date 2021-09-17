@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -33,6 +35,36 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableDat
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
 public class LdapToSqlSyncDaemon extends OtherJobBase {
+  
+  public static void main(String[] args) {
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    
+    elVariableMap.put("ldapAttribute__uid", "jsmith");
+
+    String script = "${ldapAttribute__uid + '@example.edu'}";
+      
+    String ldapValue = (String)GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, false);
+    
+    System.out.println(ldapValue);
+    
+    elVariableMap.put("ldapAttribute__somethingPacked", "{fruit=apple}:{color=red}:{flavor=sweet}");
+
+    // int x=4;\nString y='hey';\ny
+    //
+    ldapValue = (String)GrouperUtil.substituteExpressionLanguageScript("${var theMatcher = java.util.regex.Pattern.compile('^.*\\{color=([^}]*)\\}.*$').matcher(ldapAttribute__somethingPacked);theMatcher.matches() ? theMatcher.group(1) : null}", elVariableMap, true, false, false);
+    System.out.println("First: '" + ldapValue + "'");
+    
+    Pattern pattern = java.util.regex.Pattern.compile("^.*\\{color=([^}]*)\\}.*$");
+    
+    Matcher matcher = pattern.matcher((String)elVariableMap.get("ldapAttribute__somethingPacked"));
+    
+    String result = matcher.matches() ? matcher.group(1) : null; 
+    System.out.println(result);
+    script = "${java.util.regex.Matcher \nString result = matcher.matches() ? group(1) : null;}";
+    
+    ldapValue = (String)GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, false);
+    System.out.println(ldapValue);
+  }
   
   public LdapToSqlSyncDaemon() {
   }
