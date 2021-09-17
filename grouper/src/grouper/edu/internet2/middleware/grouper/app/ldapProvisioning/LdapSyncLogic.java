@@ -52,7 +52,7 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
         for (String dn : dnsToFind) {
           
           LdapProvisioningTargetDao ldapProvisioningTargetDao = (LdapProvisioningTargetDao)this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getWrappedDao();
-          ProvisioningGroup provisioningGroup = ldapProvisioningTargetDao.retrieveGroupByDn(dn, true);
+          ProvisioningGroup provisioningGroup = ldapProvisioningTargetDao.retrieveGroupByDn(dn, true, false);
           if (provisioningGroup != null) {
             targetProvisioningGroups.add(provisioningGroup);
           }
