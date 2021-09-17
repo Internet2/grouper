@@ -70,11 +70,12 @@ public class AtlassianUserMappingV2 implements AtlassianUserMapping {
   /**
    * @see edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey#gcSqlAssignNewPrimaryKeyForInsert()
    */
-  public void gcSqlAssignNewPrimaryKeyForInsert() {
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
     if (this.userKey != null) {
-      throw new RuntimeException("Why setting primary key if already exists! " + this.userKey);
+      return false;
     }
     this.setUserKey(UUID.randomUUID().toString().replaceAll("-", ""));
+    return true;
   }
 
 

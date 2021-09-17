@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.atlassian.confluence.event.events.security.LoginDetails;
+import com.atlassian.confluence.event.events.security.LoginDetails.CaptchaState;
+import com.atlassian.confluence.event.events.security.LoginDetails.LoginSource;
 import com.atlassian.confluence.event.events.security.LoginEvent;
 import com.atlassian.confluence.event.events.security.LoginFailedEvent;
 import com.atlassian.confluence.user.ConfluenceAuthenticator;
@@ -47,8 +50,8 @@ public class ConfluenceExternalAuthenticator extends ConfluenceAuthenticator {
           putPrincipalInSessionContext(request, user);
           getElevatedSecurityGuard().onSuccessfulLoginAttempt(request, username);
           // Firing this event is necessary to ensure the user's personal information is initialised correctly.
-          getEventPublisher().publish(
-                  new LoginEvent(this, username, request.getSession().getId(), remoteHost, remoteIP));
+          LoginDetails loginDetails = new LoginDetails(LoginSource.SSO, CaptchaState.NOT_SHOWN);
+          getEventPublisher().publish(new LoginEvent(this, username, request.getSession().getId(), remoteHost, remoteIP, loginDetails));
           LoginReason.OK.stampRequestResponse(request, response);
       } else {
           getElevatedSecurityGuard().onFailedLoginAttempt(request, username);

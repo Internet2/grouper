@@ -282,7 +282,7 @@ public class AtlassianCwdMembershipV5 implements AtlassianCwdMembership {
   /**
    * @see edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey#gcSqlAssignNewPrimaryKeyForInsert()
    */
-  public void gcSqlAssignNewPrimaryKeyForInsert() {
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
     throw new RuntimeException("This shouldnt be called");
   }
 
