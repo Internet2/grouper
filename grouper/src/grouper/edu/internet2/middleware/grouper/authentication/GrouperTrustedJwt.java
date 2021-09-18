@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.authentication;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,7 +127,7 @@ public class GrouperTrustedJwt {
       // grouper.jwt.trusted.configId.expirationSeconds
       int expirationSeconds = grouperTrustedJwtConfig.getExpirationSeconds();
           
-      if (expirationSeconds >= 0) {
+      if (expirationSeconds > 0) {
         debugMap.put("expirationSeconds",expirationSeconds);
         Date issuedAt = decodedJwt.getIssuedAt();
         debugMap.put("issuedAt",issuedAt);
@@ -150,19 +151,16 @@ public class GrouperTrustedJwt {
       if (!verified) {
         return null;
       }
-
       
-      String subjectSourceId = grouperTrustedJwtConfig.getSubjectSourceId();
-      
+      final Set<String> subjectSourceIds = grouperTrustedJwtConfig.getSubjectSourceIds();
       
       Claim claim = decodedJwt.getClaim("subjectSourceId");
       if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
-        subjectSourceId = claim.asString();
+        subjectSourceIds.clear();
+        subjectSourceIds.add(claim.asString());
       }
       
-      debugMap.put("subjectSourceId", subjectSourceId);
-      
-      final String SUBJECT_SOURCE_ID = subjectSourceId;
+      debugMap.put("subjectSourceIds", subjectSourceIds);
       
       Subject subject = (Subject) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -186,11 +184,13 @@ public class GrouperTrustedJwt {
               if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
                 String subjectId = claim.asString();
                 debugMap.put("subjectId", subjectId);
-                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
-                  subject = SubjectFinder.findById(subjectId, false);
+                
+                if (GrouperUtil.nonNull(subjectSourceIds).size() > 0) {
+                  subject = SubjectFinder.findByIdOrIdentifierOrBothAndSourceIds("subjectId", subjectId, subjectSourceIds, false);
                 } else {
-                  subject = SubjectFinder.findByIdAndSource(subjectId, SUBJECT_SOURCE_ID, false);
+                  subject = SubjectFinder.findById(subjectId, false);
                 }
+                
               }
               
             }
@@ -212,10 +212,10 @@ public class GrouperTrustedJwt {
               if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
                 String subjectIdentifier = claim.asString();
                 debugMap.put("subjectIdentifier", subjectIdentifier);
-                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
-                  subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
+                if (GrouperUtil.nonNull(subjectSourceIds).size() > 0) {
+                  subject = SubjectFinder.findByIdOrIdentifierOrBothAndSourceIds("subjectIdentifier", subjectIdentifier, subjectSourceIds, false);
                 } else {
-                  subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, SUBJECT_SOURCE_ID, false);
+                  subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
                 }
               }
               
@@ -238,10 +238,10 @@ public class GrouperTrustedJwt {
               if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
                 String subjectIdentifier = claim.asString();
                 debugMap.put("subjectIdOrIdentifier", subjectIdentifier);
-                if (StringUtils.isBlank(SUBJECT_SOURCE_ID)) {
-                  subject = SubjectFinder.findByIdOrIdentifier(subjectIdentifier, false);
+                if (GrouperUtil.nonNull(subjectSourceIds).size() > 0) {
+                  subject = SubjectFinder.findByIdOrIdentifierOrBothAndSourceIds("subjectIdOrIdentifier", subjectIdentifier, subjectSourceIds, false);
                 } else {
-                  subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdentifier, SUBJECT_SOURCE_ID, false);
+                  subject = SubjectFinder.findByIdOrIdentifier(subjectIdentifier, false);
                 }
               }
               

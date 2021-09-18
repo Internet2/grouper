@@ -566,6 +566,148 @@ public class SubjectFinder implements CheckboxValueDriver {
     }
     
   } 
+  
+  /**
+   * Search within given sources 
+   * @param id
+   * @param sourceIds
+   * @param exceptionIfNull
+   * @return
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdAndSourceIds(String id, Set<String> sourceIds, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    if (sourceIds == null || sourceIds.size() == 0) {
+      if (exceptionIfNull) {
+        throw new SubjectNotFoundException("subject not found");
+      } else {
+        return null;
+      }
+    }
+    
+    int count = 0;
+    Subject subject = null;
+    for (String sourceId: sourceIds) {
+      Subject localSubject = findByIdAndSource(id, sourceId, exceptionIfNull);
+      if (localSubject != null) {
+        count++;
+        subject = localSubject;
+      }
+      
+      if (count > 1) {
+        throw new SubjectNotUniqueException("subject with id "+id+" not unique");
+      }
+    }
+    
+    return subject;
+  }
+  
+  /**
+   * Search within given sources
+   * @param identifier
+   * @param sourceIds
+   * @param exceptionIfNull
+   * @return
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdentifierAndSourceIds(String identifier, Set<String> sourceIds, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    if (sourceIds == null || sourceIds.size() == 0) {
+      if (exceptionIfNull) {
+        throw new SubjectNotFoundException("subject not found");
+      } else {
+        return null;
+      }
+    }
+    
+    int count = 0;
+    Subject subject = null;
+    for (String sourceId: sourceIds) {
+      Subject localSubject = findByIdentifierAndSource(identifier, sourceId, exceptionIfNull);
+      if (localSubject != null) {
+        count++;
+        subject = localSubject;
+      }
+      
+      if (count > 1) {
+        throw new SubjectNotUniqueException("subject with identifier "+identifier+" not unique");
+      }
+    }
+    
+    return subject;
+    
+  }
+  
+  /**
+   * Search within given sources
+   * @param idOrIdentifier
+   * @param sourceIds
+   * @param exceptionIfNull
+   * @return
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdorIdentifierAndSourceIds(String idOrIdentifier, Set<String> sourceIds, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    if (sourceIds == null || sourceIds.size() == 0) {
+      if (exceptionIfNull) {
+        throw new SubjectNotFoundException("subject not found");
+      } else {
+        return null;
+      }
+    }
+    
+    int count = 0;
+    Subject subject = null;
+    for (String sourceId: sourceIds) {
+      Subject localSubject = findByIdOrIdentifierAndSource(idOrIdentifier, sourceId, exceptionIfNull);
+      if (localSubject != null) {
+        count++;
+        subject = localSubject;
+      }
+      
+      if (count > 1) {
+        throw new SubjectNotUniqueException("subject with idOrIdentifier "+idOrIdentifier+" not unique");
+      }
+    }
+    
+    return subject;
+    
+  }
+  
+  /**
+   * Search by type within given sources
+   * @param type
+   * @param lookupId
+   * @param sourceIds
+   * @param exceptionIfNull
+   * @return
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdOrIdentifierOrBothAndSourceIds(String type, String lookupId, Set<String> sourceIds, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    if (StringUtils.isBlank(type)) {
+      throw new IllegalArgumentException("type is required");
+    }
+    
+    if (StringUtils.equals("subjectId", type)) {
+      return findByIdAndSourceIds(lookupId, sourceIds, exceptionIfNull);
+    } else if (StringUtils.equals("subjectIdentifier", type)) {
+      return findByIdentifierAndSourceIds(lookupId, sourceIds, exceptionIfNull);
+    } else if (StringUtils.equals("subjectIdOrIdentifier", type)) {
+      return findByIdorIdentifierAndSourceIds(lookupId, sourceIds, exceptionIfNull);
+    } else {
+      throw new RuntimeException("Invalid type: '"+type+"'. Valid values are 'subjectId', 'subjectIdentifier', and 'subjectIdOrIdentifier'.");
+    }
+    
+  }
 
   /**
    * find by subject beans

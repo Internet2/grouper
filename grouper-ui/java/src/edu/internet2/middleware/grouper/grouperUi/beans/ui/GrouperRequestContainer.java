@@ -911,5 +911,23 @@ public class GrouperRequestContainer {
     }
     return this.visualizationContainer;
   }
+  
+  /**
+   * container for authentication
+   */
+  private AuthenticationContainer authenticationContainer;
+  
+  /**
+   * container for authentication
+   * @return the container
+   */
+  public AuthenticationContainer getAuthenticationContainer() {
+    
+    if (this.authenticationContainer == null) {
+      this.authenticationContainer = new AuthenticationContainer();
+    }
+    
+    return this.authenticationContainer;
+  }
 
 }
