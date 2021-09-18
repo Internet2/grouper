@@ -581,7 +581,7 @@ public class SubjectFinder implements CheckboxValueDriver {
     
     if (sourceIds == null || sourceIds.size() == 0) {
       if (exceptionIfNull) {
-        throw new SubjectNotFoundException("subject not found");
+        throw new SubjectNotFoundException("sourceIds cannot be null or empty");
       } else {
         return null;
       }
@@ -597,7 +597,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       }
       
       if (count > 1) {
-        throw new SubjectNotUniqueException("subject with id "+id+" not unique");
+        throw new SubjectNotUniqueException("subject with id '"+id+"' is not unique");
       }
     }
     
@@ -618,7 +618,7 @@ public class SubjectFinder implements CheckboxValueDriver {
     
     if (sourceIds == null || sourceIds.size() == 0) {
       if (exceptionIfNull) {
-        throw new SubjectNotFoundException("subject not found");
+        throw new SubjectNotFoundException("sourceIds cannot be null or empty");
       } else {
         return null;
       }
@@ -634,7 +634,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       }
       
       if (count > 1) {
-        throw new SubjectNotUniqueException("subject with identifier "+identifier+" not unique");
+        throw new SubjectNotUniqueException("subject with identifier '"+identifier+"' is not unique");
       }
     }
     
@@ -656,7 +656,7 @@ public class SubjectFinder implements CheckboxValueDriver {
     
     if (sourceIds == null || sourceIds.size() == 0) {
       if (exceptionIfNull) {
-        throw new SubjectNotFoundException("subject not found");
+        throw new SubjectNotFoundException("sourceIds cannot be null or empty");
       } else {
         return null;
       }
@@ -672,7 +672,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       }
       
       if (count > 1) {
-        throw new SubjectNotUniqueException("subject with idOrIdentifier "+idOrIdentifier+" not unique");
+        throw new SubjectNotUniqueException("subject with idOrIdentifier '"+idOrIdentifier+"' is not unique");
       }
     }
     
