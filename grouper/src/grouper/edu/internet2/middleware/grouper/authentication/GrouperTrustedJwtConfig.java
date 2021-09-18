@@ -70,7 +70,6 @@ public class GrouperTrustedJwtConfig {
     for (int i=0;i<10;i++) {
       String publicKey = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".key." + i + ".publicKey");
       if (!StringUtils.isBlank(publicKey)) {
-        publicKey = Morph.decrypt(publicKey);
         
         GrouperTrustedJwtConfigKey grouperTrustedJwtConfigKey = new GrouperTrustedJwtConfigKey();
         grouperTrustedJwtConfigKey.setPublicKey(publicKey);
