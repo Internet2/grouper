@@ -57,19 +57,16 @@
             <version>${jee-pac4j.version}</version>
         </dependency>
         <dependency>
-            <scope>provided</scope>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-cas</artifactId>
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
-            <scope>provided</scope>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml-opensamlv3</artifactId>
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
-            <scope>provided</scope>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-oidc</artifactId>
             <version>${pac4j.version}</version>
