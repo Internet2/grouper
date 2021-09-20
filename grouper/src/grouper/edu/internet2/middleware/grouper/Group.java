@@ -7218,8 +7218,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                     throw e;
                   }
                   
-                  // if the group already exists in the new stem, lets append ".#" to the extension.
-                  String newGroupExtension = theExtension + ".2";
+                  // if the group already exists in the new stem, lets append "_#" to the extension.
+                  String newGroupExtension = theExtension + "_2";
                   int extensionCount = 2;
                   boolean notFound = false;
                   while (notFound == false) {
@@ -7228,7 +7228,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                         + Stem.DELIM + newGroupExtension, false);
                     if (foundGroup != null) {
                       extensionCount++;
-                      newGroupExtension = theExtension + "."
+                      newGroupExtension = theExtension + "_"
                           + extensionCount;
                     } else {
                       notFound = true;
