@@ -271,47 +271,9 @@ public class GrouperOidc {
 
     long startNanos = System.nanoTime();
 
-    if (StringUtils.isBlank(this.bearerTokenHeader)) {
-      this.grouperOidcResult = GrouperOidcResult.ERROR_MISSING_TOKEN;
-      throw new RuntimeException("bearerTokenHeader is required");
-    }
-    
     try {
       
-      boolean uriPattern = false;
-      
-      debugMap.put("bearerTokenHeader", StringUtils.abbreviate(this.bearerTokenHeader, 50));
-      
-      Matcher matcher = bearerTokenPattern.matcher(this.bearerTokenHeader);
-
-      if (!matcher.matches()) {
-        matcher = bearerTokenPatternWithRedirect.matcher(this.bearerTokenHeader);
-        uriPattern = true;
-      }
-
-      if (!matcher.matches()) {
-        this.grouperOidcResult = GrouperOidcResult.ERROR_TOKEN_INVALID;
-        throw new RuntimeException("bearerTokenHeader is invalid!");
-      }
-
-      debugMap.put("uriPattern", uriPattern);
-
-      this.configId = matcher.group(1);
-      debugMap.put("configId", configId);
-      
-      this.grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(configId);
-      
-      if (grouperOidcConfig == null) {
-        throw new RuntimeException("Cant find oidc config: '" + configId + "'");
-      }
-      
-      this.oidcCodeString = matcher.group(uriPattern ? 3 : 2);
-
-      debugMap.put("oidcCode", StringUtils.abbreviate(this.oidcCodeString, 8));
-
-      this.redirectUri = uriPattern ? matcher.group(2) : grouperOidcConfig.getRedirectUri();
-
-      debugMap.put("redirectUri", this.redirectUri);
+      this.retrieveCodeFromHeader();
       
       this.retrieveAccessToken();
       
@@ -335,6 +297,49 @@ public class GrouperOidc {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
     }
+  }
+
+  private void retrieveCodeFromHeader() {
+    
+    if (StringUtils.isBlank(this.bearerTokenHeader)) {
+      this.grouperOidcResult = GrouperOidcResult.ERROR_MISSING_TOKEN;
+      throw new RuntimeException("bearerTokenHeader is required");
+    }
+
+    boolean uriPattern = false;
+    
+    debugMap.put("bearerTokenHeader", StringUtils.abbreviate(this.bearerTokenHeader, 50));
+    
+    Matcher matcher = bearerTokenPattern.matcher(this.bearerTokenHeader);
+
+    if (!matcher.matches()) {
+      matcher = bearerTokenPatternWithRedirect.matcher(this.bearerTokenHeader);
+      uriPattern = true;
+    }
+
+    if (!matcher.matches()) {
+      this.grouperOidcResult = GrouperOidcResult.ERROR_TOKEN_INVALID;
+      throw new RuntimeException("bearerTokenHeader is invalid!");
+    }
+
+    debugMap.put("uriPattern", uriPattern);
+
+    this.configId = matcher.group(1);
+    debugMap.put("configId", configId);
+    
+    this.grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(configId);
+    
+    if (grouperOidcConfig == null) {
+      throw new RuntimeException("Cant find oidc config: '" + configId + "'");
+    }
+    
+    this.oidcCodeString = matcher.group(uriPattern ? 3 : 2);
+
+    debugMap.put("oidcCode", StringUtils.abbreviate(this.oidcCodeString, 8));
+
+    this.redirectUri = uriPattern ? matcher.group(2) : grouperOidcConfig.getRedirectUri();
+
+    debugMap.put("redirectUri", this.redirectUri);
   }
 
   private Subject subject = null;

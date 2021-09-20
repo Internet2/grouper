@@ -69,9 +69,9 @@ public class AtlassianUserMappingV4 implements AtlassianUserMapping {
   /**
    * @see edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey#gcSqlAssignNewPrimaryKeyForInsert()
    */
-  public void gcSqlAssignNewPrimaryKeyForInsert() {
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
     if (this.userKey != null) {
-      throw new RuntimeException("Why setting primary key if already exists! " + this.userKey);
+      return false;
     }
     
     Long maxId = new GcDbAccess().sql("select max(id) from app_user").select(Long.class);
@@ -79,6 +79,7 @@ public class AtlassianUserMappingV4 implements AtlassianUserMapping {
       maxId = 20000L;
     }
     this.setUserKey("" + (maxId + 1));
+    return true;
   }
 
 

@@ -209,12 +209,13 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
   /**
    * @see edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey#gcSqlAssignNewPrimaryKeyForInsert()
    */
-  public void gcSqlAssignNewPrimaryKeyForInsert() {
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
     if (this.id != null) {
-      throw new RuntimeException("Why setting primary key if already exists! " + this.id);
+      return false;
     }
     Long maxId = new GcDbAccess().sql("select max(id) from cwd_membership").select(Long.class);
     this.setId(maxId + 1);
+    return true;
   }
 
 

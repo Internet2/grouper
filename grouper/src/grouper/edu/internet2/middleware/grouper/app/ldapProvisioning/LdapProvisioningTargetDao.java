@@ -475,7 +475,23 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
+  /**
+   * @param dn
+   * @param includeAllMemberships
+   * @return provisioning group
+   * @deprecated
+   */
   public ProvisioningGroup retrieveGroupByDn(String dn, boolean includeAllMemberships) {
+    return retrieveGroupByDn(dn, includeAllMemberships, true);
+  }
+  
+  /**
+   * @param dn
+   * @param includeAllMemberships
+   * @param exceptionIfNotFound
+   * @return provisioning group
+   */
+  public ProvisioningGroup retrieveGroupByDn(String dn, boolean includeAllMemberships, boolean exceptionIfNotFound) {
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
@@ -506,7 +522,21 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+      List<LdapEntry> ldapEntries = new ArrayList<LdapEntry>();
+      
+      try {
+        ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+      } catch (Exception e) {
+        if (exceptionIfNotFound) {
+          throw e;
+        }
+        
+        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+          return null;
+        } else {
+          throw e;
+        }
+      }
       
       if (GrouperUtil.length(ldapEntries) == 0) {
         return null;

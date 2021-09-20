@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupCopy;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
@@ -122,11 +123,18 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testNoSameCaseByDefault"));
+    TestRunner.run(new TestGroup("testGroupCopyCollision"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
     //TestRunner.run(TestGroup.class);
   }
 
+  public void testGroupCopyCollision() {
+    
+    Stem stem = new StemSave().assignName("test").save();
+    Group group = new GroupSave().assignName("test:group").assignAlternateName("test:group2").save();
+    new GroupCopy(group, stem).setDisplayExtension("group2").setExtension("group2").save();
+  }
+  
   public void testDefaultInvalidChars() {
     new StemSave().assignName("test").save();
     

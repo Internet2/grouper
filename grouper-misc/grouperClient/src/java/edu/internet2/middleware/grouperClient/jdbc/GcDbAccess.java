@@ -45,6 +45,14 @@ import edu.internet2.middleware.morphString.Morph;
  * </blockquote>
  * 
  * </p>
+ * From a database external system
+ * <blockquote>
+ * <pre>
+ * Integer theOne = new GcDbAccess().connectionName(externalSystemConfigId).sql("select 1 from dual")
+ *   .select(Integer.class);
+ * </pre>
+ * </blockquote>
+ * 
  */
 public class GcDbAccess {
 

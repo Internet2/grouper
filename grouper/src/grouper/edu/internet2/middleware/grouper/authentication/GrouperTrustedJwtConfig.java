@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.authentication;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
@@ -10,7 +12,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 public class GrouperTrustedJwtConfig {
 
@@ -29,10 +31,16 @@ public class GrouperTrustedJwtConfig {
     GrouperTrustedJwtConfig grouperTrustedJwtConfig = grouperTrustedJwtConfigCache.get(configId);
     if (grouperTrustedJwtConfig == null) {
       grouperTrustedJwtConfig = retrieveFromConfig(configId);
-      grouperTrustedJwtConfigCache.put(configId, grouperTrustedJwtConfig);
+      if (grouperTrustedJwtConfig != null) {
+        grouperTrustedJwtConfigCache.put(configId, grouperTrustedJwtConfig);
+      }
     }
     
     return grouperTrustedJwtConfig;
+  }
+  
+  public static void clearCache() {
+    grouperTrustedJwtConfigCache.clear();
   }
 
   /**
@@ -41,6 +49,11 @@ public class GrouperTrustedJwtConfig {
    * @return the config
    */
   private static GrouperTrustedJwtConfig retrieveFromConfig(String configId) {
+    
+    boolean enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.jwt.trusted." + configId + ".enabled", true);
+    if (!enabled) {
+      return null;
+    }
 
     GrouperTrustedJwtConfig grouperTrustedJwtConfig = new GrouperTrustedJwtConfig();
   
@@ -57,7 +70,6 @@ public class GrouperTrustedJwtConfig {
     for (int i=0;i<10;i++) {
       String publicKey = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".key." + i + ".publicKey");
       if (!StringUtils.isBlank(publicKey)) {
-        publicKey = Morph.decrypt(publicKey);
         
         GrouperTrustedJwtConfigKey grouperTrustedJwtConfigKey = new GrouperTrustedJwtConfigKey();
         grouperTrustedJwtConfigKey.setPublicKey(publicKey);
@@ -84,12 +96,23 @@ public class GrouperTrustedJwtConfig {
     //  # JWTs only last for so long
     //  grouper.jwt.trusted.configId.expirationSeconds = 600
     grouperTrustedJwtConfig.expirationSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.jwt.trusted." + configId + ".expirationSeconds", -1);
+    if (grouperTrustedJwtConfig.expirationSeconds == 0) {
+      throw new RuntimeException("expirationSeconds cannot be 0");
+    }
     //   
     //  # optional, could be in claim as "subjectSourceId"
     //  grouper.jwt.trusted.configId.subjectSourceId = myPeople
-    grouperTrustedJwtConfig.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".subjectSourceId");
+    
+    String commaSeparatedSubjectSourceIds = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".subjectSourceIds");
+    
+    grouperTrustedJwtConfig.subjectSourceIds = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(commaSeparatedSubjectSourceIds, ","));
 
-    //   
+    for (String sourceId : grouperTrustedJwtConfig.subjectSourceIds) {
+      if (null == SourceManager.getInstance().getSource(sourceId)) {
+        throw new RuntimeException("Cant find source: '" + sourceId + "'");
+      }
+    }
+    
     //  # subjectId, subjectIdentifier, or subjectIdOrIdentifier (optional)
     //  grouper.jwt.trusted.configId.subjectIdType = subjectId
     grouperTrustedJwtConfig.subjectIdType = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".subjectIdType");
@@ -145,25 +168,24 @@ public class GrouperTrustedJwtConfig {
   }
 
   /**
-   * optional, could be in claim as "subjectSourceId"
+   * could be in claim as "subjectSourceId"
    */
-  private String subjectSourceId = null;
-  
+  private Set<String> subjectSourceIds = new HashSet<String>();
   
   /**
-   * optional, could be in claim as "subjectSourceId"
-   * @return subject source id
+   * get subject source ids. could be overridden through claim though
+   * @return
    */
-  public String getSubjectSourceId() {
-    return subjectSourceId;
+  public Set<String> getSubjectSourceIds() {
+    return subjectSourceIds;
   }
 
   /**
-   * optional, could be in claim as "subjectSourceId"
-   * @param subjectSourceId1
+   * get subject source ids. could be overridden through claim though
+   * @param subjectSourceIds
    */
-  public void setSubjectSourceId(String subjectSourceId1) {
-    this.subjectSourceId = subjectSourceId1;
+  public void setSubjectSourceIds(Set<String> subjectSourceIds) {
+    this.subjectSourceIds = subjectSourceIds;
   }
 
   /**
