@@ -929,5 +929,23 @@ public class GrouperRequestContainer {
     
     return this.authenticationContainer;
   }
+  
+  /**
+   * container for oidc config
+   */
+  private OidcConfigContainer oidcConfigContainer;
+  
+  /**
+   * container for oidc config
+   * @return the container
+   */
+  public OidcConfigContainer getOidcConfigContainer() {
+    
+    if (this.oidcConfigContainer == null) {
+      this.oidcConfigContainer = new OidcConfigContainer();
+    }
+    
+    return this.oidcConfigContainer;
+  }
 
 }

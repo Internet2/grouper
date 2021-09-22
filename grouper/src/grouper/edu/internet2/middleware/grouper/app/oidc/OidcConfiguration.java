@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.authentication;
+package edu.internet2.middleware.grouper.app.oidc;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +15,8 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
-public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
+
+public class OidcConfiguration extends GrouperConfigurationModuleBase {
 
   @Override
   public ConfigFileName getConfigFileName() {
@@ -27,17 +28,17 @@ public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
     if (StringUtils.isBlank(this.getConfigId())) {
       throw new RuntimeException("Must have configId!");
     }
-    return "grouper.jwt.trusted." + this.getConfigId() + ".";
+    return "grouper.oidc." + this.getConfigId() + ".";
   }
 
   @Override
   public String getConfigIdRegex() {
-    return "^(grouper\\.jwt\\.trusted)\\.([^.]+)\\.(.*)$";
+    return "^(grouper\\.oidc)\\.([^.]+)\\.(.*)$";
   }
 
   @Override
   protected String getConfigurationTypePrefix() {
-    return "grouper.jwt.trusted";
+    return "grouper.oidc";
   }
   
   @Override
@@ -46,13 +47,13 @@ public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
   }
   
   /**
-   * list of configured ws trusted jwt configs
+   * list of configured oidc configs
    * @return
    */
-  public static List<WsTrustedJwtConfiguration> retrieveAllWsTrustedJwtConfigs() {
+  public static List<OidcConfiguration> retrieveAllOidcConfigs() {
    Set<String> classNames = new HashSet<String>();
-   classNames.add(WsTrustedJwtConfiguration.class.getName());
-   return (List<WsTrustedJwtConfiguration>) (Object) retrieveAllConfigurations(classNames);
+   classNames.add(OidcConfiguration.class.getName());
+   return (List<OidcConfiguration>) (Object) retrieveAllConfigurations(classNames);
   }
   
   /**
@@ -94,7 +95,7 @@ public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Ws trusted JWT config status changed", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "OIDC config status changed", errorsToDisplay, validationErrorsToDisplay, false);    
     ConfigPropertiesCascadeBase.clearCache();
   }
 

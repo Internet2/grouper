@@ -20,6 +20,14 @@
             >${textContainer.text['authenticationIndexWsAuth'] }</a>
           </div>
         </div>
+        
+         <div class="row-fluid">
+          <div class="span1">
+            <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2OidcConfig.viewOidcConfigs');" style="white-space: nowrap;"
+            >${textContainer.text['authenticationIndexOidcAuth'] }</a>
+          </div>
+        </div>
+        
       </div>
     </div>
 
