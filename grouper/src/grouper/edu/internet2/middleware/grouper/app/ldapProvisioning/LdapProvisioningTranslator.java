@@ -71,7 +71,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
     return fieldValue;
   }
   
-  public Object attributeTranslation(Object currentValue, String expressionToUse, Map<String, Object> elVariableMap,
+  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap,
       boolean forCreate,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
       ProvisioningGroupWrapper provisioningGroupWrapper,
@@ -80,7 +80,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBas
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
 
-    Object attributeValue = super.attributeTranslation(currentValue, expressionToUse, elVariableMap, forCreate,
+    Object attributeValue = super.attributeTranslation(currentValue, elVariableMap, forCreate,
         grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
         provisioningEntityWrapper);
     
