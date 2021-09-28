@@ -40,6 +40,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * </blockquote>
  * </p>
  *
+ * <p> Sample call to add attribute and value to stem
+ * <blockquote>
+ * <pre>
+ * AttributeValueResult attributeValueResult=sympaFolder.getAttributeValueDelegate().assignValue("etc:attribute:comanagetemplate:ownerfolderid", "someValue"); 
+ * gsh_builtin_gshTemplateOutput.addOutputLine("Attribute ownerfolderid assigned: " + attributeValueResult.getAttributeAssignValueResult().isChanged());
+ * </pre>
+ * </blockquote>
+ * </p>
+ *
  */
 
 public class AttributeAssignValueSave {
