@@ -46,6 +46,7 @@
         <module>../grouper-misc/grouper-duo</module>
         <module>../grouper-misc/googleapps-grouper-provisioner</module>
         <module>../grouper-misc/grouper-azure</module>
+        <module>../grouper-misc/grouper-custom-ws</module>
     </modules>
 
     <properties>
