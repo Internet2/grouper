@@ -190,8 +190,10 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/servicesRest/vX_Y_0ZA/groups")
-  @ApiOperation(httpMethod = "POST", value = "Find groups", nickname = "findGroups", response = WsFindGroupsResultsWrapper.class) 
+  @Path("/grouper-ws/servicesRest/vX_Y_FGF/groups")
+  @ApiOperation(httpMethod = "POST", value = "Find groups", nickname = "findGroups", response = WsFindGroupsResultsWrapper.class,
+      notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br />"
+          + "{<br>  &quot;WsRestFindGroupsRequest&quot;:{<br>    &quot;wsQueryFilter&quot;:{<br>      &quot;queryFilterType&quot;:&quot;FIND_BY_GROUP_NAME_APPROXIMATE&quot;,<br>      &quot;stemName&quot;:&quot;aStem&quot;,<br>      &quot;groupName&quot;:&quot;aGr&quot;<br>    }<br>  }<br>}</pre>") 
   @ApiResponses({@ApiResponse(code = 200, message = "SUCCESS", response = WsFindGroupsResultsWrapper.class),
                 @ApiResponse(code = 400, message = "INVALID_QUERY", response = WsFindGroupsResultsWrapperError.class),
                 @ApiResponse(code = 404, message = "STEM_NOT_FOUND", response = WsFindGroupsResultsWrapperError.class),

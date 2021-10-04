@@ -6,18 +6,17 @@
     "title" : "Grouper Web Services"
   },
   "host" : "grouper.institution.edu",
-  "basePath" : "/grouper-ws",
   "tags" : [ {
     "name" : "Grouper",
     "description" : "Integrate with the Grouper registry"
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/servicesRest/vX_Y_0ZA/groups" : {
+    "/grouper-ws/servicesRest/vX_Y_FGF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
-        "description" : "",
+        "description" : "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br />{<br>  &quot;WsRestFindGroupsRequest&quot;:{<br>    &quot;wsQueryFilter&quot;:{<br>      &quot;queryFilterType&quot;:&quot;FIND_BY_GROUP_NAME_APPROXIMATE&quot;,<br>      &quot;stemName&quot;:&quot;aStem&quot;,<br>      &quot;groupName&quot;:&quot;aGr&quot;<br>    }<br>  }<br>}</pre>",
         "operationId" : "findGroups",
         "parameters" : [ {
           "in" : "body",
@@ -26,6 +25,237 @@
           "schema" : {
             "$ref" : "#/definitions/WsRestFindGroupsRequestWrapper"
           }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapper"
+            }
+          },
+          "400" : {
+            "description" : "INVALID_QUERY",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          },
+          "404" : {
+            "description" : "STEM_NOT_FOUND",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          },
+          "500" : {
+            "description" : "EXCEPTION",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vX_Y_FGL/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find groups lite",
+        "description" : "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br /><b>wsLiteObjectType</b>=WsRestFindGroupsLiteRequest&amp;<b>groupName</b>=aGr&amp;<b>queryFilterType</b>=FIND_BY_GROUP_NAME_APPROXIMATE&amp;<b>stemName</b>=aStem</pre>",
+        "operationId" : "findGroupsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        }, {
+          "name" : "queryFilterType",
+          "in" : "formData",
+          "description" : "findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE, FIND_BY_TYPE, AND, OR, MINUS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "FIND_BY_GROUP_UUID | FIND_BY_GROUP_NAME_EXACT | FIND_BY_STEM_NAME | FIND_BY_APPROXIMATE_ATTRIBUTE | FIND_BY_ATTRIBUTE | FIND_BY_GROUP_NAME_APPROXIMATE | FIND_BY_TYPE | AND | OR | MINUS"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Will return groups only in this stem (by name)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:parent:folder:name"
+        }, {
+          "name" : "stemNameScope",
+          "in" : "formData",
+          "description" : "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "ONE_LEVEL | ALL_IN_SUBTREE"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "groupAttributeName",
+          "in" : "formData",
+          "description" : "This is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:attribute:name"
+        }, {
+          "name" : "groupAttributeValue",
+          "in" : "formData",
+          "description" : "The attribute value to filter on if querying by attribute and value",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "someValue"
+        }, {
+          "name" : "groupTypeName",
+          "in" : "formData",
+          "description" : "not implemented",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "typeOfGroups",
+          "in" : "formData",
+          "description" : "Comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "group|role|entity"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "enabled",
+          "in" : "formData",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "A|T|F"
         } ],
         "responses" : {
           "200" : {
@@ -310,8 +540,8 @@
         },
         "ascending" : {
           "type" : "string",
-          "example" : "true",
-          "description" : "true or null for ascending, false for descending.  If you pass true or false, must pass a sort string"
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
         },
         "queryFilterType" : {
           "type" : "string",
@@ -335,7 +565,7 @@
         },
         "groupUuid" : {
           "type" : "string",
-          "example" : "ABC123",
+          "example" : "abc123",
           "description" : "groupUuid search by group uuid (must match exactly)"
         },
         "groupAttributeValue" : {
@@ -346,7 +576,7 @@
         "groupAttributeName" : {
           "type" : "string",
           "example" : "some:attribute:name",
-          "description" : "this is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute"
+          "description" : "This is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute"
         },
         "groupTypeName" : {
           "type" : "string",
@@ -363,7 +593,7 @@
         },
         "pageIsCursor" : {
           "type" : "string",
-          "example" : "T",
+          "example" : "T|F",
           "description" : "T|F default to F.  if this is T then we are doing cursor paging"
         },
         "pageLastCursorField" : {
@@ -378,7 +608,7 @@
         },
         "pageCursorFieldIncludesLastRetrieved" : {
           "type" : "string",
-          "example" : "false",
+          "example" : "T|F",
           "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "enabled" : {
@@ -427,6 +657,7 @@
           "description" : "Version of the client (i.e. that the client was coded against)"
         },
         "actAsSubjectLookup" : {
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here",
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "includeGroupDetail" : {

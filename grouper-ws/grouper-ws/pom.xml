@@ -332,10 +332,13 @@
                     <apiSources>
                       <apiSource>
                             <springmvc>false</springmvc>
-                            <locations>edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest</locations>
+                            <locations>
+                              <location>edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest</location>
+                              <location>edu.internet2.middleware.grouper.ws.coresoap.GrouperService</location>
+                            </locations>
                             <schemes>https</schemes>
                             <host>grouper.institution.edu</host>
-                            <basePath>/grouper-ws</basePath>
+                            <basePath></basePath>
                             <info>
                                 <title>Grouper Web Services</title>
                                 <version>v2.6.1</version>

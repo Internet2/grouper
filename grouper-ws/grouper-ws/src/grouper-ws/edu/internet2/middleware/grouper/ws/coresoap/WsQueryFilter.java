@@ -167,7 +167,7 @@ public class WsQueryFilter {
    * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the ascending
    */
-  @ApiModelProperty(value = "true or null for ascending, false for descending.  If you pass true or false, must pass a sort string", example = "true")
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -553,7 +553,7 @@ public class WsQueryFilter {
    * groupUuid search by group uuid (must match exactly), cannot use other
    * @return the groupUuid
    */
-  @ApiModelProperty(value = "groupUuid search by group uuid (must match exactly)", example = "ABC123")
+  @ApiModelProperty(value = "groupUuid search by group uuid (must match exactly)", example = "abc123")
   public String getGroupUuid() {
     return this.groupUuid;
   }
@@ -590,7 +590,7 @@ public class WsQueryFilter {
    * all attributes
    * @return the attributeName
    */
-  @ApiModelProperty(value = "this is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute", example = "some:attribute:name")
+  @ApiModelProperty(value = "This is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute", example = "some:attribute:name")
   public String getGroupAttributeName() {
     return this.groupAttributeName;
   }
@@ -810,7 +810,7 @@ public class WsQueryFilter {
    * T|F default to F.  if this is T then we are doing cursor paging
    * @return the pageIsCursor
    */
-  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T")
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -858,7 +858,7 @@ public class WsQueryFilter {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
-  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "false")
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }

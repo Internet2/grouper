@@ -98,7 +98,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /**
    * @return the actAsSubjectLookup
    */
-  @ApiModelProperty(value = "", example = "")
+  @ApiModelProperty(value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here")
   public WsSubjectLookup getActAsSubjectLookup() {
     return this.actAsSubjectLookup;
   }
