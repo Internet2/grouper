@@ -21,10 +21,14 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 
 /**
  * param for a web service operation
  */
+@ApiModel(description = "Name value pairs")
 public class WsParam {
 
   /** name of param */
@@ -53,6 +57,7 @@ public class WsParam {
   /**
    * @return the paramName
    */
+  @ApiModelProperty(value = "Parameter name")
   public String getParamName() {
     return this.paramName;
   }
@@ -69,6 +74,7 @@ public class WsParam {
   /**
    * @return the paramValue
    */
+  @ApiModelProperty(value = "Parameter value")
   public String getParamValue() {
     return this.paramValue;
   }

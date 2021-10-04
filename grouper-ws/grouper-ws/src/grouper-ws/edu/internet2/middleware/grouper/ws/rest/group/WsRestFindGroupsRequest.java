@@ -26,12 +26,15 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * bean that will be the data from rest request
  * @see GrouperServiceLogic#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, boolean, boolean, String[], WsParam[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for finding groups")
 public class WsRestFindGroupsRequest implements WsRequestBean {
   
   /** query filter for request */
@@ -59,6 +62,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
    * in alphabetical order
    * @return group lookups
    */
+  @ApiModelProperty(value = "wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned in alphabetical order")
   public WsGroupLookup[] getWsGroupLookups() {
     return this.wsGroupLookups;
   }
@@ -77,6 +81,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /**
    * @return the clientVersion
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -93,6 +98,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /**
    * @return the actAsSubjectLookup
    */
+  @ApiModelProperty(value = "", example = "")
   public WsSubjectLookup getActAsSubjectLookup() {
     return this.actAsSubjectLookup;
   }
@@ -109,6 +115,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /**
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "If the group detail should be returned, default to false", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -125,6 +132,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /**
    * @return the params
    */
+  @ApiModelProperty(value = "Optional params for this request", example = "NA")
   public WsParam[] getParams() {
     return this.params;
   }
@@ -151,6 +159,7 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
    * query filter for request
    * @return the wsQueryFilter
    */
+  @ApiModelProperty(value = "Query filter for request", example = "")
   public WsQueryFilter getWsQueryFilter() {
     return this.wsQueryFilter;
   }

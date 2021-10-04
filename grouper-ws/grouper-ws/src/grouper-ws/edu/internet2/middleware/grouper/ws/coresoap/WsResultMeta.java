@@ -28,12 +28,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * result metadata (if success, result code, etc) for one result
  * (each ws call can have one or many result metadatas)
  * @see WsResultCode for all implementations of responses
  */
+@ApiModel(description = "Result code, if success, status code, result message")
 public class WsResultMeta {
 
   /**
@@ -149,6 +152,7 @@ public class WsResultMeta {
    * 
    * @return the resultCode
    */
+  @ApiModelProperty(value = "This set of result codes is dependent on which operation is called and the status", example = "SUCCESS")
   public String getResultCode() {
     return this.resultCode;
   }
@@ -160,6 +164,7 @@ public class WsResultMeta {
    * 
    * @return the resultCode
    */
+  @ApiModelProperty(value = "If a second result code is needed for the operation and status, it will be listed here", example = "")
   public String getResultCode2() {
     return this.resultCode2;
   }
@@ -169,6 +174,7 @@ public class WsResultMeta {
    * 
    * @return the errorMessage
    */
+  @ApiModelProperty(value = "Error message if there is an error")
   public String getResultMessage() {
     return this.resultMessage == null ? null : StringUtils.trimToNull(this.resultMessage.toString());
   }
@@ -178,6 +184,7 @@ public class WsResultMeta {
    * 
    * @return the success
    */
+  @ApiModelProperty(value = "T or F as to whether it was a successful operation.  i.e. if there was a problem this will be F", example = "T|F")
   public String getSuccess() {
     return this.success;
   }
@@ -286,6 +293,7 @@ public class WsResultMeta {
   /**
    * @return the params
    */
+  @ApiModelProperty(value = "NA")
   public WsParam[] getParams() {
     return this.params;
   }

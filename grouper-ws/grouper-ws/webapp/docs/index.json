@@ -1,7 +1,7 @@
 {
   "swagger" : "2.0",
   "info" : {
-    "description" : "Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v2_6_001",
+    "description" : "Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v2_6_001.  Note: the base URL and authentication are institution specific.",
     "version" : "v2.6.1",
     "title" : "Grouper Web Services"
   },
@@ -13,7 +13,7 @@
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/grouper-ws/servicesRest/vX_Y_0ZA/groups" : {
+    "/servicesRest/vX_Y_0ZA/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
@@ -62,136 +62,193 @@
       "properties" : {
         "groupResults" : {
           "type" : "array",
+          "description" : "has 0 to many groups that match the query",
           "items" : {
             "$ref" : "#/definitions/WsGroup"
           }
         },
         "resultMetadata" : {
+          "description" : "Result code, if success, status code, result message",
           "$ref" : "#/definitions/WsResultMeta"
         },
         "responseMetadata" : {
+          "description" : "Server version, millis elapsed on server, and warnings",
           "$ref" : "#/definitions/WsResponseMeta"
         }
-      }
+      },
+      "description" : "Groups returned from the group find query"
     },
     "WsFindGroupsResultsWrapper" : {
       "type" : "object",
       "properties" : {
         "WsFindGroupsResults" : {
+          "description" : "Identifies the response for findGroups",
           "$ref" : "#/definitions/WsFindGroupsResults"
         }
-      }
+      },
+      "description" : "Response body when a findGroups is successful"
     },
     "WsFindGroupsResultsWrapperError" : {
       "type" : "object",
       "properties" : {
         "WsFindGroupsResults" : {
+          "description" : "Identifies the response for findGroups",
           "$ref" : "#/definitions/WsResultsError"
         }
-      }
+      },
+      "description" : "Response body when not successful contains error message and metadata"
     },
     "WsGroup" : {
       "type" : "object",
       "properties" : {
         "extension" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "someGroup",
+          "description" : "System extension of group, the part to the right of last colon in name.  This is the 'ID' in the UI"
         },
         "typeOfGroup" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "group | role | entity",
+          "description" : "type of group can be an enum of TypeOfGroup, e.g. group, role, entity"
         },
         "displayExtension" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Some group",
+          "description" : "Display extension of group, the part to the right of last colon in display name.  This is the 'Name' in the UI"
         },
         "description" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "This group was created 1/2/2019 by John Smith for the Math department.",
+          "description" : "Description field of group should contain documentation about the group"
         },
         "displayName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Applications:My app:Some group",
+          "description" : "Fully qualified display name of the group ('Path' in the UI).  This contains all display extensions of parent folders separated by colons"
         },
         "name" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "app:myApp:someGroup",
+          "description" : "Fully qualified system name of the group ('ID Path' in the UI).  This contains all the system extensions of parent folders separated by colons"
         },
         "uuid" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "This is the unique unchanging opaque identifier of this group (max 40 chars)"
         },
         "alternateName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "some:alternate:name",
+          "description" : "If there is an alternate name assigned to this group, it will be listed here"
         },
         "detail" : {
+          "description" : "If requested, these are the detail results of the group",
           "$ref" : "#/definitions/WsGroupDetail"
         },
         "idIndex" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "12345",
+          "description" : "Integer ID for object"
         },
         "enabled" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "if the group is enabled, T or F"
         },
         "enabledTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2022/04/21 20:17:42.987",
+          "description" : "Timestamp this group is enabled: yyyy/MM/dd HH:mm:ss.SSS"
         },
         "disabledTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2021/03/15 18:41:18.123",
+          "description" : "Timestamp this group is disabled: yyyy/MM/dd HH:mm:ss.SSS"
         }
-      }
+      },
+      "description" : "Result of one group being retrieved"
     },
     "WsGroupDetail" : {
       "type" : "object",
       "properties" : {
         "hasComposite" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "if this group has a composite member, T|F"
         },
         "leftGroup" : {
+          "description" : "Left group if this is a composite owner (note, detail will never be there in the leftGroup wsGroup)",
           "$ref" : "#/definitions/WsGroup"
         },
         "rightGroup" : {
+          "description" : "Right group if this is a composite owner (note, detail will never be there in the rightGroup wsGroup)",
           "$ref" : "#/definitions/WsGroup"
         },
         "typeNames" : {
           "type" : "array",
+          "description" : "Legacy types for this group, comma-separated",
           "items" : {
             "type" : "string"
           }
         },
         "attributeNames" : {
           "type" : "array",
+          "description" : "Attribute names, not including the ones listed in the group result or detail",
           "items" : {
             "type" : "string"
           }
         },
         "attributeValues" : {
           "type" : "array",
+          "description" : "Attribute values, not including the ones listed in the group result or detail",
           "items" : {
             "type" : "string"
           }
         },
         "compositeType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UNION | COMPLEMENT | INTERSECTION",
+          "description" : "If this is a composite group, this is the composite type: UNION, COMPLEMENT, INTERSECTION"
         },
         "params" : {
           "type" : "array",
+          "description" : "NA",
           "items" : {
             "$ref" : "#/definitions/WsParam"
           }
         },
         "createSubjectId" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "12345678",
+          "description" : "ID of the subject that created this group"
         },
         "createTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2021/03/15 18:41:18.123",
+          "description" : "Create time in format: yyyy/mm/dd hh24:mi:ss.SSS"
         },
         "isCompositeFactor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If a composite member of another group 'T', else 'F'.  A composite group is composed of two groups and a set operator (stored in the grouper_composites table) (e.g. complement, intersection). A composite group has no immediate members. All subjects in a composite group are effective members."
         },
         "modifySource" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "NA",
+          "description" : "Not used"
         },
         "modifySubjectId" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "12345678",
+          "description" : "ID of the subject that last modified this group's attributes"
         },
         "modifyTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2021/03/15 18:41:18.123",
+          "description" : "Last modified time for this group. yyyy/mm/dd hh24:mi:ss.SSS"
         }
-      }
+      },
+      "description" : "Detail of group if requested from user"
     },
     "WsGroupLookup" : {
       "type" : "object",
@@ -218,12 +275,15 @@
       "type" : "object",
       "properties" : {
         "paramName" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "Parameter name"
         },
         "paramValue" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "Parameter value"
         }
-      }
+      },
+      "description" : "Name value pairs"
     },
     "WsQueryFilter" : {
       "type" : "object",
@@ -338,15 +398,21 @@
       "type" : "object",
       "properties" : {
         "resultWarnings" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "If there are warnings, they will be here"
         },
         "millis" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "123",
+          "description" : "Milliseconds this operation took on server"
         },
         "serverVersion" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2.6.1",
+          "description" : "The version of Grouper on the server"
         }
-      }
+      },
+      "description" : "Response metadata (version, warnings, millis, etc)"
     },
     "WsRestFindGroupsRequest" : {
       "type" : "object",
@@ -390,58 +456,73 @@
       "type" : "object",
       "properties" : {
         "WsRestFindGroupsRequest" : {
+          "description" : "Identifies the request as a findGroups request",
           "$ref" : "#/definitions/WsRestFindGroupsRequest"
         }
-      }
+      },
+      "description" : "Request body to find groups"
     },
     "WsResultMeta" : {
       "type" : "object",
       "properties" : {
         "params" : {
           "type" : "array",
+          "description" : "NA",
           "items" : {
             "$ref" : "#/definitions/WsParam"
           }
         },
         "resultCode" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "SUCCESS",
+          "description" : "This set of result codes is dependent on which operation is called and the status"
         },
         "resultCode2" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "If a second result code is needed for the operation and status, it will be listed here"
         },
         "resultMessage" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "Error message if there is an error"
         },
         "success" : {
           "type" : "string",
-          "description" : "T or F as to whether it was a successful assignment"
+          "example" : "T|F",
+          "description" : "T or F as to whether it was a successful operation.  i.e. if there was a problem this will be F"
         }
-      }
+      },
+      "description" : "Result code, if success, status code, result message"
     },
     "WsResultsError" : {
       "type" : "object",
       "properties" : {
         "resultMetadata" : {
+          "description" : "Result code, if success, status code, result message",
           "$ref" : "#/definitions/WsResultMeta"
         },
         "responseMetadata" : {
+          "description" : "Server version, millis elapsed on server, and warnings",
           "$ref" : "#/definitions/WsResponseMeta"
         }
-      }
+      },
+      "description" : "Response when not successful contains error message and metadata"
     },
     "WsSubjectLookup" : {
       "type" : "object",
       "properties" : {
         "subjectId" : {
           "type" : "string",
+          "example" : "12345678",
           "description" : "subjectId is mutually exclusive with subjectIdentifier.  This is specific to your institution.  Might be the employeeId.  You should also pass in a subjectSourceId"
         },
         "subjectIdentifier" : {
           "type" : "string",
+          "example" : "jsmith",
           "description" : "subjectIdentifier is mutually exclusive with subjectId.  This is specific to your institution.  Might be the netId.  If you can use subjectId, you should use that, if not, use this.  You should also pass in a subjectSourceId"
         },
         "subjectSourceId" : {
           "type" : "string",
+          "example" : "myInstitutionsPeople",
           "description" : "subjectSourceId is specific to your institution.  Ask your Grouper admins which subjectSourceId to you, or can find it in the UI where you import subjects"
         }
       },
