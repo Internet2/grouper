@@ -42,7 +42,6 @@ public class CustomGrouperRestServlet extends GrouperRestServlet {
 
         CustomGrouperRestRequest customGrouperRestRequest = new CustomGrouperRestRequest(urlStrings, parameterMap, body, req, resp);
 
-        //TODO: extract
         CustomGrouperRestProvider provider = StreamSupport.stream(loader.spliterator(), false).filter( i -> i.supports(customGrouperRestRequest)).findFirst().orElseThrow(() -> new RuntimeException("could not find a provider"));
         Object result = provider.provide(customGrouperRestRequest);
 
