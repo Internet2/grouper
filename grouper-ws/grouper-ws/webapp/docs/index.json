@@ -1,0 +1,451 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v2_6_001",
+    "version" : "v2.6.1",
+    "title" : "Grouper Web Services"
+  },
+  "host" : "grouper.institution.edu",
+  "basePath" : "/grouper-ws",
+  "tags" : [ {
+    "name" : "Grouper",
+    "description" : "Integrate with the Grouper registry"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/grouper-ws/servicesRest/vX_Y_0ZA/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find groups",
+        "description" : "",
+        "operationId" : "findGroups",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestFindGroupsRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapper"
+            }
+          },
+          "400" : {
+            "description" : "INVALID_QUERY",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          },
+          "404" : {
+            "description" : "STEM_NOT_FOUND",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          },
+          "500" : {
+            "description" : "EXCEPTION",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindGroupsResultsWrapperError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "WsFindGroupsResults" : {
+      "type" : "object",
+      "properties" : {
+        "groupResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsFindGroupsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsFindGroupsResults" : {
+          "$ref" : "#/definitions/WsFindGroupsResults"
+        }
+      }
+    },
+    "WsFindGroupsResultsWrapperError" : {
+      "type" : "object",
+      "properties" : {
+        "WsFindGroupsResults" : {
+          "$ref" : "#/definitions/WsResultsError"
+        }
+      }
+    },
+    "WsGroup" : {
+      "type" : "object",
+      "properties" : {
+        "extension" : {
+          "type" : "string"
+        },
+        "typeOfGroup" : {
+          "type" : "string"
+        },
+        "displayExtension" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "displayName" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        },
+        "alternateName" : {
+          "type" : "string"
+        },
+        "detail" : {
+          "$ref" : "#/definitions/WsGroupDetail"
+        },
+        "idIndex" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "enabledTime" : {
+          "type" : "string"
+        },
+        "disabledTime" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsGroupDetail" : {
+      "type" : "object",
+      "properties" : {
+        "hasComposite" : {
+          "type" : "string"
+        },
+        "leftGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "rightGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "typeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "attributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "attributeValues" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "compositeType" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "createSubjectId" : {
+          "type" : "string"
+        },
+        "createTime" : {
+          "type" : "string"
+        },
+        "isCompositeFactor" : {
+          "type" : "string"
+        },
+        "modifySource" : {
+          "type" : "string"
+        },
+        "modifySubjectId" : {
+          "type" : "string"
+        },
+        "modifyTime" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsGroupLookup" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string",
+          "example" : "12345",
+          "description" : "Integer ID for object"
+        },
+        "uuid" : {
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "UUID of the group to find ('UUID' from the UI)"
+        },
+        "groupName" : {
+          "type" : "string",
+          "example" : "some:group:name",
+          "description" : "Group system name ('ID path' on UI) to search for, not the display name"
+        }
+      },
+      "description" : "Template to lookup a group: groupName, uuid, and idIndex are mutually exclusive."
+    },
+    "WsParam" : {
+      "type" : "object",
+      "properties" : {
+        "paramName" : {
+          "type" : "string"
+        },
+        "paramValue" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsQueryFilter" : {
+      "type" : "object",
+      "properties" : {
+        "typeOfGroups" : {
+          "type" : "string",
+          "example" : "group|role|entity",
+          "description" : "Comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity"
+        },
+        "pageSize" : {
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
+        },
+        "pageNumber" : {
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
+        },
+        "sortString" : {
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
+        },
+        "ascending" : {
+          "type" : "string",
+          "example" : "true",
+          "description" : "true or null for ascending, false for descending.  If you pass true or false, must pass a sort string"
+        },
+        "queryFilterType" : {
+          "type" : "string",
+          "example" : "FIND_BY_GROUP_UUID | FIND_BY_GROUP_NAME_EXACT | FIND_BY_STEM_NAME | FIND_BY_APPROXIMATE_ATTRIBUTE | FIND_BY_ATTRIBUTE | FIND_BY_GROUP_NAME_APPROXIMATE | FIND_BY_TYPE | AND | OR | MINUS",
+          "description" : "findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE, FIND_BY_TYPE, AND, OR, MINUS"
+        },
+        "groupName" : {
+          "type" : "string",
+          "example" : "some:group:name",
+          "description" : "groupName search by group name (must match exactly), cannot use other params with this"
+        },
+        "stemName" : {
+          "type" : "string",
+          "example" : "some:parent:folder:name",
+          "description" : "Will return groups only in this stem (by name)"
+        },
+        "stemNameScope" : {
+          "type" : "string",
+          "example" : "ONE_LEVEL | ALL_IN_SUBTREE",
+          "description" : "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE"
+        },
+        "groupUuid" : {
+          "type" : "string",
+          "example" : "ABC123",
+          "description" : "groupUuid search by group uuid (must match exactly)"
+        },
+        "groupAttributeValue" : {
+          "type" : "string",
+          "example" : "someValue",
+          "description" : "The attribute value to filter on if querying by attribute and value"
+        },
+        "groupAttributeName" : {
+          "type" : "string",
+          "example" : "some:attribute:name",
+          "description" : "this is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute"
+        },
+        "groupTypeName" : {
+          "type" : "string",
+          "example" : "NA",
+          "description" : "not implemented"
+        },
+        "queryFilter0" : {
+          "description" : "If 'and' or 'or' this is the first group, and if complement, this is the group to complement",
+          "$ref" : "#/definitions/WsQueryFilter"
+        },
+        "queryFilter1" : {
+          "description" : "if 'and' or 'or', this is the second group",
+          "$ref" : "#/definitions/WsQueryFilter"
+        },
+        "pageIsCursor" : {
+          "type" : "string",
+          "example" : "T",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
+        },
+        "pageLastCursorField" : {
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string",
+          "example" : "false",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
+        },
+        "enabled" : {
+          "type" : "string",
+          "example" : "A|T|F",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled"
+        },
+        "queryTerm" : {
+          "type" : "string",
+          "example" : "some:group:name",
+          "description" : "queryTerm if searching by query, this is a term that will be matched to name, extension, etc"
+        }
+      },
+      "description" : "this represents a query which can be and'ed or or'ed.  Can also pass in other params."
+    },
+    "WsResponseMeta" : {
+      "type" : "object",
+      "properties" : {
+        "resultWarnings" : {
+          "type" : "string"
+        },
+        "millis" : {
+          "type" : "string"
+        },
+        "serverVersion" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestFindGroupsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsQueryFilter" : {
+          "description" : "Query filter for request",
+          "$ref" : "#/definitions/WsQueryFilter"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the group detail should be returned, default to false"
+        },
+        "params" : {
+          "type" : "array",
+          "example" : "NA",
+          "description" : "Optional params for this request",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "wsGroupLookups" : {
+          "type" : "array",
+          "description" : "wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned in alphabetical order",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for finding groups"
+    },
+    "WsRestFindGroupsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestFindGroupsRequest" : {
+          "$ref" : "#/definitions/WsRestFindGroupsRequest"
+        }
+      }
+    },
+    "WsResultMeta" : {
+      "type" : "object",
+      "properties" : {
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "resultCode" : {
+          "type" : "string"
+        },
+        "resultCode2" : {
+          "type" : "string"
+        },
+        "resultMessage" : {
+          "type" : "string"
+        },
+        "success" : {
+          "type" : "string",
+          "description" : "T or F as to whether it was a successful assignment"
+        }
+      }
+    },
+    "WsResultsError" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsSubjectLookup" : {
+      "type" : "object",
+      "properties" : {
+        "subjectId" : {
+          "type" : "string",
+          "description" : "subjectId is mutually exclusive with subjectIdentifier.  This is specific to your institution.  Might be the employeeId.  You should also pass in a subjectSourceId"
+        },
+        "subjectIdentifier" : {
+          "type" : "string",
+          "description" : "subjectIdentifier is mutually exclusive with subjectId.  This is specific to your institution.  Might be the netId.  If you can use subjectId, you should use that, if not, use this.  You should also pass in a subjectSourceId"
+        },
+        "subjectSourceId" : {
+          "type" : "string",
+          "description" : "subjectSourceId is specific to your institution.  Ask your Grouper admins which subjectSourceId to you, or can find it in the UI where you import subjects"
+        }
+      },
+      "description" : "template to lookup a subject.  note if subjectId and subjectIdentifier are filled in with the same value, it will find by subject id or identifier.  To lookup a group as a subject use g:gsa as the source id, then either use the group uuid (e.g. fa2dd790-d3f9-4cf4-ac41-bb82e63bff66) in the subject id of the subject lookup, or the group system name as the subject identifier."
+    }
+  }
+}
