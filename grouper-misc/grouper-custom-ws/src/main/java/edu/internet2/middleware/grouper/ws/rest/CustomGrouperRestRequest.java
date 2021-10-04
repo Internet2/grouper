@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.ws.rest;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -7,11 +9,15 @@ public class CustomGrouperRestRequest {
     private List<String> urlStrings;
     private Map<String, String[]> parameterMap;
     private String body;
+    private ServletRequest servletRequest;
+    private ServletResponse servletResponse;
 
-    public CustomGrouperRestRequest(List<String> urlStrings, Map<String, String[]> parameterMap, String body) {
+    public CustomGrouperRestRequest(List<String> urlStrings, Map<String, String[]> parameterMap, String body, ServletRequest servletRequest, ServletResponse servletResponse) {
         this.urlStrings = urlStrings;
         this.parameterMap = parameterMap;
         this.body = body;
+        this.servletRequest = servletRequest;
+        this.servletResponse = servletResponse;
     }
 
     public List<String> getUrlStrings() {
