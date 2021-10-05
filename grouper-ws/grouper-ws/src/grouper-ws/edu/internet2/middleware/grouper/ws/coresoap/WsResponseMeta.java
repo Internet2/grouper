@@ -26,10 +26,13 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * response metadata (version, warnings, etc)
+ * Response metadata (version, warnings, millis, etc)
  */
+@ApiModel(description = "Response metadata (version, warnings, millis, etc)")
 public class WsResponseMeta {
 
   /**
@@ -58,9 +61,10 @@ public class WsResponseMeta {
   }
 
   /**
-   * if there are warnings, they will be there
+   * If there are warnings, they will be here
    * @return any warnings
    */
+  @ApiModelProperty(value = "If there are warnings, they will be here", example = "")
   public String getResultWarnings() {
     return StringUtils.trimToNull(this.resultWarnings.toString());
   }
@@ -88,6 +92,7 @@ public class WsResponseMeta {
    * 
    * @return millis
    */
+  @ApiModelProperty(value = "Milliseconds this operation took on server", example = "123")
   public String getMillis() {
     if (this.millis == -1) {
       this.millis = System.currentTimeMillis() - this.millisStart;
@@ -100,6 +105,7 @@ public class WsResponseMeta {
   /**
    * @return the serverVersion
    */
+  @ApiModelProperty(value = "The version of Grouper on the server", example = "2.6.1")
   public String getServerVersion() {
     return this.serverVersion;
   }

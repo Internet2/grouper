@@ -1834,6 +1834,16 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String translateFromStaticValues = this.retrieveConfigString(objectType + "."+i+".translateFromStaticValues" , false);
+          attributeConfig.setTranslateFromStaticValues(translateFromStaticValues);
+        }
+        
+        {
+          String translateFromStaticValuesCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromStaticValuesCreateOnly" , false);
+          attributeConfig.setTranslateFromStaticValuesCreateOnly(translateFromStaticValuesCreateOnly);
+        }
+        
+        {
           String translateFromGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromGroupSyncField" , false);
           attributeConfig.setTranslateFromGroupSyncField(translateFromGroupSyncField);
         }

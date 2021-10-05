@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Result of one group being retrieved since a user is a member of it.  The number of
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * 
  * @author mchyzer
  */
+@ApiModel(description = "Result of one group being retrieved")
 public class WsGroup implements Comparable<WsGroup> {
 
   /**
@@ -56,6 +59,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return type of group
    */
+  @ApiModelProperty(value = "type of group can be an enum of TypeOfGroup, e.g. group, role, entity", example = "group | role | entity")
   public String getTypeOfGroup() {
     return this.typeOfGroup;
   }
@@ -153,6 +157,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "Integer ID for object", example = "12345")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -239,6 +244,8 @@ public class WsGroup implements Comparable<WsGroup> {
    * friendly description of this group
    * @return the description
    */
+  @ApiModelProperty(value = "Description field of group should contain documentation about the group", 
+      example = "This group was created 1/2/2019 by John Smith for the Math department.")
   public String getDescription() {
     return this.description;
   }
@@ -247,6 +254,8 @@ public class WsGroup implements Comparable<WsGroup> {
    * friendly extensions of group and parent stems
    * @return the displayName
    */
+  @ApiModelProperty(value = "Fully qualified display name of the group ('Path' in the UI).  This contains all "
+      + "display extensions of parent folders separated by colons", example = "Applications:My app:Some group")
   public String getDisplayName() {
     return this.displayName;
   }
@@ -256,6 +265,8 @@ public class WsGroup implements Comparable<WsGroup> {
    * and the extention of this group
    * @return the name
    */
+  @ApiModelProperty(value = "Fully qualified system name of the group ('ID Path' in the UI).  This contains "
+      + "all the system extensions of parent folders separated by colons", example = "app:myApp:someGroup")
   public String getName() {
     return this.name;
   }
@@ -264,6 +275,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * universally unique identifier of this group
    * @return the uuid
    */
+  @ApiModelProperty(value = "This is the unique unchanging opaque identifier of this group (max 40 chars)", example = "abc123")
   public String getUuid() {
     return this.uuid;
   }
@@ -305,6 +317,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * if requested, these are the detail results of the group
    * @return the detail
    */
+  @ApiModelProperty(value = "If requested, these are the detail results of the group")
   public WsGroupDetail getDetail() {
     return this.detail;
   }
@@ -321,6 +334,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * extension of group, the part to the right of last colon in name
    * @return the extension
    */
+  @ApiModelProperty(value = "System extension of group, the part to the right of last colon in name.  This is the 'ID' in the UI", example = "someGroup")
   public String getExtension() {
     return this.extension;
   }
@@ -337,6 +351,7 @@ public class WsGroup implements Comparable<WsGroup> {
    * display extension, the part to the right of the last colon in display name
    * @return the displayExtension
    */
+  @ApiModelProperty(value = "Display extension of group, the part to the right of last colon in display name.  This is the 'Name' in the UI", example = "Some group")
   public String getDisplayExtension() {
     return this.displayExtension;
   }
@@ -371,6 +386,7 @@ public class WsGroup implements Comparable<WsGroup> {
   /**
    * @return the alternateName
    */
+  @ApiModelProperty(value = "If there is an alternate name assigned to this group, it will be listed here", example = "some:alternate:name")
   public String getAlternateName() {
     return this.alternateName;
   }
@@ -395,6 +411,7 @@ public class WsGroup implements Comparable<WsGroup> {
   /**
    * @return the enabled
    */
+  @ApiModelProperty(value = "if the group is enabled, T or F", example = "T|F")
   public String getEnabled() {
     return this.enabled;
   }
@@ -409,6 +426,7 @@ public class WsGroup implements Comparable<WsGroup> {
   /**
    * @return the enabledTime
    */
+  @ApiModelProperty(value = "Timestamp this group is enabled: yyyy/MM/dd HH:mm:ss.SSS", example = "2022/04/21 20:17:42.987")
   public String getEnabledTime() {
     return this.enabledTime;
   }
@@ -423,6 +441,7 @@ public class WsGroup implements Comparable<WsGroup> {
   /**
    * @return the disabledTime
    */
+  @ApiModelProperty(value = "Timestamp this group is disabled: yyyy/MM/dd HH:mm:ss.SSS", example = "2021/03/15 18:41:18.123")
   public String getDisabledTime() {
     return this.disabledTime;
   }

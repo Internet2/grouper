@@ -39,10 +39,13 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * this represents a query which can be and'ed or or'ed
  */
+@ApiModel(description = "this represents a query which can be and'ed or or'ed.  Can also pass in other params.")
 public class WsQueryFilter {
 
   /** comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity */
@@ -52,6 +55,7 @@ public class WsQueryFilter {
    * comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return type of group
    */
+  @ApiModelProperty(value = "Comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity", example = "group|role|entity")
   public String getTypeOfGroups() {
     return this.typeOfGroups;
   }
@@ -105,6 +109,7 @@ public class WsQueryFilter {
    * page size if paging
    * @return the pageSize
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -123,6 +128,7 @@ public class WsQueryFilter {
    * page number 1 indexed if paging
    * @return the pageNumber
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging", example = "1")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -141,6 +147,8 @@ public class WsQueryFilter {
    * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @return the sortString
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -159,6 +167,7 @@ public class WsQueryFilter {
    * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -454,6 +463,11 @@ public class WsQueryFilter {
    * FIND_BY_TYPE, AND, OR, MINUS; 
    * @return the findGroupType
    */
+  @ApiModelProperty(value = "findGroupType is the WsQueryFilterType enum for which type of find is happening: "
+      + "e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, "
+      + "FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE, FIND_BY_TYPE, AND, OR, MINUS", 
+      example = "FIND_BY_GROUP_UUID | FIND_BY_GROUP_NAME_EXACT | FIND_BY_STEM_NAME | FIND_BY_APPROXIMATE_ATTRIBUTE |"
+          + " FIND_BY_ATTRIBUTE | FIND_BY_GROUP_NAME_APPROXIMATE | FIND_BY_TYPE | AND | OR | MINUS")
   public String getQueryFilterType() {
     return this.queryFilterType;
   }
@@ -473,6 +487,7 @@ public class WsQueryFilter {
    * groupName search by group name (must match exactly), cannot use other params with this 
    * @return the groupName
    */
+  @ApiModelProperty(value = "groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name")
   public String getGroupName() {
     return this.groupName;
   }
@@ -489,6 +504,7 @@ public class WsQueryFilter {
    * stemName will return groups only in this stem
    * @return the stemName
    */
+  @ApiModelProperty(value = "Will return groups only in this stem (by name)", example = "some:parent:folder:name")
   public String getStemName() {
     return this.stemName;
   }
@@ -507,6 +523,8 @@ public class WsQueryFilter {
    * ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE
    * @return the stemNameScope
    */
+  @ApiModelProperty(value = "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE", 
+      example = "ONE_LEVEL | ALL_IN_SUBTREE")
   public String getStemNameScope() {
     return this.stemNameScope;
   }
@@ -535,6 +553,7 @@ public class WsQueryFilter {
    * groupUuid search by group uuid (must match exactly), cannot use other
    * @return the groupUuid
    */
+  @ApiModelProperty(value = "groupUuid search by group uuid (must match exactly)", example = "abc123")
   public String getGroupUuid() {
     return this.groupUuid;
   }
@@ -552,6 +571,7 @@ public class WsQueryFilter {
    * name, extension, etc
    * @return the queryTerm
    */
+  @ApiModelProperty(value = "queryTerm if searching by query, this is a term that will be matched to name, extension, etc", example = "some:group:name")
   public String getQueryTerm() {
     return this.groupAttributeValue;
   }
@@ -566,10 +586,11 @@ public class WsQueryFilter {
   }
 
   /**
-   * if querying, this is the attribute name, or null or search
+   * if querying, this is the attribute name, or null for search
    * all attributes
    * @return the attributeName
    */
+  @ApiModelProperty(value = "This is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute", example = "some:attribute:name")
   public String getGroupAttributeName() {
     return this.groupAttributeName;
   }
@@ -587,6 +608,7 @@ public class WsQueryFilter {
    * if searching by type, this is the type to search for.  not yet implemented
    * @return the theType
    */
+  @ApiModelProperty(value = "not implemented", example = "NA")
   public String getGroupTypeName() {
     return this.groupTypeName;
   }
@@ -604,6 +626,7 @@ public class WsQueryFilter {
    * this is the group to complement 
    * @return the queryFilter0
    */
+  @ApiModelProperty(value = "If 'and' or 'or' this is the first group, and if complement, this is the group to complement")
   public WsQueryFilter getQueryFilter0() {
     return this.queryFilter0;
   }
@@ -621,6 +644,7 @@ public class WsQueryFilter {
    * if 'and' or 'or', this is the second group
    * @return the queryFilter1
    */
+  @ApiModelProperty(value = "if 'and' or 'or', this is the second group")
   public WsQueryFilter getQueryFilter1() {
     return this.queryFilter1;
   }
@@ -749,6 +773,7 @@ public class WsQueryFilter {
    * groupAttributeValue if searching by query, this is a term that will be matched to
    * @return the groupAttributeValue
    */
+  @ApiModelProperty(value = "The attribute value to filter on if querying by attribute and value", example = "someValue")
   public String getGroupAttributeValue() {
     return this.groupAttributeValue;
   }
@@ -782,13 +807,16 @@ public class WsQueryFilter {
   private String pageCursorFieldIncludesLastRetrieved;
 
   /**
+   * T|F default to F.  if this is T then we are doing cursor paging
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
 
   /**
+   * T|F default to F.  if this is T then we are doing cursor paging
    * @param pageIsCursor1 the pageIsCursor to set
    */
   public void setPageIsCursor(String pageIsCursor1) {
@@ -796,13 +824,16 @@ public class WsQueryFilter {
   }
 
   /**
+   * field that will be sent back for cursor based paging
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
 
   /**
+   * field that will be sent back for cursor based paging
    * @param pageLastCursorField1 the pageLastCursorField to set
    */
   public void setPageLastCursorField(String pageLastCursorField1) {
@@ -812,6 +843,7 @@ public class WsQueryFilter {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -826,6 +858,7 @@ public class WsQueryFilter {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }
@@ -845,6 +878,7 @@ public class WsQueryFilter {
   /**
    * @return the enabled
    */
+  @ApiModelProperty(value = "enabled is A for all, T or null for enabled only, F for disabled", example = "A|T|F")
   public String getEnabled() {
     return this.enabled;
   }

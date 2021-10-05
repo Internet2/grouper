@@ -125,7 +125,6 @@ public class GrouperReport {
         "select count(*) from Stem").uniqueResult(Long.class);
       result.append("folders:               ").append(formatCommas(folderCountTotal)).append("\n");
     
-      Set<Member> usduMembers = new HashSet<Member>();
       List<SubjectResolutionStat> subjectResolutionStats = UsduService.getSubjectResolutionStats();
       int unresolvableResultCount = 0;
       for (SubjectResolutionStat subjectResolutionStat : subjectResolutionStats) {
@@ -225,9 +224,9 @@ public class GrouperReport {
       if (loaderErrorCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
           "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status != 'SUCCESS'")
-            .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
+            .setTimestamp("lastUpdated", yesterday).options(new QueryOptions().paging(50, 1, false).sortDesc("lastUpdated")).list(Hib3GrouperLoaderLog.class);
         result.append("\n----------------\n");
-        result.append("LOADER JOBS WITH NON-SUCCESS\n");
+        result.append("LOADER JOBS WITH NON-SUCCESS (max 50 of them)\n");
         result.append("----------------\n");
         for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
           result.append("\njob:               ").append(loaderLog.getJobName())
@@ -249,7 +248,7 @@ public class GrouperReport {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
           "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated " +
           " and status != 'ERROR' and jobName != 'CHANGE_LOG_changeLogTempToChangeLog'")
-            .setTimestamp("lastUpdated", yesterday).options(new QueryOptions().paging(50, 1, false))
+            .setTimestamp("lastUpdated", yesterday).options(new QueryOptions().paging(50, 1, false).sortDesc("lastUpdated"))
             .list(Hib3GrouperLoaderLog.class);
         if (loaderLogs.size() > 0) {
           result.append("\n----------------\n");
@@ -271,22 +270,6 @@ public class GrouperReport {
         }
       }
 
-      
-      if (usduMembers.size() > 0) {
-        int usduToPrint = Math.min(50, usduMembers.size());
-        result.append("\n----------------\n");
-        result.append("UNRESOLVABLE SUBJECTS " + usduToPrint + " of " + usduMembers.size() + "\n");
-        result.append("----------------\n");
-        Iterator<Member> iterator = usduMembers.iterator();
-        int count = 1;
-        while (count <= usduToPrint && iterator.hasNext()) {
-          Member member = iterator.next();
-          result.append(member.getSubjectSourceId() + ": " + member.getSubjectId()).append("\n");
-          if (++count > usduToPrint) {
-            break;
-          }
-        }
-      }
       
       result.append("\n----------------\n");
       result.append("GROUPER INFO\n");

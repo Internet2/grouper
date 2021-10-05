@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -337,8 +338,14 @@ public class GrouperOidc {
 
     debugMap.put("oidcCode", StringUtils.abbreviate(this.oidcCodeString, 8));
 
-    this.redirectUri = uriPattern ? matcher.group(2) : grouperOidcConfig.getRedirectUri();
-
+    if (uriPattern) {
+      this.redirectUri = matcher.group(2);
+      // this is base64 encoded
+      this.redirectUri = new String(Base64.decodeBase64(this.redirectUri));
+    } else {
+      this.redirectUri = grouperOidcConfig.getRedirectUri();
+    }
+    
     debugMap.put("redirectUri", this.redirectUri);
   }
 

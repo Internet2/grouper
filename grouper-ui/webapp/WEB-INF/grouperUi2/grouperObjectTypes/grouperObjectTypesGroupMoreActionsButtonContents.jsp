@@ -20,11 +20,6 @@
 	                            >${textContainer.text['objectTypeMoreActionsEditSettings'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.objectTypeContainer.canRunDaemon}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2GrouperObjectTypes.runDaemon'); return false;"
-                              >${textContainer.text['groupObjectTypeMoreActionsRunDaemon'] }</a></li>
-                        </c:if>
-
                       </ul>
                     </div>
 

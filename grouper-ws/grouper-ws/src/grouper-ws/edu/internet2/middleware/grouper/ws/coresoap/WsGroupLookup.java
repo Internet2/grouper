@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupD
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -52,6 +54,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
  * </pre>
  * @author mchyzer
  */
+@ApiModel(description = "Template to lookup a group: groupName, uuid, and idIndex are mutually exclusive.")
 public class WsGroupLookup implements GrouperWsToStringCompact {
 
   /**
@@ -63,6 +66,7 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "Integer ID for object", example = "12345")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -603,6 +607,7 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
    * uuid of the group to find
    * @return the uuid
    */
+  @ApiModelProperty(value = "UUID of the group to find ('UUID' from the UI)", example = "abc123")
   public String getUuid() {
     return this.uuid;
   }
@@ -620,6 +625,7 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
    * name of the group to find (includes stems, e.g. stem1:stem2:groupName
    * @return the theName
    */
+  @ApiModelProperty(value = "Group system name ('ID path' on UI) to search for, not the display name", example = "some:group:name")
   public String getGroupName() {
     return this.groupName;
   }

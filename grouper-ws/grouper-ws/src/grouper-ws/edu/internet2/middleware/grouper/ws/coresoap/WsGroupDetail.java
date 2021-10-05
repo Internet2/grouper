@@ -29,14 +29,14 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Result for finding a group
@@ -44,6 +44,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @author mchyzer
  * 
  */
+@ApiModel(description = "Detail of group if requested from user")
 public class WsGroupDetail {
 
   /**
@@ -81,6 +82,7 @@ public class WsGroupDetail {
   /**
    * @return the params
    */
+  @ApiModelProperty(value = "NA")
   public WsParam[] getParams() {
     return this.params;
   }
@@ -96,6 +98,7 @@ public class WsGroupDetail {
    * should be UNION, COMPLEMENT, INTERSECTION
    * @return type
    */
+  @ApiModelProperty(value = "If this is a composite group, this is the composite type: UNION, COMPLEMENT, INTERSECTION", example = "UNION | COMPLEMENT | INTERSECTION")
   public String getCompositeType() {
     return this.compositeType;
   }
@@ -112,6 +115,7 @@ public class WsGroupDetail {
    * types of this gruop
    * @return the typeNames
    */
+  @ApiModelProperty(value = "Legacy types for this group, comma-separated")
   public String[] getTypeNames() {
     return this.typeNames;
   }
@@ -128,6 +132,7 @@ public class WsGroupDetail {
    * attribute names, not including the ones listed in the group result or detail
    * @return the attributeNames
    */
+  @ApiModelProperty(value = "Attribute names, not including the ones listed in the group result or detail")
   public String[] getAttributeNames() {
     return this.attributeNames;
   }
@@ -141,9 +146,10 @@ public class WsGroupDetail {
   }
 
   /**
-   * attribute names, not including the ones listed in the group result or detail
+   * Attribute values, not including the ones listed in the group result or detail
    * @return the attributeValues
    */
+  @ApiModelProperty(value = "Attribute values, not including the ones listed in the group result or detail")
   public String[] getAttributeValues() {
     return this.attributeValues;
   }
@@ -295,6 +301,7 @@ public class WsGroupDetail {
    * 
    * @return the createSubjectId
    */
+  @ApiModelProperty(value = "ID of the subject that created this group", example = "12345678")
   public String getCreateSubjectId() {
     return this.createSubjectId;
   }
@@ -314,6 +321,7 @@ public class WsGroupDetail {
    * 
    * @return the createTime
    */
+  @ApiModelProperty(value = "Create time in format: yyyy/mm/dd hh24:mi:ss.SSS", example = "2021/03/15 18:41:18.123")
   public String getCreateTime() {
     return this.createTime;
   }
@@ -338,6 +346,11 @@ public class WsGroupDetail {
    * 
    * @return the isCompositeFactor
    */
+  @ApiModelProperty(value = "If a composite member of another group 'T', else 'F'.  "
+      + "A composite group is composed of two groups and a set operator (stored in "
+      + "the grouper_composites table) (e.g. complement, intersection). A composite "
+      + "group has no immediate members. All subjects in a composite group are "
+      + "effective members.", example = "T|F")
   public String getIsCompositeFactor() {
     return this.isCompositeFactor;
   }
@@ -362,6 +375,7 @@ public class WsGroupDetail {
    * 
    * @return the modifySource
    */
+  @ApiModelProperty(value = "Not used", example = "NA")
   public String getModifySource() {
     return this.modifySource;
   }
@@ -381,6 +395,7 @@ public class WsGroupDetail {
    * 
    * @return the modifySubjectId
    */
+  @ApiModelProperty(value = "ID of the subject that last modified this group's attributes", example = "12345678")
   public String getModifySubjectId() {
     return this.modifySubjectId;
   }
@@ -400,6 +415,7 @@ public class WsGroupDetail {
    * 
    * @return the modifyTime
    */
+  @ApiModelProperty(value = "Last modified time for this group. yyyy/mm/dd hh24:mi:ss.SSS", example = "2021/03/15 18:41:18.123")
   public String getModifyTime() {
     return this.modifyTime;
   }
@@ -418,6 +434,7 @@ public class WsGroupDetail {
    * if this group has a composite member, T|F
    * @return the hasComposite
    */
+  @ApiModelProperty(value = "if this group has a composite member, T|F", example = "T|F")
   public String getHasComposite() {
     return this.hasComposite;
   }
@@ -434,6 +451,7 @@ public class WsGroupDetail {
    * left group if composite (note, detail will never be there)
    * @return the leftGroup
    */
+  @ApiModelProperty(value = "Left group if this is a composite owner (note, detail will never be there in the leftGroup wsGroup)")
   public WsGroup getLeftGroup() {
     return this.leftGroup;
   }
@@ -447,9 +465,10 @@ public class WsGroupDetail {
   }
 
   /**
-   * left group if composite (note, detail will never be there)
+   * right group if composite (note, detail will never be there)
    * @return the rightGroup
    */
+  @ApiModelProperty(value = "Right group if this is a composite owner (note, detail will never be there in the rightGroup wsGroup)")
   public WsGroup getRightGroup() {
     return this.rightGroup;
   }

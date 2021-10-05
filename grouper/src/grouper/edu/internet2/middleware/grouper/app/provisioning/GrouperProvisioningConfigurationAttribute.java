@@ -396,6 +396,16 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateExpressionCreateOnly;
   
   /**
+   * static values in normal translation
+   */
+  private String translateFromStaticValues;
+
+  /**
+   * static values in create translation
+   */
+  private String translateFromStaticValuesCreateOnly;
+  
+  /**
    * NOTE: CURRENTLY NOT USED
    * expression when translating a group or entity membership attribute
    */
@@ -646,5 +656,38 @@ public class GrouperProvisioningConfigurationAttribute {
   public void setDefaultValue(String defaultValue1) {
     this.defaultValue = defaultValue1;
     
+  }
+
+  /**
+   * static values in normal translation
+   * @return
+   */
+  public String getTranslateFromStaticValues() {
+    return translateFromStaticValues;
+  }
+
+  /**
+   * static values in normal translation
+   * @param translateFromStaticValues
+   */
+  public void setTranslateFromStaticValues(String translateFromStaticValues) {
+    this.translateFromStaticValues = translateFromStaticValues;
+  }
+  
+  /**
+   * static values in create translation
+   * @return
+   */
+  public String getTranslateFromStaticValuesCreateOnly() {
+    return translateFromStaticValuesCreateOnly;
+  }
+  
+  /**
+   * static values in create translation
+   * @param translateFromStaticValuesCreateOnly
+   */
+  public void setTranslateFromStaticValuesCreateOnly(
+      String translateFromStaticValuesCreateOnly) {
+    this.translateFromStaticValuesCreateOnly = translateFromStaticValuesCreateOnly;
   }
 }

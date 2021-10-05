@@ -47,6 +47,8 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -63,6 +65,9 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * </pre>
  * @author mchyzer
  */
+@ApiModel(description = "template to lookup a subject.  note if subjectId and subjectIdentifier are filled in with the same value, it will find by subject id or identifier.  "
+    + "To lookup a group as a subject use g:gsa as the source id, then either use the group uuid (e.g. fa2dd790-d3f9-4cf4-ac41-bb82e63bff66) in the subject id of the subject lookup, "
+    + "or the group system name as the subject identifier.")
 public class WsSubjectLookup implements GrouperWsToStringCompact {
 
   /** find the subject */
@@ -450,6 +455,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
    * optional: source of subject in the subject api source list
    * @return the subjectSource
    */
+  @ApiModelProperty(value = "subjectSourceId is specific to your institution.  Ask your Grouper admins which subjectSourceId to you, or can find it in the UI where you import subjects", example = "myInstitutionsPeople")
   public String getSubjectSourceId() {
     return this.subjectSourceId;
   }
@@ -566,6 +572,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
    * id of the subject
    * @return the subjectId
    */
+  @ApiModelProperty(value = "subjectId is mutually exclusive with subjectIdentifier.  This is specific to your institution.  Might be the employeeId.  You should also pass in a subjectSourceId", example = "12345678")
   public String getSubjectId() {
     return this.subjectId;
   }
@@ -583,6 +590,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
    * any identifier of the subject
    * @return the subjectIdentifier
    */
+  @ApiModelProperty(value = "subjectIdentifier is mutually exclusive with subjectId.  This is specific to your institution.  Might be the netId.  If you can use subjectId, you should use that, if not, use this.  You should also pass in a subjectSourceId", example = "jsmith")
   public String getSubjectIdentifier() {
     return this.subjectIdentifier;
   }

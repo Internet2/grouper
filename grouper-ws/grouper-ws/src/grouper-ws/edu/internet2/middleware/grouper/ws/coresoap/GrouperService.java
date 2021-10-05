@@ -18,6 +18,9 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import java.sql.Timestamp;
 import java.util.Map;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +60,13 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * <pre>
@@ -81,6 +91,12 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
  * @author mchyzer
  * </pre>
  */
+@SwaggerDefinition(
+    consumes = {"application/json", "application/xml"},
+    produces = {"application/json", "application/xml"},
+    schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS}
+)
+@Api(value = "Grouper", description = "Integrate with the Grouper registry")
 public class GrouperService {
 
   /** 
@@ -162,7 +178,84 @@ public class GrouperService {
    * @param enabled enabled is A for all, T or null for enabled only, F for disabled
    * @return the groups, or no groups if none found
    */
-  public WsFindGroupsResults findGroupsLite(final String clientVersion,
+  @POST
+  @Path("/grouper-ws/servicesRest/vX_Y_FGL/groups")
+  @ApiOperation(httpMethod = "POST", value = "Find groups lite", nickname = "findGroupsLite", response = WsFindGroupsResultsWrapper.class,
+  notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br /><b>wsLiteObjectType</b>=WsRestFindGroupsLiteRequest&amp;<b>"
+      + "groupName</b>=aGr&amp;<b>queryFilterType</b>=FIND_BY_GROUP_NAME_APPROXIMATE&amp;<b>stemName</b>=aStem</pre>") 
+  @ApiResponses({@ApiResponse(code = 200, message = "SUCCESS", response = WsFindGroupsResultsWrapper.class),
+                @ApiResponse(code = 400, message = "INVALID_QUERY", response = WsFindGroupsResultsWrapperError.class),
+                @ApiResponse(code = 404, message = "STEM_NOT_FOUND", response = WsFindGroupsResultsWrapperError.class),
+                @ApiResponse(code = 500, message = "EXCEPTION", response = WsFindGroupsResultsWrapperError.class)})
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "queryFilterType", dataType = "String", paramType = "form", 
+    value = "findGroupType is the WsQueryFilterType enum for which type of find is happening: "
+      + "e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, "
+      + "FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE, FIND_BY_TYPE, AND, OR, MINUS", 
+      example = "FIND_BY_GROUP_UUID | FIND_BY_GROUP_NAME_EXACT | FIND_BY_STEM_NAME | FIND_BY_APPROXIMATE_ATTRIBUTE |"
+      + " FIND_BY_ATTRIBUTE | FIND_BY_GROUP_NAME_APPROXIMATE | FIND_BY_TYPE | AND | OR | MINUS"),
+    @ApiImplicitParam(required = false, name = "groupName", dataType = "String", paramType = "form", 
+        value = "groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name"),
+    @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
+        value = "Will return groups only in this stem (by name)", example = "some:parent:folder:name"),
+    @ApiImplicitParam(required = false, name = "stemNameScope", dataType = "String", paramType = "form", 
+        value = "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE", 
+        example = "ONE_LEVEL | ALL_IN_SUBTREE"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "groupAttributeName", dataType = "String", paramType = "form", 
+    value = "This is the attribute name, or null for search all attributes.  This could be a legacy attribute or an attributeDefName of a string valued attribute", example = "some:attribute:name"),
+    @ApiImplicitParam(required = false, name = "groupAttributeValue", dataType = "String", paramType = "form", 
+    value = "The attribute value to filter on if querying by attribute and value", example = "someValue"),
+    @ApiImplicitParam(required = false, name = "groupTypeName", dataType = "String", paramType = "form", 
+    value = "not implemented", example = "NA"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
+        value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+        example = "name | displayName | extension | displayExtension"),
+    @ApiImplicitParam(required = false, name = "ascending", dataType = "String", paramType = "form", 
+    value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "typeOfGroups", dataType = "String", paramType = "form", 
+    value = "Comma separated type of groups can be an enum of TypeOfGroup, e.g. group, role, entity", example = "group|role|entity"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "enabled", dataType = "String", paramType = "form", 
+    value = "enabled is A for all, T or null for enabled only, F for disabled", example = "A|T|F")    
+  })
+  public WsFindGroupsResults findGroupsLite(
+      final String clientVersion,
       String queryFilterType, String groupName, String stemName, String stemNameScope,
       String groupUuid, String groupAttributeName, String groupAttributeValue,
       String groupTypeName, String actAsSubjectId, String actAsSubjectSourceId,

@@ -165,15 +165,10 @@ public class GrouperProvisioningTranslatorBase {
 
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
-          String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
-          boolean hasExpression = !StringUtils.isBlank(expression);
-          String expressionToUse = null;
-          if (hasExpression) {
-            expressionToUse = expression;
-          }
+          String expressionToUse = getTargetExpressionToUse(false, grouperProvisioningConfigurationAttribute);
           if (!StringUtils.isBlank(expressionToUse)) {
             Object result = attributeTranslation( 
-                grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), expressionToUse, elVariableMap, false, 
+                grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, false, 
                 grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, provisioningEntityWrapper);
 
             grouperTargetMembership.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), result);
@@ -376,22 +371,14 @@ public class GrouperProvisioningTranslatorBase {
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
           if (grouperProvisioningConfigurationAttribute.isRequired() == required) {
-            String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
-            boolean hasExpression = !StringUtils.isBlank(expression);
-            String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
-            boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
-            String expressionToUse = null;
-            if (forCreate && hasExpressionCreateOnly) {
-              expressionToUse = expressionCreateOnly;
-            } else if (hasExpression) {
-              expressionToUse = expression;
-            }
+            String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
+            String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
 
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())
                 || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
 
               Object result = attributeTranslation( 
-                  grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), expressionToUse, elVariableMap, forCreate, 
+                  grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, null, grouperProvisioningEntity.getProvisioningEntityWrapper());
               
               if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
@@ -518,21 +505,13 @@ public class GrouperProvisioningTranslatorBase {
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
           if (grouperProvisioningConfigurationAttribute.isRequired() == required) {
             
-            String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
-            boolean hasExpression = !StringUtils.isBlank(expression);
-            String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
-            boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
-            String expressionToUse = null;
-            if (forCreate && hasExpressionCreateOnly) {
-              expressionToUse = expressionCreateOnly;
-            } else if (hasExpression) {
-              expressionToUse = expression;
-            }
+            String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
+            String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
 
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
                 || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
               Object result = attributeTranslation( 
-                  grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), expressionToUse, elVariableMap, forCreate, 
+                  grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, grouperProvisioningGroup.getProvisioningGroupWrapper(), null);
 
               if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
@@ -723,13 +702,22 @@ public class GrouperProvisioningTranslatorBase {
     throw new RuntimeException("Not expecting memberSyncField: '" + field + "'");
   }
   
-  public Object attributeTranslation(Object currentValue, String expressionToUse, Map<String, Object> elVariableMap, boolean forCreate,
+  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap, boolean forCreate,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, 
       ProvisioningGroupWrapper provisioningGroupWrapper, ProvisioningEntityWrapper provisioningEntityWrapper) {
     
+    String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
+    String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
+
     Object result = null;
     if (!StringUtils.isBlank(expressionToUse)) {
       result = runScript(expressionToUse, elVariableMap);
+    } else if (!StringUtils.isBlank(staticValuesToUse)) {
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        result = GrouperUtil.splitTrimToSet(staticValuesToUse, ",");
+      } else {
+        result = staticValuesToUse;
+      }
     } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
       result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
     } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
@@ -750,21 +738,22 @@ public class GrouperProvisioningTranslatorBase {
     if (grouperProvisioningConfigurationAttribute == null) {
       return currentValue;
     }
-    String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
-    boolean hasExpression = !StringUtils.isBlank(expression);
-    String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
-    boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
-    String expressionToUse = null;
-    if (forCreate && hasExpressionCreateOnly) {
-      expressionToUse = expressionCreateOnly;
-    } else if (hasExpression) {
-      expressionToUse = expression;
-    }
+
+    String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
+    String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
 
     Object result = null;
     boolean translate = false;
     if (!StringUtils.isBlank(expressionToUse)) {
       result = runScript(expressionToUse, elVariableMap);
+      translate = true;
+    } else if (!StringUtils.isBlank(staticValuesToUse)) {
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        result = GrouperUtil.splitTrimToSet(staticValuesToUse, ",");
+      } else {
+        result = staticValuesToUse;
+      }
+      
       translate = true;
     } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
       result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), 
@@ -1140,6 +1129,34 @@ public class GrouperProvisioningTranslatorBase {
   public boolean isTranslateGrouperToTargetAutomatically() {
     return translateGrouperToTargetAutomatically;
   }
-  
 
+  private String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
+    boolean hasExpression = !StringUtils.isBlank(expression);
+    String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
+    boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+    String expressionToUse = null;
+    if (forCreate && hasExpressionCreateOnly) {
+      expressionToUse = expressionCreateOnly;
+    } else if (hasExpression) {
+      expressionToUse = expression;
+    }
+
+    return expressionToUse;
+  }
+  
+  private String getTranslateFromStaticValuesToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String staticValues = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues();
+    boolean hasStaticValues = !StringUtils.isBlank(staticValues);
+    String staticValuesCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValuesCreateOnly();
+    boolean hasStaticValuesCreateOnly = !StringUtils.isBlank(staticValuesCreateOnly);
+    String staticValuesToUse = null;
+    if (forCreate && hasStaticValuesCreateOnly) {
+      staticValuesToUse = staticValuesCreateOnly;
+    } else if (hasStaticValues) {
+      staticValuesToUse = staticValues;
+    }
+
+    return staticValuesToUse;
+  }
 }

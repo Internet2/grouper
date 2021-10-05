@@ -21,6 +21,9 @@ package edu.internet2.middleware.grouper.ws.rest;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -58,6 +61,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResul
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindExternalSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResultsWrapperError;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
@@ -155,12 +160,25 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * consolidated static list of of rest web services (only web service methods here
  * to have clean javadoc).  the method name corresponds to the url and request method.
  * e.g. "GET /groups/a:b:c/members" will correspond to groupMembersGet()
  */
+@SwaggerDefinition(
+    consumes = {"application/json", "application/xml"},
+    produces = {"application/json", "application/xml"},
+    schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS}
+)
+@Api(value = "Grouper", description = "Integrate with the Grouper registry")
 public class GrouperServiceRest {
 
   /**
@@ -171,6 +189,17 @@ public class GrouperServiceRest {
    * @param wsRestFindGroupsRequest is the request body converted to an object
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vX_Y_FGF/groups")
+  @ApiOperation(httpMethod = "POST", value = "Find groups", nickname = "findGroups", response = WsFindGroupsResultsWrapper.class,
+      notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br />"
+          + "{<br>  &quot;WsRestFindGroupsRequest&quot;:{<br>    &quot;wsQueryFilter&quot;:{<br>      &quot;queryFilterType&quot;:&quot;FIND_BY_GROUP_NAME_APPROXIMATE&quot;,<br>      &quot;stemName&quot;:&quot;aStem&quot;,<br>      &quot;groupName&quot;:&quot;aGr&quot;<br>    }<br>  }<br>}</pre>") 
+  @ApiResponses({@ApiResponse(code = 200, message = "SUCCESS", response = WsFindGroupsResultsWrapper.class),
+                @ApiResponse(code = 400, message = "INVALID_QUERY", response = WsFindGroupsResultsWrapperError.class),
+                @ApiResponse(code = 404, message = "STEM_NOT_FOUND", response = WsFindGroupsResultsWrapperError.class),
+                @ApiResponse(code = 500, message = "EXCEPTION", response = WsFindGroupsResultsWrapperError.class)})
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, dataType = "edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequestWrapper", paramType = "body")})
   public static WsFindGroupsResults findGroups(GrouperVersion clientVersion,
       WsRestFindGroupsRequest wsRestFindGroupsRequest) {
 

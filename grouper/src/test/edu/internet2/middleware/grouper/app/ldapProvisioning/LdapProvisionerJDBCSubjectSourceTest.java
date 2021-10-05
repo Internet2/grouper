@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalSubjectIdentifierChanged"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -103,7 +103,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
     
     // wait for message cache to clear
-    GrouperUtil.sleep(10000);
+    //GrouperUtil.sleep(10000);
 
     if (runChangeLog) {
       ChangeLogTempToEntity.convertRecords();
@@ -409,8 +409,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.multiValued", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.translateExpressionType", "translationScript");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.translateExpression", "${grouperUtil.toSet('top', 'groupOfNames')}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.translateExpressionType", "staticValues");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.3.translateFromStaticValues", "top, groupOfNames");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.4.name", "description");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.4.isFieldElseAttribute", "false");
@@ -473,7 +473,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.5.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.5.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.5.multiValued", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.5.translateExpressionCreateOnly", "${grouperUtil.toSet('top', 'organizationalPerson', 'person', 'inetOrgPerson', 'eduPerson')}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.5.translateFromStaticValuesCreateOnly", "top, organizationalPerson, person, inetOrgPerson, eduPerson");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.class", LdapSync.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.ldapExternalSystemConfigId", "personLdap");
