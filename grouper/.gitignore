@@ -17,7 +17,6 @@ conf/grouperText/grouper.text.en.us.properties
 conf/grouperText/grouper.text.fr.fr.properties
 ddlScripts
 dist
-misc/server/i2midev1
 spy.log
 temp
 test.log
