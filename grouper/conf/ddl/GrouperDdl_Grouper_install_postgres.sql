@@ -2359,7 +2359,7 @@ COMMENT ON COLUMN grouper_password.hibernate_version_number IS 'hibernate uses t
 
 COMMENT ON COLUMN grouper_password.expires_millis IS 'millis since 1970 this password is going to expire';
 
-COMMENT ON COLUMN grouper_password.create_millis IS 'millis since 1970 this password was created';
+COMMENT ON COLUMN grouper_password.created_millis IS 'millis since 1970 this password was created';
 
 COMMENT ON COLUMN grouper_password.member_id_who_set_password IS 'member id who set this password';
 

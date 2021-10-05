@@ -309,8 +309,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
   @Override
   protected void setupInitDb() {
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.5.*");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion.elConfig", "2.5.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.6.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion.elConfig", "2.6.*");
   }
 
   /**
@@ -1418,8 +1418,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
       .assignMaxVersions(null).assignPromptUser(true).runDdl();
 
-    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_49_hsql.sql
-    // get to 2.5.49
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_hsql.sql
+    // get to 2.5.51
     File scriptToGetTo2_5_51 = retrieveScriptFile("GrouperDdl_2_5_51_" + GrouperDdlUtils.databaseType() + ".sql");
     
     GrouperDdlUtils.sqlRun(scriptToGetTo2_5_51, true, true);
