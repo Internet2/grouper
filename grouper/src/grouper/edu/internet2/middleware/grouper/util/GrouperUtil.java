@@ -13905,6 +13905,22 @@ public class GrouperUtil {
   }
   
   /**
+   * run a regex on a string and return first group or null if not matches.  regex must have group in it
+   * regexGroup("^fr(u)it$", "fruit") will return "u"
+   * @param regex
+   * @param input
+   * @return the group
+   */
+  public static String regexGroup(String regex, String input) {
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(input);
+    if (!matcher.matches()) {
+      return null;
+    }
+    return matcher.group(1);
+  }
+  
+  /**
    * see if we are running on windows
    * @return true if windows
    */
