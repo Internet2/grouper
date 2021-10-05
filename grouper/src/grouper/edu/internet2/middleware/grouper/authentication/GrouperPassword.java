@@ -4,7 +4,22 @@
 package edu.internet2.middleware.grouper.authentication;
 
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -16,7 +31,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
  * 
  */
 @SuppressWarnings("serial")
-public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned {
+public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned, RSAKeyProvider {
   
   
   public GrouperPassword() {
@@ -67,6 +82,15 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned 
   
   /** failed logins */
   public static final String COLUMN_FAILED_LOGINS = "failed_logins";
+
+  /** expires millis */
+  public static final String COLUMN_EXPIRES_MILLIS = "expires_millis";
+  
+  /** created millis */
+  public static final String COLUMN_CREATED_MILLIS = "created_millis";
+  
+  /** member id who set the password */
+  public static final String COLUMN_MEMBER_ID_WHO_SET_PASSWORD = "member_id_who_set_password";
   
   /**
    * name of the table in the database.
@@ -154,8 +178,58 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned 
   
   private String failedLogins;
   
+  private Long expiresMillis;
+
+  private Long createdMillis;
+  
+  private String memberIdWhoSetPassword;
   
   
+  
+  public Long getExpiresMillis() {
+    return expiresMillis;
+  }
+
+
+  
+  public void setExpiresMillis(Long expiresMillis) {
+    this.expiresMillis = expiresMillis;
+  }
+
+
+  
+  public Long getCreatedMillis() {
+    return createdMillis;
+  }
+
+
+  
+  public void setCreatedMillis(Long createdMillis) {
+    this.createdMillis = createdMillis;
+  }
+
+
+
+
+
+  
+  public String getMemberIdWhoSetPassword() {
+    return memberIdWhoSetPassword;
+  }
+
+
+
+
+
+  
+  public void setMemberIdWhoSetPassword(String memberIdWhoSetPassword) {
+    this.memberIdWhoSetPassword = memberIdWhoSetPassword;
+  }
+
+
+
+
+
   /**
    * @return the id
    */
@@ -194,12 +268,6 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned 
     this.username = username;
   }
 
-
-
-
-
-
-  
   
   
   /**
@@ -544,6 +612,51 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned 
   public void setApplicationDb(String applicationDb) {
     this.applicationDb = applicationDb;
   }
+
+
+  public boolean verify(DecodedJWT decodedJwt) {
+    
+    try {
+      Algorithm.RSA256(this).verify(decodedJwt);
+      return true;
+    } catch (SignatureVerificationException e) {
+      // not valid
+    }
+    return false;
+  }
+
+  @Override
+  public RSAPublicKey getPublicKeyById(String keyId) {
+    PublicKey publicKey = null;
+    try {
+      byte[] publicKeyBytes = Base64.decodeBase64(this.thePassword);
+      KeyFactory kf = KeyFactory.getInstance("RSA");
+      EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+      publicKey = kf.generatePublic(publicKeySpec);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(
+          "Could not reconstruct the public key, the given algorithm could not be found.", e);
+    } catch (InvalidKeySpecException e) {
+      throw new RuntimeException("Could not reconstruct the public key", e);
+    }
+    
+    if (publicKey instanceof RSAPublicKey) {
+      return (RSAPublicKey)publicKey;
+    }
+    return null;
+  }
+
+  @Override
+  public RSAPrivateKey getPrivateKey() {
+    throw new RuntimeException("Doesnt do private keys");
+  }
+
+  @Override
+  public String getPrivateKeyId() {
+    throw new RuntimeException("Doesnt do private keys");
+  }
+
+
 
 
 

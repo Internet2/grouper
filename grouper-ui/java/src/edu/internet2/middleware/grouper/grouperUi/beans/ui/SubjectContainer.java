@@ -20,10 +20,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -44,6 +46,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * 
  */
 public class SubjectContainer {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(SubjectContainer.class);
 
   /**
    * if should show the button for entity privilege
@@ -326,6 +331,11 @@ public class SubjectContainer {
     
     return false;
 
+  }
+  
+  
+  public boolean isCanViewWsJwtKey() {
+    return GrouperPasswordSave.canAccessWsJwtKeys(GrouperUiFilter.retrieveSubjectLoggedIn(), getGuiSubject().getSubject());
   }
   
   /**

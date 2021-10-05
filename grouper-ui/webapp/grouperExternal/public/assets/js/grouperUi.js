@@ -2520,6 +2520,23 @@ function showHideSubjectAssignAttributeBlock() {
 }
 
 /**
+ * show/hide local entity ws jwt key block on click of Create and download key button
+ * Also add attributes for accessibility
+ * */
+function showHideLocalEntityCreateDownloadKeyBlock() {
+  
+  $('#wsJwtKey-create-download-block-container').toggle('slow');
+  if ($("#wsJwtKey-create-download-block-container").attr("aria-expanded") === 'true') {
+    $("#wsJwtKey-create-download-block-container").attr("aria-expanded","false");
+    $("#wsJwtKey-create-download-block-container").removeAttr("role");
+  } else {    
+    $("#wsJwtKey-create-download-block-container").attr("aria-expanded","true");
+    $("wsJwtKey-create-download-block-container").attr("role", "alert");
+    $("#parentFolderComboId").focus();
+  } 
+}
+
+/**
  * show/hide membership assign attribute block on click of Assign attribute button
  * Also add attributes for accessibility
  * */

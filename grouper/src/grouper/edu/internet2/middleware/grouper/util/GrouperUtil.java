@@ -48,8 +48,12 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -283,6 +287,28 @@ public class GrouperUtil {
     GrouperSession.startRootSession();
     OtherJobScript otherJobScript = new OtherJobScript();
     otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
+    
+  }
+  
+  /**
+   * generate RSA key public private pair. 
+   * @return
+   */
+  public static String[] generateRsaKeypair() {
+    
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+      generator.initialize(2048);
+      KeyPair pair = generator.generateKeyPair();
+      
+      PrivateKey privateKey = pair.getPrivate();
+      PublicKey publicKey = pair.getPublic();
+      
+      return new String[] { java.util.Base64.getEncoder().encodeToString(publicKey.getEncoded()), java.util.Base64.getEncoder().encodeToString(privateKey.getEncoded()) };
+      
+    } catch(Exception e) {
+      throw new RuntimeException(e);
+    }
     
   }
 

@@ -3,20 +3,15 @@
  */
 package edu.internet2.middleware.grouper.j2ee;
 
-import java.security.SecureRandom;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
-import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
-import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -247,76 +242,4 @@ public class Authentication {
     
   }
   
-  public void assignUserPassword(GrouperPasswordSave grouperPasswordSave) {
-    
-    try {
-      
-      if (StringUtils.isBlank(grouperPasswordSave.getUsername())) {
-        throw new RuntimeException("username is required");
-      }
-      if (StringUtils.isBlank(grouperPasswordSave.getThePassword())) {
-        throw new RuntimeException("password is required");
-      }
-      
-      String thePassword = grouperPasswordSave.getThePassword();
-      
-      // if its encrypted, decrypt it, otherwise just use it
-      try {
-        thePassword = Morph.decrypt(thePassword);
-      } catch (Exception e) {
-        // ignore, not encrypted
-      }
-      
-      if (null == grouperPasswordSave.getApplication()) {
-        throw new RuntimeException("application is required");
-      }
-      if (grouperPasswordSave.getUsername().contains(":") && thePassword.contains(":")) {
-        throw new RuntimeException("username and password cannot both contain a colon due to http basic auth");
-      }
-      
-      SecureRandom sr = new SecureRandom();
-      byte[] salt = new byte[16];
-      sr.nextBytes(salt);
-      
-      String encryptionTypeString = GrouperConfig.retrieveConfig().propertyValueString("grouper.authentication.encryptionType", null);
-      if (StringUtils.isBlank(encryptionTypeString)) {
-        throw new RuntimeException("grouper.authentication.encryptionType must be set to SHA-256 or RS-256");
-      }
-      
-      EncryptionType encryptionType = null;
-      
-      try {        
-        encryptionType = GrouperPassword.EncryptionType.valueOf(encryptionTypeString.replace("-", "_"));
-      } catch (Exception e) {
-        throw new RuntimeException("grouper.authentication.encryptionType must be set to SHA-256 or RS-256");
-      }
-      
-      String hexSalt = Hex.encodeHexString(salt);
-      String hashedPassword = encryptionType.generateHash(hexSalt+thePassword);
-      
-      String encryptedPassword = Morph.encrypt(hashedPassword);
-      
-      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword()
-          .findByUsernameApplication(grouperPasswordSave.getUsername(), grouperPasswordSave.getApplication().name());
-          
-      if (grouperPassword == null) {
-        grouperPassword = new GrouperPassword();
-        grouperPassword.setApplication(grouperPasswordSave.getApplication());
-        grouperPassword.setUsername(grouperPasswordSave.getUsername());
-      }
-      grouperPassword.setEncryptionType(encryptionType);
-      grouperPassword.setEntityType(grouperPasswordSave.getEntityType());
-      grouperPassword.setThePassword(encryptedPassword);
-      grouperPassword.setHashed(encryptionType == GrouperPassword.EncryptionType.SHA_256);
-      grouperPassword.setTheSalt(hexSalt);
-      grouperPassword.setLastEdited(Instant.now().toEpochMilli());
-      
-      GrouperDAOFactory.getFactory().getGrouperPassword().saveOrUpdate(grouperPassword);
-      
-    } catch (Exception e) {
-      throw new RuntimeException("error", e);
-    }
-    
-  }
-
 }

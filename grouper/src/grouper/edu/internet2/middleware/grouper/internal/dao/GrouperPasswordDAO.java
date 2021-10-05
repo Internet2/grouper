@@ -25,6 +25,14 @@ import edu.internet2.middleware.grouper.authentication.GrouperPassword;
  */
 public interface GrouperPasswordDAO extends GrouperDAO {
   
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return the config
+   */
+  public GrouperPassword findById(String id, boolean exceptionIfNotFound);
+  
   /**
    * 
    * @param username

@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.file.GrouperFile;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -57,6 +58,24 @@ public class Hib3GrouperPasswordDAO extends Hib3DAO implements GrouperPasswordDA
       .setString("username", username)
       .setString("application", application)
       .uniqueResult(GrouperPassword.class);
+    
+    return grouperPassword;
+  }
+  
+  /**
+   * 
+   * @param id
+   * @param exceptionIfNotFound
+   * @return
+   */
+  public GrouperPassword findById(String id, boolean exceptionIfNotFound) {
+    GrouperPassword grouperPassword = HibernateSession.byHqlStatic()
+      .createQuery("from GrouperPassword where id = :theId")
+      .setString("theId", id).uniqueResult(GrouperPassword.class);
+    
+    if (grouperPassword == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find grouper password by id: " + id);
+    }
     
     return grouperPassword;
   }

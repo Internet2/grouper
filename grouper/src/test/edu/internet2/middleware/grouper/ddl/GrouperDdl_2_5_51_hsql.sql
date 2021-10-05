@@ -1591,9 +1591,6 @@ CREATE TABLE grouper_password
     last_edited BIGINT NOT NULL,
     failed_logins VARCHAR(4000),
     hibernate_version_number BIGINT,
-    expires_millis BIGINT,
-    created_millis BIGINT,
-    member_id_who_set_password VARCHAR(40),
     PRIMARY KEY (id)
 );
 
@@ -2354,6 +2351,6 @@ CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject
 SET DATABASE TRANSACTION CONTROL MVCC;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
-to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V38, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 37, to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD'), 
+to_char(CURRENT_TIMESTAMP, 'YYYY/MM/DD HH24:mi:DD') || ': upgrade Grouper from V0 to V37, ');
 commit;

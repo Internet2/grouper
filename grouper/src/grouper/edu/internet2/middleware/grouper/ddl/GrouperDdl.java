@@ -2633,12 +2633,15 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.1";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_6_1.addGrouperPasswordColumns(database, ddlVersionBean);
+      GrouperDdl2_6_1.addGrouperPasswordComments(database, ddlVersionBean);
     }
   },
   V39 {

@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
@@ -42,11 +44,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperPassword;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -1102,6 +1106,454 @@ public class UiV2LocalEntity {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+  
+  
+  public void viewLocalEntityWSJwtKeys(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
+          GrouperPassword.Application.WS.name());
+      
+      if (grouperPassword != null) {
+        GuiGrouperPassword guiGrouperPassword = GuiGrouperPassword.convertFromGrouperPassword(grouperPassword);
+        grouperRequestContainer.getGrouperPasswordContainer().setGuiGrouperPassword(guiGrouperPassword);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyContents.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void editWsJwtKey(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
+          GrouperPassword.Application.WS.name());
+      
+      if (grouperPassword != null) {
+        GuiGrouperPassword guiGrouperPassword = GuiGrouperPassword.convertFromGrouperPassword(grouperPassword);
+        grouperRequestContainer.getGrouperPasswordContainer().setGuiGrouperPassword(guiGrouperPassword);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyEdit.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void editWsJwtKeySubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      String allowedFromCidrs = request.getParameter("localEntityAllowedFromCidrs");
+      
+      String expiresAt = request.getParameter("localEntityExpiresAtDate");
+      
+      Long expiresAtLong = null;
+      
+      if (StringUtils.isNotBlank(expiresAt)) {
+        try {
+          expiresAtLong = GrouperUtil.stringToDate2(expiresAt).getTime();
+        } catch(Exception e) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#expiratationDateId",
+              TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtKeyExpiresAtInvalidFormat")));
+          return;
+        }
+      }
+      
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
+          GrouperPassword.Application.WS.name());
+      
+      new GrouperPasswordSave()
+        .assignAllowedFromCidrs(allowedFromCidrs)
+        .assignExpiresAt(expiresAtLong)
+        .assignUuid(grouperPassword.getId())
+        .assignSaveMode(SaveMode.UPDATE)
+        .assignReplaceAllSettings(false)
+        .save();
+      
+      GuiGrouperPassword guiGrouperPassword = GuiGrouperPassword.convertFromGrouperPassword(grouperPassword);
+      grouperRequestContainer.getGrouperPasswordContainer().setGuiGrouperPassword(guiGrouperPassword);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyContents.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtUpdateKeySuccess")));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void createNewWsJwtKey(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyCreate.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void createWsJwtKeySubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      String allowedFromCidrs = request.getParameter("localEntityAllowedFromCidrs");
+      
+      String expiresAt = request.getParameter("localEntityExpiresAtDate");
+      
+      Long expiresAtLong = null;
+      
+      if (StringUtils.isNotBlank(expiresAt)) {
+        try {
+          expiresAtLong = GrouperUtil.stringToDate2(expiresAt).getTime();
+        } catch(Exception e) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#expiratationDateId",
+              TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtKeyExpiresAtInvalidFormat")));
+          return;
+        }
+      }
+      
+      String memberIdWhoSetPassword = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, loggedInSubject, true);
+          return member.getId();
+        }
+      });
+      
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      String[] publicPrivateKey = GrouperUtil.generateRsaKeypair();
+      
+      new GrouperPasswordSave()
+        .assignAllowedFromCidrs(allowedFromCidrs)
+        .assignApplication(GrouperPassword.Application.WS)
+        .assignEncryptionType(GrouperPassword.EncryptionType.RS_256)
+        .assignEntityType("localEntity")
+        .assignExpiresAt(expiresAtLong)
+        .assignMemberIdWhoSetPassword(memberIdWhoSetPassword)
+        .assignPublicKey(publicPrivateKey[0])
+        .assignUsername(memberIdOfLocalEntity)
+        .assignMemberId(memberIdOfLocalEntity)
+        .save();
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
+          GrouperPassword.Application.WS.name());
+      
+      if (grouperPassword != null) {
+        GuiGrouperPassword guiGrouperPassword = GuiGrouperPassword.convertFromGrouperPassword(grouperPassword);
+        grouperRequestContainer.getGrouperPasswordContainer().setGuiGrouperPassword(guiGrouperPassword);
+      } else {
+        throw new RuntimeException("error creating grouper password");
+      }
+      
+      grouperRequestContainer.getGrouperPasswordContainer().setPrivateKey(publicPrivateKey[1]);
+      
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyContents.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtGenerateKeySuccess")));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void deleteWsJwtKey(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(subject.getId(),
+          GrouperPassword.Application.WS.name());
+      
+      if (grouperPassword != null) {
+        GrouperDAOFactory.getFactory().getGrouperPassword().delete(grouperPassword);
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtDeleteKeyNotFoundError")));
+        return;
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyContents.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtDeleteKeySuccess")));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public static void deleteWsJwtKeyCreateNew(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      
+      if (!grouperRequestContainer.getSubjectContainer().isCanViewWsJwtKey()) {
+        throw new RuntimeException("not valid");
+      }
+      
+      
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
+          GrouperPassword.Application.WS.name());
+      
+      if (grouperPassword != null) {
+       
+        String[] publicPrivateKey = GrouperUtil.generateRsaKeypair();
+        
+        new GrouperPasswordSave()
+          .assignPublicKey(publicPrivateKey[0])
+          .assignSaveMode(SaveMode.UPDATE)
+          .assignMemberId(memberIdOfLocalEntity)
+          .assignReplaceAllSettings(false)
+          .assignUuid(grouperPassword.getId())
+          .save();
+        
+        grouperRequestContainer.getGrouperPasswordContainer().setPrivateKey(publicPrivateKey[1]);
+        GuiGrouperPassword guiGrouperPassword = GuiGrouperPassword.convertFromGrouperPassword(grouperPassword);
+        grouperRequestContainer.getGrouperPasswordContainer().setGuiGrouperPassword(guiGrouperPassword);
+        
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtDeleteKeyNotFoundError")));
+        return;
+      }
+      
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/localEntity/viewLocalEntityWsJwtKey.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#viewWsJwtKey",
+          "/WEB-INF/grouperUi2/localEntity/localEntityWsJwtKeyContents.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtDeleteKeySuccess")));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
 
   /** logger */

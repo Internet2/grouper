@@ -1591,9 +1591,6 @@ CREATE TABLE grouper_password
     last_edited NUMBER(38) NOT NULL,
     failed_logins VARCHAR2(4000),
     hibernate_version_number NUMBER(38),
-    expires_millis NUMBER(38),
-    created_millis NUMBER(38),
-    member_id_who_set_password VARCHAR2(40),
     PRIMARY KEY (id)
 );
 
@@ -2356,12 +2353,6 @@ COMMENT ON COLUMN grouper_password.last_edited IS 'when last edited';
 COMMENT ON COLUMN grouper_password.failed_logins IS 'json of failed attempts';
 
 COMMENT ON COLUMN grouper_password.hibernate_version_number IS 'hibernate uses this to version rows';
-
-COMMENT ON COLUMN grouper_password.expires_millis IS 'millis since 1970 this password is going to expire';
-
-COMMENT ON COLUMN grouper_password.create_millis IS 'millis since 1970 this password was created';
-
-COMMENT ON COLUMN grouper_password.member_id_who_set_password IS 'member id who set this password';
 
 COMMENT ON TABLE grouper_password_recently_used IS 'recently used jwt tokens so they arent re-used';
 
@@ -6822,6 +6813,6 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V38, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 37, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V37, ');
 commit;

@@ -118,7 +118,7 @@ public class GrouperTrustedJwt {
       if (expiresAt != null) {
         debugMap.put("expiresAt",expiresAt);
         
-        if (expiresAt.getTime() > System.currentTimeMillis()) {
+        if (expiresAt.getTime() < System.currentTimeMillis()) {
           debugMap.put("expiredByExpiresAt", true);
           return null;
         }
@@ -131,7 +131,7 @@ public class GrouperTrustedJwt {
         debugMap.put("expirationSeconds",expirationSeconds);
         Date issuedAt = decodedJwt.getIssuedAt();
         debugMap.put("issuedAt",issuedAt);
-        if (issuedAt == null || issuedAt.getTime() < System.currentTimeMillis() + expirationSeconds * 1000) {
+        if (issuedAt == null || issuedAt.getTime() + expirationSeconds * 1000 < System.currentTimeMillis() ) {
           debugMap.put("expiredByExpirationSeconds", true);
           return null;
         }

@@ -91,6 +91,12 @@
 	   <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
            >${textContainer.text['subjectViewProvisioningButton'] }</a></li>
      </c:if>
+     
+     <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.subjectContainer.canViewWsJwtKey }">
+        <li class="divider"></li>
+        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+          >${textContainer.text['localEntityWsJwtKeyLocalEntityButton'] }</a></li>
+      </c:if>
 
    </ul>
  </div>

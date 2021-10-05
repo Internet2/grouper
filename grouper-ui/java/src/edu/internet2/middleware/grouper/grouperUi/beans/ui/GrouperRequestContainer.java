@@ -947,5 +947,23 @@ public class GrouperRequestContainer {
     
     return this.oidcConfigContainer;
   }
+  
+  /**
+   * container for grouper password
+   */
+  private GrouperPasswordContainer grouperPasswordContainer;
+  
+  /**
+   * container for grouper password
+   * @return the container
+   */
+  public GrouperPasswordContainer getGrouperPasswordContainer() {
+    
+    if (this.grouperPasswordContainer == null) {
+      this.grouperPasswordContainer = new GrouperPasswordContainer();
+    }
+    
+    return this.grouperPasswordContainer;
+  }
 
 }
