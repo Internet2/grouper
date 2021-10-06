@@ -368,6 +368,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (attributeName == null && "name".equals(fieldName) && action == ProvisioningObjectChangeAction.update) {
           // this is a rename
           try {
+            checkParentFolderCaseChanges(ldapSyncConfiguration, (String)oldValue, (String)newValue);
+            
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             
             try {
@@ -1328,6 +1330,62 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     filterBuilder.append(")");
     return filterBuilder.toString();
+  }
+  
+  private void checkParentFolderCaseChanges(LdapSyncConfiguration ldapSyncConfiguration, String oldDnString, String newDnString) {
+    if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
+      return;
+    }
+    
+    LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+
+    try {      
+      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
+
+      String oldDnParentString = DN.getParent(oldDnString).toMinimallyEncodedString();
+      String newDnParentString = DN.getParent(newDnString).toMinimallyEncodedString();
+
+      if (oldDnParentString.equals(newDnParentString)) {
+        return;
+      }
+      
+      if (!oldDnParentString.equalsIgnoreCase(newDnParentString)) {
+        return;
+      }
+      
+      DN oldDnParent = new DN(oldDnParentString);
+      DN newDnParent = new DN(newDnParentString);
+      
+      if (groupSearchBaseDn.isDescendantOf(oldDnParent, true)) {
+        return;
+      }
+
+      while (true) {
+        
+        String oldValue = oldDnParent.getRDN().getAttributeValues()[0];
+        String newValue = newDnParent.getRDN().getAttributeValues()[0];
+        
+        if (oldValue.equalsIgnoreCase(newValue) && !oldValue.equals(newValue)) {
+          ldapSyncDaoForLdap.move(ldapSyncConfiguration.getLdapExternalSystemConfigId(), oldDnParentString, newDnParentString);
+        }
+        
+        oldDnParent = oldDnParent.getParent();
+        newDnParent = newDnParent.getParent();
+        
+        if (oldDnParent == null) {
+          break;
+        }
+        
+        if (groupSearchBaseDn.isDescendantOf(oldDnParent, true)) {
+          break;
+        }
+        
+        oldDnParentString = oldDnParent.toString();
+        newDnParentString = newDnParent.toString();
+      }
+    } catch (LDAPException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /*
