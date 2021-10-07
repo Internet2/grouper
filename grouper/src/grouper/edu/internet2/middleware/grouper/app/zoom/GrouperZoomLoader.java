@@ -694,7 +694,7 @@ public class GrouperZoomLoader extends OtherJobBase {
   private void loadUsersToTableRetrieveDataFromDatabase() {
     
     this.loadUsersToTableGcTableSyncTableBeanSql = new GcTableSyncTableBean(loadUsersToTableGcTableSync);
-    this.loadUsersToTableGcTableSyncTableBeanSql.configureMetadata("grouper", "grouper_zoom_user");
+    this.loadUsersToTableGcTableSyncTableBeanSql.configureMetadata("grouper", "grouper_prov_zoom_user");
     this.loadUsersToTableGcTableSync.setDataBeanTo(loadUsersToTableGcTableSyncTableBeanSql);
 
     Set<String> databaseColumnNames = GrouperUtil.toSet("config_id", "member_id", "id", 
