@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.app.zoom;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -19,15 +21,30 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.ldapToSql.LdapToSqlSyncColumn;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncConfiguration;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncRowData;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBean;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableData;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -40,6 +57,13 @@ public class GrouperZoomLoader extends OtherJobBase {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperZoomLoader.class);
+  private GcTableSync loadUsersToTableGcTableSync;
+  private GcTableSyncTableBean loadUsersToTableGcTableSyncTableBeanSql;
+  private Set<String> loadUsersToTableUniqueKeyColumnNames;
+  private String configId;
+  private Map<String, Object> debugMap;
+  private GcTableSyncTableData loadUsersToTableGcTableSyncTableDataSql;
+  private GcTableSyncTableData loadUsersToTableGcTableSyncTableDataLdap;
 
   /**
    * 
@@ -51,27 +75,38 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param args
    */
   public static void main(String[] args) {
-    if (GrouperUtil.length(args) != 11) {
-      throw new RuntimeException("Pass in the configId, true/false (groupSync?), groupSyncFolderName, true/false (roleSync?), roleSyncFolderName, "
+    if (GrouperUtil.length(args) != 11 && GrouperUtil.length(args) != 1) {
+      throw new RuntimeException("Pass in the job name (only), or the configId, true/false (groupSync?), groupSyncFolderName, true/false (roleSync?), roleSyncFolderName, "
           + "true/false (userTypeSync?), userTypeFolderName, true/false (userStatusSync?), userStatusFolderName to full load, "
-          + "true/false (subAccountSync?), subAccountFolderName");
+          + "true/false (subAccountSync?), subAccountFolderName, true/false (loadUsersToTable?)");
     }
     GrouperStartup.startup();
-    String configId = args[0];
-    boolean groupSync = GrouperUtil.booleanValue(args[1], false);
-    String groupSyncFolder = args[2];
-    boolean roleSync = GrouperUtil.booleanValue(args[3], false);
-    String roleSyncFolder = args[4];
-    boolean userTypeSync = GrouperUtil.booleanValue(args[5], false);
-    String userTypeSyncFolder = args[6];
-    boolean userStatusSync = GrouperUtil.booleanValue(args[7], false);
-    String userStatusSyncFolder = args[8];
-    boolean subAccountSync = GrouperUtil.booleanValue(args[9], false);
-    String subAccountSyncFolder = args[10];
     
-    fullLoad(configId, groupSync, groupSyncFolder, roleSync, roleSyncFolder, userTypeSync, userTypeSyncFolder, userStatusSync, userStatusSyncFolder,
-        subAccountSync, subAccountSyncFolder);
+    if (GrouperUtil.length(args) == 1) {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      // OTHER_JOB_pennZoomLoader
+      GrouperLoader.runOnceByJobName(grouperSession, args[0], false);
+      
+    } else {
+      
+      String configId = args[0];
+      boolean groupSync = GrouperUtil.booleanValue(args[1], false);
+      String groupSyncFolder = args[2];
+      boolean roleSync = GrouperUtil.booleanValue(args[3], false);
+      String roleSyncFolder = args[4];
+      boolean userTypeSync = GrouperUtil.booleanValue(args[5], false);
+      String userTypeSyncFolder = args[6];
+      boolean userStatusSync = GrouperUtil.booleanValue(args[7], false);
+      String userStatusSyncFolder = args[8];
+      boolean subAccountSync = GrouperUtil.booleanValue(args[9], false);
+      String subAccountSyncFolder = args[10];
+      boolean loadUsersToTable = GrouperUtil.booleanValue(args[11], false);
+      
+      new GrouperZoomLoader().fullLoad(configId, groupSync, groupSyncFolder, roleSync, roleSyncFolder, userTypeSync, userTypeSyncFolder, userStatusSync, userStatusSyncFolder,
+          subAccountSync, subAccountSyncFolder, loadUsersToTable);
 
+    }
+    
   }
 
   /**
@@ -106,23 +141,34 @@ public class GrouperZoomLoader extends OtherJobBase {
     
     boolean loadSubAccounts = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".zoomLoadSubAccounts", false);
     String subAccountsLoadFolderName = loadUserStatuses ?  GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".zoomLoadSubAccountsFolderName") : null;
-    
+
+    boolean loadUsersToTable = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".zoomLoadUsersToTable", false);
+
     Map<String, Object> resultMap = fullLoad(configId, loadGroups, groupLoadFolderName, loadRoles, roleLoadFolderName, 
-        loadUserTypes, userTypeLoadFolderName, loadUserStatuses, userStatusLoadFolderName, loadSubAccounts, subAccountsLoadFolderName);
+        loadUserTypes, userTypeLoadFolderName, loadUserStatuses, userStatusLoadFolderName, loadSubAccounts, subAccountsLoadFolderName, loadUsersToTable);
     
     int groupAddCount = resultMap.containsKey("groupAddCount") ? (Integer)resultMap.get("groupAddCount") : 0;
     int groupCount = resultMap.containsKey("groupCount") ? (Integer)resultMap.get("groupCount") : 0;
     int membershipAddCount = resultMap.containsKey("membershipAddCount") ? (Integer)resultMap.get("membershipAddCount") : 0;
     int membershipDeleteCount = resultMap.containsKey("membershipDeleteCount") ? (Integer)resultMap.get("membershipDeleteCount") : 0;
     int membershipTotalCount = resultMap.containsKey("membershipTotalCount") ? (Integer)resultMap.get("membershipTotalCount") : 0;
+    int loadUsersAddCount = resultMap.containsKey("loadUsersAddCount") ? (Integer)resultMap.get("loadUsersAddCount") : 0;
+    int loadUsersDeleteCount = resultMap.containsKey("loadUsersDeleteCount") ? (Integer)resultMap.get("loadUsersDeleteCount") : 0;
+    int loadUsersUpdateCount = resultMap.containsKey("loadUsersUpdateCount") ? (Integer)resultMap.get("loadUsersUpdateCount") : 0;
+    int loadUsersTotalCount = resultMap.containsKey("loadUsersTotalCount") ? (Integer)resultMap.get("loadUsersTotalCount") : 0;
 
     hib3GrouperLoaderLog.addInsertCount(groupAddCount);
     hib3GrouperLoaderLog.addInsertCount(membershipAddCount);
+    hib3GrouperLoaderLog.addInsertCount(loadUsersAddCount);
 
     hib3GrouperLoaderLog.addDeleteCount(membershipDeleteCount);
+    hib3GrouperLoaderLog.addDeleteCount(loadUsersDeleteCount);
+
+    hib3GrouperLoaderLog.addUpdateCount(loadUsersUpdateCount);
 
     hib3GrouperLoaderLog.addTotalCount(groupCount);
     hib3GrouperLoaderLog.addTotalCount(membershipTotalCount);
+    hib3GrouperLoaderLog.addTotalCount(loadUsersTotalCount);
     
     hib3GrouperLoaderLog.setJobMessage(GrouperUtil.toStringForLog(resultMap));
 
@@ -197,9 +243,10 @@ public class GrouperZoomLoader extends OtherJobBase {
    * @param subAccountSyncFolder
    * @return map with groupCount, groupAddCount, membershipAddCount, membershipDeleteCount, membershipTotalCount
    */
-  public static Map<String, Object> fullLoad(final String configId, final boolean groupLoad, final String groupSyncFolder, 
+  public Map<String, Object> fullLoad(final String configId, final boolean groupLoad, final String groupSyncFolder, 
         final boolean roleLoad, final String roleSyncFolder, final boolean userTypeLoad, final String userTypeSyncFolder, 
-        final boolean userStatusLoad, final String userStatusSyncFolder, final boolean subAccountLoad, final String subAccountSyncFolder) {
+        final boolean userStatusLoad, final String userStatusSyncFolder, final boolean subAccountLoad, final String subAccountSyncFolder, 
+        final boolean loaderUsersToTable) {
     long startedNanos = System.nanoTime();
     final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -237,6 +284,8 @@ public class GrouperZoomLoader extends OtherJobBase {
           Map<String, List<Map<String, Object>>> subAccountZoomNameToMemberships = null;
 
           Map<String, Map<String, Object>> emailToZoomUser = new HashMap<String, Map<String, Object>>();
+          
+          Map<String, Map<String, Object>> usersInZoom = null;
           
           if (groupLoad) {
             
@@ -355,7 +404,7 @@ public class GrouperZoomLoader extends OtherJobBase {
             }
           }
 
-          if (userTypeLoad || userStatusLoad) {
+          if (userTypeLoad || userStatusLoad || loaderUsersToTable) {
             
             if (userTypeLoad && StringUtils.isBlank(userTypeSyncFolder)) {
               throw new RuntimeException("User type load folder cannot be null!");
@@ -373,7 +422,7 @@ public class GrouperZoomLoader extends OtherJobBase {
             }
             
             // userTypes that exist in zoom
-            Map<String, Map<String, Object>> usersInZoom = GrouperZoomCommands.retrieveUsers(configId);
+            usersInZoom = GrouperZoomCommands.retrieveUsers(configId);
             
             for (Map<String, Object> user : usersInZoom.values()) {
 
@@ -445,7 +494,12 @@ public class GrouperZoomLoader extends OtherJobBase {
 
           }
 
-          GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailToZoomUser.keySet());
+          Map<String, MultiKey> emailToSourceIdSubjectId = GrouperZoomLocalCommands.convertEmailToSourceIdSubjectId(configId, emailToZoomUser.keySet());
+          
+          if (loaderUsersToTable) {
+            
+            loadUsersToTable(configId, debugMap, usersInZoom, emailToSourceIdSubjectId);            
+          }
           
 
           if (groupLoad) {
@@ -496,6 +550,187 @@ public class GrouperZoomLoader extends OtherJobBase {
     return debugMap;
   }
 
+  
+  
+  /**
+   * 
+   * @param configId
+   * @param debugMap
+   * @param usersInZoom
+   * @param emailToSourceIdSubjectId
+   */
+  protected void loadUsersToTable(String theConfigId, Map<String, Object> theDebugMap,
+      Map<String, Map<String, Object>> usersInZoom,
+      Map<String, MultiKey> emailToSourceIdSubjectId) {
+    
+    this.configId = theConfigId;
+    this.debugMap = theDebugMap;
+    
+    // we need to get data from the table
+    this.loadUsersToTableGcTableSync = new GcTableSync();
+
+    // match the member_id to each email address if we can
+    Map<String, Set<String>> sourceIdToSubjectIds = new HashMap<String, Set<String>>();
+    for (MultiKey sourceIdSubjectId : GrouperUtil.nonNull(emailToSourceIdSubjectId).values()) {
+      String sourceId = (String)sourceIdSubjectId.getKey(0);
+      String subjectId = (String)sourceIdSubjectId.getKey(1);
+      Set<String> subjectIdsForSource = sourceIdToSubjectIds.get(sourceId);
+      if (subjectIdsForSource == null) {
+        subjectIdsForSource = new TreeSet<String>();
+        sourceIdToSubjectIds.put(sourceId, subjectIdsForSource);
+      }
+      subjectIdsForSource.add(subjectId);
+    }
+    Map<MultiKey, Member> allMembersSourceIdSubjectIdToMember = new HashMap<MultiKey, Member>();
+    for (String sourceId : sourceIdToSubjectIds.keySet()) {
+      Set<String> subjectIdsForSource = sourceIdToSubjectIds.get(sourceId);
+      Set<Member> members = GrouperDAOFactory.getFactory().getMember().findBySubjectIds(subjectIdsForSource, sourceId);
+      for (Member member : GrouperUtil.nonNull(members)) {
+        MultiKey sourceIdSubjectId = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+        allMembersSourceIdSubjectIdToMember.put(sourceIdSubjectId, member);
+      }
+    }
+    Map<String, Member> emailToMember = new HashMap<String, Member>();
+    for (String email : GrouperUtil.nonNull(usersInZoom).keySet()) {
+      MultiKey sourceIdSubjectId = emailToSourceIdSubjectId.get(email);
+      if (sourceIdSubjectId != null) {
+        Member member = allMembersSourceIdSubjectIdToMember.get(sourceIdSubjectId);
+        if (member == null) {
+          String sourceId = (String)sourceIdSubjectId.getKey(0);
+          String subjectId = (String)sourceIdSubjectId.getKey(1);
+          Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+          if (subject != null) {
+            member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+          }
+        }
+        if (member != null) {
+          emailToMember.put(email, member);
+        }
+      }
+    }
+    
+    //retrieve the existing data from database
+    loadUsersToTableRetrieveDataFromDatabase();
+    
+    // convert the zoom data into something we can work with
+    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+    this.loadUsersToTableGcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+    gcTableSyncTableBeanFrom.setTableMetadata(this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata());
+    gcTableSyncTableBeanFrom.setGcTableSync(this.loadUsersToTableGcTableSync);
+
+    this.loadUsersToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
+    loadUsersToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(this.loadUsersToTableGcTableSyncTableDataLdap);
+
+    this.loadUsersToTableGcTableSyncTableDataLdap.setColumnMetadata(this.loadUsersToTableGcTableSyncTableDataSql.getColumnMetadata());
+
+    this.loadUsersToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(this.loadUsersToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
+
+    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
+    
+    for (Map<String, Object> zoomUser : GrouperUtil.nonNull(usersInZoom).values()) {
+      
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowDatas.add(gcTableSyncRowData);
+      
+      gcTableSyncRowData.setGcTableSyncTableData(this.loadUsersToTableGcTableSyncTableDataLdap);
+      
+      Object[] rowData = new Object[this.loadUsersToTableGcTableSyncTableDataLdap.getColumnMetadata().size()];
+
+      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata().lookupColumn("config_id", true);
+      rowData[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()] = this.configId;
+      
+      gcTableSyncColumnMetadata = this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata().lookupColumn("member_id", true);
+      Member member = emailToMember.get((String)zoomUser.get("email"));
+      rowData[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()] = member == null ? null : member.getId();
+      
+      for (String field : zoomUser.keySet()) {
+        gcTableSyncColumnMetadata = this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata().lookupColumn(field, false);
+        
+        // skip some cols
+        if (gcTableSyncColumnMetadata == null) {
+          continue;
+        }
+        Object fieldValue = zoomUser.get(field);
+
+        // convert to int since thats how its stored
+        if (StringUtils.equals(field, "created_at") || StringUtils.equals(field, "last_login_time")) {
+
+          String theDateString = (String)fieldValue;
+          Timestamp theTimestamp = GrouperUtil.timestampIsoUtcSecondsConvertFromString(theDateString);
+          fieldValue = theTimestamp == null ? null : theTimestamp.getTime();
+          
+        }
+        rowData[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()] = gcTableSyncColumnMetadata.getColumnType().convertToType(fieldValue);
+        
+      }
+      
+      gcTableSyncRowData.setData(rowData);
+    }
+    
+    
+    this.loadUsersToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+
+    
+    // compare and sync
+    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    this.loadUsersToTableGcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
+
+    loadUsersToTableGcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+
+    Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, loadUsersToTableGcTableSync);
+
+    // merge the debug maps
+    for (String key : debugMapLocal.keySet()) {
+      
+      Object newValue = debugMapLocal.get(key);
+      String newKey = "loadUsers" + StringUtils.capitalize(key);
+      this.debugMap.put(newKey, newValue);
+
+    }
+    
+  }
+
+  private void loadUsersToTableRetrieveDataFromDatabase() {
+    
+    this.loadUsersToTableGcTableSyncTableBeanSql = new GcTableSyncTableBean(loadUsersToTableGcTableSync);
+    this.loadUsersToTableGcTableSyncTableBeanSql.configureMetadata("grouper", "grouper_zoom_user");
+    this.loadUsersToTableGcTableSync.setDataBeanTo(loadUsersToTableGcTableSyncTableBeanSql);
+
+    Set<String> databaseColumnNames = GrouperUtil.toSet("config_id", "member_id", "id", 
+        "email", "first_name", "last_name", "type", "pmi", "timezone", "verified", "created_at", "last_login_time", "language", "status", "role_id");
+
+    this.loadUsersToTableUniqueKeyColumnNames = GrouperUtil.toSet("email", "config_id");
+
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata();
+
+    gcTableSyncTableMetadata.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+    gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperUtil.join(this.loadUsersToTableUniqueKeyColumnNames.iterator(), ','));
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+    
+    GrouperUtil.assertion(!StringUtils.isBlank(this.configId), "configId cant be null!");
+    
+    String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName() + " where config_id = ?";
+    
+    List<Object[]> results = gcDbAccess.sql(sql).addBindVar(this.configId).selectList(Object[].class);
+
+    this.debugMap.put("loadUsersDbRows", GrouperUtil.length(results));
+
+    this.loadUsersToTableGcTableSyncTableDataSql = new GcTableSyncTableData();
+    this.loadUsersToTableGcTableSyncTableDataSql.init(this.loadUsersToTableGcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata().columnListAll()), results);
+    this.loadUsersToTableGcTableSyncTableDataSql.indexData();
+ 
+    loadUsersToTableGcTableSyncTableBeanSql.setDataInitialQuery(this.loadUsersToTableGcTableSyncTableDataSql);
+    loadUsersToTableGcTableSyncTableBeanSql.setGcTableSync(loadUsersToTableGcTableSync);
+
+    
+    this.debugMap.put("loadUsersDbUniqueKeys", this.loadUsersToTableGcTableSyncTableDataSql.allPrimaryKeys().size());
+    
+    
+  }
+
+  
   /**
    * @param configId
    * @param groupSyncFolder
