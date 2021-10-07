@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -88,14 +89,14 @@ public class GcTableSyncColumnMetadata {
         }
         
         if (input instanceof String) {
-          return GrouperClientUtils.longValue(input);
+          return new BigDecimal(GrouperClientUtils.longValue(input));
         }
         
         if (input instanceof Timestamp) {
-          return ((Timestamp)input).getTime();
+          return new BigDecimal(((Timestamp)input).getTime());
         }
         
-        return GrouperClientUtils.longValue(input);
+        return new BigDecimal(GrouperClientUtils.longValue(input));
       }
 
     },
