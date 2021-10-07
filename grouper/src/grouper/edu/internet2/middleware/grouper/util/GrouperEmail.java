@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,15 +29,21 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -86,6 +93,29 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * </p>
  */
 public class GrouperEmail {
+
+  /**
+   * attachments
+   */
+  private List<File> attachments = new ArrayList<File>();
+  
+  /**
+   * Add a file attachment to the email.
+   * @param attachment
+   * @return the email.
+   */
+  public GrouperEmail addAttachment(File attachment) {
+    this.attachments.add(attachment);
+    return this;
+  }
+
+  /**
+   * get the attachments
+   * @return attachemnts
+   */
+  public List<File> getAttachments() {
+    return attachments;
+  }
 
   /**
    * add an email allowed to the list of allowed emails in config
@@ -480,7 +510,7 @@ public class GrouperEmail {
    * @param args
    */
   public static void main(String[] args) {
-    new GrouperEmail().setBody("hey there").setSubject("my subject").setTo("mchyzer@isc.upenn.edu").send();
+    new GrouperEmail().setBody("hey there").setSubject("my subject").setTo("mchyzer@isc.upenn.edu").addAttachment(new File("c:/mchyzer/docs/2110/zoomNonHuman.txt")).send();
   }
   
   /**
@@ -808,12 +838,36 @@ public class GrouperEmail {
       String theSubject = StringUtils.defaultString(subjectPrefix) + this.subject;
       message.setSubject(theSubject);
       
+      String emailBody = null;
       if (sendAllMessagesHereOverride) {
         sendAllMessagesHereMessage.append("BODY:" + bodyNewline + bodyNewline).append(this.body);
-        message.setContent(sendAllMessagesHereMessage.toString(), emailContentType);
+        emailBody = sendAllMessagesHereMessage.toString();
       } else {
-        message.setContent(this.body, emailContentType);
+        emailBody = this.body;
       }
+      
+      // Deal with the attachments.
+      if (GrouperUtil.length(this.attachments) == 0) {
+        message.setContent(emailBody, emailContentType);
+      } else {
+
+        MimeBodyPart messagePart = new MimeBodyPart();
+        messagePart.setContent(emailBody, emailContentType);
+
+        Multipart entireMessage = new MimeMultipart();
+        entireMessage.addBodyPart(messagePart);
+
+        MimeBodyPart file = null;
+        for (File attachment : this.attachments) {
+          file = new MimeBodyPart();
+          file.setDataHandler(new DataHandler(new FileDataSource(attachment.getAbsolutePath())));
+          file.setFileName(attachment.getName());
+          entireMessage.addBodyPart(file);
+        }
+        message.setContent(entireMessage);
+      }
+
+      
       testingEmailCount++;
       
       //if you dont have a server, but want to test, then set this
@@ -825,7 +879,13 @@ public class GrouperEmail {
           LOG.debug("Not sending mail since grouper.properties: mail.smtp.enabled = false");
         }
       } else {
-        LOG.error("Not sending email since smtp server is 'testing'. "+bodyNewline+"TO: " + this.to + "" + bodyNewline + "FROM: " + theFrom + "" + bodyNewline + "SUBJECT: " + theSubject + "" + bodyNewline + "BODY: " + this.body + "" + bodyNewline + "");
+        StringBuilder logMessage = new StringBuilder("Not sending email since smtp server is 'testing'. "+bodyNewline+"TO: " + this.to + "" + bodyNewline + "FROM: " 
+            + theFrom + "" + bodyNewline + "SUBJECT: " + theSubject + "" + bodyNewline + "BODY: " + this.body + "" + bodyNewline + "");
+        for (File attachment : GrouperUtil.nonNull(this.attachments)) {
+          logMessage.append(", attachment: ").append(attachment.getAbsolutePath()).append(": ").append(FileUtils.byteCountToDisplaySize(attachment.length()) ).append(bodyNewline); 
+        }
+        
+        LOG.error(logMessage.toString());
         synchronized (GrouperEmail.class) {
           
           testingEmails.add(this);
