@@ -684,6 +684,15 @@ public class GrouperZoomLoader extends OtherJobBase {
     for (String key : debugMapLocal.keySet()) {
       
       Object newValue = debugMapLocal.get(key);
+ 
+      // convert micros to millis
+      if (key.endsWith("Millis")) {
+        if (newValue instanceof Number) {
+          newValue = ((Number)newValue).longValue()/1000;
+        }
+      }
+
+      
       String newKey = "loadUsers" + StringUtils.capitalize(key);
       this.debugMap.put(newKey, newValue);
 
