@@ -1485,11 +1485,8 @@ CREATE TABLE grouper_password
     the_password text NULL,
     application VARCHAR(20) NOT NULL,
     allowed_from_cidrs text NULL,
-    recent_source_addresses text NULL,
-    failed_source_addresses text NULL,
     last_authenticated BIGINT,
     last_edited BIGINT NOT NULL,
-    failed_logins text NULL,
     hibernate_version_number BIGINT,
     expires_millis BIGINT,
     created_millis BIGINT,
@@ -1503,8 +1500,12 @@ CREATE TABLE grouper_password_recently_used
 (
     id VARCHAR(40) NOT NULL,
     grouper_password_id VARCHAR(40) NOT NULL,
-    jwt_jti VARCHAR(100) NOT NULL,
-    jwt_iat INTEGER NOT NULL,
+    jwt_jti VARCHAR(100),
+    jwt_iat INTEGER,
+    attempt_millis BIGINT NOT NULL,
+    ip_address VARCHAR(20) NOT NULL,
+    status CHAR(1) NOT NULL,
+    hibernate_version_number BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -2350,6 +2351,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V38, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V39, '));
 commit;

@@ -291,14 +291,15 @@ public class GrouperUtil {
   }
   
   /**
-   * generate RSA key public private pair. 
+   * generate RSA key public private pair.
+   * @param keySize e.g 2048
    * @return
    */
-  public static String[] generateRsaKeypair() {
+  public static String[] generateRsaKeypair(int keySize) {
     
     try {
       KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-      generator.initialize(2048);
+      generator.initialize(keySize);
       KeyPair pair = generator.generateKeyPair();
       
       PrivateKey privateKey = pair.getPrivate();

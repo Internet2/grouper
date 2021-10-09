@@ -545,14 +545,14 @@ public class GrouperPasswordSave {
                 throw new RuntimeException("application is required");
               }
               
-              if (null != encryptionType && encryptionType != EncryptionType.RS_256) {
+              if (null != encryptionType && encryptionType != EncryptionType.RS_2048) {
                 throw new RuntimeException("encryptionType has to be RS_2048 or blank for public keys");
               }
               
               grouperPassword = new GrouperPassword();
               grouperPassword.setApplication(application);
               grouperPassword.setUsername(username);
-              grouperPassword.setEncryptionType(GrouperPassword.EncryptionType.RS_256);
+              grouperPassword.setEncryptionType(GrouperPassword.EncryptionType.RS_2048);
               grouperPassword.setMemberId(memberId);
               grouperPassword.setEntityType("localEntity");
               grouperPassword.setThePassword(publicKey);

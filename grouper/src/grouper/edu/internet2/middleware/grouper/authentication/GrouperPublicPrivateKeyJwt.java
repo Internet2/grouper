@@ -20,10 +20,21 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperPublicPrivateKeyJwt {
+  
+  private static ExpirableCache<MultiKey, GrouperPassword> grouperPasswordCache = new ExpirableCache<MultiKey, GrouperPassword>(1);
+  private static ExpirableCache<String, Subject> memberIdToSubjectCache = new ExpirableCache<String, Subject>(1);
+  
+  
+  public static void clearCache() {
+    grouperPasswordCache.clear();
+    memberIdToSubjectCache.clear();
+  }
   
   /**
    * string like: 
@@ -83,11 +94,16 @@ public class GrouperPublicPrivateKeyJwt {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     long startNanos = System.nanoTime();
+    
+    long attemptMillis = System.currentTimeMillis();
 
     if (StringUtils.isBlank(this.bearerTokenHeader)) {
       this.grouperTrustedJwtResult = GrouperTrustedJwtResult.ERROR_MISSING_TOKEN;
       throw new RuntimeException("bearerTokenHeader is required");
     }
+    
+    GrouperPasswordRecentlyUsed grouperPasswordRecentlyUsed = new GrouperPasswordRecentlyUsed();
+    grouperPasswordRecentlyUsed.setAttemptMillis(attemptMillis);
     
     try {
       
@@ -104,23 +120,46 @@ public class GrouperPublicPrivateKeyJwt {
       
       String memberId = new String(new Base64().decode(base64OfMemberId.getBytes("UTF-8")));
       
-      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberId,
-          GrouperPassword.Application.WS.name());
+      MultiKey multiKey = new MultiKey(memberId, GrouperPassword.Application.WS.name());
       
-      Subject subject = (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      GrouperPassword grouperPassword = grouperPasswordCache.get(multiKey);
+      if (grouperPassword == null) {
         
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          return MemberFinder.findByUuid(grouperSession, memberId, true).getSubject();
+        grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberId,
+            GrouperPassword.Application.WS.name());
+        
+        if (grouperPassword != null) {
+          grouperPasswordCache.put(multiKey, grouperPassword);
         }
-      });
+        
+      }
+      
+      Subject subject = memberIdToSubjectCache.get(memberId);
+      
+      if (subject == null) {
+        
+        subject = (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return MemberFinder.findByUuid(grouperSession, memberId, true).getSubject();
+          }
+        });
+        
+        memberIdToSubjectCache.put(memberId, subject);
+        
+      }
       
       if (grouperPassword == null) {
         throw new RuntimeException("Can't find public key for member id '"+memberId+"'");
       }
       
+      grouperPasswordRecentlyUsed.setGrouperPasswordId(grouperPassword.getId());
+      grouperPasswordRecentlyUsed.setIpAddress(requesterIpAddress);
+      
       if (grouperPassword.getExpiresMillis() != null && grouperPassword.getExpiresMillis() < System.currentTimeMillis()) {
         debugMap.put("expiredByExpiresAt", true);
+        grouperPasswordRecentlyUsed.setStatus('F');
         return null;
       }
       
@@ -128,6 +167,7 @@ public class GrouperPublicPrivateKeyJwt {
         boolean isIpAllowed = GrouperUtil.ipOnNetworks(requesterIpAddress, grouperPassword.getAllowedFromCidrs());
         if (!isIpAllowed) {
           debugMap.put("isIpAllowed", false);
+          grouperPasswordRecentlyUsed.setStatus('F');
           return null;
         }
       } 
@@ -144,6 +184,7 @@ public class GrouperPublicPrivateKeyJwt {
         
         if (expiresAt.getTime() < System.currentTimeMillis()) {
           debugMap.put("expiredByExpiresAt", true);
+          grouperPasswordRecentlyUsed.setStatus('F');
           return null;
         }
       }
@@ -154,6 +195,7 @@ public class GrouperPublicPrivateKeyJwt {
       debugMap.put("issuedAt", issuedAt);
       if (issuedAt == null || issuedAt.getTime() + maxValidSeconds * 1000 < System.currentTimeMillis() ) {
         debugMap.put("expiredByMaxValidTimeInSeconds", true);
+        grouperPasswordRecentlyUsed.setStatus('F');
         return null;
       }
 
@@ -162,17 +204,23 @@ public class GrouperPublicPrivateKeyJwt {
       debugMap.put("verified", verified);
 
       if (!verified) {
+        grouperPasswordRecentlyUsed.setStatus('F');
         return null;
       }
       
       return subject;
     } catch (Exception e) {
       debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
+      grouperPasswordRecentlyUsed.setStatus('E');
       if (e instanceof RuntimeException) {
         throw (RuntimeException)e;
       }
       throw new RuntimeException(e);
     } finally {
+      
+      if (StringUtils.isNotBlank(grouperPasswordRecentlyUsed.getGrouperPasswordId())) {
+        GrouperDAOFactory.getFactory().getGrouperPasswordRecentlyUsed().saveOrUpdate(grouperPasswordRecentlyUsed);
+      }
       
       debugMap.put("tookMs", (System.nanoTime() - startNanos) / 1000000);
       if (debugMap.get("exception") != null) {
@@ -180,6 +228,7 @@ public class GrouperPublicPrivateKeyJwt {
       } else if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
+      
     }
   }
 

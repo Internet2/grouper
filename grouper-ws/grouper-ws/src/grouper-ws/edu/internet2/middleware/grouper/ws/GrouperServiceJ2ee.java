@@ -979,7 +979,9 @@ public class GrouperServiceJ2ee implements Filter {
         }
         
       } else if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtUser_")) {
+        
         Subject subject = new GrouperPublicPrivateKeyJwt().assignBearerTokenHeader(authHeader).decode(request.getRemoteAddr());
+        
         if (subject != null) {
           ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
         } else {
@@ -993,7 +995,7 @@ public class GrouperServiceJ2ee implements Filter {
         if (runGrouperWsWithBasicAuth) {
           // String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
           
-          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS, request.getRemoteAddr());
           
           if (!isValid) {
             ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");

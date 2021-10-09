@@ -3,16 +3,50 @@ package edu.internet2.middleware.grouper.app.workflow;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowInstance {
+  
+  
+  
+  
+  public static void main(String[] args) {
+    String input = "[{\"millis\":123455667,\"ip\":\"1.2.3.4\"},{\"millis\":123455669,\"ip\":\"1.2.3.5\"}]";
+    StringBuilder output = new StringBuilder();
+    try  {
+      List<Map<String, Object>> recentSourceAddresses = objectMapper.readValue(input, List.class);
+      System.out.println(recentSourceAddresses);
+      
+      for(Map<String, Object> map: recentSourceAddresses) {
+        Object obj = map.get("millis");
+        Long millisLong = GrouperUtil.longObjectValue(obj, false);
+        String ip = GrouperUtil.stringValue(map.get("ip"));
+        
+        //String timestampUserFriendly = GuiObjectBase.getDateUiFormat().format(new Date(millisLong));
+        
+        output.append(millisLong+":"+ip+"</br>");
+        
+      }
+      
+      System.out.println(output.toString());
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  private final static ObjectMapper objectMapper = new ObjectMapper();
   
   /**
    * logger 

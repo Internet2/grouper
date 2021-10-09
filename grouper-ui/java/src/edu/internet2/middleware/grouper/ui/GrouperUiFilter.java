@@ -1101,7 +1101,7 @@ public class GrouperUiFilter implements Filter {
       if (runGrouperUiWithBasicAuth) {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         
-        boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI);
+        boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI, servletRequest.getRemoteAddr());
         if (isValid) {
           String userName = Authentication.retrieveUsername(authorizationHeader);
           session.setAttribute("REMOTE_USER", userName);

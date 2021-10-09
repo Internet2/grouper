@@ -168,15 +168,9 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
 
   private String allowedFromCidrs;
   
-  private String recentSourceAddresses;
-  
-  private String failedSourceAddresses;
-  
   private Long lastAuthenticated;
   
   private Long lastEdited;
-  
-  private String failedLogins;
   
   private Long expiresMillis;
 
@@ -481,57 +475,6 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
   }
 
 
-
-
-
-  
-  /**
-   * @return the recentSourceAddresses
-   */
-  public String getRecentSourceAddresses() {
-    return recentSourceAddresses;
-  }
-
-
-
-
-
-  
-  /**
-   * @param recentSourceAddresses the recentSourceAddresses to set
-   */
-  public void setRecentSourceAddresses(String recentSourceAddresses) {
-    this.recentSourceAddresses = recentSourceAddresses;
-  }
-
-
-
-
-
-  
-  /**
-   * @return the failedSourceAddresses
-   */
-  public String getFailedSourceAddresses() {
-    return failedSourceAddresses;
-  }
-
-
-
-
-
-  
-  /**
-   * @param failedSourceAddresses the failedSourceAddresses to set
-   */
-  public void setFailedSourceAddresses(String failedSourceAddresses) {
-    this.failedSourceAddresses = failedSourceAddresses;
-  }
-
-
-
-
-
   
   /**
    * @return the lastAuthenticated
@@ -551,34 +494,6 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
   public void setLastAuthenticated(Long lastAuthenticated) {
     this.lastAuthenticated = lastAuthenticated;
   }
-
-
-
-
-
-  
-  /**
-   * @return the failedLogins
-   */
-  public String getFailedLogins() {
-    return failedLogins;
-  }
-
-
-
-
-
-  
-  /**
-   * @param failedLogins the failedLogins to set
-   */
-  public void setFailedLogins(String failedLogins) {
-    this.failedLogins = failedLogins;
-  }
-  
-
-
-
 
   
   /**
@@ -675,7 +590,7 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
       
     }, 
     
-    RS_256 {
+    RS_2048 {
 
       @Override
       public String generateHash(String input) {

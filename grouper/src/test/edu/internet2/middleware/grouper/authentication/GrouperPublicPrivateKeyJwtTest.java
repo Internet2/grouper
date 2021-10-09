@@ -112,12 +112,12 @@ public class GrouperPublicPrivateKeyJwtTest extends GrouperTest {
     
     GrouperSession grouperSession = SessionHelper.getRootSession();
     
-    String[] publicPrivateKey = GrouperUtil.generateRsaKeypair();
+    String[] publicPrivateKey = GrouperUtil.generateRsaKeypair(2048);
     
     new GrouperPasswordSave()
       .assignAllowedFromCidrs("0.0.0.0/0")
       .assignApplication(GrouperPassword.Application.WS)
-      .assignEncryptionType(GrouperPassword.EncryptionType.RS_256)
+      .assignEncryptionType(GrouperPassword.EncryptionType.RS_2048)
       .assignEntityType("localEntity")
       .assignExpiresAt(System.currentTimeMillis() +365 * 60 * 60 * 1000)
       .assignMemberIdWhoSetPassword(grouperSession.getMember().getId())

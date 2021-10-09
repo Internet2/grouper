@@ -96,6 +96,9 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
       throw new RuntimeException(e);
     }
     
+    
+    //Subject findByIdAndSource = SubjectFinder.findByIdAndSource("GrouperSystem", null, false);
+    
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
     

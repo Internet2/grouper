@@ -1585,8 +1585,11 @@ CREATE TABLE grouper_password
     the_password VARCHAR(4000),
     application VARCHAR(20) NOT NULL,
     allowed_from_cidrs VARCHAR(4000),
+    recent_source_addresses VARCHAR(4000),
+    failed_source_addresses VARCHAR(4000),
     last_authenticated BIGINT,
     last_edited BIGINT NOT NULL,
+    failed_logins VARCHAR(4000),
     hibernate_version_number BIGINT,
     expires_millis BIGINT,
     created_millis BIGINT,
@@ -1600,12 +1603,8 @@ CREATE TABLE grouper_password_recently_used
 (
     id VARCHAR(40) NOT NULL,
     grouper_password_id VARCHAR(40) NOT NULL,
-    jwt_jti VARCHAR(100),
-    jwt_iat INTEGER,
-    attempt_millis BIGINT NOT NULL,
-    ip_address VARCHAR(20) NOT NULL,
-    status CHAR(1) NOT NULL,
-    hibernate_version_number BIGINT NOT NULL,
+    jwt_jti VARCHAR(100) NOT NULL,
+    jwt_iat INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -2346,9 +2345,15 @@ COMMENT ON COLUMN grouper_password.application IS 'ws (includes scim) or ui';
 
 COMMENT ON COLUMN grouper_password.allowed_from_cidrs IS 'network cidrs where credential is allowed from';
 
+COMMENT ON COLUMN grouper_password.recent_source_addresses IS 'json with timestamps';
+
+COMMENT ON COLUMN grouper_password.failed_source_addresses IS 'if restricted by cidr, this was failed IPs (json with timestamp)';
+
 COMMENT ON COLUMN grouper_password.last_authenticated IS 'when last authenticated';
 
 COMMENT ON COLUMN grouper_password.last_edited IS 'when last edited';
+
+COMMENT ON COLUMN grouper_password.failed_logins IS 'json of failed attempts';
 
 COMMENT ON COLUMN grouper_password.hibernate_version_number IS 'hibernate uses this to version rows';
 
@@ -2367,14 +2372,6 @@ COMMENT ON COLUMN grouper_password_recently_used.grouper_password_id IS 'passwor
 COMMENT ON COLUMN grouper_password_recently_used.jwt_jti IS 'unique identifier of the login';
 
 COMMENT ON COLUMN grouper_password_recently_used.jwt_iat IS 'timestamp of this entry';
-
-COMMENT ON COLUMN grouper_password_recently_used.attempt_millis IS 'millis since 1970 this password was attempted';
-
-COMMENT ON COLUMN grouper_password_recently_used.ip_address IS 'ip address from where the password was attempted';
-
-COMMENT ON COLUMN grouper_password_recently_used.status IS 'status of the attempt. S/F/E etc';
-
-COMMENT ON COLUMN grouper_password_recently_used.hibernate_version_number IS 'hibernate version number';
 
 COMMENT ON TABLE grouper_sync IS 'One record for every provisioner (not different records for full and real time)';
 
@@ -6825,7 +6822,7 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V39, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V38, ');
 commit;
 

@@ -4,21 +4,22 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
@@ -32,12 +33,6 @@ public class GuiGrouperPassword {
   private static final Log LOG = GrouperUtil.getLog(GuiGrouperPassword.class);
   
   private GrouperPassword grouperPassword;
-  
-  private final static ObjectMapper objectMapper = new ObjectMapper();
-  
-  static {
-    objectMapper.setSerializationInclusion(Include.NON_NULL);
-  }
   
   private GuiGrouperPassword(GrouperPassword grouperPassword) {
     this.grouperPassword = grouperPassword;
@@ -115,32 +110,21 @@ public class GuiGrouperPassword {
   
   public String getRecentSourceAddresses() {
     
-    String recentSourceAddressesJson = this.getGrouperPassword().getRecentSourceAddresses();
-    
     StringBuilder output = new StringBuilder();
     
-    if (StringUtils.isNotBlank(recentSourceAddressesJson)) {
+    
+    Set<GrouperPasswordRecentlyUsed> recentlyUsedGrouperPasswords = GrouperDAOFactory.getFactory().getGrouperPasswordRecentlyUsed()
+        .findByGrouperPasswordIdAndStatus(this.getGrouperPassword().getId(), null, new QueryOptions());
+    
+    for (GrouperPasswordRecentlyUsed grouperPasswordRecentlyUsed: recentlyUsedGrouperPasswords) {
       
-      try {      
-        List<Map<String, Object>> recentSourceAddresses = objectMapper.readValue(recentSourceAddressesJson, List.class);
-        
-        for(Map<String, Object> map: recentSourceAddresses) {
-          Object obj = map.get("millis");
-          Long millisLong = GrouperUtil.longObjectValue(obj, false);
-          String ip = GrouperUtil.stringValue(map.get("ip"));
-          
-          String timestampUserFriendly = GuiObjectBase.getDateUiFormat().format(new Date(millisLong));
-          
-          output.append(timestampUserFriendly+":"+ip+"</br>");
-          
-        }
-        
-      } catch (Exception e) {
-        throw new RuntimeException("could not parse string "+recentSourceAddressesJson+" into a valid json object.", e);
-      }
+     Long millisLong = grouperPasswordRecentlyUsed.getAttemptMillis();
+     String ip = grouperPasswordRecentlyUsed.getIpAddress();
+     String timestampUserFriendly = GuiObjectBase.getDateUiFormat().format(new Date(millisLong));
+     
+     output.append(timestampUserFriendly+":"+ip+"</br>");
       
     }
-    
     
     return output.toString();
     
@@ -148,32 +132,24 @@ public class GuiGrouperPassword {
   
   public String getFailedSourceAddresses() {
     
-    String failedSourceAddressesJson = this.getGrouperPassword().getRecentSourceAddresses();
-    
     StringBuilder output = new StringBuilder();
     
-    if (StringUtils.isNotBlank(failedSourceAddressesJson)) {
+    Set<Character> statuses = new HashSet<Character>();
+    statuses.add('F');
+    statuses.add('E');
+    
+    Set<GrouperPasswordRecentlyUsed> recentlyUsedGrouperPasswords = GrouperDAOFactory.getFactory().getGrouperPasswordRecentlyUsed()
+        .findByGrouperPasswordIdAndStatus(this.getGrouperPassword().getId(), statuses, new QueryOptions());
+    
+    for (GrouperPasswordRecentlyUsed grouperPasswordRecentlyUsed: recentlyUsedGrouperPasswords) {
       
-      try {      
-        List<Map<String, Object>> recentSourceAddresses = objectMapper.readValue(failedSourceAddressesJson, List.class);
-        
-        for(Map<String, Object> map: recentSourceAddresses) {
-          Object obj = map.get("millis");
-          Long millisLong = GrouperUtil.longObjectValue(obj, false);
-          String ip = GrouperUtil.stringValue(map.get("ip"));
-          
-          String timestampUserFriendly = GuiObjectBase.getDateUiFormat().format(new Date(millisLong));
-          
-          output.append(timestampUserFriendly+":"+ip+"</br>");
-          
-        }
-        
-      } catch (Exception e) {
-        throw new RuntimeException("could not parse string "+failedSourceAddressesJson+" into a valid json object.", e);
-      }
+     Long millisLong = grouperPasswordRecentlyUsed.getAttemptMillis();
+     String ip = grouperPasswordRecentlyUsed.getIpAddress();
+     String timestampUserFriendly = GuiObjectBase.getDateUiFormat().format(new Date(millisLong));
+     
+     output.append(timestampUserFriendly+":"+ip+"</br>");
       
     }
-    
     
     return output.toString();
     

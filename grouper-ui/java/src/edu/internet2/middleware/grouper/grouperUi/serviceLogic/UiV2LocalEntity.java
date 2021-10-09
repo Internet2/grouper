@@ -1388,12 +1388,12 @@ public class UiV2LocalEntity {
         }
       });
       
-      String[] publicPrivateKey = GrouperUtil.generateRsaKeypair();
+      String[] publicPrivateKey = GrouperUtil.generateRsaKeypair(2048);
       
       new GrouperPasswordSave()
         .assignAllowedFromCidrs(allowedFromCidrs)
         .assignApplication(GrouperPassword.Application.WS)
-        .assignEncryptionType(GrouperPassword.EncryptionType.RS_256)
+        .assignEncryptionType(GrouperPassword.EncryptionType.RS_2048)
         .assignEntityType("localEntity")
         .assignExpiresAt(expiresAtLong)
         .assignMemberIdWhoSetPassword(memberIdWhoSetPassword)
@@ -1454,7 +1454,16 @@ public class UiV2LocalEntity {
         throw new RuntimeException("not valid");
       }
       
-      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(subject.getId(),
+      String memberIdOfLocalEntity = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          return member.getId();
+        }
+      });
+      
+      GrouperPassword grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(memberIdOfLocalEntity,
           GrouperPassword.Application.WS.name());
       
       if (grouperPassword != null) {
@@ -1519,7 +1528,7 @@ public class UiV2LocalEntity {
       
       if (grouperPassword != null) {
        
-        String[] publicPrivateKey = GrouperUtil.generateRsaKeypair();
+        String[] publicPrivateKey = GrouperUtil.generateRsaKeypair(2048);
         
         new GrouperPasswordSave()
           .assignPublicKey(publicPrivateKey[0])

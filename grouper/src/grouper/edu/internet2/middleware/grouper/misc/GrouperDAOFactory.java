@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordRecentlyUsedDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.MessageDAO;
@@ -462,6 +463,11 @@ public abstract class GrouperDAOFactory {
    * @return grouper password dao
    */
   public abstract GrouperPasswordDAO getGrouperPassword();
+  
+  /**
+   * @return grouper password recently used dao
+   */
+  public abstract GrouperPasswordRecentlyUsedDAO getGrouperPasswordRecentlyUsed();
   
   /**
    * @return grouper file dao

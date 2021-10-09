@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordRecentlyUsedDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.MessageDAO;
@@ -570,6 +571,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public GrouperFileDAO getGrouperFile() {
     return new Hib3GrouperFileDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGrouperPasswordRecentlyUsed()
+   */
+  @Override
+  public GrouperPasswordRecentlyUsedDAO getGrouperPasswordRecentlyUsed() {
+    return new Hib3GrouperPasswordRecentlyUsedDAO();
   }
   
 } 
