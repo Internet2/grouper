@@ -2642,22 +2642,22 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdl2_6_1.addGrouperPasswordColumns(database, ddlVersionBean);
       GrouperDdl2_6_1.addGrouperPasswordComments(database, ddlVersionBean);
+      
+      GrouperDdl2_6_1.addGrouperPasswordRecentlyUsedColumns(database, ddlVersionBean);
+      GrouperDdl2_6_1.addGrouperPasswordRecentlyUsedComments(database, ddlVersionBean);
+      GrouperDdl2_6_1.dropGrouperPasswordColumns(database, ddlVersionBean);
     }
   },
   V39 {
 
     @Override
     public String getGrouperVersion() {
-      return "2.6.2";
+      return null;
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
-      
-      GrouperDdl2_6_2.addGrouperPasswordRecentlyUsedColumns(database, ddlVersionBean);
-      GrouperDdl2_6_2.addGrouperPasswordRecentlyUsedComments(database, ddlVersionBean);
-      GrouperDdl2_6_2.dropGrouperPasswordColumns(database, ddlVersionBean);
       
     }
   },
