@@ -100,13 +100,17 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
         + " from GrouperPasswordRecentlyUsed theGrouperPasswordRecentlyUsed where "
         + " theGrouperPasswordRecentlyUsed.grouperPasswordId = :grouperPasswordId ");
 
+    ByHqlStatic hqlStatic = HibernateSession.byHqlStatic().options(queryOptions);
+        
     if (statuses != null && statuses.size() > 0) {
       
       String[] statusesArray = new String[statuses.size()];
       
       int i=0;
       for (Character status: statuses) {
-        statusesArray[i] = "'"+String.valueOf(status)+"'";
+        String bindVarName = "status" + i;
+        statusesArray[i] = ":"+bindVarName;
+        hqlStatic.setString(bindVarName, String.valueOf(status));
         i++;
       }
       
@@ -128,11 +132,9 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
     if (queryOptions.getQuerySort() == null) {
       queryOptions.sort(QuerySort.desc("attemptMillis"));
     }
-    
-     ByHqlStatic hqlStatic = HibernateSession.byHqlStatic().options(queryOptions)
-      .createQuery(sql.toString())
-      .setCacheable(true)
-      .setCacheRegion(KLASS + ".FindByGrouperPasswordId")
+     
+    hqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
       .setString( "grouperPasswordId", grouperPasswordId );
      
      return hqlStatic.listSet(GrouperPasswordRecentlyUsed.class);
