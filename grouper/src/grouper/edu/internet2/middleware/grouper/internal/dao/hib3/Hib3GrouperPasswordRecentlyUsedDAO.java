@@ -15,8 +15,12 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -30,6 +34,8 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
@@ -86,6 +92,19 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
     HibernateSession.byObjectStatic().delete(grouperPasswordRecentlyUsed);
   }
   
+  public static void main(String[] args) {
+    
+    List<Long> list = new ArrayList<Long>();
+    list.add(1L);
+    list.add(3L);
+    list.add(2L);
+    
+    System.out.println(list);
+    Collections.sort(list);
+    System.out.println(list);
+    
+  }
+  
   /**
    * find GrouperPasswordRecentlyUsed 
    */
@@ -138,6 +157,74 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
       .setString( "grouperPasswordId", grouperPasswordId );
      
      return hqlStatic.listSet(GrouperPasswordRecentlyUsed.class);
+  }
+  
+  @Override
+  public int cleanupOldEntriesFromGrouperPasswordRecentlyUsedTable() {
+    
+    String sql = " select gpru2.id, gpru2.grouperPasswordId, gpru2.attemptMillis from GrouperPasswordRecentlyUsed gpru2 where "
+        + " gpru2.grouperPasswordId in ( select gpru.grouperPasswordId from GrouperPasswordRecentlyUsed gpru group by gpru.grouperPasswordId having count(*) > 20) ";
+    
+    List<Object[]> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .list(Object[].class);
+    
+    
+    if (results.size() == 0) {
+      return 0;
+    }
+    
+    Map<String, List<Long>> grouperPasswordIdToAttemptMillis = new HashMap<String, List<Long>>();
+    
+    for (Object[] result: results) {
+      
+      String grouperPasswordId = (String)result[1];
+      Long attemptMillis = (Long)result[2];
+      
+      List<Long> attemptMillisForOneGrouperPasswordId = grouperPasswordIdToAttemptMillis.getOrDefault(grouperPasswordId, new ArrayList<Long>());
+      attemptMillisForOneGrouperPasswordId.add(attemptMillis);
+      
+      grouperPasswordIdToAttemptMillis.put(grouperPasswordId, attemptMillisForOneGrouperPasswordId);
+      
+    }
+    
+    int batchSize = 5000;
+    
+    int totalDeleted = 0;
+    for (String grouperPasswordId: grouperPasswordIdToAttemptMillis.keySet()) {
+      
+      List<Long> attemptMillis = grouperPasswordIdToAttemptMillis.get(grouperPasswordId);
+      
+      Collections.sort(attemptMillis);
+      
+      List<Long> subList = attemptMillis.subList(0, attemptMillis.size()-20);
+      
+      grouperPasswordIdToAttemptMillis.put(grouperPasswordId, subList);
+      
+      int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(subList, batchSize);
+      
+      for (int batchIndex=0; batchIndex<numberOfBatches; batchIndex++) {
+        List<Long> theBatch = GrouperClientUtils.batchList(subList, batchSize, batchIndex);
+        
+        // the last one is the latest
+        Long earliestAttemptMillis = theBatch.get(theBatch.size()-1);
+        
+        int countDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperPasswordRecentlyUsed gpru where gpru.grouperPasswordId = :grouperPasswordId and gpru.attemptMillis <= :attemptMillis")
+        .setLong("attemptMillis", earliestAttemptMillis)
+        .setString("grouperPasswordId", grouperPasswordId)
+        .executeUpdateInt();
+        
+        totalDeleted = totalDeleted + countDeleted;
+        
+      }
+      
+      
+    }
+   
+    return totalDeleted;
+    
   }
 
   /** logger */
