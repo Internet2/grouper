@@ -209,6 +209,23 @@ public class GrouperUiFunctions {
   
   /**
    * <pre>
+   * If something is zipped and base4 encoded, then unzip
+   * 
+   * Button text:
+   * ${grouper:zipUnBase64UnGzip(someText)}
+   * 
+   * </pre>
+   * @param hideShowName
+   * @return the text
+   */
+  public static String zipUnBase64UnGzip(String text) {
+    
+    return GrouperUtil.zipUnBase64UnGzip(text);
+    
+  }
+  
+  /**
+   * <pre>
    * print out the button text for a hide show
    * 
    * Each hide show has a name, and it should be unique in the app, so be explicit, 

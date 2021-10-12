@@ -104,7 +104,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMembershipErrorMessage'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorMessage}
+                            <grouper:abbreviateTextarea text="${grouper:zipUnBase64UnGzip(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorMessage)}"/>
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMembershipErrorMessageDescription']}</span>
                             </td>
@@ -134,7 +134,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupErrorMessage'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncGroup.errorMessage}
+                            <grouper:abbreviateTextarea text="${grouper:zipUnBase64UnGzip(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncGroup.errorMessage)}"/>
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsGroupErrorMessageDescription']}</span>
                             </td>
@@ -164,7 +164,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMemberErrorMessage'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncMember.errorMessage}
+                            <grouper:abbreviateTextarea text="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncMember.errorMessage}" />
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMemberErrorMessageDescription']}</span>
                             </td>

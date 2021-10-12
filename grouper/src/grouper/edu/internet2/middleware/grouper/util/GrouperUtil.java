@@ -20,6 +20,8 @@ package edu.internet2.middleware.grouper.util;
 
 import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,6 +92,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -10304,6 +10308,9 @@ public class GrouperUtil {
    * @since 2.0
    */
   public static String getFullStackTrace(Throwable throwable) {
+    if (throwable == null) {
+      return null;
+    }
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw, true);
       Throwable[] ts = getThrowables(throwable);
@@ -13929,4 +13936,245 @@ public class GrouperUtil {
     return GrouperClientUtils.isWindows();
   }  
 
+  /**
+   * truncate an exception stack to be less than 3.5k
+   * @return the stack
+   * @param exception the stack
+   */
+  public static String exceptionTruncate(String exception) {
+    if (StringUtils.length(exception) < 3500) {
+      return exception;
+    }
+    String exceptionWithoutPackages = exceptionWithoutPackages(exception);
+    if (StringUtils.length(exceptionWithoutPackages) < 3500) {
+      return exceptionWithoutPackages;
+    }
+    return exceptionWithoutPackages;
+  }
+
+  /**
+   *  at edu.provisioning.GrouperProvisioningLogicIncremental.retrieveIncrementalTargetData(GrouperProvisioningLogicIncremental.java:2508)
+   * ^\s*at 
+   * .+ package name
+   * \.([^.]+\.[^.]+) dot Class dot Method
+   * \(.*\.java:([0-9]+)\) match line number
+   */
+  private static Pattern exceptionClassMethodLine = Pattern.compile("^\\s*at .+\\.([^.]+\\.[^.]+)\\(.*\\.java:([0-9]+)\\)");
+  
+  /**
+   * take out packages and whitespace from stack
+   * @param exception
+   * @return the new stack
+   */
+  public static String exceptionWithoutPackages(String exception) {
+    if (exception == null) {
+      return exception;
+    }
+    StringBuilder result = new StringBuilder();
+    exception = whitespaceNormalizeNewLines(exception);
+    String[] lines = splitTrim(exception, "\n");
+    
+    for (String line : lines) {
+      Matcher matcher = exceptionClassMethodLine.matcher(line);
+      if (!matcher.matches()) {
+        result.append(line).append("\n");
+        continue;
+      }
+      result.append(matcher.group(1)).append(".").append(matcher.group(2)).append("\n");
+    }
+    return result.toString().trim();
+  }
+
+  /**
+   * take out packages and whitespace from stack
+   * @param exception
+   * @return the new stack
+   */
+  public static String exceptionWithoutDupes(String exception) {
+    if (exception == null) {
+      return exception;
+    }
+    StringBuilder result = new StringBuilder();
+    exception = whitespaceNormalizeNewLines(exception);
+    String[] lines = splitTrim(exception, "\n");
+    Set<String> linesSeen = new HashSet<String>();
+    for (String line : lines) {
+      if (linesSeen.contains(line)) {
+        continue;
+      }
+      linesSeen.add(line);
+      result.append(line).append("\n");
+    }
+    return result.toString().trim();
+  }
+
+  /**
+   * take out packages and whitespace from stack
+   * @param exception
+   * @return the new stack
+   */
+  public static String exceptionWithoutClasses(String exception) {
+    if (exception == null) {
+      return exception;
+    }
+    StringBuilder result = new StringBuilder();
+    exception = whitespaceNormalizeNewLines(exception);
+    String[] lines = splitTrim(exception, "\n");
+    
+    for (String line : lines) {
+      Matcher matcher = exceptionClassMethodLine.matcher(line);
+      if (!matcher.matches()) {
+        result.append(line).append("\n");
+        continue;
+      }
+      String className = prefixOrSuffix(matcher.group(1), ".", true);
+      String methodName = prefixOrSuffix(matcher.group(1), ".", false);
+      result.append(className.replaceAll("[a-z]", "")).append(".").append(methodName).append(".").append(matcher.group(2)).append("\n");
+    }
+    return result.toString().trim();
+  }
+  
+
+  private static final int EXCEPTION_MAX_COLUMN_LENGTH = 3650;
+  
+  /**
+   * take out packages and whitespace from stack
+   * @param exception
+   * @return the new stack
+   */
+  public static String exception4kZipBase64(String exception) {
+    if (exception == null || exception.length() < EXCEPTION_MAX_COLUMN_LENGTH) {
+      return exception;
+    }
+    String exceptionWithoutDupes = exceptionWithoutDupes(exception);
+    if (exceptionWithoutDupes.length() < EXCEPTION_MAX_COLUMN_LENGTH) {
+      return exceptionWithoutDupes;
+    }
+    String exceptionWithoutDupesOrPackages = exceptionWithoutPackages(exceptionWithoutDupes);
+    if (exceptionWithoutDupesOrPackages.length() < EXCEPTION_MAX_COLUMN_LENGTH) {
+      return exceptionWithoutDupesOrPackages;
+    }
+    String exceptionWithoutDupesOrClasses = exceptionWithoutClasses(exceptionWithoutDupes);
+    if (exceptionWithoutDupesOrClasses.length() < EXCEPTION_MAX_COLUMN_LENGTH) {
+      return exceptionWithoutDupesOrClasses;
+    }
+    // now we need to zip
+    byte[] exceptionZip = zipGzipCompress(exceptionWithoutDupes);
+    String exceptionZipBase64 = new String(Base64.encodeBase64(exceptionZip));
+    if (exceptionZipBase64.length() <= EXCEPTION_MAX_COLUMN_LENGTH) {
+      return "zipBase64__" + exceptionZipBase64 + "__endZipBase64";
+    }
+    
+    exceptionZip = zipGzipCompress(exceptionWithoutDupesOrPackages);
+    exceptionZipBase64 = new String(Base64.encodeBase64(exceptionZip));
+    if (exceptionZipBase64.length() <= EXCEPTION_MAX_COLUMN_LENGTH) {
+      return "zipBase64__" + exceptionZipBase64 + "__endZipBase64";
+    }
+    
+    exceptionZip = zipGzipCompress(exceptionWithoutDupesOrClasses);
+    exceptionZipBase64 = new String(Base64.encodeBase64(exceptionZip));
+    if (exceptionZipBase64.length() <= EXCEPTION_MAX_COLUMN_LENGTH) {
+      return "zipBase64__" + exceptionZipBase64 + "__endZipBase64";
+    }
+    
+    // now we need to abbreviate
+    for (int i=18;i>4;i--) {
+      String exceptionTruncate = StringUtils.abbreviate(exceptionWithoutDupesOrClasses, i*1000);
+      exceptionZip = zipGzipCompress(exceptionTruncate);
+      exceptionZipBase64 = new String(Base64.encodeBase64(exceptionZip));
+      if (exceptionZipBase64.length() <= EXCEPTION_MAX_COLUMN_LENGTH) {
+        return "zipBase64__" + exceptionZipBase64 + "__endZipBase64";
+      }
+    }
+    throw new RuntimeException("Shouldnt happen");
+  }
+
+  private static Pattern zipBase64pattern = Pattern.compile("zipBase64__(.*?)__endZipBase64");
+  
+  /**
+   * if a string has zips and base 64s (e.g. for stack), then remove
+   * @param zippedBase64Exception
+   * @return
+   */
+  public static String zipUnBase64UnGzip(String zippedBase64Exception) {
+    if (zippedBase64Exception == null) {
+      return null;
+    }
+    if (!zippedBase64Exception.contains("zipBase64__")) {
+      return zippedBase64Exception;
+    }
+    
+    int index = 0;
+    StringBuilder result = new StringBuilder();
+
+    Matcher matcher = zipBase64pattern.matcher(zippedBase64Exception);
+    //loop through and find each zip
+    while (matcher.find()) {
+      String startString = zippedBase64Exception.substring(index, matcher.start());
+      result.append(startString);
+      
+      //here is the script inside the curlies
+      String zip = matcher.group(1);
+
+      //unbase64
+      byte[] bytes = Base64.decodeBase64(zip);
+      
+      String unzip = zipGzipDecompress(bytes);
+
+      result.append(unzip);
+      
+      index = matcher.end();
+      
+    }
+      
+    String endString = zippedBase64Exception.substring(index, zippedBase64Exception.length());
+    result.append(endString);
+
+    return result.toString();
+  }
+  
+  public static byte[] zipGzipCompress(final String str) {
+    if ((str == null) || (str.length() == 0)) {
+      return null;
+    }
+    ByteArrayOutputStream obj = new ByteArrayOutputStream();
+    GZIPOutputStream gzip = null;
+    try {
+      gzip = new GZIPOutputStream(obj);
+      gzip.write(str.getBytes("UTF-8"));
+      gzip.flush();
+    } catch (IOException ioe) {
+      throw new RuntimeException("Error zipping", ioe);
+    } finally {
+      closeQuietly(gzip);
+    }
+    return obj.toByteArray();
+  }
+
+  public static String zipGzipDecompress(final byte[] compressed) {
+    final StringBuilder outStr = new StringBuilder();
+    if ((compressed == null) || (compressed.length == 0)) {
+      return "";
+    }
+    GZIPInputStream gis = null;
+    BufferedReader bufferedReader = null;
+    try {
+      gis = new GZIPInputStream(new ByteArrayInputStream(compressed));
+      bufferedReader = new BufferedReader(new InputStreamReader(gis, "UTF-8"));
+  
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        outStr.append(line).append("\n");
+      }
+      return outStr.toString().trim();
+    } catch (IOException e) {
+      throw new RuntimeException("Error unzipping", e);
+    } finally {
+      closeQuietly(bufferedReader);
+    }
+  }
+
+  public static boolean zipGzipIsCompressed(final byte[] compressed) {
+    return (compressed[0] == (byte) (GZIPInputStream.GZIP_MAGIC)) && (compressed[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8));
+  }
 }

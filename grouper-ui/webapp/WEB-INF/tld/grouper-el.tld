@@ -1011,5 +1011,18 @@
       ${grouper:subjectStringLabelShort2fromMemberId(group.creatorUuid)}
     </example>
   </function>
+  <function>
+    <description>
+      Take a string that has parts that we zipped and base64, and unbase 64 and un-gzip
+    </description>
+    <name>zipUnBase64UnGzip</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String zipUnBase64UnGzip(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:zipUnBase64UnGzip(group.getError())}
+    </example>
+  </function>
   
 </taglib>

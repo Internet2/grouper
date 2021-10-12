@@ -58,7 +58,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguageExternal"));
+    TestRunner.run(new GrouperUtilTest("testExceptionTruncate"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -66,6 +66,247 @@ public class GrouperUtilTest extends GrouperTest {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperUtilTest.class);
 
+  public void testExceptionTruncate() {
+    String exception = "2021-10-09 14:43:00,114: [DefaultQuartzScheduler_Worker-9] ERROR GrouperLoaderJob.execute(347) -  - Error running up job\n";
+    exception += "java.lang.RuntimeException: Error in loader job: null, check logs: type: consumer, finalLog: false, state: init, consumerName: ldapGroupsWithOverrideIncremental, totalCount: 11, currentSequenceNumber: null, publisherClass: edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer, exception: java.lang.RuntimeException: provisionerClass: LdapSync, configId: ldapGroupsWithOverride, provisioningType: incrementalProvisionChangeLog, state: retrieveIncrementalTargetData, changeLogItemsApplicableByType: 1, recalcEventsDuringFullSync: 0, checkErrors: all, syncGroupsToQuery: 2, syncGroupsFound: 2, retrieveSyncGroupsMillis: 0, syncGroupCount: 2, convertToFullSyncScore: 20, recalcEventsDuringGroupSync: 0, syncMembershipsToQueryFromGroup: 2, syncMembershipsFromGroup: 0, retrieveSyncMembershipsMillis: 1, syncMembershipCount: 0, syncMembersToQuery: 0, syncMembersFound: 0, retrieveSyncMembersMillis: 0, syncMemberCount: 0, retrieveData\n";
+    exception += "MillisSince1970: 1633804980092, retrieveGrouperMshipsMillis: 2, grouperMshipCount: 0, retrieveGrouperGroupsMillis: 1, grouperGroupCount: 2, retrieveGrouperEntitiesMillis: 0, grouperEntityCount: 0, retrieveGrouperDataMillis: 3, exception: java.lang.RuntimeException: Problem with ldap conection: personLdap,\n";
+    exception += "Error querying ldap server id: personLdap, searchDn: ou=GrouperGroups,dc=example,dc=edu, filter: '(|(gidNumber=10034)(gidNumber=10023))', returning attributes: cn, gidNumber, objectClass\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:465)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.list(LdaptiveSessionImpl.java:606)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap.search(LdapSyncDaoForLdap.java:16)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTargetDao.retrieveGroups(LdapProvisioningTargetDao.java:650)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveGroups(GrouperProvisionerTargetDaoAdapter.java:489)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveIncrementalData(GrouperProvisionerTargetDaoAdapter.java:444)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicIncremental.retrieveIncrementalTargetData(GrouperProvisioningLogicIncremental.java:2508)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provisionIncremental(GrouperProvisioningLogic.java:661)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType$3.provision(GrouperProvisioningType.java:100)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provision(GrouperProvisioningLogic.java:50)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:587)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += "Caused by: [org.ldaptive.LdapException@1755876524::resultCode=NO_SUCH_OBJECT, matchedDn=null, responseControls=null, referralURLs=null, messageId=-1, message=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu', providerException=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu']\n";
+    exception += "\tat org.ldaptive.provider.ProviderUtils.throwOperationException(ProviderUtils.java:55)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.processNamingException(JndiConnection.java:619)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:741)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.search(JndiConnection.java:463)\n";
+    exception += "\tat org.ldaptive.SearchOperation.executeSearch(SearchOperation.java:103)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:85)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:15)\n";
+    exception += "\tat org.ldaptive.AbstractOperation.execute(AbstractOperation.java:126)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.processSearchRequest(LdaptiveSessionImpl.java:804)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.access$0(LdaptiveSessionImpl.java:749)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl$3.callback(LdaptiveSessionImpl.java:612)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:459)\n";
+    exception += "\t... 18 more\n";
+    exception += "Caused by: javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu'\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.mapErrorCode(LdapCtx.java:3179)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:3100)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:2891)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.searchAux(LdapCtx.java:1846)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.c_search(LdapCtx.java:1769)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.ComponentDirContext.p_search(ComponentDirContext.java:392)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:358)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:341)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.search(JndiConnection.java:806)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:735)\n";
+    exception += "\t... 27 more\n";
+    exception += ", finalLog: true, queryCount: 13, tookMillis: 55, took: 0:00:00.055\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provisionFinallyBlock(GrouperProvisioner.java:660)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:599)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += ", tookMillis: 62Error: java.lang.RuntimeException: Couldn't process any records: type: consumer, finalLog: true, state: init, consumerName: ldapGroupsWithOverrideIncremental, totalCount: 11, currentSequenceNumber: null, publisherClass: edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer, exception: java.lang.RuntimeException: provisionerClass: LdapSync, configId: ldapGroupsWithOverride, provisioningType: incrementalProvisionChangeLog, state: retrieveIncrementalTargetData, changeLogItemsApplicableByType: 1, recalcEventsDuringFullSync: 0, checkErrors: all, syncGroupsToQuery: 2, syncGroupsFound: 2, retrieveSyncGroupsMillis: 0, syncGroupCount: 2, convertToFullSyncScore: 20, recalcEventsDuringGroupSync: 0, syncMembershipsToQueryFromGroup: 2, syncMembershipsFromGroup: 0, retrieveSyncMembershipsMillis: 1, syncMembershipCount: 0, syncMembersToQuery: 0, syncMembersFound: 0, retrieveSyncMembersMillis: 0, syncMemberCount: 0, retrieveData\n";
+    exception += "MillisSince1970: 1633804980092, retrieveGrouperMshipsMillis: 2, grouperMshipCount: 0, retrieveGrouperGroupsMillis: 1, grouperGroupCount: 2, retrieveGrouperEntitiesMillis: 0, grouperEntityCount: 0, retrieveGrouperDataMillis: 3, exception: java.lang.RuntimeException: Problem with ldap conection: personLdap,\n";
+    exception += "Error querying ldap server id: personLdap, searchDn: ou=GrouperGroups,dc=example,dc=edu, filter: '(|(gidNumber=10034)(gidNumber=10023))', returning attributes: cn, gidNumber, objectClass\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:465)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.list(LdaptiveSessionImpl.java:606)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap.search(LdapSyncDaoForLdap.java:16)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTargetDao.retrieveGroups(LdapProvisioningTargetDao.java:650)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveGroups(GrouperProvisionerTargetDaoAdapter.java:489)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveIncrementalData(GrouperProvisionerTargetDaoAdapter.java:444)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicIncremental.retrieveIncrementalTargetData(GrouperProvisioningLogicIncremental.java:2508)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provisionIncremental(GrouperProvisioningLogic.java:661)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType$3.provision(GrouperProvisioningType.java:100)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provision(GrouperProvisioningLogic.java:50)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:587)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += "Caused by: [org.ldaptive.LdapException@1755876524::resultCode=NO_SUCH_OBJECT, matchedDn=null, responseControls=null, referralURLs=null, messageId=-1, message=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu', providerException=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu']\n";
+    exception += "\tat org.ldaptive.provider.ProviderUtils.throwOperationException(ProviderUtils.java:55)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.processNamingException(JndiConnection.java:619)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:741)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.search(JndiConnection.java:463)\n";
+    exception += "\tat org.ldaptive.SearchOperation.executeSearch(SearchOperation.java:103)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:85)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:15)\n";
+    exception += "\tat org.ldaptive.AbstractOperation.execute(AbstractOperation.java:126)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.processSearchRequest(LdaptiveSessionImpl.java:804)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.access$0(LdaptiveSessionImpl.java:749)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl$3.callback(LdaptiveSessionImpl.java:612)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:459)\n";
+    exception += "\t... 18 more\n";
+    exception += "Caused by: javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu'\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.mapErrorCode(LdapCtx.java:3179)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:3100)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:2891)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.searchAux(LdapCtx.java:1846)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.c_search(LdapCtx.java:1769)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.ComponentDirContext.p_search(ComponentDirContext.java:392)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:358)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:341)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.search(JndiConnection.java:806)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:735)\n";
+    exception += "\t... 27 more\n";
+    exception += ", finalLog: true, queryCount: 13, tookMillis: 55, took: 0:00:00.055\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provisionFinallyBlock(GrouperProvisioner.java:660)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:599)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += ", tookMillis: 62\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:592)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += "Error: Error processing record -1, sequenceNumber: -1, java.lang.RuntimeException: provisionerClass: LdapSync, configId: ldapGroupsWithOverride, provisioningType: incrementalProvisionChangeLog, state: retrieveIncrementalTargetData, changeLogItemsApplicableByType: 1, recalcEventsDuringFullSync: 0, checkErrors: all, syncGroupsToQuery: 2, syncGroupsFound: 2, retrieveSyncGroupsMillis: 0, syncGroupCount: 2, convertToFullSyncScore: 20, recalcEventsDuringGroupSync: 0, syncMembershipsToQueryFromGroup: 2, syncMembershipsFromGroup: 0, retrieveSyncMembershipsMillis: 1, syncMembershipCount: 0, syncMembersToQuery: 0, syncMembersFound: 0, retrieveSyncMembersMillis: 0, syncMemberCount: 0, retrieveData\n";
+    exception += "MillisSince1970: 1633804980092, retrieveGrouperMshipsMillis: 2, grouperMshipCount: 0, retrieveGrouperGroupsMillis: 1, grouperGroupCount: 2, retrieveGrouperEntitiesMillis: 0, grouperEntityCount: 0, retrieveGrouperDataMillis: 3, exception: java.lang.RuntimeException: Problem with ldap conection: personLdap,\n";
+    exception += "Error querying ldap server id: personLdap, searchDn: ou=GrouperGroups,dc=example,dc=edu, filter: '(|(gidNumber=10034)(gidNumber=10023))', returning attributes: cn, gidNumber, objectClass\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:465)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.list(LdaptiveSessionImpl.java:606)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap.search(LdapSyncDaoForLdap.java:16)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTargetDao.retrieveGroups(LdapProvisioningTargetDao.java:650)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveGroups(GrouperProvisionerTargetDaoAdapter.java:489)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter.retrieveIncrementalData(GrouperProvisionerTargetDaoAdapter.java:444)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicIncremental.retrieveIncrementalTargetData(GrouperProvisioningLogicIncremental.java:2508)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provisionIncremental(GrouperProvisioningLogic.java:661)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType$3.provision(GrouperProvisioningType.java:100)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic.provision(GrouperProvisioningLogic.java:50)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:587)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += "Caused by: [org.ldaptive.LdapException@1755876524::resultCode=NO_SUCH_OBJECT, matchedDn=null, responseControls=null, referralURLs=null, messageId=-1, message=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu', providerException=javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu']\n";
+    exception += "\tat org.ldaptive.provider.ProviderUtils.throwOperationException(ProviderUtils.java:55)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.processNamingException(JndiConnection.java:619)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:741)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection.search(JndiConnection.java:463)\n";
+    exception += "\tat org.ldaptive.SearchOperation.executeSearch(SearchOperation.java:103)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:85)\n";
+    exception += "\tat org.ldaptive.SearchOperation.invoke(SearchOperation.java:15)\n";
+    exception += "\tat org.ldaptive.AbstractOperation.execute(AbstractOperation.java:126)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.processSearchRequest(LdaptiveSessionImpl.java:804)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.access$0(LdaptiveSessionImpl.java:749)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl$3.callback(LdaptiveSessionImpl.java:612)\n";
+    exception += "\tat edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl.callbackLdapSession(LdaptiveSessionImpl.java:459)\n";
+    exception += "\t... 18 more\n";
+    exception += "Caused by: javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; remaining name 'ou=GrouperGroups,dc=example,dc=edu'\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.mapErrorCode(LdapCtx.java:3179)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:3100)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.processReturnCode(LdapCtx.java:2891)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.searchAux(LdapCtx.java:1846)\n";
+    exception += "\tat com.sun.jndi.ldap.LdapCtx.c_search(LdapCtx.java:1769)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.ComponentDirContext.p_search(ComponentDirContext.java:392)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:358)\n";
+    exception += "\tat com.sun.jndi.toolkit.ctx.PartialCompositeDirContext.search(PartialCompositeDirContext.java:341)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.search(JndiConnection.java:806)\n";
+    exception += "\tat org.ldaptive.provider.jndi.JndiConnection$JndiSearchIterator.initialize(JndiConnection.java:735)\n";
+    exception += "\t... 27 more\n";
+    exception += ", finalLog: true, queryCount: 13, tookMillis: 55, took: 0:00:00.055\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provisionFinallyBlock(GrouperProvisioner.java:660)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.provision(GrouperProvisioner.java:599)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer.dispatchEventList(ProvisioningConsumer.java:91)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer.processChangeLogEntries(EsbConsumer.java:503)\n";
+    exception += "\tat edu.internet2.middleware.grouper.changeLog.ChangeLogHelper.processRecords(ChangeLogHelper.java:261)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderType$6.runJob(GrouperLoaderType.java:677)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:493)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)\n";
+    exception += "Did not get all the way through the batch! -1 != 1082,\n";
+    exception += "jobName: CHANGE_LOG_consumer_ldapGroupsWithOverrideIncremental\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.runJob(GrouperLoaderJob.java:502)\n";
+    exception += "\tat edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob.execute(GrouperLoaderJob.java:344)\n";
+    exception += "\tat org.quartz.core.JobRunShell.run(JobRunShell.java:202)\n";
+    exception += "\tat org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)";
+    
+    String exceptionOriginal = exception;
+    String exceptionTruncate0 = GrouperUtil.exceptionWithoutDupes(exception);
+    String exceptionTruncate1 = GrouperUtil.exceptionWithoutPackages(exceptionTruncate0);
+    String exceptionTruncate2 = GrouperUtil.exceptionWithoutClasses(exceptionTruncate0);
+    String exceptionTruncate3 = GrouperUtil.exception4kZipBase64(exceptionTruncate0);
+    String exceptionTruncateUnzip3 = GrouperUtil.zipUnBase64UnGzip(exceptionTruncate3);
+    
+    
+
+//    System.out.println("\n\n#############  ORIGINAL ##################\n\n");
+//    System.out.println(exceptionOriginal);
+//    System.out.println("\n\n###############################\n\n");
+//
+//    System.out.println("\n\n############# EXPECTED ##################\n\n");
+//    System.out.println(exception);
+//    System.out.println("\n\n###############################\n\n");
+//
+//    System.out.println("\n\n############## DUPES #################\n\n");
+//    System.out.println(exceptionTruncate0);
+//    System.out.println("\n\n###############################\n\n");
+//
+//    System.out.println("\n\n############ PACKAGES ###################\n\n");
+//    System.out.println(exceptionTruncate1);
+//    System.out.println("\n\n###############################\n\n");
+//    
+//    System.out.println("\n\n############# CLASSES ##################\n\n");
+//    System.out.println(exceptionTruncate2);
+//    System.out.println("\n\n###############################\n\n");
+//    
+//    System.out.println("\n\n############### ZIP ################\n\n");
+//    System.out.println(exceptionTruncate3);
+//    System.out.println("\n\n###############################\n\n");
+//    
+//    System.out.println("\n\n############### UNZIP ################\n\n");
+//    System.out.println(exceptionTruncateUnzip3);
+//    System.out.println("\n\n###############################\n\n");
+//    
+//    System.out.println("Exception: " + exceptionOriginal.length());
+//    System.out.println("Exception truncate0 (dupes): " + exceptionTruncate0.length());
+//    System.out.println("Exception truncate1 (packages): " + exceptionTruncate1.length());
+//    System.out.println("Exception truncate2 (classes): " + exceptionTruncate2.length());
+//    System.out.println("Exception truncate3 (classes zip): " + exceptionTruncate3.length());
+//    System.out.println("Exception truncate3 (classes unzip): " + exceptionTruncateUnzip3.length());
+
+    
+  }
+  
   /**
    * 
    */
