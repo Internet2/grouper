@@ -141,7 +141,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.errorMessage}
+                    ${grouper:escapeHtml(grouperSyncGroup.errorMessage)}
                   </td>
                   
                   <td style="white-space: nowrap;">

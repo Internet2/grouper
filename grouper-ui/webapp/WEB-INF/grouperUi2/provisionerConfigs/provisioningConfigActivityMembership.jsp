@@ -90,7 +90,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.errorMessage}
+                    ${grouper:escapeHtml(grouperSyncMembership.errorMessage)}
                   </td>
                   
                   <td style="white-space: nowrap;">
