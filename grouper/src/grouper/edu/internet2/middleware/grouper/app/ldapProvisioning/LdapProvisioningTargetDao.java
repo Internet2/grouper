@@ -72,8 +72,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
    * start logging the source low level actions
    */
   @Override
-  public void loggingStart() {
-    LdapSessionUtils.logStart();
+  public boolean loggingStart() {
+    return LdapSessionUtils.logStart();
   }
 
   /**

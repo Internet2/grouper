@@ -57,8 +57,8 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
-  public void loggingStart() {
-    GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(DuoMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(DuoMockServiceHandler.doNotLogParameters));
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(DuoMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(DuoMockServiceHandler.doNotLogParameters));
   }
 
   @Override

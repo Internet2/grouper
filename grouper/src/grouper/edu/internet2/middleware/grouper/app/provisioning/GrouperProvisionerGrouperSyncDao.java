@@ -597,7 +597,7 @@ public class GrouperProvisionerGrouperSyncDao {
         }
         
       } else {
-        gcGrouperSyncGroup.setErrorMessage(grouperTargetGroup.getException() == null ? null : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
+        gcGrouperSyncGroup.setErrorMessage(GrouperUtil.exception4kZipBase64(GrouperUtil.getFullStackTrace(grouperTargetGroup.getException())));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
         this.getGrouperProvisioner().getGrouperProvisioningOutput().addRecordsWithInsertErrors(1);
       }
@@ -956,8 +956,7 @@ public class GrouperProvisionerGrouperSyncDao {
         }
         
         gcGrouperSyncGroup
-            .setErrorMessage(grouperTargetGroup.getException() == null ? null
-                : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
+            .setErrorMessage(GrouperUtil.exception4kZipBase64(GrouperUtil.getFullStackTrace(grouperTargetGroup.getException())));
         gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
         this.getGrouperProvisioner().getGrouperProvisioningOutput()
             .addRecordsWithUpdateErrors(1);
@@ -1001,7 +1000,7 @@ public class GrouperProvisionerGrouperSyncDao {
         
         ProvisioningAttribute provisioningAttribute = provisioningUpdatable
             .getAttributes().get(provisioningObjectChange.getAttributeName());
-        Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute
+        Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute == null ? null : provisioningAttribute
             .getValueToProvisioningMembershipWrapper();
         if (valueToProvisioningMembershipWrapper != null) {
           if (provisioningObjectChange
@@ -1213,8 +1212,7 @@ public class GrouperProvisionerGrouperSyncDao {
       } else {
         if (gcGrouperSyncGroup != null) {
           gcGrouperSyncGroup
-              .setErrorMessage(grouperTargetGroup.getException() == null ? null
-                  : GrouperUtil.getFullStackTrace(grouperTargetGroup.getException()));
+              .setErrorMessage(GrouperUtil.exception4kZipBase64(GrouperUtil.getFullStackTrace(grouperTargetGroup.getException())));
           gcGrouperSyncGroup.setErrorTimestamp(nowTimestamp);
         }
         this.getGrouperProvisioner().getGrouperProvisioningOutput()

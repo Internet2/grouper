@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogCommands;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -32,8 +34,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTargetDaoBase {
 
   @Override
-  public void loggingStart() {
-    this.wrappedDao.loggingStart();
+  public boolean loggingStart() {
+    return this.wrappedDao.loggingStart();
   }
 
   @Override
@@ -110,12 +112,47 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(
       TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
-      TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.wrappedDao.retrieveAllGroups(targetDaoRetrieveAllGroupsRequest);
-      
-      logGroups(targetDaoRetrieveAllGroupsResponse.getTargetGroups());
-      return targetDaoRetrieveAllGroupsResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+  
+        TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.wrappedDao.retrieveAllGroups(targetDaoRetrieveAllGroupsRequest);
+        
+        hasError = logGroups(targetDaoRetrieveAllGroupsResponse.getTargetGroups());
+        return targetDaoRetrieveAllGroupsResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveAllGroups");
+      }
+
     }
     throw new RuntimeException("Dao cannot retrieve all groups");
+  }
+
+  /**
+   * finally block for command logging
+   * @param hasError
+   * @param method
+   */
+  private void commandLogFinallyBlock(boolean commandLogStarted, boolean hasError, String method) {
+    if (!commandLogStarted) {
+      return;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
+        || (hasError && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError())) {
+      String debugInfo = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStop();
+      debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
+      String theLog = "Command log for provisioner '" + this.getGrouperProvisioner().getConfigId() 
+          + "' - '" + this.getGrouperProvisioner().getInstanceId() + "', " + method + ": " + debugInfo;
+      if (hasError) {
+        GrouperProvisioningLogCommands.errorLog(theLog);
+      } else {
+        GrouperProvisioningLogCommands.infoLog(theLog);
+      }     
+    }
   }
 
 
@@ -123,13 +160,33 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(
       TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
-      TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.wrappedDao.retrieveAllEntities(targetDaoRetrieveAllEntitiesRequest);
-      logEntities(targetDaoRetrieveAllEntitiesResponse.getTargetEntities());
-      return targetDaoRetrieveAllEntitiesResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.wrappedDao.retrieveAllEntities(targetDaoRetrieveAllEntitiesRequest);
+        hasError = logEntities(targetDaoRetrieveAllEntitiesResponse.getTargetEntities());
+        return targetDaoRetrieveAllEntitiesResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveAllEntities");
+      }
+        
     }
     
     throw new RuntimeException("Dao cannot retrieve all entities");
     
+  }
+
+  private boolean commandLogStartLoggingIfConfigured() {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
+        || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError()) {
+      return this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStart();
+    }
+    return false;
   }
 
 
@@ -137,9 +194,22 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(
       TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)) {
-      TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.wrappedDao.retrieveAllMemberships(targetDaoRetrieveAllMembershipsRequest);
-      logMemberships(targetDaoRetrieveAllMembershipsResponse.getTargetMemberships());
-      return targetDaoRetrieveAllMembershipsResponse;
+      
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+      
+        TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.wrappedDao.retrieveAllMemberships(targetDaoRetrieveAllMembershipsRequest);
+        hasError = logMemberships(targetDaoRetrieveAllMembershipsResponse.getTargetMemberships());
+        return targetDaoRetrieveAllMembershipsResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveAllMemberships");
+      }
+
     }
 
     throw new RuntimeException("Dao cannot retrieve all memberships");
@@ -156,15 +226,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
     ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoDeleteGroupResponse targetDaoDeleteGroupResponse = this.wrappedDao.deleteGroup(targetDaoDeleteGroupRequest);
-        logGroup(targetGroup);
+        hasError = logGroup(targetGroup);
         if (targetGroup.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
         }
         return targetDaoDeleteGroupResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
@@ -173,6 +246,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetGroup.setException(e);
         }
         logGroup(targetGroup);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroup");
       }
       return new TargetDaoDeleteGroupResponse();
     }
@@ -194,15 +269,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroup(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoInsertGroupResponse targetDaoInsertGroupResponse = this.wrappedDao.insertGroup(targetDaoInsertGroupRequest);
-        logGroup(targetGroup);
+        hasError = logGroup(targetGroup);
         if (targetGroup.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set inserted group as provisioned: " + this.wrappedDao);
         }
         return targetDaoInsertGroupResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
@@ -211,6 +290,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetGroup.setException(e);
         }
         logGroup(targetGroup);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertGroup");
       }
       return new TargetDaoInsertGroupResponse();
     }
@@ -227,10 +308,28 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoSendChangesToTargetResponse sendChangesToTarget(
       TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendChangesToTarget(), false)) {
-      this.wrappedDao.sendChangesToTarget(targetDaoSendChangesToTargetRequest);
-      logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectInserts());
-      logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectUpdates());
-      logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectDeletes());
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        this.wrappedDao.sendChangesToTarget(targetDaoSendChangesToTargetRequest);
+        if (logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectInserts())) {
+          hasError = true;
+        }
+        if (logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectUpdates())) {
+          hasError = true;
+        }
+        if (logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectDeletes())) {
+          hasError = true;
+        }
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "sendChangesToTarget");
+      }
+
     }
     {
       TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
@@ -264,11 +363,30 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest) {
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendGroupChangesToTarget(), false)) {
-      TargetDaoSendGroupChangesToTargetResponse targetDaoSendGroupChangesToTargetResponse = this.wrappedDao.sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
-      logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupInserts());
-      logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupUpdates());
-      logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupDeletes());
-      return targetDaoSendGroupChangesToTargetResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoSendGroupChangesToTargetResponse targetDaoSendGroupChangesToTargetResponse = this.wrappedDao.sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
+        if (logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupInserts())) {
+          hasError = true;
+        }
+        if (logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupUpdates())) {
+          hasError = true;
+        }
+        if (logGroups(targetDaoSendGroupChangesToTargetRequest.getTargetGroupDeletes())) {
+          hasError = true;
+        }
+        return targetDaoSendGroupChangesToTargetResponse;
+
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "sendGroupChangesToTarget");
+      }
+
     }
     if (GrouperUtil.length(targetDaoSendGroupChangesToTargetRequest.getTargetGroupDeletes()) > 0){
       List<ProvisioningGroup> targetGroupDeletes = targetDaoSendGroupChangesToTargetRequest.getTargetGroupDeletes();
@@ -301,9 +419,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroups(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = this.wrappedDao.updateGroups(targetDaoUpdateGroupsRequest);
-        logGroups(targetDaoUpdateGroupsRequest.getTargetGroups());
+        hasError = logGroups(targetDaoUpdateGroupsRequest.getTargetGroups());
         for (ProvisioningGroup provisioningGroup : targetDaoUpdateGroupsRequest.getTargetGroups()) { 
           if (provisioningGroup.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated group as provisioned: " + this.wrappedDao);
@@ -311,6 +433,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateGroupsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningGroup targetGroup : targetDaoUpdateGroupsRequest.getTargetGroups()) { 
           
           if (targetGroup.getProvisioned() == null) {
@@ -323,6 +446,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
         }
         logGroups(targetDaoUpdateGroupsRequest.getTargetGroups());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "updateGroups");
       }
       return null;
     }
@@ -346,9 +471,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMemberships(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoDeleteMembershipsResponse targetDaoDeleteMembershipsResponse = this.wrappedDao.deleteMemberships(targetDaoDeleteMembershipsRequest);
-        logMemberships(targetDaoDeleteMembershipsRequest.getTargetMemberships());
+        hasError = logMemberships(targetDaoDeleteMembershipsRequest.getTargetMemberships());
         for (ProvisioningMembership provisioningMembership : targetDaoDeleteMembershipsRequest.getTargetMemberships()) { 
           if (provisioningMembership.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set deleted membership as provisioned: " + this.wrappedDao);
@@ -356,6 +485,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteMembershipsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningMembership targetMembership : targetDaoDeleteMembershipsRequest.getTargetMemberships()) { 
           
           if (targetMembership.getProvisioned() == null) {
@@ -367,6 +497,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logMemberships(targetDaoDeleteMembershipsRequest.getTargetMemberships());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteMemberships");
       }
       return new TargetDaoDeleteMembershipsResponse();
     }
@@ -386,13 +518,30 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest) {
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
-      TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse = this.wrappedDao.retrieveAllData(targetDaoRetrieveAllDataRequest);
-      if (targetDaoRetrieveAllDataResponse.getTargetData()!=null) {
-        logEntities(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningEntities());
-        logGroups(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningGroups());
-        logMemberships(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningMemberships());
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+        TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse = this.wrappedDao.retrieveAllData(targetDaoRetrieveAllDataRequest);
+        if (targetDaoRetrieveAllDataResponse.getTargetData()!=null) {
+          if (logEntities(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningEntities())) {
+            hasError = true;
+          }
+          if (logGroups(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningGroups())) {
+            hasError = true;
+          }
+          if (logMemberships(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningMemberships())) {
+            hasError = true;
+          }
+        }
+        return targetDaoRetrieveAllDataResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveAllData");
       }
-      return targetDaoRetrieveAllDataResponse;
+        
     }
 
     GrouperProvisioningLists targetObjects = new GrouperProvisioningLists();
@@ -429,11 +578,29 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveIncrementalDataResponse retrieveIncrementalData(
       TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncementalDataRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveIncrementalData(), false)) {
-      TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse = this.wrappedDao.retrieveIncrementalData(targetDaoRetrieveIncementalDataRequest);
-      logEntities(targetDaoRetrieveIncrementalDataResponse.getProvisioningEntities());
-      logGroups(targetDaoRetrieveIncrementalDataResponse.getProvisioningGroups());
-      logObjects(targetDaoRetrieveIncrementalDataResponse.getProvisioningMemberships());
-      return targetDaoRetrieveIncrementalDataResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse = this.wrappedDao.retrieveIncrementalData(targetDaoRetrieveIncementalDataRequest);
+        if (logEntities(targetDaoRetrieveIncrementalDataResponse.getProvisioningEntities())) {
+          hasError = true;
+        }
+        if (logGroups(targetDaoRetrieveIncrementalDataResponse.getProvisioningGroups())) {
+          hasError = true;
+        }
+        if (logObjects(targetDaoRetrieveIncrementalDataResponse.getProvisioningMemberships())) {
+          hasError = true;
+        }
+        return targetDaoRetrieveIncrementalDataResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveIncrementalData");
+      }
+        
     }
     TargetDaoRetrieveIncrementalDataResponse result = new TargetDaoRetrieveIncrementalDataResponse();
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
@@ -486,9 +653,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
-      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.wrappedDao.retrieveGroups(targetDaoRetrieveGroupsRequest);
-      logGroups(targetDaoRetrieveGroupsResponse.getTargetGroups());
-      return targetDaoRetrieveGroupsResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+        TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.wrappedDao.retrieveGroups(targetDaoRetrieveGroupsRequest);
+        hasError = logGroups(targetDaoRetrieveGroupsResponse.getTargetGroups());
+        return targetDaoRetrieveGroupsResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveGroups");
+      }
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
       
@@ -514,9 +691,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsBulk(), false)) {
-      TargetDaoRetrieveMembershipsBulkResponse targetDaoRetrieveMembershipsBulkResponse = this.wrappedDao.retrieveMembershipsBulk(targetDaoRetrieveMembershipsBulkRequest);
-      logObjects(targetDaoRetrieveMembershipsBulkResponse.getTargetMemberships());
-      return targetDaoRetrieveMembershipsBulkResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipsBulkResponse targetDaoRetrieveMembershipsBulkResponse = this.wrappedDao.retrieveMembershipsBulk(targetDaoRetrieveMembershipsBulkRequest);
+        hasError = logObjects(targetDaoRetrieveMembershipsBulkResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsBulkResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsBulk");
+      }
+
     }
 
     List<Object> targetMembershipsResults = new ArrayList<Object>();
@@ -560,9 +749,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
-      logObjects(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships());
-      return targetDaoRetrieveMembershipsByGroupsResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
+        hasError = logObjects(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsByGroupsResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsByGroups");
+      }
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
       
@@ -570,7 +770,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       
       for (ProvisioningGroup provisioningGroup : targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) {
 
-        TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponse = this.wrappedDao.retrieveMembershipsByGroup(
+        TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponse = this.retrieveMembershipsByGroup(
             new TargetDaoRetrieveMembershipsByGroupRequest(provisioningGroup));
         results.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships()));
       }
@@ -597,9 +797,22 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
-      TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponse = this.wrappedDao.retrieveMembershipsByGroup(targetDaoRetrieveMembershipsByGroupRequest);
-      logObjects(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships());
-      return targetDaoRetrieveMembershipsByGroupResponse;
+
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponse = this.wrappedDao.retrieveMembershipsByGroup(targetDaoRetrieveMembershipsByGroupRequest);
+        hasError = logObjects(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsByGroupResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsByGroup");
+      }
+
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
 
@@ -607,7 +820,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           new TargetDaoRetrieveMembershipsByGroupsRequest(GrouperUtil.toList(targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup()));
       
       TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse 
-        = this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
+        = this.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
 
       return new TargetDaoRetrieveMembershipsByGroupResponse(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships());
     }
@@ -625,9 +838,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
-      TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse = this.wrappedDao.retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
-      logObjects(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships());
-      return targetDaoRetrieveMembershipsByEntitiesResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse = this.wrappedDao.retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
+        hasError = logObjects(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships());
+        return targetDaoRetrieveMembershipsByEntitiesResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsByEntities");
+      }
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
       
@@ -635,11 +859,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       
       for (ProvisioningEntity provisioningEntity : targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()) {
 
-        TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = this.wrappedDao.retrieveMembershipsByEntity(
+        TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = this.retrieveMembershipsByEntity(
             new TargetDaoRetrieveMembershipsByEntityRequest(provisioningEntity));
         results.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships()));
       }
-      logObjects(results);
       return new TargetDaoRetrieveMembershipsByEntitiesResponse(results);
 
     }
@@ -663,8 +886,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
-      TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = this.wrappedDao.retrieveMembershipsByEntity(targetDaoRetrieveMembershipsByEntityRequest);
-      return targetDaoRetrieveMembershipsByEntityResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = this.wrappedDao.retrieveMembershipsByEntity(targetDaoRetrieveMembershipsByEntityRequest);
+        return targetDaoRetrieveMembershipsByEntityResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsByEntity");
+      }
+
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
 
@@ -672,7 +907,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           new TargetDaoRetrieveMembershipsByEntitiesRequest(GrouperUtil.toList(targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity()));
       
       TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse 
-        = this.wrappedDao.retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
+        = this.retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
 
       return new TargetDaoRetrieveMembershipsByEntityResponse(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships());
     }
@@ -689,19 +924,31 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoRetrieveMembershipsResponse();
     }
 
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
-      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
-        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+        hasError = logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
         return targetDaoRetrieveMembershipsResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMemberships");
       }
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
         
         List<Object> results = new ArrayList<Object>();
         
         for (Object provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
 
-          TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(provisioningMembership));
+          TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.retrieveMembership(new TargetDaoRetrieveMembershipRequest(provisioningMembership));
           if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
             results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
           }
@@ -711,11 +958,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
-        TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
-        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
-        return targetDaoRetrieveMembershipsResponse;
-      }
       if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
         
         List<Object> results = new ArrayList<Object>();
@@ -738,7 +980,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             
             clonedProvisioningGroup.getAttributes().put(attributeForMemberships, provisioningAttribute);
             
-            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningGroup));
+            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningGroup));
             if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
               results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
             }
@@ -751,11 +993,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
-        TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = this.wrappedDao.retrieveMemberships(targetDaoRetrieveMembershipsRequest);
-        logObjects(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
-        return targetDaoRetrieveMembershipsResponse;
-      }
       if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
         
         List<Object> results = new ArrayList<Object>();
@@ -778,7 +1015,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             
             clonedProvisioningEntity.getAttributes().put(attributeForMemberships, provisioningAttribute);
             
-            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningEntity));
+            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.retrieveMembership(new TargetDaoRetrieveMembershipRequest(clonedProvisioningEntity));
             if (targetDaoRetrieveMembershipResponse != null && targetDaoRetrieveMembershipResponse.getTargetMembership() != null) {
               results.add(targetDaoRetrieveMembershipResponse.getTargetMembership());
             }
@@ -807,9 +1044,22 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)) {
-      TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.wrappedDao.retrieveEntities(targetDaoRetrieveEntitiesRequest);
-      logEntities(targetDaoRetrieveEntitiesResponse.getTargetEntities());
-      return targetDaoRetrieveEntitiesResponse;
+      
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.wrappedDao.retrieveEntities(targetDaoRetrieveEntitiesRequest);
+        hasError = logEntities(targetDaoRetrieveEntitiesResponse.getTargetEntities());
+        return targetDaoRetrieveEntitiesResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveEntities");
+      }
+
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
       
@@ -841,9 +1091,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     targetDaoRetrieveGroupRequest.getTargetGroup().assignSearchFilter();
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
-      TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.wrappedDao.retrieveGroup(targetDaoRetrieveGroupRequest);
-      logGroup(targetDaoRetrieveGroupRequest.getTargetGroup());
-      return targetDaoRetrieveGroupResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.wrappedDao.retrieveGroup(targetDaoRetrieveGroupRequest);
+        hasError = logGroup(targetDaoRetrieveGroupRequest.getTargetGroup());
+        return targetDaoRetrieveGroupResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveGroup");
+      }
+
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
       
@@ -871,9 +1133,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     targetDaoRetrieveEntityRequest.getTargetEntity().assignSearchFilter();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
-      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.wrappedDao.retrieveEntity(targetDaoRetrieveEntityRequest);
-      logEntity(targetDaoRetrieveEntityResponse.getTargetEntity());
-      return targetDaoRetrieveEntityResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.wrappedDao.retrieveEntity(targetDaoRetrieveEntityRequest);
+        hasError = logEntity(targetDaoRetrieveEntityResponse.getTargetEntity());
+        return targetDaoRetrieveEntityResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveEntity");
+      }
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)) {
       
@@ -899,9 +1172,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(targetDaoRetrieveMembershipRequest);
-      logObject(targetDaoRetrieveMembershipResponse.getTargetMembership());
-      return targetDaoRetrieveMembershipResponse;
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = this.wrappedDao.retrieveMembership(targetDaoRetrieveMembershipRequest);
+        hasError = logObject(targetDaoRetrieveMembershipResponse.getTargetMembership());
+        return targetDaoRetrieveMembershipResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembership");
+      }
+
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
       
@@ -927,16 +1212,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroup(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoUpdateGroupResponse targetDaoUpdateGroupResponse = this.wrappedDao.updateGroup(targetDaoUpdateGroupRequest);
-        logGroup(targetGroup);
+        hasError = logGroup(targetGroup);
         if (targetGroup.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updated group as provisioned: " + this.wrappedDao);
         }
         
         return targetDaoUpdateGroupResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
@@ -948,6 +1238,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
         
         logGroup(targetGroup);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "updateGroup");
       }
       return null;
       
@@ -981,9 +1273,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroups(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoInsertGroupsResponse targetDaoInsertGroupsResponse = this.wrappedDao.insertGroups(targetDaoInsertGroupsRequest);
-        logGroups(targetDaoInsertGroupsRequest.getTargetGroups());
+        hasError = logGroups(targetDaoInsertGroupsRequest.getTargetGroups());
         for (ProvisioningGroup provisioningGroup : targetDaoInsertGroupsRequest.getTargetGroups()) { 
           if (provisioningGroup.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set inserted group as provisioned: " + this.wrappedDao);
@@ -991,6 +1287,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertGroupsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningGroup targetGroup : targetDaoInsertGroupsRequest.getTargetGroups()) { 
           
           if (targetGroup.getProvisioned() == null) {
@@ -1002,6 +1299,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logGroups(targetDaoInsertGroupsRequest.getTargetGroups());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertGroups");
       }
       return new TargetDaoInsertGroupsResponse();
     }
@@ -1026,15 +1325,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
     ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoDeleteEntityResponse targetDaoDeleteEntityResponse = this.wrappedDao.deleteEntity(targetDaoDeleteEntityRequest);
-        logEntity(targetEntity);
+        hasError = logEntity(targetEntity);
         if (targetEntity.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set deleted entity as provisioned: " + this.wrappedDao);
         }
         return targetDaoDeleteEntityResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
@@ -1043,6 +1347,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetEntity.setException(e);
         }
         logEntity(targetEntity);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteEntity");
       }
       return new TargetDaoDeleteEntityResponse();
     }
@@ -1059,113 +1365,148 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
    * log grouper provisioning lists
    * @param grouperProvisioningLists
    */
-  private void logProvisioningLists(GrouperProvisioningLists grouperProvisioningLists) {
+  private boolean logProvisioningLists(GrouperProvisioningLists grouperProvisioningLists) {
+    boolean hasError = false;
     if (grouperProvisioningLists != null) {
-      logGroups(grouperProvisioningLists.getProvisioningGroups());
-      logEntities(grouperProvisioningLists.getProvisioningEntities());
-      logMemberships(grouperProvisioningLists.getProvisioningMemberships());
+      if (logGroups(grouperProvisioningLists.getProvisioningGroups())) {
+        hasError = true;
+      }
+      if (logEntities(grouperProvisioningLists.getProvisioningEntities())) {
+        hasError = true;
+      }
+      if (logMemberships(grouperProvisioningLists.getProvisioningMemberships())) {
+        hasError = true;
+      }
     }
+    return hasError;
   }
 
   /**
    * log errors in entity
    * @param provisioningEntities
+   * @return if error
    */
-  private void logEntities(List<ProvisioningEntity> provisioningEntities) {
+  private boolean logEntities(List<ProvisioningEntity> provisioningEntities) {
+    
+    boolean hasError = false;
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
-      logEntity(provisioningEntity);
+      if (logEntity(provisioningEntity)) {
+        hasError = true;
+      }
     }
+    return hasError;
   }
 
   /**
    * log errors in entities
    * @param provisioningEntities
+   * @return if error
    */
-  private void logEntity(ProvisioningEntity provisioningEntity) {
+  private boolean logEntity(ProvisioningEntity provisioningEntity) {
     if (provisioningEntity != null && provisioningEntity.getException() != null) {
       LOG.error("Error in provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with entity: " + provisioningEntity, 
           provisioningEntity.getException());
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in entity: " + provisioningEntity + ", " + GrouperUtil.getFullStackTrace(provisioningEntity.getException()));
       }
-
+      return true;
     }
+    return false;
   }
 
   /**
    * log errors in groups
    * @param provisioningGroups
+   * @return if has error
    */
-  private void logGroups(List<ProvisioningGroup> provisioningGroups) {
+  private boolean logGroups(List<ProvisioningGroup> provisioningGroups) {
+    boolean hasError = false;
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
-      logGroup(provisioningGroup);
+      if (logGroup(provisioningGroup)) {
+        hasError = true;
+      }
     }
+    return hasError;
   }
 
   /**
    * log errors in group
    * @param provisioningEntities
    */
-  private void logGroup(ProvisioningGroup provisioningGroup) {
+  private boolean logGroup(ProvisioningGroup provisioningGroup) {
     if (provisioningGroup != null && provisioningGroup.getException() != null) {
-      LOG.error("Error in provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with group: " + provisioningGroup, 
+      LOG.error("Error in provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" 
+          + this.getGrouperProvisioner().getInstanceId() + "' with group: " + provisioningGroup, 
           provisioningGroup.getException());
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in group: " + provisioningGroup + ", " + GrouperUtil.getFullStackTrace(provisioningGroup.getException()));
       }
+      return true;
     }
+    return false;
   }
 
   /**
    * log errors in object
    * @param provisioningObjects
    */
-  private void logObjects(List<Object> provisioningObjects) {
+  private boolean logObjects(List<Object> provisioningObjects) {
+    boolean hasError = false;
     for (Object provisioningObject : GrouperUtil.nonNull(provisioningObjects)) {
-      logObject(provisioningObject);
+      if (logObject(provisioningObject)) {
+        hasError = true;
+      }
     }
+    return hasError;
   }
 
   /**
    * log errors in group
    * @param provisioningEntities
    */
-  private void logObject(Object provisioningObject) {
+  private boolean logObject(Object provisioningObject) {
     
     if (provisioningObject instanceof ProvisioningGroup) {
-      logGroup((ProvisioningGroup)provisioningObject);
+      return logGroup((ProvisioningGroup)provisioningObject);
     }
     if (provisioningObject instanceof ProvisioningEntity) {
-      logEntity((ProvisioningEntity)provisioningObject);
+      return logEntity((ProvisioningEntity)provisioningObject);
     }
     if (provisioningObject instanceof ProvisioningMembership) {
-      logMembership((ProvisioningMembership)provisioningObject);
+      return logMembership((ProvisioningMembership)provisioningObject);
     }
+    return false;
   }
 
   /**
    * log errors in membership
    * @param provisioningMemberships
    */
-  private void logMemberships(List<ProvisioningMembership> provisioningMemberships) {
+  private boolean logMemberships(List<ProvisioningMembership> provisioningMemberships) {
+    
+    boolean hasError = false;
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
-      logMembership(provisioningMembership);
+      if (logMembership(provisioningMembership)) {
+        hasError = true;
+      }
     }
+    return hasError;
   }
 
   /**
    * log errors in entities
    * @param provisioningEntities
    */
-  private void logMembership(ProvisioningMembership provisioningMembership) {
+  private boolean logMembership(ProvisioningMembership provisioningMembership) {
     if (provisioningMembership != null && provisioningMembership.getException() != null) {
       LOG.error("Error with provisioner '" + this.getGrouperProvisioner().getConfigId() + "' - '" + this.getGrouperProvisioner().getInstanceId() + "' with membership: " + provisioningMembership, 
           provisioningMembership.getException());
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().isInDiagnostics()) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningDiagnosticsContainer().appendReportLineIfNotBlank("Error in membership: " + provisioningMembership + ", " + GrouperUtil.getFullStackTrace(provisioningMembership.getException()));
       }
-
+      return true;
     }
+    return false;
   }
 
   @Override
@@ -1177,9 +1518,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoDeleteEntitiesResponse targetDaoDeleteEntitiesResponse = this.wrappedDao.deleteEntities(targetDaoDeleteEntitiesRequest);
-        logEntities(targetDaoDeleteEntitiesRequest.getTargetEntities());
+        hasError = logEntities(targetDaoDeleteEntitiesRequest.getTargetEntities());
         for (ProvisioningEntity provisioningEntity : targetDaoDeleteEntitiesRequest.getTargetEntities()) { 
           if (provisioningEntity.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set deleted entity as provisioned: " + this.wrappedDao);
@@ -1187,6 +1532,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteEntitiesResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningEntity targetEntity : targetDaoDeleteEntitiesRequest.getTargetEntities()) { 
           
           if (targetEntity.getProvisioned() == null) {
@@ -1198,6 +1544,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logEntities(targetDaoDeleteEntitiesRequest.getTargetEntities());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteEntities");
       }
       return new TargetDaoDeleteEntitiesResponse();
     }
@@ -1223,15 +1571,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntity(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoInsertEntityResponse targetDaoInsertEntityResponse = this.wrappedDao.insertEntity(targetDaoInsertEntityRequest);
-        logEntity(targetEntity);
+        hasError = logEntity(targetEntity);
         if (targetEntity.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set inserted entity as provisioned: " + this.wrappedDao);
         }
         return targetDaoInsertEntityResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
@@ -1240,6 +1592,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetEntity.setException(e);
         }
         logEntity(targetEntity);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertEntity");
       }
       return new TargetDaoInsertEntityResponse();
     }
@@ -1261,9 +1615,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntities(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoInsertEntitiesResponse targetDaoInsertEntitiesResponse = this.wrappedDao.insertEntities(targetDaoInsertEntitiesRequest);
-        logEntities(targetDaoInsertEntitiesRequest.getTargetEntityInserts());
+        hasError = logEntities(targetDaoInsertEntitiesRequest.getTargetEntityInserts());
         for (ProvisioningEntity provisioningEntity : targetDaoInsertEntitiesRequest.getTargetEntityInserts()) { 
           if (provisioningEntity.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set inserted entity as provisioned: " + this.wrappedDao);
@@ -1271,6 +1628,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertEntitiesResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningEntity targetEntity : targetDaoInsertEntitiesRequest.getTargetEntityInserts()) { 
           
           if (targetEntity.getProvisioned() == null) {
@@ -1282,6 +1640,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logEntities(targetDaoInsertEntitiesRequest.getTargetEntityInserts());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertEntities");
       }
       return new TargetDaoInsertEntitiesResponse();
     }
@@ -1306,15 +1666,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntity(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
         TargetDaoUpdateEntityResponse targetDaoUpdateEntityResponse = this.wrappedDao.updateEntity(targetDaoUpdateEntityRequest);
-        logEntity(targetEntity);
+        hasError = logEntity(targetEntity);
         if (targetEntity.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updateed entity as provisioned: " + this.wrappedDao);
         }
         return targetDaoUpdateEntityResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
@@ -1324,6 +1689,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         
         setExceptionForMembershipsWhenGroupOrEntityAttributes(targetEntity, null, e);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "updateEntity");
       }
       return null;
     }
@@ -1437,9 +1804,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntities(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoUpdateEntitiesResponse targetDaoUpdateEntitiesResponse = this.wrappedDao.updateEntities(targetDaoUpdateEntitiesRequest);
-        logEntities(targetDaoUpdateEntitiesRequest.getTargetEntities());
+        hasError = logEntities(targetDaoUpdateEntitiesRequest.getTargetEntities());
         for (ProvisioningEntity provisioningEntity : targetDaoUpdateEntitiesRequest.getTargetEntities()) { 
           if (provisioningEntity.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated entity as provisioned: " + this.wrappedDao);
@@ -1447,6 +1817,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateEntitiesResponse;
       } catch (RuntimeException e) {
+        hasError = true;
+
         for (ProvisioningEntity targetEntity : targetDaoUpdateEntitiesRequest.getTargetEntities()) { 
           
           if (targetEntity.getProvisioned() == null) {
@@ -1461,6 +1833,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         
         logEntities(targetDaoUpdateEntitiesRequest.getTargetEntities());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "updateEntities");
       }
       return null;
     }
@@ -1485,15 +1859,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMembership(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoDeleteMembershipResponse targetDaoDeleteMembershipResponse = this.wrappedDao.deleteMembership(targetDaoDeleteMembershipRequest);
-        logMembership(targetMembership);
+        hasError = logMembership(targetMembership);
         if (targetMembership.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set deleted membership as provisioned: " + this.wrappedDao);
         }
         return targetDaoDeleteMembershipResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
@@ -1502,6 +1880,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetMembership.setException(e);
         }
         logMembership(targetMembership);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteMembership");
       }
       return new TargetDaoDeleteMembershipResponse();
     }
@@ -1524,9 +1904,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoDeleteGroupsResponse targetDaoDeleteGroupsResponse = this.wrappedDao.deleteGroups(targetDaoDeleteGroupsRequest);
-        logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
+        hasError = logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
         for (ProvisioningGroup provisioningGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
           if (provisioningGroup.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
@@ -1534,6 +1917,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteGroupsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningGroup targetGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
           
           if (targetGroup.getProvisioned() == null) {
@@ -1545,6 +1929,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroups");
       }
       return new TargetDaoDeleteGroupsResponse();
     }
@@ -1570,15 +1956,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMembership(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoInsertMembershipResponse targetDaoInsertMembershipResponse = this.wrappedDao.insertMembership(targetDaoInsertMembershipRequest);
-        logMembership(targetMembership);
+        hasError = logMembership(targetMembership);
         if (targetMembership.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set inserted membership as provisioned: " + this.wrappedDao);
         }
         return targetDaoInsertMembershipResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
@@ -1587,6 +1977,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetMembership.setException(e);
         }
         logMembership(targetMembership);
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertMembership");
       }
       return new TargetDaoInsertMembershipResponse();
     }
@@ -1608,9 +2000,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoInsertMembershipsResponse targetDaoInsertMembershipsResponse = this.wrappedDao.insertMemberships(targetDaoInsertMembershipsRequest);
-        logMemberships(targetDaoInsertMembershipsRequest.getTargetMemberships());
+        hasError = logMemberships(targetDaoInsertMembershipsRequest.getTargetMemberships());
         for (ProvisioningMembership provisioningMembership : targetDaoInsertMembershipsRequest.getTargetMemberships()) { 
           if (provisioningMembership.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set inserted membership as provisioned: " + this.wrappedDao);
@@ -1618,6 +2013,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertMembershipsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningMembership targetMembership : targetDaoInsertMembershipsRequest.getTargetMemberships()) { 
           
           if (targetMembership.getProvisioned() == null) {
@@ -1629,6 +2025,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logMemberships(targetDaoInsertMembershipsRequest.getTargetMemberships());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "insertMemberships");
       }
       return new TargetDaoInsertMembershipsResponse();
     }
@@ -1653,15 +2051,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMembership(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoUpdateMembershipResponse targetDaoUpdateMembershipResponse = this.wrappedDao.updateMembership(targetDaoUpdateMembershipRequest);
-        logMembership(targetDaoUpdateMembershipRequest.getTargetMembership());
+        hasError = logMembership(targetDaoUpdateMembershipRequest.getTargetMembership());
         if (targetMembership.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
         }
         return targetDaoUpdateMembershipResponse;
       } catch (RuntimeException e) {
-        
+        hasError = true;
+
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
@@ -1670,6 +2072,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           targetMembership.setException(e);
         }
         logMembership(targetDaoUpdateMembershipRequest.getTargetMembership());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "methodName");
       }
       return null;
     }
@@ -1690,9 +2094,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMemberships(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoUpdateMembershipsResponse targetDaoUpdateMembershipsResponse = this.wrappedDao.updateMemberships(targetDaoUpdateMembershipsRequest);
-        logMemberships(targetDaoUpdateMembershipsRequest.getTargetMemberships());
+        hasError = logMemberships(targetDaoUpdateMembershipsRequest.getTargetMemberships());
         for (ProvisioningMembership provisioningMembership : targetDaoUpdateMembershipsRequest.getTargetMemberships()) { 
           if (provisioningMembership.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
@@ -1700,6 +2107,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateMembershipsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
+
         for (ProvisioningMembership targetMembership : targetDaoUpdateMembershipsRequest.getTargetMemberships()) { 
           
           if (targetMembership.getProvisioned() == null) {
@@ -1711,6 +2120,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logMemberships(targetDaoUpdateMembershipsRequest.getTargetMemberships());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "updateMemberships");
       }
       return null;
     }
@@ -1729,11 +2140,30 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoSendEntityChangesToTargetResponse sendEntityChangesToTarget(
       TargetDaoSendEntityChangesToTargetRequest targetDaoSendEntityChangesToTargetRequest) {
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendEntityChangesToTarget(), false)) {
-      TargetDaoSendEntityChangesToTargetResponse targetDaoSendEntityChangesToTargetResponse = this.wrappedDao.sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
-      logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityInserts());
-      logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityUpdates());
-      logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityDeletes());
-      return targetDaoSendEntityChangesToTargetResponse;
+      
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoSendEntityChangesToTargetResponse targetDaoSendEntityChangesToTargetResponse = this.wrappedDao.sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
+        if (logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityInserts())) {
+          hasError = true;
+        }
+        if (logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityUpdates())) {
+          hasError = true;
+        }
+        if (logEntities(targetDaoSendEntityChangesToTargetRequest.getTargetEntityDeletes())) {
+          hasError = true;
+        }
+        return targetDaoSendEntityChangesToTargetResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "sendEntityChangesToTarget");
+      }
+      
     }
     if (GrouperUtil.length(targetDaoSendEntityChangesToTargetRequest.getTargetEntityDeletes()) > 0){
       List<ProvisioningEntity> targetEntityDeletes = targetDaoSendEntityChangesToTargetRequest.getTargetEntityDeletes();
@@ -1761,20 +2191,41 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest) {
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendMembershipChangesToTarget(), false)) {
-      TargetDaoSendMembershipChangesToTargetResponse targetDaoSendMembershipChangesToTargetResponse = this.wrappedDao.sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
-      logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipInserts());
-      logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipUpdates());
-      logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipDeletes());
       
-      Collection<List<ProvisioningMembership>> provisioningMembershipsLists = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipReplaces().values();
-      
-      List<ProvisioningMembership> provisioningMembershipsToLog = new ArrayList<ProvisioningMembership>();
-      for (List<ProvisioningMembership> provisioningMemberships: provisioningMembershipsLists) {
-        provisioningMembershipsToLog.addAll(provisioningMemberships);
+      boolean hasError = false;
+      boolean commandLogStarted = false;
+      try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
+
+        TargetDaoSendMembershipChangesToTargetResponse targetDaoSendMembershipChangesToTargetResponse = this.wrappedDao.sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+        if (logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipInserts())) {
+          hasError = true;
+        }
+        if (logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipUpdates())) {
+          hasError = true;
+        }
+        if (logMemberships(targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipDeletes())) {
+          hasError = true;
+        }
+        
+        Collection<List<ProvisioningMembership>> provisioningMembershipsLists = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipReplaces().values();
+        
+        List<ProvisioningMembership> provisioningMembershipsToLog = new ArrayList<ProvisioningMembership>();
+        for (List<ProvisioningMembership> provisioningMemberships: provisioningMembershipsLists) {
+          provisioningMembershipsToLog.addAll(provisioningMemberships);
+        }
+        
+        if (logMemberships(provisioningMembershipsToLog)) {
+          hasError = true;
+        }
+        return targetDaoSendMembershipChangesToTargetResponse;
+      } catch (RuntimeException e) {
+        hasError = true;
+        throw e;
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "sendMembershipChangesToTarget");
       }
-      
-      logMemberships(provisioningMembershipsToLog);
-      return targetDaoSendMembershipChangesToTargetResponse;
+
     }
     {
       List<ProvisioningMembership> targetMembershipDeletes = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipDeletes();
@@ -1816,9 +2267,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+      boolean hasError = false;
+      boolean commandLogStarted = false;
       try {
+        commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoReplaceGroupMembershipsResponse targetDaoReplaceGroupMembershipsResponse = this.wrappedDao.replaceGroupMemberships(targetDaoReplaceGroupMembershipsRequest);
-        logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
+        hasError = logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
         for (ProvisioningMembership provisioningMembership : targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) { 
           if (provisioningMembership.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
@@ -1826,6 +2280,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoReplaceGroupMembershipsResponse;
       } catch (RuntimeException e) {
+        hasError = true;
         for (ProvisioningMembership targetMembership : targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) { 
           
           if (targetMembership.getProvisioned() == null) {
@@ -1837,6 +2292,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
         }
         logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
+      } finally {
+        commandLogFinallyBlock(commandLogStarted, hasError, "replaceGroupMemberships");
       }
       return null;
     }

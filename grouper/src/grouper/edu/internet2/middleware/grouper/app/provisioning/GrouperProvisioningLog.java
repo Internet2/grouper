@@ -27,6 +27,7 @@ public class GrouperProvisioningLog {
     if (!LOG.isDebugEnabled()) {
       return;
     }
+    LOG.debug(string);
   }
 
   /**

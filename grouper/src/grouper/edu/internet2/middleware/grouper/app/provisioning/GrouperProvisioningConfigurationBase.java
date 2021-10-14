@@ -432,6 +432,32 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.entityMatchingIdExpression = entityMatchingIdExpression;
   }
 
+  private boolean logCommandsAlways = false;
+
+  
+  
+  
+  public boolean isLogCommandsAlways() {
+    return logCommandsAlways;
+  }
+
+  
+  public void setLogCommandsAlways(boolean logCommandsAlways) {
+    this.logCommandsAlways = logCommandsAlways;
+  }
+
+  
+  public boolean isLogCommandsOnError() {
+    return logCommandsOnError;
+  }
+
+  
+  public void setLogCommandsOnError(boolean logCommandsOnError) {
+    this.logCommandsOnError = logCommandsOnError;
+  }
+
+  private boolean logCommandsOnError = false;
+  
   private boolean logAllObjectsVerbose = false;
   
   
@@ -1982,7 +2008,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.entityMatchingIdAttribute = this.retrieveConfigString("entityMatchingIdAttribute", false);
     this.groupMatchingIdAttribute = this.retrieveConfigString("groupMatchingIdAttribute", false);
     
-    this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
+    this.logCommandsAlways = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsAlways", false), false);
+    
+    this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
     
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     

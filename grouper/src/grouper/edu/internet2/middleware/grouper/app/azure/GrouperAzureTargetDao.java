@@ -54,8 +54,8 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
-  public void loggingStart() {
-    GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters));
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters));
   }
 
   @Override

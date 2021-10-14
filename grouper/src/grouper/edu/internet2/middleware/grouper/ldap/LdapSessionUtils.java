@@ -75,9 +75,13 @@ public class LdapSessionUtils {
    * start a static debug log
    * log start
    */
-  public static void logStart() {
+  public static boolean logStart() {
+    if (threadLocalLog.get() == null ) {
+      return false;
+    }
     threadLocalLog.set(new StringBuilder());
-
+    return true;
+    
   }
 
   /**
