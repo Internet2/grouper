@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.j2ee;
 
+import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -279,5 +283,10 @@ public class Authentication {
     return false;
     
   }
+  
+  public void assignUserPassword(GrouperPasswordSave grouperPasswordSave) {
+    grouperPasswordSave.save();
+  }
+
   
 }
