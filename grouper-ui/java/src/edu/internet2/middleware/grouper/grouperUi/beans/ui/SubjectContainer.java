@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -335,7 +336,9 @@ public class SubjectContainer {
   
   
   public boolean isCanViewWsJwtKey() {
-    return GrouperPasswordSave.canAccessWsJwtKeys(GrouperUiFilter.retrieveSubjectLoggedIn(), getGuiSubject().getSubject());
+    
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.selfService.jwt.enable", true) && 
+        GrouperPasswordSave.canAccessWsJwtKeys(GrouperUiFilter.retrieveSubjectLoggedIn(), getGuiSubject().getSubject());
   }
   
   /**

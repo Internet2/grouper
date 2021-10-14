@@ -49,10 +49,17 @@ public interface GrouperPasswordRecentlyUsedDAO extends GrouperDAO {
   public Set<GrouperPasswordRecentlyUsed> findByGrouperPasswordIdAndStatus(String grouperPasswordId, Set<Character> statuses, QueryOptions queryOptions);
 
   /**
-   * for each grouper password, delete all rows except most recent 20
+   * for each grouper password, delete all rows except n most recent entries
    * @return
    */
   public int cleanupOldEntriesFromGrouperPasswordRecentlyUsedTable();
+  
+  /**
+   * delete grouper password recently used rows for grouperPasswordId
+   * @param grouperPasswordId
+   * @return
+   */
+  public int deleteGrouperPasswordRecentlyUsedEntries(String grouperPasswordId);
 
 } 
 

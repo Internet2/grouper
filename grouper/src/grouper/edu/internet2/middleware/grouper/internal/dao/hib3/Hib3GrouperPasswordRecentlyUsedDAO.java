@@ -15,7 +15,6 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,16 +24,15 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperPasswordRecentlyUsedDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
@@ -189,41 +187,74 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
       
     }
     
-    int batchSize = 5000;
-    
     int totalDeleted = 0;
+    
+    int entriesToKeep = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.grouperPasswordRecentlyUsedCleanupDaemon.entriesToKeep", 20);
+    
     for (String grouperPasswordId: grouperPasswordIdToAttemptMillis.keySet()) {
       
       List<Long> attemptMillis = grouperPasswordIdToAttemptMillis.get(grouperPasswordId);
       
-      Collections.sort(attemptMillis);
-      
-      List<Long> subList = attemptMillis.subList(0, attemptMillis.size()-20);
+      List<Long> subList = attemptMillis.subList(0, attemptMillis.size() - entriesToKeep);
       
       grouperPasswordIdToAttemptMillis.put(grouperPasswordId, subList);
       
-      int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(subList, batchSize);
-      
-      for (int batchIndex=0; batchIndex<numberOfBatches; batchIndex++) {
-        List<Long> theBatch = GrouperClientUtils.batchList(subList, batchSize, batchIndex);
-        
-        // the last one is the latest
-        Long earliestAttemptMillis = theBatch.get(theBatch.size()-1);
-        
-        int countDeleted = HibernateSession.byHqlStatic()
-        .createQuery("delete from GrouperPasswordRecentlyUsed gpru where gpru.grouperPasswordId = :grouperPasswordId and gpru.attemptMillis <= :attemptMillis")
-        .setLong("attemptMillis", earliestAttemptMillis)
-        .setString("grouperPasswordId", grouperPasswordId)
-        .executeUpdateInt();
-        
-        totalDeleted = totalDeleted + countDeleted;
-        
-      }
-      
+      totalDeleted = totalDeleted + deleteGrouperPasswordRecentlyUsedEntries(grouperPasswordId, subList);
       
     }
    
     return totalDeleted;
+    
+  }
+  
+  
+  private int deleteGrouperPasswordRecentlyUsedEntries(String grouperPasswordId, List<Long> attemptMillis) {
+    
+    int batchSize = 5000;
+    
+    Collections.sort(attemptMillis);
+    
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(attemptMillis, batchSize);
+    
+    int totalDeleted = 0;
+    
+    for (int batchIndex=0; batchIndex<numberOfBatches; batchIndex++) {
+      List<Long> theBatch = GrouperClientUtils.batchList(attemptMillis, batchSize, batchIndex);
+      
+      // the last one is the latest
+      Long earliestAttemptMillis = theBatch.get(theBatch.size()-1);
+      
+      int countDeleted = HibernateSession.byHqlStatic()
+      .createQuery("delete from GrouperPasswordRecentlyUsed gpru where gpru.grouperPasswordId = :grouperPasswordId and gpru.attemptMillis <= :attemptMillis")
+      .setLong("attemptMillis", earliestAttemptMillis)
+      .setString("grouperPasswordId", grouperPasswordId)
+      .executeUpdateInt();
+      
+      totalDeleted = totalDeleted + countDeleted;
+      
+    }
+    
+    return totalDeleted;
+    
+  }
+  
+  public int deleteGrouperPasswordRecentlyUsedEntries(String grouperPasswordId) {
+    
+    String sql = " select gpru.attemptMillis from GrouperPasswordRecentlyUsed gpru where "
+        + " gpru.grouperPasswordId = :grouperPasswordId ";
+    
+    List<Long> attemptMillis = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setString("grouperPasswordId", grouperPasswordId)
+      .setCacheable(false)
+      .list(Long.class);
+    
+    
+    if (attemptMillis.size() == 0) {
+      return 0;
+    }
+    
+    return deleteGrouperPasswordRecentlyUsedEntries(grouperPasswordId, attemptMillis);
     
   }
 

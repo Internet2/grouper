@@ -1467,6 +1467,9 @@ public class UiV2LocalEntity {
           GrouperPassword.Application.WS.name());
       
       if (grouperPassword != null) {
+        
+        GrouperDAOFactory.getFactory().getGrouperPasswordRecentlyUsed().deleteGrouperPasswordRecentlyUsedEntries(grouperPassword.getId());
+        
         GrouperDAOFactory.getFactory().getGrouperPassword().delete(grouperPassword);
       } else {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
