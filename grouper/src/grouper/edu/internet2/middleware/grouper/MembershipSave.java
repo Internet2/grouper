@@ -59,6 +59,15 @@ import edu.internet2.middleware.subject.SubjectUtils;
  * </pre>
  * </blockquote>
  * </p>
+ * 
+ * <p> Sample call to add a membership using group name and subject identifier and sourceId.  Note, use double quotes to be java compliant
+ * <blockquote>
+ * <pre>
+ * new MembershipSave().assignGroupName('a:b:c').assignSubjectIdentifier('jsmith').assignSubjectSourceId('myUsers').save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * 
  */
 public class MembershipSave {
   
