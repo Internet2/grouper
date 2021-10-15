@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
@@ -31,7 +31,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
@@ -183,6 +182,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendSelectGroupFromTarget();
 
       this.appendInsertGroupIntoTarget();
+      this.appendDeleteGroupFromTarget();
       
     } catch (Exception e) {
       LOG.error("error in diagnostics", e);
@@ -418,6 +418,92 @@ public class GrouperProvisioningDiagnosticsContainer {
         
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Inserting group").append(this.getCurrentDuration()).append("\n");
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      
+    } finally {
+      String debugInfo = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStop();
+      debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
+      this.report.append("<font color='gray'><b>Note:</b></font> Debug info:").append(this.getCurrentDuration()).append(" ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
+      this.report.append("</pre>\n");
+    }
+          
+  }
+  
+  /**
+   * delete group from target
+   */
+  private void appendDeleteGroupFromTarget() {
+    this.report.append("<h4>Delete group from Target</h4><pre>");
+    
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsGroupDelete()) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Not configured to delete group from target\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (this.provisioningGroupWrapper == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot delete group because there's no specified group\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (this.provisioningGroupWrapper != null && this.provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot delete group from target since it does not exist there\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (null != this.provisioningGroupWrapper.getErrorCode()) {
+      this.report.append("<font color='red'><b>Error:</b></font> Cannot delete group from target since it has an error code: " + this.provisioningGroupWrapper.getErrorCode() + "\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+              
+    try {
+      this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().loggingStart();
+
+      this.provisioningGroupWrapper.setRecalc(true);
+      
+      List<ProvisioningGroup> grouperTargetGroupsToDelete = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
+      
+      //lets delete
+      RuntimeException runtimeException = null;
+      try {
+        this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().deleteGroups(new TargetDaoDeleteGroupsRequest(grouperTargetGroupsToDelete));
+      } catch (RuntimeException re) {
+        runtimeException = re;
+      } finally {
+        try {
+          this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeleteGroups(grouperTargetGroupsToDelete, false);
+          
+        } catch (RuntimeException e) {
+          GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
+        }
+      }
+      if (this.provisioningGroupWrapper.getGrouperTargetGroup().getException() != null) {
+        this.report.append("<font color='red'><b>Error:</b></font> Deleting group from target:\n" + GrouperUtil.xmlEscape(GrouperUtil.getFullStackTrace(this.provisioningGroupWrapper.getGrouperTargetGroup().getException())) + "\n");
+        return;
+      }
+  
+      if (runtimeException != null) {
+        this.report.append("<font color='red'><b>Error:</b></font> Deleting group from target:\n" + GrouperUtil.xmlEscape(GrouperUtil.getFullStackTrace(runtimeException)) + "\n");
+        return;
+      }
+      this.report.append("<font color='green'><b>Success:</b></font> No error deleting group from target\n");
+      
+      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
+          this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToDelete, true));
+      
+      List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
+
+      if (GrouperUtil.length(targetGroups) > 1) {
+        this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups in target after deleting, should be 0!\n");
+        return;
+      }
+      this.report.append("<font color='green'><b>Success:</b></font> Did not find group in target after deleting\n");
+        
+    } catch (RuntimeException re) {
+      this.report.append("<font color='red'><b>Error:</b></font> Deleting group").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
       
     } finally {

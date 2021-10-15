@@ -177,6 +177,15 @@ public class UiV2ProvisionerConfiguration {
           }
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(diagnosticsGroupsInsertName);
         }
+        {
+          boolean diagnosticsGroupsDeleteName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsDeleteName[]"), false);
+          if (diagnosticsGroupsDeleteName && !provisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupDeleteError")));
+            return;
+          }
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupDelete(diagnosticsGroupsDeleteName);
+        }
       }
       
       
