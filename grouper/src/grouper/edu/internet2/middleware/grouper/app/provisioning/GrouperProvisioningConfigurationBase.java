@@ -57,6 +57,19 @@ public abstract class GrouperProvisioningConfigurationBase {
   public boolean isCreateGroupDuringDiagnostics() {
     return GrouperUtil.booleanValue(createGroupDuringDiagnostics, false);
   }
+  
+  /**
+   * if delete group from target during diagnostics
+   */
+  private Boolean deleteGroupDuringDiagnostics;
+
+  /**
+   * if delete group from target during diagnostics
+   * @return if delete
+   */
+  public boolean isDeleteGroupDuringDiagnostics() {
+    return GrouperUtil.booleanValue(deleteGroupDuringDiagnostics, false);
+  }
 
   /**
    * if select all groups during diagnostics (default false)
@@ -2220,6 +2233,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
     this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
     this.createGroupDuringDiagnostics = this.retrieveConfigBoolean("createGroupDuringDiagnostics", false);
+    this.deleteGroupDuringDiagnostics = this.retrieveConfigBoolean("deleteGroupDuringDiagnostics", false);
 
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());

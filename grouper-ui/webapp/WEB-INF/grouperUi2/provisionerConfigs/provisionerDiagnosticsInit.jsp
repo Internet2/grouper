@@ -71,6 +71,17 @@
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertDescription'] }</span>                    
                     </div>
                   </div>
+                  <div class="control-group">
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabel'] }</label>
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsGroupsDeleteName" id="diagnosticsGroupsDeleteId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabelTrue']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteDescription'] }</span>                    
+                    </div>
+                  </div>
                   
         
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />

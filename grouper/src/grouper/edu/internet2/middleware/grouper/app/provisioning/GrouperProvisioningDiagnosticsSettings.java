@@ -90,6 +90,28 @@ public class GrouperProvisioningDiagnosticsSettings {
   public void setDiagnosticsGroupInsert(boolean diagnosticsGroupInsert1) {
     this.diagnosticsGroupInsert = diagnosticsGroupInsert1;
   }
+  
+  /**
+   * if delete group in diagnostics
+   */
+  private boolean diagnosticsGroupDelete;
+
+  /**
+   * if delete group in diagnostics
+   * @return if group delete
+   */
+  public boolean isDiagnosticsGroupDelete() {
+    return this.diagnosticsGroupDelete;
+  }
+
+
+  /**
+   * if delete group in diagnostics
+   * @param diagnosticsGroupDelete1
+   */
+  public void setDiagnosticsGroupDelete(boolean diagnosticsGroupDelete1) {
+    this.diagnosticsGroupDelete = diagnosticsGroupDelete1;
+  }
 
   /**
    * if select all groups during diagnostics
