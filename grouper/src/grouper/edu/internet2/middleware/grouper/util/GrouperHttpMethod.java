@@ -5,7 +5,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 
 
 /**
@@ -17,7 +17,7 @@ public enum GrouperHttpMethod{
 	 */
 	post {
 		@Override
-		public HttpUriRequest newHttpMethod(String url) {
+		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpPost(url);
 		}
 	},
@@ -27,7 +27,7 @@ public enum GrouperHttpMethod{
 	 */
 	put {
 		@Override
-		public HttpUriRequest newHttpMethod(String url) {
+		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpPut(url);
 		}
 	},
@@ -37,7 +37,7 @@ public enum GrouperHttpMethod{
 	 */
 	delete {
 		@Override
-		public HttpUriRequest newHttpMethod(String url) {
+		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpDelete(url);
 		}
 	},
@@ -47,7 +47,7 @@ public enum GrouperHttpMethod{
    */
   patch {
     @Override
-    public HttpUriRequest newHttpMethod(String url) {
+    public HttpRequestBase newHttpMethod(String url) {
       return new HttpPatch(url);
     }
   },
@@ -57,7 +57,7 @@ public enum GrouperHttpMethod{
 	 */
 	get {
 		@Override
-		public HttpUriRequest newHttpMethod(String url) {
+		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpGet(url);
 		}
 	};
@@ -67,7 +67,7 @@ public enum GrouperHttpMethod{
 	 * @param url is the url to call.
 	 * @return a new http method.
 	 */
-	public abstract HttpUriRequest newHttpMethod(String url);
+	public abstract HttpRequestBase newHttpMethod(String url);
 	
   /**
    * do a case-insensitive matching

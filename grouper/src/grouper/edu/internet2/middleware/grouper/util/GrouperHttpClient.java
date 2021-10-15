@@ -30,7 +30,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
@@ -627,7 +627,7 @@ public class GrouperHttpClient {
     }
 
 
-    HttpUriRequest httpUriRequest = null;
+    HttpRequestBase httpRequestBase = null;
 
     try{
 
@@ -657,12 +657,12 @@ public class GrouperHttpClient {
 
 
       // Create the request.
-      httpUriRequest = this.grouperHttpMethod.newHttpMethod(this.url);
+      httpRequestBase = this.grouperHttpMethod.newHttpMethod(this.url);
 
       // Set the authorization data
       if (this.user != null && this.password != null){
         String authenticationString = basicAuthenticationString(this.user, this.password); 
-        httpUriRequest.addHeader("Authorization", authenticationString);
+        httpRequestBase.addHeader("Authorization", authenticationString);
       }
 
 
@@ -684,7 +684,7 @@ public class GrouperHttpClient {
           for (String key : this.bodyParameters.keySet()){
             postParams.add(new BasicNameValuePair(key, this.bodyParameters.get(key)));
           }
-          ((HttpPost)httpUriRequest).setEntity(new UrlEncodedFormEntity(postParams));
+          ((HttpPost)httpRequestBase).setEntity(new UrlEncodedFormEntity(postParams));
         }
       }
 
@@ -699,9 +699,9 @@ public class GrouperHttpClient {
       }
 
       if (useMultipart && this.grouperHttpMethod == GrouperHttpMethod.post){
-        ((HttpPost)httpUriRequest).setEntity(multipartEntityBuilder.build());
+        ((HttpPost)httpRequestBase).setEntity(multipartEntityBuilder.build());
       } else if (useMultipart && this.grouperHttpMethod == GrouperHttpMethod.patch){
-        ((HttpPatch)httpUriRequest).setEntity(multipartEntityBuilder.build());
+        ((HttpPatch)httpRequestBase).setEntity(multipartEntityBuilder.build());
       }
 
 
@@ -709,35 +709,39 @@ public class GrouperHttpClient {
       // Add headers
       if (this.headers != null){
         for (String key : this.headers.keySet()){
-          httpUriRequest.addHeader(key, this.headers.get(key));
+          httpRequestBase.addHeader(key, this.headers.get(key));
         }
       }
 
       // Add body
       if (this.body != null){
         if (this.grouperHttpMethod == GrouperHttpMethod.post){
-          ((HttpPost)httpUriRequest).setEntity(new StringEntity((this.body)));
+          ((HttpPost)httpRequestBase).setEntity(new StringEntity((this.body)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.patch){
-          ((HttpPatch)httpUriRequest).setEntity(new StringEntity((this.body)));
+          ((HttpPatch)httpRequestBase).setEntity(new StringEntity((this.body)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.put){
-          ((HttpPut)httpUriRequest).setEntity(new StringEntity((this.body)));
+          ((HttpPut)httpRequestBase).setEntity(new StringEntity((this.body)));
         } else {
           throw new RuntimeException("Request body may only be used with POST, PATCH or PUT!");
         }
       } else if (this.bodyBytes != null){
         if (this.grouperHttpMethod == GrouperHttpMethod.post){
-          ((HttpPost)httpUriRequest).setEntity(new ByteArrayEntity((this.bodyBytes)));
+          ((HttpPost)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.patch){
-          ((HttpPatch)httpUriRequest).setEntity(new ByteArrayEntity((this.bodyBytes)));
+          ((HttpPatch)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.put){
-          ((HttpPut)httpUriRequest).setEntity(new ByteArrayEntity((this.bodyBytes)));
+          ((HttpPut)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
         } else {
           throw new RuntimeException("Request body may only be used with POST, PATCH or PUT!");
         }
       }
-
+      //HttpHost proxy = new HttpHost("127.0.0.1", 8080, "http");
+      //RequestConfig config = RequestConfig.custom()
+      //    .setProxy(proxy)
+      //    .build();
+      //httpRequestBase.setConfig(config);
       // Execute the method.
-      CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpUriRequest);
+      CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
       int responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
       this.assignResponseCode(responseCode);
 
@@ -870,8 +874,12 @@ public class GrouperHttpClient {
    * start a static debug log
    * log start
    */
-  public static void logStart(GrouperHttpClientLog grouperHttpCallLog) {
+  public static boolean logStart(GrouperHttpClientLog grouperHttpCallLog) {
+    if (threadLocalLog.get() == null ) {
+      return false;
+    }
     threadLocalLog.set(grouperHttpCallLog);
+    return true;
   }
 
 }
