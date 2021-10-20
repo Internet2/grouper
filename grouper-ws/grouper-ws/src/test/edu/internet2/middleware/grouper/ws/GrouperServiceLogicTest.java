@@ -223,7 +223,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testExecuteGshTemplate"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetGroupsPIT"));
   }
 
   /**
@@ -801,7 +801,45 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(wsGroup4.getUuid(), group4.getUuid());
     assertEquals(wsGroup4.getName(), group4.getName());
     assertEquals(wsGroup4.getDisplayName(), group4.getDisplayName());
+
+    //###############################################
+    //check view read and optin
     
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.OPTIN);
+
+    GrouperServiceUtils.testSession.stop();
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    wsGetGroupsResults = GrouperServiceLogic.getGroups(
+        GROUPER_VERSION, wsSubjectLookups, WsMemberFilter.Immediate,
+        null, true, true, null, null, null, null, null, null, null, null, null, null, null, 
+        null, null, null, null,
+        null, null);
+    
+    assertEquals(wsGetGroupsResults.getResultMetadata().getResultMessage(),
+        WsGetGroupsResultsCode.SUCCESS.name(), 
+        wsGetGroupsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetGroupsResults.getResults()));
+    wsSubject = wsGetGroupsResults.getResults()[0].getWsSubject();
+    assertEquals(wsSubject.getId(), SubjectTestHelper.SUBJ0.getId());
+    
+    assertEquals(2, GrouperUtil.length(wsGetGroupsResults.getResults()[0].getWsGroups()));
+    wsGroup1 = wsGetGroupsResults.getResults()[0].getWsGroups()[0];
+    wsGroup3 = wsGetGroupsResults.getResults()[0].getWsGroups()[1];
+    
+    assertEquals(wsGroup1.getUuid(), group1.getUuid());
+    assertEquals(wsGroup1.getName(), group1.getName());
+    assertEquals(wsGroup1.getDisplayName(), group1.getDisplayName());
+    assertEquals(wsGroup3.getUuid(), group3.getUuid());
+    assertEquals(wsGroup3.getName(), group3.getName());
+    assertEquals(wsGroup3.getDisplayName(), group3.getDisplayName());
+
+
   }
   
   

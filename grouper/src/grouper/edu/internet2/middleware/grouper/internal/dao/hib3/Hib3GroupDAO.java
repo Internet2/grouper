@@ -91,8 +91,10 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /**
@@ -2688,8 +2690,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    //make sure the session can read the privs
-    Set<Privilege> inPrivSet = AccessPrivilege.READ_PRIVILEGES;
+    //make sure the session can read the privs, if looking at own groups, then allow UPDATE, OPTIN, or OPTOUT since
+    //if you have those you can essentially see if you are in the group or not due to optin / optout buttons
+    Set<Privilege> inPrivSet = (field.isGroupListField() && SubjectHelper.eq(subject, grouperSession.getSubject())) ? 
+        AccessPrivilege.OPT_OR_READ_PRIVILEGES :  AccessPrivilege.READ_PRIVILEGES;
     
     //subject to check privileges for
     Subject accessSubject = grouperSession.getSubject();

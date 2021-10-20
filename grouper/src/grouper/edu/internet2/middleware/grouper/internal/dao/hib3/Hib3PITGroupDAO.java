@@ -25,8 +25,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -41,12 +45,14 @@ import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -294,12 +300,19 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
         " PITMembershipView ms ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
-    //make sure the session can read the privs
-    Set<Privilege> inPrivSet = AccessPrivilege.READ_PRIVILEGES;
+    //make sure the session can read the privs, if looking at own groups, then allow UPDATE, OPTIN, or OPTOUT since
+    //if you have those you can essentially see if you are in the group or not due to optin / optout buttons
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitFieldId, true);
+    String realFieldId = pitField.getSourceId();
+    Field field = FieldFinder.findById(realFieldId, false);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitMemberId, true);
+    Member member = MemberFinder.findByUuid(grouperSession, pitMember.getSourceId(), false);
+    Set<Privilege> inPrivSet = (field != null && member != null && field.isGroupListField() && SubjectHelper.eq(member, grouperSession.getSubject())) ? 
+        AccessPrivilege.OPT_OR_READ_PRIVILEGES :  AccessPrivilege.READ_PRIVILEGES;
     
     //subject to check privileges for
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     Subject accessSubject = grouperSession.getSubject();
     
     //see if we are adding more to the query

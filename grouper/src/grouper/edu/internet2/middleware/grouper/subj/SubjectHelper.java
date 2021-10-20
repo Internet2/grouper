@@ -406,6 +406,14 @@ public class SubjectHelper {
     if (b instanceof Subject && a instanceof MultiKey) {
       return new MultiKey(((Subject)b).getSourceId(), ((Subject)b).getId()).equals(a);
     }
+    if (a instanceof Subject && b instanceof Member) {
+      return StringUtils.equals(((Subject)a).getSourceId(), ((Member)b).getSubjectSourceId())
+          && StringUtils.equals(((Subject)a).getId(), ((Member)b).getSubjectId());
+    }
+    if (b instanceof Subject && a instanceof Member) {
+      return StringUtils.equals(((Subject)b).getSourceId(), ((Member)a).getSubjectSourceId())
+          && StringUtils.equals(((Subject)b).getId(), ((Member)a).getSubjectId());
+    }
     if (a instanceof MultiKey && b instanceof MultiKey) {
       return a.equals(b);
     }
