@@ -123,7 +123,7 @@ public class TierFilter implements Filter {
         if (runGrouperScimWithBasicAuth) {
           String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
           
-          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS);
+          boolean isValid = new Authentication().authenticate(authHeader, GrouperPassword.Application.WS, request.getRemoteAddr());
           
           if (!isValid) {
             ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
