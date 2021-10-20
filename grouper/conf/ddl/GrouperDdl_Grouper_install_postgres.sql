@@ -2896,6 +2896,38 @@ COMMENT ON COLUMN grouper_sync_membership_v.u_error_code IS 'u_error_code: Error
 
 COMMENT ON COLUMN grouper_sync_membership_v.g_error_code IS 'g_error_code: Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
 
+COMMENT ON TABLE grouper_prod_zoom_user IS 'table to load zoom users into a sql for reporting and deprovisioning';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.config_id IS 'zoom config id identifies which zoom external system is being loaded';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.member_id IS 'If the zoom user is mapped to a Grouper subject, this is the member uuid of the subject';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.id IS 'Zoom internal ID for this user (used in web services)';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.email IS 'Zoom friendly unique id for the user, also their email address';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.first_name IS 'First name of user';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.last_name IS 'Last name of user';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.type IS 'User type is 1 for basic, 2 for licensed, and 3 for on prem, 99 for none, see Zoom docs';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.pmi IS 'Zoom pmi, see zoom docs';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.timezone IS 'Timezone of users in zoom';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.verified IS 'If the user has been verified by zoom';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.created_at IS 'When the user was created in zoom';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.last_login_time IS 'When the user last logged in to zoom';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.language IS 'Language the user uses in zoom';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.status IS 'Status in zoom see docs';
+
+COMMENT ON COLUMN grouper_prod_zoom_user.role_id IS 'Role ID in zoom see docs';
+
 COMMENT ON TABLE grouper_ddl IS 'holds a record for each database object name, and db version, and java version';
 
 COMMENT ON COLUMN grouper_ddl.id IS 'uuid of this ddl record';
