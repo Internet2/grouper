@@ -123,16 +123,6 @@ public class GrouperDdl2_5 {
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           GrouperPassword.TABLE_GROUPER_PASSWORD, 
-          GrouperPassword.COLUMN_RECENT_SOURCE_ADDRESSES, 
-          "json with timestamps");
-      
-      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-          GrouperPassword.TABLE_GROUPER_PASSWORD, 
-          GrouperPassword.COLUMN_FAILED_SOURCE_ADDRESSES, 
-          "if restricted by cidr, this was failed IPs (json with timestamp)");
-      
-      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-          GrouperPassword.TABLE_GROUPER_PASSWORD, 
           GrouperPassword.COLUMN_LAST_AUTHENTICATED, 
           "when last authenticated");
       
@@ -141,11 +131,6 @@ public class GrouperDdl2_5 {
           GrouperPassword.COLUMN_LAST_EDITED, 
           "when last edited");
       
-      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-          GrouperPassword.TABLE_GROUPER_PASSWORD, 
-          GrouperPassword.COLUMN_FAILED_LOGINS, 
-          "json of failed attempts");
-  
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           GrouperPassword.TABLE_GROUPER_PASSWORD, 
           GrouperPassword.COLUMN_HIBERNATE_VERSION_NUMBER,
@@ -332,20 +317,11 @@ public class GrouperDdl2_5 {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_ALLOWED_FROM_CIDRS, 
           Types.VARCHAR, "4000", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_RECENT_SOURCE_ADDRESSES, 
-          Types.VARCHAR, "4000", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_FAILED_SOURCE_ADDRESSES, 
-          Types.VARCHAR, "4000", false, false);
-      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_LAST_AUTHENTICATED, 
           Types.BIGINT, "20", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_LAST_EDITED, 
           Types.BIGINT, "20", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_FAILED_LOGINS, 
-          Types.VARCHAR, "4000", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPasswordTable, GrouperPassword.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, false);

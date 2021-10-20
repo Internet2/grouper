@@ -68,21 +68,12 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
   /** allowed from cidrs */
   public static final String COLUMN_ALLOWED_FROM_CIDRS = "allowed_from_cidrs";
   
-  /** recent source addresses */
-  public static final String COLUMN_RECENT_SOURCE_ADDRESSES = "recent_source_addresses";
-  
-  /** failed source addresses */
-  public static final String COLUMN_FAILED_SOURCE_ADDRESSES = "failed_source_addresses";
-  
   /** last authenticated */
   public static final String COLUMN_LAST_AUTHENTICATED = "last_authenticated";
   
   /** last edited */
   public static final String COLUMN_LAST_EDITED = "last_edited";
   
-  /** failed logins */
-  public static final String COLUMN_FAILED_LOGINS = "failed_logins";
-
   /** expires millis */
   public static final String COLUMN_EXPIRES_MILLIS = "expires_millis";
   
@@ -127,20 +118,11 @@ public class GrouperPassword extends GrouperAPI implements Hib3GrouperVersioned,
   /** constant for field name for: allowedFromCidrs */
   public static final String FIELD_ALLLOWED_FROM_CIDRS = "allowedFromCidrs";
   
-  /** constant for field name for: recentSourceAddresses */
-  public static final String FIELD_RECENT_SOURCE_ADDRESSES = "recentSourceAddresses";
-  
-  /** constant for field name for: failedSourceAddresses */
-  public static final String FIELD_FAILED_SOURCE_ADDRESSES = "failedSourceAddresses";
-  
   /** constant for field name for: lastAuthenticated */
   public static final String FIELD_LAST_AUTHENTICATED = "lastAuthenticated";
   
   /** constant for field name for: lastEdited */
   public static final String FIELD_LAST_EDITED = "lastEdited";
-  
-  /** constant for field name for: failedLogins */
-  public static final String FIELD_FAILED_LOGINS = "failedLogins";
   
   private String id;
   
