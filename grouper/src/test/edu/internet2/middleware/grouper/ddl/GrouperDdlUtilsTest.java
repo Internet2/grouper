@@ -1410,6 +1410,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_password", "failed_source_addresses"));
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_password", "failed_logins"));
 
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prod_zoom_user", "email"));
+
     GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
         .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
@@ -1447,6 +1449,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_password", "failed_source_addresses"));
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_password", "failed_logins"));
 
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_prod_zoom_user", "email"));
+
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
         .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
@@ -1474,6 +1478,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_password", "recent_source_addresses"));
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_password", "failed_source_addresses"));
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_password", "failed_logins"));
+
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prod_zoom_user", "email"));
 
     scriptToGetTo2_5_51.delete();
     

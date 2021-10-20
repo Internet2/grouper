@@ -2646,6 +2646,11 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_6_1.addGrouperPasswordRecentlyUsedColumns(database, ddlVersionBean);
       GrouperDdl2_6_1.addGrouperPasswordRecentlyUsedComments(database, ddlVersionBean);
       GrouperDdl2_6_1.dropGrouperPasswordColumns(database, ddlVersionBean);
+      
+      GrouperDdl2_6_1.addGrouperProvZoomUserTable(database, ddlVersionBean);
+      GrouperDdl2_6_1.addGrouperProvZoomUserIndex(ddlVersionBean, database);
+      GrouperDdl2_6_1.addGrouperProvZoomUserComments(database, ddlVersionBean);
+
     }
   },
   V39 {
@@ -6226,8 +6231,11 @@ public enum GrouperDdl implements DdlVersionable {
     }
 
     GrouperDdl2_5.addGrouperPasswordComments(ddlVersionBean, database);
+
     GrouperDdl2_5.addSyncComments(ddlVersionBean, database);
     GrouperDdl2_5.addConfigurationComments(ddlVersionBean, database);
+    GrouperDdl2_5_34.addGrouperConfigComments(database, ddlVersionBean);
+
     GrouperDdl2_5.addDdlWorkerComments(ddlVersionBean, database);
     
     GrouperDdl2_5_30.addGrouperCacheOverallComments(database, ddlVersionBean);
@@ -6235,6 +6243,12 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdl2_5_30.addGrouperNowComments(database, ddlVersionBean);
     GrouperDdl2_5_30.addGrouperRecentMembershipsComments(database, ddlVersionBean);
 
+    GrouperDdl2_5_34.addGrouperPitConfigComments(database, ddlVersionBean);
+    GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
+
+    GrouperDdl2_5_38.addGrouperSyncLogComments(database, ddlVersionBean);
+        
+    GrouperDdl2_6_1.addGrouperProvZoomUserComments(database, ddlVersionBean);
 
     String groupIdCol = "id";
     
