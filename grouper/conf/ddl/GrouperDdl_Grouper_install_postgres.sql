@@ -1899,7 +1899,7 @@ CREATE TABLE grouper_prov_zoom_user
     config_id VARCHAR(50) NOT NULL,
     member_id VARCHAR(40),
     id VARCHAR(40) NOT NULL,
-    email VARCHAR(256) NOT NULL,
+    email VARCHAR(200) NOT NULL,
     first_name VARCHAR(256),
     last_name VARCHAR(256),
     type BIGINT,

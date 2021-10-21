@@ -322,7 +322,7 @@ public class GrouperDdl2_6_1 {
         Types.VARCHAR, "40", false, true);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL,
-        Types.VARCHAR, "256", true, true);
+        Types.VARCHAR, "200", true, true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_FIRST_NAME, 
         Types.VARCHAR, "256", false, false);
