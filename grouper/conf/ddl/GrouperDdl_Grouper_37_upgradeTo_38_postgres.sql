@@ -17,8 +17,8 @@ COMMENT ON COLUMN grouper_password_recently_used.status IS 'status of the attemp
 ALTER TABLE GROUPER_PASSWORD_RECENTLY_USED ADD COLUMN hibernate_version_number BIGINT NOT NULL;
 COMMENT ON COLUMN grouper_password_recently_used.hibernate_version_number IS 'hibernate version number';
 
-ALTER TABLE GROUPER_PASSWORD_RECENTLY_USED ALTER COLUMN jwt_jti TYPE VARCHAR(100);
-ALTER TABLE GROUPER_PASSWORD_RECENTLY_USED ALTER COLUMN jwt_iat TYPE INTEGER;
+ALTER TABLE grouper_password_recently_used ALTER COLUMN jwt_jti DROP NOT NULL;
+ALTER TABLE grouper_password_recently_used ALTER COLUMN jwt_iat DROP NOT NULL;
 
 ALTER TABLE grouper_password DROP COLUMN recent_source_addresses;
 ALTER TABLE grouper_password DROP COLUMN failed_source_addresses;
