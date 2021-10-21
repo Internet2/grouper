@@ -1774,7 +1774,7 @@ CREATE TABLE grouper_file
 
 CREATE UNIQUE INDEX grpfile_unique_idx ON grouper_file (file_path(255));
 
-CREATE TABLE grouper_prod_zoom_user
+CREATE TABLE grouper_prov_zoom_user
 (
     config_id VARCHAR(50) NOT NULL,
     member_id VARCHAR(40) NULL,
@@ -1794,13 +1794,13 @@ CREATE TABLE grouper_prod_zoom_user
     PRIMARY KEY (email)
 );
 
-CREATE INDEX grouper_zoom_user_config_id_idx ON grouper_prod_zoom_user (config_id);
+CREATE INDEX grouper_zoom_user_config_id_idx ON grouper_prov_zoom_user (config_id);
 
-CREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prod_zoom_user (email, config_id);
+CREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prov_zoom_user (email(100), config_id);
 
-CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prod_zoom_user (id, config_id);
+CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id);
 
-CREATE INDEX grouper_zoom_user_member_id_idx ON grouper_prod_zoom_user (member_id, config_id);
+CREATE INDEX grouper_zoom_user_member_id_idx ON grouper_prov_zoom_user (member_id, config_id);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);

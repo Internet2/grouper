@@ -153,7 +153,7 @@ public class GrouperDdl2_6_1 {
 
   }
 
-  public static final String TABLE_GROUPER_PROV_ZOOM_USER = "grouper_prod_zoom_user";
+  public static final String TABLE_GROUPER_PROV_ZOOM_USER = "grouper_prov_zoom_user";
   
   public static final String COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID = "config_id";
 
@@ -275,22 +275,25 @@ public class GrouperDdl2_6_1 {
       return;
     }
   
-    Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+    Table grouperZoomTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         TABLE_GROUPER_PROV_ZOOM_USER);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFileTable.getName(), 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperZoomTable.getName(), 
         "grouper_zoom_user_config_id_idx", false, 
         COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFileTable.getName(), 
-        "grouper_zoom_user_email_idx", true, 
-        COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFileTable.getName(), 
+    {
+      String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? 
+          "\nCREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prod_zoom_user (email(100), config_id);\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperZoomTable.getName(), 
+          "grouper_zoom_user_email_idx", scriptOverrideName, true, COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
+    }
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperZoomTable.getName(), 
         "grouper_zoom_user_id_idx", true, 
         COLUMN_GROUPER_PROV_ZOOM_USER_ID, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFileTable.getName(), 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperZoomTable.getName(), 
         "grouper_zoom_user_member_id_idx", false, 
         COLUMN_GROUPER_PROV_ZOOM_USER_MEMBER_ID, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
   }
