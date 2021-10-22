@@ -21,7 +21,7 @@ LOGTAG=$(date +%Y%m%d_%H%M%S)-$$
 TESTLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.log
 SUMMARYLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.summary.log
 BUILDLOG=$GROUPER_LOGDIR/grouper-ci-mvn-$LOGTAG.log
-CURRENT_BRANCH=GROUPER_2_5_BRANCH
+CURRENT_BRANCH=GROUPER_2_6_BRANCH
 
 # Whether to still run the tests even if there are no git updates
 # can enable these during debugging
@@ -66,7 +66,7 @@ fi
 
 ## Note, prettier version of emails is --format='%an <%ae>'
 ## apt install mailx
-#COMMITTER_EMAILS=$(git --no-pager show -s --format=%ae master@{1}..master | sort -u)
+#COMMITTER_EMAILS=$(git --no-pager show -s --format=%ae $CURRENT_BRANCH@{1}..$CURRENT_BRANCH | sort -u)
 #
 #if [ -z "$COMMITTER_EMAILS" ]; then
 #  echo "No committer emails found for latest pull -- skipping tests" >>$TESTLOG
@@ -77,7 +77,7 @@ COMMITTER_EMAILS=$(cat /var/grouper-ci/bin/MAILTO.dat)
 # Check for '[skip tests]' in the commit text
 # Note: grep -q returns 0 if found and 1 if not, so flag is the opposite of expected
 echo "Checking for [skip tests]" >>$TESTLOG
-git --no-pager show -s --format="%s %b" master@{1}..master 2>>$TESTLOG | grep -q '\[skip tests\]'
+git --no-pager show -s --format="%s %b" $CURRENT_BRANCH@{1}..$CURRENT_BRANCH 2>>$TESTLOG | grep -q '\[skip tests\]'
 exit_code=$?
 if [ $exit_code -eq 0 ]; then
   echo "Found '[skip tests]' within latest pull -- skipping tests" >>$TESTLOG
