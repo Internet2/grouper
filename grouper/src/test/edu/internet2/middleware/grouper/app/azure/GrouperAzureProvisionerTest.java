@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -68,6 +70,11 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.azureExternalSystemConfigId").value("myAzure").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.class").value("edu.internet2.middleware.grouper.app.azure.GrouperAzureProvisioner").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.debugLog").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.allowOnlyMembersToPost").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.resourceProvisioningOptionsTeams").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.hideGroupInOutlook").value("true").store();
+    
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.deleteEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.deleteGroups").value("true").store();
@@ -81,7 +88,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.insertMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.logAllObjectsVerbose").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.numberOfGroupAttributes").value("5").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.numberOfGroupAttributes").value("8").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.operateOnGrouperEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.operateOnGrouperGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.operateOnGrouperMemberships").value("true").store();
@@ -174,6 +181,32 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.translateExpression").value("${'true'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.update").value("true").store();
+    
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.insert").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.isFieldElseAttribute").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.name").value("allowOnlyMembersToPost").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.select").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.translateExpression").value("${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.update").value("false").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.insert").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.isFieldElseAttribute").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.name").value("welcomeEmailDisabled").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.select").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.translateExpression").value("${'true'}").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.update").value("false").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.insert").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.isFieldElseAttribute").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.name").value("resourceProvisioningOptionsTeams").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.select").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.translateExpression").value("${'true'}").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.update").value("true").store();
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.updateEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.updateGroups").value("true").store();
     
@@ -211,6 +244,10 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       attributeValue.setDoProvision("myAzureProvisioner");
       attributeValue.setTargetName("myAzureProvisioner");
       attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_allowOnlyMembersToPost", true);
+      metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeams", true);
+      attributeValue.setMetadataNameValues(metadataNameValues);
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
@@ -247,6 +284,9 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       }
       
       assertEquals("test:testGroup", grouperAzureGroup.getDisplayName());
+      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
+      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
+      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamsDb());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myAzureProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
@@ -293,7 +333,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
 
   }
   
-  public void testIncrementalSyncAzure() {
+  public void RtestIncrementalSyncAzure() {
     
     if (!tomcatRunTests()) {
       return;

@@ -40,6 +40,11 @@
     <property name="mailNickname" column="mail_nickname" />
     <property name="securityEnabledDb" column="security_enabled" />
     <property name="visibilityDb" column="visibility" />
+    <property name="resourceBehaviorOptionsAllowOnlyMembersToPostDb" column="rbo_allow_only_members_to_post" />
+    <property name="resourceBehaviorOptionsHideGroupInOutlookDb" column="rbo_hide_group_in_outlook" />
+    <property name="resourceBehaviorOptionsSubscribeNewGroupMembersDb" column="rbo_sub_new_group_members" />
+    <property name="resourceBehaviorOptionsWelcomeEmailDisabledDb" column="rbo_welcome_email_disbled" />
+    <property name="resourceProvisioningOptionsTeamsDb" column="rpo_teams" />
 
   </class>
 </hibernate-mapping>

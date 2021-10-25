@@ -76,7 +76,12 @@ public class GrouperAzureGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
-      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_allow_only_members_to_post", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_hide_group_in_outlook", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_sub_new_group_members", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_welcome_email_disbled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rpo_teams", Types.VARCHAR, "1", false, true);
+
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
     }
             
@@ -95,6 +100,13 @@ public class GrouperAzureGroup {
     targetGroup.assignAttributeValue("mailNickname", this.mailNickname);
     targetGroup.assignAttributeValue("securityEnabled", this.securityEnabled);
     targetGroup.assignAttributeValue("visibility", this.visibility);
+    
+    targetGroup.assignAttributeValue("allowOnlyMembersToPost", this.resourceBehaviorOptionsAllowOnlyMembersToPost);
+    targetGroup.assignAttributeValue("hideGroupInOutlook", this.resourceBehaviorOptionsHideGroupInOutlook);
+    targetGroup.assignAttributeValue("subscribeNewGroupMembers", this.resourceBehaviorOptionsSubscribeNewGroupMembers);
+    targetGroup.assignAttributeValue("welcomeEmailDisabled", this.resourceBehaviorOptionsWelcomeEmailDisabled);
+    targetGroup.assignAttributeValue("resourceProvisioningOptionsTeams", this.resourceProvisioningOptionsTeams);
+    
     return targetGroup;
   }
   
@@ -141,6 +153,26 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setVisibilityDb(targetGroup.retrieveAttributeValueString("visibility"));
     }
     
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("allowOnlyMembersToPost")) {      
+      grouperAzureGroup.setResourceBehaviorOptionsAllowOnlyMembersToPost(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("allowOnlyMembersToPost"), false));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("hideGroupInOutlook")) {      
+      grouperAzureGroup.setResourceBehaviorOptionsHideGroupInOutlook(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("hideGroupInOutlook"), false));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("subscribeNewGroupMembers")) {      
+      grouperAzureGroup.setResourceBehaviorOptionsSubscribeNewGroupMembers(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("subscribeNewGroupMembers"), false));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("welcomeEmailDisabled")) {      
+      grouperAzureGroup.setResourceBehaviorOptionsWelcomeEmailDisabled(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("welcomeEmailDisabled"), false));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptionsTeams")) {      
+      grouperAzureGroup.setResourceProvisioningOptionsTeams(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("resourceProvisioningOptionsTeams"), false));
+    }
+    
     return grouperAzureGroup;
 
   }
@@ -150,14 +182,18 @@ public class GrouperAzureGroup {
     return GrouperClientUtils.toStringReflection(this);
   }
 
-
-
   private String id;
   private String displayName;
   private boolean mailEnabled;
   private String mailNickname;
   private boolean securityEnabled;
-  
+  private boolean resourceBehaviorOptionsAllowOnlyMembersToPost;
+  private boolean resourceBehaviorOptionsHideGroupInOutlook;
+  private boolean resourceBehaviorOptionsSubscribeNewGroupMembers;
+  private boolean resourceBehaviorOptionsWelcomeEmailDisabled;
+  private boolean resourceProvisioningOptionsTeams;
+
+
   /** if this is true then it has the MailEnabled group type */
   private boolean groupTypeMailEnabled;
 
@@ -277,6 +313,49 @@ public class GrouperAzureGroup {
   public void setVisibility(AzureVisibility visibility) {
     this.visibility = visibility;
   }
+  
+  
+  public boolean isResourceBehaviorOptionsAllowOnlyMembersToPost() {
+    return resourceBehaviorOptionsAllowOnlyMembersToPost;
+  }
+
+  
+  public void setResourceBehaviorOptionsAllowOnlyMembersToPost(
+      boolean resourceBehaviorOptionsAllowOnlyMembersToPost) {
+    this.resourceBehaviorOptionsAllowOnlyMembersToPost = resourceBehaviorOptionsAllowOnlyMembersToPost;
+  }
+
+  
+  public boolean isResourceBehaviorOptionsHideGroupInOutlook() {
+    return resourceBehaviorOptionsHideGroupInOutlook;
+  }
+
+  
+  public void setResourceBehaviorOptionsHideGroupInOutlook(
+      boolean resourceBehaviorOptionsHideGroupInOutlook) {
+    this.resourceBehaviorOptionsHideGroupInOutlook = resourceBehaviorOptionsHideGroupInOutlook;
+  }
+
+  
+  public boolean isResourceBehaviorOptionsSubscribeNewGroupMembers() {
+    return resourceBehaviorOptionsSubscribeNewGroupMembers;
+  }
+
+  
+  public void setResourceBehaviorOptionsSubscribeNewGroupMembers(
+      boolean resourceBehaviorOptionsSubscribeNewGroupMembers) {
+    this.resourceBehaviorOptionsSubscribeNewGroupMembers = resourceBehaviorOptionsSubscribeNewGroupMembers;
+  }
+
+  
+  public boolean isResourceBehaviorOptionsWelcomeEmailDisabled() {
+    return resourceBehaviorOptionsWelcomeEmailDisabled;
+  }
+
+  
+  public void setResourceBehaviorOptionsWelcomeEmailDisabled(boolean resourceBehaviorOptionsWelcomeEmailDisabled) {
+    this.resourceBehaviorOptionsWelcomeEmailDisabled = resourceBehaviorOptionsWelcomeEmailDisabled;
+  }
 
   /**
    * convert from jackson json
@@ -308,6 +387,31 @@ public class GrouperAzureGroup {
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
     grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", false);
     grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility", defaultVisibility));
+    
+    Set<String> resourceBehaviorOptions = GrouperUtil.jsonJacksonGetStringSet(groupNode, "resourceBehaviorOptions");
+    
+    if (resourceBehaviorOptions != null) {
+      if (resourceBehaviorOptions.contains("AllowOnlyMembersToPost")) {
+        grouperAzureGroup.resourceBehaviorOptionsAllowOnlyMembersToPost = true;
+      }
+      if (resourceBehaviorOptions.contains("HideGroupInOutlook")) {
+        grouperAzureGroup.resourceBehaviorOptionsHideGroupInOutlook = true;
+      }
+      if (resourceBehaviorOptions.contains("SubscribeNewGroupMembers")) {
+        grouperAzureGroup.resourceBehaviorOptionsSubscribeNewGroupMembers = true;
+      }
+      if (resourceBehaviorOptions.contains("WelcomeEmailDisabled")) {
+        grouperAzureGroup.resourceBehaviorOptionsWelcomeEmailDisabled = true;
+      }
+    }
+    
+    Set<String> resourceProvisioningOptions = GrouperUtil.jsonJacksonGetStringSet(groupNode, "resourceProvisioningOptions");
+    
+    if (resourceProvisioningOptions != null) {
+      if (resourceProvisioningOptions.contains("Teams")) {
+        grouperAzureGroup.resourceProvisioningOptionsTeams = true;
+      }
+    }
     
     return grouperAzureGroup;
   }
@@ -385,9 +489,101 @@ public class GrouperAzureGroup {
       result.put("visibility", this.getVisibilityDb());
     }
     
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceBehaviorOptions") || fieldNamesToSet.contains("allowOnlyMembersToPost") || 
+        fieldNamesToSet.contains("hideGroupInOutlook") || fieldNamesToSet.contains("subscribeNewGroupMembers")
+        || fieldNamesToSet.contains("welcomeEmailDisabled")) {
+      
+      
+      Set<String> resourceBehaviorOptions = new HashSet<String>();
+      if (this.resourceBehaviorOptionsAllowOnlyMembersToPost ) {
+        resourceBehaviorOptions.add("AllowOnlyMembersToPost");
+      }
+      if (this.resourceBehaviorOptionsHideGroupInOutlook) {
+        resourceBehaviorOptions.add("HideGroupInOutlook");
+      }
+      if (this.resourceBehaviorOptionsSubscribeNewGroupMembers) {
+        resourceBehaviorOptions.add("SubscribeNewGroupMembers");
+      }
+      if (this.resourceBehaviorOptionsWelcomeEmailDisabled) {
+        resourceBehaviorOptions.add("WelcomeEmailDisabled");
+      }
+      // do we need to set null if none set?  hmmm
+      if (resourceBehaviorOptions.size() > 0) {
+        GrouperUtil.jsonJacksonAssignStringArray(result, "resourceBehaviorOptions", resourceBehaviorOptions);
+      }
+      
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptions") || fieldNamesToSet.contains("resourceProvisioningOptionsTeams")) {
+      
+      Set<String> resourceProvisioningOptions = new HashSet<String>();
+      
+      if (this.resourceProvisioningOptionsTeams) {
+        resourceProvisioningOptions.add("Teams");
+      }
+      // do we need to set null if none set?  hmmm
+      if (resourceProvisioningOptions.size() > 0) {
+        GrouperUtil.jsonJacksonAssignStringArray(result, "resourceProvisioningOptions", resourceProvisioningOptions);
+      }
+      
+    }
+    
     return result;
   }
+  
+  
+  public boolean isResourceProvisioningOptionsTeams() {
+    return resourceProvisioningOptionsTeams;
+  }
 
+  
+  public void setResourceProvisioningOptionsTeams(
+      boolean resourceProvisioningOptionsTeams) {
+    this.resourceProvisioningOptionsTeams = resourceProvisioningOptionsTeams;
+  }
+
+  public String getResourceProvisioningOptionsTeamsDb() {
+    return resourceProvisioningOptionsTeams ? "T" : "F";
+  }
+  
+  public void setResourceProvisioningOptionsTeamsDb(String resourceProvisioningOptionsTeams) {
+    this.resourceProvisioningOptionsTeams = GrouperUtil.booleanValue(resourceProvisioningOptionsTeams, false);
+  }
+
+  public String getResourceBehaviorOptionsAllowOnlyMembersToPostDb() {
+    return resourceBehaviorOptionsAllowOnlyMembersToPost ? "T" : "F";
+  }
+  
+  public void setResourceBehaviorOptionsAllowOnlyMembersToPostDb(String resourceBehaviorOptionsAllowOnlyMembersToPost) {
+    this.resourceBehaviorOptionsAllowOnlyMembersToPost = GrouperUtil.booleanValue(resourceBehaviorOptionsAllowOnlyMembersToPost, false);
+  }
+  
+  public String getResourceBehaviorOptionsHideGroupInOutlookDb() {
+    return resourceBehaviorOptionsHideGroupInOutlook ? "T" : "F";
+  }
+  
+  public void setResourceBehaviorOptionsHideGroupInOutlookDb(String resourceBehaviorOptionsHideGroupInOutlook) {
+    this.resourceBehaviorOptionsHideGroupInOutlook = GrouperUtil.booleanValue(resourceBehaviorOptionsHideGroupInOutlook, false);
+  }
+  
+  
+  public String getResourceBehaviorOptionsSubscribeNewGroupMembersDb() {
+    return resourceBehaviorOptionsSubscribeNewGroupMembers ? "T" : "F";
+  }
+  
+  public void setResourceBehaviorOptionsSubscribeNewGroupMembersDb(String resourceBehaviorOptionsSubscribeNewGroupMembers) {
+    this.resourceBehaviorOptionsSubscribeNewGroupMembers = GrouperUtil.booleanValue(resourceBehaviorOptionsSubscribeNewGroupMembers, false);
+  }
+  
+  public String getResourceBehaviorOptionsWelcomeEmailDisabledDb() {
+    return resourceBehaviorOptionsWelcomeEmailDisabled ? "T" : "F";
+  }
+  
+  public void setResourceBehaviorOptionsWelcomeEmailDisabledDb(String resourceBehaviorOptionsWelcomeEmailDisabled) {
+    this.resourceBehaviorOptionsWelcomeEmailDisabled = GrouperUtil.booleanValue(resourceBehaviorOptionsWelcomeEmailDisabled, false);
+  }
+  
   
   public boolean isGroupTypeMailEnabled() {
     return groupTypeMailEnabled;
