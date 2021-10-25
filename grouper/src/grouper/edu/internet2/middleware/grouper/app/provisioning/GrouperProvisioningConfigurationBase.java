@@ -70,6 +70,32 @@ public abstract class GrouperProvisioningConfigurationBase {
   public boolean isDeleteGroupDuringDiagnostics() {
     return GrouperUtil.booleanValue(deleteGroupDuringDiagnostics, false);
   }
+  
+  /**
+   * if create entity in target during diagnostics
+   */
+  private Boolean createEntityDuringDiagnostics;
+
+  /**
+   * if create entity in target during diagnostics
+   * @return if create
+   */
+  public boolean isCreateEntityDuringDiagnostics() {
+    return GrouperUtil.booleanValue(createEntityDuringDiagnostics, false);
+  }
+  
+  /**
+   * if delete entity from target during diagnostics
+   */
+  private Boolean deleteEntityDuringDiagnostics;
+
+  /**
+   * if delete entity from target during diagnostics
+   * @return if delete
+   */
+  public boolean isDeleteEntityDuringDiagnostics() {
+    return GrouperUtil.booleanValue(deleteEntityDuringDiagnostics, false);
+  }
 
   /**
    * if select all groups during diagnostics (default false)
@@ -114,6 +140,19 @@ public abstract class GrouperProvisioningConfigurationBase {
    */
   public String getDiagnosticsGroupName() {
     return diagnosticsGroupName;
+  }
+  
+  /**
+   * subject id or identifier of entity to use for diagnostics
+   */
+  private String diagnosticsSubjectIdOrIdentifier;
+
+  /**
+   * subject id or identifier of entity to use for diagnostics
+   * @return the subject id or identifier
+   */
+  public String getDiagnosticsSubjectIdOrIdentifier() {
+    return diagnosticsSubjectIdOrIdentifier;
   }
   
   /**
@@ -248,6 +287,26 @@ public abstract class GrouperProvisioningConfigurationBase {
       }
     }
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupFieldNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * get the entity matching attribute object (could be field or attribute)
+   * @return the attribute
+   */
+  public GrouperProvisioningConfigurationAttribute retrieveEntityAttributeMatching() {
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetEntityAttributeNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetEntityFieldNameToConfig().values()) {
       if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
         return grouperProvisioningConfigurationAttribute;
       }
@@ -2232,9 +2291,12 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
     this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
     this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
+    this.diagnosticsSubjectIdOrIdentifier = this.retrieveConfigString("testSubjectIdOrIdentifier", false);
     this.createGroupDuringDiagnostics = this.retrieveConfigBoolean("createGroupDuringDiagnostics", false);
     this.deleteGroupDuringDiagnostics = this.retrieveConfigBoolean("deleteGroupDuringDiagnostics", false);
-
+    this.createEntityDuringDiagnostics = this.retrieveConfigBoolean("createEntityDuringDiagnostics", false);
+    this.deleteEntityDuringDiagnostics = this.retrieveConfigBoolean("deleteEntityDuringDiagnostics", false);
+    
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
     

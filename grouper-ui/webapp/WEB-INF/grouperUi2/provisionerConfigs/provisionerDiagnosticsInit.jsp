@@ -61,6 +61,14 @@
                     </div>
                   </div>
                   <div class="control-group">
+                    <label for="diagnosticsSubjectIdOrIdentifierId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsSubjectIdOrIdentifierLabel'] }</label>
+                    <div class="controls">
+                      <input type="text" id="diagnosticsSubjectIdOrIdentifierId" name="diagnosticsSubjectIdOrIdentifierName" 
+                        value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsSubjectIdOrIdentifier}" /> 
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSubjectIdOrIdentifierDescription'] }</span>
+                    </div>
+                  </div>
+                  <div class="control-group">
                     <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabel'] }</label>
                     <div class="controls">
                       <label class="checkbox">
@@ -80,6 +88,28 @@
                              ${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabelTrue']}
                       </label>
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteDescription'] }</span>                    
+                    </div>
+                  </div>
+                  <div class="control-group">
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabel'] }</label>
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsEntitiesInsertName" id="diagnosticsEntitiesInsertId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabelTrue']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertDescription'] }</span>                    
+                    </div>
+                  </div>
+                  <div class="control-group">
+                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabel'] }</label>
+                    <div class="controls">
+                      <label class="checkbox">
+                        <input type="checkbox" name="diagnosticsEntitiesDeleteName" id="diagnosticsEntitiesDeleteId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                             ${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabelTrue']}
+                      </label>
+                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteDescription'] }</span>                    
                     </div>
                   </div>
                   

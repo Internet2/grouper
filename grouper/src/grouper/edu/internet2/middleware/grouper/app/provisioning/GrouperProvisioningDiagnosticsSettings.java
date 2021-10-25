@@ -137,5 +137,68 @@ public class GrouperProvisioningDiagnosticsSettings {
   }
   
   
+  /**
+   * if delete entity in diagnostics
+   */
+  private boolean diagnosticsEntityDelete;
+
+  /**
+   * if delete entity in diagnostics
+   * @return if entity delete
+   */
+  public boolean isDiagnosticsEntityDelete() {
+    return this.diagnosticsEntityDelete;
+  }
+
+
+  /**
+   * if delete entity in diagnostics
+   * @param diagnosticsEntityDelete1
+   */
+  public void setDiagnosticsEntityDelete(boolean diagnosticsEntityDelete1) {
+    this.diagnosticsEntityDelete = diagnosticsEntityDelete1;
+  }
   
+  /**
+   * if insert entity in diagnostics
+   */
+  private boolean diagnosticsEntityInsert;
+
+  /**
+   * if insert entity in diagnostics
+   * @return if entity insert
+   */
+  public boolean isDiagnosticsEntityInsert() {
+    return this.diagnosticsEntityInsert;
+  }
+
+
+  /**
+   * if insert entity in diagnostics
+   * @param diagnosticsEntityInsert1
+   */
+  public void setDiagnosticsEntityInsert(boolean diagnosticsEntityInsert1) {
+    this.diagnosticsEntityInsert = diagnosticsEntityInsert1;
+  }
+  
+  /**
+   * subject id or identifier to do diagnostics for
+   */
+  private String diagnosticsSubjectIdOrIdentifier;
+
+  /**
+   * subject id or identifier to do diagnostics for
+   * @return subject id or identifier
+   */
+  public String getDiagnosticsSubjectIdOrIdentifier() {
+    return diagnosticsSubjectIdOrIdentifier;
+  }
+
+  /**
+   * subject id or identifier to do diagnostics for
+   * @param diagnosticsSubjectIdOrIdentifier
+   */
+  public void setDiagnosticsSubjectIdOrIdentifier(String diagnosticsSubjectIdOrIdentifier) {
+    this.diagnosticsSubjectIdOrIdentifier = diagnosticsSubjectIdOrIdentifier;
+  }
 }
