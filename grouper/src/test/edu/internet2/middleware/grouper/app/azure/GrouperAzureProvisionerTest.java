@@ -333,7 +333,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
 
   }
   
-  public void RtestIncrementalSyncAzure() {
+  public void testIncrementalSyncAzure() {
     
     if (!tomcatRunTests()) {
       return;
