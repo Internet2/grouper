@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefName;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -128,7 +129,7 @@ public class AttributeDefNameContainer {
    */
   public boolean isConfigPreventUiDeletion() {
     return GrouperUiConfig.retrieveConfig()
-            .propertyValueBoolean("uiV2.attributeDefName.preventDeleteInUi", false);
+            .propertyValueBoolean(UiV2AttributeDefName.PROPERTY_PREVENT_DELETE_IN_UI, false);
   }
 
 }
