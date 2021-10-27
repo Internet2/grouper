@@ -28,9 +28,11 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -549,5 +551,14 @@ public class AttributeDefContainer {
   public void setGuiAttributeAssignFinderResults(GuiAttributeAssignFinderResults guiAttributeAssignFinderResults) {
     this.guiAttributeAssignFinderResults = guiAttributeAssignFinderResults;
   }
-  
+
+    /**
+     * if deletion of an attribute def is disallowed from the UI
+     * @return true if UI does not allow deleting of an attributeDef
+     */
+    public boolean isConfigPreventUiDeletion() {
+        return GrouperUiConfig.retrieveConfig()
+                .propertyValueBoolean(UiV2AttributeDef.PROPERTY_PREVENT_DELETE_IN_UI, false);
+    }
+
 }

@@ -18,8 +18,18 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
+            <c:choose>
+              <c:when test="${grouperRequestContainer.attributeDefContainer.configPreventUiDeletion}">
+                <p>${textContainer.text['attributeDefDeleteUiDisallowedText'] }</p>
+                <div class="form-actions">
+                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['groupDeleteCancelButton'] }</a>
+                </div>
+              </c:when>
+              <c:otherwise>
                 <p>${textContainer.text['attributeDefDeleteText'] }</p>
                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDef.attributeDefDeleteSubmit?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">${textContainer.text['attributeDefDeleteDeleteButton'] }</a> 
                 <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['groupDeleteCancelButton'] }</a></div>
               </div>
+              </c:otherwise>
+            </c:choose>
             </div>
