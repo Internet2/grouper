@@ -204,6 +204,9 @@ public class GrouperCheckConfig {
     /** group doesnt exist */
     DOESNT_EXIST, 
     
+    /** group doesnt exist */
+    GROUP_NAME_EMPTY, 
+    
     /** group created */
     ERROR_CREATING, 
     
@@ -231,6 +234,10 @@ public class GrouperCheckConfig {
     if (configCheckDisabled()) {
       return CheckGroupResult.DIDNT_CHECK;
     }
+    if (StringUtils.isBlank(groupName)) {
+      return CheckGroupResult.GROUP_NAME_EMPTY;
+    }
+    
     try {
       Group group = GroupFinder.findByName(grouperSession, groupName, true, new QueryOptions().secondLevelCache(false));
       if (group != null) {
