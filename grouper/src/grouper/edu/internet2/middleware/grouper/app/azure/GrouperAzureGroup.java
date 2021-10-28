@@ -208,7 +208,7 @@ public class GrouperAzureGroup {
   private String description;
   private AzureVisibility visibility;
 
-  public static final String fieldsToSelect="description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility";
+  public static final String fieldsToSelect="description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions";
   
   public String getId() {
     return id;
