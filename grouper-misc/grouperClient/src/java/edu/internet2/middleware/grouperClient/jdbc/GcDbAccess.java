@@ -2579,6 +2579,9 @@ public class GcDbAccess {
       case Types.CHAR:
       case Types.VARCHAR:
       case Types.LONGVARCHAR:
+      case Types.NCHAR:
+      case Types.NVARCHAR:
+      case Types.LONGNVARCHAR:
 
         return resultSet.getString(columnNumberOneIndexed);
 
