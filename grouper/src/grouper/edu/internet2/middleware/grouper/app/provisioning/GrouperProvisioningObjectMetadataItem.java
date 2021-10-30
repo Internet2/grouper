@@ -33,6 +33,41 @@ public class GrouperProvisioningObjectMetadataItem {
   private boolean showForMembership;
   private boolean showForFolder;
   
+  private boolean canUpdate;
+  private boolean canChange;
+  private boolean readOnly;
+  
+  
+  public boolean isCanUpdate() {
+    return canUpdate;
+  }
+
+  
+  public void setCanUpdate(boolean canUpdate) {
+    this.canUpdate = canUpdate;
+  }
+
+  
+  public boolean isCanChange() {
+    return canChange;
+  }
+
+  
+  public void setCanChange(boolean canChange) {
+    this.canChange = canChange;
+  }
+
+  
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
+
   @Override
   public String toString() {
     

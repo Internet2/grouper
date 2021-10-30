@@ -158,7 +158,7 @@ public class UiV2Provisioning {
             
             for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems()) {
               
-              if (guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue()
+              if (metadataItem.isShowForFolder() && guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue()
                     .getMetadataNameValues().containsKey(metadataItem.getName())) {
                 Object value = guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue()
                     .getMetadataNameValues().get(metadataItem.getName());
@@ -1682,7 +1682,16 @@ public class UiV2Provisioning {
         }
       }
       
+      
       if (StringUtils.isNotBlank(targetName)) {
+        
+        GcGrouperSyncGroup gcGrouperSyncGroup = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(group.getId());
+        }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
         
@@ -1699,6 +1708,17 @@ public class UiV2Provisioning {
           if (metadataItem.isShowForGroup()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
+                metadataItem.setReadOnly(true);
+              }
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
             metadataItems.add(metadataItem);
           }
         }

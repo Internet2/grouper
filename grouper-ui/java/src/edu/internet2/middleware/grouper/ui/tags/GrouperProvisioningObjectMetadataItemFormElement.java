@@ -195,7 +195,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     
     String displayClass = "";
     if (readOnly) {
-      field.append(GrouperUtil.escapeHtml(value, true));
+      field.append(GrouperUtil.escapeHtml(value, true) + " ");
       displayClass = " display: none; ";
     }
     

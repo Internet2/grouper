@@ -77,6 +77,7 @@
 			  					descriptionKey="${metadataItem.descriptionKey}"
 			  					required="${metadataItem.required}"
 			  					value="${metadataItem.defaultValue}"
+			  					readOnly="${metadataItem.readOnly}"
 			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
 			  				/>
 			  				
