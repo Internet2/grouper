@@ -76,7 +76,7 @@ public class LdapSessionUtils {
    * log start
    */
   public static boolean logStart() {
-    if (threadLocalLog.get() == null ) {
+    if (threadLocalLog.get() != null ) {
       return false;
     }
     threadLocalLog.set(new StringBuilder());
