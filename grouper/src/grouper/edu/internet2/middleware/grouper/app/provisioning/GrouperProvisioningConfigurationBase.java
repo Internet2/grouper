@@ -2080,6 +2080,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.entityMatchingIdAttribute = this.retrieveConfigString("entityMatchingIdAttribute", false);
     this.groupMatchingIdAttribute = this.retrieveConfigString("groupMatchingIdAttribute", false);
     
+    this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
+
     this.logCommandsAlways = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsAlways", false), false);
     
     this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
