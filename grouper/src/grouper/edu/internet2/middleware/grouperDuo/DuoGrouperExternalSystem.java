@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouperDuo;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.duo.GrouperDuoApiCommands;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
@@ -28,6 +31,13 @@ public class DuoGrouperExternalSystem extends GrouperExternalSystem {
   @Override
   public String getConfigIdThatIdentifiesThisConfig() {
     return "myConnector";
+  }
+
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    
+    GrouperDuoApiCommands.retrieveDuoGroup(this.getConfigId(), "abc123");
+    return null;
   }
 
 }
