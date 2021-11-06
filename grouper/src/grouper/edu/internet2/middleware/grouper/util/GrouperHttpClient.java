@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
@@ -735,6 +736,12 @@ public class GrouperHttpClient {
           throw new RuntimeException("Request body may only be used with POST, PATCH or PUT!");
         }
       }
+
+      RequestConfig config = RequestConfig.custom()
+        .setConnectionRequestTimeout(1000*60*60)
+        .setConnectTimeout(1000*60*60)
+        .setSocketTimeout(1000*60*60).build();
+      httpRequestBase.setConfig(config);
       //HttpHost proxy = new HttpHost("127.0.0.1", 8080, "http");
       //RequestConfig config = RequestConfig.custom()
       //    .setProxy(proxy)
@@ -875,11 +882,13 @@ public class GrouperHttpClient {
    * log start
    */
   public static boolean logStart(GrouperHttpClientLog grouperHttpCallLog) {
-    if (threadLocalLog.get() == null ) {
+    
+    if (threadLocalLog.get() != null ) {
       return false;
     }
     threadLocalLog.set(grouperHttpCallLog);
     return true;
+
   }
 
 }

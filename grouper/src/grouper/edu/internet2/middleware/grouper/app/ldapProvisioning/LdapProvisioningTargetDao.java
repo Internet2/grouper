@@ -70,6 +70,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
   /**
    * start logging the source low level actions
+   * @return true if the logging was started (i.e. can be stopped), or false if already started (in which case 
+   * somewhere up the stack with stop it so dont stop it)
    */
   @Override
   public boolean loggingStart() {

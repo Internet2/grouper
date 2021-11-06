@@ -29,18 +29,19 @@ public class GrouperDuoApiCommands {
   
   public static void main(String[] args) {
     
-    List<GrouperDuoGroup> duoGroups = retrieveDuoGroups("duo1");
+    String configId = "duoTest";
+    List<GrouperDuoGroup> duoGroups = retrieveDuoGroups(configId);
     System.out.println("duo groups size = "+duoGroups.size());
     
-    List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
+    List<GrouperDuoUser> duoUsers = retrieveDuoUsers(configId);
     System.out.println("duo users size = "+duoUsers.size());
     
     for (GrouperDuoUser grouperDuoUser: duoUsers) {
-      List<GrouperDuoGroup> groupsByUser = retrieveDuoGroupsByUser("duo1", grouperDuoUser.getId());
+      List<GrouperDuoGroup> groupsByUser = retrieveDuoGroupsByUser(configId, grouperDuoUser.getId());
       System.out.println("for user: "+grouperDuoUser.getUserName()+ " found: "+groupsByUser.size()+ " groups");
     }
     
-    GrouperDuoUser userByName = retrieveDuoUserByName("duo1", "vivek");
+    GrouperDuoUser userByName = retrieveDuoUserByName(configId, "mchyzer");
     System.out.println("userByName: "+userByName);
     
   }
