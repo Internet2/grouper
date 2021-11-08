@@ -108,7 +108,7 @@ public class PspngToNewProvisioningAttributeConversionTest extends GrouperTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(grouperProvisioningAttributeValue, stem1);
     
     // copy from pspng to new provisioning attributes
-    PspngToNewProvisioningAttributeConversion.copyProvisionToAttributesToNewProvisioningAttributes("sqlProvTest");
+    PspngToNewProvisioningAttributeConversion.copyProvisionToAttributesToNewProvisioningAttributes("sqlProvTest", "sqlProvTest", false, true);
     
     // assert that stems and groups have new attributes setup correctly
     GrouperProvisioningAttributeValue provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(stem, "sqlProvTest");
