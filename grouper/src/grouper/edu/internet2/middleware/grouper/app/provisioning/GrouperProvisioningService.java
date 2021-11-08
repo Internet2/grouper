@@ -663,7 +663,7 @@ public class GrouperProvisioningService {
     if (one == null && two == null) return false;
     if (one == null || two == null) return true;
     
-    if (!StringUtils.equals(one.getStemScopeString(), two.getStemScopeString())) {
+    if (!StringUtils.equals(StringUtils.defaultIfBlank(one.getStemScopeString(), "sub"), StringUtils.defaultIfBlank(two.getStemScopeString(), "sub"))) {
       return true;
     }
     
@@ -754,8 +754,9 @@ public class GrouperProvisioningService {
    * save or update provisioning config for a given grouper object (group/stem)
    * @param grouperProvisioningAttributeValue
    * @param grouperObject
+   * @return if made changes
    */
-  public static void saveOrUpdateProvisioningAttributes(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue, GrouperObject grouperObject) {
+  public static boolean saveOrUpdateProvisioningAttributes(GrouperProvisioningAttributeValue grouperProvisioningAttributeValue, GrouperObject grouperObject) {
     
     AttributeAssign attributeAssign = getAttributeAssign(grouperObject, grouperProvisioningAttributeValue.getTargetName());
    
@@ -769,7 +770,7 @@ public class GrouperProvisioningService {
       
       GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = buildGrouperProvisioningAttributeValue(attributeAssign);
       boolean newValueDifferentFromOldValue = grouperProvisioningAttributeValuesDifferent(grouperProvisioningAttributeValue, existingGrouperProvisioningAttributeValue);
-      if (!newValueDifferentFromOldValue) return;
+      if (!newValueDifferentFromOldValue) return false;
     }
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_DIRECT_ASSIGNMENT, true);
@@ -811,6 +812,7 @@ public class GrouperProvisioningService {
     }
     
     attributeAssign.saveOrUpdate();
+    return true;
   }
   
   /**
