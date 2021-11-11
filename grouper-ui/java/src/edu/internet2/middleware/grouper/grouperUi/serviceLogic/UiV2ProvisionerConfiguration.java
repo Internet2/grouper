@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -207,6 +208,15 @@ public class UiV2ProvisionerConfiguration {
             return;
           }
           grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityDelete(diagnosticsEntitiesDeleteName);
+        }
+        {
+          boolean diagnosticsGroupAttributesMembershipInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupAttributesMembershipInsertName[]"), false);
+          if (diagnosticsGroupAttributesMembershipInsertName && GrouperProvisioningBehaviorMembershipType.groupAttributes != provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupAttributesMembershipInsertError")));
+            return;
+          }
+          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipInsert(diagnosticsGroupAttributesMembershipInsertName);
         }
       }
       
