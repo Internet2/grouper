@@ -140,30 +140,21 @@ public class UiV2ProvisionerConfiguration {
         //deal with inputs and configuration
         {
           boolean diagnosticsGroupsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsAllSelectName[]"), false);
-          if (diagnosticsGroupsAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllGroupsError")));
-            return;
+          if (diagnosticsGroupsAllSelectName && provisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(diagnosticsGroupsAllSelectName);
         }
         {
           boolean diagnosticsEntitiesAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesAllSelectName[]"), false);
-          if (diagnosticsEntitiesAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllEntitiesError")));
-            return;
+          if (diagnosticsEntitiesAllSelectName && provisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(diagnosticsEntitiesAllSelectName);
         }
         {
           boolean diagnosticsMembershipsAllSelectName = GrouperUtil.booleanValue(request.getParameter("diagnosticsMembershipsAllSelectName[]"), false);
-          if (diagnosticsMembershipsAllSelectName && !provisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsSelectAllMembershipsError")));
-            return;
+          if (diagnosticsMembershipsAllSelectName && provisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(diagnosticsMembershipsAllSelectName);
         }
         {
           String diagnosticsGroupNameName = request.getParameter("diagnosticsGroupNameName");
@@ -175,48 +166,33 @@ public class UiV2ProvisionerConfiguration {
         }
         {
           boolean diagnosticsGroupsInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsInsertName[]"), false);
-          if (diagnosticsGroupsInsertName && !provisioner.retrieveGrouperProvisioningBehavior().isInsertGroups()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupInsertError")));
-            return;
+          if (diagnosticsGroupsInsertName && provisioner.retrieveGrouperProvisioningBehavior().isInsertGroups()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(diagnosticsGroupsInsertName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(diagnosticsGroupsInsertName);
         }
         {
           boolean diagnosticsGroupsDeleteName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupsDeleteName[]"), false);
-          if (diagnosticsGroupsDeleteName && !provisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupDeleteError")));
-            return;
+          if (diagnosticsGroupsDeleteName && provisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupDelete(diagnosticsGroupsDeleteName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupDelete(diagnosticsGroupsDeleteName);
         }
         {
           boolean diagnosticsEntitiesInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesInsertName[]"), false);
-          if (diagnosticsEntitiesInsertName && !provisioner.retrieveGrouperProvisioningBehavior().isInsertEntities()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsEntityInsertError")));
-            return;
+          if (diagnosticsEntitiesInsertName && provisioner.retrieveGrouperProvisioningBehavior().isInsertEntities()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(diagnosticsEntitiesInsertName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(diagnosticsEntitiesInsertName);
         }
         {
           boolean diagnosticsEntitiesDeleteName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntitiesDeleteName[]"), false);
-          if (diagnosticsEntitiesDeleteName && !provisioner.retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsEntityDeleteError")));
-            return;
+          if (diagnosticsEntitiesDeleteName && provisioner.retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityDelete(diagnosticsEntitiesDeleteName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityDelete(diagnosticsEntitiesDeleteName);
         }
         {
           boolean diagnosticsGroupAttributesMembershipInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupAttributesMembershipInsertName[]"), false);
-          if (diagnosticsGroupAttributesMembershipInsertName && GrouperProvisioningBehaviorMembershipType.groupAttributes != provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperProvisioningDiagnosticsGroupAttributesMembershipInsertError")));
-            return;
+          if (diagnosticsGroupAttributesMembershipInsertName && GrouperProvisioningBehaviorMembershipType.groupAttributes == provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipInsert(diagnosticsGroupAttributesMembershipInsertName);
           }
-          grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipInsert(diagnosticsGroupAttributesMembershipInsertName);
         }
       }
       

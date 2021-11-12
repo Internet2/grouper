@@ -816,7 +816,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         return;
       }
       this.report.append("<font color='green'><b>Success:</b></font> Did not find group in target after deleting\n");
-        
+      
+      // delete the membership sync objects
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncGroupId(this.provisioningGroupWrapper.getGcGrouperSyncGroup().getId(), false);  
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting group").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
