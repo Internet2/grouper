@@ -73,6 +73,23 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * </blockquote>
  * </pre>
  * </p>
+ * <p>
+ * Sample to delete folders in a folder, and be failsafe (log on which ones error)
+ * <blockquote>
+ * <pre>
+ *     String parentStemName = "test:poc";
+ *     GrouperSession grouperSession = GrouperSession.startRootSession();
+ *     Stem parentStem = StemFinder.findByName(grouperSession, parentStemName, true);
+ *     for (Stem stem : parentStem.getChildStems()) {
+ *       try {
+ *         new StemSave(grouperSession).assignUuid(stem.getId()).assignSaveMode(SaveMode.DELETE).save();
+ *       } catch (Exception e) {
+ *         e.printStackTrace();
+ *       }
+ *     }
+ * </blockquote>
+ * </pre>
+ * </p>
  */
 public class StemSave {
   
