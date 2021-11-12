@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.PerformanceLogger;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 
 /**
@@ -798,7 +799,21 @@ public class GroupSave {
                   
                 } else {
                   //maybe they are equal...
-                  throw new RuntimeException("Cannot update idIndex for an already created group: " + GroupSave.this.idIndex + ", " + theGroup.getName());
+                  // see if we are below that index
+                  long lastIndex = new GcDbAccess().sql("select last_index_reserved from grouper_table_index where type = 'group'").select(long.class);
+                  if (lastIndex <= GroupSave.this.idIndex) {
+                    throw new RuntimeException("idIndex : " + GroupSave.this.idIndex + " is too large since current index is " + lastIndex + ", " + theGroup.getName());
+                  }
+                  
+                  // see if its being used
+                  int rows = new GcDbAccess().sql("select count(1) from grouper_groups where id_index = ?").addBindVar(GroupSave.this.idIndex).select(int.class);
+                  if (rows > 0) {
+                    throw new RuntimeException("idIndex already in use: " + GroupSave.this.idIndex + ", " + theGroup.getName());
+                  }
+                  if (theGroup.assignIdIndex(GroupSave.this.idIndex)) {
+                    needsSave = true;
+                  }
+
                 }
               }
 

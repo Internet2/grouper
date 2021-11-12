@@ -123,7 +123,7 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testGroupCopyCollision"));
+    TestRunner.run(new TestGroup("testGroupSave"));
     //TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
     //TestRunner.run(TestGroup.class);
   }
@@ -933,6 +933,9 @@ public class TestGroup extends GrouperTest {
     
     assertEquals(group.getUuid(), group2.getUuid());
     assertEquals("someNewStem:someGroup2", group2.getName());
+    
+    group1 = new GroupSave(grouperSession).assignName("someNewStem:someGroup1").assignIdIndex(9037L).save();
+    assertEquals(9037L, group1.getIdIndex().longValue());
     
   }
   
