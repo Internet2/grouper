@@ -158,6 +158,27 @@ public class GrouperProvisioningDiagnosticsSettings {
   }
 
   /**
+   * if the entity should be removed from the group as a group attribute
+   */
+  private boolean diagnosticsGroupAttributesMembershipDelete;
+  
+  /**
+   * @return if the entity should be removed from the group as a group attribute
+   */
+  public boolean isDiagnosticsGroupAttributesMembershipDelete() {
+    return diagnosticsGroupAttributesMembershipDelete;
+  }
+
+  /**
+   * if the entity should be removed from the group as a group attribute
+   * @param diagnosticsGroupAttributesMembershipDelete
+   */
+  public void setDiagnosticsGroupAttributesMembershipDelete(
+      boolean diagnosticsGroupAttributesMembershipDelete) {
+    this.diagnosticsGroupAttributesMembershipDelete = diagnosticsGroupAttributesMembershipDelete;
+  }
+  
+  /**
    * if delete entity in diagnostics
    */
   private boolean diagnosticsEntityDelete;

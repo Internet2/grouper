@@ -1461,7 +1461,7 @@ public class GrouperProvisioningCompare {
   }
 
 
-  private void addGroupDefaultMembershipAttributeValueIfAllRemoved(List<ProvisioningGroup> grouperTargetGroupsForUpdate) {
+  public void addGroupDefaultMembershipAttributeValueIfAllRemoved(List<ProvisioningGroup> grouperTargetGroupsForUpdate) {
     
     if (grouperTargetGroupsForUpdate == null || grouperTargetGroupsForUpdate.size() == 0) {
       return;

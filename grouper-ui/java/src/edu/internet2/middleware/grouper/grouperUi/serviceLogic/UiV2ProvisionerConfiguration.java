@@ -194,6 +194,12 @@ public class UiV2ProvisionerConfiguration {
             grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipInsert(diagnosticsGroupAttributesMembershipInsertName);
           }
         }
+        {
+          boolean diagnosticsGroupAttributesMembershipDeleteName = GrouperUtil.booleanValue(request.getParameter("diagnosticsGroupAttributesMembershipDeleteName[]"), false);
+          if (diagnosticsGroupAttributesMembershipDeleteName && GrouperProvisioningBehaviorMembershipType.groupAttributes == provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipDelete(diagnosticsGroupAttributesMembershipDeleteName);
+          }
+        }
       }
       
       

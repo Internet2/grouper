@@ -137,6 +137,16 @@
                         <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipInsertDescription'] }</span>
                       </div>
                     </div>
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupAttributesMembershipDeleteName" id="diagnosticsGroupAttributesMembershipDeleteId" value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteDescription'] }</span>
+                      </div>
+                    </div>
                   </c:if>
                   
         
