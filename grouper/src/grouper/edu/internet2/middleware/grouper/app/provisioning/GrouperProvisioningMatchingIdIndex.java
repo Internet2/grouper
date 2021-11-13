@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperProvisioningMatchingIdIndex {
 
@@ -106,7 +107,7 @@ public class GrouperProvisioningMatchingIdIndex {
           this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
 
       Object matchingId = provisioningMembershipWrapper.getMatchingId();
-      if (matchingId == null) {
+      if (matchingId == null || (((MultiKey)matchingId).getKey(0) == null && ((MultiKey)matchingId).getKey(1) == null)) {
         // this could be an insert?
         provisioningMembershipWrappersWithNullIds++;
         continue;

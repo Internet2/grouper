@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
@@ -19,7 +18,9 @@ public class SqlProvisioner extends GrouperProvisioner {
       throw new RuntimeException("Why is provisioner not configured???");
     }
     // TODO fix this
-    return SqlProvisioningType.sqlLikeLdapGroupMemberships.sqlTargetDaoClass();
+//    return SqlProvisioningType.sqlLikeLdapGroupMemberships.sqlTargetDaoClass();
+    
+    return SqlProvisioningDao.class;
   }
 
   public SqlProvisioningConfiguration retrieveSqlProvisioningConfiguration() {

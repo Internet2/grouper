@@ -172,6 +172,20 @@ public abstract class GrouperConfigurationModuleBase {
         name = this.getCacheEntityAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
              : this.getCacheAttributePrefix()) + " " + theName;
 
+      } else if (StringUtils.equals(preIndex, "targetMembershipAttribute")) {
+        // Entity field name
+        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".isFieldElseAttribute"), false);
+        String theName = isFieldElseAttribute ? 
+            (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".fieldName")
+            : (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".name");
+
+        if (StringUtils.isBlank(theName)) {
+          theName = Integer.toString(index+1);
+        }
+          
+        name = this.getCacheMembershipAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
+             : this.getCacheAttributePrefix()) + " " + theName;
+
       } else if (StringUtils.equals(preIndex, "metadata")) {
         name = (String)this.retrieveObjectValueSubstituteMap().get("metadata." + index + ".name");
       } else if (StringUtils.equals(preIndex, "attribute")) {
@@ -389,6 +403,8 @@ public abstract class GrouperConfigurationModuleBase {
   private String cacheAttributePrefix;
 
   private String cacheEntityAttributePrefix;
+
+  private String cacheMembershipAttributePrefix;
 
   private String cacheFieldPrefix;
 
@@ -1445,6 +1461,13 @@ public abstract class GrouperConfigurationModuleBase {
       this.cacheEntityAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetEntityAttribute.i.entityAttributePrefix");
     }
     return cacheEntityAttributePrefix;
+  }
+  
+  public String getCacheMembershipAttributePrefix() {
+    if (this.cacheMembershipAttributePrefix == null) {
+      this.cacheMembershipAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetMembershipAttribute.i.membershipAttributePrefix");
+    }
+    return cacheMembershipAttributePrefix;
   }
 
   public String getCacheFieldPrefix() {

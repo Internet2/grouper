@@ -166,7 +166,8 @@ public class GrouperProvisioningTranslatorBase {
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
           String expressionToUse = getTargetExpressionToUse(false, grouperProvisioningConfigurationAttribute);
-          if (!StringUtils.isBlank(expressionToUse)) {
+          if (StringUtils.isNotBlank(expressionToUse) || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField()) 
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
             Object result = attributeTranslation( 
                 grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, false, 
                 grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, provisioningEntityWrapper);
@@ -284,6 +285,15 @@ public class GrouperProvisioningTranslatorBase {
           grouperTargetMembership.setProvisioningEntity(grouperTargetEntity);
           grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
           grouperTargetMembership.setProvisioningGroupId(grouperTargetGroup == null ? null: grouperTargetGroup.getId());
+        } else {
+          if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+            if (grouperTargetMembership.getProvisioningEntity() == null) {
+              grouperTargetMembership.setProvisioningEntity(grouperTargetEntity);
+            }
+            if (grouperTargetMembership.getProvisioningGroup() == null) {
+              grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
+            }
+          }
         }
         
       } finally {
@@ -727,6 +737,10 @@ public class GrouperProvisioningTranslatorBase {
           grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
     } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
       result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
+    } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
+      result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
+    } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+      result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
     }
     
     return result;
@@ -998,10 +1012,16 @@ public class GrouperProvisioningTranslatorBase {
       
     }
 
+    
+    //this is a legacy typo
+    if (StringUtils.equals(membershipIdField, "provisioningGroupId,provisioningMembershipId")) {
+      membershipIdField = "provisioningGroupId,provisioningEntityId";
+    }
+    
     if (StringUtils.isBlank(membershipIdScript) && StringUtils.isBlank(membershipIdAttribute) && StringUtils.isBlank(membershipIdField)) {
       
       if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
-        membershipIdField = "provisioningGroupId,provisioningMembershipId";
+        membershipIdField = "provisioningGroupId,provisioningEntityId";
       } else {
         return;
       }
@@ -1013,10 +1033,10 @@ public class GrouperProvisioningTranslatorBase {
       if (!StringUtils.isBlank(membershipIdField)) {
         if ("id".equals(membershipIdField)) {
           id = targetMembership.getId();
-        } else if ("provisioningGroupId,provisioningMembershipId".equals(membershipIdField)) {
+        } else if ("provisioningGroupId,provisioningEntityId".equals(membershipIdField)) {
           id = new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
         } else {
-          throw new RuntimeException("Invalid membershipMatchingIdField, expecting id or 'provisioningGroupId,provisioningMembershipId' '" + membershipIdField + "'");
+          throw new RuntimeException("Invalid membershipMatchingIdField, expecting id or 'provisioningGroupId,provisioningEntityId' '" + membershipIdField + "'");
         }
       } else if (!StringUtils.isBlank(membershipIdAttribute)) {
         Object idValue = targetMembership.retrieveAttributeValue(membershipIdAttribute);

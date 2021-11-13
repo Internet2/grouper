@@ -1851,7 +1851,10 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         attributeConfig.setAttribute(!isField);
 
-        String name = this.retrieveConfigString(objectType + "."+i+(isField ? ".fieldName" : ".name") , true);
+        String name = this.retrieveConfigString(objectType + "."+i+(isField ? ".fieldName" : ".name") , false);
+        if (StringUtils.isBlank(name)) {
+          break;
+        }
         attributeConfig.setName(name);
         
         {

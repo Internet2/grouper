@@ -1163,6 +1163,15 @@ public class UiV2Provisioning {
           if (metadataItem.isShowForFolder()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
             metadataItems.add(metadataItem);
           }
         }
@@ -1294,6 +1303,15 @@ public class UiV2Provisioning {
           if (metadataItem.isShowForMembership()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
             metadataItems.add(metadataItem);
           }
         }
@@ -1426,6 +1444,15 @@ public class UiV2Provisioning {
           if (metadataItem.isShowForMembership()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
             metadataItems.add(metadataItem);
           }
         }
@@ -1554,6 +1581,16 @@ public class UiV2Provisioning {
           if (metadataItem.isShowForMember()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            
             metadataItems.add(metadataItem);
           }
         }

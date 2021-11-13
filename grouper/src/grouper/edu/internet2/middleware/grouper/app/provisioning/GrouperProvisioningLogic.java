@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -1708,8 +1711,15 @@ public class GrouperProvisioningLogic {
         
         grouperProvisioningEntity = new ProvisioningEntity();
         grouperProvisioningEntity.setId(gcGrouperSyncMember.getMemberId());
-        //TODO select from grouper dao again, the subject might not be provisionable but it might exist in subject source
+        //TODO select in bulk from grouper members
+        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), gcGrouperSyncMember.getMemberId(), false);
+        if (member != null) {
+          grouperProvisioningEntity.setName(member.getName());
+          //TODO do something with email?
+          grouperProvisioningEntity.assignAttributeValue("description", member.getDescription());
+        }
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
+        grouperProvisioningEntity.assignAttributeValue("subjectSourceId", gcGrouperSyncMember.getSourceId());
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
   
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
