@@ -224,8 +224,8 @@ public class GrouperDdlEngine {
     {
       DdlVersionable dbDdlVersionable = GrouperDdlUtils.retieveVersion(objectName, realDbVersion);
       grouperVersionDatabase = dbDdlVersionable == null ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
-      versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
-        + realDbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
+      versionStatus = "Grouper ddl object type '" + objectName + "' has db/ddl version: " 
+        + realDbVersion + " (introduced in " + grouperVersionDatabase + ") and container/grouperJava version: " + javaVersion + " (introduced in " + grouperVersionJava + ")";
     }          
     boolean versionMismatch = javaVersion != realDbVersion;
 
@@ -731,8 +731,8 @@ public class GrouperDdlEngine {
         {
           DdlVersionable dbDdlVersionable = GrouperDdlUtils.retieveVersion(objectName, dbVersion);
           grouperVersionDatabase = (dbDdlVersionable == null || StringUtils.isBlank(dbDdlVersionable.getGrouperVersion())) ? null : new GrouperVersion(dbDdlVersionable.getGrouperVersion());
-          versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
-            + dbVersion + " (" + grouperVersionDatabase + ") and java version: " + javaVersion + " (" + grouperVersionJava + ")";
+          versionStatus = "Grouper ddl object type '" + objectName + "' has db/ddl version: " 
+              + dbVersion + " (introduced in " + grouperVersionDatabase + ") and container/grouperJava version: " + javaVersion + " (introduced in " + grouperVersionJava + ")";
         }          
         boolean versionMismatch = javaVersion != dbVersion;
   

@@ -136,6 +136,47 @@ public class GrouperProvisioningDiagnosticsSettings {
     this.diagnosticsGroupsAllSelect = selectAllGroupsDuringDiagnostics;
   }
   
+  /**
+   * if the entity should be added to the group as a group attribute
+   */
+  private boolean diagnosticsGroupAttributesMembershipInsert;
+  
+  /**
+   * @return if the entity should be added to the group as a group attribute
+   */
+  public boolean isDiagnosticsGroupAttributesMembershipInsert() {
+    return diagnosticsGroupAttributesMembershipInsert;
+  }
+
+  /**
+   * if the entity should be added to the group as a group attribute
+   * @param diagnosticsGroupAttributesMembershipInsert
+   */
+  public void setDiagnosticsGroupAttributesMembershipInsert(
+      boolean diagnosticsGroupAttributesMembershipInsert) {
+    this.diagnosticsGroupAttributesMembershipInsert = diagnosticsGroupAttributesMembershipInsert;
+  }
+
+  /**
+   * if the entity should be removed from the group as a group attribute
+   */
+  private boolean diagnosticsGroupAttributesMembershipDelete;
+  
+  /**
+   * @return if the entity should be removed from the group as a group attribute
+   */
+  public boolean isDiagnosticsGroupAttributesMembershipDelete() {
+    return diagnosticsGroupAttributesMembershipDelete;
+  }
+
+  /**
+   * if the entity should be removed from the group as a group attribute
+   * @param diagnosticsGroupAttributesMembershipDelete
+   */
+  public void setDiagnosticsGroupAttributesMembershipDelete(
+      boolean diagnosticsGroupAttributesMembershipDelete) {
+    this.diagnosticsGroupAttributesMembershipDelete = diagnosticsGroupAttributesMembershipDelete;
+  }
   
   /**
    * if delete entity in diagnostics

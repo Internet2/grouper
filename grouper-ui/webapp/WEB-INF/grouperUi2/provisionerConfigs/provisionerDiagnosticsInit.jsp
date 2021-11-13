@@ -19,39 +19,45 @@
                 <form class="form-horizontal" id="provisioningDiagnosticsForm"
                     onsubmit="return false;">
 
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsLargeOperationsLabel'] }</label>
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsGroupsAllSelectName" id="diagnosticsGroupsAllSelectId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupsAllSelect ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsLabel']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsDescription'] }</span>                    
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll()}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsLargeOperationsLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupsAllSelectName" id="diagnosticsGroupsAllSelectId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsGroupsAllSelect ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsLabel']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllGroupsDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()}">
+                    <div class="control-group">
                    
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsEntitiesAllSelectName" id="diagnosticsEntitiesAllSelectId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsEntitiesAllSelect ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesLabel']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesDescription'] }</span>                    
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntitiesAllSelectName" id="diagnosticsEntitiesAllSelectId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsEntitiesAllSelect ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesLabel']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllEntitiesDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()}">
+                    <div class="control-group">
                    
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsMembershipsAllSelectName" id="diagnosticsMembershipsAllSelectId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsMembershipsAllSelect ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsLabel']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsDescription'] }</span>                    
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsMembershipsAllSelectName" id="diagnosticsMembershipsAllSelectId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().diagnosticsMembershipsAllSelect ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsLabel']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSelectAllMembershipsDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
+                  </c:if>
                   <div class="control-group">
                     <label for="diagnosticsGroupNameId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupNameLabel'] }</label>
                     <div class="controls">
@@ -68,50 +74,80 @@
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsSubjectIdOrIdentifierDescription'] }</span>
                     </div>
                   </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabel'] }</label>
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsGroupsInsertName" id="diagnosticsGroupsInsertId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabelTrue']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertDescription'] }</span>                    
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups()}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupsInsertName" id="diagnosticsGroupsInsertId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsGroupInsertLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupInsertDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabel'] }</label>
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsGroupsDeleteName" id="diagnosticsGroupsDeleteId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabelTrue']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteDescription'] }</span>                    
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupsDeleteName" id="diagnosticsGroupsDeleteId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteGroupDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupDeleteDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabel'] }</label>
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsEntitiesInsertName" id="diagnosticsEntitiesInsertId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabelTrue']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertDescription'] }</span>                    
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities()}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntitiesInsertName" id="diagnosticsEntitiesInsertId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsEntityInsertLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityInsertDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabel'] }</label>
-                    <div class="controls">
-                      <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsEntitiesDeleteName" id="diagnosticsEntitiesDeleteId" 
-                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
-                             ${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabelTrue']}
-                      </label>
-                      <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteDescription'] }</span>                    
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntities()}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntitiesDeleteName" id="diagnosticsEntitiesDeleteId" 
+                               ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteEntityDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityDeleteDescription'] }</span>                    
+                      </div>
                     </div>
-                  </div>
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType().name() == 'groupAttributes'}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipInsertLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupAttributesMembershipInsertName" id="diagnosticsGroupAttributesMembershipInsertId" value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipInsertLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipInsertDescription'] }</span>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsGroupAttributesMembershipDeleteName" id="diagnosticsGroupAttributesMembershipDeleteId" value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsGroupAttributesMembershipDeleteDescription'] }</span>
+                      </div>
+                    </div>
+                  </c:if>
                   
         
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />

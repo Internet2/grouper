@@ -186,6 +186,8 @@ public class GrouperDdlCompare {
     analyzeTables();
     analyzeViews();
     
+    this.result.getResult().append("\nNote: the -deep SQL script is only for the Grouper team internally and should not be run without advice from the Grouper team!" );
+
 //    for (GrouperDdlCompareTable grouperDdlCompareTable : this.result.getGrouperDdlCompareTables().values()) {
 //      System.out.println(grouperDdlCompareTable.getName());
 //      
