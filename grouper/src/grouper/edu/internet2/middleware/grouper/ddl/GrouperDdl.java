@@ -2653,13 +2653,26 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.5";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
       
+      GrouperDdl2_6_5.addGrouperFailsafeTable(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperFailsafeComments(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperFailsafeIndex(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperLastLoginTable(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperLastLoginComments(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperLastLoginIndex(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperLastLoginForeignKey(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperMembersColumns(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperMembersComments(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperStemViewPrivilegeTable(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperStemViewPrivilegeComments(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperStemViewPrivilegeIndex(database, ddlVersionBean);
+      GrouperDdl2_6_5.addGrouperStemViewPrivilegeForeignKeys(database, ddlVersionBean);
     }
   },
   V40 {
@@ -6562,6 +6575,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdl2_3.addQuartzForeignKeys(ddlVersionBean, database);
     
+    GrouperDdl2_6_5.addGrouperLastLoginForeignKey(database, ddlVersionBean);
+    GrouperDdl2_6_5.addGrouperStemViewPrivilegeForeignKeys(database, ddlVersionBean);
+
     //now lets add views
     if (buildingAudits) {
       GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_audit_entry_v",

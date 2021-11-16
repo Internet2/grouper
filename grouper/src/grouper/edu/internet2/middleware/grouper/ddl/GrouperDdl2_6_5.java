@@ -7,6 +7,7 @@ import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -173,7 +174,29 @@ public class GrouperDdl2_6_5 {
 
   }
 
-  static void addGrouperStemViewPrivilegeIndex(DdlVersionBean ddlVersionBean, Database database) {
+  /**
+   * add grouper password foreign keys
+   * @param ddlVersionBean
+   * @param database
+   */
+  static void addGrouperStemViewPrivilegeForeignKeys(Database database, DdlVersionBean ddlVersionBean) {
+    
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperStemViewPrivilegeForeignKeys", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
+      "fk_grouper_st_v_pr_mem", Member.TABLE_GROUPER_MEMBERS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID, Member.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
+      "fk_grouper_st_v_pr_st", Stem.TABLE_GROUPER_STEMS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID, Stem.COLUMN_ID);
+  }
+
+  static void addGrouperStemViewPrivilegeIndex(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
@@ -261,7 +284,27 @@ public class GrouperDdl2_6_5 {
 
   }
 
-  static void addGrouperLastLoginIndex(DdlVersionBean ddlVersionBean, Database database) {
+  /**
+   * add grouper password foreign keys
+   * @param ddlVersionBean
+   * @param database
+   */
+  static void addGrouperLastLoginForeignKey(Database database, DdlVersionBean ddlVersionBean) {
+    
+  
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v2_5_addGrouperLastLoginForeignKey", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_LAST_LOGIN,
+      "fk_grouper_last_login_mem", Member.TABLE_GROUPER_MEMBERS, COLUMN_GROUPER_LAST_LOGIN_MEMBER_UUID, Member.COLUMN_ID);
+  }
+
+  static void addGrouperLastLoginIndex(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
@@ -399,7 +442,7 @@ public class GrouperDdl2_6_5 {
 
   }
 
-  static void addGrouperFailsafeIndex(DdlVersionBean ddlVersionBean, Database database) {
+  static void addGrouperFailsafeIndex(Database database, DdlVersionBean ddlVersionBean) {
   
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
@@ -460,4 +503,5 @@ public class GrouperDdl2_6_5 {
     
 
   }
+
 }

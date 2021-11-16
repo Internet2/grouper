@@ -69,7 +69,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5_51To2_6_1ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_1To2_6_5ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -1482,6 +1482,114 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_zoom_user", "email"));
 
     scriptToGetTo2_5_51.delete();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_6_1To2_6_5ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVAL_MEMBER_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVED_ONCE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_LAST_APPROVAL));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MILLIS));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_COMPUTE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_NEED));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_OBJECT_TYPE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID));
+  
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_SUBJECT_RESOLUTION_ELIGIBLE));
+  
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_postgres.sql
+    // get to 2.5.51
+    File scriptToGetTo2_6_1 = retrieveScriptFile("GrouperDdl_2_6_1_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_1, true, true);
+  
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVAL_MEMBER_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVED_ONCE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_LAST_APPROVAL));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MILLIS));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_COMPUTE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_NEED));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_OBJECT_TYPE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID));
+  
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_SUBJECT_RESOLUTION_ELIGIBLE));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVAL_MEMBER_ID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_APPROVED_ONCE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_FAILSAFE, GrouperDdl2_6_5.COLUMN_GROUPER_FAILSAFE_LAST_APPROVAL));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_LOGIN_MILLIS));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_COMPUTE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_LAST_LOGIN, GrouperDdl2_6_5.COLUMN_GROUPER_LAST_STEM_VIEW_NEED));
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_OBJECT_TYPE));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, GrouperDdl2_6_5.TABLE_GROUPER_STEM_VIEW_PRIVILEGE, GrouperDdl2_6_5.COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID));
+  
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_SUBJECT_RESOLUTION_ELIGIBLE));
+  
+    scriptToGetTo2_6_1.delete();
     
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)

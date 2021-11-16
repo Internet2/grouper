@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -144,14 +145,22 @@ class Hib3RegistryDAO implements RegistryDAO {
    */
   public void reset(final boolean includeTypesAndFields) 
     throws  GrouperDAOException {
+
+    // this doesnt need tx right?
     HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.NONE, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
+            new GcDbAccess().sql("delete from grouper_failsafe").executeSql();
+            new GcDbAccess().sql("delete from grouper_last_login").executeSql();
+            new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
+            new GcDbAccess().sql("delete from grouper_prov_zoom_user").executeSql();
+            hibernateSession.getSession().flush();
+            
             Hib3TableIndexDAO.reset(hibernateSession);
             Hib3RoleSetDAO.reset(hibernateSession);
             Hib3AttributeAssignValueDAO.reset(hibernateSession);
