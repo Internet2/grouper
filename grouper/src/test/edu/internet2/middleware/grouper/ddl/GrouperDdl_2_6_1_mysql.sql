@@ -135,7 +135,6 @@ CREATE TABLE grouper_members
     context_id VARCHAR(40) NULL,
     subject_resolution_deleted VARCHAR(1) DEFAULT 'F' NOT NULL,
     subject_resolution_resolvable VARCHAR(1) DEFAULT 'T' NOT NULL,
-    subject_resolution_eligible VARCHAR(1) DEFAULT 'T' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -164,8 +163,6 @@ CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0)
 CREATE INDEX member_resolvable_idx ON grouper_members (subject_resolution_resolvable);
 
 CREATE INDEX member_deleted_idx ON grouper_members (subject_resolution_deleted);
-
-CREATE INDEX member_eligible_idx ON grouper_members (subject_resolution_eligible);
 
 CREATE TABLE grouper_memberships
 (
@@ -1503,7 +1500,7 @@ CREATE TABLE grouper_password_recently_used
 (
     id VARCHAR(40) NOT NULL,
     grouper_password_id VARCHAR(40) NOT NULL,
-    jwt_jti VARCHAR(100) NULL,
+    jwt_jti VARCHAR(100),
     jwt_iat INTEGER,
     attempt_millis BIGINT NOT NULL,
     ip_address VARCHAR(20) NOT NULL,
@@ -1792,7 +1789,7 @@ CREATE TABLE grouper_prov_zoom_user
     created_at BIGINT,
     last_login_time BIGINT,
     language VARCHAR(100) NULL,
-    status VARCHAR(40) NULL,
+    status BIGINT NULL,
     role_id BIGINT,
     PRIMARY KEY (email)
 );
@@ -1804,54 +1801,6 @@ CREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prov_zoom_user (email
 CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id);
 
 CREATE INDEX grouper_zoom_user_member_id_idx ON grouper_prov_zoom_user (member_id, config_id);
-
-CREATE TABLE grouper_failsafe
-(
-    id VARCHAR(40) NOT NULL,
-    name VARCHAR(200) NOT NULL,
-    last_run BIGINT,
-    last_failsafe_issue_started BIGINT,
-    last_failsafe_issue BIGINT,
-    last_success BIGINT,
-    last_approval BIGINT,
-    approval_member_id VARCHAR(40) NULL,
-    approved_once VARCHAR(1) NOT NULL,
-    approved_until BIGINT,
-    last_updated BIGINT,
-    PRIMARY KEY (id)
-);
-
-CREATE UNIQUE INDEX grouper_failsafe_id_idx ON grouper_failsafe (id);
-
-CREATE UNIQUE INDEX grouper_failsafe_name_idx ON grouper_failsafe (name);
-
-CREATE TABLE grouper_last_login
-(
-    member_uuid VARCHAR(40) NOT NULL,
-    last_login BIGINT,
-    last_stem_view_need BIGINT,
-    last_stem_view_compute BIGINT,
-    PRIMARY KEY (member_uuid)
-);
-
-CREATE UNIQUE INDEX grouper_last_login_mem_idx ON grouper_last_login (member_uuid);
-
-CREATE INDEX grouper_last_login_login_idx ON grouper_last_login (last_login);
-
-CREATE INDEX grouper_last_login_st_view_idx ON grouper_last_login (last_stem_view_need);
-
-CREATE INDEX grouper_last_login_st_comp_idx ON grouper_last_login (last_stem_view_compute);
-
-CREATE TABLE grouper_stem_view_privilege
-(
-    member_uuid VARCHAR(40) NOT NULL,
-    stem_uuid VARCHAR(40) NOT NULL,
-    object_type CHAR(1) NOT NULL
-);
-
-CREATE INDEX grouper_stem_v_priv_mem_idx ON grouper_stem_view_privilege (member_uuid, object_type);
-
-CREATE INDEX grouper_stem_v_priv_stem_idx ON grouper_stem_view_privilege (stem_uuid, object_type);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2177,15 +2126,6 @@ ALTER TABLE grouper_sync_membership
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
 
-ALTER TABLE grouper_last_login
-    ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) on delete cascade;
-
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));
@@ -2439,6 +2379,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V39, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V38, '));
 commit;

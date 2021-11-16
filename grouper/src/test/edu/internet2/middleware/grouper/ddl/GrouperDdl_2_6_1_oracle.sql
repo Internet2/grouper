@@ -141,7 +141,6 @@ CREATE TABLE grouper_members
     context_id VARCHAR2(40),
     subject_resolution_deleted VARCHAR2(1) DEFAULT 'F' NOT NULL,
     subject_resolution_resolvable VARCHAR2(1) DEFAULT 'T' NOT NULL,
-    subject_resolution_eligible VARCHAR2(1) DEFAULT 'T' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -174,8 +173,6 @@ CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0)
 CREATE INDEX member_resolvable_idx ON grouper_members (subject_resolution_resolvable);
 
 CREATE INDEX member_deleted_idx ON grouper_members (subject_resolution_deleted);
-
-CREATE INDEX member_eligible_idx ON grouper_members (subject_resolution_eligible);
 
 CREATE TABLE grouper_memberships
 (
@@ -1890,7 +1887,7 @@ CREATE TABLE grouper_file
     hibernate_version_number NUMBER(38) NOT NULL,
     context_id VARCHAR2(40),
     file_contents_varchar VARCHAR2(4000),
-    file_contents_bytes NUMBER(38),
+    file_contents_bytes INTEGER,
     file_contents_clob CLOB,
     PRIMARY KEY (id)
 );
@@ -1912,7 +1909,7 @@ CREATE TABLE grouper_prov_zoom_user
     created_at NUMBER(38),
     last_login_time NUMBER(38),
     language VARCHAR2(100),
-    status VARCHAR2(40),
+    status NUMBER(38),
     role_id NUMBER(38),
     PRIMARY KEY (email)
 );
@@ -1924,50 +1921,6 @@ CREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prov_zoom_user (email
 CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id);
 
 CREATE INDEX grouper_zoom_us_member_id_idx ON grouper_prov_zoom_user (member_id, config_id);
-
-CREATE TABLE grouper_failsafe
-(
-    id VARCHAR2(40) NOT NULL,
-    name VARCHAR2(200) NOT NULL,
-    last_run NUMBER(38),
-    last_failsafe_issue_started NUMBER(38),
-    last_failsafe_issue NUMBER(38),
-    last_success NUMBER(38),
-    last_approval NUMBER(38),
-    approval_member_id VARCHAR2(40),
-    approved_once VARCHAR2(1) NOT NULL,
-    approved_until NUMBER(38),
-    last_updated NUMBER(38),
-    PRIMARY KEY (id)
-);
-
-CREATE UNIQUE INDEX grouper_failsafe_name_idx ON grouper_failsafe (name);
-
-CREATE TABLE grouper_last_login
-(
-    member_uuid VARCHAR2(40) NOT NULL,
-    last_login NUMBER(38),
-    last_stem_view_need NUMBER(38),
-    last_stem_view_compute NUMBER(38),
-    PRIMARY KEY (member_uuid)
-);
-
-CREATE INDEX grouper_last_login_login_idx ON grouper_last_login (last_login);
-
-CREATE INDEX grouper_last_login_st_view_idx ON grouper_last_login (last_stem_view_need);
-
-CREATE INDEX grouper_last_login_st_comp_idx ON grouper_last_login (last_stem_view_compute);
-
-CREATE TABLE grouper_stem_view_privilege
-(
-    member_uuid VARCHAR2(40) NOT NULL,
-    stem_uuid VARCHAR2(40) NOT NULL,
-    object_type CHAR(1) NOT NULL
-);
-
-CREATE INDEX grouper_stem_v_priv_mem_idx ON grouper_stem_view_privilege (member_uuid, object_type);
-
-CREATE INDEX grouper_stem_v_priv_stem_idx ON grouper_stem_view_privilege (stem_uuid, object_type);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2292,15 +2245,6 @@ ALTER TABLE grouper_sync_membership
 
 ALTER TABLE grouper_sync_log
     ADD CONSTRAINT grouper_sync_log_sy_fk FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync (id);
-
-ALTER TABLE grouper_last_login
-    ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) on delete cascade;
 
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
 
@@ -2983,50 +2927,6 @@ COMMENT ON COLUMN grouper_prov_zoom_user.language IS 'Language the user uses in 
 COMMENT ON COLUMN grouper_prov_zoom_user.status IS 'Status in zoom see docs';
 
 COMMENT ON COLUMN grouper_prov_zoom_user.role_id IS 'Role ID in zoom see docs';
-
-COMMENT ON TABLE grouper_failsafe IS 'holds failsafe state and approvals';
-
-COMMENT ON COLUMN grouper_failsafe.id IS 'uuid of this row';
-
-COMMENT ON COLUMN grouper_failsafe.name IS 'name of this failsafe job, e.g. the job name in loader log';
-
-COMMENT ON COLUMN grouper_failsafe.last_run IS 'millis since 1970 of last run of this job (fail or not)';
-
-COMMENT ON COLUMN grouper_failsafe.last_failsafe_issue_started IS 'millis since 1970 of when the last failsafe issue started';
-
-COMMENT ON COLUMN grouper_failsafe.last_failsafe_issue IS 'millis since 1970 of when the last failsafe issue occurred';
-
-COMMENT ON COLUMN grouper_failsafe.last_success IS 'millis since 1970 of when last success of job occurred';
-
-COMMENT ON COLUMN grouper_failsafe.last_approval IS 'millis since 1970 of last approval of failsafe';
-
-COMMENT ON COLUMN grouper_failsafe.approval_member_id IS 'member uuid of user who last approved the failsafe';
-
-COMMENT ON COLUMN grouper_failsafe.approved_once IS 'T if next run is approved (e.g. click button) and F if next run is not approved (steady state)';
-
-COMMENT ON COLUMN grouper_failsafe.approved_until IS 'millis since 1970 that failsafes are approved for the job';
-
-COMMENT ON COLUMN grouper_failsafe.last_updated IS 'millis since 1970 that this row was last updated';
-
-COMMENT ON TABLE grouper_last_login IS 'caches when someone has logged in to grouper in some regard last';
-
-COMMENT ON COLUMN grouper_last_login.member_uuid IS 'member uuid of the subject, foreign key cascade delete';
-
-COMMENT ON COLUMN grouper_last_login.last_login IS 'when last logged in millis since 1970';
-
-COMMENT ON COLUMN grouper_last_login.last_stem_view_need IS 'when last needed stem view';
-
-COMMENT ON COLUMN grouper_last_login.last_stem_view_compute IS 'when stem view privs last computed';
-
-COMMENT ON COLUMN grouper_members.subject_resolution_eligible IS 'T is this subject is resolvable and has privileges and memberships and should be checked periodically by USDU';
-
-COMMENT ON TABLE grouper_stem_view_privilege IS 'caches which stems (not inherited) that a user can view since they have a privilege on an object in the folder';
-
-COMMENT ON COLUMN grouper_stem_view_privilege.member_uuid IS 'member uuid of the subject, foreign key cascade delete';
-
-COMMENT ON COLUMN grouper_stem_view_privilege.stem_uuid IS 'stem uuid of the stem with a view privilege, foreign key cascade delete';
-
-COMMENT ON COLUMN grouper_stem_view_privilege.object_type IS 'G (has group privilege directly in folder), S (has folder privilege on this folder), A (has attribute privilege on an attribute directly in this folder)';
 
 COMMENT ON TABLE grouper_ddl IS 'holds a record for each database object name, and db version, and java version';
 
@@ -6985,6 +6885,6 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V39, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 38, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V38, ');
 commit;
