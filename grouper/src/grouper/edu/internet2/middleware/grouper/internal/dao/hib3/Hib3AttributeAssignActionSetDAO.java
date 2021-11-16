@@ -47,7 +47,7 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    */
   static void reset(HibernateSession hibernateSession) {
     
-    if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isMysql()) {
       //do this since mysql cant handle self-referential foreign keys
       // restrict this only to mysql since in oracle this might cause unique constraint violations
       hibernateSession.byHql().createQuery("update AttributeAssignActionSet set parentAttrAssignActionSetId = null").executeUpdate();
@@ -132,7 +132,7 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+            if (GrouperDdlUtils.isMysql()) {
               //set parent to null so mysql doest get mad
               //http://bugs.mysql.com/bug.php?id=15746
               hibernateHandlerBean.getHibernateSession().byHql().createQuery(
@@ -182,7 +182,7 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
 
             Set<AttributeAssignActionSet> actionSets = findByIfHasAttributeAssignActionId(attributeAssignAction.getId());
             for (AttributeAssignActionSet actionSet : actionSets) {
-              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+              if (GrouperDdlUtils.isMysql()) {
                 //do this since mysql cant handle self-referential foreign keys
                 actionSet.setParentAttrAssignActionSetId(null);
                 actionSet.saveOrUpdate();

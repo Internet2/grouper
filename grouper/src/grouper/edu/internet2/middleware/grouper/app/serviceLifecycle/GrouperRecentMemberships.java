@@ -43,11 +43,7 @@ public class GrouperRecentMemberships {
         GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_ATTR_INCLUDE_CURRENT, true);
 
     
-//    if (GrouperDdlUtils.isHsql()) {
-//      regexPart = " and REGEXP_MATCHES (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_MATCHES (gaaagv_groupName.value_string, '^.+:.+$') "
-//          + "and REGEXP_MATCHES (gaaagv_includeEligible.value_string, '^(true|false)$') ";
-//      minEndTimePart = "(1000*(unix_millis(current_timestamp) - (1000*60*60*24*cast(gaaagv_recentMemberships.value_string as int))))";
-//    } else if (GrouperDdlUtils.isOracle()) {
+//    if (GrouperDdlUtils.isOracle()) {
 //      regexPart = " and REGEXP_LIKE (gaaagv_recentMemberships.value_string, '^[0-9]+$') and REGEXP_LIKE (gaaagv_groupName.value_string, '^.+:.+$') "
 //          + "and REGEXP_LIKE (gaaagv_includeEligible.value_string, '^(true|false)$') ";
 //      minEndTimePart = "(1000000 * (((cast(current_timestamp at time zone 'UTC' as date) - date '1970-01-01')*24*60*60)-(24*60*60*CAST( gaaagv_recentMemberships.value_string AS number ))))";

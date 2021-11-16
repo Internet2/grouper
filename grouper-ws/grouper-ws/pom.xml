@@ -237,11 +237,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- still undetermined dependencies (provided in lib dir but jdeps doesn't show any use)
         axis2-xmlbeans-1.6.1.jar

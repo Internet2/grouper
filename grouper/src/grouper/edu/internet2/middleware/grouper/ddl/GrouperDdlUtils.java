@@ -61,7 +61,6 @@ import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.StringType;
-import org.quartz.impl.jdbcjobstore.HSQLDBDelegate;
 import org.quartz.impl.jdbcjobstore.MSSQLDelegate;
 import org.quartz.impl.jdbcjobstore.PostgreSQLDelegate;
 import org.quartz.impl.jdbcjobstore.StdJDBCDelegate;
@@ -77,7 +76,6 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
-import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -129,21 +127,10 @@ public class GrouperDdlUtils {
   }
   
   /**
-   * see if the config file seems to be hsql
-   * @return see if hsql
-   */
-  public static boolean isHsql() {
-    return isHsql(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
-  }
-
-  /**
-   * returns mysql, hsql, postgres, oracle, or exception
+   * returns mysql, postgres, oracle, or exception
    * @return database type
    */
   public static String databaseType() {
-    if (GrouperDdlUtils.isHsql()) {
-      return "hsql";
-    }
     if (GrouperDdlUtils.isMysql()) {
       return "mysql";
     }
@@ -155,15 +142,6 @@ public class GrouperDdlUtils {
     }
     throw new RuntimeException("Database type not expected");
   
-  }
-  
-  /**
-   * see if the config file seems to be hsql
-   * @param connectionUrl url to check against
-   * @return see if hsql
-   */
-  public static boolean isHsql(String connectionUrl) {
-    return GrouperClientUtils.isHsql(connectionUrl);
   }
   
   /**
@@ -327,10 +305,6 @@ public class GrouperDdlUtils {
     
     if (cachedPlatform == null || !useCache) {
       
-      if (!PlatformFactory.isPlatformSupported("HsqlDb2")) {
-        PlatformFactory.registerPlatform("HsqlDb2", HsqlDb2Platform.class);
-      }
-      
       String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
@@ -338,13 +312,8 @@ public class GrouperDdlUtils {
   
       if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
         
-        if (isHsql()) {
-          // assume newer driver
-          cachedPlatform = PlatformFactory.createNewPlatformInstance("HsqlDb2");
-        } else {
-          cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
-              grouperDb.getUrl());
-        }
+        cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
+            grouperDb.getUrl());
       } else {
         cachedPlatform = PlatformFactory.createNewPlatformInstance(ddlUtilsDbnameOverride);
       }
@@ -459,9 +428,6 @@ public class GrouperDdlUtils {
    * @return the driver class
    */
   public static String convertUrlToQuartzDriverDelegateClass() {
-    if (GrouperDdlUtils.isHsql()) {
-      return HSQLDBDelegate.class.getName();
-    }
     if (GrouperDdlUtils.isMysql()) {
       return StdJDBCDelegate.class.getName();
 
@@ -486,16 +452,12 @@ public class GrouperDdlUtils {
     //default some of the stuff
     if (StringUtils.isBlank(hibernateDialect)) {
       
-      if (GrouperDdlUtils.isHsql()) {
-        hibernateDialect = "org.hibernate.dialect.HSQLDialect";
-      } else if (GrouperDdlUtils.isMysql()) {
+      if (GrouperDdlUtils.isMysql()) {
         hibernateDialect = "org.hibernate.dialect.MySQL5Dialect";
       } else if (GrouperDdlUtils.isOracle()) {
         hibernateDialect = "org.hibernate.dialect.Oracle10gDialect";
       } else if (GrouperDdlUtils.isPostgres()) { 
         hibernateDialect = "org.hibernate.dialect.PostgreSQLDialect";
-      } else if (GrouperDdlUtils.isSQLServer()) {
-        hibernateDialect = "org.hibernate.dialect.SQLServerDialect";
       } else {
         
         //if this is blank we will figure it out later
@@ -1215,10 +1177,6 @@ public class GrouperDdlUtils {
         //GRP-459: postgres wont drop a view if other views depend on it
         //we need if exists since cascade might drop other dependent views
         ddlVersionBean.getFullScript().append("\nDROP VIEW IF EXISTS " + viewName + " cascade;\n");
-      } else if (ddlVersionBean.isHsql()) {
-        //GRP-459: hsql wont drop a view if other views depend on it
-        //we need if exists since cascade might drop other dependent views
-        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + " IF EXISTS cascade;\n");
       } else {
         ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
       }
@@ -1243,11 +1201,7 @@ public class GrouperDdlUtils {
     
     String script;
     
-    if (isHsql()) {
-      script = "\nselect * into " + backupTableName + " from " + tableName + " ;\n";
-    } else {
-      script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
-    }
+    script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
     
     //not sure if this works on all dbs... it does work on mysql, oracle, and postgres
     ddlVersionBean.appendAdditionalScriptUnique(script);
@@ -1304,19 +1258,9 @@ public class GrouperDdlUtils {
     String aliasesString = StringUtils.join(aliases.iterator(), ", ");
     
     String fullSql;
-//    if (ddlVersionBean.isHsql()) {
-//      fullSql = "\nCREATE VIEW ";
-//    } else {
-//      fullSql = "\nCREATE OR REPLACE VIEW ";
-//    }
     fullSql = "\nCREATE VIEW ";
     
     fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
-    if (ddlVersionBean.isSqlServer()) {
-      //need this since sql server cant output more than one view in a script without it
-      //http://www.tek-tips.com/viewthread.cfm?qid=1447087&page=14
-      fullSql = "\ngo\n" + fullSql + "go\n\n";
-    }
     ddlVersionBean.appendAdditionalScriptUnique(fullSql);
 
     ddlutilsViewComment(ddlVersionBean, viewName, viewComment);
@@ -1645,9 +1589,6 @@ public class GrouperDdlUtils {
     } else {
       url = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + connectionName + ".url");
     }
-    if (isHsql(url)) {
-      return "hsql";
-    }
     if (isPostgres(url)) {
       return "postgres";
     }
@@ -1657,7 +1598,7 @@ public class GrouperDdlUtils {
     if (isMysql(url)) {
       return "mysql";
     }
-    throw new RuntimeException("Not expecting database type, should be hsql, oracle, mysql, or postgres! '" + 
+    throw new RuntimeException("Not expecting database type, should be oracle, mysql, or postgres! '" + 
         url + "'");
   }
 
@@ -1667,7 +1608,7 @@ public class GrouperDdlUtils {
    * e.g. Grouper.5.oracle10.sql
    * 
    * The dbname must be a valid ddlutils dbname:
-   * axion, cloudscape, db2, db2v8, derby, firebird, hsqldb, interbase, maxdb, mckoi, 
+   * axion, cloudscape, db2, db2v8, derby, firebird, interbase, maxdb, mckoi, 
    * mssql, mysql, mysql5, oracle, oracle10, oracle9, postgresql, sapdb, sybase, sybasease15
    *
    * Also the following catchalls are acceptable: oracleall, mysqlall, db2all, sybaseall
@@ -2737,17 +2678,8 @@ public class GrouperDdlUtils {
       extraSchema = "dbo";
     }
   
-    final boolean isHsqldb = platform.getName().toLowerCase().contains("hsql");
-    //seems like this is best...
-    if (isHsqldb) {
-      extraSchema = null;
-    }
-    
     if (!tableThere) {
       
-      if (isHsqldb) {
-        schema = null;
-      }
       if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
         schema = ddlUtilsSchemaOverride;
       } 
@@ -2776,8 +2708,7 @@ public class GrouperDdlUtils {
           //try all combinations
           for (String theDefaultTablePattern : defaultTablePatterns) {
             for (String theSchema : schemas) {
-              boolean hsqlSchemaOk = theSchema == null && isHsqldb;
-              if (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb && !hsqlSchemaOk)) {
+              if (StringUtils.isBlank(theDefaultTablePattern) ) {
                 continue;
               }
               Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
@@ -2842,7 +2773,7 @@ public class GrouperDdlUtils {
     } else if (GrouperDdlUtils.isMysql()) {
       return "concat(" + field1 + ", '" + separator + "', " + field2 + ")";
     } else {
-      // this should work for Oracle, Hsql, and Postgres
+      // this should work for Oracle, and Postgres
       return field1 + " || '" + separator + "' || " + field2;
     }
   }
@@ -2859,7 +2790,7 @@ public class GrouperDdlUtils {
     } else if (GrouperDdlUtils.isMysql()) {
       return "concat(" + field1 + "," + field2 + ")";
     } else {
-      // this should work for Oracle, Hsql, and Postgres
+      // this should work for Oracle, and Postgres
       return field1 + " || " + field2;
     }
   }

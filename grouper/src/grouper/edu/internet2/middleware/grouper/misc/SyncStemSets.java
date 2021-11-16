@@ -119,7 +119,7 @@ public class SyncStemSets {
     // if we have a lot of stems and a few stem sets, let's clear out the stem sets so we don't spend time in the second phase.
     if (stemCount > 100 && stemSetCount < 100) {
 
-      if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+      if (GrouperDdlUtils.isMysql()) {
         //do this since mysql cant handle self-referential foreign keys
         // restrict this only to mysql since in oracle this might cause unique constraint violations
         HibernateSession.byHqlStatic().createQuery("update StemSet set parentStemSetId = null").executeUpdate();

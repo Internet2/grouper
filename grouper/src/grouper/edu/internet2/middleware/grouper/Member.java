@@ -222,6 +222,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** subjectResolutionResolvable */
   public static final String COLUMN_SUBJECT_RESOLUTION_RESOLVABLE = "subject_resolution_resolvable";
 
+  /** subjectResolutionEligible */
+  public static final String COLUMN_SUBJECT_RESOLUTION_ELIGIBLE = "subject_resolution_eligible";
+
   /** subjectResolutionDeleted */
   public static final String COLUMN_SUBJECT_RESOLUTION_DELETED = "subject_resolution_deleted";
   
@@ -293,6 +296,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** constant for field name for: subjectIdentifier0 */
   public static final String FIELD_SUBJECT_IDENTIFIER0 = "subjectIdentifier0";
 
+  /** constant for field name for: subjectResolutionEligible */
+  public static final String FIELD_SUBJECT_RESOLUTION_ELIGIBLE = "subjectResolutionEligible";
+  
   /** constant for field name for: subjectResolutionResolvable */
   public static final String FIELD_SUBJECT_RESOLUTION_RESOLVABLE = "subjectResolutionResolvable";
   
@@ -342,7 +348,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
       FIELD_SUBJECT_RESOLUTION_DELETED);
 
   /**
@@ -353,7 +359,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
       FIELD_SUBJECT_RESOLUTION_DELETED);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -384,6 +390,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   
   /** subject identfier */
   private String subjectIdentifier0;
+  
+  /** false if has no memberships or privileges */
+  private boolean subjectResolutionEligible = true;
   
   /** false if no longer resolvable */
   private boolean subjectResolutionResolvable = true;
@@ -3996,6 +4005,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (this.subjectResolutionResolvable != other.subjectResolutionResolvable) {
       return true;
     }
+    if (this.subjectResolutionEligible != other.subjectResolutionEligible) {
+      return true;
+    }
     if (!StringUtils.equals(this.sortString0, other.sortString0)) {
       return true;
     }
@@ -4061,6 +4073,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     existingRecord.subjectTypeID = this.subjectTypeID;
     existingRecord.subjectIdentifier0 = this.subjectIdentifier0;
     existingRecord.subjectResolutionDeleted = this.subjectResolutionDeleted;
+    existingRecord.subjectResolutionEligible = this.subjectResolutionEligible;
     existingRecord.subjectResolutionResolvable = this.subjectResolutionResolvable;
     existingRecord.sortString0 = this.sortString0;
     existingRecord.sortString1 = this.sortString1;
@@ -4133,6 +4146,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setUuid(this.getUuid());
     
     xmlExportMember.setSubjectIdentifier0(this.getSubjectIdentifier0());
+    xmlExportMember.setSubjectResolutionEligible(this.getSubjectResolutionEligibleDb());
     xmlExportMember.setSubjectResolutionResolvable(this.getSubjectResolutionResolvableDb());
     xmlExportMember.setSubjectResolutionDeleted(this.getSubjectResolutionDeletedDb());
     xmlExportMember.setSortString0(this.getSortString0());
@@ -4194,6 +4208,30 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.subjectIdentifier0 = subjectIdentifier0;
   }
   
+  
+  public boolean isSubjectResolutionEligible() {
+    return subjectResolutionEligible;
+  }
+
+  
+  public void setSubjectResolutionEligible(boolean subjectResolutionEligible) {
+    this.subjectResolutionEligible = subjectResolutionEligible;
+  }
+
+  /**
+   * @return T if eligible
+   */
+  public String getSubjectResolutionEligibleDb() {
+    return this.subjectResolutionEligible ? "T" : "F";
+  }
+
+  /**
+   * @param subjectResolutionEligible
+   */
+  public void setSubjectResolutionEligibleDb(String subjectResolutionEligible) {
+    this.subjectResolutionEligible = GrouperUtil.booleanValue(subjectResolutionEligible);
+  }
+
   /**
    * @return T if resolvable
    */

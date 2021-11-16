@@ -257,7 +257,7 @@ public class HibernateSession {
           String useSavepointsString = GrouperConfig.retrieveConfig().propertyValueString("jdbc.useSavePoints");
           boolean useSavepoints;
           if (StringUtils.isBlank(useSavepointsString)) {
-            useSavepoints = !GrouperDdlUtils.isHsql();
+            useSavepoints = true;
           } else {
             useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
           }
@@ -275,9 +275,6 @@ public class HibernateSession {
               throw new RuntimeException("Problem setting save point for transaction type: " 
                   + grouperTransactionType, sqle);
             }
-          } else if (GrouperDdlUtils.isHsql() && parentSessionExists) {
-            //do this for tests...
-            savePointCount++;
           }
         }
       }

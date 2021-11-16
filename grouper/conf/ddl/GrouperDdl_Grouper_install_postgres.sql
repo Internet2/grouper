@@ -1909,7 +1909,7 @@ CREATE TABLE grouper_prov_zoom_user
     created_at BIGINT,
     last_login_time BIGINT,
     language VARCHAR(100),
-    status BIGINT,
+    status VARCHAR(40),
     role_id BIGINT,
     PRIMARY KEY (email)
 );

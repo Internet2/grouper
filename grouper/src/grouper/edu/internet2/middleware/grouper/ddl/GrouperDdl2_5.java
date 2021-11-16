@@ -1391,9 +1391,7 @@ public class GrouperDdl2_5 {
         messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, true);
   
       if ((column.getTypeCode() == Types.VARCHAR) && !"40".equals(column.getSize())) {
-        if (ddlVersionBean.isHsql()) {
-          ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE grouper_message ALTER COLUMN from_member_id VARCHAR(40);\n");
-        } else if (ddlVersionBean.isOracle()) {
+        if (ddlVersionBean.isOracle()) {
           ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE GROUPER_MESSAGE MODIFY (FROM_MEMBER_ID VARCHAR(40));\n");
         } else if (ddlVersionBean.isPostgres()) {
           ddlVersionBean.appendAdditionalScriptUnique("\nALTER TABLE grouper_message ALTER COLUMN from_member_id TYPE VARCHAR(40);\nCOMMIT;\n");
@@ -1536,8 +1534,8 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    // we only need to drop in hsql
-    if (ddlVersionBean.isHsql() || ddlVersionBean.isPostgres()) {
+    // we only need to drop in postgres
+    if (ddlVersionBean.isPostgres()) {
     
       GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
     }
@@ -1552,8 +1550,8 @@ public class GrouperDdl2_5 {
       return;
     }
 
-    // we only need to drop in hsql
-    if (ddlVersionBean.isHsql() || ddlVersionBean.isPostgres()) {
+    // we only need to drop in postgres
+    if (ddlVersionBean.isPostgres()) {
       GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
     }
   }

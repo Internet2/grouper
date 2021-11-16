@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperInstaller.driverShim.HsqlShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.MySqlShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.OracleShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.PostgresShim;
@@ -94,16 +93,12 @@ public class GiDbUtils {
       
       //we need to find jar and add
       String prefix = null;
-      if (this.isHsql()) {
-        prefix = "hsql";
-      } else if (this.isMysql()) {
+      if (this.isMysql()) {
         prefix = "mysql";
       } else if (this.isOracle()) {
         prefix = "ojdbc";
       } else if (this.isPostgres()) {
         prefix = "postgres";
-      } else if (this.isSQLServer()) {
-        prefix = "sqljdbc";
       } else {
         throw new RuntimeException("What kind of database is this???? " + this.url);
       }
@@ -125,11 +120,7 @@ public class GiDbUtils {
         System.exit(1);
       }
       try {
-        if (this.isHsql()) {
-          HsqlShim.init(driverJar);
-          HsqlShim hsqlShim = new HsqlShim();
-          DriverManager.registerDriver(hsqlShim);
-        } else if (this.isMysql()) {
+        if (this.isMysql()) {
           MySqlShim.init(driverJar);
           MySqlShim mysqlShim = new MySqlShim();
           DriverManager.registerDriver(mysqlShim);
@@ -141,10 +132,6 @@ public class GiDbUtils {
           PostgresShim.init(driverJar);
           PostgresShim postgresShim = new PostgresShim();
           DriverManager.registerDriver(postgresShim);
-        } else if (this.isSQLServer()) {
-          SqlServerShim.init(driverJar);
-          SqlServerShim sqlServerShim = new SqlServerShim();
-          DriverManager.registerDriver(sqlServerShim);
         } else {
           throw new RuntimeException("What kind of database is this???? " + this.url);
         }
@@ -237,23 +224,6 @@ public class GiDbUtils {
   }
   
   /**
-   * see if the config file seems to be hsql
-   * @return see if hsql
-   */
-  public boolean isHsql() {
-    return isHsql(this.url);
-  }
-
-  /**
-   * see if the config file seems to be hsql
-   * @param connectionUrl url to check against
-   * @return see if hsql
-   */
-  public static boolean isHsql(String connectionUrl) {
-    return GrouperInstallerUtils.defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
-  }
-  
-  /**
    * see if the config file seems to be postgres
    * @return see if postgres
    */
@@ -305,24 +275,6 @@ public class GiDbUtils {
   }
   
   /**
-   * see if the config file seems to be sql server
-   * @return see if sql server
-   */
-  public boolean isSQLServer() {
-    return isSQLServer(this.url);
-  }
-  
-  /**
-   * see if the config file seems to be sql server
-   * @param connectionUrl
-   * @return see if sql server
-   */
-  public static boolean isSQLServer(String connectionUrl) {
-    return GrouperInstallerUtils.defaultString(connectionUrl).toLowerCase().contains(":sqlserver:");
-  }
-  
-
-  /**
    * if there is no driver class specified, then try to derive it from the URL
    * @param connectionUrl
    * @param driverClassName
@@ -332,16 +284,12 @@ public class GiDbUtils {
     //default some of the stuff
     if (GrouperInstallerUtils.isBlank(driverClassName)) {
       
-      if (isHsql(connectionUrl)) {
-        driverClassName = "org.hsqldb.jdbcDriver";
-      } else if (isMysql(connectionUrl)) {
+      if (isMysql(connectionUrl)) {
         driverClassName = "com.mysql.jdbc.Driver";
       } else if (isOracle(connectionUrl)) {
         driverClassName = "oracle.jdbc.driver.OracleDriver";
       } else if (isPostgres(connectionUrl)) { 
         driverClassName = "org.postgresql.Driver";
-      } else if (isSQLServer(connectionUrl)) {
-        driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
       } else {
         
         //if this is blank we will figure it out later
@@ -553,9 +501,6 @@ public class GiDbUtils {
    * @return the query to check connection with
    */
   public String checkConnectionQuery() {
-    if (this.isHsql()) {
-      return "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS";
-    }
     if (this.isMysql()) {
       return "select 1";
     }
@@ -563,9 +508,6 @@ public class GiDbUtils {
       return "select 1 from dual";
     }
     if (this.isPostgres()) {
-      return "select 1";
-    }
-    if (this.isSQLServer()) {
       return "select 1";
     }
     throw new RuntimeException("Cant find which database type from URL: " + this.url);

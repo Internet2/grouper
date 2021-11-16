@@ -9724,15 +9724,6 @@ public class GrouperClientCommonUtils  {
   }
 
   /**
-   * see if the config file seems to be hsql
-   * @param connectionUrl url to check against
-   * @return see if hsql
-   */
-  public static boolean isHsql(String connectionUrl) {
-    return ConfigDatabaseLogic.isHsql(connectionUrl);
-  }
-
-  /**
    * see if the config file seems to be mysql
    * @param connectionUrl
    * @return see if mysql

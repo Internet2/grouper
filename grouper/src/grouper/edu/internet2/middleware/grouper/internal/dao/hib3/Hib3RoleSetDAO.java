@@ -48,7 +48,7 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
    */
   static void reset(HibernateSession hibernateSession) {
     
-    if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isMysql()) {
       //do this since mysql cant handle self-referential foreign keys
       // restrict this only to mysql since in oracle this might cause unique constraint violations
       hibernateSession.byHql().createQuery("update RoleSet set parentRoleSetId = null").executeUpdate();
@@ -90,7 +90,7 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+            if (GrouperDdlUtils.isMysql()) {
               //set parent to null so mysql doest get mad
               //http://bugs.mysql.com/bug.php?id=15746
               hibernateHandlerBean.getHibernateSession().byHql().createQuery(
@@ -207,7 +207,7 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
             Set<RoleSet> roleSets = HibernateSession.byHqlStatic().createQuery(
               "from RoleSet where ifHasRoleId = :theId order by depth desc").setString("theId", role.getId()).listSet(RoleSet.class);
             for (RoleSet roleSet : roleSets) {
-              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+              if (GrouperDdlUtils.isMysql()) {
                 //do this since mysql cant handle self-referential foreign keys
                 roleSet.setParentRoleSetId(null);
                 roleSet.saveOrUpdate();

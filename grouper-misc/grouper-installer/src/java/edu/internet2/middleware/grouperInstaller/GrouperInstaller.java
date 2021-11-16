@@ -641,9 +641,9 @@ public class GrouperInstaller {
     
 //    
 //    
-//    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
-//    grouperInstaller.dbUser = "sa";
-//    grouperInstaller.dbPass = "";
+//    grouperInstaller.dbUrl = 
+//    grouperInstaller.dbUser = 
+//    grouperInstaller.dbPass = 
 //    grouperInstaller.giDbUtils = new GiDbUtils(grouperInstaller.dbUrl, grouperInstaller.dbUser, grouperInstaller.dbPass);
 //    grouperInstaller.untarredApiDir = new File("c:/mchyzer/grouper/trunk/grouper-installer/grouper.apiBinary-2.0.2");
 //    grouperInstaller.grouperInstallDirectoryString = "C:/mchyzer/grouper/trunk/grouper-installer/";
@@ -653,7 +653,6 @@ public class GrouperInstaller {
 //    
 //    grouperInstaller.addDriverJarToClasspath();
 ////      
-//    grouperInstaller.startHsqlDb();
 //    grouperInstaller.checkDatabaseConnection();
 ////      grouperInstaller.initDb();
 ////      
@@ -713,7 +712,6 @@ public class GrouperInstaller {
 //    //editPropertiesFile(new File("C:\\mchyzer\\grouper\\trunk\\grouper-installer\\grouper.apiBinary-2.1.0\\conf\\grouper.hibernate.properties"), 
 //    //    "hibernate.connection.password", "sdf");
       
-    //if started hsql, then we need to exit since that thread will not stop
     System.exit(0);
   }
 
@@ -3995,63 +3993,9 @@ public class GrouperInstaller {
         }
       }
     } else {          
-      if (this.dbUrl.contains(":hsqldb:")) {
-
-        this.untarredApiDir = grouperHibernatePropertiesFileLocal;
-        //find the untarred API dir
-        int MAX_TRIES = 6;
-        for (int i=0;i<MAX_TRIES;i++) {
-          File tryFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "grouper.apiBinary-" + this.version);
-          if (tryFile.exists()) {
-            this.untarredApiDir = tryFile;
-            break;
-          }
-          this.untarredApiDir = this.untarredApiDir.getParentFile();
-          if (i==MAX_TRIES-1) {
-            System.out.print("Normally the database is started by the installer from the unzipped API directory.  \n"
-                + "Based on your inputted install directory, the API directory cannot be found.\n"
-                + "HSQL cannot be accessed, maybe try again with a different install directory");
-            System.exit(1);
-          }
-        }
+      
+      System.out.println("Error: you are using an external database, (URL above), you need to " + grouperInstallerAdminManageServiceAction + " that database yourself");
         
-        if (grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.stop 
-            || grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.restart) {
-          this.shutdownHsql();
-        }
-
-        if (grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.restart) {
-          GrouperInstallerUtils.sleep(3000);
-        }
-
-        if (grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.start 
-            || grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.restart) {
-          this.startHsqlDb(false);
-
-          GrouperInstallerUtils.sleep(3000);
-
-          //check connection to database
-          if (null == this.giDbUtils.checkConnection()) {
-            System.out.println("Success: database is up, connection successful.");
-          } else {
-            System.out.println("ERROR: database is down... could not start");
-          }
-        } else {
-          //check connection to database
-          if (null == this.giDbUtils.checkConnection()) {
-            System.out.println("ERROR: database is up... could not stop.");
-          } else {
-            System.out.println("Success: database is down.");
-          }
-          
-        }
- 
-      } else {
-        
-        System.out.println("Error: you are using an external database, (URL above), you need to " + grouperInstallerAdminManageServiceAction + " that database yourself");
-        
-      }
-
     }
   }
 
@@ -4819,7 +4763,7 @@ public class GrouperInstaller {
     /** tomcat */
     tomcat,
     
-    /** database (hsqldb) */
+    /** database */
     database,
     
     /** daemon (loader) */
@@ -11283,7 +11227,7 @@ public class GrouperInstaller {
     }
 
     if (!GrouperInstallerUtils.equals("0.0.0.0", this.defaultIpAddress)) {
-      System.out.println("Note, you will probably need to change the hsql IP address, and tomcat server.xml IP addresses...");
+      System.out.println("Note, you will probably need to change the tomcat server.xml IP addresses...");
     }
     
     //####################################
@@ -11304,51 +11248,40 @@ public class GrouperInstaller {
 
     Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(localGrouperHibernatePropertiesFile);
 
-    this.dbUrl = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.url"), "jdbc:hsqldb:hsql://localhost:9001/grouper");
+    this.dbUrl = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     this.dbUser = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.username"));
     this.dbPass = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.password"));
 
-    boolean useHsqldb = false;
-
-    if (this.dbUrl.contains(":hsqldb:")) {
-      System.out.print("Do you want to use the default and included hsqldb database (t|f)? [t]: ");
-      useHsqldb = readFromStdInBoolean(true, "grouperInstaller.autorun.useBuiltInHsql");
-    }
-
-    if (!useHsqldb) {
-
-      System.out.println("\n##################################\n");
-      System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
-      System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
-      System.out.println("Example hsqldb URL: jdbc:hsqldb:hsql://localhost:9001/grouper");
-      System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
-      System.out.println("Example mssql URL: jdbc:sqlserver://localhost:3280;databaseName=grouper");
-      System.out.print("\nEnter the database URL [" + this.dbUrl + "]: ");
-      String newDbUrl = readFromStdIn("grouperInstaller.autorun.dbUrl");
-      if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
-        this.dbUrl = newDbUrl;
-        if (newDbUrl.contains("postgresql") || newDbUrl.contains("sqlserver")) {
-          System.out.println("Note: you need to change the search sql in the jdbc source in the grouperApi/conf/sources.xml... the change is in the comments in that file");
-          for (int i=0;i<3;i++) {
-            System.out.print("Ready to continue? (t|f)? [t] ");
-            boolean shouldContinue = readFromStdInBoolean(true, "grouperInstaller.autorun.dbContinueAfterChangeSourcesXmlForPostgresSqlServer");
-            if (shouldContinue) {
-              break;
-            }
+    System.out.println("\n##################################\n");
+    System.out.println("Example mysql URL: jdbc:mysql://localhost:3306/grouper");
+    System.out.println("Example oracle URL: jdbc:oracle:thin:@server.school.edu:1521:sid");
+    System.out.println("Example postgres URL: jdbc:postgresql://localhost:5432/database");
+    System.out.println("Example mssql URL: jdbc:sqlserver://localhost:3280;databaseName=grouper");
+    System.out.print("\nEnter the database URL [" + this.dbUrl + "]: ");
+    String newDbUrl = readFromStdIn("grouperInstaller.autorun.dbUrl");
+    if (!GrouperInstallerUtils.isBlank(newDbUrl)) {
+      this.dbUrl = newDbUrl;
+      if (newDbUrl.contains("postgresql") || newDbUrl.contains("sqlserver")) {
+        System.out.println("Note: you need to change the search sql in the jdbc source in the grouperApi/conf/sources.xml... the change is in the comments in that file");
+        for (int i=0;i<3;i++) {
+          System.out.print("Ready to continue? (t|f)? [t] ");
+          boolean shouldContinue = readFromStdInBoolean(true, "grouperInstaller.autorun.dbContinueAfterChangeSourcesXmlForPostgresSqlServer");
+          if (shouldContinue) {
+            break;
           }
         }
       }
-      System.out.print("Database user [" + this.dbUser + "]: ");
-      String newDbUser = readFromStdIn("grouperInstaller.autorun.dbUser");
-      if (!GrouperInstallerUtils.isBlank(newDbUser)) {
-        this.dbUser = newDbUser;
-      }
-      System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
-          + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
-      String newDbPass = readFromStdIn("grouperInstaller.autorun.dbPass");
-      if (!GrouperInstallerUtils.isBlank(newDbPass)) {
-        this.dbPass = newDbPass;
-      }
+    }
+    System.out.print("Database user [" + this.dbUser + "]: ");
+    String newDbUser = readFromStdIn("grouperInstaller.autorun.dbUser");
+    if (!GrouperInstallerUtils.isBlank(newDbUser)) {
+      this.dbUser = newDbUser;
+    }
+    System.out.print("Database password (note, you aren't setting the pass here, you are using an existing pass, this will be echoed back) [" 
+        + GrouperInstallerUtils.defaultIfEmpty(this.dbPass, "<blank>") + "]: ");
+    String newDbPass = readFromStdIn("grouperInstaller.autorun.dbPass");
+    if (!GrouperInstallerUtils.isBlank(newDbPass)) {
+      this.dbPass = newDbPass;
     }
 
     this.giDbUtils = new GiDbUtils(this.dbUrl, this.dbUser, this.dbPass);
@@ -11372,13 +11305,6 @@ public class GrouperInstaller {
     //note, we are note really doing this now, we are using drivers already on classpath since this doesnt work
     //this.addDriverJarToClasspath();
 
-    //####################################
-    //start database if needed (check on port?  ask to change port?)
-    if (this.dbUrl.contains("hsqldb")) {
-      //C:\mchyzer\grouper\trunk\grouper-installer\grouper.apiBinary-2.1.0
-      startHsqlDb(true);
-    }
-    
     //####################################
     //check connection to database
     checkDatabaseConnection();
@@ -14012,112 +13938,9 @@ public class GrouperInstaller {
     }
   }
 
-  /**
-   * get hsql port
-   * @return port
-   */
-  private int hsqlPort() {
-    //get right port
-    int port = 9001;
-    
-    //match this, get the port: jdbc:hsqldb:hsql://localhost:9001/grouper
-    Pattern pattern = Pattern.compile("jdbc:hsqldb:.*:(\\d+)/.*");
-    Matcher matcher = pattern.matcher(this.dbUrl);
-    if (matcher.matches()) {
-      port = GrouperInstallerUtils.intValue(matcher.group(1));
-    }
-    return port;
-  }
-  
-  /**
-   * @param prompt
-   */
-  private void startHsqlDb(boolean prompt) {
-    boolean startdb = true;
-    
-    if (prompt) {
-      System.out.print("Do you want this script to start the hsqldb database (note, it must not be running in able to start) (t|f)? [t]: ");
-      startdb = readFromStdInBoolean(true, "grouperInstaller.autorun.startHsqlDatabase");
-    }
-    if (startdb) {
-      
-      //get right port
-      int port = hsqlPort();
-
-      if (!GrouperInstallerUtils.portAvailable(port, this.defaultIpAddress)) {
-        shutdownHsql();
-      }
-
-      if (!GrouperInstallerUtils.portAvailable(port, this.defaultIpAddress)) {
-        System.out.println("This port does not seem available, even after trying to stop the DB! " + port + "...");
-        if (!shouldContinue("grouperInstaller.autorun.continueAfterPortNotAvailable")) {
-          throw new RuntimeException("This port is not available, even after trying to stop the DB! " + port);
-        }
-      }
-      
-      final List<String> command = new ArrayList<String>();
-
-      command.add(getJavaCommand());
-      command.add("-cp");
-      command.add(this.untarredApiDir + File.separator + "lib" + File.separator + "jdbcSamples" + File.separator 
-          + "*");
-      //-cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper -port 9001
-      command.addAll(GrouperInstallerUtils.splitTrimToList("org.hsqldb.Server -database.0 file:" 
-          + this.untarredApiDir + File.separator + "grouper -dbname.0 grouper -port " + port , " "));
-      
-      if (!GrouperInstallerUtils.isWindows()) {
-
-        //let this database run forever
-        command.add(0, "nohup");
-        //run in new process
-        command.add("> /dev/null 2>&1 &");
-      
-      }
-      
-//        System.out.println("Starting DB with command: java -cp grouper.apiBinary-" + this.version + File.separator 
-//            + "lib" + File.separator + "jdbcSamples" + File.separator 
-//            + "hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper");
-
-      System.out.println("Starting DB with command: " + GrouperInstallerUtils.join(command.iterator(), " "));
-
-      //start in new thread
-      Thread thread = new Thread(new Runnable() {
-        
-        @Override
-        public void run() {
-          GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class),
-              true, true, null, null, 
-              GrouperInstaller.this.grouperInstallDirectoryString + "hsqlDb", false, false);
-        }
-      });
-      thread.setDaemon(true);
-      thread.start();
-      
-    }
-    
-    //lets sleep for a bit to let it start
-    GrouperInstallerUtils.sleep(2000);
-    
-  }
-
   /** gi db utils */
   private GiDbUtils giDbUtils = null;
-  
-  /**
-   * 
-   */
-  private void shutdownHsql() {
     
-    try {
-      this.giDbUtils.executeUpdate("SHUTDOWN", null, false);
-      System.out.println("Shutting down HSQL before starting it by sending the SQL: SHUTDOWN");
-    } catch (Exception e) {
-      //e.printStackTrace();
-      System.out.println("HSQL was not detected to be running (did not successfully stop it)");
-    }
-  }
-  
-  
   /**
    * 
    */
@@ -16665,7 +16488,6 @@ public class GrouperInstaller {
           + "#       e.g. p6spy (log sql): com.p6spy.engine.spy.P6SpyDriver\n"
           + "#         for p6spy, put the underlying driver in spy.properties\n"
           + "#       e.g. oracle:          oracle.jdbc.driver.OracleDriver\n"
-          + "#       e.g. hsqldb:          org.hsqldb.jdbcDriver\n"
           + "#       e.g. postgres:        org.postgresql.Driver\n");
 
     } else if (GrouperInstallerUtils.equals(paramName, "dbUrl")) {
@@ -16673,8 +16495,6 @@ public class GrouperInstaller {
       subjectPropertiesContents.append("\n#       e.g. mysql:           jdbc:mysql://localhost:3306/grouper\n"
           + "#       e.g. p6spy (log sql): [use the URL that your DB requires]\n"
           + "#       e.g. oracle:          jdbc:oracle:thin:@server.school.edu:1521:sid\n"
-          + "#       e.g. hsqldb (a):      jdbc:hsqldb:dist/run/grouper;create=true\n"
-          + "#       e.g. hsqldb (b):      jdbc:hsqldb:hsql://localhost:9001\n"
           + "#       e.g. postgres:        jdbc:postgresql:grouper\n");
 
     } else if (GrouperInstallerUtils.equals(paramName, "dbUser")) {

@@ -72,7 +72,7 @@ public class GrouperDdl2_5_34 {
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_config ADD COLUMN config_value_clob mediumtext;\n");
     } 
     
-    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isOracle()) {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(configTable, GrouperConfigHibernate.COLUMN_CONFIG_VALUE_CLOB, Types.CLOB, "10000000", false, false, null);
     }
     
@@ -155,7 +155,7 @@ public class GrouperDdl2_5_34 {
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_pit_config ADD COLUMN config_value_clob mediumtext;\n");
     } 
     
-    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isOracle()) {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_CONFIG_VALUE_CLOB, Types.CLOB, "10000000", false, false, null);
     }
     
@@ -172,7 +172,7 @@ public class GrouperDdl2_5_34 {
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_pit_config ADD COLUMN prev_config_value_clob mediumtext;\n");
     } 
     
-    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isOracle()) {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperPitConfigTable, PITGrouperConfigHibernate.COLUMN_PREV_CONFIG_VALUE_CLOB, Types.CLOB, "10000000", false, false, null);
     }
     
@@ -250,7 +250,7 @@ public class GrouperDdl2_5_34 {
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_file ADD COLUMN file_contents_clob mediumtext;\n");
     } 
     
-    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isOracle()) {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_CLOB, Types.CLOB, "10000000", false, false, null);
     }
     

@@ -1107,9 +1107,7 @@ public class ConfigDatabaseLogic {
     //default some of the stuff
     if (isBlank(driverClassName)) {
       
-      if (isHsql(connectionUrl)) {
-        driverClassName = "org.hsqldb.jdbcDriver";
-      } else if (isMysql(connectionUrl)) {
+      if (isMysql(connectionUrl)) {
         driverClassName = "com.mysql.jdbc.Driver";
       } else if (isOracle(connectionUrl)) {
         driverClassName = "oracle.jdbc.driver.OracleDriver";
@@ -1131,15 +1129,6 @@ public class ConfigDatabaseLogic {
     }
     return driverClassName;
   
-  }
-
-  /**
-   * see if the config file seems to be hsql
-   * @param connectionUrl url to check against
-   * @return see if hsql
-   */
-  public static boolean isHsql(String connectionUrl) {
-    return defaultString(connectionUrl).toLowerCase().contains(":hsqldb:");
   }
 
   /**

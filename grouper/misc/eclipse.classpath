@@ -73,7 +73,6 @@
   <classpathentry exported="true" kind="lib" path="lib/grouper/smack-3.1.0.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/grouper/xmlpull-1.1.3.1.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/grouper/xstream-1.4.9.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb-2.3.5.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/jdbcSamples/mysql-connector-java-5.1.45.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc6_g.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql-42.1.4.jar"/>

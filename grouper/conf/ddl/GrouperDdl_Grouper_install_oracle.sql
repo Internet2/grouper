@@ -1909,7 +1909,7 @@ CREATE TABLE grouper_prov_zoom_user
     created_at NUMBER(38),
     last_login_time NUMBER(38),
     language VARCHAR2(100),
-    status NUMBER(38),
+    status VARCHAR2(40),
     role_id NUMBER(38),
     PRIMARY KEY (email)
 );

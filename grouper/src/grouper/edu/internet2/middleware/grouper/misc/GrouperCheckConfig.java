@@ -1478,9 +1478,6 @@ public class GrouperCheckConfig {
     boolean isDriverOracle = realDriverClass.toLowerCase().contains("oracle");
     boolean isDriverPostgres = realDriverClass.toLowerCase().contains("postgres");
     boolean isDriverMysql = realDriverClass.toLowerCase().contains("mysql");
-    boolean isDriverHsql = realDriverClass.toLowerCase().contains("hsql");
-    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver") 
-      || realDriverClass.toLowerCase().contains("jtds");
     
     String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(grouperHibernateProperties,"hibernate.dialect"));
     
@@ -1489,15 +1486,12 @@ public class GrouperCheckConfig {
     boolean isDialectOracle = dialect.toLowerCase().contains("oracle");
     boolean isDialectPostgres = dialect.toLowerCase().contains("postgres");
     boolean isDialectMysql = dialect.toLowerCase().contains("mysql");
-    boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
-    boolean isDialectSqlServer = dialect.toLowerCase().contains("sqlserver");
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("db.log.driver.mismatch", true)) {
       if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
-          || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
+          || (isDriverMysql && !isDialectMysql)
           || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
-          || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
-          || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
+          || (!isDriverMysql && isDialectMysql)) {
         String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
                 + realDriverClass + ") and hibernate.dialect (" + dialect 
                 + ") in grouper.hibernate.properties" + spySuffix;

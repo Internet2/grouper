@@ -521,7 +521,7 @@ public class UiV2ExternalSystem {
         LOG.error("error testing external system: '" + externalSystemConfigId + "'", e);
         String stackTrace = ExceptionUtils.getStackTrace(e);
         String error = TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemConnectionTestException");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + "<pre>" + stackTrace + "</pre>"));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error + "<pre>" + GrouperUtil.escapeHtml(stackTrace, true) + "</pre>"));
         return;
       }
       

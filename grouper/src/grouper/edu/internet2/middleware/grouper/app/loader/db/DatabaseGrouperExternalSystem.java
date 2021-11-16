@@ -78,9 +78,7 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
     if (StringUtils.isBlank(query)) {
       query = "select 1";
       
-      if (GrouperClientUtils.isHsql(grouperLoaderDb.getUrl())) {
-        query = "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS";
-      } else if (GrouperClientUtils.isOracle(grouperLoaderDb.getUrl())) {
+      if (GrouperClientUtils.isOracle(grouperLoaderDb.getUrl())) {
         query = "select 1 from dual";
       }
     }

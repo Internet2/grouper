@@ -352,7 +352,7 @@ public class GrouperDdl2_6_1 {
         Types.VARCHAR, "100", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_STATUS,
-        Types.BIGINT, "40", false, false);
+        Types.VARCHAR, "40", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_ROLE_ID,
         Types.BIGINT, "12", false, false);

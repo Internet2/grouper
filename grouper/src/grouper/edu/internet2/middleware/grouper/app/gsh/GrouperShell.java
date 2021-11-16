@@ -698,7 +698,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
 	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
 	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry | -usdu |"   + GrouperConfig.NL
-	            + "       -findbadmemberships | -ldappc | pspngAttributesToProvisioningAttributes) "
+	            + "       -findbadmemberships | -ldappc | -pspngAttributesToProvisioningAttributes) "
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
 	            
@@ -713,8 +713,8 @@ private static boolean handleSpecialCase(String[] args) {
 	             
 	            + "  -usdu,                Invoke USDU - Unresolvable Subject Deletion "   + GrouperConfig.NL
 	            + "                        Utility"                                        + GrouperConfig.NL
-	            + "  -pspngAttributesToProvisioningAttributes Copies pspng attributes to provisioning"  + GrouperConfig.NL
-	           
+	            + "  -pspngAttributesToProvisioningAttributes Copies pspng attributes to " + GrouperConfig.NL
+	            + "                        provisioning, enter pspngConfigId and provisioningFrameworkConfigId"  + GrouperConfig.NL
 	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL
                 + "  -ldappc,              Run the grouper ldap provisioning connector to send data to ldap    "  + GrouperConfig.NL
 	            ;

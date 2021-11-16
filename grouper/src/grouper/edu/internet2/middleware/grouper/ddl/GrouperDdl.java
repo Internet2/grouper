@@ -675,18 +675,16 @@ public enum GrouperDdl implements DdlVersionable {
 
       }
       
-      if (!ddlVersionBean.isSqlServer()) {
         
-        Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindTable(database,
-            AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true);
+      Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindTable(database,
+          AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true);
 
-        //do 8 string indexes, probably dont need them on the other string cols
-        for (int i=6;i<=8;i++) {
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-              "audit_entry_string0" + i + "_idx", false, "string0" + i+"(255)");
-          
-        }
+      //do 8 string indexes, probably dont need them on the other string cols
+      for (int i=6;i<=8;i++) {
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_string0" + i + "_idx", false, "string0" + i+"(255)");
+        
       }
       
       addGrouperLoaderJobNameIndex(database, ddlVersionBean);
@@ -2327,15 +2325,13 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
           "group_type_of_group_idx", false, "type_of_group");
       
-      if (!ddlVersionBean.isSqlServer()) {
-        //do 12 string indexes
-        for (int i=1;i<=12;i++) {
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
-              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
-          
-        }
+      //do 12 string indexes
+      for (int i=1;i<=12;i++) {
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
+            "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
+            + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
+        
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
@@ -3286,12 +3282,10 @@ public enum GrouperDdl implements DdlVersionable {
       DdlVersionBean ddlVersionBean, Table groupsTable) {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_ALTERNATE_NAME, Types.VARCHAR, 
-        ddlVersionBean.isSqlServer() ? "900" : "1024", false, false); 
+        "1024", false, false); 
     
-    if (!ddlVersionBean.isSqlServer()) {
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
-          "group_alternate_name_idx", false, Group.COLUMN_ALTERNATE_NAME+"(255)");
-    } 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+        "group_alternate_name_idx", false, Group.COLUMN_ALTERNATE_NAME+"(255)");
   }
   
   /**
@@ -5685,6 +5679,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS, 
           COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+      
+      GrouperDdl2_6_5.addGrouperMembersComments(database, ddlVersionBean);
+
     }
     
     {
@@ -6249,6 +6246,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdl2_5_38.addGrouperSyncLogComments(database, ddlVersionBean);
         
     GrouperDdl2_6_1.addGrouperProvZoomUserComments(database, ddlVersionBean);
+
+    GrouperDdl2_6_5.addGrouperFailsafeComments(database, ddlVersionBean);
+    GrouperDdl2_6_5.addGrouperLastLoginComments(database, ddlVersionBean);
+    GrouperDdl2_6_5.addGrouperStemViewPrivilegeComments(database, ddlVersionBean);
 
     String groupIdCol = "id";
     
@@ -9807,7 +9808,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "attr_assign_action_set_depth, "
         + "membership_id, "
         + "attribute_assign_id, "
-        + (ddlVersionBean.isHsql() ? "ltrim(permission_type), " : "permission_type, ")
+        + "permission_type, "
         + "assignment_notes, "
         + "immediate_mship_enabled_time, "
         + "immediate_mship_disabled_time, "
@@ -10311,7 +10312,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_def_name_set_id, "
         + "action_set_id, "
         + "attribute_assign_id, "
-        + (ddlVersionBean.isHsql() ? "ltrim(permission_type), " : "permission_type, ")
+        + "permission_type, "
         + "group_set_active, "
         + "group_set_start_time, "
         + "group_set_end_time, "
@@ -11144,10 +11145,6 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
-    if (GrouperDdlUtils.isHsql()) {
-      ddlVersionBean.appendAdditionalScriptUnique("\n\nSET DATABASE TRANSACTION CONTROL MVCC;\n");
-    }
-    
   }
 
   /**
@@ -11252,7 +11249,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          Types.VARCHAR, "1024", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_STEM_ID, 
           Types.VARCHAR, "40", false, true);
@@ -11284,7 +11281,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          Types.VARCHAR, "1024", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_PARENT_STEM_ID, 
           Types.VARCHAR, "40", false, false);
@@ -11316,7 +11313,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, true);
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
-          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          Types.VARCHAR, "1024", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_STEM_ID, 
           Types.VARCHAR, "40", false, true);
@@ -11606,7 +11603,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable,
-          PITAttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          PITAttributeDefName.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefNameTable, PITAttributeDefName.COLUMN_ACTIVE,
           Types.VARCHAR, "1", false, true);
@@ -12006,10 +12003,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
           "pit_attr_val_assign_idx", false, PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
-      if (!ddlVersionBean.isSqlServer()) {
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
-            "pit_attr_val_string_idx", false, PITAttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
-      }
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(),
+          "pit_attr_val_string_idx", false, PITAttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
           "pit_attr_val_integer_idx", false,  PITAttributeAssignValue.COLUMN_VALUE_INTEGER);
@@ -12732,10 +12727,10 @@ public enum GrouperDdl implements DdlVersionable {
         Group.TABLE_GROUPER_GROUPS);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
-        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
+        Types.VARCHAR, "1024", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_name", 
-        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
+        Types.VARCHAR, "1024", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 
         Types.VARCHAR, "255", false, false);
@@ -12932,15 +12927,13 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
           "audit_entry_logged_in_idx", false, "logged_in_member_id");
 
-      if (!ddlVersionBean.isSqlServer()) {
-        //do 8 string indexes, probably dont need them on the other string cols
-        for (int i=1;i<=8;i++) {
+      //do 8 string indexes, probably dont need them on the other string cols
+      for (int i=1;i<=8;i++) {
 
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-              "audit_entry_string0" + i + "_idx", false, "string0" + i + "(255)");
-          
-        }
-      }      
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_string0" + i + "_idx", false, "string0" + i + "(255)");
+        
+      }
     }
 
   }
@@ -13095,15 +13088,13 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "string12", Types.VARCHAR, "4000", false, false); 
 
-      if (!ddlVersionBean.isSqlServer()) {
-        //do 12 string indexes
-        for (int i=1;i<=12;i++) {
+      //do 12 string indexes
+      for (int i=1;i<=12;i++) {
 
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(), 
-              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
-          
-        }
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(), 
+            "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
+            + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
+        
       }
       
       GrouperDdl2_4.addChangeLogEntryTempIndex(ddlVersionBean, database);
@@ -13161,18 +13152,16 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
           "string12", Types.VARCHAR, "4000", false, false); 
 
-      if (!ddlVersionBean.isSqlServer()) {
-        //do 12 string indexes
-        for (int i=1;i<=12;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
-              "ON grouper_change_log_entry (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-              "change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
-          
-        }
+      //do 12 string indexes
+      for (int i=1;i<=12;i++) {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
+            "ON grouper_change_log_entry (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+            "change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') 
+            + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+        
       }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogEntryTable.getName(), 
@@ -13848,7 +13837,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDef.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          AttributeDef.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_MULTI_ASSIGNABLE, Types.VARCHAR, "1", false, true, "F");
@@ -13933,7 +13922,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefName.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          AttributeDefName.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
           AttributeDefName.COLUMN_STEM_ID, Types.VARCHAR, ID_SIZE, false, true);
@@ -13945,7 +13934,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefName.COLUMN_DISPLAY_EXTENSION, Types.VARCHAR, "128", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+          AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, "1024", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameTable.getName(), 
           "attribute_def_name_name_idx", true, "name(255)");
@@ -14099,10 +14088,8 @@ public enum GrouperDdl implements DdlVersionable {
           "attribute_val_assign_idx", false, 
           AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
-      if (!ddlVersionBean.isSqlServer()) {
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
-            "attribute_val_string_idx", false, AttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
-      }
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
+          "attribute_val_string_idx", false, AttributeAssignValue.COLUMN_VALUE_STRING+"(255)");
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
           "attribute_val_integer_idx", false, 

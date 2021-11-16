@@ -68,7 +68,7 @@ public class GrouperDdl2_5_38 {
       ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_sync_log ADD COLUMN description_clob mediumtext;\n");
     } 
     
-    if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isOracle()) {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncLogTable, "description_clob", Types.CLOB, "10000000", false, false, null);
     }
     

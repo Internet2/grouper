@@ -153,37 +153,6 @@ public enum JdbcDatabaseType {
       return url != null && url.toLowerCase().contains("postgres");
     }
 
-  },
-  
-  /** hsql */
-  hsqldb {
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#pageQuery(java.lang.String, int)
-     */
-    @Override
-    public String pageQuery(String query, int pageSize) {
-      return null;
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlDefinitely(java.lang.String)
-     */
-    @Override
-    public boolean matchesUrlDefinitely(String url) {
-      return url != null && url.toLowerCase().startsWith("jdbc:hsqldb:");
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.provider.JdbcDatabaseType#matchesUrlMaybe(java.lang.String)
-     */
-    @Override
-    public boolean matchesUrlMaybe(String url) {
-      return url != null && url.toLowerCase().contains("hsql");
-    }
   };
 
   /**

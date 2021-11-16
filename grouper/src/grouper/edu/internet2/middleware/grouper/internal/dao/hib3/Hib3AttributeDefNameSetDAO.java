@@ -51,7 +51,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    */
   static void reset(HibernateSession hibernateSession) {
     
-    if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+    if (GrouperDdlUtils.isMysql()) {
       //do this since mysql cant handle self-referential foreign keys
       // restrict this only to mysql since in oracle this might cause unique constraint violations
       hibernateSession.byHql().createQuery("update AttributeDefNameSet set parentAttrDefNameSetId = null").executeUpdate();
@@ -135,7 +135,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+            if (GrouperDdlUtils.isMysql()) {
               //set parent to null so mysql doest get mad
               //http://bugs.mysql.com/bug.php?id=15746
               hibernateHandlerBean.getHibernateSession().byHql().createQuery(
@@ -184,7 +184,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
             
             Set<AttributeDefNameSet> attributeDefNameSets = findByIfHasAttributeDefNameId(attributeDefName.getId());
             for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
-              if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+              if (GrouperDdlUtils.isMysql()) {
                 //do this since mysql cant handle self-referential foreign keys
                 attributeDefNameSet.setParentAttrDefNameSetId(null);
                 attributeDefNameSet.saveOrUpdate();

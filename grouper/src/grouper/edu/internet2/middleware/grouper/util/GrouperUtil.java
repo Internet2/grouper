@@ -9179,23 +9179,7 @@ public class GrouperUtil {
    * @param props
    */
   static void fixHibernateConnectionUrl(Properties props) {
-    String url = props.getProperty("hibernate.connection.url");
-    if (isBlank(url)) {
-      return;
-    }
-    if (!url.startsWith("jdbc:hsqldb:")) {
-      return;
-    }
-    if (url.matches("^jdbc:hsqldb:(mem|hsql|res|hsql|hsqls|http|https):.*")) {
-      return;
-    }
-    int spliceAt = 12;
-    if (url.startsWith("jdbc:hsqldb:file:")) {
-      spliceAt = 17;
-    }
-    String file = url.substring(spliceAt);
-    String newUrl = url.substring(0, spliceAt) + fixRelativePath(file);
-    props.setProperty("hibernate.connection.url", newUrl);
+    
   }
 
   /**

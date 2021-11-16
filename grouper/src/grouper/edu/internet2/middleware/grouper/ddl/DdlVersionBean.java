@@ -145,20 +145,6 @@ public class DdlVersionBean {
   }
   
   /**
-   * @return true if hsql
-   */
-  public boolean isHsql() {
-    return this.getPlatform().getName().toLowerCase().contains("hsqldb");
-  }
-  
-  /**
-   * @return true if hsql
-   */
-  public boolean isSqlServer() {
-    return this.getPlatform().getName().toLowerCase().contains("mssql");
-  }
-  
-  /**
    * the eventual version we are build to
    */
   private int buildingToVersion;
@@ -408,8 +394,8 @@ public class DdlVersionBean {
     this.fullScript = fullScript;
     this.buildingFromVersion = theBuildingFromVersion;
     
-    if (!this.isHsql() && !this.isMysql() && !this.isPostgres() && !this.isOracle()) {
-      throw new RuntimeException("Only postgres, mysql, oracle, and hsql (hsql for dev/test only) are supported!");
+    if (!this.isMysql() && !this.isPostgres() && !this.isOracle()) {
+      throw new RuntimeException("Only postgres, mysql, oracle are supported!");
     }
     
   }
