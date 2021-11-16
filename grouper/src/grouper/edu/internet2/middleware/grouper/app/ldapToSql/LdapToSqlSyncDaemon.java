@@ -619,7 +619,19 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
       
       for (LdapEntry ldapEntry : GrouperUtil.nonNull(result)) {
 
-        String id = StringUtils.equalsIgnoreCase("dn", multiValuedIdColumnObject.getLdapName()) ? ldapEntry.getDn() : GrouperUtil.collectionPopOne(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), true);
+        String id = null;
+        
+        try {
+          if (StringUtils.equalsIgnoreCase("dn", multiValuedIdColumnObject.getLdapName())) {
+            id = ldapEntry.getDn();
+          } else {
+            id = GrouperUtil.collectionPopOne(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), true);
+          }
+        } catch (RuntimeException e) {
+          GrouperUtil.injectInException(e, "dn is: " + ldapEntry.getDn() + ", attr: " + multiValuedIdColumnObject.getLdapName() + ", values: " 
+              + GrouperUtil.toStringForLog(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), 4000));
+          throw e;
+        }
 
         for (int i=0;i<this.ldapAttributeNames.length;i++) {
 
