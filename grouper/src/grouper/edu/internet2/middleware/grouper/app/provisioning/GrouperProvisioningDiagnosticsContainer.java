@@ -633,6 +633,8 @@ public class GrouperProvisioningDiagnosticsContainer {
           }
           
           updateProvisioningGroupWrapperAfterTargetQuery(targetGroups);
+          
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
         }
       }
     } catch (RuntimeException re) {
@@ -808,6 +810,8 @@ public class GrouperProvisioningDiagnosticsContainer {
           }
           
           updateProvisioningGroupWrapperAfterTargetQuery(targetGroups);
+          
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
         }
       }
     } catch (RuntimeException re) {
@@ -909,6 +913,8 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.report.append("<font color='green'><b>Success:</b></font> Found group from target after inserting\n");
 
       updateProvisioningGroupWrapperAfterTargetQuery(targetGroups);
+      
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Inserting group").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
@@ -1013,6 +1019,8 @@ public class GrouperProvisioningDiagnosticsContainer {
         // delete the membership sync objects
         this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncGroupId(this.provisioningGroupWrapper.getGcGrouperSyncGroup().getId(), false);  
       }
+      
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting group").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
@@ -1107,6 +1115,8 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.report.append("<font color='green'><b>Success:</b></font> Found entity from target after inserting\n");
 
       updateProvisioningEntityWrapperAfterTargetQuery(targetEntities);
+      
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Inserting entity").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
@@ -1211,6 +1221,8 @@ public class GrouperProvisioningDiagnosticsContainer {
         // delete the membership sync objects
         this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteBySyncMemberId(this.provisioningEntityWrapper.getGcGrouperSyncMember().getId(), false);  
       }
+      
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting entity").append(this.getCurrentDuration()).append("\n");
       this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
@@ -1860,6 +1872,8 @@ public class GrouperProvisioningDiagnosticsContainer {
           }
           
           updateProvisioningEntityWrapperAfterTargetQuery(targetEntities);
+          
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
         }
       }
     } catch (RuntimeException re) {
@@ -2033,6 +2047,8 @@ public class GrouperProvisioningDiagnosticsContainer {
           }
           
           updateProvisioningEntityWrapperAfterTargetQuery(targetEntities);
+          
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
         }
       }
     } catch (RuntimeException re) {
