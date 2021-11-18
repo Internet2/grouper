@@ -242,4 +242,46 @@ public class GrouperProvisioningDiagnosticsSettings {
   public void setDiagnosticsSubjectIdOrIdentifier(String diagnosticsSubjectIdOrIdentifier) {
     this.diagnosticsSubjectIdOrIdentifier = diagnosticsSubjectIdOrIdentifier;
   }
+  
+  /**
+   * if the group should be added to the entity as an entity attribute
+   */
+  private boolean diagnosticsEntityAttributesMembershipInsert;
+  
+  /**
+   * @return if the group should be added to the entity as an entity attribute
+   */
+  public boolean isDiagnosticsEntityAttributesMembershipInsert() {
+    return diagnosticsEntityAttributesMembershipInsert;
+  }
+
+  /**
+   * if the group should be added to the entity as an entity attribute
+   * @param diagnosticsEntityAttributesMembershipInsert
+   */
+  public void setDiagnosticsEntityAttributesMembershipInsert(
+      boolean diagnosticsEntityAttributesMembershipInsert) {
+    this.diagnosticsEntityAttributesMembershipInsert = diagnosticsEntityAttributesMembershipInsert;
+  }
+
+  /**
+   * if the group should be removed from the entity as an entity attribute
+   */
+  private boolean diagnosticsEntityAttributesMembershipDelete;
+  
+  /**
+   * @return if the group should be removed from the entity as an entity attribute
+   */
+  public boolean isDiagnosticsEntityAttributesMembershipDelete() {
+    return diagnosticsEntityAttributesMembershipDelete;
+  }
+
+  /**
+   * if the group should be removed from the entity as an entity attribute
+   * @param diagnosticsEntityAttributesMembershipDelete
+   */
+  public void setDiagnosticsEntityAttributesMembershipDelete(
+      boolean diagnosticsEntityAttributesMembershipDelete) {
+    this.diagnosticsEntityAttributesMembershipDelete = diagnosticsEntityAttributesMembershipDelete;
+  }
 }

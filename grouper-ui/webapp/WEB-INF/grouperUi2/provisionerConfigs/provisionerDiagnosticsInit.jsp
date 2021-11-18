@@ -148,7 +148,28 @@
                       </div>
                     </div>
                   </c:if>
-                  
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType().name() == 'entityAttributes'}">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipInsertLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntityAttributesMembershipInsertName" id="diagnosticsEntityAttributesMembershipInsertId" value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipInsertLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipInsertDescription'] }</span>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipDeleteLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntityAttributesMembershipDeleteName" id="diagnosticsEntityAttributesMembershipDeleteId" value="true" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipDeleteLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsEntityAttributesMembershipDeleteDescription'] }</span>
+                      </div>
+                    </div>
+                  </c:if>
         
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
                 <input type="hidden" name="provisionerInitted" value="true" />

@@ -200,6 +200,18 @@ public class UiV2ProvisionerConfiguration {
             grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupAttributesMembershipDelete(diagnosticsGroupAttributesMembershipDeleteName);
           }
         }
+        {
+          boolean diagnosticsEntityAttributesMembershipInsertName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntityAttributesMembershipInsertName[]"), false);
+          if (diagnosticsEntityAttributesMembershipInsertName && GrouperProvisioningBehaviorMembershipType.entityAttributes == provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityAttributesMembershipInsert(diagnosticsEntityAttributesMembershipInsertName);
+          }
+        }
+        {
+          boolean diagnosticsEntityAttributesMembershipDeleteName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntityAttributesMembershipDeleteName[]"), false);
+          if (diagnosticsEntityAttributesMembershipDeleteName && GrouperProvisioningBehaviorMembershipType.entityAttributes == provisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityAttributesMembershipDelete(diagnosticsEntityAttributesMembershipDeleteName);
+          }
+        }
       }
       
       
