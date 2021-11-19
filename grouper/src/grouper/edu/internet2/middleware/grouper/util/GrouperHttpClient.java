@@ -577,7 +577,7 @@ public class GrouperHttpClient {
         } 
         );
 
-    return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
+    return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
   }
 
   /**
@@ -612,7 +612,7 @@ public class GrouperHttpClient {
       try {
         builder.loadTrustMaterial(null, trustStrategy);
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        closeableHttpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+        closeableHttpClient = HttpClients.custom().setSSLSocketFactory(sslsf).useSystemProperties().build();
       } catch (Exception e) {
         throw new RuntimeException(e);
       } 
@@ -624,7 +624,7 @@ public class GrouperHttpClient {
         throw new RuntimeException("Error getting custom truststore ClosableHttpClient", e);
       }
     } else {
-      closeableHttpClient = HttpClients.createDefault();
+      closeableHttpClient = HttpClients.createSystem();
     }
 
 
