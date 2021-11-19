@@ -148,7 +148,7 @@ class Hib3RegistryDAO implements RegistryDAO {
 
     // this doesnt need tx right?
     HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.NONE, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
