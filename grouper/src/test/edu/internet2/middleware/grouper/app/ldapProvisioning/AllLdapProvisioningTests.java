@@ -38,6 +38,7 @@ public class AllLdapProvisioningTests {
     suite.addTestSuite(LdapProvisionerBushyTest.class);
     suite.addTestSuite(LdapProvisionerJDBCSubjectSourceTest.class);
     suite.addTestSuite(LdapProvisionerMultipleTest.class);
+    suite.addTestSuite(LdapProvisionerDiagnosticsTest.class);
     //$JUnit-END$
     return suite;
   }
