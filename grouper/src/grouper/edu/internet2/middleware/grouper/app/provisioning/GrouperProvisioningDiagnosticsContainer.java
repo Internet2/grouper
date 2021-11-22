@@ -524,7 +524,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object\n");
+        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
       } else {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
@@ -542,7 +542,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningMembershipWrapper.setGrouperProvisioningMembership(grouperProvisioningMembership);
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
-
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLink(GrouperUtil.toSet(provisioningEntityWrapper));
+        
         this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(groupIdMemberId, provisioningMembershipWrapper);
 
         ProvisioningSyncIntegration.fullSyncMemberships(
@@ -701,7 +703,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object\n");
+        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
       } else {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
@@ -1765,7 +1767,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object\n");
+        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
       } else {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
@@ -1940,7 +1942,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object\n");
+        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
       } else {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
