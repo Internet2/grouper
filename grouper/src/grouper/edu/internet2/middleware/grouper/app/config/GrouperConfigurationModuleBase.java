@@ -210,7 +210,7 @@ public abstract class GrouperConfigurationModuleBase {
    * get all configurations configured for this type
    * @return
    */
-  protected List<GrouperConfigurationModuleBase> listAllConfigurationsOfThisType() {
+  public List<GrouperConfigurationModuleBase> listAllConfigurationsOfThisType() {
     
     List<GrouperConfigurationModuleBase> result = new ArrayList<GrouperConfigurationModuleBase>();
     

@@ -1,9 +1,17 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
+import java.util.Map;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 
 
 public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurationBase {
+  
+  @Override
+  protected Class<? extends GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributeClass() {
+    return SqlGrouperProvisioningConfigurationAttribute.class;
+  }
 
 //  private String groupAttributeTableAttributeNameIsGroupMatchingId;
   
@@ -50,6 +58,29 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
    * table name for group table
    */
   private String groupTableName;
+  
+  private String groupAttributesTableName;
+  
+  private String groupAttributesGroupForeignKeyColumn;
+  
+  private String groupAttributesAttributeNameColumn;
+  
+  private String groupAttributesAttributeValueColumn;
+  
+  private String groupAttributesLastModifiedColumn;
+  private String groupAttributesLastModifiedColumnType;
+  
+  private String entityAttributesTableName;
+  
+  private String entityAttributesEntityForeignKeyColumn;
+  
+  private String entityAttributesAttributeNameColumn;
+  
+  private String entityAttributesAttributeValueColumn;
+  
+  private String entityAttributesLastModifiedColumn;
+  private String entityAttributesLastModifiedColumnType;
+  
   
   /**
    * columns in the group table
@@ -249,6 +280,21 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //    this.groupAttributeNames = this.retrieveConfigString("groupAttributeNames", false);
 //    this.groupAttributeTableName = this.retrieveConfigString("groupAttributeTableName", false);
     this.groupTableIdColumn = this.retrieveConfigString("groupPrimaryKey", false);
+
+    this.groupAttributesTableName = this.retrieveConfigString("groupAttributesTableName", false);
+    this.groupAttributesGroupForeignKeyColumn = this.retrieveConfigString("groupAttributesGroupForeignKeyColumn", false);
+    this.groupAttributesAttributeNameColumn = this.retrieveConfigString("groupAttributesAttributeNameColumn", false);
+    this.groupAttributesAttributeValueColumn = this.retrieveConfigString("groupAttributesAttributeValueColumn", false);
+    this.groupAttributesLastModifiedColumn = this.retrieveConfigString("groupAttributesLastModifiedColumn", false);
+    this.groupAttributesLastModifiedColumnType = this.retrieveConfigString("groupAttributesLastModifiedColumnType", false);
+    
+    this.entityAttributesTableName = this.retrieveConfigString("entityAttributesTableName", false);
+    this.entityAttributesEntityForeignKeyColumn = this.retrieveConfigString("entityAttributesEntityForeignKeyColumn", false);
+    this.entityAttributesAttributeNameColumn = this.retrieveConfigString("entityAttributesAttributeNameColumn", false);
+    this.entityAttributesAttributeValueColumn = this.retrieveConfigString("entityAttributesAttributeValueColumn", false);
+    this.entityAttributesLastModifiedColumn = this.retrieveConfigString("entityAttributesLastModifiedColumn", false);
+    this.entityAttributesLastModifiedColumnType = this.retrieveConfigString("entityAttributesLastModifiedColumnType", false);
+    
     this.membershipTableIdColumn = this.retrieveConfigString("membershipPrimaryKey", false);
     
     //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
@@ -258,6 +304,30 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //    this.groupAttributeTableAttributeNameColumn = this.retrieveConfigString("groupAttributeTableAttributeNameColumn", false);
 //    this.groupAttributeTableAttributeValueColumn = this.retrieveConfigString("groupAttributeTableAttributeValueColumn", false);
 
+    
+    Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = this.getTargetGroupAttributeNameToConfig();
+    
+    for (String name: targetGroupAttributeNameToConfig.keySet()) {
+      
+      SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) targetGroupAttributeNameToConfig.get(name);
+      
+      String storageType = this.retrieveConfigString("targetGroupAttribute" + "."+grouperProvisioningConfigurationAttribute.getConfigIndex()+".storageType", false);
+      
+      grouperProvisioningConfigurationAttribute.setStorageType(storageType);
+      
+    }
+    
+    for (String name: getTargetEntityAttributeNameToConfig().keySet()) {
+      
+      SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) getTargetEntityAttributeNameToConfig().get(name);
+      
+      String storageType = this.retrieveConfigString("targetEntityAttribute" + "."+grouperProvisioningConfigurationAttribute.getConfigIndex()+".storageType", false);
+      
+      grouperProvisioningConfigurationAttribute.setStorageType(storageType);
+      
+    }
+    
+    
   }
 
 
@@ -293,6 +363,137 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   public void setMembershipTableIdColumn(String membershipTableIdColumn) {
     this.membershipTableIdColumn = membershipTableIdColumn;
   }
+
+  
+  public String getGroupAttributesTableName() {
+    return groupAttributesTableName;
+  }
+
+  
+  public void setGroupAttributesTableName(String groupAttributesTableName) {
+    this.groupAttributesTableName = groupAttributesTableName;
+  }
+
+  
+  public String getGroupAttributesGroupForeignKeyColumn() {
+    return groupAttributesGroupForeignKeyColumn;
+  }
+
+  
+  public void setGroupAttributesGroupForeignKeyColumn(
+      String groupAttributesGroupForeignKeyColumn) {
+    this.groupAttributesGroupForeignKeyColumn = groupAttributesGroupForeignKeyColumn;
+  }
+
+  
+  public String getGroupAttributesAttributeNameColumn() {
+    return groupAttributesAttributeNameColumn;
+  }
+
+  
+  public void setGroupAttributesAttributeNameColumn(
+      String groupAttributesAttributeNameColumn) {
+    this.groupAttributesAttributeNameColumn = groupAttributesAttributeNameColumn;
+  }
+
+  
+  public String getGroupAttributesAttributeValueColumn() {
+    return groupAttributesAttributeValueColumn;
+  }
+
+  
+  public void setGroupAttributesAttributeValueColumn(
+      String groupAttributesAttributeValueColumn) {
+    this.groupAttributesAttributeValueColumn = groupAttributesAttributeValueColumn;
+  }
+
+  
+  public String getGroupAttributesLastModifiedColumn() {
+    return groupAttributesLastModifiedColumn;
+  }
+
+  
+  public void setGroupAttributesLastModifiedColumn(
+      String groupAttributesLastModifiedColumn) {
+    this.groupAttributesLastModifiedColumn = groupAttributesLastModifiedColumn;
+  }
+
+  
+  public String getEntityAttributesTableName() {
+    return entityAttributesTableName;
+  }
+
+  
+  public void setEntityAttributesTableName(String entityAttributesTableName) {
+    this.entityAttributesTableName = entityAttributesTableName;
+  }
+
+  
+  
+  public String getEntityAttributesEntityForeignKeyColumn() {
+    return entityAttributesEntityForeignKeyColumn;
+  }
+
+  
+  public void setEntityAttributesEntityForeignKeyColumn(
+      String entityAttributesEntityForeignKeyColumn) {
+    this.entityAttributesEntityForeignKeyColumn = entityAttributesEntityForeignKeyColumn;
+  }
+
+  public String getEntityAttributesAttributeNameColumn() {
+    return entityAttributesAttributeNameColumn;
+  }
+
+  
+  public void setEntityAttributesAttributeNameColumn(
+      String entityAttributesAttributeNameColumn) {
+    this.entityAttributesAttributeNameColumn = entityAttributesAttributeNameColumn;
+  }
+
+  
+  public String getEntityAttributesAttributeValueColumn() {
+    return entityAttributesAttributeValueColumn;
+  }
+
+  
+  public void setEntityAttributesAttributeValueColumn(
+      String entityAttributesAttributeValueColumn) {
+    this.entityAttributesAttributeValueColumn = entityAttributesAttributeValueColumn;
+  }
+
+  
+  public String getEntityAttributesLastModifiedColumn() {
+    return entityAttributesLastModifiedColumn;
+  }
+
+  
+  public void setEntityAttributesLastModifiedColumn(
+      String entityAttributesLastModifiedColumn) {
+    this.entityAttributesLastModifiedColumn = entityAttributesLastModifiedColumn;
+  }
+
+  
+  public String getGroupAttributesLastModifiedColumnType() {
+    return groupAttributesLastModifiedColumnType;
+  }
+
+  
+  public void setGroupAttributesLastModifiedColumnType(
+      String groupAttributesLastModifiedColumnType) {
+    this.groupAttributesLastModifiedColumnType = groupAttributesLastModifiedColumnType;
+  }
+
+  
+  public String getEntityAttributesLastModifiedColumnType() {
+    return entityAttributesLastModifiedColumnType;
+  }
+
+  
+  public void setEntityAttributesLastModifiedColumnType(
+      String entityAttributesLastModifiedColumnType) {
+    this.entityAttributesLastModifiedColumnType = entityAttributesLastModifiedColumnType;
+  }
+  
   
   
 

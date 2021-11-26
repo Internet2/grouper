@@ -72,6 +72,11 @@
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>
                     </c:if>
+                    
+                    <c:if test="${grouperRequestContainer.globalAttributeResolverConfigContainer.canViewGlobalAttributeResolverConfig}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs');" style="white-space: nowrap;">
+                        ${textContainer.text['adminGlobalAttributeResolverConfigLink'] }</a>
+                    </c:if>
 
                     <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"

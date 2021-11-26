@@ -6951,6 +6951,18 @@ public class GrouperUtil {
     }
     return (input instanceof String && isBlank((String)input));
   }
+  
+  /**
+   * See if the input is null or if string, if it is empty (whitespace)
+   * @param input
+   * @return true if empty
+   */
+  public static boolean isEmpty(Object input) {
+    if (null == input) {
+      return true;
+    }
+    return (input instanceof String && isEmpty((String)input));
+  }
 
   /**
    * If necessary, convert an object to another type.  if type is Object.class, just return the input
