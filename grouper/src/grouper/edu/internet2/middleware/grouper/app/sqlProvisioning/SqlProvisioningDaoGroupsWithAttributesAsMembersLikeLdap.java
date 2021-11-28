@@ -61,24 +61,26 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
       String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
+//      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
       
       // join group to attribute table
       
       String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
       
-      String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
-      String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+//      String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
+//      String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+//      
+//      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
       
-      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
+//      Set<String> groupColumnNames = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig().keySet();
       
-      String commaSeparatedGroupColumnNames = sqlProvisioningConfiguration.getGroupAttributeNames();
-      String[] groupColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupColumnNames, ",");
+//      String commaSeparatedGroupColumnNames = sqlProvisioningConfiguration.getGroupAttributeNames();
+      // String[] groupColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupColumnNames, ",");
   
-      String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
-      String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
+//      String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
+//      String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
   
-      String groupAttributeTableAttributeNameIsGroupMatchingId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupMatchingId();
+//      String groupAttributeTableAttributeNameIsGroupMatchingId = sqlProvisioningConfiguration.getgroupAttributeTableAttributeNameIsGroupMatchingId();
       
   //    // we need to lookup the group
   //    String groupTargetUuid = new GcDbAccess().connectionName(dbExternalSystemConfigId)
@@ -88,7 +90,8 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
   
       // shouldnt happen
       if (StringUtils.isBlank(targetGroup.getId())) {
-        throw new RuntimeException("Cant find group from target by " + groupAttributeTableAttributeValueColumn + " = commonId: '" + targetGroup.getId() + "'");
+//        throw new RuntimeException("Cant find group from target by " + groupAttributeTableAttributeValueColumn + " = commonId: '" + targetGroup.getId() + "'");
+        throw new RuntimeException("Cant find group from target");
       }
       //TODO batch there
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
@@ -104,9 +107,9 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
                   
                   GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
                   
-                  String sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
-                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
-                    .addBindVar(provisioningObjectChange.getNewValue()).executeSql();
+//                  String sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
+//                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
+//                    .addBindVar(provisioningObjectChange.getNewValue()).executeSql();
     
                   break;
                   
@@ -115,10 +118,10 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     
                   gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
                   
-                  sql = "delete from " + groupAttributeTableName + " where " + groupAttributeTableForeignKeyToGroup + " = ? and "
-                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
-                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
-                    .addBindVar(provisioningObjectChange.getOldValue()).executeSql();
+//                  sql = "delete from " + groupAttributeTableName + " where " + groupAttributeTableForeignKeyToGroup + " = ? and "
+//                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
+//                  gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName())
+//                    .addBindVar(provisioningObjectChange.getOldValue()).executeSql();
     
                   break;
                   
@@ -126,19 +129,22 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     
                   gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
                   
-                  sql = "update " + groupAttributeTableName + " set " + groupAttributeTableAttributeValueColumn 
-                      + " = ? where " + groupAttributeTableForeignKeyToGroup + " = ? and "
-                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
+//                  sql = "update " + groupAttributeTableName + " set " + groupAttributeTableAttributeValueColumn 
+//                      + " = ? where " + groupAttributeTableForeignKeyToGroup + " = ? and "
+//                      + groupAttributeTableAttributeNameColumn + " = ? and " + groupAttributeTableAttributeValueColumn + " = ?";
+//                  gcDbAccess.sql(sql).addBindVar(provisioningObjectChange.getNewValue())
+//                    .addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName()).addBindVar(provisioningObjectChange.getOldValue())
+//                    .executeSql();
+                  
+                  String sql = "update "+groupTableName+ " set " + provisioningObjectChange.getAttributeName() + " = ? where "+groupTableIdColumn+" = ?";
                   gcDbAccess.sql(sql).addBindVar(provisioningObjectChange.getNewValue())
-                    .addBindVar(targetGroup.getId()).addBindVar(provisioningObjectChange.getAttributeName()).addBindVar(provisioningObjectChange.getOldValue())
-                    .executeSql();
+                  .addBindVar(targetGroup.getId())
+                  .executeSql();
     
                   break;
                   
                 default:
                   throw new RuntimeException("Not implemented");
-                
-                
                 
               }
               
@@ -175,7 +181,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
       String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
+//      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
   
       //both of those must exist
       
@@ -183,7 +189,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       
       String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
               
-      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
+//      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
       
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
       
@@ -192,19 +198,12 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         @Override
         public Integer callback(GcDbAccess dbAccess) {
           // delete attributes
-          String sql = "delete from  " + groupAttributeTableName + " where " + groupAttributeTableForeignKeyToGroup + " = ?";
+          String sql = "delete from  " + groupTableName + " where " + groupTableIdColumn + " = ?";
    
           GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
           int count = gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).executeSql();
   
-          gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-          
-          // delete attributes
-          sql = "delete from  " + groupTableName + " where " + groupTableIdColumn + " = ?";
-  
-          count += gcDbAccess.sql(sql).addBindVar(targetGroup.getId()).executeSql();
-          
           return count;
         }
         
@@ -239,7 +238,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
     String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-    String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
+//    String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
           
     if (!retrieveAll && GrouperUtil.isBlank(grouperTargetGroups)) {
       return result;
@@ -249,16 +248,22 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
     
     String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
     
-    String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
-    String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+//    String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
+//    String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+//    
+//    String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
+//    
+//    String commaSeparatedGroupColumnNames = sqlProvisioningConfiguration.getGroupAttributeNames();
+//    String[] groupColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupColumnNames, ",");
     
-    String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
-    
-    String commaSeparatedGroupColumnNames = sqlProvisioningConfiguration.getGroupAttributeNames();
-    String[] groupColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupColumnNames, ",");
+      Set<String> columnNames = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig().keySet();
+      
+      String groupColumnNamesArray[] = new String[columnNames.size()];
 
-    String commaSeparatedGroupAttributeColumnNames = groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
-    String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
+      groupColumnNamesArray = columnNames.toArray(groupColumnNamesArray);
+
+//    String commaSeparatedGroupAttributeColumnNames = groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
+//    String[] groupAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedGroupAttributeColumnNames, ",");
 
     String groupAttributeNameForMemberships = sqlProvisioningConfiguration.getGroupAttributeNameForMemberships();
         
@@ -271,17 +276,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       sqlInitial.append("g.").append(groupColumnNamesArray[i]);
     }
     
-    for (int i=0;i<groupAttributeColumnNamesArray.length; i++) {
-      sqlInitial.append(", ");
-      sqlInitial.append("a.").append(groupAttributeColumnNamesArray[i]);
-    }
-    
-    sqlInitial.append(" from ").append(groupTableName).append(" as g left outer join ").append(groupAttributeTableName).append(" as a on g.")
-      .append(groupTableIdColumn).append(" = a.").append(groupAttributeTableForeignKeyToGroup);
-    
-    if (!retrieveAllMembershipsInGroups) {
-      sqlInitial.append(" and a." + groupAttributeTableAttributeNameColumn + " != '" + groupAttributeNameForMemberships + "' ");
-    }
+    sqlInitial.append(" from ").append(groupTableName);
     
     List<Object[]> groupsAndAttributeValues = null;
     
@@ -291,10 +286,7 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
         GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
         
         groupsAndAttributeValues = gcDbAccess.sql(sqlInitial.toString()).selectList(Object[].class);
-        retrieveGroupsByAttributesAddRecord(result, groupTableIdColumn, groupAttributeTableAttributeNameColumn,
-            groupAttributeTableAttributeValueColumn, commaSeparatedGroupColumnNames,
-            groupColumnNamesArray, groupAttributeColumnNamesArray,
-            groupsAndAttributeValues);
+      
       } finally {
         this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllGroups", startNanos));
       }
@@ -336,12 +328,12 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
           //  WHERE a.group_uuid IN (SELECT a2.group_uuid FROM testgrouper_prov_ldap_group_attr AS a2 WHERE a2.attribute_name = 'gidNumber'
           //      AND a2.attribute_value IN ('10007'));
 
-          sql.append(" where a.").append(groupAttributeTableForeignKeyToGroup)
-            .append(" IN (SELECT a2.").append(groupAttributeTableForeignKeyToGroup)
-            .append(" FROM ").append(groupAttributeTableName).append(" AS a2 WHERE a2.")
-            .append(groupAttributeTableAttributeNameColumn).append(" = '")
-            .append(searchAttribute)
-            .append("' and a2.").append(groupAttributeTableAttributeValueColumn).append(" IN (");
+//          sql.append(" where a.").append(groupAttributeTableForeignKeyToGroup)
+//            .append(" IN (SELECT a2.").append(groupAttributeTableForeignKeyToGroup)
+//            .append(" FROM ").append(groupAttributeTableName).append(" AS a2 WHERE a2.")
+//            .append(groupAttributeTableAttributeNameColumn).append(" = '")
+//            .append(searchAttribute)
+//            .append("' and a2.").append(groupAttributeTableAttributeValueColumn).append(" IN (");
 
           GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
           
@@ -356,10 +348,10 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
           }
           sql.append(" ) ) ");
           groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-          retrieveGroupsByAttributesAddRecord(result, groupTableIdColumn, groupAttributeTableAttributeNameColumn,
-              groupAttributeTableAttributeValueColumn, commaSeparatedGroupColumnNames,
-              groupColumnNamesArray, groupAttributeColumnNamesArray,
-              groupsAndAttributeValues);
+//          retrieveGroupsByAttributesAddRecord(result, groupTableIdColumn, groupAttributeTableAttributeNameColumn,
+//              groupAttributeTableAttributeValueColumn, commaSeparatedGroupColumnNames,
+//              groupColumnNamesArray, groupAttributeColumnNamesArray,
+//              groupsAndAttributeValues);
         } finally {
           this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveGroups", startNanos));
         }
@@ -474,22 +466,40 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
       String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
       
       String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
+//      String groupAttributeTableName = sqlProvisioningConfiguration.getGroupAttributeTableName();
       
       // join group to attribute table
       
       String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
       
-      String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
-      String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+      Set<String> columnNames = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig().keySet();
       
-      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
+      String groupColumnNamesArray[] = new String[columnNames.size()];
+
+      groupColumnNamesArray = columnNames.toArray(groupColumnNamesArray);
+      
+      StringBuilder commaSeparatedColumnNames = new StringBuilder();
+      StringBuilder commaSeparatedQuestionMarks = new StringBuilder();
+      for (int i=0; i<groupColumnNamesArray.length; i++) {
+        if (i > 0) {
+          commaSeparatedColumnNames.append(", ");
+          commaSeparatedQuestionMarks.append(", ");
+        }
+        commaSeparatedColumnNames.append(groupColumnNamesArray[i]);
+        commaSeparatedQuestionMarks.append(" ? ");
+      }
+      
+      
+//      String groupAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeNameColumn();
+//      String groupAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributeTableAttributeValueColumn();
+//      
+//      String groupAttributeTableForeignKeyToGroup = sqlProvisioningConfiguration.getGroupAttributeTableForeignKeyToGroup();
   
-      String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
+//      String commaSeparatedGroupAttributeColumnNames = groupAttributeTableForeignKeyToGroup + ", " + groupAttributeTableAttributeNameColumn + ", " + groupAttributeTableAttributeValueColumn;
   
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
       
-      String sql = "insert into " + groupTableName + "(" + groupTableIdColumn + ") values (?)";
+      String sql = "insert into " + groupTableName + "(" + commaSeparatedColumnNames.toString() + ") values ("+commaSeparatedQuestionMarks+")";
       // get from matchingId instead?
       Object groupUuid = targetGroup.getId();
       if (groupUuid == null) {
@@ -513,7 +523,8 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
                 
                 gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
                 GrouperUtil.assertion(!StringUtils.isBlank(provisioningObjectChange.getAttributeName()), "attribute name is null");
-                sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
+                //TODO vivek
+                //sql = "insert into " + groupAttributeTableName + "(" + commaSeparatedGroupAttributeColumnNames + ") values (?, ?, ?)";
                 gcDbAccess.sql(sql).addBindVar(groupUuid).addBindVar(provisioningObjectChange.getAttributeName())
                   // primary key cant be null so do default string
                   .addBindVar(GrouperUtil.defaultString(GrouperUtil.stringValue(provisioningObjectChange.getNewValue()))).executeSql();
@@ -553,136 +564,137 @@ public class SqlProvisioningDaoGroupsWithAttributesAsMembersLikeLdap extends Gro
   public List<ProvisioningEntity> retrieveEntities(boolean retrieveAll, List<ProvisioningEntity> grouperTargetEntities) {
     
     List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
-    
-    if (retrieveAll && grouperTargetEntities != null) {
-      throw new RuntimeException("Cant retrieve all and pass in entities to retrieve");
-    }
-    
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    
-    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
-    
-    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
-    String entityAttributeTableName = sqlProvisioningConfiguration.getEntityAttributeTableName();
-    
-    
-    if (!retrieveAll && GrouperUtil.isBlank(grouperTargetEntities)) {
-      return result;
-    }
-    
-    // join entity to attribute table
-    
-    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
-    
-    String entityAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributeTableAttributeNameColumn();
-    String entityAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributeTableAttributeValueColumn();
-    
-    String entityAttributeTableForeignKeyToEntity = sqlProvisioningConfiguration.getEntityAttributeTableForeignKeyToEntity();
-    
-    String commaSeparatedEntityColumnNames = sqlProvisioningConfiguration.getEntityAttributeNames();
-    String[] entityColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedEntityColumnNames, ",");
-  
-    String commaSeparatedEntityAttributeColumnNames = entityAttributeTableAttributeNameColumn + ", " + entityAttributeTableAttributeValueColumn;
-    String[] entityAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedEntityAttributeColumnNames, ",");
-  
-    StringBuilder sqlInitial = new StringBuilder("select ");
-    
-    for (int i=0;i<entityColumnNamesArray.length; i++) {
-      if (i>0) {
-        sqlInitial.append(", ");
-      }
-      sqlInitial.append("e.").append(entityColumnNamesArray[i]);
-    }
-    
-    for (int i=0;i<entityAttributeColumnNamesArray.length; i++) {
-      sqlInitial.append(", ");
-      sqlInitial.append("a.").append(entityAttributeColumnNamesArray[i]);
-    }
-    
-    sqlInitial.append(" from ").append(entityTableName).append(" as e left outer join ").append(entityAttributeTableName).append(" as a on e.")
-      .append(entityTableIdColumn).append(" = a.").append(entityAttributeTableForeignKeyToEntity);
-    
-    List<Object[]> groupsAndAttributeValues = null;
-    
-    if (retrieveAll) {
-      long startNanos = System.nanoTime();
-      try {
-        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-        
-        groupsAndAttributeValues = gcDbAccess.sql(sqlInitial.toString()).selectList(Object[].class);
-        retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
-            entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,
-            entityColumnNamesArray, entityAttributeColumnNamesArray,
-            groupsAndAttributeValues);
-      } finally {
-        this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
-      }
-    } else {
-    
-    
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetEntities.size(), 900);
-      for (int i = 0; i < numberOfBatches; i++) {
-        long startNanos = System.nanoTime();
-        try {
-          List<ProvisioningEntity> currentBatchGrouperTargetEntities = GrouperUtil.batchList(grouperTargetEntities, 900, i);
-          StringBuilder sql = new StringBuilder(sqlInitial);
-          
-          // use the search filter to get the entities, should only be filtering by one attribute
-          String searchAttribute = null;
-          Set<Object> values = new LinkedHashSet<Object>();
-          for (int j=0; j<currentBatchGrouperTargetEntities.size();j++) {
-            ProvisioningEntity grouperTargetEntity = currentBatchGrouperTargetEntities.get(j);
-            String searchFilter = grouperTargetEntity.getSearchFilter();
-            if (StringUtils.isBlank(searchFilter)) {
-              throw new RuntimeException("Cant find searchFilter for: " + grouperTargetEntity);
-            }
-            String attribute = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", true));
-            String value = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", false));
-            if (searchAttribute == null) {
-              searchAttribute = attribute;
-            } else {
-              if (!StringUtils.equals(attribute, searchAttribute)) {
-                throw new RuntimeException("Inconsistent search filters: " + searchAttribute + ", " + attribute);
-              }
-            }
-            if (StringUtils.isBlank(value) || StringUtils.isBlank(searchAttribute)) {
-              throw new RuntimeException("Invalid searchFilter: '" + searchFilter + "', " + grouperTargetEntity);
-            }
-            values.add(value);
-          }
-
-          //  WHERE a.entity_uuid IN (SELECT a2.entity_uuid FROM testgrouper_prov_ldap_entity_attr AS a2 WHERE a2.attribute_name = 'employeeID'
-          //      AND a2.attribute_value IN ('10007'));
-
-          sql.append(" where a.").append(entityAttributeTableForeignKeyToEntity)
-            .append(" IN (SELECT a2.").append(entityAttributeTableForeignKeyToEntity)
-            .append(" FROM ").append(entityAttributeTableName).append(" AS a2 WHERE a2.")
-            .append(entityAttributeTableAttributeNameColumn).append(" = '")
-            .append(searchAttribute)
-            .append("' and a2.").append(entityAttributeTableAttributeValueColumn).append(" IN (");
-
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-          
-          boolean first = true;
-          for (Object value : values) {
-            gcDbAccess.addBindVar(value);
-            if (!first) {
-              sql.append(",");
-            }
-            sql.append("?");
-            first = false;
-          }
-          sql.append(" ) ) ");
-          groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-          retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
-              entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,
-              entityColumnNamesArray, entityAttributeColumnNamesArray,
-              groupsAndAttributeValues);
-        } finally {
-          this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntities", startNanos));
-        }        
-      }
-    }
+    //TODO vivek
+//    if (retrieveAll && grouperTargetEntities != null) {
+//      throw new RuntimeException("Cant retrieve all and pass in entities to retrieve");
+//    }
+//    
+//    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+//    
+//    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+//    
+//    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
+//    
+//    String entityAttributeTableName = sqlProvisioningConfiguration.getEntityAttributeTableName();
+//    
+//    
+//    if (!retrieveAll && GrouperUtil.isBlank(grouperTargetEntities)) {
+//      return result;
+//    }
+//    
+//    // join entity to attribute table
+//    
+//    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+//    
+//    String entityAttributeTableAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributeTableAttributeNameColumn();
+//    String entityAttributeTableAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributeTableAttributeValueColumn();
+//    
+//    String entityAttributeTableForeignKeyToEntity = sqlProvisioningConfiguration.getEntityAttributeTableForeignKeyToEntity();
+//    
+//    String commaSeparatedEntityColumnNames = sqlProvisioningConfiguration.getEntityAttributeNames();
+//    String[] entityColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedEntityColumnNames, ",");
+//  
+//    String commaSeparatedEntityAttributeColumnNames = entityAttributeTableAttributeNameColumn + ", " + entityAttributeTableAttributeValueColumn;
+//    String[] entityAttributeColumnNamesArray = GrouperUtil.splitTrim(commaSeparatedEntityAttributeColumnNames, ",");
+//  
+//    StringBuilder sqlInitial = new StringBuilder("select ");
+//    
+//    for (int i=0;i<entityColumnNamesArray.length; i++) {
+//      if (i>0) {
+//        sqlInitial.append(", ");
+//      }
+//      sqlInitial.append("e.").append(entityColumnNamesArray[i]);
+//    }
+//    
+//    for (int i=0;i<entityAttributeColumnNamesArray.length; i++) {
+//      sqlInitial.append(", ");
+//      sqlInitial.append("a.").append(entityAttributeColumnNamesArray[i]);
+//    }
+//    
+//    sqlInitial.append(" from ").append(entityTableName).append(" as e left outer join ").append(entityAttributeTableName).append(" as a on e.")
+//      .append(entityTableIdColumn).append(" = a.").append(entityAttributeTableForeignKeyToEntity);
+//    
+//    List<Object[]> groupsAndAttributeValues = null;
+//    
+//    if (retrieveAll) {
+//      long startNanos = System.nanoTime();
+//      try {
+//        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+//        
+//        groupsAndAttributeValues = gcDbAccess.sql(sqlInitial.toString()).selectList(Object[].class);
+//        retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
+//            entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,
+//            entityColumnNamesArray, entityAttributeColumnNamesArray,
+//            groupsAndAttributeValues);
+//      } finally {
+//        this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
+//      }
+//    } else {
+//    
+//    
+//      int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetEntities.size(), 900);
+//      for (int i = 0; i < numberOfBatches; i++) {
+//        long startNanos = System.nanoTime();
+//        try {
+//          List<ProvisioningEntity> currentBatchGrouperTargetEntities = GrouperUtil.batchList(grouperTargetEntities, 900, i);
+//          StringBuilder sql = new StringBuilder(sqlInitial);
+//          
+//          // use the search filter to get the entities, should only be filtering by one attribute
+//          String searchAttribute = null;
+//          Set<Object> values = new LinkedHashSet<Object>();
+//          for (int j=0; j<currentBatchGrouperTargetEntities.size();j++) {
+//            ProvisioningEntity grouperTargetEntity = currentBatchGrouperTargetEntities.get(j);
+//            String searchFilter = grouperTargetEntity.getSearchFilter();
+//            if (StringUtils.isBlank(searchFilter)) {
+//              throw new RuntimeException("Cant find searchFilter for: " + grouperTargetEntity);
+//            }
+//            String attribute = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", true));
+//            String value = GrouperUtil.trim(GrouperUtil.prefixOrSuffix(searchFilter, "=", false));
+//            if (searchAttribute == null) {
+//              searchAttribute = attribute;
+//            } else {
+//              if (!StringUtils.equals(attribute, searchAttribute)) {
+//                throw new RuntimeException("Inconsistent search filters: " + searchAttribute + ", " + attribute);
+//              }
+//            }
+//            if (StringUtils.isBlank(value) || StringUtils.isBlank(searchAttribute)) {
+//              throw new RuntimeException("Invalid searchFilter: '" + searchFilter + "', " + grouperTargetEntity);
+//            }
+//            values.add(value);
+//          }
+//
+//          //  WHERE a.entity_uuid IN (SELECT a2.entity_uuid FROM testgrouper_prov_ldap_entity_attr AS a2 WHERE a2.attribute_name = 'employeeID'
+//          //      AND a2.attribute_value IN ('10007'));
+//
+//          sql.append(" where a.").append(entityAttributeTableForeignKeyToEntity)
+//            .append(" IN (SELECT a2.").append(entityAttributeTableForeignKeyToEntity)
+//            .append(" FROM ").append(entityAttributeTableName).append(" AS a2 WHERE a2.")
+//            .append(entityAttributeTableAttributeNameColumn).append(" = '")
+//            .append(searchAttribute)
+//            .append("' and a2.").append(entityAttributeTableAttributeValueColumn).append(" IN (");
+//
+//          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+//          
+//          boolean first = true;
+//          for (Object value : values) {
+//            gcDbAccess.addBindVar(value);
+//            if (!first) {
+//              sql.append(",");
+//            }
+//            sql.append("?");
+//            first = false;
+//          }
+//          sql.append(" ) ) ");
+//          groupsAndAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+//          retrieveEntitiesByAttributesAddRecord(result, entityTableIdColumn, entityAttributeTableAttributeNameColumn,
+//              entityAttributeTableAttributeValueColumn, commaSeparatedEntityColumnNames,
+//              entityColumnNamesArray, entityAttributeColumnNamesArray,
+//              groupsAndAttributeValues);
+//        } finally {
+//          this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntities", startNanos));
+//        }        
+//      }
+//    }
     
     return result;
   }
