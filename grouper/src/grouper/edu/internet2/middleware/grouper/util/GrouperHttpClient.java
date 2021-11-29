@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -40,6 +41,8 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -69,6 +72,18 @@ import org.apache.http.util.EntityUtils;
  */
 public class GrouperHttpClient {
  
+  public static void main(String[] args) {
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+    grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+    grouperHttpClient.assignUrl("https://grouperdemo.internet2.edu");
+    
+//    grouperHttpClient.assignProxyType(GrouperProxyType.PROXY_HTTP);    
+//    grouperHttpClient.assignProxyUrl("http://172.23.63.87:3128");
+    
+    grouperHttpClient.executeRequest();
+    System.out.println(grouperHttpClient.getResponseCode() + ", " + grouperHttpClient.getResponseBody());
+  }
+  
   /**
    * Truststore (.jks) to add dynamically to list of truststores.
    */
@@ -212,6 +227,47 @@ public class GrouperHttpClient {
 
   }
 
+  /**
+   * proxy url to proxy to (override other configuration)
+   */
+  private String proxyUrl;
+
+  /**
+   * proxy url to proxy to (override other configuration)
+   * @param proxyUrl1
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignProxyUrl(String proxyUrl1) {
+    this.proxyUrl = proxyUrl1;
+    return this;
+  }
+
+  /**
+   * proxy type to override other configuration
+   */
+  private GrouperProxyType proxyType;
+
+  /**
+   * proxy type to override other configuration
+   * @param grouperProxyType1
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignProxyType(GrouperProxyType grouperProxyType1) {
+    this.proxyType = grouperProxyType1;
+    return this;
+  }
+  
+  /**
+   * proxy type to override other configuration
+   * @param grouperProxyType1
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignProxyType(String grouperProxyTypeString) {
+    this.proxyType = GrouperProxyType.valueOfIgnoreCase(grouperProxyTypeString, false);
+    return this;
+  }
+
+  
   
   /**
    * Sets the user for basic auth.
@@ -577,9 +633,34 @@ public class GrouperHttpClient {
         } 
         );
 
-    return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+    return HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
   }
-
+  
+  /**
+   * how many times to retry for a non fatal error on idempotent requests
+   */
+  private int retries = 0;
+  
+  /**
+   * how many times to retry for a non fatal error on idempotent requests
+   * @param theRetries
+   * @return retries
+   */
+  public GrouperHttpClient assignRetries(int theRetries) {
+    this.retries = theRetries;
+    return this;
+  }
+  
+  /**
+   * timeout millis defaults to one hour
+   */
+  private int timeoutMillis = 1000*60*60;
+  
+  public GrouperHttpClient assignTimeoutMillies(int theTimeoutMillies) {
+    this.timeoutMillis = theTimeoutMillies;
+    return this;
+  }
+  
   /**
    * <pre>Execute a post with the given parameters, set teh code and the response into the call.
    * @param grouperHttpCall is the configuration object.
@@ -596,6 +677,9 @@ public class GrouperHttpClient {
     // Get an http client.
     CloseableHttpClient closeableHttpClient;
 
+    // retries
+    // .setRetryHandler(new DefaultHttpRequestRetryHandler(10, false))
+    // .disableAutomaticRetries();
 
     // See if we trust all.
     if (this.trust){
@@ -612,7 +696,7 @@ public class GrouperHttpClient {
       try {
         builder.loadTrustMaterial(null, trustStrategy);
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        closeableHttpClient = HttpClients.custom().setSSLSocketFactory(sslsf).useSystemProperties().build();
+        closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
       } catch (Exception e) {
         throw new RuntimeException(e);
       } 
@@ -624,10 +708,9 @@ public class GrouperHttpClient {
         throw new RuntimeException("Error getting custom truststore ClosableHttpClient", e);
       }
     } else {
-      closeableHttpClient = HttpClients.createSystem();
+      closeableHttpClient = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).useSystemProperties().build();
     }
-
-
+    
     HttpRequestBase httpRequestBase = null;
 
     try{
@@ -665,9 +748,6 @@ public class GrouperHttpClient {
         String authenticationString = basicAuthenticationString(this.user, this.password); 
         httpRequestBase.addHeader("Authorization", authenticationString);
       }
-
-
-
 
       // Add the params
       if (this.bodyParameters != null && this.bodyParameters.size() > 0){
@@ -737,16 +817,19 @@ public class GrouperHttpClient {
         }
       }
 
-      RequestConfig config = RequestConfig.custom()
-        .setConnectionRequestTimeout(1000*60*60)
-        .setConnectTimeout(1000*60*60)
-        .setSocketTimeout(1000*60*60).build();
-      httpRequestBase.setConfig(config);
-      //HttpHost proxy = new HttpHost("127.0.0.1", 8080, "http");
-      //RequestConfig config = RequestConfig.custom()
-      //    .setProxy(proxy)
-      //    .build();
-      //httpRequestBase.setConfig(config);
+      RequestConfig.Builder config = RequestConfig.custom()
+        .setConnectionRequestTimeout(this.timeoutMillis)
+        .setConnectTimeout(this.timeoutMillis)
+        .setSocketTimeout(this.timeoutMillis);
+      
+      GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(this.proxyType, this.proxyUrl, this.url);
+
+      if (grouperProxyBean != null) {
+        HttpHost proxy = new HttpHost(grouperProxyBean.getHostname(), grouperProxyBean.getPort(), grouperProxyBean.getScheme());
+        config.setProxy(proxy);
+      }
+      httpRequestBase.setConfig(config.build());
+
       // Execute the method.
       CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
       int responseCode = closeableHttpResponse.getStatusLine().getStatusCode();

@@ -25,16 +25,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -45,6 +35,8 @@ import org.quartz.JobExecutionException;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -383,52 +375,53 @@ public class MessageConsumerDaemon implements Job {
    */
   private WsResponse callWebService(String jsonInput, String url, String configName) throws Exception {
       
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
 
-      PostMethod method = new PostMethod(url);
-
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      
       GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
       
       String username = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.username");
       String password = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.password");
       if (StringUtils.isNotBlank(password)) {        
         password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
-        Credentials credentials = new UsernamePasswordCredentials(username, password);
-        httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+        grouperHttpClient.assignUser(username);
+        grouperHttpClient.assignPassword(password);
       }
       
+      String proxyUrl = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.proxyUrl");
+      String proxyType = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".ws.proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       String actAsSubjectSourceId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectSourceId");
       String actAsSubjectId = grouperLoaderConfig.propertyValueString("grouper.messaging."+configName+".actAsSubjectId");
       
-      method.setRequestHeader("X-Grouper-actAsSourceId", actAsSubjectSourceId);
-      method.setRequestHeader("X-Grouper-actAsSubjectId", actAsSubjectId);
+      grouperHttpClient.addHeader("X-Grouper-actAsSourceId", actAsSubjectSourceId);
+      grouperHttpClient.addHeader("X-Grouper-actAsSubjectId", actAsSubjectId);
       
-      method.setRequestHeader("Connection", "close");
+      grouperHttpClient.addHeader("Connection", "close");
       
-      
+      grouperHttpClient.assignBody(jsonInput);
 
-      method.setRequestEntity(new StringRequestEntity(jsonInput, "text/x-json", "UTF-8"));
+      grouperHttpClient.addHeader("Content-type", "text/x-json; charset=UTF-8");
+
+      grouperHttpClient.executeRequest();
       
-      httpClient.executeMethod(method);
-      
-      String response = method.getResponseBodyAsString();
+      String response = grouperHttpClient.getResponseBody();
       
       WsResponse wsResponse = new WsResponse();
       wsResponse.setBody(response);
-      wsResponse.setHttpStatusCode(method.getStatusCode());
+      wsResponse.setHttpStatusCode(grouperHttpClient.getResponseCode());
       //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      String successString = grouperHttpClient.getResponseHeaders().get("X-Grouper-success");
       wsResponse.setSuccess(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      String resultCode = grouperHttpClient.getResponseHeaders().get("X-Grouper-resultCode");
       wsResponse.setResultCode(resultCode);
       
-      String resultCode2 = method.getResponseHeader("X-Grouper-resultCode2").getValue();
+      String resultCode2 = grouperHttpClient.getResponseHeaders().get("X-Grouper-resultCode2");
       wsResponse.setResultCode2(resultCode2);
       
       return wsResponse;

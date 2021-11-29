@@ -233,6 +233,12 @@ public class GrouperDuoApiCommands {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     
+    String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector." + configId + ".proxyUrl");
+    String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector." + configId + ".proxyType");
+    
+    grouperHttpCall.assignProxyUrl(proxyUrl);
+    grouperHttpCall.assignProxyType(proxyType);
+
     String url = null;
     
     boolean useSsl = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.duoConnector."+configId+".useSsl", true);

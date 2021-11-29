@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.remedy;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -16,22 +15,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PutMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.Protocol;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ExceptionUtils;
 import edu.internet2.middleware.morphString.Crypto;
 
@@ -212,44 +202,6 @@ public class GrouperRemedyCommands {
 
 
   /**
-   * http client
-   * @param debugMap
-   * @return the http client
-   */
-  @SuppressWarnings({ "deprecation", "unchecked" })
-  private static HttpClient httpClient(Map<String, Object> debugMap) {
-    
-    //see if invalid SSL
-    String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.https.customSocketFactory");
-    
-    //is there overhead here?  should only do this once?
-    //perhaps give a custom factory
-    if (!GrouperClientUtils.isBlank(httpsSocketFactoryName)) {
-      Class<? extends SecureProtocolSocketFactory> httpsSocketFactoryClass = GrouperClientUtils.forName(httpsSocketFactoryName);
-      SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
-      Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
-      Protocol.registerProtocol("https", easyhttps);
-    }
-    
-    HttpClient httpClient = new HttpClient();
-
-    DefaultHttpParams.getDefaultParams().setParameter(
-        HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
-
-    int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
-        "grouperClient.webService.httpSocketTimeoutMillis");
-    
-    httpClient.getParams().setSoTimeout(soTimeoutMillis);
-    httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
-    
-    int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
-        "grouperClient.webService.httpConnectionManagerTimeoutMillis");
-    
-    httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
-    return httpClient;
-  }
-
-  /**
    * execute a GET method
    * @param debugMap
    * @param path
@@ -258,25 +210,34 @@ public class GrouperRemedyCommands {
    */
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
 
-    HttpClient httpClient = httpClient(debugMap);
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
-    String jwtToken = retrieveJwtToken(debugMap, httpClient);
+    String jwtToken = retrieveJwtToken(debugMap);
 
     String fullUrl = calculateUrl(path, paramMap);
-    GetMethod getMethod = new GetMethod(fullUrl);
+    grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+    grouperHttpClient.assignUrl(fullUrl);
     
-    getMethod.addRequestHeader("authorization", "AR-JWT " + jwtToken);
+    grouperHttpClient.addHeader("authorization", "AR-JWT " + jwtToken);
     
+    String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyUrl");
+    String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
     int responseCodeInt = -1;
     String body = null;
     long startTime = System.nanoTime();
     try {
-      responseCodeInt = httpClient.executeMethod(getMethod);
+      grouperHttpClient.executeRequest();
+      
+      responseCodeInt = grouperHttpClient.getResponseCode();
       
       try {
-        body = getMethod.getResponseBodyAsString();
+        body = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
-        debugMap.put("getResponseAsStringException", ExceptionUtils.getStackTrace(e));
+        debugMap.put("getResponseBodyException", ExceptionUtils.getStackTrace(e));
       }
       
     } catch (Exception e) {
@@ -306,10 +267,10 @@ public class GrouperRemedyCommands {
   /**
    * get the login token
    * @param debugMap
-   * @param httpClient
+   * @param grouperHttpClient
    * @return the login token
    */
-  private static String retrieveJwtToken(Map<String, Object> debugMap, HttpClient httpClient) {
+  private static String retrieveJwtToken(Map<String, Object> debugMap) {
     
     String jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
 
@@ -341,24 +302,34 @@ public class GrouperRemedyCommands {
           
           String loginUrl = url + "/api/jwt/login";
           
+          GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+          
           //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
           //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-          PostMethod postMethod = new PostMethod(loginUrl);
+          grouperHttpClient.assignUrl(loginUrl);
+          grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       
           //no keep alive so response is easier to indent for tests
-          postMethod.setRequestHeader("Connection", "close");
+          grouperHttpClient.addHeader("Connection", "close");
           
-          postMethod.addParameter("username", username);
-          postMethod.addParameter("password", wsPass);
+          grouperHttpClient.addBodyParameter("username", username);
+          grouperHttpClient.addBodyParameter("password", wsPass);
+          
+          String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyUrl");
+          String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyType");
+          
+          grouperHttpClient.assignProxyUrl(proxyUrl);
+          grouperHttpClient.assignProxyType(proxyType);
           
           int responseCodeInt = -1;
       
           long startTime = System.nanoTime();
           try {
-            responseCodeInt = httpClient.executeMethod(postMethod);
+            grouperHttpClient.executeRequest();
+            responseCodeInt = grouperHttpClient.getResponseCode();
             
             try {
-              jwtToken = postMethod.getResponseBodyAsString();
+              jwtToken = grouperHttpClient.getResponseBody();
             } catch (Exception e) {
               debugMap.put("authnGetResponseAsStringException", ExceptionUtils.getStackTrace(e));
             }
@@ -911,35 +882,44 @@ public class GrouperRemedyCommands {
    */
   private static JsonNode executePutPostMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
   
-    HttpClient httpClient = httpClient(debugMap);
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
   
-    String jwtToken = retrieveJwtToken(debugMap, httpClient);
+    String jwtToken = retrieveJwtToken(debugMap);
   
     String fullUrl = calculateUrl(path, paramMap);
-    EntityEnclosingMethod putPostMethod = isPutNotPost ? new PutMethod(fullUrl) : new PostMethod(fullUrl);
+    
+    if (isPutNotPost) {
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.put);
+    } else {
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+    }
+    grouperHttpClient.assignUrl(fullUrl);
     
     debugMap.put(isPutNotPost ? "put" : "post", true);
     debugMap.put("requestBody", requestBody);
-    putPostMethod.addRequestHeader("authorization", "AR-JWT " + jwtToken);
+    grouperHttpClient.addHeader("authorization", "AR-JWT " + jwtToken);
     
     if (!GrouperClientUtils.isBlank(requestBody)) {
-      String contentType = "application/json";
-      String charset = "utf-8";
-      try {
-        putPostMethod.setRequestEntity(new StringRequestEntity(requestBody, contentType, charset));
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(contentType + ", " + charset, e);
-      }
+      grouperHttpClient.addHeader("Content-type", "application/json");
+      grouperHttpClient.assignBody(requestBody);
     }
     
+    String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyUrl");
+    String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("remedyGrouperClient.webService.proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
     int responseCodeInt = -1;
     String responseBody = null;
     long startTime = System.nanoTime();
     try {
-      responseCodeInt = httpClient.executeMethod(putPostMethod);
+      grouperHttpClient.executeRequest();
+      
+      responseCodeInt = grouperHttpClient.getResponseCode();
       
       try {
-        responseBody = putPostMethod.getResponseBodyAsString();
+        responseBody = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         debugMap.put("getResponseAsStringException", ExceptionUtils.getStackTrace(e));
       }

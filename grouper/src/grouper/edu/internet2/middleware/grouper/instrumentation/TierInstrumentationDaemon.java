@@ -16,23 +16,15 @@
 package edu.internet2.middleware.grouper.instrumentation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -40,6 +32,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -187,15 +181,26 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     String dataJson = GrouperUtil.jsonConvertTo(data, false);
     //System.out.println(dataJson);
     
-    HttpClient httpClient = new HttpClient();
-    httpClient.getParams().setSoTimeout(60000);
-    httpClient.getParams().setParameter("http.connection.timeout", 60000);
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     String collectorUrl = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob.tierInstrumentationDaemon.collectorUrl");
     
-    PostMethod method = new PostMethod(collectorUrl);
-    method.setRequestEntity(new StringRequestEntity(dataJson, "application/json", "UTF-8"));
-    int collectorReturnCode = httpClient.executeMethod(method);
-    String collectorBody = IOUtils.toString(method.getResponseBodyAsStream());
+    grouperHttpClient.assignUrl(collectorUrl);
+    
+    grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+    
+    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.proxyUrl");
+    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
+    
+    grouperHttpClient.addHeader("Content-type", "application/json");
+
+    grouperHttpClient.assignBody(dataJson);
+    grouperHttpClient.executeRequest();
+    int collectorReturnCode = grouperHttpClient.getResponseCode();
+    String collectorBody = grouperHttpClient.getResponseBody();
 
     if (collectorReturnCode == 200 || collectorReturnCode == 201) {
       // we're good
@@ -407,7 +412,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
   private static void sendToTier(Map<String, Object> data) throws HttpException, IOException {
     String dataJson = GrouperUtil.jsonConvertTo(data, false);
     
-    HttpClient httpClient = new HttpClient();
+    GrouperHttpClient httpClient = new GrouperHttpClient();
     String discoveryUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.discoveryUrl", "https://id.internet2.edu/ti/jrd/collector");
     GetMethod discoveryMethod = new GetMethod(discoveryUrl);
     int discoveryReturnCode = httpClient.executeMethod(discoveryMethod);

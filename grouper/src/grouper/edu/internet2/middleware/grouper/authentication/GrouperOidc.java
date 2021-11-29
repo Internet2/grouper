@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperOidc {
@@ -170,6 +169,10 @@ public class GrouperOidc {
     grouperHttpClient.assignUrl(this.grouperOidcConfig.getUserInfoUri());
     grouperHttpClient.addBodyParameter("access_token", this.accessToken);
     grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+    
+    grouperHttpClient.assignProxyUrl(this.grouperOidcConfig.getProxyUrl());
+    grouperHttpClient.assignProxyType(this.grouperOidcConfig.getProxyType());
+    
     grouperHttpClient.executeRequest();
 
     String responseBody = grouperHttpClient.getResponseBody();

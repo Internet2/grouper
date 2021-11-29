@@ -41,6 +41,7 @@ public class AllUtilTests {
     suite.addTestSuite(GrouperEmailTest.class);
     suite.addTestSuite(XmlIndenterTest.class);
     suite.addTestSuite(JsonIndenterTest.class);
+    suite.addTestSuite(GrouperProxyBeanTest.class);
     suite.addTestSuite(GrouperUtilElSafeTest.class);
     suite.addTestSuite(GrouperThreadLocalStateTest.class);
     //$JUnit-END$

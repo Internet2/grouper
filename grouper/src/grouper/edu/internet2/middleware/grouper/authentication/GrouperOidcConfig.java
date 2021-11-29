@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.authentication;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperProxyType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
@@ -123,8 +124,51 @@ public class GrouperOidcConfig {
   /**
    */
   private String scope = null;
+  
+  /**
+   * proxy requests here, e.g. https://server:1234
+   */
+  private String proxyUrl;
+  
+  
+  /**
+   * proxy requests here, e.g. https://server:1234
+   * @return
+   */
+  public String getProxyUrl() {
+    return proxyUrl;
+  }
+
+  /**
+   * proxy requests here, e.g. https://server:1234
+   * @param proxyUrl1
+   */
+  public void setProxyUrl(String proxyUrl1) {
+    this.proxyUrl = proxyUrl1;
+  }
+
+  /**
+   * socks or http
+   */
+  private GrouperProxyType proxyType;
 
   
+  /**
+   * socks or http
+   * @return
+   */
+  public GrouperProxyType getProxyType() {
+    return proxyType;
+  }
+
+  /**
+   * socks or http
+   * @param proxyType
+   */
+  public void setProxyType(GrouperProxyType proxyType) {
+    this.proxyType = proxyType;
+  }
+
   public String getScope() {
     return scope;
   }
@@ -198,7 +242,8 @@ public class GrouperOidcConfig {
     //  grouper.oidc.configId.subjectIdClaimName =
     grouperOidcConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + configId + ".subjectIdClaimName");
     
-    
+    grouperOidcConfig.proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".proxyUrl");
+    grouperOidcConfig.proxyType = GrouperProxyType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".proxyType"), false);    
     
     return grouperOidcConfig;
   }

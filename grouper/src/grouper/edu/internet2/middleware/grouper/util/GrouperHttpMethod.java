@@ -20,6 +20,11 @@ public enum GrouperHttpMethod{
 		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpPost(url);
 		}
+
+    @Override
+    public boolean supportsRequestBody() {
+      return true;
+    }
 	},
 	
 	/**
@@ -30,6 +35,11 @@ public enum GrouperHttpMethod{
 		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpPut(url);
 		}
+
+    @Override
+    public boolean supportsRequestBody() {
+      return true;
+    }
 	},
 	
 	/**
@@ -40,6 +50,11 @@ public enum GrouperHttpMethod{
 		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpDelete(url);
 		}
+
+    @Override
+    public boolean supportsRequestBody() {
+      return false;
+    }
 	},
 	
 	 /**
@@ -49,6 +64,11 @@ public enum GrouperHttpMethod{
     @Override
     public HttpRequestBase newHttpMethod(String url) {
       return new HttpPatch(url);
+    }
+
+    @Override
+    public boolean supportsRequestBody() {
+      return true;
     }
   },
   
@@ -60,8 +80,15 @@ public enum GrouperHttpMethod{
 		public HttpRequestBase newHttpMethod(String url) {
 			return new HttpGet(url);
 		}
+
+    @Override
+    public boolean supportsRequestBody() {
+      return false;
+    }
 	};
 	
+  public abstract boolean supportsRequestBody();
+  
 	/**
 	 * Constructor.
 	 * @param url is the url to call.

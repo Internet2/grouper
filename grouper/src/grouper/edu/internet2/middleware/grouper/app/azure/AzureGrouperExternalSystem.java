@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -135,32 +135,40 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
     }
     try {
       // we need to get another one
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       String loginEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".loginEndpoint");
       String directoryId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".tenantId");
       final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + directoryId + "/oauth2/token";
-      PostMethod postMethod = new PostMethod(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+      grouperHttpClient.assignUrl(url);
+
+      String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".proxyType");
       
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".clientId");
-      postMethod.addParameter("client_id", clientId);
+      grouperHttpClient.addBodyParameter("client_id", clientId);
   
       String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".clientSecret");
       clientSecret = Morph.decryptIfFile(clientSecret);
-      postMethod.addParameter("client_secret", clientSecret);
+      grouperHttpClient.addBodyParameter("client_secret", clientSecret);
   
-      postMethod.addParameter("grant_type", "client_credentials");
+      grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
   
       String resource = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".resource");
-      postMethod.addParameter("resource", resource);
+      grouperHttpClient.addBodyParameter("resource", resource);
   
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = postMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }

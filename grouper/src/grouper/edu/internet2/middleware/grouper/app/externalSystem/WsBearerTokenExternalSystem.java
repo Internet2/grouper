@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
@@ -102,21 +100,24 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       String testUrlResponseBodyRegex = config.propertyValueString(configPrefix + "testUrlResponseBodyRegex");
       
       // we need to get another one
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       final String url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
-      // this will change the method of the request
-      HttpMethodBase httpMethod = new PostMethod(url) {
-        @Override public String getName() { return testHttpMethod; }
-      };
+      grouperHttpClient.assignGrouperHttpMethod(testHttpMethod);
+      grouperHttpClient.addHeader("Authorization", "Bearer " + accessTokenPassword);
       
-      httpMethod.addRequestHeader("Authorization", "Bearer " + accessTokenPassword);
+      String proxyUrl = config.propertyValueString(configPrefix + "proxyUrl");
+      String proxyType = config.propertyValueString(configPrefix + "proxyType");
       
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       int code = -1;
       String response = null;
 
       try {
-        code = httpClient.executeMethod(httpMethod);
-        response = httpMethod.getResponseBodyAsString();
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
+        response = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         ret.add("Error connecting to '" + url + "' " + GrouperUtil.getFullStackTrace(e));
       }

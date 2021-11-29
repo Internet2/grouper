@@ -170,6 +170,14 @@ public class GrouperAzureApiCommands {
 
     grouperHttpCall.assignUrl(url);
     grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
+    
+    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
+    
+    grouperHttpCall.assignProxyUrl(proxyUrl);
+    grouperHttpCall.assignProxyType(proxyType);
+
+    
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);

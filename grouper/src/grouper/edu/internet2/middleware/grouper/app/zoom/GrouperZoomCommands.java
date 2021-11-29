@@ -15,15 +15,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -31,11 +22,14 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -270,7 +264,7 @@ public class GrouperZoomCommands {
   }
   
   private static String endpoint(String configId) {
-    String endpoint = GrouperConfig.retrieveConfig().propertyValueString("zoom." + configId + ".endpoint", "https://api.zoom.us/v2");
+    String endpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".endpoint", "https://api.zoom.us/v2");
     if (!endpoint.endsWith("/")) {
       endpoint+= "/";
     }
@@ -304,20 +298,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "users/" + email;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -347,6 +343,17 @@ public class GrouperZoomCommands {
       }
     }
     
+  }
+
+  private static GrouperHttpClient grouperHttpClient(String configId) {
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".proxyUrl");
+    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
+    return grouperHttpClient;
   }
 
   /**
@@ -493,20 +500,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "roles";
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -662,22 +671,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "groups/" + groupId + "/members?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -770,30 +779,33 @@ public class GrouperZoomCommands {
       String url = endpoint + "groups";
       debugMap.put("url", url);
 
-      PostMethod postMethod = new PostMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
   
-      postMethod.addRequestHeader("Content-Type", "application/json");
-      postMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       //  {
       //    "name": "myawesomegroup"
       //  }
-
+    
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("name", name);
       String jsonRequest = jsonObject.toString();
-      
-      postMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
-      
+      grouperHttpClient.assignBody(jsonRequest);        
+
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = postMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
+
+      
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -859,11 +871,12 @@ public class GrouperZoomCommands {
       url += "/" + groupId + "/members";
       debugMap.put("url", url);
   
-      PostMethod postMethod = new PostMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      postMethod.addRequestHeader("Content-Type", "application/json");
-      postMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       //  {
       //    "members": [
@@ -882,13 +895,16 @@ public class GrouperZoomCommands {
       jsonObject.put("members", jsonArray);
       String jsonRequest = jsonObject.toString();
       
-      postMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      grouperHttpClient.assignBody(jsonRequest);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
+        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
       } catch (Exception e) {
@@ -941,16 +957,18 @@ public class GrouperZoomCommands {
       String url = endpoint + "groups/" + groupId;
       debugMap.put("url", url);
   
-      DeleteMethod deleteMethod = new DeleteMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.delete);
   
-      deleteMethod.addRequestHeader("Content-Type", "application/json");
-      deleteMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
   
       try {
-        code = httpClient.executeMethod(deleteMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
       } catch (Exception e) {
@@ -1008,17 +1026,19 @@ public class GrouperZoomCommands {
       url += "/" + memberId;
       debugMap.put("url", url);
   
-      DeleteMethod deleteMethod = new DeleteMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.delete);
   
-      deleteMethod.addRequestHeader("Content-Type", "application/json");
-      deleteMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(deleteMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
       } catch (Exception e) {
@@ -1068,13 +1088,14 @@ public class GrouperZoomCommands {
       debugMap.put("configId", configId);
       String url = endpoint + "users";
       debugMap.put("url", url);
+
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
   
-      PostMethod postMethod = new PostMethod(url);
-      HttpClient httpClient = new HttpClient();
-  
-      postMethod.addRequestHeader("Content-Type", "application/json");
-      postMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+            
       //  {
       //    "name": "myawesomegroup"
       //  }
@@ -1090,16 +1111,17 @@ public class GrouperZoomCommands {
       
       String jsonRequest = jsonObject.toString();
       
-      postMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      grouperHttpClient.assignBody(jsonRequest);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = postMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -1232,22 +1254,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "roles/" + roleId + "/members?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -1356,22 +1378,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "users?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -1471,20 +1493,22 @@ public class GrouperZoomCommands {
       String url = endpoint + "groups";
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -1564,20 +1588,23 @@ public class GrouperZoomCommands {
       String url = endpoint + "users/" + userIdOrEmail + "?action=delete";
       debugMap.put("url", url);
 
-      DeleteMethod deleteMethod = new DeleteMethod(url);
-      HttpClient httpClient = new HttpClient();
-
-      deleteMethod.addRequestHeader("Content-Type", "application/json");
-      deleteMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.delete);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
+
       if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUserDeletesInsteadOfDeleting", false)) {
         
         debugMap.put("logUserDeletesInsteadOfDeleting", true);
 
       } else {
         try {
-          code = httpClient.executeMethod(deleteMethod);
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
           // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
           
         } catch (Exception e) {
@@ -1628,12 +1655,13 @@ public class GrouperZoomCommands {
       url += "/" + roleId + "/members";
       debugMap.put("url", url);
   
-      PostMethod postMethod = new PostMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
   
-      postMethod.addRequestHeader("Content-Type", "application/json");
-      postMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+            
       //  {
       //    "members": [
       //      {
@@ -1650,13 +1678,14 @@ public class GrouperZoomCommands {
       jsonObject.put("members", jsonArray);
       String jsonRequest = jsonObject.toString();
       
-      postMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      grouperHttpClient.assignBody(jsonRequest);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
       } catch (Exception e) {
@@ -1714,18 +1743,21 @@ public class GrouperZoomCommands {
       url += "/" + memberId;
       debugMap.put("url", url);
   
-      DeleteMethod deleteMethod = new DeleteMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.delete);
   
-      deleteMethod.addRequestHeader("Content-Type", "application/json");
-      deleteMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(deleteMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        
         
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
@@ -1775,11 +1807,12 @@ public class GrouperZoomCommands {
       url += "/" + email + "/status";
       debugMap.put("url", url);
   
-      PutMethod putMethod = new PutMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.put);
   
-      putMethod.addRequestHeader("Content-Type", "application/json");
-      putMethod.addRequestHeader("Authorization", "Bearer " + jwt);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       //  {
       //    "action": "activate"
@@ -1789,7 +1822,7 @@ public class GrouperZoomCommands {
       jsonObject.put("action", activate ? "activate" : "deactivate");
       String jsonRequest = jsonObject.toString();
       
-      putMethod.setRequestEntity(new StringRequestEntity(jsonRequest, "application/json", "UTF-8"));
+      grouperHttpClient.assignBody(jsonRequest);
       
       int code = -1;
       if (!activate && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUserDeactivatesInsteadOfDeactivating", false)) {
@@ -1799,7 +1832,8 @@ public class GrouperZoomCommands {
       } else {
 
         try {
-          code = httpClient.executeMethod(putMethod);
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
           // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
           
         } catch (Exception e) {
@@ -1855,21 +1889,21 @@ public class GrouperZoomCommands {
       String url = endpoint + "accounts?page_size=" + pageSize;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -2032,21 +2066,21 @@ public class GrouperZoomCommands {
       String url = endpoint + "accounts/" + subaccountId + "/users?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + jwt);
-      
-      
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
       
       int code = -1;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }

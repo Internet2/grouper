@@ -26,6 +26,8 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperProxyBean;
+import edu.internet2.middleware.grouper.util.GrouperProxyType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -216,7 +218,7 @@ public class GrouperSftp {
       grouperSftpSession.setPassword(password);
       debugMap.put("password?", StringUtils.isBlank(password) ? "<none>" : "yes");
 
-      final FileSystemOptions fileSystemOptions = createDefaultOptions(debugMap, configId, privateKeyFilePath, passphrase, knownHostsFile);
+      final FileSystemOptions fileSystemOptions = createDefaultOptions(debugMap, configId, privateKeyFilePath, passphrase, knownHostsFile, host);
       grouperSftpSession.setFileSystemOptions(fileSystemOptions);
       
       return grouperSftpCallback.callback(grouperSftpSession);
@@ -266,7 +268,8 @@ public class GrouperSftp {
    * @param knownHostsFile
    * @return the file system options
    */
-  private static FileSystemOptions createDefaultOptions(Map<String, Object> debugMap, String configId, final String keyPath, final String passPhrase, File knownHostsFile) {
+  private static FileSystemOptions createDefaultOptions(Map<String, Object> debugMap, String configId, 
+      final String keyPath, final String passPhrase, File knownHostsFile, String host) {
 
     //create options for sftp
     FileSystemOptions options = new FileSystemOptions();
@@ -286,25 +289,29 @@ public class GrouperSftp {
         
       }
     }
-        
-    if (!StringUtils.isBlank(proxyHost)) {
-      SftpFileSystemConfigBuilder.getInstance().setProxyHost(options, proxyHost);
-      SftpFileSystemConfigBuilder.getInstance().setProxyPort(options, proxyPort);
-      switch (proxyType) {
-        case "PROXY_HTTP":
+    
+    String proxyUrl = GrouperProxyBean.proxyUrl(proxyType, proxyHost, proxyPort);
+    GrouperProxyType grouperProxyType = GrouperProxyType.valueOfIgnoreCase(proxyType, false);
+    GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(grouperProxyType, proxyUrl, "sftp://" + host);
+
+    if (grouperProxyBean != null) {
+      SftpFileSystemConfigBuilder.getInstance().setProxyHost(options, grouperProxyBean.getHostname());
+      SftpFileSystemConfigBuilder.getInstance().setProxyPort(options, grouperProxyBean.getPort());
+      switch (grouperProxyType) {
+        case PROXY_HTTP:
             SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_HTTP);
             break;
-        case "PROXY_SOCKS5":
+        case PROXY_SOCKS5:
             SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_SOCKS5);
             break;
-        case "PROXY_STREAM":
+        case PROXY_STREAM:
             SftpFileSystemConfigBuilder.getInstance().setProxyType(options, SftpFileSystemConfigBuilder.PROXY_STREAM);
             break;
         default:
             throw new RuntimeException("Invalid proxyType: '" + proxyType + "'");
       }
-    }     
-        
+    }
+
     //ssh key
     try {
       SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(options, "yes");

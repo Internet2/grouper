@@ -10,13 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -24,13 +17,17 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -78,32 +75,40 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
     }
     try {
       // we need to get another one
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       String loginEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".loginEndpoint");
       String directoryId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".DirectoryID");
       final String url = loginEndpoint + "/" + directoryId + "/oauth2/token";
-      PostMethod postMethod = new PostMethod(url);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
       
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       String clientId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".client_id");
-      postMethod.addParameter("client_id", clientId);
+      grouperHttpClient.addBodyParameter("client_id", clientId);
   
       String clientSecret = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".client_secret");
       clientSecret = Morph.decryptIfFile(clientSecret);
-      postMethod.addParameter("client_secret", clientSecret);
+      grouperHttpClient.addBodyParameter("client_secret", clientSecret);
   
-      postMethod.addParameter("grant_type", "client_credentials");
+      grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
   
       String resource = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".resource");
-      postMethod.addParameter("resource", resource);
+      grouperHttpClient.addBodyParameter("resource", resource);
   
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(postMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = postMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -184,20 +189,28 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
       this.debugMapPut("azureMemUrl", url);
       
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + bearerToken);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
       
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -315,20 +328,28 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
       this.debugMapPut("azureMemUrl", url);
       
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + bearerToken);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
       
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -460,20 +481,28 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
       this.debugMapPut("azureMemUrl", url);
       
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + bearerToken);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
       
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -660,20 +689,28 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
       this.debugMapPut("azureGroupUrl", url);
 
-      GetMethod getMethod = new GetMethod(url);
-      HttpClient httpClient = new HttpClient();
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
   
-      getMethod.addRequestHeader("Content-Type", "application/json");
-      getMethod.addRequestHeader("Authorization", "Bearer " + bearerToken);
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
       
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+
       int code = -1;
       String json = null;
   
       try {
-        code = httpClient.executeMethod(getMethod);
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
-        json = getMethod.getResponseBodyAsString();
+        json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -792,9 +829,9 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
 //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/2462cf6a-15c2-4ef3-84ed-3d1e65b60e6d/memberOf");
 //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
 //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu");
-//    getMethod.addRequestHeader("Content-Type", "application/json");
-////    getMethod.addRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6***********ho9LhQ");
-//    getMethod.addRequestHeader("Authorization", "Bearer " + accessToken);
+//    grouperHttpClient.addHeader("Content-Type", "application/json");
+////    grouperHttpClient.addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6***********ho9LhQ");
+//    grouperHttpClient.addHeader("Authorization", "Bearer " + accessToken);
 //    code = httpClient.executeMethod(getMethod);
 //
 //    System.out.println(code + ", " + getMethod.getResponseBodyAsString());

@@ -7,14 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -26,6 +18,8 @@ import edu.internet2.middleware.grouper.app.azure.GrouperAzureLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -332,7 +326,7 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      executeMethod(debugMap, "PATCH", configId, "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
+      executeMethod(debugMap, GrouperHttpMethod.patch, configId, "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
 
     } catch (RuntimeException re) {
@@ -344,41 +338,16 @@ public class GrouperScim2ApiCommands {
 
   }
 
-  
   /**
    * 
    * @param debugMap
    * @param configId
    * @param urlSuffix
+   * @param grouperHttpMethod is GET, POST, DELETE, PUT
    * @return
    */
-  private static GetMethod httpGetMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix, String acceptHeader) {
-    return (GetMethod) httpMethod(debugMap, configId, urlSuffix, "GET", acceptHeader);
-  }
-
-  /**
-   * 
-   * @param debugMap
-   * @param configId
-   * @param urlSuffix
-   * @return
-   */
-  private static PostMethod httpPostMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix, String acceptHeader) {
-    return (PostMethod) httpMethod(debugMap, configId, urlSuffix, "POST", acceptHeader);
-  }
-
-  /**
-   * 
-   * @param debugMap
-   * @param configId
-   * @param urlSuffix
-   * @param httpMethodName is GET, POST, DELETE, PUT
-   * @return
-   */
-  private static HttpMethodBase httpMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix, String httpMethodName, String acceptHeader) {
+  private static GrouperHttpClient httpMethod(Map<String, Object> debugMap, String configId,
+      String urlSuffix, GrouperHttpMethod grouperHttpMethod, String acceptHeader) {
     String endpoint = GrouperLoaderConfig.retrieveConfig()
         .propertyValueStringRequired(
             "grouper.wsBearerToken." + configId + ".endpoint");
@@ -395,67 +364,56 @@ public class GrouperScim2ApiCommands {
     }
     debugMap.put("url", url);
 
-    HttpMethodBase method = null;
-    if (StringUtils.equals("GET", httpMethodName)) {
-      method = new GetMethod(url);
-    } else if (StringUtils.equals("POST", httpMethodName)) {
-      method = new PostMethod(url);
-    } else if (StringUtils.equals("DELETE", httpMethodName)) {
-      method = new DeleteMethod(url);
-    } else if (StringUtils.equals("PUT", httpMethodName)) {
-      method = new PutMethod(url);
-    } else if (StringUtils.equals("PATCH", httpMethodName)) {
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+    grouperHttpClient.assignUrl(url);
+    grouperHttpClient.assignGrouperHttpMethod(grouperHttpMethod);
 
-      method = new PostMethod(url) {
-        @Override public String getName() { return "PATCH"; }
-      };
-    } else {
-      throw new RuntimeException("Not expecting type: '" + httpMethodName + "'");
-    }
-    method.addRequestHeader("Authorization", "Bearer " + bearerToken);
+    grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
     if (StringUtils.isNotBlank(acceptHeader)) {
-      method.addRequestHeader("Accept", acceptHeader);
+      grouperHttpClient.addHeader("Accept", acceptHeader);
     }
-    return method;
+    
+    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".proxyUrl");
+    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
+    return grouperHttpClient;
   }
 
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix, String acceptHeader) {
 
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
+    return executeMethod(debugMap, GrouperHttpMethod.get, configId, urlSuffix,
         GrouperUtil.toSet(200, 404), new int[] { -1 }, null, acceptHeader);
 
   }
 
   private static JsonNode executeMethod(Map<String, Object> debugMap,
-      String httpMethodName, String configId,
+      GrouperHttpMethod httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, String acceptHeader) {
 
     int code = -1;
     String json = null;
 
-    HttpMethodBase httpMethod = httpMethod(debugMap, configId, urlSuffix, httpMethodName, acceptHeader);
-
-    HttpClient httpClient = new HttpClient();
+    GrouperHttpClient grouperHttpClient = httpMethod(debugMap, configId, urlSuffix, httpMethodName, acceptHeader);
 
     if (!StringUtils.isBlank(body)) {
-      if (httpMethod instanceof EntityEnclosingMethod) {
-        try {
-          StringRequestEntity entity = new StringRequestEntity(body, "application/json",
-              "UTF-8");
-          ((EntityEnclosingMethod) httpMethod).setRequestEntity(entity);
-        } catch (Exception e) {
-          throw new RuntimeException("error", e);
-        }
+      if (httpMethodName.supportsRequestBody()) {
+        grouperHttpClient.addHeader("Content-type", "application/json");
+        grouperHttpClient.assignBody(body);
       } else {
         throw new RuntimeException("Cant attach a body if in method: " + httpMethodName);
       }
     }
 
     try {
-      code = httpClient.executeMethod(httpMethod);
+      grouperHttpClient.executeRequest();
+      
+      code = grouperHttpClient.getResponseCode();
       returnCode[0] = code;
-      json = httpMethod.getResponseBodyAsString();
+      json = grouperHttpClient.getResponseBody();
 
       if (!allowedReturnCodes.contains(code)) {
         throw new RuntimeException(
@@ -497,7 +455,7 @@ public class GrouperScim2ApiCommands {
       JsonNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/Users",
+      JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Users",
           GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, acceptHeader);
 
       GrouperScim2User grouperScimUserResult = GrouperScim2User.fromJson(jsonNode);
@@ -601,7 +559,7 @@ public class GrouperScim2ApiCommands {
       int startIndex = 1;
       do {
         
-        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Users?startIndex="+startIndex+"&count="+50,
+        JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users?startIndex="+startIndex+"&count="+50,
             GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
@@ -654,7 +612,7 @@ public class GrouperScim2ApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/Users/" + GrouperUtil.escapeUrlEncode(userId),
+      executeMethod(debugMap, GrouperHttpMethod.delete, configId, "/Users/" + GrouperUtil.escapeUrlEncode(userId),
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null, acceptHeader);
   
     } catch (RuntimeException re) {
@@ -685,7 +643,7 @@ public class GrouperScim2ApiCommands {
       JsonNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/Groups",
+      JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Groups",
           GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, acceptHeader);
   
       GrouperScim2Group grouperScimGroupResult = GrouperScim2Group.fromJson(jsonNode);
@@ -715,7 +673,7 @@ public class GrouperScim2ApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+      executeMethod(debugMap, GrouperHttpMethod.delete, configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null, acceptHeader);
   
     } catch (RuntimeException re) {
@@ -855,7 +813,7 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
-      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+      executeMethod(debugMap, GrouperHttpMethod.patch, configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
@@ -964,7 +922,7 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
-      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+      executeMethod(debugMap, GrouperHttpMethod.patch, configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
@@ -1041,7 +999,7 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
   
-      executeMethod(debugMap, "PATCH", configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
+      executeMethod(debugMap, GrouperHttpMethod.patch, configId, "/Groups/" + GrouperUtil.escapeUrlEncode(groupId),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
     
     } catch (RuntimeException re) {
@@ -1070,7 +1028,7 @@ public class GrouperScim2ApiCommands {
     
     try {
   
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/Groups",
+      JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Groups",
           GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
   
       int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
