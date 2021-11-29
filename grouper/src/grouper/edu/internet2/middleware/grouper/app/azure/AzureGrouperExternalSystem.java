@@ -142,8 +142,8 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
 
-      String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".proxyUrl");
-      String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".proxyType");
+      String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".proxyType");
       
       grouperHttpClient.assignProxyUrl(proxyUrl);
       grouperHttpClient.assignProxyType(proxyType);
