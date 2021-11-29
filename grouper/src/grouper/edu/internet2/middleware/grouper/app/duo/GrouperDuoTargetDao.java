@@ -58,7 +58,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
   public boolean loggingStart() {
-    return GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(DuoMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(DuoMockServiceHandler.doNotLogParameters));
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
   }
 
   @Override

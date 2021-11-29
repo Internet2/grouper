@@ -55,7 +55,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
   @Override
   public boolean loggingStart() {
-    return GrouperHttpClient.logStart(new GrouperHttpClientLog().assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters));
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
   }
 
   @Override

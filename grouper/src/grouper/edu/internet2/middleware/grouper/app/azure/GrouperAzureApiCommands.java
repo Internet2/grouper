@@ -151,6 +151,8 @@ public class GrouperAzureApiCommands {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     
+    grouperHttpCall.assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters);
+
     String bearerToken = AzureGrouperExternalSystem
         .retrieveBearerTokenForAzureConfigId(debugMap, configId);
     String graphEndpoint = GrouperLoaderConfig.retrieveConfig()

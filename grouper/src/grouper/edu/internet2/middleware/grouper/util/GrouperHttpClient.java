@@ -12,7 +12,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -84,6 +86,69 @@ public class GrouperHttpClient {
     System.out.println(grouperHttpClient.getResponseCode() + ", " + grouperHttpClient.getResponseBody());
   }
   
+
+  /**
+   * 
+   */
+  private Set<String> doNotLogParameters = new HashSet<String>();
+
+  /**
+   * 
+   */
+  private Set<String> doNotLogHeaders = new HashSet<String>();
+
+  /**
+   * if response body contains sensitive info and shouldnt be logged
+   */
+  private boolean doNotLogResponseBody = false;
+
+  /**
+   * if response body contains sensitive info and shouldnt be logged
+   * @param theDoNotLogResponseBody
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignDoNotLogResponseBody(boolean theDoNotLogResponseBody) {
+    this.doNotLogResponseBody = theDoNotLogResponseBody;
+    return this;
+  }
+  
+  public GrouperHttpClient assignDoNotLogParameters(String paramsCommaSeparated) {
+    this.doNotLogParameters = GrouperUtil.nonNull(GrouperUtil.toSet(GrouperUtil.splitTrim(paramsCommaSeparated, ",")));
+    return this;
+  }
+  
+  public GrouperHttpClient assignDoNotLogHeaders(String headersCommaSeparated) {
+    this.doNotLogHeaders = GrouperUtil.nonNull(GrouperUtil.toSet(GrouperUtil.splitTrim(headersCommaSeparated, ",")));
+    return this;
+  }
+  public GrouperHttpClient assignDoNotLogParameters(Set<String> params) {
+    this.doNotLogParameters = GrouperUtil.nonNull(params);
+    return this;
+  }
+  
+  public GrouperHttpClient assignDoNotLogHeaders(Set<String> headers) {
+    this.doNotLogHeaders = GrouperUtil.nonNull(headers);
+    return this;
+  }
+
+
+  
+  public Set<String> getDoNotLogParameters() {
+    return doNotLogParameters;
+  }
+
+  
+  public Set<String> getDoNotLogHeaders() {
+    return doNotLogHeaders;
+  }
+
+
+  
+  public boolean isDoNotLogResponseBody() {
+    return doNotLogResponseBody;
+  }
+
+
   /**
    * Truststore (.jks) to add dynamically to list of truststores.
    */
@@ -893,17 +958,17 @@ public class GrouperHttpClient {
           
           StringBuilder theLog = grouperHttpCallLog.getLog();
           theLog.append("HTTP method: ").append(this.grouperHttpMethod).append("\n");
-          if (!grouperHttpCallLog.getDoNotLogHeaders().contains("URL") && !grouperHttpCallLog.getDoNotLogHeaders().contains("*")) {
+          if (!this.getDoNotLogHeaders().contains("URL") && !this.getDoNotLogHeaders().contains("*")) {
             theLog.append("HTTP URL: ").append(this.url).append("\n");
           }
-          if (!StringUtils.isBlank(this.user) && !grouperHttpCallLog.getDoNotLogHeaders().contains("user") && !grouperHttpCallLog.getDoNotLogHeaders().contains("*")) {
+          if (!StringUtils.isBlank(this.user) && !this.getDoNotLogHeaders().contains("user") && !this.getDoNotLogHeaders().contains("*")) {
             theLog.append("HTTP user: ").append(this.user).append("\n");
           }          
           for (String key: GrouperUtil.nonNull(this.headers).keySet()) {
             theLog.append("HTTP request header: ").append(key).append(": ");
             if (!StringUtils.equalsIgnoreCase("Authorization", key)
-                && !grouperHttpCallLog.getDoNotLogHeaders().contains(key)
-                && !grouperHttpCallLog.getDoNotLogHeaders().contains("*")) {
+                && !this.getDoNotLogHeaders().contains(key)
+                && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.headers.get(key));
             } else {
               theLog.append("*******");
@@ -914,15 +979,15 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.responseHeaders).keySet()) {
             theLog.append("HTTP response header: ").append(key).append(": ");
             if (!key.toLowerCase().contains("cookie")
-                && !grouperHttpCallLog.getDoNotLogHeaders().contains(key)
-                && !grouperHttpCallLog.getDoNotLogHeaders().contains("*")) {
+                && !this.getDoNotLogHeaders().contains(key)
+                && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.responseHeaders.get(key));
             } else {
               theLog.append("*******");
             }
             theLog.append("\n");
           }
-          if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0) {
+          if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
             theLog.append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 3000)).append("\n");
           }
           if (this.responseFile != null) {

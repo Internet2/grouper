@@ -233,6 +233,8 @@ public class GrouperDuoApiCommands {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     
+    grouperHttpCall.assignDoNotLogHeaders(DuoMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(DuoMockServiceHandler.doNotLogParameters);
+    
     String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector." + configId + ".proxyUrl");
     String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector." + configId + ".proxyType");
     

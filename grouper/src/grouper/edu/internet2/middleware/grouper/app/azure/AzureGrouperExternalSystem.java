@@ -136,6 +136,12 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
     try {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      
+      boolean logAuthenticationResponseBody = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.azureConnector." + configId + ".logAuthenticationResponseBody", false);
+      if (!logAuthenticationResponseBody) {
+        grouperHttpClient.assignDoNotLogResponseBody(true);
+      }
+      
       String loginEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".loginEndpoint");
       String directoryId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".tenantId");
       final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + directoryId + "/oauth2/token";
