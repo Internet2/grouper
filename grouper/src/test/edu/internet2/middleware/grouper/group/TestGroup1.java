@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.group;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -116,30 +117,57 @@ public class TestGroup1 extends GrouperTest {
   public void testReplaceMembers() {
     LOG.info("testReplaceMembers");
     try {
-      R registry = R.populateRegistry(1, 1, 0);
-      Group group = registry.getGroup("a", "a");
+      R registry = R.populateRegistry(1, 2, 0);
+      Group groupA = registry.getGroup("a", "a");
+      Group groupB = registry.getGroup("a", "b");
 
       //group has no members, lets replace with some
-      Set<Subject> subjects = GrouperUtil.toSet(SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
+      List<Subject> subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
       
-      assertEquals(2, group.replaceMembers(subjects));
-      assertEquals(2, group.getMembers().size());
+      assertEquals(2, groupA.replaceMembers(subjects));
+      assertEquals(2, groupA.getMembers().size());
       
-      assertTrue(group.hasMember(SubjectTestHelper.SUBJ0));
-      assertTrue(group.hasMember(SubjectTestHelper.SUBJ1));
+      assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ1));
       
-      subjects = GrouperUtil.toSet(SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ2);
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ2);
       
-      assertEquals(2, group.replaceMembers(subjects));
-      assertEquals(2, group.getMembers().size());
+      assertEquals(2, groupA.replaceMembers(subjects));
+      assertEquals(2, groupA.getMembers().size());
       
-      assertTrue(group.hasMember(SubjectTestHelper.SUBJ1));
-      assertTrue(group.hasMember(SubjectTestHelper.SUBJ2));
-      
+      assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ1));
+      assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ2));
+      assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
+
       //lets blank it out
-      assertEquals(2, group.replaceMembers(null));
-      assertEquals(0, group.getMembers().size());
-      
+      assertEquals(2, groupA.replaceMembers(null));
+      assertEquals(0, groupA.getMembers().size());
+
+      //replace a group with its constituent members
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ4);
+      groupB.replaceMembers(subjects);
+      groupA.replaceMembers(null);
+      groupA.addMember(groupB.toSubject());
+
+      assertEquals(1, groupA.getImmediateMembers().size());
+      assertEquals(2, groupA.getEffectiveMembers().size());
+
+      assertEquals(3, groupA.replaceMembers(subjects));
+      assertEquals(2, groupA.getImmediateMembers().size());
+      assertEquals(0, groupA.getEffectiveMembers().size());
+      assertTrue(groupA.hasImmediateMember(SubjectTestHelper.SUBJ4));
+      assertTrue(groupA.hasImmediateMember(SubjectTestHelper.SUBJ3));
+      assertFalse(groupA.hasImmediateMember(groupB.toSubject()));
+
+      //now reverse; replace immediate members with a group containing the same members
+      subjects = GrouperUtil.toList(groupB.toSubject());
+      assertEquals(3, groupA.replaceMembers(subjects));
+      assertEquals(1, groupA.getImmediateMembers().size());
+      assertEquals(2, groupA.getEffectiveMembers().size());
+      assertFalse(groupA.hasImmediateMember(SubjectTestHelper.SUBJ4));
+      assertFalse(groupA.hasImmediateMember(SubjectTestHelper.SUBJ3));
+      assertTrue(groupA.hasImmediateMember(groupB.toSubject()));
+
       registry.rs.stop();
     }
     catch (Exception e) {
@@ -147,7 +175,6 @@ public class TestGroup1 extends GrouperTest {
     }
   } // public void testReplaceMembers()
 
-  
   public void testDeleteGroupMemberWithNonGroupMember() {
     LOG.info("testDeleteGroupMemberWithNonGroupMember");
     try {
@@ -1135,9 +1162,13 @@ public class TestGroup1 extends GrouperTest {
 
   /**
    * run the logic of the test
-   * @param printResults
+   * @param session
+   * @param rootStem
+   * @param timeResults
+   * @param monitorLabel
+   * @throws Exception
    */
-  private static void runPerfProblem2Helper(GrouperSession session, Stem rootStem, 
+  private static void runPerfProblem2Helper(GrouperSession session, Stem rootStem,
       boolean timeResults, String monitorLabel) throws Exception {
     Monitor mon = null;
     if (timeResults) {

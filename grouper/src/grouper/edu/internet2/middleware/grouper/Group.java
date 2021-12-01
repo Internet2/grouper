@@ -57,6 +57,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -194,7 +195,6 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -1148,105 +1148,61 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     infoMap.put("groupName", this.getName());
     
     try {
-      Set<Member> existingMembers = GrouperUtil.nonNull(this.getMembers(field));
-      
+      Set<Member> existingMembers = GrouperUtil.nonNull(this.getImmediateMembers(field));
+
       infoMap.put("existingMemberListSize", GrouperUtil.length(existingMembers));
       infoMap.put("newMemberListSize", GrouperUtil.length(newSubjectList));
-      
-      //multikey is the sourceId to the subjectId
-      Map<MultiKey, Member> existingMemberMap = new HashMap<MultiKey, Member>();
-      
+
+      Set<Subject> existingSubjects = existingMembers.stream().map(Member::getSubject).collect(Collectors.toSet());
+      Set<Subject> subjectsToAdd = GrouperUtil.nonNull(newSubjectList).stream().collect(Collectors.toSet());
+
+      subjectsToAdd.removeAll(existingSubjects);
+      Set<Subject> subjectsToRemove = new HashSet<>(existingSubjects);
+      subjectsToRemove.removeAll(GrouperUtil.nonNull(newSubjectList));
+
       int changedRecords = 0;
-      
-      //register all the existing subjects
-      for (Member member : existingMembers) {
-        
-        MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
-        
-        existingMemberMap.put(multiKey, member);
-        
-      }
-  
-      //lets clone this since we will tear it down
-      Map<MultiKey, Subject> newMemberMap = new HashMap<MultiKey, Subject>();
-      
-      //lets see which ones are there already
-      for (Subject subject : GrouperUtil.nonNull(newSubjectList)) {
-        
-        MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
-        
-        newMemberMap.put(multiKey, subject);
-        
-      }
-      
-      //lets remove from both the ones from both lists that already exist
-      Iterator<MultiKey> newMemberListIterator = newMemberMap.keySet().iterator();
-      
-      while (newMemberListIterator.hasNext()) {
-        
-        MultiKey newMemberMultiKey = newMemberListIterator.next();
-        
-        if (existingMemberMap.containsKey(newMemberMultiKey)) {
-          newMemberListIterator.remove();
-          existingMemberMap.remove(newMemberMultiKey);
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Replace members on " + this.getName() + ": Subject " 
-                + newMemberMultiKey.getKey(0) + " - " + newMemberMultiKey.getKey(1) + " already is in the list");
-          }
-        }
-      }
-  
       int addedMemberCount = 0;
-      
-      //now the new list is the adds, and the existing list is the removes...
-      //lets do that adds
-      for (MultiKey newMemberMultiKey : newMemberMap.keySet()) {
-        
-        Subject newSubject = newMemberMap.get(newMemberMultiKey);
-        
+      int deletedMemberCount = 0;
+
+      for (Subject newSubject: subjectsToAdd) {
         this.addMember(newSubject, field, true);
-        
+
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Replace members on " + this.getName() + ": Subject " 
-              + newMemberMultiKey.getKey(0) + " - " + newMemberMultiKey.getKey(1) + " is added");
+          LOG.debug("Replace members on " + this.getName() + ": Subject "
+                  + newSubject.getSourceId() + " - " + newSubject.getId() + " is added");
         }
-  
+
         changedRecords++;
         addedMemberCount++;
       }
 
       infoMap.put("addedMemberCount", addedMemberCount);
-      
-      int deletedMemberCount = 0;
-      //now lets do the removes
-      for (MultiKey removeMultiKey : existingMemberMap.keySet()) {
-        
-        Member removeMember = existingMemberMap.get(removeMultiKey);
-        
+
+      for (Subject removeMember: subjectsToRemove) {
         this.deleteMember(removeMember, field, true);
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Replace members on " + this.getName() + ": Subject " 
-              + removeMultiKey.getKey(0) + " - " + removeMultiKey.getKey(1) + " already is removed");
+          LOG.debug("Replace members on " + this.getName() + ": Subject "
+                  + removeMember.getSourceId() + " - " + removeMember.getId() + " is removed");
         }
 
         changedRecords++;
         deletedMemberCount++;
       }
-      
+
       infoMap.put("deletedMemberCount", deletedMemberCount);
       infoMap.put("changedRecords", changedRecords);
-      
+
       if (LOG.isInfoEnabled()) {
         LOG.info(GrouperUtil.mapToString(infoMap));
       }
-      
+
       return changedRecords;
     } catch (RuntimeException re) {
-      
+
       LOG.error(GrouperUtil.mapToString(infoMap));
       throw re;
-      
+
     }
   }
 
