@@ -1348,6 +1348,10 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.entitySearchAllFilter = userSearchAllFilter;
   }
   
+  protected Class<? extends GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributeClass() {
+    return GrouperProvisioningConfigurationAttribute.class;
+  }  
+  
   
   @Override
   public String toString() {
@@ -1831,8 +1835,9 @@ public abstract class GrouperProvisioningConfigurationBase {
       
       for (int i=0; i< 20; i++) {
   
-        GrouperProvisioningConfigurationAttribute attributeConfig = new GrouperProvisioningConfigurationAttribute();
-  
+        
+        GrouperProvisioningConfigurationAttribute attributeConfig = GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
         attributeConfig.setConfigIndex(i);
         
         if (StringUtils.equals("targetGroupAttribute", objectType)) {

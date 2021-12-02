@@ -930,6 +930,25 @@ public class GrouperRequestContainer {
     return this.authenticationContainer;
   }
   
+  
+  /**
+   * container for global attribute resolver configuration
+   */
+  private GlobalAttributeResolverConfigContainer globalAttributeResolverConfigContainer;
+  
+  /**
+   * container for global attribute resolver configuration
+   * @return the container
+   */
+  public GlobalAttributeResolverConfigContainer getGlobalAttributeResolverConfigContainer() {
+    
+    if (this.globalAttributeResolverConfigContainer == null) {
+      this.globalAttributeResolverConfigContainer = new GlobalAttributeResolverConfigContainer();
+    }
+    
+    return this.globalAttributeResolverConfigContainer;
+  }
+  
   /**
    * container for oidc config
    */
